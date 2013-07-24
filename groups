@@ -2,4 +2,6 @@
 #
 1cb4398890f06904e126df1ed321e30f74251d49	Non-interactive bgpcep users
 2373512464abcee3eaf50f265c4a4e428dab634e	Administrators
+global:Anonymous-Users                  	Anonymous Users
+global:Registered-Users                 	Registered Users
 ldap:cn=gerrit-bgpcep-commiters,ou=Groups,dc=opendaylight,dc=org	ldap/gerrit-bgpcep-commiters
