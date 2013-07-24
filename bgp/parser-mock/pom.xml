@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>org.opendaylight.protocol</groupId>
+		<artifactId>bgp-parent</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>bgp-parser-mock</artifactId>
+	<description>BGP Parser Mock Implementation</description>
+	<packaging>bundle</packaging>
+	<name>${project.artifactId}</name>
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-parser-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concepts</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-parser-impl</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>${maven.bundle.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+						<Export-Package>
+							org.opendaylight.protocol.bgp.parser.mock
+						</Export-Package>
+						<Import-Package>
+							org.opendaylight.protocol.bgp.parser,
+							org.opendaylight.protocol.framework,
+							org.opendaylight.protocol.concepts
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<site>
+			<id>${project.artifactId}</id>
+			<name>BGP-PARSER-MOCK Module site</name>
+			<url>${basedir}/target/site/${project.artifactId}</url>
+		</site>
+	</distributionManagement>
+
+</project>

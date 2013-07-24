@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>org.opendaylight.protocol</groupId>
+		<artifactId>protocol-parent</artifactId>
+		<version>0.1</version>
+	</parent>
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>bgp-parent</artifactId>
+	<description>BGP-related components</description>
+	<packaging>pom</packaging>
+	<version>1.0</version>
+	<name>${project.artifactId}</name>
+	
+	<modules>
+		<module>concepts</module>
+		<module>linkstate</module>
+        <module>parser-api</module>
+        <module>parser-impl</module>
+        <module>parser-mock</module>
+        <module>rib-api</module>
+        <module>rib-impl</module>
+        <module>testtool</module>
+        <module>rib-mock</module>
+        <module>util</module>
+    </modules>
+</project>

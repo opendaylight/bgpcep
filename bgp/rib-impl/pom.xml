@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>org.opendaylight.protocol</groupId>
+		<artifactId>bgp-parent</artifactId>
+		<version>1.0</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>bgp-rib-impl</artifactId>
+	<description>BGP RIB implementation</description>
+	<packaging>bundle</packaging>
+	<name>${project.artifactId}</name>
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concepts</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-linkstate</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-rib-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-util</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mockito-configuration</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-parser-impl</artifactId>
+			<version>1.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>${maven.bundle.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            org.opendaylight.protocol.concepts,
+                            org.opendaylight.protocol.framework,
+							com.google.common.base,
+                            com.google.common.collect,
+                            com.google.common.eventbus,
+                            javax.annotation,
+                            javax.management,
+                            org.opendaylight.protocol.bgp.concepts,
+                            org.opendaylight.protocol.bgp.linkstate,
+                            org.opendaylight.protocol.bgp.parser,
+                            org.opendaylight.protocol.bgp.parser.impl,
+                            org.opendaylight.protocol.bgp.parser.message,
+                            org.opendaylight.protocol.bgp.parser.parameter,
+                            org.opendaylight.protocol.bgp.rib,
+                            org.opendaylight.protocol.bgp.util,
+                            org.opendaylight.protocol.util,
+							org.slf4j,
+						</Import-Package>
+						<Export-Package>
+							org.opendaylight.protocol.bgp.rib.impl
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${checkstyle.version}</version>
+				<configuration>
+					<configLocation>build/checkstyle/checkstyle-checker-api.xml</configLocation>
+					<outputDirectory>${basedir}/target/checkstyle/report</outputDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<distributionManagement>
+		<site>
+			<id>${project.artifactId}</id>
+			<name>BGP-RIB-IMPL Module site</name>
+			<url>${basedir}/target/site/${project.artifactId}</url>
+		</site>
+	</distributionManagement>
+
+</project>

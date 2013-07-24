@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.pcep.impl;
+
+import org.opendaylight.protocol.framework.ProtocolConnection;
+import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.protocol.framework.SessionParent;
+import org.opendaylight.protocol.pcep.PCEPConnection;
+import org.opendaylight.protocol.pcep.PCEPSessionFactory;
+
+import java.util.Timer;
+
+public class PCEPSessionFactoryImpl implements PCEPSessionFactory {
+
+	private final int maxUnknownMessages;
+
+	public PCEPSessionFactoryImpl(final int maxUnknownMessages) {
+		this.maxUnknownMessages = maxUnknownMessages;
+	}
+
+	@Override
+	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer,
+			final ProtocolConnection connection, final int sessionId) {
+		 return new PCEPSessionImpl(parent, timer, (PCEPConnection)connection, new PCEPMessageFactory(),
+				 this.maxUnknownMessages, sessionId);
+	}
+}

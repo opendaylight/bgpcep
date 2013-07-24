@@ -1,0 +1,7 @@
+
+About ${project.artifactId}
+
+---
+${project.description} 
+Project main site.
+---
