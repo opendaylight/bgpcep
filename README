@@ -1,0 +1,38 @@
+DIRECTORY ORGANIZATION
+======================
+
+build:
+	configuration of build-time components, such as checkstyle plugin.
+
+src/site:
+	maven site plugin templates
+
+mockito-configuration:
+	default configuration of mockito framework
+
+concepts:
+	Common networking concepts, shared between the protocols
+
+util:
+	Common utility classes
+
+framework:
+	Legacy NIO-based protocol framework, to be replaced by Netty
+
+bgp:
+	BGP-related artifacts
+
+pcep:
+	PCEP-related artifacts
+
+
+HOW TO BUILD
+============
+In order to build it's required to have JDK 1.7+ and Maven 3+, to get
+a build going it's needed to:
+
+1) Go in the root directory and run
+   "mvn clean install"
+
+2) After successful completion, look for org.opendaylight.bgpcep artifacts
+   in your local maven repository.
