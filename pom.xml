@@ -14,7 +14,6 @@
 		<java.version.source>1.7</java.version.source>
 		<java.version.target>1.7</java.version.target>
 		<commons.io.version>2.4</commons.io.version>
-		<checkstyle.version>2.9.1</checkstyle.version>
 		<pmd.version>2.7.1</pmd.version>
 		<dependency.version>2.8</dependency.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,11 +67,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.9.1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>${pmd.version}</version>
 			</plugin>
@@ -109,15 +103,6 @@
 					<target>${java.version.target}</target>
 					<testSource>${java.version.source}</testSource>
 					<testTarget>${java.version.target}</testTarget>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<configLocation>build/checkstyle/checkstyle-checker.xml</configLocation>
-					<outputDirectory>${basedir}/target/checkstyle/report</outputDirectory>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -71,15 +71,6 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
-				<configuration>
-					<configLocation>build/checkstyle/checkstyle-checker-api.xml</configLocation>
-					<outputDirectory>${basedir}/target/checkstyle/report</outputDirectory>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<executions>

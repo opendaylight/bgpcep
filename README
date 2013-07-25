@@ -1,9 +1,6 @@
 DIRECTORY ORGANIZATION
 ======================
 
-build:
-	configuration of build-time components, such as checkstyle plugin.
-
 src/site:
 	maven site plugin templates
 
