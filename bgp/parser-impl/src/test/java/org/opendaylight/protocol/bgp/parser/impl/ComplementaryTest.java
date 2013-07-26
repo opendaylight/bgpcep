@@ -23,20 +23,6 @@ import org.opendaylight.protocol.bgp.concepts.Inet4SpecificExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.OpaqueExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.RouteOriginCommunity;
 import org.opendaylight.protocol.bgp.concepts.RouteTargetCommunity;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.BGPAggregatorImpl;
-import org.opendaylight.protocol.bgp.parser.impl.BGPLinkMP;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
-import org.opendaylight.protocol.bgp.parser.impl.ByteList;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
-
-import org.opendaylight.protocol.concepts.ASNumber;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.ISISLANIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.ISISRouterIdentifier;
@@ -46,6 +32,17 @@ import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
+import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.concepts.IPv4;
+import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
+import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.framework.DocumentedException;
+
 import com.google.common.collect.Sets;
 
 public class ComplementaryTest {
@@ -192,6 +189,21 @@ public class ComplementaryTest {
 	}
 
 	@Test
+	public void testBGPHeaderParser() throws IOException {
+		final BGPMessageFactory h = new BGPMessageFactory();
+		try {
+			h.parse(new byte[] { (byte) 0, (byte) 0 });
+			fail("Exception should have occured.");
+		} catch (final IllegalArgumentException e) {
+			assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
+		} catch (final DeserializerException e) {
+			fail("Not this exception should have occured:" + e);
+		} catch (final DocumentedException e) {
+			fail("Not this exception should have occured:" + e);
+		}
+	}
+
+	@Test
 	public void testByteList() {
 		final ByteList b1 = new ByteList();
 		b1.add(new byte[] { 3, 4, 8 });
@@ -214,7 +226,6 @@ public class ComplementaryTest {
 		} catch (final IllegalArgumentException e) {
 			ex = e.getMessage();
 		}
-		parser.close();
 		assertEquals("BGPMessage is mandatory.", ex);
 	}
 }

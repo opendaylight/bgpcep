@@ -7,17 +7,20 @@
  */
 package org.opendaylight.protocol.framework;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.Timer;
 
 public final class SimpleSessionFactory implements ProtocolSessionFactory {
 	private final int maximumMessageSize;
 
-	public SimpleSessionFactory(int maximumMessageSize) {
+	public SimpleSessionFactory(final int maximumMessageSize) {
 		this.maximumMessageSize = maximumMessageSize;
 	}
 
 	@Override
-	public ProtocolSession getProtocolSession(SessionParent parent, Timer timer, ProtocolConnection connection, int sessionId) {
-		return new SimpleSession(connection, parent, maximumMessageSize);
+	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
+			final int sessionId, final ChannelHandlerContext ctx) {
+		return new SimpleSession(connection, parent, this.maximumMessageSize);
 	}
 }

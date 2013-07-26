@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
@@ -17,7 +19,6 @@ import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -28,16 +29,16 @@ import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
-import org.opendaylight.protocol.framework.ProtocolOutputStream;
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.protocol.framework.ProtocolSessionOutboundHandler;
 import org.opendaylight.protocol.framework.SessionParent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Sets;
 
 class BGPSessionImpl implements BGPSession, ProtocolSession {
@@ -118,8 +119,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	 */
 	private BGPSessionPreferences remoteOpen = null;
 
-	private final ProtocolOutputStream outputStream;
-
 	/**
 	 * Timer object grouping FSM Timers
 	 */
@@ -127,26 +126,31 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	private final SessionParent parent;
 
-	private final BGPMessageParser parser;
+	private final ProtocolMessageFactory parser;
 
 	private final BGPSessionProposalChecker checker;
 
 	private final BGPSynchronization sync;
 
+	private final ProtocolSessionOutboundHandler handler;
+
 	private int kaCounter = 0;
 
+	private final ChannelHandlerContext ctx;
+
 	BGPSessionImpl(final SessionParent parent, final Timer timer, final BGPConnection connection, final int sessionId,
-			final BGPMessageParser parser) {
+			final ProtocolMessageFactory parser, final ChannelHandlerContext ctx) {
 		this.state = State.IDLE;
 		this.listener = connection.getListener();
 		this.sessionId = sessionId;
 		this.localOpen = connection.getProposal();
-		this.outputStream = new ProtocolOutputStream();
 		this.stateTimer = timer;
 		this.parent = parent;
 		this.parser = parser;
+		this.ctx = ctx;
 		this.checker = connection.getProposalChecker();
 		this.sync = new BGPSynchronization(this.listener);
+		this.handler = new ProtocolSessionOutboundHandler(this);
 	}
 
 	@Override
@@ -165,11 +169,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 		this.sendMessage(new BGPOpenMessage(this.localOpen.getMyAs(), (short) this.localOpen.getHoldTime(), this.localOpen.getBgpId(), this.localOpen.getParams()));
 		this.stateTimer.schedule(new HoldTimer(this), DEFAULT_HOLD_TIMER_VALUE * 1000);
 		this.changeState(State.OPEN_SENT);
-	}
-
-	@Override
-	public ProtocolOutputStream getStream() {
-		return this.outputStream;
 	}
 
 	/**
@@ -237,10 +236,13 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	}
 
 	void sendMessage(final BGPMessage msg) {
-		this.outputStream.putMessage(msg, this.parser);
-		this.lastMessageSentAt = System.nanoTime();
-		logger.debug("Sent message: " + msg);
-		this.parent.checkOutputBuffer(this);
+		try {
+			this.handler.writeDown(this.ctx, msg);
+			this.lastMessageSentAt = System.nanoTime();
+			logger.debug("Sent message: " + msg);
+		} catch (final Exception e) {
+			logger.warn("Message {} was not sent.", msg, e);
+		}
 	}
 
 	private void closeWithoutMessage() {
@@ -414,8 +416,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 		builder.append(this.localOpen);
 		builder.append(", remoteOpen=");
 		builder.append(this.remoteOpen);
-		builder.append(", outputStream=");
-		builder.append(this.outputStream);
 		builder.append("]");
 		return builder.toString();
 	}

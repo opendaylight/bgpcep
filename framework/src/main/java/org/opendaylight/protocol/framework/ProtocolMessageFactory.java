@@ -8,26 +8,26 @@
 package org.opendaylight.protocol.framework;
 
 /**
- * Interface for factory for parsing and serializing protocol specific
- * messages. Needs to be implemented by a protocol specific message
- * factory. The methods put/parse should delegate parsing to specific
- * message parsers, e.g. OpenMessageParser etc.
+ * Interface for factory for parsing and serializing protocol specific messages. Needs to be implemented by a protocol
+ * specific message factory. The methods put/parse should delegate parsing to specific message parsers, e.g.
+ * OpenMessageParser etc.
  */
 public interface ProtocolMessageFactory {
 
 	/**
-	 * Parses message from byte array. Requires specific protocol message
-	 * header object to parse the header.
+	 * Parses message from byte array. Requires specific protocol message header object to parse the header.
+	 * 
 	 * @param bytes byte array from which the message will be parsed
 	 * @param msgHeader protocol specific message header to parse the header
 	 * @return specific protocol message
 	 * @throws DeserializerException if some parsing error occurs
 	 * @throws DocumentedException if some documented error occurs
 	 */
-	public ProtocolMessage parse(final byte[] bytes, final ProtocolMessageHeader msgHeader) throws DeserializerException, DocumentedException;
+	public ProtocolMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException;
 
 	/**
 	 * Serializes protocol specific message to byte array.
+	 * 
 	 * @param msg message to be serialized.
 	 * @return byte array resulting message
 	 */

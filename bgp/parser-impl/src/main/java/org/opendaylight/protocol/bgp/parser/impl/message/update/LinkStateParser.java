@@ -15,18 +15,51 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.NextHop;
+import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
+import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.DomainIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.ExtendedRouteTag;
+import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv4RouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv6InterfaceIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv6RouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.ISISLANIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.ISISNetworkPrefixState;
+import org.opendaylight.protocol.bgp.linkstate.ISISRouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.InterfaceIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.LinkAnchor;
+import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
+import org.opendaylight.protocol.bgp.linkstate.MPLSProtocol;
+import org.opendaylight.protocol.bgp.linkstate.NetworkLinkImpl;
+import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkNodeImpl;
+import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
+import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.OSPFInterfaceIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.OSPFNetworkPrefixState;
+import org.opendaylight.protocol.bgp.linkstate.OSPFPrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.OSPFRouteType;
+import org.opendaylight.protocol.bgp.linkstate.OSPFRouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.OSPFv3LANIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.RouteTag;
+import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
+import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
+import org.opendaylight.protocol.bgp.linkstate.UnnumberedLinkIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.BGPLinkMP;
 import org.opendaylight.protocol.bgp.parser.impl.BGPNodeMP;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IGPMetric;
@@ -40,43 +73,10 @@ import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.concepts.TEMetric;
-import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
-import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.DomainIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ExtendedRouteTag;
-import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv4RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv6InterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv6RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISLANIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISRouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.InterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.LinkAnchor;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
-import org.opendaylight.protocol.bgp.linkstate.MPLSProtocol;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.OSPFInterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.OSPFPrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.OSPFRouteType;
-import org.opendaylight.protocol.bgp.linkstate.OSPFRouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.OSPFv3LANIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.RouteTag;
-import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
-import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
-import org.opendaylight.protocol.bgp.linkstate.UnnumberedLinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISNetworkPrefixState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
-import org.opendaylight.protocol.bgp.linkstate.OSPFNetworkPrefixState;
-import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NetworkLinkImpl;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNodeImpl;
+import org.opendaylight.protocol.util.ByteArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -498,7 +498,7 @@ public class LinkStateParser {
 
 		final Set<SharedRiskLinkGroup> sharedRiskLinkGroups = Sets.newHashSet();
 		final Set<MPLSProtocol> enabledMPLSProtocols = Sets.newHashSet();
-		final NetworkLinkImpl link = new NetworkLinkImpl(linkId);
+		NetworkLinkState state = NetworkLinkState.EMPTY;
 
 		// FIXME: we should put these somewhere
 		final Set<RouterIdentifier> localIds = Sets.newHashSet();
@@ -532,16 +532,16 @@ public class LinkStateParser {
 					logger.trace("Parsed IPv6 Router-ID of remote node: {}", ripv6);
 					break;
 				case 1088:
-					link.setAdministrativeGroup(new AdministrativeGroup(ByteArray.bytesToLong(value)));
-					logger.trace("Parsed Administrative Group {}", link.currentState().getAdministrativeGroup());
+					state = state.withAdministrativeGroup(new AdministrativeGroup(ByteArray.bytesToLong(value)));
+					logger.trace("Parsed Administrative Group {}", state.getAdministrativeGroup());
 					break;
 				case 1089:
-					link.setMaximumBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
-					logger.trace("Parsed Max Bandwidth {}", link.currentState().getMaximumBandwidth());
+					state = state.withMaximumBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
+					logger.trace("Parsed Max Bandwidth {}", state.getMaximumBandwidth());
 					break;
 				case 1090:
-					link.setMaximumReservableBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
-					logger.trace("Parsed Max Reservable Bandwidth {}", link.currentState().getMaximumReservableBandwidth());
+					state = state.withReservableBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
+					logger.trace("Parsed Max Reservable Bandwidth {}", state.getMaximumReservableBandwidth());
 					break;
 				case 1091:
 					int index = 0;
@@ -550,16 +550,16 @@ public class LinkStateParser {
 						unreservedBandwidth[i] = new Bandwidth(ByteArray.bytesToFloat(ByteArray.subByte(value, index, 4)));
 						index += 4;
 					}
-					link.setUnreservedBandwidth(unreservedBandwidth);
-					logger.trace("Parsed Unreserved Bandwidth {}", Arrays.toString(link.currentState().getUnreservedBandwidth()));
+					state = state.withUnreservedBandwidth(unreservedBandwidth);
+					logger.trace("Parsed Unreserved Bandwidth {}", Arrays.toString(state.getUnreservedBandwidth()));
 					break;
 				case 1092:
-					link.setMetric(TEMetric.class, new TEMetric(ByteArray.bytesToInt(value)));
-					logger.trace("Parsed Metric {}", link.currentState().getMetric(TEMetric.class));
+					state = state.withMetric(TEMetric.class, new TEMetric(ByteArray.bytesToInt(value)));
+					logger.trace("Parsed Metric {}", state.getMetric(TEMetric.class));
 					break;
 				case 1093:
-					link.setProtectionType(parseLinkProtectionType(UnsignedBytes.toInt(value[0])));
-					logger.trace("Parsed Link Protection Type {}", link.currentState().getProtectionType());
+					state = state.withProtectionType(parseLinkProtectionType(UnsignedBytes.toInt(value[0])));
+					logger.trace("Parsed Link Protection Type {}", state.getProtectionType());
 					break;
 				case 1094:
 					final boolean[] bits = ByteArray.parseBits(value[0]);
@@ -572,8 +572,8 @@ public class LinkStateParser {
 					logger.trace("Parsed MPLS Protocols: {}", Arrays.toString(enabledMPLSProtocols.toArray()));
 					break;
 				case 1095:
-					link.setDefaultMetric(new IGPMetric(ByteArray.bytesToLong(value)));
-					logger.trace("Parsed Metric {}", link.currentState().getDefaultMetric());
+					state = state.withDefaultMetric(new IGPMetric(ByteArray.bytesToLong(value)));
+					logger.trace("Parsed Metric {}", state.getDefaultMetric());
 					break;
 				case 1096:
 					int i = 0;
@@ -596,9 +596,10 @@ public class LinkStateParser {
 				}
 			}
 		}
-		link.setEnabledMPLSProtocols(enabledMPLSProtocols);
-		link.setSharedRiskLinkGroups(sharedRiskLinkGroups);
-		link.currentState().withSymbolicName(name);
+		state = state.withEnabledMPLSProtocols(enabledMPLSProtocols);
+		state = state.withSharedRiskLinkGroups(sharedRiskLinkGroups);
+		state = state.withSymbolicName(name);
+		final NetworkLinkImpl link = new NetworkLinkImpl(linkId, state);
 		logger.debug("Finished parsing Link Attributes.");
 		return link;
 	}
@@ -630,15 +631,15 @@ public class LinkStateParser {
 					break;
 				case 1024:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
-					node.setExternal(flags[2]);
-					node.setAreaBorderRouter(flags[3]);
+					node.currentState().withExternal(flags[2]);
+					node.currentState().withAreaBorderRouter(flags[3]);
 					logger.trace("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
 					break;
 				case 1025:
 					logger.debug("Ignoring opaque value: {}.", Arrays.toString(value));
 					break;
 				case 1026:
-					node.setDynamicHostname(new String(value, Charsets.US_ASCII));
+					node.currentState().withDynamicHostname(new String(value, Charsets.US_ASCII));
 					logger.trace("Parsed Node Name {}", node.currentState().getDynamicHostname());
 					break;
 				case 1027:
@@ -662,9 +663,9 @@ public class LinkStateParser {
 			}
 		}
 
-		node.setAreaMembership(areaMembership);
-		node.setAlternativeIdentifiers(ids);
-		node.setTopologyMembership(topologyMembership);
+		node.currentState().withAreaMembership(areaMembership);
+		node.currentState().withIdentifierAlternatives(ids);
+		node.currentState().withTopologyMembership(topologyMembership);
 		logger.debug("Finished parsing Node Attributes.");
 		return node;
 	}

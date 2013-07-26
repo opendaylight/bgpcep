@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,9 +28,8 @@ import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
-
 import org.opendaylight.protocol.concepts.ASNumber;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -133,8 +131,6 @@ public class FSMTest {
 	@Test
 	public void complementaryTests() {
 		assertEquals(4096, this.speaker.maximumMessageSize());
-
-		assertNotNull(this.speaker.getStream());
 	}
 
 	@After

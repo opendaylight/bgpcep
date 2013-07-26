@@ -22,9 +22,6 @@ import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import org.opendaylight.protocol.concepts.Identifier;
-
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
@@ -38,38 +35,6 @@ import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.concepts.Inet4SpecificExtendedCommunity;
-import org.opendaylight.protocol.bgp.parser.BGPLink;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
-import org.opendaylight.protocol.bgp.parser.BGPNode;
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.parser.BGPRoute;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
-import org.opendaylight.protocol.bgp.parser.impl.BGPAggregatorImpl;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
-import org.opendaylight.protocol.bgp.parser.impl.IPv4MP;
-import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
-import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
-import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
-import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
-import org.opendaylight.protocol.bgp.util.BGPLinkImpl;
-import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
-import org.opendaylight.protocol.concepts.ASNumber;
-import org.opendaylight.protocol.concepts.IGPMetric;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.IPv4Prefix;
-import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
-import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.DomainIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
@@ -77,6 +42,10 @@ import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkAnchor;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
+import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.linkstate.OSPFInterfaceIdentifier;
@@ -85,10 +54,33 @@ import org.opendaylight.protocol.bgp.linkstate.OSPFv3LANIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
-import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
+import org.opendaylight.protocol.bgp.parser.BGPLink;
+import org.opendaylight.protocol.bgp.parser.BGPNode;
+import org.opendaylight.protocol.bgp.parser.BGPParameter;
+import org.opendaylight.protocol.bgp.parser.BGPRoute;
+import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
+import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
+import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
+import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
+import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
+import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
+import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
+import org.opendaylight.protocol.bgp.util.BGPLinkImpl;
+import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
+import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.concepts.IGPMetric;
+import org.opendaylight.protocol.concepts.IPv4;
+import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.concepts.IPv4Prefix;
+import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.protocol.concepts.IPv6Address;
+import org.opendaylight.protocol.concepts.Identifier;
+import org.opendaylight.protocol.concepts.Metric;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -173,11 +165,11 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage1() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(0), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
 
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -300,11 +292,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage2() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(1), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -410,12 +401,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage3() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(2), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
-
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
 
@@ -516,11 +505,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage4() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(3), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -599,11 +587,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage5() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(4), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -630,11 +617,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORIpv4() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(5), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
 		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
@@ -667,11 +653,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORIpv6() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(6), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
 		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
@@ -706,11 +691,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORLS() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(7), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
 		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
@@ -881,11 +865,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testBGPLink() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(8), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -1014,11 +997,10 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testBGPNode() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(9), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -1095,12 +1077,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(inputBytes.get(13), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(13), BGPMessageHeader.COMMON_HEADER_LENGTH);
 		final BGPMessageFactory msgFactory = new BGPMessageFactory();
-		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(body, header);
+		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(ByteArray.cutBytes(inputBytes.get(13),
+				BGPMessageFactory.MARKER_LENGTH));
 		final Set<BGPTableType> types = Sets.newHashSet();
 		for (final BGPParameter param : open.getOptParams()) {
 			if (param instanceof MultiprotocolCapability) {
@@ -1110,7 +1089,6 @@ public class BGPParserTest {
 		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast),
 				new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast),
 				new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate));
-		msgFactory.close();
 		assertEquals(expected, types);
 	}
 
