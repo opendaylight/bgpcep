@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.Timer;
 
 import org.opendaylight.protocol.framework.ProtocolConnection;
@@ -16,5 +18,6 @@ import org.opendaylight.protocol.framework.SessionParent;
 
 public interface PCEPSessionFactory extends ProtocolSessionFactory {
 	@Override
-	public ProtocolSession getProtocolSession(SessionParent parent, Timer timer, ProtocolConnection connection, int sessionId);
+	public ProtocolSession getProtocolSession(SessionParent parent, Timer timer, ProtocolConnection connection, int sessionId,
+			ChannelHandlerContext ctx);
 }

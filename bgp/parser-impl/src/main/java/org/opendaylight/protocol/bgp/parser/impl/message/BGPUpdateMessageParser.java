@@ -13,28 +13,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateEventBuilder;
 import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeParser;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.protocol.util.ByteArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 /**
@@ -91,7 +90,7 @@ public class BGPUpdateMessageParser {
 		byteOffset += TOTAL_PATH_ATTR_LENGTH_SIZE;
 		eventBuilder.setTotalPathAttrLength(totalPathAttrLength);
 
-		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageHeader.COMMON_HEADER_LENGTH > msgLength)
+		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactory.COMMON_HEADER_LENGTH > msgLength)
 			throw new BGPDocumentedException("Message length inconsistent with withdrawn router length.", BGPError.MALFORMED_ATTR_LIST);
 
 		if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {

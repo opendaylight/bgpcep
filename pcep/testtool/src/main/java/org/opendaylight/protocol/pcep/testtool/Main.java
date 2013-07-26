@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
@@ -18,13 +22,9 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalCheckerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPConnectionImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalCheckerFactoryImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -140,7 +140,7 @@ public class Main {
 
 		final PCEPSessionProposal prefs = spf.getSessionProposal(address, 0);
 
-		final DispatcherImpl d = new DispatcherImpl(Executors.defaultThreadFactory());
+		final DispatcherImpl d = new DispatcherImpl(new PCEPMessageFactory());
 		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d, spf);
 
 		try {
@@ -169,7 +169,7 @@ public class Main {
 
 		} finally {
 			((PCEPSessionProposalCheckerFactoryImpl) spcf).close();
-			d.stop();
+			// d.stop();
 		}
 	}
 }

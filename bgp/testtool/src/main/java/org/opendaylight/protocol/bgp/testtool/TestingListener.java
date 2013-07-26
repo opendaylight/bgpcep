@@ -14,10 +14,9 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.framework.DispatcherImpl;
 
 /**
  * Testing BGP Listener.
@@ -45,12 +44,12 @@ public class TestingListener extends BGPSessionListener {
 	public void onSessionDown(final BGPSession session, final Exception e) {
 		logger.info("Client Listener: Connection lost.");
 		session.close();
-		this.d.stop();
+		// this.d.stop();
 	}
 
 	@Override
 	public void onSessionTerminated(final BGPError cause) {
 		logger.info("Client Listener: Connection lost: {}.", cause);
-		this.d.stop();
+		// this.d.stop();
 	}
 }

@@ -7,23 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.parser.mock;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
-
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessage;
-import org.opendaylight.protocol.framework.ProtocolMessageHeader;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
  * Mock implementation of {@link BGPMessageParser}. It implements the required interface by having two internal maps,
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */
-public class BGPMessageParserMock implements BGPMessageParser {
+public class BGPMessageParserMock implements ProtocolMessageFactory {
 	private final Map<byte[], BGPMessage> messages;
 
 	/**
@@ -34,12 +31,7 @@ public class BGPMessageParserMock implements BGPMessageParser {
 	}
 
 	@Override
-	public void close() throws IOException {
-		// nothing
-	}
-
-	@Override
-	public BGPMessage parse(final byte[] bytes, final ProtocolMessageHeader msgHeader) throws DeserializerException, DocumentedException {
+	public BGPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		final BGPMessage ret = this.messages.get(bytes);
 		if (ret == null)
 			throw new IllegalArgumentException("Undefined message encountered");

@@ -36,26 +36,24 @@ import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.concepts.NextHop;
+import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.mock.BGPMessageParserMock;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
-
-import org.opendaylight.protocol.concepts.Identifier;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.IPv6Prefix;
+import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
+import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.framework.DocumentedException;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -91,11 +89,9 @@ public class BGPMessageParserMockTest {
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i], null));
+			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i]));
 		}
-		assertThat(this.messages.get(3), not(mockParser.parse(this.inputBytes[8], null)));
-
-		mockParser.close();
+		assertThat(this.messages.get(3), not(mockParser.parse(this.inputBytes[8])));
 	}
 
 	/**
@@ -113,9 +109,7 @@ public class BGPMessageParserMockTest {
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-		mockParser.parse(new byte[] { 7, 4, 6 }, new BGPMessageHeader());
-
-		mockParser.close();
+		mockParser.parse(new byte[] { 7, 4, 6 });
 	}
 
 	/**
@@ -185,14 +179,12 @@ public class BGPMessageParserMockTest {
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
 		final Set<BGPTableType> result = Sets.newHashSet();
-		for (final BGPParameter p : ((BGPOpenMessage) mockParser.parse(input, null)).getOptParams()) {
+		for (final BGPParameter p : ((BGPOpenMessage) mockParser.parse(input)).getOptParams()) {
 			if (p instanceof MultiprotocolCapability) {
 				result.add(((MultiprotocolCapability) p).getTableType());
 			}
 		}
 
 		assertEquals(type, result);
-
-		mockParser.close();
 	}
 }

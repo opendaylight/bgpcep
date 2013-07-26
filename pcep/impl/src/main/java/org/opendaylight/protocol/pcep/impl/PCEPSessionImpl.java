@@ -7,12 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.channel.ChannelHandlerContext;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
-import org.opendaylight.protocol.framework.ProtocolOutputStream;
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.protocol.framework.ProtocolSessionOutboundHandler;
 import org.opendaylight.protocol.framework.SessionParent;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPConnection;
@@ -37,15 +48,6 @@ import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Implementation of PCEPSession. (Not final for testing.)
@@ -186,8 +188,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	 */
 	private PCEPOpenObject remoteOpen = null;
 
-	private final ProtocolOutputStream outputStream;
-
 	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
 	/**
@@ -205,20 +205,25 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	private final String peerAddress;
 
+	private final ProtocolSessionOutboundHandler handler;
+
+	private final ChannelHandlerContext ctx;
+
 	PCEPSessionImpl(final SessionParent parent, final Timer timer, final PCEPConnection connection, final PCEPMessageFactory factory,
-			final int maxUnknownMessages, final int sessionId) {
+			final int maxUnknownMessages, final int sessionId, final ChannelHandlerContext ctx) {
 		this.state = State.IDLE;
 		this.listener = connection.getListener();
 		this.checker = connection.getProposalChecker();
 		this.sessionId = sessionId;
 		this.localOpen = connection.getProposal().getOpenObject();
-		this.outputStream = new ProtocolOutputStream();
 		this.peerAddress = connection.getPeerAddress().getHostString();
 		this.stateTimer = timer;
 		this.parent = parent;
 		this.factory = factory;
+		this.ctx = ctx;
 		if (this.maxUnknownMessages != 0)
 			this.maxUnknownMessages = maxUnknownMessages;
+		this.handler = new ProtocolSessionOutboundHandler(this);
 	}
 
 	@Override
@@ -340,7 +345,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	/**
 	 * Makes a callback to check if the session characteristics that FSM received, are acceptable.
-	 *
+	 * 
 	 * @param keepAliveTimerValue
 	 * @param deadTimerValue
 	 * @param tlvs
@@ -356,22 +361,20 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	/**
 	 * Sends message to serialization.
-	 *
+	 * 
 	 * @param msg to be sent
 	 */
 	@Override
 	public void sendMessage(final PCEPMessage msg) {
-		this.outputStream.putMessage(msg, this.factory);
-		this.lastMessageSentAt = System.nanoTime();
-		if (!(msg instanceof PCEPKeepAliveMessage))
-			logger.debug("Sent message: " + msg);
-		this.parent.checkOutputBuffer(this);
-		this.sentMsgCount++;
-	}
-
-	@Override
-	public ProtocolOutputStream getStream() {
-		return this.outputStream;
+		try {
+			this.handler.writeDown(this.ctx, msg);
+			this.lastMessageSentAt = System.nanoTime();
+			if (!(msg instanceof PCEPKeepAliveMessage))
+				logger.debug("Sent message: " + msg);
+			this.sentMsgCount++;
+		} catch (final Exception e) {
+			logger.warn("Message {} was not sent.", msg, e);
+		}
 	}
 
 	private void commonClose() {
@@ -382,7 +385,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	/**
 	 * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
 	 * modified, because he initiated the closing. (To prevent concurrent modification exception).
-	 *
+	 * 
 	 * @param closeObject
 	 */
 	void closeWithoutMessage() {
@@ -433,7 +436,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError and Open Object.
-	 *
+	 * 
 	 * @param value
 	 * @param open
 	 */
@@ -461,7 +464,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	 * sent (CAPABILITY_NOT_SUPPORTED) and the method checks if the MAX_UNKNOWN_MSG per minute wasn't overstepped.
 	 * Second, any other error occurred that is specified by rfc. In this case, the an error message is generated and
 	 * sent.
-	 *
+	 * 
 	 * @param error documented error in RFC5440 or draft
 	 */
 	public void handleMalformedMessage(final PCEPErrors error) {
@@ -481,7 +484,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	/**
 	 * In case of syntactic error or some parsing error, the session needs to be closed with the Reason: malformed
 	 * message. The user needs to be notified about this error.
-	 *
+	 * 
 	 * @param e exception that was thrown from parser
 	 */
 	public void handleMalformedMessage(final Exception e) {
@@ -491,7 +494,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	/**
 	 * Open message should be handled only if the FSM is in OPEN_WAIT state.
-	 *
+	 * 
 	 * @param msg
 	 */
 	private void handleOpenMessage(final PCEPOpenMessage msg) {
@@ -550,7 +553,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	/**
 	 * Error message should be handled in FSM if its state is KEEP_WAIT, otherwise it is just passed to session listener
 	 * for handling.
-	 *
+	 * 
 	 * @param msg
 	 */
 	private void handleErrorMessage(final PCEPErrorMessage msg) {
@@ -600,7 +603,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	/**
 	 * Handles incoming message. If the session is up, it notifies the user. The user is notified about every message
 	 * except KeepAlive.
-	 *
+	 * 
 	 * @param msg incoming message
 	 */
 	@Override
@@ -703,18 +706,15 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		return this.receivedMsgCount;
 	}
 
-
 	@Override
 	public Integer getDeadTimerValue() {
 		return this.DEAD_TIMER_VALUE;
 	}
 
-
 	@Override
 	public Integer getKeepAliveTimerValue() {
 		return this.KEEP_ALIVE_TIMER_VALUE;
 	}
-
 
 	@Override
 	public String getPeerAddress() {
@@ -725,7 +725,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	public void tearDown() throws IOException {
 		this.close();
 	}
-
 
 	@Override
 	public String getNodeIdentifier() {
@@ -757,8 +756,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		builder.append(this.localOpen);
 		builder.append(", remoteOpen=");
 		builder.append(this.remoteOpen);
-		builder.append(", outputStream=");
-		builder.append(this.outputStream);
 		builder.append("]");
 		return builder.toString();
 	}

@@ -10,12 +10,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-
 import org.opendaylight.protocol.framework.Dispatcher;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
  * Implementation of BGPDispatcher.
@@ -29,8 +28,8 @@ public final class BGPDispatcherImpl implements BGPDispatcher, Closeable {
 	}
 
 	@Override
-	public BGPSession createClient(final BGPConnection connection, final BGPMessageParser parser) throws IOException {
-		return (BGPSession) this.dispatcher.createClient(connection, new BGPSessionFactory(parser), BGPInputStream.FACTORY);
+	public BGPSession createClient(final BGPConnection connection, final ProtocolMessageFactory parser) throws IOException {
+		return (BGPSession) this.dispatcher.createClient(connection, new BGPSessionFactory(parser));
 	}
 
 	public Dispatcher getDispatcher() {

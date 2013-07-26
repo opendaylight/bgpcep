@@ -19,8 +19,6 @@ public class Session implements ProtocolSession {
 
 	private static final Logger logger = LoggerFactory.getLogger(Session.class);
 
-	private final ProtocolOutputStream pos;
-
 	public final List<ProtocolMessage> msgs = Lists.newArrayList();
 
 	private final ProtocolMessageFactory pmf = new MessageFactory();
@@ -32,7 +30,6 @@ public class Session implements ProtocolSession {
 	private final int maxMsgSize;
 
 	public Session(final SessionParent parent, final int maxMsgSize) {
-		this.pos = new ProtocolOutputStream();
 		this.parent = parent;
 		this.maxMsgSize = maxMsgSize;
 	}
@@ -44,30 +41,24 @@ public class Session implements ProtocolSession {
 
 	@Override
 	public void startSession() {
-		this.pos.putMessage(new Message("hello"), this.pmf);
-		this.parent.checkOutputBuffer(this);
+		// this.pos.putMessage(new Message("hello"), this.pmf);
 	}
 
 	@Override
-	public ProtocolOutputStream getStream() {
-		return this.pos;
-	}
-
-	@Override
-	public void handleMessage(ProtocolMessage msg) {
-		logger.debug("Message received: {}", ((Message)msg).getMessage());
+	public void handleMessage(final ProtocolMessage msg) {
+		logger.debug("Message received: {}", ((Message) msg).getMessage());
 		this.up = true;
 		this.msgs.add(msg);
 		logger.debug(this.msgs.size() + "");
 	}
 
 	@Override
-	public void handleMalformedMessage(DeserializerException e) {
+	public void handleMalformedMessage(final DeserializerException e) {
 		logger.debug("Malformed message: {}", e.getMessage(), e);
 	}
 
 	@Override
-	public void handleMalformedMessage(DocumentedException e) {
+	public void handleMalformedMessage(final DocumentedException e) {
 		logger.debug("Malformed message: {}", e.getMessage(), e);
 	}
 
@@ -82,12 +73,12 @@ public class Session implements ProtocolSession {
 	}
 
 	@Override
-	public void onConnectionFailed(IOException e) {
+	public void onConnectionFailed(final IOException e) {
 		logger.debug("Connection failed: {}", e.getMessage(), e);
 	}
 
 	@Override
 	public int maximumMessageSize() {
-		return maxMsgSize;
+		return this.maxMsgSize;
 	}
 }

@@ -7,78 +7,101 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import java.io.IOException;
 import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessage;
-import org.opendaylight.protocol.framework.ProtocolMessageHeader;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.protocol.framework.ProtocolMessage;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.util.ByteArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
- *
+ * The byte array
  */
-public class BGPMessageFactory implements BGPMessageParser {
+public class BGPMessageFactory implements ProtocolMessageFactory {
 
 	private final static Logger logger = LoggerFactory.getLogger(BGPMessageFactory.class);
+
+	final static int LENGTH_FIELD_LENGTH = 2; // bytes
+
+	private final static int TYPE_FIELD_LENGTH = 1; // bytes
+
+	final static int MARKER_LENGTH = 16; // bytes
+
+	public final static int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
 
 	public BGPMessageFactory() {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
+	 */
 	@Override
-	public BGPMessage parse(final byte[] bytes, final ProtocolMessageHeader msgH) throws DeserializerException, DocumentedException {
-		final BGPMessageHeader msgHeader = (BGPMessageHeader) msgH;
+	public BGPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		if (bytes == null)
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
-		if (msgHeader == null)
-			throw new IllegalArgumentException("BGPMessageHeader is mandatory.");
-		if (msgHeader.getLength() < BGPMessageHeader.COMMON_HEADER_LENGTH)
-			throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.intToBytes(msgHeader.getLength()));
-		if (bytes.length != (msgHeader.getLength() - BGPMessageHeader.COMMON_HEADER_LENGTH))
-			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + bytes.length + "; Expected: "
-					+ (msgHeader.getLength() - BGPMessageHeader.COMMON_HEADER_LENGTH) + ". " + msgHeader.getLength());
+		if (bytes.length < (COMMON_HEADER_LENGTH - MARKER_LENGTH)) {
+			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + ". Expected: >= "
+					+ COMMON_HEADER_LENGTH + ".");
+		}
+		/*
+		 * byte array starts with message length
+		 */
+		// final byte[] ones = new byte[MARKER_LENGTH];
+		// Arrays.fill(ones, (byte)0xff);
+		// if (Arrays.equals(bytes, ones))
+		// throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, LENGTH_FIELD_LENGTH));
+		final int messageType = UnsignedBytes.toInt(bytes[LENGTH_FIELD_LENGTH]);
 
-		logger.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(bytes));
+		final byte[] msgBody = ByteArray.cutBytes(bytes, LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH);
+
+		if (messageLength < COMMON_HEADER_LENGTH)
+			throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
+					bytes, 0, LENGTH_FIELD_LENGTH));
+		if (msgBody.length != messageLength - COMMON_HEADER_LENGTH)
+			throw new DeserializerException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "
+					+ (messageLength - COMMON_HEADER_LENGTH) + ". ");
+
+		logger.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
 
 		BGPMessage msg = null;
 
-		switch (msgHeader.getType()) {
+		switch (messageType) {
 		case 1:
-			msg = BGPOpenMessageParser.parse(bytes);
+			msg = BGPOpenMessageParser.parse(msgBody);
 			logger.debug("Received and parsed Open Message: {}", msg);
 			break;
 		case 2:
-			msg = BGPUpdateMessageParser.parse(bytes, msgHeader.getLength());
+			msg = BGPUpdateMessageParser.parse(msgBody, messageLength);
 			logger.debug("Received and parsed Update Message: {}", msg);
 			break;
 		case 3:
-			msg = BGPNotificationMessageParser.parse(bytes);
+			msg = BGPNotificationMessageParser.parse(msgBody);
 			logger.debug("Received and parsed Notification Message: {}", msg);
 			break;
 		case 4:
 			msg = new BGPKeepAliveMessage();
-			if (msgHeader.getLength() != BGPMessageHeader.COMMON_HEADER_LENGTH)
-				throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.intToBytes(msgHeader.getLength()));
+			if (messageLength != COMMON_HEADER_LENGTH)
+				throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
+						bytes, 0, LENGTH_FIELD_LENGTH));
 			break;
 		default:
-			throw new BGPDocumentedException("Unhandled message type " + msgHeader.getType(), BGPError.BAD_MSG_TYPE, ByteArray.intToBytes(msgHeader.getType()));
+			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bytes[LENGTH_FIELD_LENGTH] });
 		}
 		return msg;
 	}
@@ -110,20 +133,31 @@ public class BGPMessageFactory implements BGPMessageParser {
 			throw new IllegalArgumentException("Unknown instance of BGPMessage. Passed " + bgpMsg.getClass());
 		}
 
-		final BGPMessageHeader msgHeader = new BGPMessageHeader(msgType, msgBody.length + BGPMessageHeader.COMMON_HEADER_LENGTH);
-
-		final byte[] headerBytes = msgHeader.toBytes();
+		final byte[] headerBytes = headerToBytes(msgBody.length + COMMON_HEADER_LENGTH, msgType);
 		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];
 
 		ByteArray.copyWhole(headerBytes, retBytes, 0);
-		ByteArray.copyWhole(msgBody, retBytes, BGPMessageHeader.COMMON_HEADER_LENGTH);
+		ByteArray.copyWhole(msgBody, retBytes, COMMON_HEADER_LENGTH);
 
 		logger.trace("Serialized BGP message {}.", Arrays.toString(retBytes));
 		return retBytes;
 	}
 
-	@Override
-	public void close() throws IOException {
-		// nothing to close
+	/**
+	 * Serializes this BGP Message header to byte array.
+	 * 
+	 * @return byte array representation of this header
+	 */
+	public byte[] headerToBytes(final int msgLength, final int msgType) {
+		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH];
+
+		Arrays.fill(retBytes, 0, MARKER_LENGTH, (byte) 0xff);
+
+		System.arraycopy(ByteArray.intToBytes(msgLength), Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH, retBytes, MARKER_LENGTH,
+				LENGTH_FIELD_LENGTH);
+
+		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = (byte) msgType;
+
+		return retBytes;
 	}
 }

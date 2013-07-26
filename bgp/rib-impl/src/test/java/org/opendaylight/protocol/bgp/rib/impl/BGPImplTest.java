@@ -19,15 +19,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.rib.impl.BGPImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPImpl.BGPListenerRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 public class BGPImplTest {
 
@@ -38,7 +36,7 @@ public class BGPImplTest {
 	private BGPSessionProposal prop;
 
 	@Mock
-	private BGPMessageParser parser;
+	private ProtocolMessageFactory parser;
 
 	private BGPImpl bgp;
 
@@ -46,7 +44,7 @@ public class BGPImplTest {
 	public void setUp() throws IOException {
 		MockitoAnnotations.initMocks(this);
 		doReturn("").when(this.parser).toString();
-		doReturn(null).when(this.disp).createClient(any(BGPConnection.class), any(BGPMessageParser.class));
+		doReturn(null).when(this.disp).createClient(any(BGPConnection.class), any(ProtocolMessageFactory.class));
 	}
 
 	@Test

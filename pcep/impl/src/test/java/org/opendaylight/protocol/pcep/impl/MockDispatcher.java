@@ -18,12 +18,7 @@ import org.opendaylight.protocol.framework.SessionParent;
 public class MockDispatcher implements SessionParent {
 
 	@Override
-	public void onSessionClosed(ProtocolSession session) {
-
-	}
-
-	@Override
-	public void checkOutputBuffer(ProtocolSession session) {
+	public void onSessionClosed(final ProtocolSession session) {
 
 	}
 

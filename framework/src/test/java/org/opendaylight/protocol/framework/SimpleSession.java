@@ -17,7 +17,7 @@ public final class SimpleSession implements ProtocolSession {
 
 	private final int maxMsgSize;
 
-	public SimpleSession(ProtocolConnection connection, SessionParent d, int maxMsgSize) {
+	public SimpleSession(final ProtocolConnection connection, final SessionParent d, final int maxMsgSize) {
 		this.listener = connection.getListener();
 		this.d = d;
 		this.maxMsgSize = maxMsgSize;
@@ -30,24 +30,19 @@ public final class SimpleSession implements ProtocolSession {
 
 	@Override
 	public void startSession() {
-		((SimpleSessionListener)this.listener).onSessionUp(this, null, null);
+		((SimpleSessionListener) this.listener).onSessionUp(this, null, null);
 	}
 
 	@Override
-	public ProtocolOutputStream getStream() {
-		return null;
+	public void handleMessage(final ProtocolMessage msg) {
 	}
 
 	@Override
-	public void handleMessage(ProtocolMessage msg) {
+	public void handleMalformedMessage(final DeserializerException e) {
 	}
 
 	@Override
-	public void handleMalformedMessage(DeserializerException e) {
-	}
-
-	@Override
-	public void handleMalformedMessage(DocumentedException e) {
+	public void handleMalformedMessage(final DocumentedException e) {
 	}
 
 	@Override
@@ -60,12 +55,12 @@ public final class SimpleSession implements ProtocolSession {
 	}
 
 	@Override
-	public void onConnectionFailed(IOException e) {
-		((SimpleSessionListener)this.listener).onConnectionFailed(this, e);
+	public void onConnectionFailed(final IOException e) {
+		((SimpleSessionListener) this.listener).onConnectionFailed(this, e);
 	}
 
 	@Override
 	public int maximumMessageSize() {
-		return maxMsgSize;
+		return this.maxMsgSize;
 	}
 }

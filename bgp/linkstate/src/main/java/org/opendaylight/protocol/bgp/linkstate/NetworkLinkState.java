@@ -156,7 +156,7 @@ public final class NetworkLinkState extends NetworkObjectState {
 		return this.protectionType;
 	}
 
-	public final NetworkObjectState withProtectionType(final LinkProtectionType protectionType) {
+	public final NetworkLinkState withProtectionType(final LinkProtectionType protectionType) {
 		final NetworkLinkState ret = newInstance();
 		ret.protectionType = protectionType;
 		return ret;

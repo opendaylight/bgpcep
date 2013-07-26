@@ -11,11 +11,7 @@ import java.util.Timer;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.BGPConnectionImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalCheckerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-
 import org.opendaylight.protocol.concepts.ASNumber;
 
 /**
@@ -26,7 +22,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
 	private final BGPSessionListener client;
 
 	SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
-		super(new MockDispatcher(), new Timer(), new BGPConnectionImpl(null, listener, new BGPSessionPreferences(new ASNumber(30), (short) 15, null, null), new BGPSessionProposalCheckerImpl()), 3, null);
+		super(new MockDispatcher(), new Timer(), new BGPConnectionImpl(null, listener, new BGPSessionPreferences(new ASNumber(30), (short) 15, null, null), new BGPSessionProposalCheckerImpl()), 3, null, null);
 		this.client = client;
 	}
 
