@@ -43,8 +43,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	@Override
 	public ProtocolServer createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException {
 		connectionFactory.setProposal(this.proposalFactory, address, 0);
-		return this.dispatcher.createServer(address, connectionFactory, new PCEPSessionFactoryImpl(this.maxUnknownMessages),
-				PCEPInputStream.FACTORY);
+		return this.dispatcher.createServer(address, connectionFactory, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
 	}
 
 	/**
@@ -52,8 +51,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 */
 	@Override
 	public PCEPSession createClient(final PCEPConnection connection) throws IOException {
-		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages),
-				PCEPInputStream.FACTORY);
+		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
 	}
 
 	@Override

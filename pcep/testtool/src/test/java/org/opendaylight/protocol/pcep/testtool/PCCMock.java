@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.framework.SessionPreferences;
 import org.opendaylight.protocol.pcep.PCEPConnection;
@@ -17,14 +21,11 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalChecker;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
+import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
-import com.google.common.collect.Lists;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.concurrent.Executors;
+import com.google.common.collect.Lists;
 
 public class PCCMock {
 
@@ -32,7 +33,7 @@ public class PCCMock {
 		final List<PCEPTlv> tlvs = Lists.newArrayList();
 		tlvs.add(new NodeIdentifierTlv(new byte[] { (byte) 127, (byte) 2, (byte) 3, (byte) 7 }));
 		final PCEPSessionPreferences prop = new PCEPSessionPreferences(new PCEPOpenObject(30, 120, 0, tlvs));
-		final DispatcherImpl di = new DispatcherImpl(Executors.defaultThreadFactory());
+		final DispatcherImpl di = new DispatcherImpl(new PCEPMessageFactory());
 		final PCEPDispatcherImpl d = new PCEPDispatcherImpl(di, new PCEPSessionProposalFactory() {
 
 			@Override
@@ -96,7 +97,7 @@ public class PCCMock {
 			// Thread.sleep(1000);
 
 		} finally {
-			di.stop();
+			// di.stop();
 		}
 	}
 }

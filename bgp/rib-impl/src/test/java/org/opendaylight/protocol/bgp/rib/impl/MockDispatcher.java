@@ -20,11 +20,6 @@ public class MockDispatcher implements SessionParent {
 	}
 
 	@Override
-	public void checkOutputBuffer(final ProtocolSession session) {
-
-	}
-
-	@Override
 	public void close() throws IOException {
 	}
 }

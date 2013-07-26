@@ -10,9 +10,7 @@ package org.opendaylight.protocol.bgp.testtool;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPConnectionImpl;
@@ -21,12 +19,12 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalCheckerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Starter class for testing.
@@ -53,7 +51,7 @@ public class Main {
 	BGPDispatcherImpl dispatcher;
 
 	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(new DispatcherImpl(Executors.defaultThreadFactory()));
+		this.dispatcher = new BGPDispatcherImpl(new DispatcherImpl(new BGPMessageFactory()));
 	}
 
 	public static void main(final String[] args) throws NumberFormatException, IOException {
@@ -96,7 +94,7 @@ public class Main {
 
 		final BGPSessionProposalChecker checker = new BGPSessionProposalCheckerImpl();
 
-		final BGPMessageParser parser = new BGPMessageFactory();
+		final ProtocolMessageFactory parser = new BGPMessageFactory();
 
 		logger.debug(address + " " + sessionListener + " " + proposal + " " + checker);
 

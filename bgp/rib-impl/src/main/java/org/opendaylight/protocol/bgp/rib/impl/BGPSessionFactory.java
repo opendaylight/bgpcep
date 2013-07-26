@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.Timer;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
-
 import org.opendaylight.protocol.framework.ProtocolConnection;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.ProtocolSessionFactory;
 import org.opendaylight.protocol.framework.SessionParent;
@@ -22,15 +23,15 @@ import org.opendaylight.protocol.framework.SessionParent;
  */
 public final class BGPSessionFactory implements ProtocolSessionFactory {
 
-	private final BGPMessageParser parser;
+	private final ProtocolMessageFactory parser;
 
-	public BGPSessionFactory(final BGPMessageParser parser) {
+	public BGPSessionFactory(final ProtocolMessageFactory parser) {
 		this.parser = parser;
 	}
 
 	@Override
 	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
-			final int sessionId) {
-		return new BGPSessionImpl(parent, timer, (BGPConnection) connection, sessionId, this.parser);
+			final int sessionId, final ChannelHandlerContext ctx) {
+		return new BGPSessionImpl(parent, timer, (BGPConnection) connection, sessionId, this.parser, ctx);
 	}
 }

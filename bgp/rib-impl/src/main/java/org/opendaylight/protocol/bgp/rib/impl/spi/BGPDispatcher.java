@@ -9,9 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.io.IOException;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
-
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
  * Dispatcher class for creating BGP clients.
@@ -26,5 +25,5 @@ public interface BGPDispatcher {
 	 * @return client session
 	 * @throws IOException
 	 */
-	BGPSession createClient(BGPConnection connection, BGPMessageParser parser) throws IOException;
+	BGPSession createClient(BGPConnection connection, ProtocolMessageFactory parser) throws IOException;
 }

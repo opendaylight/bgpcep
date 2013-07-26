@@ -14,10 +14,9 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.framework.DispatcherImpl;
 
 public class SpeakerSessionListener extends BGPSessionListener {
 	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
@@ -42,12 +41,12 @@ public class SpeakerSessionListener extends BGPSessionListener {
 	public void onSessionDown(final BGPSession session, final Exception e) {
 		logger.info("Server: Session down.");
 		session.close();
-		this.d.stop();
+		// this.d.stop();
 	}
 
 	@Override
 	public void onMessage(final BGPMessage message) {
 		logger.info("Server: Message received: {}", message);
-		this.d.stop();
+		// this.d.stop();
 	}
 }

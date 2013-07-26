@@ -17,7 +17,6 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
@@ -32,11 +31,10 @@ public class BGPUpdateMessageParserTest {
 	public void testNodeParsing() throws Exception {
 		final List<byte[]> result = HexDumpBGPFileParser.parseMessages(new File(this.getClass().getResource("/bgp-update-nodes.txt").getFile()));
 		assertEquals(1, result.size());
-		final BGPMessageHeader header = new BGPMessageHeader();
-		header.fromBytes(ByteArray.subByte(result.get(0), 0, BGPMessageHeader.COMMON_HEADER_LENGTH));
-
-		final byte[] body = ByteArray.cutBytes(result.get(0), BGPMessageHeader.COMMON_HEADER_LENGTH);
-		final BGPUpdateEvent event = BGPUpdateMessageParser.parse(body, header.getLength());
+		final byte[] body = ByteArray.cutBytes(result.get(0), BGPMessageFactory.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(result.get(0), BGPMessageFactory.MARKER_LENGTH,
+				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final BGPUpdateEvent event = BGPUpdateMessageParser.parse(body, messageLength);
 		final BGPUpdateMessage updateMessage = (BGPUpdateMessage) event;
 		final Set<BGPObject> addedObjects = updateMessage.getAddedObjects();
 		assertEquals(14, addedObjects.size());

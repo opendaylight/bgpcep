@@ -11,14 +11,13 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
-
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
  * Implementation of {@link BGP}.
@@ -51,7 +50,7 @@ public class BGPImpl implements BGP, Closeable {
 
 	private final BGPDispatcher dispatcher;
 
-	private final BGPMessageParser parser;
+	private final ProtocolMessageFactory parser;
 
 	private final InetSocketAddress address;
 
@@ -59,7 +58,7 @@ public class BGPImpl implements BGP, Closeable {
 
 	private final BGPSessionProposalChecker checker;
 
-	public BGPImpl(final BGPDispatcher dispatcher, final BGPMessageParser parser, final InetSocketAddress address,
+	public BGPImpl(final BGPDispatcher dispatcher, final ProtocolMessageFactory parser, final InetSocketAddress address,
 			final BGPSessionProposal proposal, final BGPSessionProposalChecker checker) throws IOException {
 		this.dispatcher = dispatcher;
 		this.parser = parser;

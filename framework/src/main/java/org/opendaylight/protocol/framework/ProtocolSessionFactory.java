@@ -7,21 +7,24 @@
  */
 package org.opendaylight.protocol.framework;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.Timer;
 
 /**
- * Factory for generating Protocol Sessions. This class should be extended to
- * return protocol specific session.
+ * Factory for generating Protocol Sessions. This class should be extended to return protocol specific session.
  */
 public interface ProtocolSessionFactory {
 
 	/**
 	 * Creates and returns protocol specific session.
+	 * 
 	 * @param parent SessionParent
 	 * @param timer Timer
 	 * @param connection connection attributes
 	 * @param sessionId session identifier
 	 * @return new session
 	 */
-	public ProtocolSession getProtocolSession(SessionParent parent, Timer timer, ProtocolConnection connection, int sessionId);
+	public ProtocolSession getProtocolSession(SessionParent dispatcher, Timer timer, ProtocolConnection connection, int sessionId,
+			ChannelHandlerContext ctx);
 }

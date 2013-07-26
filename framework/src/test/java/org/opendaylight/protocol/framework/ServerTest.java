@@ -7,11 +7,14 @@
  */
 package org.opendaylight.protocol.framework;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.Test;
@@ -30,9 +33,11 @@ public class ServerTest {
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
-		this.dispatcher = new DispatcherImpl(Executors.defaultThreadFactory());
+		this.dispatcher = new DispatcherImpl(new MessageFactory());
 
-		this.server = this.dispatcher.createServer(new InetSocketAddress("127.0.0.3", PORT), new ProtocolConnectionFactory() {
+		final InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.3", PORT);
+
+		this.server = this.dispatcher.createServer(serverAddress, new ProtocolConnectionFactory() {
 			@Override
 			public ProtocolConnection createProtocolConnection(final InetSocketAddress address) {
 
@@ -58,16 +63,9 @@ public class ServerTest {
 					}
 				};
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE), SimpleInputStream.FACTORY);
+		}, new SimpleSessionFactory(MAX_MSGSIZE));
 
-		try {
-			this.server = this.dispatcher.createServer(new InetSocketAddress("127.0.0.3", PORT), null, null, null);
-			fail("Exception should have occured.");
-		} catch (final IllegalStateException e) {
-			assertTrue(e.getMessage().startsWith("Server with this address:") && e.getMessage().endsWith("was already created."));
-		}
-		
-		this.clientDispatcher = new DispatcherImpl(Executors.defaultThreadFactory());
+		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
 
 		this.session = this.clientDispatcher.createClient(new ProtocolConnection() {
 			@Override
@@ -89,7 +87,7 @@ public class ServerTest {
 			public SessionListener getListener() {
 				return ServerTest.this.pce;
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE), SimpleInputStream.FACTORY);
+		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
 
 		final int maxAttempts = 1000;
 		int attempts = 0;
@@ -102,11 +100,12 @@ public class ServerTest {
 	}
 
 	@Test
-	public void testConnectionFailed() throws IOException, InterruptedException {
-		this.dispatcher = new DispatcherImpl(Executors.defaultThreadFactory());
-		this.clientDispatcher = new DispatcherImpl(Executors.defaultThreadFactory());
+	public void testConnectionFailed() throws IOException, InterruptedException, ExecutionException {
+		this.dispatcher = new DispatcherImpl(new MessageFactory());
+		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
+		final SimpleSessionListener listener = new SimpleSessionListener();
 
-		this.session = this.clientDispatcher.createClient(new ProtocolConnection() {
+		final Future<ProtocolSession> session = this.clientDispatcher.createClient(new ProtocolConnection() {
 			@Override
 			public SessionPreferencesChecker getProposalChecker() {
 				return new SimpleSessionProposalChecker();
@@ -119,22 +118,29 @@ public class ServerTest {
 
 			@Override
 			public InetSocketAddress getPeerAddress() {
-				return new InetSocketAddress("127.0.0.3", PORT);
+				return new InetSocketAddress("127.0.0.5", PORT);
 			}
 
 			@Override
 			public SessionListener getListener() {
-				return ServerTest.this.pce;
+				return listener;
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE), SimpleInputStream.FACTORY);
-		final int maxAttempts = 1000;
+		}, new SimpleSessionFactory(MAX_MSGSIZE));
+		try {
+			session.get();
+			fail("Exception should have occurred.");
+		} catch (final ExecutionException e) {
+			listener.failed = true;
+			assertTrue(e.getCause() instanceof ConnectException);
+		}
+		final int maxAttempts = 100;
 		int attempts = 0;
-		synchronized (this.pce) {
-			while (!this.pce.failed && ++attempts < maxAttempts) {
-				this.pce.wait(100);
+		synchronized (listener) {
+			while (!listener.failed && ++attempts < maxAttempts) {
+				listener.wait(100);
 			}
 		}
-		assertTrue(this.pce.failed);
+		assertTrue(listener.failed);
 	}
 
 	@After
@@ -142,8 +148,8 @@ public class ServerTest {
 		this.dispatcher.onSessionClosed(this.session);
 		if (this.server != null)
 			this.server.close();
-		this.dispatcher.stop();
-		this.clientDispatcher.stop();
+		// this.dispatcher.stop();
+		// this.clientDispatcher.stop();
 		try {
 			Thread.sleep(100);
 		} catch (final InterruptedException e) {

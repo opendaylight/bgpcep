@@ -128,6 +128,8 @@
                             org.opendaylight.protocol.bgp.util,
                             org.opendaylight.protocol.util,
 							org.slf4j,
+							io.netty.channel, 
+							io.netty.util.concurrent,
 						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.bgp.rib.impl

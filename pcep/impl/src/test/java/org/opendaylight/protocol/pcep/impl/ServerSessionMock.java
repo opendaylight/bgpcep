@@ -7,6 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.Timer;
+
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 import org.opendaylight.protocol.pcep.PCEPMessage;
@@ -15,11 +20,6 @@ import org.opendaylight.protocol.pcep.PCEPSessionPreferences;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalChecker;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.util.Timer;
 
 public class ServerSessionMock extends PCEPSessionImpl {
 
@@ -51,7 +51,7 @@ public class ServerSessionMock extends PCEPSessionImpl {
 			public PCEPSessionProposalChecker getProposalChecker() {
 				return new SimpleSessionProposalChecker();
 			}
-		}, new PCEPMessageFactory(), 5, 30);
+		}, new PCEPMessageFactory(), 5, 30, null);
 		this.client = (MockPCE) client;
 	}
 

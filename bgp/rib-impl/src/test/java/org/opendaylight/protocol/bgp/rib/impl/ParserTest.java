@@ -27,8 +27,6 @@ import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
@@ -36,12 +34,13 @@ import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.util.ByteArray;
-
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.util.ByteArray;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -60,21 +59,19 @@ public class ParserTest {
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
-	final BGPMessageHeader header = new BGPMessageHeader();
-
-	final BGPMessageParser factory = new BGPMessageFactory();
+	final ProtocolMessageFactory factory = new BGPMessageFactory();
 
 	@Test
-	public void testHeaderErrors() {
-		final byte[] wrong = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0x00 };
+	public void testHeaderErrors() throws DeserializerException, DocumentedException {
+		byte[] wrong = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00 };
+		wrong = ByteArray.cutBytes(wrong, 16);
 		try {
-			this.header.fromBytes(wrong);
+			this.factory.parse(wrong);
 			fail("Exception should have occcured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= "
-					+ BGPMessageHeader.COMMON_HEADER_LENGTH + ".", e.getMessage());
+					+ BGPMessageFactory.COMMON_HEADER_LENGTH + ".", e.getMessage());
 			return;
 		}
 		fail();
@@ -85,13 +82,11 @@ public class ParserTest {
 		byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
 				(byte) 0x13, (byte) 0x08 };
-		final BGPMessageHeader h = this.header.fromBytes(bytes);
-		bytes = ByteArray.cutBytes(bytes, 19);
+		bytes = ByteArray.cutBytes(bytes, 16);
 		try {
-			this.factory.parse(bytes, h);
+			this.factory.parse(bytes);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
-			assertEquals("Unhandled message type " + h.getType(), e.getMessage());
 			assertEquals(BGPError.BAD_MSG_TYPE, ((BGPDocumentedException) e).getError());
 			return;
 		}
@@ -104,9 +99,8 @@ public class ParserTest {
 		byte[] bytes = this.factory.put(keepAlive);
 		assertArrayEquals(keepAliveBMsg, bytes);
 
-		final BGPMessageHeader h = this.header.fromBytes(keepAliveBMsg);
-		bytes = ByteArray.cutBytes(bytes, 19);
-		final BGPMessage m = this.factory.parse(bytes, h);
+		bytes = ByteArray.cutBytes(bytes, 16);
+		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPKeepAliveMessage);
 	}
@@ -117,10 +111,9 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
 				(byte) 0x14, (byte) 0x04, (byte) 0x05 };
 
-		final BGPMessageHeader h = this.header.fromBytes(bytes);
-		bytes = ByteArray.cutBytes(bytes, 19);
+		bytes = ByteArray.cutBytes(bytes, 16);
 		try {
-			this.factory.parse(bytes, h);
+			this.factory.parse(bytes);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertThat(e.getMessage(), containsString("Message length field not within valid range."));
@@ -136,9 +129,8 @@ public class ParserTest {
 		byte[] bytes = this.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
-		final BGPMessageHeader h = this.header.fromBytes(openBMsg);
-		bytes = ByteArray.cutBytes(bytes, 19);
-		final BGPMessage m = this.factory.parse(bytes, h);
+		bytes = ByteArray.cutBytes(bytes, 16);
+		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPOpenMessage);
 		assertEquals(new ASNumber(100), ((BGPOpenMessage) m).getMyAS());
@@ -154,10 +146,9 @@ public class ParserTest {
 				(byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0x01, (byte) 0x14, (byte) 0x14,
 				(byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
-		final BGPMessageHeader h = this.header.fromBytes(bMsg);
-		bMsg = ByteArray.cutBytes(bMsg, 19);
+		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
-			this.factory.parse(bMsg, h);
+			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Hold time value not acceptable.", e.getMessage());
@@ -174,10 +165,9 @@ public class ParserTest {
 				(byte) 0x1b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0xff, (byte) 0xff,
 				(byte) 0xff };
 
-		final BGPMessageHeader h = this.header.fromBytes(bMsg);
-		bMsg = ByteArray.cutBytes(bMsg, 19);
+		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
-			this.factory.parse(bMsg, h);
+			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Open message too small.", e.getMessage());
@@ -192,10 +182,9 @@ public class ParserTest {
 				(byte) 0x1d, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0x14, (byte) 0x14,
 				(byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
-		final BGPMessageHeader h = this.header.fromBytes(bMsg);
-		bMsg = ByteArray.cutBytes(bMsg, 19);
+		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
-			this.factory.parse(bMsg, h);
+			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("BGP Protocol version 8 not supported.", e.getMessage());
@@ -211,9 +200,8 @@ public class ParserTest {
 		byte[] bytes = this.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
-		BGPMessageHeader h = this.header.fromBytes(notificationBMsg);
-		bytes = ByteArray.cutBytes(bytes, 19);
-		BGPMessage m = this.factory.parse(bytes, h);
+		bytes = ByteArray.cutBytes(bytes, 16);
+		BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPNotificationMessage);
 		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, ((BGPNotificationMessage) m).getError());
@@ -222,9 +210,8 @@ public class ParserTest {
 		notMsg = new BGPNotificationMessage(BGPError.CONNECTION_NOT_SYNC);
 		bytes = this.factory.put(notMsg);
 
-		h = this.header.fromBytes(bytes);
-		bytes = ByteArray.cutBytes(bytes, 19);
-		m = this.factory.parse(bytes, h);
+		bytes = ByteArray.cutBytes(bytes, 16);
+		m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPNotificationMessage);
 		assertEquals(BGPError.CONNECTION_NOT_SYNC, ((BGPNotificationMessage) m).getError());
@@ -237,10 +224,9 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
 				(byte) 0x14, (byte) 0x03, (byte) 0x02 };
 
-		final BGPMessageHeader h = this.header.fromBytes(bMsg);
-		bMsg = ByteArray.cutBytes(bMsg, 19);
+		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
-			this.factory.parse(bMsg, h);
+			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Notification message too small.", e.getMessage());
@@ -256,10 +242,9 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
 				(byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa };
 
-		final BGPMessageHeader h = this.header.fromBytes(bMsg);
-		bMsg = ByteArray.cutBytes(bMsg, 19);
+		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
-			this.factory.parse(bMsg, h);
+			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("BGP Error code 2 and subcode 170 not recognized.", e.getMessage());

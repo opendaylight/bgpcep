@@ -7,16 +7,15 @@
  */
 package org.opendaylight.protocol.framework;
 
+import io.netty.channel.Channel;
+
 import java.io.IOException;
-import java.io.PipedInputStream;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.channels.ServerSocketChannel;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Timer;
 
 import org.slf4j.Logger;
@@ -37,11 +36,8 @@ public class ProtocolServer implements SessionParent {
 
 	private final InetSocketAddress serverAddress;
 
-	private final ServerSocketChannel channel;
-
 	private final ProtocolConnectionFactory connectionFactory;
 	private final ProtocolSessionFactory sessionFactory;
-	private final ProtocolInputStreamFactory inputStreamFactory;
 
 	/**
 	 * Maps clients of this server to their address. The client is represented as PCEP session. Used BiMap for
@@ -51,11 +47,9 @@ public class ProtocolServer implements SessionParent {
 
 	private final Map<InetSocketAddress, Integer> sessionIds;
 
-	private final DispatcherImpl dispatcher;
-
 	/**
 	 * Creates a Protocol server.
-	 *
+	 * 
 	 * @param dispatcher Dispatcher
 	 * @param address address to which this server is bound
 	 * @param connectionFactory factory for connection specific properties
@@ -63,16 +57,12 @@ public class ProtocolServer implements SessionParent {
 	 * @param sessionFactory factory for sessions
 	 * @param inputStreamFactory factory for input streams
 	 */
-	public ProtocolServer(final DispatcherImpl dispatcher, final InetSocketAddress address, final ServerSocketChannel channel,
-			final ProtocolConnectionFactory connectionFactory, final ProtocolSessionFactory sessionFactory,
-			final ProtocolInputStreamFactory inputStreamFactory) {
-		this.dispatcher = dispatcher;
+	public ProtocolServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
+			final ProtocolSessionFactory sessionFactory) {
 		this.serverAddress = address;
-		this.channel = channel;
 		this.sessions = HashBiMap.create();
 		this.connectionFactory = connectionFactory;
 		this.sessionFactory = sessionFactory;
-		this.inputStreamFactory = inputStreamFactory;
 		this.sessionIds = new HashMap<InetSocketAddress, Integer>();
 	}
 
@@ -80,14 +70,15 @@ public class ProtocolServer implements SessionParent {
 	 * Creates a session. This method is called after the server accepts incoming client connection. A session is
 	 * created for each client. If a session for a client (represented by the address) was already created, return this,
 	 * else create a new one.
-	 *
+	 * 
 	 * @param clientAddress IP address of the client
 	 * @param timer Timer common for all sessions
 	 * @return new or existing PCEPSession
 	 * @see <a href="http://tools.ietf.org/html/rfc5440#appendix-A">RFC</a>
 	 */
-	public ProtocolSession createSession(final Timer timer, final InetSocketAddress clientAddress) {
+	public ProtocolSession createSession(final Timer timer, final Channel channel) {
 		ProtocolSession session = null;
+		final InetSocketAddress clientAddress = (InetSocketAddress) channel.remoteAddress();
 		if (this.sessions.containsKey(clientAddress)) { // when the session is created, the key is the InetSocketAddress
 			session = this.sessions.get(clientAddress);
 			if (compareTo(this.serverAddress.getAddress(), clientAddress.getAddress()) > 0) {
@@ -100,20 +91,16 @@ public class ProtocolServer implements SessionParent {
 		} else {
 			final int sessionId = getNextId(this.sessionIds.get(clientAddress), SESSIONS_LIMIT - 1);
 			session = this.sessionFactory.getProtocolSession(this, timer, this.connectionFactory.createProtocolConnection(clientAddress),
-					sessionId);
+					sessionId, channel.pipeline().context(ProtocolSessionOutboundHandler.class));
 			this.sessionIds.put(clientAddress, sessionId);
 		}
 		this.sessions.put(clientAddress, session);
 		return session;
 	}
 
-	ProtocolInputStream createInputStream(final PipedInputStream pis, final ProtocolMessageFactory pmf) {
-		return this.inputStreamFactory.getProtocolInputStream(pis, pmf);
-	}
-
 	/**
 	 * Returns server address.
-	 *
+	 * 
 	 * @return server address
 	 */
 	public InetSocketAddress getAddress() {
@@ -122,24 +109,13 @@ public class ProtocolServer implements SessionParent {
 
 	@Override
 	public synchronized void close() throws IOException {
-		for (final Entry<InetSocketAddress, ProtocolSession> s : this.sessions.entrySet()) {
-			s.getValue().close();
-		}
-		this.sessions.clear();
-		this.dispatcher.removeServer(this);
-		this.channel.close();
+		// TODO:
 		logger.debug("Server {} closed.", this);
 	}
 
 	@Override
 	public synchronized void onSessionClosed(final ProtocolSession session) {
 		this.sessions.inverse().remove(session); // when the session is closed, the key is the instance of the session
-		this.dispatcher.closeSessionSockets(session);
-	}
-
-	@Override
-	public void checkOutputBuffer(final ProtocolSession session) {
-		this.dispatcher.checkOutputBuffer(session);
 	}
 
 	private static int getNextId(Integer lastId, final int maxId) {
@@ -148,7 +124,7 @@ public class ProtocolServer implements SessionParent {
 
 	/**
 	 * Compares byte array representations of two InetAddresses.
-	 *
+	 * 
 	 * @param addrOne
 	 * @param addrTwo
 	 * @throws IllegalArgumentException if InetAddresses don't belong to the same subclass of InetAddress.
@@ -168,5 +144,10 @@ public class ProtocolServer implements SessionParent {
 				return -1;
 		}
 		return 0;
+	}
+
+	@Override
+	public String toString() {
+		return "ProtocolServer [serverAddress=" + this.serverAddress + ", hashCode()=" + hashCode() + "]";
 	}
 }

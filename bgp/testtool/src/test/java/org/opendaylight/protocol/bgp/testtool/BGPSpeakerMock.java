@@ -9,36 +9,33 @@ package org.opendaylight.protocol.bgp.testtool;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPConnectionImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPInputStream;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalCheckerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnectionFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
+import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 public class BGPSpeakerMock {
 
 	DispatcherImpl dispatcher;
 
 	BGPSpeakerMock() throws IOException {
-		this.dispatcher = new DispatcherImpl(Executors.defaultThreadFactory());
+		this.dispatcher = new DispatcherImpl(new BGPMessageFactory());
 	}
 
 	public static void main(final String[] args) throws IOException {
 
 		final BGPSpeakerMock m = new BGPSpeakerMock();
 
-		final BGPMessageParser parser = new BGPMessageFactory();
+		final ProtocolMessageFactory parser = new BGPMessageFactory();
 
 		m.dispatcher.createServer(new InetSocketAddress("127.0.0.2", 12345), new BGPConnectionFactory() {
 			@Override
@@ -52,6 +49,6 @@ public class BGPSpeakerMock {
 				}
 				return new BGPConnectionImpl(address, new SpeakerSessionListener(m.dispatcher), prefs, new BGPSessionProposalCheckerImpl());
 			}
-		}, new BGPSessionFactory(parser), BGPInputStream.FACTORY);
+		}, new BGPSessionFactory(parser));
 	}
 }

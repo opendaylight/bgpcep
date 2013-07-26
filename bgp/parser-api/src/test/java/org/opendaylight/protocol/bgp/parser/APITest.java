@@ -7,48 +7,53 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Map;
 
 import org.junit.Test;
-
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.Metric;
-import org.opendaylight.protocol.concepts.TEMetric;
+import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
+import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
+import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
+import org.opendaylight.protocol.bgp.concepts.BGPTableType;
+import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
+import org.opendaylight.protocol.bgp.concepts.Community;
+import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
+import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
-import org.opendaylight.protocol.bgp.linkstate.RouteTag;
-import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
 import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
-
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
-import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.Community;
-import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.parser.BGPLinkState;
-import org.opendaylight.protocol.bgp.parser.BGPMessageHeader;
-import org.opendaylight.protocol.bgp.parser.BGPNodeState;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.BGPPrefixState;
-import org.opendaylight.protocol.bgp.parser.BGPRouteState;
+import org.opendaylight.protocol.bgp.linkstate.RouteTag;
+import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
+import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
+import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
+import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
+import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
+import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
+import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
+import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.concepts.IPv4;
+import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.concepts.Metric;
+import org.opendaylight.protocol.concepts.TEMetric;
+import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class APITest {
@@ -77,40 +82,6 @@ public class APITest {
 	}
 
 	@Test
-	public void testBGPHeaderParser() {
-		final BGPMessageHeader h = new BGPMessageHeader();
-		try {
-			h.fromBytes(new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-					(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-					(byte) 0, (byte) 0 });
-			fail("Exception should have occured.");
-		} catch (final IllegalArgumentException e) {
-			assertEquals("Too few bytes in passed array. Passed: 18. Expected: >= " + BGPMessageHeader.COMMON_HEADER_LENGTH + ".",
-					e.getMessage());
-		}
-
-		h.fromBytes(new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0,
-				(byte) 27, (byte) 1 });
-
-		assertEquals(h.getType(), 1);
-		assertEquals(h.getLength(), 27);
-		assertTrue(h.isParsed());
-
-		final BGPMessageHeader hh = new BGPMessageHeader(1, 27);
-
-		final byte[] expected = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0, (byte) 27, (byte) 1 };
-
-		assertArrayEquals(expected, hh.toBytes());
-
-		hh.setParsed();
-
-		assertFalse(hh.isParsed());
-	}
-
-	@Test
 	public void testPrefixes() throws UnknownHostException {
 		final NetworkPrefixState state = new NetworkPrefixState(this.netObjState, Sets.<RouteTag> newTreeSet(), null);
 
@@ -135,5 +106,83 @@ public class APITest {
 		final BGPLinkState l1 = new BGPLinkState(this.objState, new NetworkLinkState(this.netObjState, m, null, null, null, LinkProtectionType.UNPROTECTED, null, null, null, null));
 		assertEquals(l1, l1.newInstance());
 		assertEquals(l1, new BGPLinkState(l1));
+	}
+
+	@Test
+	public void testBGPParameter() {
+
+		final BGPTableType t = new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Unicast);
+		final BGPTableType t1 = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+
+		final BGPParameter tlv1 = new MultiprotocolCapability(t);
+
+		final BGPParameter tlv2 = new MultiprotocolCapability(t1);
+
+		final Map<BGPTableType, Boolean> tt = Maps.newHashMap();
+		tt.put(t, true);
+		tt.put(t1, false);
+
+		final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
+
+		final BGPParameter tlv4 = new AS4BytesCapability(new ASNumber(40));
+
+		assertFalse(((GracefulCapability) tlv3).isRestartFlag());
+
+		assertEquals(0, ((GracefulCapability) tlv3).getRestartTimerValue());
+
+		assertEquals(tlv1.getType(), tlv2.getType());
+
+		assertFalse(tlv1.equals(tlv2));
+
+		assertNotSame(tlv1.hashCode(), tlv3.hashCode());
+
+		assertNotSame(tlv2.toString(), tlv3.toString());
+
+		assertEquals(((GracefulCapability) tlv3).getTableTypes(), tt);
+
+		assertNotSame(((CapabilityParameter) tlv1).getCode(), ((CapabilityParameter) tlv3).getCode());
+
+		assertEquals(((MultiprotocolCapability) tlv1).getSafi(), ((MultiprotocolCapability) tlv2).getSafi());
+
+		assertNotSame(((MultiprotocolCapability) tlv1).getAfi(), ((MultiprotocolCapability) tlv2).getAfi());
+
+		assertEquals(40, ((AS4BytesCapability) tlv4).getASNumber().getAsn());
+
+		assertEquals(new AS4BytesCapability(new ASNumber(40)).toString(), tlv4.toString());
+	}
+
+	@Test
+	public void testDocumentedException() {
+		final DocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
+		assertEquals("Some message", de.getMessage());
+		assertEquals(BGPError.BAD_BGP_ID, ((BGPDocumentedException) de).getError());
+		assertNull(((BGPDocumentedException) de).getData());
+	}
+
+	@Test
+	public void testBGPKeepAliveMessage() {
+		final BGPMessage msg = new BGPKeepAliveMessage();
+		assertTrue(msg instanceof BGPKeepAliveMessage);
+	}
+
+	@Test
+	public void testBGPNotificationMessage() {
+		final BGPMessage msg = new BGPNotificationMessage(BGPError.AS_PATH_MALFORMED);
+		assertTrue(msg instanceof BGPNotificationMessage);
+		assertEquals(BGPError.AS_PATH_MALFORMED, ((BGPNotificationMessage) msg).getError());
+		assertNull(((BGPNotificationMessage) msg).getData());
+	}
+
+	@Test
+	public void testBGPOpenMessage() {
+		final BGPMessage msg = new BGPOpenMessage(new ASNumber(58), (short) 5, null, null);
+		assertNull(((BGPOpenMessage) msg).getOptParams());
+	}
+
+	@Test
+	public void testToString() {
+		final BGPMessage o = new BGPOpenMessage(new ASNumber(58), (short) 5, null, null);
+		final BGPMessage n = new BGPNotificationMessage(BGPError.ATTR_FLAGS_MISSING);
+		assertNotSame(o.toString(), n.toString());
 	}
 }
