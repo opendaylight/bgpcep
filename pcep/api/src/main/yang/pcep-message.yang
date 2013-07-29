@@ -93,8 +93,72 @@ module pcep-message {
 		}
 	}
 
+	// TLVs
+	grouping no-path-vector-tlv {
+		description "NO-PATH-VECTOR TLV";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+
+		leaf flags {
+			type bits {
+				bit p2mp-unreachable {
+					position 24;
+				}
+				bit no-gco-solution {
+					position 25;
+				}
+				bit no-gco-migration {
+					position 26;
+				}
+				bit path-key {
+					position 27;
+				}
+				bit chain-unavailable {
+					position 28;
+				}
+				bit unknown-source {
+					position 29;
+				}
+				bit unknown-destination {
+					position 30;
+				}
+				bit pce-unavailable {
+					position 31;
+				}
+			}
+			mandatory true;
+		}
+	}
+
+	grouping overload-duration-tlv {
+		description "OVERLOAD-DURATION TLV";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
+
+		leaf duration {
+			type uint32;
+			units seconds;
+		}
+	}
+
+	grouping req-missing-tlv {
+		description "REQ-MISSING TLV";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+
+		leaf request-id {
+			type request-id;
+		}
+	}
+
+	grouping p2mp-capable-tlv {
+		description "P2MP CAPABLE TLV";
+		reference "https://tools.ietf.org/html/rfc6006#section-3.1.2";
+
+		leaf value {
+			type uint16;
+			mandatory true;
+		}
+	}
+
 	// Objects
-	// RFC5440
 	grouping object-header {
 		description "Common Object Header";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.2";
