@@ -39,11 +39,79 @@
 			<artifactId>mockito-configuration</artifactId>
 			<version>1.0</version>
 			<scope>test</scope>
-		</dependency>
+        </dependency>
+
+        <!--
+            FIXME: this is in support of the generated code. This should not
+                   be here, but the plugin should bring it in.
+        -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>yang-binding</artifactId>
+            <version>0.5.4-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>yang-common</artifactId>
+            <version>0.5.4-SNAPSHOT</version>
+        </dependency>
+
+        <!--
+             FIXME: these are IETF models which are pre-generated in SAL infra.
+                    This should not be here, but rather should somehow be
+                    discovered by the plugin.
+        -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>ietf-inet-types</artifactId>
+            <version>2010.09.24-SNAPSHOT</version>
+        </dependency>
+        <!--dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>ietf-yang-types</artifactId>
+            <version>2010.09.24-SNAPSHOT</version>
+        </dependency-->
 	</dependencies>
 
 	<build>
-		<plugins>
+        <plugins>
+            <!-- Disabled until the plugin actually works
+            <plugin>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
+                <version>0.5.4-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-sources</goal>
+                        </goals>
+                        <configuration>
+                            <yangFilesRootDir>src/main/yang</yangFilesRootDir>
+                            <codeGenerators>
+                                <generator>
+                                    <codeGeneratorClass>
+                                        org.opendaylight.controller.maven.sal.api.gen.plugin.CodeGeneratorImpl
+                                    </codeGeneratorClass>
+                                    <outputBaseDir>
+                                        target/generated-sources/sal
+                                    </outputBaseDir>
+                                </generator>
+                            </codeGenerators>
+                            <inspectDependencies>true</inspectDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.opendaylight.controller</groupId>
+                        <artifactId>maven-sal-api-gen-plugin</artifactId>
+                        <version>0.5.4-SNAPSHOT</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            -->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>

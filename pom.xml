@@ -21,6 +21,7 @@
 		<logback.version>1.0.7</logback.version>
 		<maven.bundle.version>2.3.7</maven.bundle.version>
 		<maven.compiler.version>2.5.1</maven.compiler.version>
+		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.14.1</surefire.version>
 	</properties>
@@ -117,11 +118,25 @@
 					<ignoreNonCompile>true</ignoreNonCompile>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
+            <plugin>
+                <!-- Let eclipse know about the generated sources -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
 				<version>1.8</version>
-			</plugin>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/generated-sources/sal</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -138,9 +153,7 @@
 									<pluginExecutionFilter>
 										<groupId>pl.project13.maven</groupId>
 										<artifactId>git-commit-id-plugin</artifactId>
-										<versionRange>
-											[2.1.4,)
-										</versionRange>
+										<versionRange>[2.1.4,)</versionRange>
 										<goals>
 											<goal>revision</goal>
 										</goals>
@@ -149,6 +162,19 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.opendaylight.controller</groupId>
+                                        <artifactId>yang-maven-plugin</artifactId>
+                                        <versionRange>[0.5,)</versionRange>
+                                        <goals>
+                                            <goal>generate-sources</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -156,4 +182,20 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
+	<repositories>
+		<repository>
+			<id>opendaylight-snapshot</id>
+			<name>opendaylight-snapshot</name>
+			<url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>opendaylight-snapshot</id>
+			<name>opendaylight-snapshot</name>
+			<url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
