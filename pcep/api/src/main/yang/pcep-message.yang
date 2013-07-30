@@ -15,11 +15,14 @@ module pcep-message {
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
 
-	revision "2013-07-29" {
+	revision "2013-07-30" {
 		description
 			"Initial revision.";
 		reference "RFC5440";
 	}
+
+	// NOTE: this model uses counts bits in fields from left to right,
+	//       just as IANA does for PCEP protocol.
 
 	// FIXME: IEEE754 module
 	grouping ieee754-32 {
@@ -43,6 +46,10 @@ module pcep-message {
 		}
 	}
 
+	// FIXME: IANA module
+	typedef iana-enterprise-number {
+		type uint32;
+	}
 
 	// FIXME: RSVP module
 	typedef rsvp-attribute-filter {
@@ -65,6 +72,84 @@ module pcep-message {
 		leaf include-all {
 			type rsvp-attribute-filter;
 			mandatory true;
+		}
+	}
+
+	typedef rsvp-lsp-id {
+		reference "https://tools.ietf.org/html/rfc3209#section-4.6.2.1";
+		type uint32;
+	}
+
+	typedef rsvp-tunnel-id {
+		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.1";
+		type uint16;
+	}
+
+	typedef rsvp-ipv4-extended-tunnel-id {
+		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.1";
+		type inet:ipv4-address;
+	}
+
+	typedef rsvp-ipv6-extended-tunnel-id {
+		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.2";
+		type inet:ipv6-address;
+	}
+
+	grouping rsvp-error-spec {
+		reference "https://tools.ietf.org/html/rfc2205#page-81";
+
+		leaf node {
+			type inet:ip-address;
+			mandatory true;
+		}
+
+		leaf flags {
+			type bits {
+				bit in-place {
+					position 7;
+				}
+				bit not-guilty {
+					position 6;
+				}
+			}
+		}
+
+		leaf code {
+			type uint8;
+			mandatory true;
+		}
+
+		leaf value {
+			type uint16;
+			mandatory true;
+		}
+	}
+
+	grouping rsvp-user-error-spec {
+		reference "https://tools.ietf.org/html/rfc5284#section-3";
+
+		leaf enterprise {
+			type iana-enterprise-number;
+			mandatory true;
+		}
+
+		leaf sub-org {
+			type uint8;
+			default 0;
+		}
+
+		leaf value {
+			type uint16;
+			mandatory true;
+		}
+
+		leaf description {
+			type string;
+			default "";
+		}
+
+		container subobjects {
+			// Filled by enterprise-specific augmentations
 		}
 	}
 
@@ -155,6 +240,119 @@ module pcep-message {
 		leaf value {
 			type uint16;
 			mandatory true;
+		}
+	}
+
+	grouping stateful-capability-tlv {
+		description "Stateful PCE Capability TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
+
+		leaf flags {
+			type bits {
+				bit lsp-update-capability {
+					position 31;
+				}
+				bit include-db-version {
+					position 30;
+				}
+			}
+			mandatory true;
+		}
+	}
+
+	grouping lsp-db-version-tlv {
+		description "LSP State Database Version TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
+
+		leaf version {
+			type uint64;
+			mandatory true;
+		}
+	}
+
+	grouping predundancy-group-id-tlv {
+		description "PCE Redundancy Group Identifier TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
+
+		leaf identifier {
+			type binary;
+			mandatory true;
+		}
+	}
+
+	grouping lsp-identifiers-tlv {
+		description "LSP Identifiers TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
+
+		leaf lsp-id {
+			type rsvp-lsp-id;
+			mandatory true;
+		}
+
+		leaf tunnel-id {
+			type rsvp-tunnel-id;
+			mandatory true;
+		}
+
+		choice address-family {
+			case ipv4 {
+				leaf ipv4-tunnel-sender-address {
+					type inet:ipv4-address;
+					mandatory true;
+				}
+				leaf ipv4-extended-tunnel-id {
+					type rsvp-ipv4-extended-tunnel-id;
+					mandatory true;
+				}
+			}
+			case ipv6 {
+				leaf ipv6-tunnel-sender-address {
+					type inet:ipv6-address;
+					mandatory true;
+				}
+				leaf ipv6-extended-tunnel-id {
+					type rsvp-ipv6-extended-tunnel-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	grouping symbolic-path-name-tlv {
+		description "Symbolic Path Name TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
+
+		leaf path-name {
+			type binary;
+			mandatory true;
+		}
+	}
+
+	grouping lsp-error-code-tlv {
+		description "LSP Error Code TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.3";
+
+		leaf error-code {
+			type uint32;
+			mandatory true;
+		}
+	}
+
+	grouping rsvp-error-spec-tlv {
+		description "RSVP Error Spec TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.4";
+
+		choice error-type {
+			case rsvp {
+				container rsvp-error {
+					uses rsvp-error-spec;
+				}
+			}
+			case user {
+				container user-error {
+					uses rsvp-user-error-spec;
+				}
+			}
 		}
 	}
 
@@ -628,6 +826,24 @@ module pcep-message {
 		uses message-header;
 	}
 
+	grouping lsp-attributes {
+		container lspa {
+			uses lspa-object;
+		}
+
+		container bandwidth {
+			uses bandwidth-object;
+		}
+
+		list metrics {
+			uses metric-object;
+		}
+
+		container include-route {
+			uses include-route-object;
+		}
+	}
+
 	notification pcreq {
 		description "Path Computation Request Message";
 		reference "https://tools.ietf.org/html/rfc5440#section-6.4";
@@ -656,18 +872,6 @@ module pcep-message {
 						uses endpoints-object;
 					}
 
-					container lspa {
-						uses lspa-object;
-					}
-
-					container bandwidth {
-						uses bandwidth-object;
-					}
-
-					list metrics {
-						uses metric-object;
-					}
-
 					container reported-route {
 						uses reported-route-object;
 
@@ -676,12 +880,15 @@ module pcep-message {
 						}
 					}
 
-					container include-route {
-						uses include-route-object;
-					}
-
 					container load-balancing {
 						uses load-balancing-object;
+					}
+
+					uses lsp-attributes;
+
+					container lsp {
+						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.4";
+						uses lsp-object;
 					}
 				}
 
@@ -697,24 +904,6 @@ module pcep-message {
 					}
 				}
 			}
-		}
-	}
-
-	grouping lsp-attributes {
-		container lspa {
-			uses lspa-object;
-		}
-
-		container bandwidth {
-			uses bandwidth-object;
-		}
-
-		list metrics {
-			uses metric-object;
-		}
-
-		container include-route {
-			uses include-route-object;
 		}
 	}
 
@@ -735,6 +924,11 @@ module pcep-message {
 		list replies {
 			container rp {
 				uses rp-object;
+			}
+
+			container lsp {
+				reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.5";
+				uses lsp-object;
 			}
 
 			choice result {
@@ -791,6 +985,13 @@ module pcep-message {
 			case session {
 				container open {
 					uses open-object;
+				}
+			}
+
+			case stateful {
+				container srp {
+					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
+					uses srp-object;
 				}
 			}
 		}
