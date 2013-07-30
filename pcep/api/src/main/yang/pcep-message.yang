@@ -178,6 +178,10 @@ module pcep-message {
 		}
 	}
 
+	typedef of-id {
+		type uint16;
+	}
+
 	// TLVs
 	grouping no-path-vector-tlv {
 		description "NO-PATH-VECTOR TLV";
@@ -216,7 +220,7 @@ module pcep-message {
 
 	grouping overload-duration-tlv {
 		description "OVERLOAD-DURATION TLV";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
 
 		leaf duration {
 			type uint32;
@@ -254,6 +258,9 @@ module pcep-message {
 				}
 				bit include-db-version {
 					position 30;
+				}
+				bit initiation {
+					position 29;
 				}
 			}
 			mandatory true;
@@ -356,6 +363,30 @@ module pcep-message {
 		}
 	}
 
+	grouping of-list-tlv {
+		description "OF-List TLV";
+		reference "https://tools.ietf.org/html/rfc5541#section-2.1";
+
+		leaf-list codes {
+			type of-id;
+		}
+	}
+
+	grouping order-tlv {
+		description "Order TLV";
+		reference "https://tools.ietf.org/html/rfc5557#section-5.4";
+
+		leaf delete {
+			type uint32;
+			mandatory true;
+		}
+
+		leaf setup {
+			type uint32;
+			mandatory true;
+		}
+	}
+
 	// Objects
 	grouping object-header {
 		description "Common Object Header";
@@ -385,7 +416,29 @@ module pcep-message {
 		description "OPEN Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.3";
 
-		uses object;
+		uses object {
+			augment "tlvs" {
+				container of-list {
+					uses of-list-tlv;
+				}
+
+				container p2mp {
+					uses p2mp-capable-tlv;
+				}
+
+				container stateful {
+					uses stateful-capability-tlv;
+				}
+
+				container predundancy-group-id {
+					uses predundancy-group-id-tlv;
+				}
+
+				container lsp-db-version {
+					uses lsp-db-version-tlv;
+				}
+			}
+		}
 
 		leaf version {
 			type protocol-version;
@@ -417,7 +470,13 @@ module pcep-message {
 		description "RP Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.4";
 
-		uses object;
+		uses object {
+			augment "tlvs" {
+				container order {
+					uses order-tlv;
+				}
+			}
+		}
 
 		leaf priority {
 			type uint8 {
@@ -465,6 +524,24 @@ module pcep-message {
 
 		leaf ero-compression {
 			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+			type boolean;
+			default false;
+		}
+
+		leaf supply-of {
+			reference "https://tools.ietf.org/html/rfc5541#section-3.3";
+			type boolean;
+			default false;
+		}
+
+		leaf order {
+			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
+			type boolean;
+			default false;
+		}
+
+		leaf make-before-break {
+			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 			type boolean;
 			default false;
 		}
@@ -563,33 +640,13 @@ module pcep-message {
 		}
 	}
 
-	grouping explicit-route-object {
+	grouping route-object {
 		description "Explicit Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.9";
+		reference "
+			https://tools.ietf.org/html/rfc5440#section-7.9
+			https://tools.ietf.org/html/rfc5440#section-7.10
+			https://tools.ietf.org/html/rfc5440#section-7.12";
 
-		// No possibility of TLVs
-		uses object-header;
-
-		list subobjects {
-			// FIXME: Technology-specific augmentation
-		}
-	}
-
-	grouping include-route-object {
-		description "Include Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.12";
-
-		// No possibility of TLVs
-		uses object-header;
-
-		list subobjects {
-			// FIXME: Technology-specific augmentation
-		}
-	}
-
-	grouping reported-route-object {
-		description "Reported Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.10";
 
 		// No possibility of TLVs
 		uses object-header;
@@ -655,7 +712,15 @@ module pcep-message {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
 
 		// No possibility of TLVs
-		uses object;
+		uses object {
+			augment "tlvs" {
+				container overload-duration {
+					when "../type = 2 and ../value = 1";
+
+					uses overload-duration-tlv;
+				}
+			}
+		}
 
 		leaf type {
 			type uint8;
@@ -673,7 +738,14 @@ module pcep-message {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
 
 		// No possibility of TLVs
-		uses object;
+		uses object {
+			augment "tlvs" {
+				container req-missing {
+					when "../type = 7";
+					uses req-missing-tlv;
+				}
+			}
+		}
 
 		leaf type {
 			type uint8;
@@ -737,13 +809,39 @@ module pcep-message {
 			type srp-id-number;
 			mandatory true;
 		}
+
+		leaf flags {
+			type bits {
+				bit lsp-remove {
+					position 31;
+				}
+			}
+		}
 	}
 
 	grouping lsp-object {
 		description "SRP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 
-		uses object;
+		uses object {
+			augment "tlvs" {
+				container lsp-error-code {
+					uses lsp-error-code-tlv;
+				}
+
+				container lsp-identifiers {
+					uses lsp-identifiers-tlv;
+				}
+
+				container rsvp-error-spec {
+					uses rsvp-error-spec-tlv;
+				}
+
+				container symblic-path-name {
+					uses symbolic-path-name-tlv;
+				}
+			}
+		}
 
 		leaf plsp-id {
 			type plsp-id;
@@ -797,6 +895,68 @@ module pcep-message {
 		}
 	}
 
+	grouping of-object {
+		description "OF Object";
+		reference "https://tools.ietf.org/html/rfc5541#section-3.1";
+
+		uses object;
+
+		leaf code {
+			type of-id;
+			mandatory true;
+		}
+	}
+
+	grouping classtype-object {
+		description "CLASSTYPE Object";
+		reference "https://tools.ietf.org/html/rfc5455#section-3";
+
+		uses object-header;
+
+		leaf class-type {
+			type uint8 {
+				range 1..7;
+			}
+			mandatory true;
+		}
+	}
+
+	grouping gc-object {
+		description "GLOBAL CONSTRAINTS (GC) Object";
+		reference "https://tools.ietf.org/html/rfc5557#section-5.5";
+
+		uses object;
+
+		leaf max-hop {
+			type uint8;
+			mandatory true;
+		}
+
+		leaf max-utilization {
+			type uint8 {
+				range 0..100;
+			}
+			units percent;
+			mandatory true;
+		}
+
+		leaf min-utilization {
+			type uint8 {
+				range 0..100;
+			}
+			units percent;
+			mandatory true;
+		}
+
+		leaf over-booking-factor {
+			type uint8 {
+				range 0..100;
+			}
+			units percent;
+			mandatory true;
+		}
+	}
+
 	// Messages
 	grouping message-header {
 		description "Common Header";
@@ -840,7 +1000,15 @@ module pcep-message {
 		}
 
 		container include-route {
-			uses include-route-object;
+			uses route-object;
+		}
+
+		container of {
+			uses of-object;
+		}
+
+		container class-type {
+			uses classtype-object;
 		}
 	}
 
@@ -873,7 +1041,7 @@ module pcep-message {
 					}
 
 					container reported-route {
-						uses reported-route-object;
+						uses route-object;
 
 						container bandwidth {
 							uses bandwidth-object;
@@ -905,11 +1073,27 @@ module pcep-message {
 				}
 			}
 		}
+
+		list svec {
+			uses svec-object;
+
+			container of {
+				uses of-object;
+			}
+
+			container gc {
+				uses gc-object;
+			}
+
+			list metric {
+				uses metric-object;
+			}
+		}
 	}
 
 	grouping path-definition {
 		container explicit-route {
-			uses explicit-route-object;
+			uses route-object;
 		}
 
 		uses lsp-attributes;
@@ -941,7 +1125,13 @@ module pcep-message {
 				}
 				case failure {
 					container no-path {
-						uses no-path-object;
+						uses no-path-object {
+							augment "tlvs" {
+								container no-path-vector {
+									uses no-path-vector-tlv;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1047,6 +1237,33 @@ module pcep-message {
 			container path {
 				uses path-definition;
 			}
+		}
+	}
+
+	notification pcinitiate {
+		description "LSP Initiate Message";
+		reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
+
+		uses message-header;
+
+		list requests {
+			container srp {
+				uses srp-object;
+			}
+
+			container lsp {
+				uses lsp-object;
+			}
+
+			container endpoints {
+				uses endpoints-object;
+			}
+
+			container ero {
+				uses route-object;
+			}
+
+			uses lsp-attributes;
 		}
 	}
 }
