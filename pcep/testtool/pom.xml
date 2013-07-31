@@ -6,7 +6,7 @@
 	<parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>pcep-parent</artifactId>
-        <version>1.0</version>
+        <version>0.1.0-SNAPSHOT</version>
     </parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -22,28 +22,28 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-api</artifactId>
-			<version>1.0</version>
+            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>concepts</artifactId>
-			<version>1.0</version>
+            <version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>pcep-impl</artifactId>
+            <version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>pcep-impl</artifactId>
+            <version>${project.version}</version>
+			<type>test-jar</type>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>pcep-impl</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>pcep-impl</artifactId>
-			<version>1.0</version>
-			<type>test-jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
