@@ -23,6 +23,7 @@
 		<maven.bundle.version>2.4.0</maven.bundle.version>
 		<maven.compiler.version>3.1</maven.compiler.version>
 		<maven.shade.version>2.1</maven.shade.version>
+		<mockito.version>1.9.5</mockito.version>
 		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.15</surefire.version>
@@ -114,7 +115,7 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>${dependency.version}</version>
 				<configuration>
-					<!--failOnWarning>true</failOnWarning -->
+					<failOnWarning>true</failOnWarning>
 					<ignoreNonCompile>true</ignoreNonCompile>
 				</configuration>
 			</plugin>

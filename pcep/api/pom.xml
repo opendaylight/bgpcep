@@ -30,6 +30,16 @@
             <version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>util</artifactId>
+            <version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>${slf4j.version}</version>
@@ -44,7 +54,6 @@
         <!--
             FIXME: this is in support of the generated code. This should not
                    be here, but the plugin should bring it in.
-        -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>yang-binding</artifactId>
@@ -55,17 +64,18 @@
             <artifactId>yang-common</artifactId>
             <version>0.5.4-SNAPSHOT</version>
         </dependency>
+        -->
 
         <!--
              FIXME: these are IETF models which are pre-generated in SAL infra.
                     This should not be here, but rather should somehow be
                     discovered by the plugin.
-        -->
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>ietf-inet-types</artifactId>
             <version>2010.09.24-SNAPSHOT</version>
         </dependency>
+        -->
         <!--dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>ietf-yang-types</artifactId>
