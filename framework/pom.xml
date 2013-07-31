@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<parent>
-		<groupId>org.opendaylight.protocol</groupId>
+		<groupId>org.opendaylight.bgpcep</groupId>
 		<artifactId>protocol-parent</artifactId>
 		<version>0.1</version>
 	</parent>
@@ -31,12 +31,12 @@
 			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.opendaylight.protocol</groupId>
+			<groupId>org.opendaylight.bgpcep</groupId>
 			<artifactId>util</artifactId>
 			<version>1.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.opendaylight.protocol</groupId>
+			<groupId>org.opendaylight.bgpcep</groupId>
 			<artifactId>mockito-configuration</artifactId>
 			<version>1.0</version>
 			<scope>test</scope>

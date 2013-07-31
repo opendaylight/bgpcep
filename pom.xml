@@ -5,7 +5,7 @@
 	<name>OpenDaylight protocols</name>
 	<url>index.html</url>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.opendaylight.protocol</groupId>
+	<groupId>org.opendaylight.bgpcep</groupId>
 	<artifactId>protocol-parent</artifactId>
 	<description>OpenDaylight BGP+PCEP protocol parent</description>
 	<version>0.1</version>
