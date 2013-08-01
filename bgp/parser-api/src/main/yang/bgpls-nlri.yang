@@ -1,0 +1,334 @@
+module bgpls-nlri {
+
+	namespace "urn:cisco:params:xml:ns:yang:controller:bgpls";
+	prefix "nlri";
+	import controller-network {prefix cn;}
+	import  ietf-yang-types { prefix yang;}
+	import  ietf-inet-types { prefix inet;}
+
+
+	typedef bgpls-id {
+		type uint32;
+	}
+
+    typedef iso-system-id {
+        type string {
+            length "6";
+        }
+    }
+
+    typedef iso-pseudonode-id {
+        type string {
+            length "1";
+        }
+    }
+
+    typedef bgpls-nlri-type {
+        type enumeration {
+            enum node {
+                value 1;
+            }
+            enum link {
+                value 2;
+            }
+            enum ipv4-prefix {
+                value 3;
+            }
+            enum ipv6-prefix {
+                value 4;
+            }
+        }
+    }
+
+
+
+    typedef protocol-id {
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+            enum isis-level1 {
+                value 1;
+            }
+            enum isis-level2 {
+                value 2;
+            }
+            enum ospf {
+                value 3;
+            }
+            enum direct {
+                value 4;
+            }
+            enum static {
+                value 5;
+            }
+        }
+    }
+
+
+
+    grouping Node-Descriptors {
+        leaf Autonomous-System {
+            type inet:as-number;
+        }
+
+        leaf BGP-LS-Identifier {
+            type bgpls-id;
+        }
+
+        leaf Area-ID {
+            type uint32;
+        }
+
+        choice igp-router-id {
+            case isis-node {
+                leaf iso-system-id {
+                  type iso-system-id;
+                }
+            }
+
+            case isis-pseudonode {
+                leaf iso-pn-system-id {
+                    type iso-system-id;
+                }
+        
+                leaf iso-pseudonode-id {
+                    type iso-pseudonode-id;
+                }
+            }  
+
+            case ospf-node {
+                leaf ospf-router-id {
+                    type inet:ipv4-address;
+                }
+            }
+
+            case ospf-pseudonode {
+                leaf ospf-dr-router-id {
+                    type inet:ipv4-address;
+                }
+
+                leaf ospf-dr-interface-id {
+                  type uint32;   // replace iwth interface id 
+                }
+            }
+        }
+
+    }
+
+
+    notification bgpls-pdu {
+
+        leaf NLRI-Type {
+            type bgpls-nlri-type;
+            mandatory true;
+        }
+
+        leaf Route-Distinguisher {
+            type uint64;
+        }
+
+        container bgpls-nlri {
+
+            leaf Protocol-ID {
+                type protocol-id;
+                mandatory true;
+            }
+
+            leaf Identifier {
+                type uint64;
+                mandatory true;
+            }
+
+            container Local-Node-Descriptors {
+                uses Node-Descriptors;
+            }
+
+            container Remote-Node-Descriptors {
+                when "../nlri-type = link";
+                uses Node-Descriptors;
+            }
+
+            container Link-Descriptors {
+                when "../nlri-type = link";
+
+                leaf IPv4-interface-address {
+                    type inet:ipv4-address;
+                }
+
+                leaf IPv6-interface-address {
+                    type inet:ipv6-address;
+                }
+
+                leaf IPv4-neighbor-address {
+                    type inet:ipv4-address;
+                }
+
+                leaf IPv6-neighbor-address {
+                    type inet:ipv6-address;
+                }
+
+                leaf Multi-Topology-ID {
+                    type uint16;
+                }
+            }
+
+            container Prefix-Descriptors {
+               when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+
+                leaf Multi-Topology-ID {
+                    type uint16;
+                }
+
+                leaf OSPF-Route-Type {
+                    when "../Protocol-ID = 'ospf'";
+                    type uint16;
+                }
+
+                leaf IP-Reachability-Information {
+                    type inet:ip-prefix;
+                }
+            }
+
+        }
+
+        choice link-state-attribute {
+            case node-attributes {
+                when "../../NLRI-Type = node";
+
+                leaf-list Multi-Topology-Identifiers {
+                    type uint16;
+                }
+
+                leaf Node-Flag-Bits {
+                    type uint8;              // replace with better definition
+                }
+
+                leaf Node-Name {
+                    type string;
+                }
+
+                leaf-list ISIS-Area-Identifiers {
+                    type uint16;
+                    description "list of areas in which the node can be";
+                }
+
+                leaf IPv4-Local-Node-Router-ID {
+                    type inet:ipv4-address;
+                }
+
+                leaf IPv6-Local-Node-Router-ID {
+                    type inet:ipv6-address;
+                }
+            }
+
+            case link-attributes {
+                when "../../NLRI-Type = link";
+
+                leaf-list Multi-Topology-Identifiers {
+                    type uint16;
+                }
+
+                leaf Node-Flag-Bits {
+                    type uint8;              // replace with better definition
+                }
+
+                leaf Node-Name {
+                    type string;
+                }
+
+                leaf-list ISIS-Area-Identifiers {
+                    type uint16;
+                    description "list of areas in which the node can be";
+                }
+
+                leaf IPv4-Local-Node-Router-ID {
+                    type inet:ipv4-address;
+                }
+
+                leaf IPv6-Local-Node-Router-ID {
+                    type inet:ipv6-address;
+                }
+
+                leaf IPv4-Local-Remote-Router-ID {
+                    type inet:ipv4-address;
+                }
+
+                leaf IPv6-Local-Remote-Router-ID {
+                    type inet:ipv6-address;
+                }
+
+                leaf admin-group {
+                    type uint32;
+                }
+
+                leaf max-link-bandwidth {
+                    type decimal64 {
+                        fraction-digits 2;
+                    }
+                }
+
+                leaf max-reservable-bandwidth {
+                    type decimal64 {
+                      fraction-digits 2;
+                    }
+                }
+
+                leaf unreserved-bandwidth {
+                    type decimal64 {
+                      fraction-digits 2;
+                    }
+                }
+
+                leaf te-default-metric {
+                    type uint32 {
+                      range "1..4261412864";
+                    }
+                }
+
+                leaf link-protection-type {
+                    type uint16; 
+                }
+
+                leaf mpls-protocol-mask-metric {
+                    type uint8; 
+                }
+
+                leaf-list shared-risk-link-groups {
+                    type uint32; 
+                }
+
+                leaf link-name {
+                    type string; 
+                }
+            }
+
+            case prefix-attributes {
+                when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+
+                leaf igp-flags {
+                    type uint8;
+                }
+ 
+                leaf-list route-tags {
+                    type uint32;
+                    description "list of route tags";
+                }
+
+                leaf-list extended-tags {
+                    type uint32;
+                    description "list of route tags";
+                }
+ 
+                leaf prefix-metric {
+                    type uint32;
+                }
+ 
+                leaf ospf-forwarding-address {
+                    when "../igp-router-id/ospf-node";
+                    type inet:ipv4-address;
+                }
+            }
+        }
+    }
+}
