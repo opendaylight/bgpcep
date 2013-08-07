@@ -1,0 +1,7 @@
+Verified+1: jenkins-bgpcep
+Code-Review+2: Robert Varga <rovarga@cisco.com>
+Submitted-by: Robert Varga <rovarga@cisco.com>
+Submitted-at: Wed, 07 Aug 2013 09:06:55 +0000
+Reviewed-on: http://git.opendaylight.org/gerrit/766
+Project: bgpcep
+Branch: refs/heads/master
