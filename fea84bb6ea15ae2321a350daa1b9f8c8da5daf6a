@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//+cg\u003d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/LinkStateParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-07T15:27:02Z",
+      "side": 1,
+      "message": "This is wrong. currentState() returns a reference to state, which is okay, but the problem is that with*() functions copy the state object, which will not be propagated back to the link.\n\nThe proper thing here is to create a local variable:\n\nNetworkLinkState state \u003d ...\n\nand overwrite it with these functions:\n\nstate \u003d state.withAdministrativeGroup(...);\n\nand instantiate the link just before returning it.",
+      "revId": "fea84bb6ea15ae2321a350daa1b9f8c8da5daf6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
