@@ -4,6 +4,11 @@ module bgpls-nlri {
 	prefix "nlri";
 	import  ietf-inet-types { prefix inet;}
 
+	revision "2013-08-07" {
+		description "Initial version";
+		reference "https://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03";
+	}
+
 	typedef bgpls-id {
 		type uint32;
 	}
