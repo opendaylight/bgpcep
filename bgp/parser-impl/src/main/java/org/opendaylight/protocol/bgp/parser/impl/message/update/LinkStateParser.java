@@ -53,7 +53,6 @@ import org.opendaylight.protocol.bgp.linkstate.RouteTag;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
 import org.opendaylight.protocol.bgp.linkstate.UnnumberedLinkIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.BGPLinkMP;
@@ -79,7 +78,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -614,7 +612,7 @@ public class LinkStateParser {
 	 */
 	public static NetworkNodeImpl parseNodeAttributes(final NodeIdentifier nodeId, final Map<Integer, ByteList> attributes)
 			throws BGPParsingException {
-		final Map<TopologyIdentifier, TopologyNodeInformation> topologyMembership = Maps.newHashMap();
+		final Set<TopologyIdentifier> topologyMembership = Sets.newHashSet();
 		final Set<ISISAreaIdentifier> areaMembership = Sets.newHashSet();
 		final NetworkNodeImpl node = new NetworkNodeImpl(nodeId);
 		final Set<RouterIdentifier> ids = Sets.newHashSet();
@@ -623,11 +621,13 @@ public class LinkStateParser {
 			for (final byte[] value : entry.getValue().getBytes()) {
 				switch (entry.getKey()) {
 				case 263:
-					final boolean[] bits = ByteArray.parseBits(value[0]);
-					final TopologyNodeInformation topNodeInfo = new TopologyNodeInformation(bits[1], bits[0]);
-					final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToLong(value) & 0x3fff);
-					topologyMembership.put(topId, topNodeInfo);
-					logger.trace("Parsed Topology Identifier: {} and Topology Node Information: {}", topId, topNodeInfo);
+					int i = 0;
+					while (i != value.length) {
+						final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToLong(ByteArray.subByte(value, i, 2)) & 0x3fff);
+						topologyMembership.add(topId);
+						logger.trace("Parsed Topology Identifier: {}", topId);
+						i += 2;
+					}
 					break;
 				case 1024:
 					final boolean[] flags = ByteArray.parseBits(value[0]);

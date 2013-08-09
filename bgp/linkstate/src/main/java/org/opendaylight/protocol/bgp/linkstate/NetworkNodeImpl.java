@@ -7,16 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import java.util.Map;
 import java.util.Set;
-
-import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNode;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
 
 /**
  * Implementation of {@link NetworkNode}
@@ -54,10 +45,10 @@ public class NetworkNodeImpl extends NetworkObjectImpl<NodeIdentifier> implement
 	/**
 	 * Standard setter for NetworkNode topologyMembership attribute.
 	 * 
-	 * @param topologyMembership map of {@link TopologyIdentifier} and {@link TopologyNodeInformation}
+	 * @param topologyMembership set of {@link TopologyIdentifier}
 	 */
 	@Deprecated
-	public synchronized void setTopologyMembership(final Map<TopologyIdentifier, TopologyNodeInformation> topologyMembership) {
+	public synchronized void setTopologyMembership(final Set<TopologyIdentifier> topologyMembership) {
 		this.state = currentState().withTopologyMembership(topologyMembership);
 	}
 

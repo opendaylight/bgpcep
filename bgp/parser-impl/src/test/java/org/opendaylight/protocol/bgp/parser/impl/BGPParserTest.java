@@ -53,7 +53,6 @@ import org.opendaylight.protocol.bgp.linkstate.OSPFRouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.OSPFv3LANIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
@@ -1012,7 +1011,7 @@ public class BGPParserTest {
 		// network object state
 		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
-		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier, TopologyNodeInformation> emptyMap(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
+		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
 
 		// network link state
 

@@ -37,7 +37,6 @@ import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
@@ -94,7 +93,7 @@ public class APITest {
 
 	@Test
 	public void testNodeState() {
-		final BGPNodeState n1 = new BGPNodeState(this.objState, new NetworkNodeState(this.netObjState, Collections.<TopologyIdentifier, TopologyNodeInformation> emptyMap(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), ""));
+		final BGPNodeState n1 = new BGPNodeState(this.objState, new NetworkNodeState(this.netObjState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), ""));
 		assertEquals(n1, n1.newInstance());
 		assertEquals(n1, new BGPNodeState(n1));
 	}

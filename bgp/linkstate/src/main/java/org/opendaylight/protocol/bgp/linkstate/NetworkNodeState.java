@@ -8,13 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.TopologyNodeInformation;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -26,7 +21,7 @@ import com.google.common.base.Preconditions;
 public class NetworkNodeState extends NetworkObjectState {
 	public static final NetworkNodeState EMPTY = new NetworkNodeState();
 	private static final long serialVersionUID = 1L;
-	private Map<TopologyIdentifier, TopologyNodeInformation> topologyMembership;
+	private Set<TopologyIdentifier> topologyMembership;
 	private Set<ISISAreaIdentifier> areaMembership;
 	private boolean areaBorderRouter;
 	private boolean external;
@@ -34,10 +29,10 @@ public class NetworkNodeState extends NetworkObjectState {
 	private String dynamicHostName;
 
 	private NetworkNodeState() {
-		this(NetworkObjectState.EMPTY, Collections.<TopologyIdentifier, TopologyNodeInformation> emptyMap(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
+		this(NetworkObjectState.EMPTY, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
 	}
 
-	public NetworkNodeState(final NetworkObjectState orig, final Map<TopologyIdentifier, TopologyNodeInformation> topologyMembership,
+	public NetworkNodeState(final NetworkObjectState orig, final Set<TopologyIdentifier> topologyMembership,
 			final Set<ISISAreaIdentifier> areaMembership, final boolean areaBorderRouter, final boolean external,
 			final Set<RouterIdentifier> identifierAlternatives, final String dynamicHostName) {
 		super(orig);
@@ -65,15 +60,15 @@ public class NetworkNodeState extends NetworkObjectState {
 	/**
 	 * Get the per-topology information about this node.
 	 * 
-	 * @return An immutable map of per-topology state information
+	 * @return An immutable set of per-topology state information
 	 */
-	public final Map<TopologyIdentifier, TopologyNodeInformation> getTopologyMembership() {
+	public final Set<TopologyIdentifier> getTopologyMembership() {
 		return this.topologyMembership;
 	}
 
-	public final NetworkNodeState withTopologyMembership(final Map<TopologyIdentifier, TopologyNodeInformation> topologyMembership) {
+	public final NetworkNodeState withTopologyMembership(final Set<TopologyIdentifier> topologyMembership) {
 		final NetworkNodeState ret = newInstance();
-		ret.topologyMembership = Collections.unmodifiableMap(topologyMembership);
+		ret.topologyMembership = Collections.unmodifiableSet(topologyMembership);
 		return ret;
 	}
 
