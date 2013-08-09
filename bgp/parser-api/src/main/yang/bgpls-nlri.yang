@@ -1,332 +1,165 @@
 module bgpls-nlri {
-
-	namespace "urn:cisco:params:xml:ns:yang:controller:bgpls";
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgpls";
 	prefix "nlri";
+	
 	import  ietf-inet-types { prefix inet;}
+	
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+	
+	description
+		"This module contains the base data model of a BGP-LS Update message.
+		It rolls up the definitions contained in RFC4271
+		and draft-ietf-idr-ls-distribution-03.
 
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+		
+	revision "2013-08-09" {
+		description
+			"Initial revision - rewrite.";
+		reference "https://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03";
+	}
+	
 	revision "2013-08-07" {
 		description "Initial version";
 		reference "https://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03";
 	}
-
-	typedef bgpls-id {
+	
+	typedef area-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		type binary {
+			length "4";
+		}
+	}
+	
+	typedef domain-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		type uint32;
 	}
-
-    typedef iso-system-id {
-        type string {
+	
+	typedef iso-system-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4"; 
+        type binary {
             length "6";
         }
     }
-
-    typedef iso-pseudonode-id {
-        type string {
-            length "1";
-        }
-    }
-
-    typedef bgpls-nlri-type {
-        type enumeration {
-            enum node {
-                value 1;
-            }
-            enum link {
-                value 2;
-            }
-            enum ipv4-prefix {
-                value 3;
-            }
-            enum ipv6-prefix {
-                value 4;
-            }
-        }
-    }
-
-
-
-    typedef protocol-id {
-        type enumeration {
-            enum unknown {
-                value 0;
-            }
-            enum isis-level1 {
-                value 1;
-            }
-            enum isis-level2 {
-                value 2;
-            }
-            enum ospf {
-                value 3;
-            }
-            enum direct {
-                value 4;
-            }
-            enum static {
-                value 5;
-            }
-        }
-    }
-
-
-
-    grouping Node-Descriptors {
-        leaf Autonomous-System {
-            type inet:as-number;
-        }
-
-        leaf BGP-LS-Identifier {
-            type bgpls-id;
-        }
-
-        leaf Area-ID {
-            type uint32;
-        }
-
-        choice igp-router-id {
-            case isis-node {
-                leaf iso-system-id {
-                  type iso-system-id;
-                }
-            }
+	
+	typedef ipv4-interface-identifier {
+		type inet:ipv4-address;
+	}
+	
+	typedef ipv6-interface-identifier {
+		type inet:ipv6-address;
+	}
+	
+	typedef ospf-interface-identifier {
+		type binary {
+			length "4";
+		}
+	}
+	
+	grouping isis-router-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		leaf iso-system-id {
+			type iso-system-identifier;
+			mandatory true;
+		}
+	}
+	
+	grouping isis-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		uses isis-router-identifier;
+		leaf psn {
+			type uint8 {
+				range "1..255";
+			}
+			mandatory true;
+		}
+	}
+	
+	grouping ospf-router-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		leaf ospf-router-id {
+			type binary {
+				length "4";
+			}
+			mandatory true;
+		}
+	}
+	
+	grouping ospf-v2-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		uses ospf-router-identifier;
+		leaf ipv4-address {
+			type ipv4-interface-identifier;
+			mandatory true;
+		}
+	}
+	
+	grouping ospf-v3-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		uses ospf-router-identifier;
+		leaf lan-interface {
+			type ospf-interface-identifier;
+			mandatory true;
+		}
+	}
+	
+	grouping topology-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
+		leaf-list topology-ids {
+			type uint16 {
+				range "0..4095";
+			}
+		}
+	}
+	
+	grouping unnumbered-link-identifier {
+		reference "http://tools.ietf.org/html/rfc4202";
+		leaf value {
+			type uint32 {
+				range "1..max";
+			}
+		}
+	}
+	
+	grouping node-identifier {
+		leaf as-number {
+			type inet:as-number;
+			mandatory true;
+		}
+		leaf area-id {
+			type area-identifier;
+		}
+		leaf domain-id {
+			type domain-identifier;
+			mandatory true;
+		}
+		choice router-identifier {
+			case isis-node {
+				container isis-node {
+					uses isis-router-identifier;
+				}
+			}
 
             case isis-pseudonode {
-                leaf iso-pn-system-id {
-                    type iso-system-id;
-                }
-        
-                leaf iso-pseudonode-id {
-                    type iso-pseudonode-id;
-                }
+           		container isis-pseudonode {
+					uses isis-lan-identifier;
+				}
             }  
 
             case ospf-node {
-                leaf ospf-router-id {
-                    type inet:ipv4-address;
+            	container ospf-node {
+                	uses ospf-router-identifier;
                 }
             }
 
             case ospf-pseudonode {
-                leaf ospf-dr-router-id {
-                    type inet:ipv4-address;
-                }
-
-                leaf ospf-dr-interface-id {
-                  type uint32;   // replace iwth interface id 
-                }
+				container ospf-pseudonode {
+					uses ospf-v3-lan-identifier;
+				}
             }
-        }
-
-    }
-
-
-    notification bgpls-pdu {
-
-        leaf NLRI-Type {
-            type bgpls-nlri-type;
-            mandatory true;
-        }
-
-        leaf Route-Distinguisher {
-            type uint64;
-        }
-
-        container bgpls-nlri {
-
-            leaf Protocol-ID {
-                type protocol-id;
-                mandatory true;
-            }
-
-            leaf Identifier {
-                type uint64;
-                mandatory true;
-            }
-
-            container Local-Node-Descriptors {
-                uses Node-Descriptors;
-            }
-
-            container Remote-Node-Descriptors {
-                when "../nlri-type = link";
-                uses Node-Descriptors;
-            }
-
-            container Link-Descriptors {
-                when "../nlri-type = link";
-
-                leaf IPv4-interface-address {
-                    type inet:ipv4-address;
-                }
-
-                leaf IPv6-interface-address {
-                    type inet:ipv6-address;
-                }
-
-                leaf IPv4-neighbor-address {
-                    type inet:ipv4-address;
-                }
-
-                leaf IPv6-neighbor-address {
-                    type inet:ipv6-address;
-                }
-
-                leaf Multi-Topology-ID {
-                    type uint16;
-                }
-            }
-
-            container Prefix-Descriptors {
-               when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-
-                leaf Multi-Topology-ID {
-                    type uint16;
-                }
-
-                leaf OSPF-Route-Type {
-                    when "../Protocol-ID = 'ospf'";
-                    type uint16;
-                }
-
-                leaf IP-Reachability-Information {
-                    type inet:ip-prefix;
-                }
-            }
-
-        }
-
-        choice link-state-attribute {
-            case node-attributes {
-                when "../../NLRI-Type = node";
-
-                leaf-list Node-Multi-Topology-Identifiers {
-                    type uint16;
-                }
-
-                leaf Node-Flag-Bits {
-                    type uint8;              // replace with better definition
-                }
-
-                leaf Node-Name {
-                    type string;
-                }
-
-                leaf-list ISIS-Area-Identifiers {
-                    type uint16;
-                    description "list of areas in which the node can be";
-                }
-
-                leaf IPv4-Node-Router-ID {
-                    type inet:ipv4-address;
-                }
-
-                leaf IPv6-Node-Router-ID {
-                    type inet:ipv6-address;
-                }
-            }
-
-            case link-attributes {
-                when "../../NLRI-Type = link";
-
-                leaf-list Link-Multi-Topology-Identifiers {
-                    type uint16;
-                }
-
-                leaf Link-Flag-Bits {
-                    type uint8;              // replace with better definition
-                }
-
-                leaf-list Link-ISIS-Area-Identifiers {
-                    type uint16;
-                    description "list of areas in which the node can be";
-                }
-
-                leaf IPv4-Local-Node-Router-ID {
-                    type inet:ipv4-address;
-                }
-
-                leaf IPv6-Local-Node-Router-ID {
-                    type inet:ipv6-address;
-                }
-
-                leaf IPv4-Local-Remote-Router-ID {
-                    type inet:ipv4-address;
-                }
-
-                leaf IPv6-Local-Remote-Router-ID {
-                    type inet:ipv6-address;
-                }
-
-                leaf admin-group {
-                    type uint32;
-                }
-
-                leaf max-link-bandwidth {
-                    type decimal64 {
-                        fraction-digits 2;
-                    }
-                }
-
-                leaf max-reservable-bandwidth {
-                    type decimal64 {
-                      fraction-digits 2;
-                    }
-                }
-
-                leaf unreserved-bandwidth {
-                    type decimal64 {
-                      fraction-digits 2;
-                    }
-                }
-
-                leaf te-default-metric {
-                    type uint32 {
-                      range "1..4261412864";
-                    }
-                }
-
-                leaf link-protection-type {
-                    type uint16; 
-                }
-
-                leaf mpls-protocol-mask-metric {
-                    type uint8; 
-                }
-
-                leaf-list shared-risk-link-groups {
-                    type uint32; 
-                }
-
-                leaf link-name {
-                    type string; 
-                }
-            }
-
-            case prefix-attributes {
-                when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-
-                leaf igp-flags {
-                    type uint8;
-                }
- 
-                leaf-list route-tags {
-                    type uint32;
-                    description "list of route tags";
-                }
-
-                leaf-list extended-tags {
-                    type uint32;
-                    description "list of route tags";
-                }
- 
-                leaf prefix-metric {
-                    type uint32;
-                }
- 
-                leaf ospf-forwarding-address {
-                    when "../igp-router-id/ospf-node";
-                    type inet:ipv4-address;
-                }
-            }
-        }
-    }
+		}
+	}
 }
