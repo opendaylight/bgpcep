@@ -235,10 +235,6 @@ module bgpls-nlri {
                     type uint8;              // replace with better definition
                 }
 
-                leaf Link-Name {
-                    type string;
-                }
-
                 leaf-list Link-ISIS-Area-Identifiers {
                     type uint16;
                     description "list of areas in which the node can be";
