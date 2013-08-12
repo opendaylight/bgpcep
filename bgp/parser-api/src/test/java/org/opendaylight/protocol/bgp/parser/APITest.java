@@ -102,7 +102,7 @@ public class APITest {
 	public void testLinkState() {
 		final DefaultingTypesafeContainer<Metric<?>> m = new DefaultingTypesafeContainer<Metric<?>>();
 		m.setDefaultEntry(new TEMetric(15L));
-		final BGPLinkState l1 = new BGPLinkState(this.objState, new NetworkLinkState(this.netObjState, m, null, null, null, LinkProtectionType.UNPROTECTED, null, null, null, null));
+		final BGPLinkState l1 = new BGPLinkState(this.objState, new NetworkLinkState(this.netObjState, m, null, null, null, LinkProtectionType.UNPROTECTED, null, null, null, null, Collections.<RouterIdentifier> emptySet(), Collections.<RouterIdentifier> emptySet()));
 		assertEquals(l1, l1.newInstance());
 		assertEquals(l1, new BGPLinkState(l1));
 	}

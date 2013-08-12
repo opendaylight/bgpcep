@@ -499,7 +499,6 @@ public class LinkStateParser {
 		final Set<MPLSProtocol> enabledMPLSProtocols = Sets.newHashSet();
 		NetworkLinkState state = NetworkLinkState.EMPTY;
 
-		// FIXME: we should put these somewhere
 		final Set<RouterIdentifier> localIds = Sets.newHashSet();
 		final Set<RouterIdentifier> remoteIds = Sets.newHashSet();
 
@@ -595,6 +594,8 @@ public class LinkStateParser {
 				}
 			}
 		}
+		state = state.withLocalRouterIdentifiers(localIds);
+		state = state.withRemoteRouterIdentifiers(remoteIds);
 		state = state.withEnabledMPLSProtocols(enabledMPLSProtocols);
 		state = state.withSharedRiskLinkGroups(sharedRiskLinkGroups);
 		state = state.withSymbolicName(name);

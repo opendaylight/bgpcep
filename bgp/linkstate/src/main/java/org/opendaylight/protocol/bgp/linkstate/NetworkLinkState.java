@@ -14,10 +14,8 @@ import java.util.Set;
 import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
-import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
-import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
-import org.opendaylight.protocol.bgp.linkstate.MPLSProtocol;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
@@ -38,6 +36,8 @@ public final class NetworkLinkState extends NetworkObjectState {
 	private Bandwidth reservableBandwidth;
 	private Bandwidth maximumBandwidth;
 	private String symbolicName;
+	private Set<RouterIdentifier> localIds;
+	private Set<RouterIdentifier> remoteIds;
 
 	private NetworkLinkState() {
 		this(NetworkObjectState.EMPTY, new DefaultingTypesafeContainer<Metric<?>>(), null, LinkProtectionType.UNPROTECTED, null, null, null);
@@ -46,7 +46,8 @@ public final class NetworkLinkState extends NetworkObjectState {
 	public NetworkLinkState(final NetworkObjectState orig, final DefaultingTypesafeContainer<Metric<?>> metrics,
 			final Set<SharedRiskLinkGroup> sharedRiskLinkGroups, final AdministrativeGroup administrativeGroup,
 			final Set<MPLSProtocol> enabledMPLSProtocols, final LinkProtectionType protectionType, final String symbolicName,
-			final Bandwidth[] unreservedBandwidth, final Bandwidth reservableBandwidth,	final Bandwidth maximumBandwidth) {
+			final Bandwidth[] unreservedBandwidth, final Bandwidth reservableBandwidth, final Bandwidth maximumBandwidth,
+			final Set<RouterIdentifier> localIds, final Set<RouterIdentifier> remoteIds) {
 		super(orig);
 		this.metrics = Preconditions.checkNotNull(metrics, "Metric is mandatory.");
 		this.sharedRiskLinkGroups = sharedRiskLinkGroups;
@@ -57,13 +58,14 @@ public final class NetworkLinkState extends NetworkObjectState {
 		this.unreservedBandwidth = unreservedBandwidth;
 		this.reservableBandwidth = reservableBandwidth;
 		this.maximumBandwidth = maximumBandwidth;
+		this.localIds = localIds;
+		this.remoteIds = remoteIds;
 	}
 
 	public NetworkLinkState(final NetworkObjectState orig, final DefaultingTypesafeContainer<Metric<?>> metrics,
 			final AdministrativeGroup administrativeGroup, final LinkProtectionType protectionType, final Bandwidth[] unreservedBandwidth,
 			final Bandwidth reservableBandwidth, final Bandwidth maximumBandwidth) {
-		this(orig, metrics, Collections.<SharedRiskLinkGroup> emptySet(), administrativeGroup, Collections.<MPLSProtocol> emptySet(), protectionType,
-				null, unreservedBandwidth, reservableBandwidth, maximumBandwidth);
+		this(orig, metrics, Collections.<SharedRiskLinkGroup> emptySet(), administrativeGroup, Collections.<MPLSProtocol> emptySet(), protectionType, null, unreservedBandwidth, reservableBandwidth, maximumBandwidth, Collections.<RouterIdentifier> emptySet(), Collections.<RouterIdentifier> emptySet());
 	}
 
 	protected NetworkLinkState(final NetworkLinkState orig) {
@@ -77,6 +79,8 @@ public final class NetworkLinkState extends NetworkObjectState {
 		this.unreservedBandwidth = orig.unreservedBandwidth;
 		this.reservableBandwidth = orig.reservableBandwidth;
 		this.maximumBandwidth = orig.maximumBandwidth;
+		this.localIds = orig.localIds;
+		this.remoteIds = orig.remoteIds;
 	}
 
 	@Override
@@ -235,6 +239,26 @@ public final class NetworkLinkState extends NetworkObjectState {
 		return ret;
 	}
 
+	public final Set<RouterIdentifier> getLocalRouterIdentifiers() {
+		return this.localIds;
+	}
+
+	public final NetworkLinkState withLocalRouterIdentifiers(final Set<RouterIdentifier> localIds) {
+		final NetworkLinkState ret = newInstance();
+		ret.localIds = localIds;
+		return ret;
+	}
+
+	public final Set<RouterIdentifier> getRemoteRouterIdentifiers() {
+		return this.remoteIds;
+	}
+
+	public final NetworkLinkState withRemoteRouterIdentifiers(final Set<RouterIdentifier> remoteIds) {
+		final NetworkLinkState ret = newInstance();
+		ret.remoteIds = remoteIds;
+		return ret;
+	}
+
 	@Override
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("metrics", this.metrics);
@@ -246,6 +270,8 @@ public final class NetworkLinkState extends NetworkObjectState {
 		toStringHelper.add("reservableBandwidth", this.reservableBandwidth);
 		toStringHelper.add("maximumBandwidth", this.maximumBandwidth);
 		toStringHelper.add("symbolicName", this.symbolicName);
+		toStringHelper.add("localIds", this.localIds);
+		toStringHelper.add("remoteIds", this.remoteIds);
 		return super.addToStringAttributes(toStringHelper);
 	}
 
