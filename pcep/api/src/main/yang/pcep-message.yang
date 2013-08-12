@@ -3,7 +3,9 @@ module pcep-message {
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep-message";
 	prefix "pcep-msg";
 
+	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -13,9 +15,14 @@ module pcep-message {
 		It rolls up the definitions contained in RFC5440, RFC5520
 		and RFC6006.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-	revision "2013-07-30" {
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-08-20" {
 		description
 			"Initial revision.";
 		reference "RFC5440";
@@ -23,135 +30,6 @@ module pcep-message {
 
 	// NOTE: this model uses counts bits in fields from left to right,
 	//       just as IANA does for PCEP protocol.
-
-	// FIXME: IEEE754 module
-	grouping ieee754-32 {
-		reference "IEEE 754-2008";
-
-		leaf negative {
-			type boolean;
-			mandatory true;
-		}
-
-		leaf exponent {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf fraction {
-			type uint32 {
-				range 0..16777215;
-			}
-			mandatory true;
-		}
-	}
-
-	// FIXME: IANA module
-	typedef iana-enterprise-number {
-		type uint32;
-	}
-
-	// FIXME: RSVP module
-	typedef rsvp-attribute-filter {
-		type uint32;
-	}
-
-	// FIXME: RSVP module
-	grouping rsvp-attribute-filters {
-		// FIXME: dedicated type for the next three
-		leaf include-any {
-			type rsvp-attribute-filter;
-			mandatory true;
-		}
-
-		leaf exclude-any {
-			type rsvp-attribute-filter;
-			mandatory true;
-		}
-
-		leaf include-all {
-			type rsvp-attribute-filter;
-			mandatory true;
-		}
-	}
-
-	typedef rsvp-lsp-id {
-		reference "https://tools.ietf.org/html/rfc3209#section-4.6.2.1";
-		type uint32;
-	}
-
-	typedef rsvp-tunnel-id {
-		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.1";
-		type uint16;
-	}
-
-	typedef rsvp-ipv4-extended-tunnel-id {
-		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.1";
-		type inet:ipv4-address;
-	}
-
-	typedef rsvp-ipv6-extended-tunnel-id {
-		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.2";
-		type inet:ipv6-address;
-	}
-
-	grouping rsvp-error-spec {
-		reference "https://tools.ietf.org/html/rfc2205#page-81";
-
-		leaf node {
-			type inet:ip-address;
-			mandatory true;
-		}
-
-		leaf flags {
-			type bits {
-				bit in-place {
-					position 7;
-				}
-				bit not-guilty {
-					position 6;
-				}
-			}
-		}
-
-		leaf code {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf value {
-			type uint16;
-			mandatory true;
-		}
-	}
-
-	grouping rsvp-user-error-spec {
-		reference "https://tools.ietf.org/html/rfc5284#section-3";
-
-		leaf enterprise {
-			type iana-enterprise-number;
-			mandatory true;
-		}
-
-		leaf sub-org {
-			type uint8;
-			default 0;
-		}
-
-		leaf value {
-			type uint16;
-			mandatory true;
-		}
-
-		leaf description {
-			type string;
-			default "";
-		}
-
-		container subobjects {
-			// Filled by enterprise-specific augmentations
-		}
-	}
 
 	// Types
 	typedef protocol-version {
@@ -292,12 +170,12 @@ module pcep-message {
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
 
 		leaf lsp-id {
-			type rsvp-lsp-id;
+			type rsvp:lsp-id;
 			mandatory true;
 		}
 
 		leaf tunnel-id {
-			type rsvp-tunnel-id;
+			type rsvp:tunnel-id;
 			mandatory true;
 		}
 
@@ -308,7 +186,7 @@ module pcep-message {
 					mandatory true;
 				}
 				leaf ipv4-extended-tunnel-id {
-					type rsvp-ipv4-extended-tunnel-id;
+					type rsvp:ipv4-extended-tunnel-id;
 					mandatory true;
 				}
 			}
@@ -318,7 +196,7 @@ module pcep-message {
 					mandatory true;
 				}
 				leaf ipv6-extended-tunnel-id {
-					type rsvp-ipv6-extended-tunnel-id;
+					type rsvp:ipv6-extended-tunnel-id;
 					mandatory true;
 				}
 			}
@@ -352,12 +230,12 @@ module pcep-message {
 		choice error-type {
 			case rsvp {
 				container rsvp-error {
-					uses rsvp-error-spec;
+					uses rsvp:error-spec;
 				}
 			}
 			case user {
 				container user-error {
-					uses rsvp-user-error-spec;
+					uses rsvp:user-error-spec;
 				}
 			}
 		}
@@ -505,45 +383,45 @@ module pcep-message {
 		}
 
 		leaf path-key {
-			reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
 		}
 
 		leaf fragmentation {
-			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 		}
 
 		leaf p2mp {
-			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 		}
 
 		leaf ero-compression {
-			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 		}
 
 		leaf supply-of {
-			reference "https://tools.ietf.org/html/rfc5541#section-3.3";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc5541#section-3.3";
 		}
 
 		leaf order {
-			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 		}
 
 		leaf make-before-break {
-			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 			type boolean;
 			default false;
+			reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 		}
 	}
 
@@ -609,8 +487,8 @@ module pcep-message {
 		// No possibility to carry TLVs
 		uses object-header;
 
-		container bandwidth {
-			uses ieee754-32;
+		leaf bandwidth {
+			type ieee754:float32;
 		}
 	}
 
@@ -635,24 +513,49 @@ module pcep-message {
 			default false;
 		}
 
-		container value {
-			uses ieee754-32;
+		leaf value {
+			type ieee754:float32;
 		}
 	}
 
-	grouping route-object {
+	grouping explicit-route-object {
 		description "Explicit Route Object";
-		reference "
-			https://tools.ietf.org/html/rfc5440#section-7.9
-			https://tools.ietf.org/html/rfc5440#section-7.10
-			https://tools.ietf.org/html/rfc5440#section-7.12";
-
+		reference "https://tools.ietf.org/html/rfc5440#section-7.9";
 
 		// No possibility of TLVs
 		uses object-header;
 
 		list subobjects {
-			// FIXME: Technology-specific augmentation
+			leaf loose {
+				type boolean;
+				mandatory true;
+			}
+
+			uses rsvp:route-subobjects;
+		}
+	}
+
+	grouping include-route-object {
+		description "Include Route Object";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.12";
+
+		// No possibility of TLVs
+		uses object-header;
+
+		list subobjects {
+			uses rsvp:route-subobjects;
+		}
+	}
+
+	grouping reported-route-object {
+		description "Reported Route Object";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.10";
+
+		// No possibility of TLVs
+		uses object-header;
+
+		list subobjects {
+			uses rsvp:record-route-subobjects;
 		}
 	}
 
@@ -677,7 +580,7 @@ module pcep-message {
 			default false;
 		}
 
-		uses rsvp-attribute-filters;
+		uses rsvp:attribute-filters;
 	}
 
 	grouping svec-object {
@@ -770,8 +673,8 @@ module pcep-message {
 			mandatory true;
 		}
 
-		container min-bandwidth {
-			uses ieee754-32;
+		leaf min-bandwidth {
+			type ieee754:float32;
 		}
 	}
 
@@ -907,6 +810,12 @@ module pcep-message {
 		}
 	}
 
+	typedef class-type {
+		type uint8 {
+			range 1..7;
+		}
+	}
+
 	grouping classtype-object {
 		description "CLASSTYPE Object";
 		reference "https://tools.ietf.org/html/rfc5455#section-3";
@@ -914,9 +823,7 @@ module pcep-message {
 		uses object-header;
 
 		leaf class-type {
-			type uint8 {
-				range 1..7;
-			}
+			type class-type;
 			mandatory true;
 		}
 	}
@@ -1000,7 +907,7 @@ module pcep-message {
 		}
 
 		container include-route {
-			uses route-object;
+			uses include-route-object;
 		}
 
 		container of {
@@ -1041,7 +948,7 @@ module pcep-message {
 					}
 
 					container reported-route {
-						uses route-object;
+						uses reported-route-object;
 
 						container bandwidth {
 							uses bandwidth-object;
@@ -1093,7 +1000,7 @@ module pcep-message {
 
 	grouping path-definition {
 		container explicit-route {
-			uses route-object;
+			uses explicit-route-object;
 		}
 
 		uses lsp-attributes;
@@ -1260,7 +1167,7 @@ module pcep-message {
 			}
 
 			container ero {
-				uses route-object;
+				uses explicit-route-object;
 			}
 
 			uses lsp-attributes;
