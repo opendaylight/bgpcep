@@ -1011,7 +1011,7 @@ public class BGPParserTest {
 		// network object state
 		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
-		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
+		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
 
 		// network link state
 

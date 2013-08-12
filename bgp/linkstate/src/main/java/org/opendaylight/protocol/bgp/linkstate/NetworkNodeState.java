@@ -25,16 +25,18 @@ public class NetworkNodeState extends NetworkObjectState {
 	private Set<ISISAreaIdentifier> areaMembership;
 	private boolean areaBorderRouter;
 	private boolean external;
+	private boolean overload;
+	private boolean attached;
 	private Set<RouterIdentifier> identifierAlternatives;
 	private String dynamicHostName;
 
 	private NetworkNodeState() {
-		this(NetworkObjectState.EMPTY, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), null);
+		this(NetworkObjectState.EMPTY, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
 	}
 
 	public NetworkNodeState(final NetworkObjectState orig, final Set<TopologyIdentifier> topologyMembership,
-			final Set<ISISAreaIdentifier> areaMembership, final boolean areaBorderRouter, final boolean external,
-			final Set<RouterIdentifier> identifierAlternatives, final String dynamicHostName) {
+			final Set<ISISAreaIdentifier> areaMembership, final boolean areaBorderRouter, final boolean external, final boolean overload,
+			final boolean attached, final Set<RouterIdentifier> identifierAlternatives, final String dynamicHostName) {
 		super(orig);
 		Preconditions.checkNotNull(areaMembership);
 		Preconditions.checkNotNull(identifierAlternatives);
@@ -43,6 +45,8 @@ public class NetworkNodeState extends NetworkObjectState {
 		this.areaMembership = areaMembership;
 		this.areaBorderRouter = areaBorderRouter;
 		this.external = external;
+		this.overload = overload;
+		this.attached = attached;
 		this.identifierAlternatives = identifierAlternatives;
 		this.dynamicHostName = dynamicHostName;
 	}
@@ -53,6 +57,8 @@ public class NetworkNodeState extends NetworkObjectState {
 		this.areaMembership = orig.areaMembership;
 		this.areaBorderRouter = orig.areaBorderRouter;
 		this.external = orig.external;
+		this.attached = orig.attached;
+		this.overload = orig.overload;
 		this.identifierAlternatives = orig.identifierAlternatives;
 		this.dynamicHostName = orig.dynamicHostName;
 	}
@@ -118,6 +124,26 @@ public class NetworkNodeState extends NetworkObjectState {
 		return ret;
 	}
 
+	public final boolean isOverload() {
+		return this.overload;
+	}
+
+	public final NetworkNodeState withOverload(final boolean value) {
+		final NetworkNodeState ret = newInstance();
+		ret.overload = value;
+		return ret;
+	}
+
+	public final boolean isAttached() {
+		return this.attached;
+	}
+
+	public final NetworkNodeState withAttached(final boolean value) {
+		final NetworkNodeState ret = newInstance();
+		ret.attached = value;
+		return ret;
+	}
+
 	/**
 	 * http://tools.ietf.org/html/rfc5301#section-3, encoded as a String. The string is guaranteed to contain US-ASCII
 	 * characters.
@@ -161,6 +187,8 @@ public class NetworkNodeState extends NetworkObjectState {
 		toStringHelper.add("areaMembership", this.areaMembership);
 		toStringHelper.add("external", this.external);
 		toStringHelper.add("ABR", this.areaBorderRouter);
+		toStringHelper.add("overload", this.overload);
+		toStringHelper.add("attached", this.attached);
 		toStringHelper.add("dynamicHostname", this.dynamicHostName);
 		toStringHelper.add("routerIdentifiers", this.identifierAlternatives);
 		return super.addToStringAttributes(toStringHelper);

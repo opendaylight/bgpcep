@@ -39,6 +39,7 @@ import org.opendaylight.protocol.bgp.linkstate.MPLSProtocol;
 import org.opendaylight.protocol.bgp.linkstate.NetworkLinkImpl;
 import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkNodeImpl;
+import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
@@ -614,8 +615,8 @@ public class LinkStateParser {
 			throws BGPParsingException {
 		final Set<TopologyIdentifier> topologyMembership = Sets.newHashSet();
 		final Set<ISISAreaIdentifier> areaMembership = Sets.newHashSet();
-		final NetworkNodeImpl node = new NetworkNodeImpl(nodeId);
 		final Set<RouterIdentifier> ids = Sets.newHashSet();
+		NetworkNodeState state = NetworkNodeState.EMPTY;
 		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
 			logger.debug("Node attribute TLV {}", entry.getKey());
 			for (final byte[] value : entry.getValue().getBytes()) {
@@ -631,16 +632,18 @@ public class LinkStateParser {
 					break;
 				case 1024:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
-					node.currentState().withExternal(flags[2]);
-					node.currentState().withAreaBorderRouter(flags[3]);
+					state = state.withOverload(flags[0]);
+					state = state.withAttached(flags[1]);
+					state = state.withExternal(flags[2]);
+					state = state.withAreaBorderRouter(flags[3]);
 					logger.trace("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
 					break;
 				case 1025:
 					logger.debug("Ignoring opaque value: {}.", Arrays.toString(value));
 					break;
 				case 1026:
-					node.currentState().withDynamicHostname(new String(value, Charsets.US_ASCII));
-					logger.trace("Parsed Node Name {}", node.currentState().getDynamicHostname());
+					state = state.withDynamicHostname(new String(value, Charsets.US_ASCII));
+					logger.trace("Parsed Node Name {}", state.getDynamicHostname());
 					break;
 				case 1027:
 					final ISISAreaIdentifier ai = new ISISAreaIdentifier(value);
@@ -663,9 +666,10 @@ public class LinkStateParser {
 			}
 		}
 
-		node.currentState().withAreaMembership(areaMembership);
-		node.currentState().withIdentifierAlternatives(ids);
-		node.currentState().withTopologyMembership(topologyMembership);
+		state = state.withAreaMembership(areaMembership);
+		state = state.withIdentifierAlternatives(ids);
+		state = state.withTopologyMembership(topologyMembership);
+		final NetworkNodeImpl node = new NetworkNodeImpl(nodeId, state);
 		logger.debug("Finished parsing Node Attributes.");
 		return node;
 	}
