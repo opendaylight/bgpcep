@@ -602,16 +602,19 @@ module pcep-message {
 		}
 	}
 
+	grouping bandwidth {
+		container bandwidth {
+			uses ieee754-32;
+		}
+	}
+
 	grouping bandwidth-object {
 		description "BANDWIDTH Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.7";
 
 		// No possibility to carry TLVs
 		uses object-header;
-
-		container bandwidth {
-			uses ieee754-32;
-		}
+		uses bandwidth;
 	}
 
 	grouping metric-object {
@@ -907,6 +910,12 @@ module pcep-message {
 		}
 	}
 
+	typedef class-type {
+		type uint8 {
+			range 1..7;
+		}
+	}
+
 	grouping classtype-object {
 		description "CLASSTYPE Object";
 		reference "https://tools.ietf.org/html/rfc5455#section-3";
@@ -914,9 +923,7 @@ module pcep-message {
 		uses object-header;
 
 		leaf class-type {
-			type uint8 {
-				range 1..7;
-			}
+			type class-type;
 			mandatory true;
 		}
 	}
