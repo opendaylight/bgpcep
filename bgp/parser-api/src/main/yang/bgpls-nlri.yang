@@ -15,21 +15,46 @@ module bgpls-nlri {
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
 		
-	revision "2013-08-09" {
+	revision "2013-08-08" {
 		description
-			"Initial revision - rewrite.";
-		reference "https://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03";
+			"Initial revision.";
+		reference "RFC4271";
 	}
 	
-	revision "2013-08-07" {
-		description "Initial version";
-		reference "https://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03";
-	}
+	typedef ospf-route-type {
+		type enumeration {
+			enum Intra_Area {
+				value 1;
+			}
+			enum Inter_Area {
+				value 2;
+			}
+			enum External1 {
+				value 3;
+			}
+			enum External2 {
+				value 4;
+			}
+			enum NSSA1 {
+				value 5;
+			}
+			enum NSSA2 {
+				value 6;
+			}
+        }
+    }
 	
 	typedef area-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		type binary {
 			length "4";
+		}
+	}
+	
+	typedef isis-area-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
+		type binary {
+			length "20";
 		}
 	}
 	
@@ -49,13 +74,65 @@ module bgpls-nlri {
 		type inet:ipv4-address;
 	}
 	
+	typedef ipv4-router-identifier {
+		type inet:ipv4-address;
+	}
+	
 	typedef ipv6-interface-identifier {
+		type inet:ipv6-address;
+	}
+	
+	typedef ipv6-router-identifier {
 		type inet:ipv6-address;
 	}
 	
 	typedef ospf-interface-identifier {
 		type binary {
 			length "4";
+		}
+	}
+	
+	typedef unnumbered-interface-identifier {
+		type uint32;
+	}
+	
+	typedef shared-risk-link-group {
+		type uint32;
+	}
+	
+	typedef igp-metric {
+		type uint32 {
+			range "1..16777215";
+		}
+	}
+	
+	typedef node-flag-bits {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.1"; 
+		type bits {
+			bit overload {
+				position 0;
+			}
+			bit attached {
+				position 1;
+			}
+			bit external {
+				position 2;
+			}
+			bit abr {
+				position 3;
+			}
+		}
+	}
+	
+	typedef mpls-protocol-mask {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
+		type bits {
+			bit ldp {
+				position 0;
+			}
+			bit rsvpte {
+				position 1;
+			}
 		}
 	}
 	
@@ -160,6 +237,122 @@ module bgpls-nlri {
 					uses ospf-v3-lan-identifier;
 				}
             }
+		}
+	}
+	
+	grouping link-anchor {
+		container node-id {
+			uses node-identifier;
+		}
+		choice interface-id {
+			case ipv4-iface-id {
+				leaf ipv4-iface-id {
+					type ipv4-interface-identifier;
+				}
+			}
+			
+			case ipv6-iface-id {
+				leaf ipv6-iface-id {
+					type ipv6-interface-identifier;
+				}
+			}
+			
+			case ospf-iface-id {
+				leaf ospf-iface-id {
+					type ospf-interface-identifier;
+				}
+			}
+			
+			case unnum-iface-id {
+				leaf unnum-iface-id {
+					type unnumbered-interface-identifier;
+				}
+			}
+		}
+	}
+	
+	grouping link-identifier {
+		container topology-id {
+			uses topology-identifier;
+		}
+		container link-anch {
+			uses link-anchor;
+		}
+	}
+	
+	grouping prefix-identifier {
+		container node-id {
+			uses node-identifier;
+		}
+		choice prefix-id {
+			case ipv4-prefix {
+				leaf ipv4-prefix {
+					type inet:ipv4-prefix;
+				}
+			}
+			
+			case ipv6-prefix {
+				leaf ipv6-prefix {
+					type inet:ipv6-prefix;
+				}
+			}
+		}
+	}
+	
+	grouping ospf-prefix-identifier {
+		uses prefix-identifier;
+		leaf ospf-route-t {
+			type ospf-route-type;
+		}
+	}
+	
+	grouping network-node-state {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
+		list topology-membership {
+			uses topology-identifier;
+		}
+		leaf node-flags {
+			type node-flag-bits;
+		}
+		leaf-list isis-area-id {
+			type isis-area-identifier;
+		}
+		leaf dynamic-hostname {
+			type string;
+		}
+		leaf ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+	}
+	
+	grouping network-link-state {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
+		leaf local-ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf local-ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+		leaf remote-ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf remote-ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+		leaf mpls-protocol {
+			type mpls-protocol-mask;
+		}
+		leaf metric {
+			type igp-metric;
+		}
+		leaf-list shared-risk-link-groups {
+			type shared-risk-link-group;
+		}
+		leaf link-name {
+			type string;
 		}
 	}
 }
