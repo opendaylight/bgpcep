@@ -15,7 +15,7 @@ module bgpls-nlri {
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
 		
-	revision "2013-08-08" {
+	revision "2013-08-12" {
 		description
 			"Initial revision.";
 		reference "RFC4271";
@@ -44,6 +44,54 @@ module bgpls-nlri {
 			}
         }
     }
+	
+	typedef link-protection-type {
+		reference "http://tools.ietf.org/html/rfc5307#section-1.2";
+		type enumeration {
+			enum extra-traffix {
+				value 1;
+			}
+			enum unprotected {
+				value 2;
+			}
+			enum shared {
+				value 4;
+			}
+			enum dedicated-1to1 {
+				value 8;
+			}
+			enum dedicated-1plus1 {
+				value 16;
+			}
+			enum enhanced {
+				value 32;
+			}
+		}
+	}
+	
+	typedef protocol-id {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+		type enumeration {
+			enum unknown {
+				value 0;
+			}
+			enum isis-level1 {
+				value 1;
+			}
+			enum isis-level2 {
+				value 2;
+			}
+			enum ospf {
+				value 3;
+			}
+			enum direct {
+				value 4;
+			}
+			enum static {
+				value 5;
+			}
+		}
+	}
 	
 	typedef area-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
@@ -108,6 +156,11 @@ module bgpls-nlri {
 		type uint32;
 	}
 	
+	typedef metric {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.4";
+		type uint32;
+	}
+	
 	typedef igp-metric {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.3";
 		type uint32 {
@@ -120,6 +173,24 @@ module bgpls-nlri {
 		type binary {
 			length "4";
 		}
+	}
+	
+	typedef extended-route-tag {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.3";
+		type binary {
+			length "8";
+		}
+	}
+	
+	// FIXME: to double
+	typedef bandwidth {
+		type decimal64 {
+			fraction-digits 2;
+		}
+	}
+	
+	typedef administrative-group {
+		type uint32;
 	}
 	
 	typedef node-flag-bits {
@@ -369,6 +440,120 @@ module bgpls-nlri {
 		}
 		leaf link-name {
 			type string;
+		}
+		leaf max-link-bandwidth {
+			type bandwidth;
+		}
+		leaf max-reservable-bandwidth {
+			type bandwidth;
+		}
+		leaf-list unreserved-bandwidth {
+			type bandwidth;
+		}
+		leaf link-protection {
+			type link-protection-type;
+		}
+		leaf admin-group {
+			type administrative-group;
+		}
+	}
+	
+	grouping network-prefix-state {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3";
+		leaf prefix-metric {
+			type metric;
+		}
+		leaf-list route-tags {
+			type route-tag;
+		}
+	}
+	
+	grouping ospf-network-prefix-state {
+		uses network-prefix-state;
+		choice ospf-forwarding-address {
+			case ipv4 {
+				leaf ipv4-forwarding-address {
+					type inet:ipv4-address;
+				}
+			}
+			case ipv6 {
+				leaf ipv6-forwarding-address {
+					type inet:ipv6-address;
+				}
+			}
+		}
+	}
+	
+	grouping is-is-network-prefix-state {
+		uses network-prefix-state;
+		leaf up-down {
+			type bits {
+				bit up-down {
+					position 0;
+				}
+			}
+		}
+		leaf-list ex-route-tag {
+			type extended-route-tag;
+		}
+	}
+	
+	grouping network-node {
+		container network-node-identifier {
+			uses node-identifier;
+		}
+		container node-state {
+			uses network-node-state;
+		}
+	}
+	
+	grouping network-link {
+		container network-link-identifier {
+			uses link-identifier;
+		}
+		container link-state {
+			uses network-link-state;
+		}
+	}
+	
+	grouping network-prefix {
+		container network-prefix-identifier {
+			uses prefix-identifier;
+		}
+		container prefix-state {
+			uses network-prefix-state;
+		}
+	}
+	
+	notification bgpls-pdu {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+		leaf route-distinguisher {
+			type uint64;
+		}
+		leaf protocol {
+			type protocol-id;
+			mandatory true;
+		}
+		leaf identifier {
+			type uint64;
+			mandatory true;
+		}
+		choice objects {
+			case nodes {
+				list nodes {
+					uses network-node;
+				}
+			}
+			case links {
+				list links {
+					uses network-link;
+				}
+			}
+			case prefixes {
+				list prefixes {
+					uses network-prefix;
+				}
+			}
 		}
 	}
 }
