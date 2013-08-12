@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//+R4\u003d",
+        "filename": "bgp/parser-api/src/main/yang/bgpls-nlri.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-12T09:24:53Z",
+      "side": 1,
+      "message": "Please use dashes instead of underscores. Also add a reference, if not description.",
+      "revId": "61e8872730c12e7bddd2939d3c825191c7402644",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
