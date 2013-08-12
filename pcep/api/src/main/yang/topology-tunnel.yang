@@ -1,0 +1,109 @@
+module topology-tunnel {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel";
+	prefix "tt";
+
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import network-topology { prefix nt; revision-date 2013-07-12; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the tunnel extension of the base topology
+		model.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+	revision "2013-08-12" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	typedef path-id {
+		type inet:uri;
+	}
+
+	typedef path-ref {
+		type leafref {
+			path "/nt:network-topology/nt:topology/nt:link/paths/path-id";
+		}
+	}
+
+	typedef administrative-status {
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+		type enumeration {
+			enum ACTIVE;
+			enum INACTIVE;
+		}
+	}
+
+	typedef operational-status {
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+		type enumeration {
+			enum DOWN;
+			enum UP;
+			enum ACTIVE;
+			enum GOING-DOWN;
+			enum GOING-UP;
+		}
+	}
+
+	grouping topology-tunnel-type {
+		container topology-tunnel {
+			presence "indicates a tunnel-aware topology";
+		}
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:topology-types" {
+		uses topology-tunnel-type;
+	}
+
+	grouping tunnel-path-attributes {
+		leaf path-id {
+			type path-id;
+		}
+
+		leaf administrative-status {
+			type administrative-status;
+		}
+
+		leaf operational-status {
+			type operational-status;
+			config false;
+		}
+
+		leaf load-share {
+			type uint8 {
+				range "0..100";
+			}
+			units percent;
+			default 100;
+		}
+	}
+
+	grouping tunnel-link-attributes {
+		container tunnel-types;
+
+		leaf administrative-status {
+			type administrative-status;
+		}
+
+		leaf operational-status {
+			type operational-status;
+			config false;
+		}
+
+		list paths {
+			uses tunnel-path-attributes;
+			key path-id;
+		}
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link" {
+		when "../../nt:topology-types/topology-tunnel";
+		uses tunnel-link-attributes;
+	}
+}
+
