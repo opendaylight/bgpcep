@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//+SE\u003d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/LinkStateParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-12T09:21:34Z",
+      "side": 1,
+      "message": "This is the same breakage we addressed with link.currentState() -- again, fix up by instantiating/mutating state and instantiating the node afterwards.",
+      "revId": "712bc031461c064e1ff9cc06d22070682b345387",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
