@@ -40,7 +40,7 @@ module pcep-message {
 
 		leaf fraction {
 			type uint32 {
-				range 0..1677215;
+				range 0..16777215;
 			}
 			mandatory true;
 		}
