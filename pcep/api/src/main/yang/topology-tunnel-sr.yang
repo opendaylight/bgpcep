@@ -1,0 +1,83 @@
+module topology-tunnel-sr {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:sr";
+	prefix "sr";
+
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import tunnel-topology { prefix tt; revision-date 2013-08-12; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the Segment Routing extensions to
+		base tunnel topology model.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+	revision "2013-08-12" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	grouping path-segment {
+		description "Basic path segment";
+
+		choice segment-specification {
+			case node {
+				leaf destination-node {
+					type inet:ip-address;
+					mandatory true;
+				}
+			}
+			case ipv4-adjacency {
+				leaf local-ipv4-address {
+					type inet:ipv4-address;
+					mandatory true;
+				}
+
+				leaf remote-ipv4-address {
+					type inet:ipv4-address;
+					mandatory true;
+				}
+			}
+			case ipv6-adjacency {
+				leaf local-ipv6-address {
+					type inet:ipv6-address;
+					mandatory true;
+				}
+
+				leaf remote-ipv6-address {
+					type inet:ipv6-address;
+					mandatory true;
+				}
+			}
+
+			case unnumbered-adjacency {
+				// NOTE: this is the same as RFC377 ERO
+				leaf local-node {
+					type inet:ipv4-address;
+					mandatory true;
+				}
+
+				leaf local-interface-id {
+					type uint32;
+					mandatory true;
+				}
+
+				leaf remote-node {
+					type inet:ipv4-address;
+					mandatory true;
+				}
+
+				leaf remote-interface-id {
+					type uint32;
+					mandatory true;
+				}
+			}
+		}
+	}
+}
+
