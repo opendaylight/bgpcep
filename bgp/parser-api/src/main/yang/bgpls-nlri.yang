@@ -109,9 +109,12 @@ module bgpls-nlri {
 
 	typedef domain-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type uint32;
+		type binary {
+			length "4";
+		}
 	}
 
+	// concepts
 	typedef iso-system-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		type binary {
@@ -156,11 +159,13 @@ module bgpls-nlri {
 		type uint32;
 	}
 
+	// concepts
 	typedef metric {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.4";
 		type uint32;
 	}
 
+	// concepts
 	typedef igp-metric {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.3";
 		type uint32 {
@@ -183,6 +188,7 @@ module bgpls-nlri {
 	}
 
 	// FIXME: to double
+	// concepts
 	typedef bandwidth {
 		type decimal64 {
 			fraction-digits 2;
@@ -233,7 +239,9 @@ module bgpls-nlri {
 
 	grouping isis-lan-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		uses isis-router-identifier;
+		container is-is-router-identifier {
+			uses isis-router-identifier;
+		}
 		leaf psn {
 			type uint8 {
 				range "1..255";
@@ -328,10 +336,10 @@ module bgpls-nlri {
 	}
 
 	grouping link-anchor {
-		container node-id {
+		container node-identifier {
 			uses node-identifier;
 		}
-		choice interface-id {
+		choice interface-identifier {
 			case ipv4-iface-id {
 				leaf ipv4-iface-id {
 					type ipv4-interface-identifier;
@@ -359,7 +367,7 @@ module bgpls-nlri {
 	}
 
 	grouping link-identifier {
-		container topology-id {
+		container topology-identifier {
 			uses topology-identifier;
 		}
 		container link-anchor {
@@ -368,7 +376,7 @@ module bgpls-nlri {
 	}
 
 	grouping prefix-identifier {
-		container node-id {
+		container node-identifier {
 			uses node-identifier;
 		}
 		choice prefix-id {
@@ -490,28 +498,28 @@ module bgpls-nlri {
 	}
 
 	grouping network-node {
-		container network-node-identifier {
+		container node-identifier {
 			uses node-identifier;
 		}
-		container node-state {
+		container network-node-state {
 			uses network-node-state;
 		}
 	}
 
 	grouping network-link {
-		container network-link-identifier {
+		container link-identifier {
 			uses link-identifier;
 		}
-		container link-state {
+		container network-link-state {
 			uses network-link-state;
 		}
 	}
 
 	grouping network-prefix {
-		container network-prefix-identifier {
+		container prefix-identifier {
 			uses prefix-identifier;
 		}
-		container prefix-state {
+		container network-prefix-state {
 			uses network-prefix-state;
 		}
 	}
