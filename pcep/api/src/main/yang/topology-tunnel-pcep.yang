@@ -1,0 +1,119 @@
+module topology-tunnel-pcep {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep";
+	prefix "pceptun";
+
+	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import pcep-message { prefix pcep; revision-date 2013-07-30; }
+	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
+	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the Segment Routing extensions to
+		base tunnel topology model.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+	revision "2013-08-19" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	typedef administrative-status {
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+		type enumeration {
+			enum active;
+			enum inactive;
+		}
+	}
+
+	typedef operational-status {
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+		type enumeration {
+			enum down;
+			enum up;
+			enum active;
+			enum going-down;
+			enum going-up;
+		}
+	}
+
+	grouping tunnel-pcep-type {
+		container pcep-tunnel {
+			presence "indicates a link is a PCEP tunnel";
+		}
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link/tt:tunnel-types" {
+		uses tunnel-pcep-type;
+	}
+
+	grouping tunnel-pcep-link-attributes {
+		leaf administrative-status {
+			type administrative-status;
+		}
+
+		leaf operational-status {
+			type operational-status;
+			config false;
+		}
+
+		leaf class-type {
+			type pcep:class-type;
+		}
+
+		leaf load-share {
+			type uint8 {
+				range "0..100";
+			}
+			units percent;
+			default 100;
+		}
+
+		leaf bandwidth {
+			type ieee754:float32;
+		}
+	}
+
+	grouping tunnel-pcep-path-attributes {
+		leaf administrative-status {
+			type administrative-status;
+		}
+
+		leaf operational-status {
+			type operational-status;
+			config false;
+		}
+	}
+
+	grouping tunnel-pcep-path-p2p-attributes {
+		// FIXME define this
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link" {
+		when "../../tunnel-types/pcep-tunnel";
+		uses tunnel-pcep-link-attributes;
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link/tt:paths" {
+		when "../../tunnel-types/pcep-tunnel";
+		uses tunnel-pcep-path-attributes;
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:explicit-hops" {
+		when "../../tunnel-types/pcep-tunnel";
+		uses tunnel-pcep-path-p2p-attributes;
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:reported-hops" {
+		when "../../tunnel-types/pcep-tunnel";
+		uses tunnel-pcep-path-p2p-attributes;
+	}
+}
+
