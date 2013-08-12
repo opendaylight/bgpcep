@@ -93,7 +93,7 @@ public class APITest {
 
 	@Test
 	public void testNodeState() {
-		final BGPNodeState n1 = new BGPNodeState(this.objState, new NetworkNodeState(this.netObjState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, Collections.<RouterIdentifier> emptySet(), ""));
+		final BGPNodeState n1 = new BGPNodeState(this.objState, new NetworkNodeState(this.netObjState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), ""));
 		assertEquals(n1, n1.newInstance());
 		assertEquals(n1, new BGPNodeState(n1));
 	}

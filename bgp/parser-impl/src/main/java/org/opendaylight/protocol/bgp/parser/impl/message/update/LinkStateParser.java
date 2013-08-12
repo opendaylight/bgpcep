@@ -631,6 +631,8 @@ public class LinkStateParser {
 					break;
 				case 1024:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
+					node.currentState().withOverload(flags[0]);
+					node.currentState().withAttached(flags[1]);
 					node.currentState().withExternal(flags[2]);
 					node.currentState().withAreaBorderRouter(flags[3]);
 					logger.trace("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
