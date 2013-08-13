@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//+Ko\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-p2p.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9
+      },
+      "writtenOn": "2013-08-13T17:44:46Z",
+      "side": 1,
+      "message": "We should also have the license notice:\n\nThis program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html\n\nhere in addition to the copyright notice.",
+      "revId": "2c293c5995306777cf2b3e095f3882312a245f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//+Kk\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9
+      },
+      "writtenOn": "2013-08-13T17:44:46Z",
+      "side": 1,
+      "message": "We should also have the license notice:\nThis program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html\nhere in addition to the copyright notice.",
+      "revId": "2c293c5995306777cf2b3e095f3882312a245f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//+Kg\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-sr.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9
+      },
+      "writtenOn": "2013-08-13T17:44:46Z",
+      "side": 1,
+      "message": "We should also have the license notice:\nThis program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html\nhere in addition to the copyright notice.",
+      "revId": "2c293c5995306777cf2b3e095f3882312a245f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//+Kc\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9
+      },
+      "writtenOn": "2013-08-13T17:44:46Z",
+      "side": 1,
+      "message": "We should also have the license notice:\nThis program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html\nhere in addition to the copyright notice.",
+      "revId": "2c293c5995306777cf2b3e095f3882312a245f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
