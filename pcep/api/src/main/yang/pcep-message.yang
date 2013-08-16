@@ -4,6 +4,7 @@ module pcep-message {
 	prefix "pcep-msg";
 
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import ieee754 { prefix ieee754; revision-date 2013-08-16; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -28,28 +29,6 @@ module pcep-message {
 
 	// NOTE: this model uses counts bits in fields from left to right,
 	//       just as IANA does for PCEP protocol.
-
-	// FIXME: IEEE754 module
-	grouping ieee754-32 {
-		reference "IEEE 754-2008";
-
-		leaf negative {
-			type boolean;
-			mandatory true;
-		}
-
-		leaf exponent {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf fraction {
-			type uint32 {
-				range 0..16777215;
-			}
-			mandatory true;
-		}
-	}
 
 	// FIXME: IANA module
 	typedef iana-enterprise-number {
@@ -609,7 +588,7 @@ module pcep-message {
 
 	grouping bandwidth {
 		container bandwidth {
-			uses ieee754-32;
+			uses ieee754:binary32;
 		}
 	}
 
@@ -644,7 +623,7 @@ module pcep-message {
 		}
 
 		container value {
-			uses ieee754-32;
+			uses ieee754:binary32;
 		}
 	}
 
@@ -779,7 +758,7 @@ module pcep-message {
 		}
 
 		container min-bandwidth {
-			uses ieee754-32;
+			uses ieee754:binary32;
 		}
 	}
 
