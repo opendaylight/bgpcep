@@ -3,6 +3,7 @@ module topology-tunnel-pcep {
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep";
 	prefix "pceptun";
 
+	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 	import network-topology { prefix nt; revision-date 2013-07-12; }
 	import pcep-message { prefix pcep; revision-date 2013-07-30; }
@@ -75,7 +76,9 @@ module topology-tunnel-pcep {
 			default 100;
 		}
 
-		uses pcep:bandwidth;
+		leaf bandwidth {
+			type ieee754:float32;
+		}
 	}
 
 	grouping tunnel-pcep-path-attributes {

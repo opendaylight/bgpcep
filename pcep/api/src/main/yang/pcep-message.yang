@@ -3,6 +3,8 @@ module pcep-message {
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep-message";
 	prefix "pcep-msg";
 
+	import iana { prefix iana; revision-date 2013-08-16; }
+	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
 	organization "Cisco Systems, Inc.";
@@ -28,33 +30,6 @@ module pcep-message {
 
 	// NOTE: this model uses counts bits in fields from left to right,
 	//       just as IANA does for PCEP protocol.
-
-	// FIXME: IEEE754 module
-	grouping ieee754-32 {
-		reference "IEEE 754-2008";
-
-		leaf negative {
-			type boolean;
-			mandatory true;
-		}
-
-		leaf exponent {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf fraction {
-			type uint32 {
-				range 0..16777215;
-			}
-			mandatory true;
-		}
-	}
-
-	// FIXME: IANA module
-	typedef iana-enterprise-number {
-		type uint32;
-	}
 
 	// FIXME: RSVP module
 	typedef rsvp-attribute-filter {
@@ -134,7 +109,7 @@ module pcep-message {
 		reference "https://tools.ietf.org/html/rfc5284#section-3";
 
 		leaf enterprise {
-			type iana-enterprise-number;
+			type iana:enterprise-number;
 			mandatory true;
 		}
 
@@ -607,19 +582,16 @@ module pcep-message {
 		}
 	}
 
-	grouping bandwidth {
-		container bandwidth {
-			uses ieee754-32;
-		}
-	}
-
 	grouping bandwidth-object {
 		description "BANDWIDTH Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.7";
 
 		// No possibility to carry TLVs
 		uses object-header;
-		uses bandwidth;
+
+		leaf bandwidth {
+			type ieee754:float32;
+		}
 	}
 
 	grouping metric-object {
@@ -643,8 +615,8 @@ module pcep-message {
 			default false;
 		}
 
-		container value {
-			uses ieee754-32;
+		leaf value {
+			type ieee754:float32;
 		}
 	}
 
@@ -778,8 +750,8 @@ module pcep-message {
 			mandatory true;
 		}
 
-		container min-bandwidth {
-			uses ieee754-32;
+		leaf min-bandwidth {
+			type ieee754:float32;
 		}
 	}
 
