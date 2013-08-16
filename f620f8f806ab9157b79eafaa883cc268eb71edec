@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//97I\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-08-16T20:50:44Z",
+      "side": 1,
+      "message": "I think this is actually in tunnel-pcep-path-attributes: each path in a pcep link had a load-share",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//97E\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-pcep.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-08-16T20:50:44Z",
+      "side": 1,
+      "message": "This should be called something like \u0027tunnel-pcep-path-hop-attributes\u0027 to indicate that it\u0027s per path hop, not per path attribute. And it should contain a node id for each hop ( and other data from from RSVP)",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//97o\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel-sr.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-08-16T20:50:44Z",
+      "side": 1,
+      "message": "The SID (segment ID) is missing (suggest a uint32 for that).\n\nAlso, I would rename it to \u0027path-hop-attributes\u0027 or something like that, because this is per-hop in a path, not per-path.",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//97Y\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-08-16T20:50:44Z",
+      "side": 1,
+      "message": "I think the tunnels (or paths) should be modeled in the network topology model. We also got comments to that effect on the netmod mailing list. That said, this is a very good start on tunnels.",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//97g\u003d",
+        "filename": "pcep/api/src/main/yang/topology-tunnel.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-08-16T20:50:44Z",
+      "side": 1,
+      "message": "Need to put in the comment about what exactly is modeled here",
+      "revId": "f620f8f806ab9157b79eafaa883cc268eb71edec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
