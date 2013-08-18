@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.framework.Dispatcher;
 import org.opendaylight.protocol.framework.ProtocolServer;
@@ -17,11 +18,16 @@ import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of PCEPDispatcher.
  */
 public class PCEPDispatcherImpl implements PCEPDispatcher {
+
+	private final static Logger logger = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
+
 	public static final int DEFAULT_MAX_UNKNOWN_MSG = 5;
 
 	private int maxUnknownMessages = DEFAULT_MAX_UNKNOWN_MSG;
@@ -48,10 +54,19 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 
 	/**
 	 * Create client is used for mock purposes only.
+	 * 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public PCEPSession createClient(final PCEPConnection connection) throws IOException {
-		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
+		PCEPSession session = null;
+		try {
+			session = (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages)).get();
+		} catch (InterruptedException | ExecutionException e) {
+			logger.warn("Client not created. Exception {}.", e.getMessage(), e);
+		}
+		return session;
 	}
 
 	@Override

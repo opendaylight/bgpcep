@@ -126,7 +126,7 @@ public class PCEPValidatorTest {
 	private static List<PCEPMessage> deserMsg(final String srcFile) throws IOException, DeserializerException, DocumentedException,
 			PCEPDeserializerException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) new PCEPMessageFactory().parse(ByteArray.cutBytes(bytesFromFile, 1));
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) new PCEPMessageFactory().parse(bytesFromFile);
 
 		return PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects());
 	}
@@ -620,7 +620,7 @@ public class PCEPValidatorTest {
 		final PCEPXRDeleteTunnelMessage dTunnel = new PCEPXRDeleteTunnelMessage(new PCEPLspObject(1, false, true, false, true));
 		final byte[] bytes = this.msgFactory.put(dTunnel);
 
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(ByteArray.cutBytes(bytes, 1));
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
 
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) dTunnel));
@@ -633,7 +633,7 @@ public class PCEPValidatorTest {
 		final PCEPXRAddTunnelMessage addTunnel = new PCEPXRAddTunnelMessage(new PCEPLspObject(1, false, false, false, false), new PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForString("127.0.0.2"), IPv4.FAMILY.addressForString("127.0.0.1")), new PCEPExplicitRouteObject(subs, true));
 		final byte[] bytes = this.msgFactory.put(addTunnel);
 
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(ByteArray.cutBytes(bytes, 1));
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) addTunnel));
 	}
@@ -660,7 +660,7 @@ public class PCEPValidatorTest {
 		final byte[] bytes = this.msgFactory.put(msg);
 
 		// FIXME: need construct with invalid processed parameter
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(ByteArray.cutBytes(bytes, 1));
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
 
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) msg));

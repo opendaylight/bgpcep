@@ -21,8 +21,19 @@ public class ProtocolHandlerFactory {
 		this.decoder = new ProtocolMessageDecoder(msgFactory);
 	}
 
-	public ChannelHandler[] getHandlers(final ProtocolSession session) {
-		return new ChannelHandler[] { this.encoder, new ProtocolSessionInboundHandler(session),
-				new ProtocolSessionOutboundHandler(session), this.decoder };
+	public ChannelHandler getEncoder() {
+		return this.encoder;
+	}
+
+	public ChannelHandler getDecoder() {
+		return this.decoder;
+	}
+
+	public ChannelHandler getSessionInboundHandler(final ProtocolSession session) {
+		return new ProtocolSessionInboundHandler(session);
+	}
+
+	public ChannelHandler getSessionOutboundHandler() {
+		return new ProtocolSessionOutboundHandler();
 	}
 }

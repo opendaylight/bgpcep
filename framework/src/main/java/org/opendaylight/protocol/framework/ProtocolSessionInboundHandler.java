@@ -8,10 +8,14 @@
 package org.opendaylight.protocol.framework;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.MessageList;
+import io.netty.channel.SimpleChannelInboundHandler;
 
-final class ProtocolSessionInboundHandler extends ChannelInboundHandlerAdapter {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+final class ProtocolSessionInboundHandler extends SimpleChannelInboundHandler<ProtocolMessage> {
+
+	private final static Logger logger = LoggerFactory.getLogger(ProtocolSessionInboundHandler.class);
 
 	private final ProtocolSession session;
 
@@ -20,10 +24,24 @@ final class ProtocolSessionInboundHandler extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
-	public void messageReceived(final ChannelHandlerContext ctx, final MessageList<Object> msgs) {
-		final MessageList<ProtocolMessage> pmsgs = msgs.cast();
-		for (final ProtocolMessage msg : pmsgs) {
-			this.session.handleMessage(msg);
-		}
+	public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+		logger.debug("Channel active.");
+		this.session.startSession();
+	}
+
+	@Override
+	public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+		logger.debug("Channel inactive.");
+		this.session.endOfInput();
+	}
+
+	@Override
+	protected void channelRead0(final ChannelHandlerContext ctx, final ProtocolMessage msg) throws Exception {
+		logger.debug("Message was received: {}", msg);
+		this.session.handleMessage(msg);
+	}
+
+	public ProtocolSession getSession() {
+		return this.session;
 	}
 }

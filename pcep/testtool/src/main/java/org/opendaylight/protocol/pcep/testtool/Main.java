@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.ProtocolServer;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -107,7 +108,9 @@ public class Main {
 			} else if (args[i].equalsIgnoreCase("--instant")) {
 				stateful = true;
 				instant = true;
-				if (Integer.valueOf(args[i + 1]) > 0 && Integer.valueOf(args[i + 1]) < Integer.MAX_VALUE) {
+				if (i == args.length - 1) {
+					timeout = 0;
+				} else if (Integer.valueOf(args[i + 1]) > 0 && Integer.valueOf(args[i + 1]) < Integer.MAX_VALUE) {
 					timeout = Integer.valueOf(args[i + 1]);
 					i++;
 				}
@@ -143,8 +146,10 @@ public class Main {
 		final DispatcherImpl d = new DispatcherImpl(new PCEPMessageFactory());
 		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d, spf);
 
+		ProtocolServer s = null;
+
 		try {
-			dispatcher.createServer(address, new PCEPConnectionFactory() {
+			s = dispatcher.createServer(address, new PCEPConnectionFactory() {
 				@Override
 				public PCEPConnection createProtocolConnection(final InetSocketAddress address) {
 					final PCEPSessionProposalChecker checker = spcf.getPreferencesChecker(address);
@@ -157,7 +162,6 @@ public class Main {
 				public void setProposal(final PCEPSessionProposalFactory proposals, final InetSocketAddress address, final int sessionId) {
 				}
 			});
-			// final ProtocolServer s = dispatcher.createServer(address, slf, spf, spcf);
 
 			// try {
 			// Thread.sleep(10000);

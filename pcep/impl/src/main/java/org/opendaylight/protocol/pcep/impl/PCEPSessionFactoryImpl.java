@@ -13,11 +13,11 @@ import java.util.Timer;
 
 import org.opendaylight.protocol.framework.ProtocolConnection;
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.protocol.framework.ProtocolSessionFactory;
 import org.opendaylight.protocol.framework.SessionParent;
 import org.opendaylight.protocol.pcep.PCEPConnection;
-import org.opendaylight.protocol.pcep.PCEPSessionFactory;
 
-public class PCEPSessionFactoryImpl implements PCEPSessionFactory {
+public class PCEPSessionFactoryImpl implements ProtocolSessionFactory {
 
 	private final int maxUnknownMessages;
 

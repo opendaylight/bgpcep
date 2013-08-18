@@ -65,7 +65,7 @@ public class PCCMock {
 			d.createClient(new PCEPConnection() {
 				@Override
 				public InetSocketAddress getPeerAddress() {
-					return new InetSocketAddress("127.0.0.1", 4189);
+					return new InetSocketAddress("127.0.0.3", 12345);
 				}
 
 				@Override
