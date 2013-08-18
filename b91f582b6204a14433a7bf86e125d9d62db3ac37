@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//95A\u003d",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-18T19:24:29Z",
+      "side": 1,
+      "message": "Rethrow the exception, please.",
+      "revId": "b91f582b6204a14433a7bf86e125d9d62db3ac37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//948\u003d",
+        "filename": "pcep/testtool/src/main/java/org/opendaylight/protocol/pcep/testtool/TestingSessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-18T19:24:29Z",
+      "side": 1,
+      "message": "logger.debug(\"Session down because: {}\", reason);",
+      "revId": "b91f582b6204a14433a7bf86e125d9d62db3ac37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
