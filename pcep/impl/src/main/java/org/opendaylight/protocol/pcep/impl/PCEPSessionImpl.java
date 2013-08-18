@@ -23,7 +23,6 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ProtocolSession;
-import org.opendaylight.protocol.framework.ProtocolSessionOutboundHandler;
 import org.opendaylight.protocol.framework.SessionParent;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPConnection;
@@ -205,8 +204,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	private final String peerAddress;
 
-	private final ProtocolSessionOutboundHandler handler;
-
 	private final ChannelHandlerContext ctx;
 
 	PCEPSessionImpl(final SessionParent parent, final Timer timer, final PCEPConnection connection, final PCEPMessageFactory factory,
@@ -223,7 +220,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		this.ctx = ctx;
 		if (this.maxUnknownMessages != 0)
 			this.maxUnknownMessages = maxUnknownMessages;
-		this.handler = new ProtocolSessionOutboundHandler(this);
 	}
 
 	@Override
@@ -367,7 +363,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	@Override
 	public void sendMessage(final PCEPMessage msg) {
 		try {
-			this.handler.writeDown(this.ctx, msg);
+			this.ctx.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
 			if (!(msg instanceof PCEPKeepAliveMessage))
 				logger.debug("Sent message: " + msg);

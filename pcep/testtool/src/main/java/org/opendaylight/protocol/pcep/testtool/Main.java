@@ -107,7 +107,9 @@ public class Main {
 			} else if (args[i].equalsIgnoreCase("--instant")) {
 				stateful = true;
 				instant = true;
-				if (Integer.valueOf(args[i + 1]) > 0 && Integer.valueOf(args[i + 1]) < Integer.MAX_VALUE) {
+				if (i == args.length - 1) {
+					timeout = 0;
+				} else if (Integer.valueOf(args[i + 1]) > 0 && Integer.valueOf(args[i + 1]) < Integer.MAX_VALUE) {
 					timeout = Integer.valueOf(args[i + 1]);
 					i++;
 				}

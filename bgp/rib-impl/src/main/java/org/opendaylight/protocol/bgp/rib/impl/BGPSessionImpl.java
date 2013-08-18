@@ -150,7 +150,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 		this.ctx = ctx;
 		this.checker = connection.getProposalChecker();
 		this.sync = new BGPSynchronization(this.listener);
-		this.handler = new ProtocolSessionOutboundHandler(this);
+		this.handler = new ProtocolSessionOutboundHandler();
 	}
 
 	@Override
