@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.framework.Dispatcher;
 import org.opendaylight.protocol.framework.ProtocolServer;
@@ -48,10 +49,19 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 
 	/**
 	 * Create client is used for mock purposes only.
+	 * 
+	 * @throws ExecutionException
+	 * @throws InterruptedException
 	 */
 	@Override
 	public PCEPSession createClient(final PCEPConnection connection) throws IOException {
-		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
+		PCEPSession session = null;
+		try {
+			session = (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages)).get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return session;
 	}
 
 	@Override

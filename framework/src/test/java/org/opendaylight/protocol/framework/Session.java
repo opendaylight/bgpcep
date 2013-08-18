@@ -21,16 +21,11 @@ public class Session implements ProtocolSession {
 
 	public final List<ProtocolMessage> msgs = Lists.newArrayList();
 
-	private final ProtocolMessageFactory pmf = new MessageFactory();
-
-	private final SessionParent parent;
-
 	public boolean up = false;
 
 	private final int maxMsgSize;
 
-	public Session(final SessionParent parent, final int maxMsgSize) {
-		this.parent = parent;
+	public Session(final int maxMsgSize) {
 		this.maxMsgSize = maxMsgSize;
 	}
 

@@ -9,25 +9,8 @@ package org.opendaylight.protocol.framework;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.MessageList;
 
 public final class ProtocolSessionOutboundHandler extends ChannelOutboundHandlerAdapter {
-
-	private final ProtocolSession session;
-
-	public ProtocolSessionOutboundHandler(final ProtocolSession session) {
-		this.session = session;
-	}
-
-	@Override
-	public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
-		this.session.startSession();
-	}
-
-	@Override
-	public void handlerRemoved(final ChannelHandlerContext ctx) throws Exception {
-		this.session.close();
-	}
 
 	@Override
 	public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
@@ -37,6 +20,6 @@ public final class ProtocolSessionOutboundHandler extends ChannelOutboundHandler
 	}
 
 	public void writeDown(final ChannelHandlerContext ctx, final ProtocolMessage msg) throws Exception {
-		this.write(ctx, MessageList.<Object> newInstance(msg), ctx.newPromise());
+		this.write(ctx, msg, ctx.newPromise());
 	}
 }

@@ -9,10 +9,17 @@ package org.opendaylight.protocol.framework;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.MessageList;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 final class ProtocolMessageDecoder extends ByteToMessageDecoder {
+
+	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 
 	private final ProtocolMessageFactory factory;
 
@@ -21,19 +28,18 @@ final class ProtocolMessageDecoder extends ByteToMessageDecoder {
 	}
 
 	@Override
-	public void decode(final ChannelHandlerContext ctx, final ByteBuf in, final MessageList<Object> out) throws Exception {
+	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+		in.markReaderIndex();
 		ProtocolMessage msg = null;
 		try {
-			msg = this.factory.parse(in.array());
+			final byte[] bytes = new byte[in.readableBytes()];
+			logger.debug("Received to decode: {}", Arrays.toString(bytes));
+			in.readBytes(bytes);
+			msg = this.factory.parse(bytes);
 		} catch (DeserializerException | DocumentedException e) {
 			this.exceptionCaught(ctx, e);
 		}
+		in.discardReadBytes();
 		out.add(msg);
-	}
-
-	@Override
-	public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
-		// TODO:
-		ctx.close();
 	}
 }

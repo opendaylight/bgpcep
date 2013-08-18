@@ -137,11 +137,11 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 
 		logger.trace("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(bytes));
 
-		final int type = UnsignedBytes.toInt(bytes[0]);
+		final int type = UnsignedBytes.toInt(bytes[1]);
 
-		final int msgLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, TYPE_SIZE, LENGTH_SIZE));
+		final int msgLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, TYPE_SIZE + 1, LENGTH_SIZE));
 
-		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + LENGTH_SIZE);
+		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
 
 		if (msgBody.length != (msgLength - COMMON_HEADER_LENGTH))
 			throw new DeserializerException("Size don't match size specified in header. Passed: " + msgBody.length + "; Expected: "
