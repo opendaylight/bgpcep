@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.framework;
 
+import io.netty.util.concurrent.Future;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -23,8 +25,8 @@ public interface Dispatcher {
 	 * 
 	 * @return instance of ProtocolServer
 	 */
-	public ProtocolServer createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
-			final ProtocolSessionFactory sfactory) throws IOException;
+	public Future<ProtocolServer> createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
+			final ProtocolSessionFactory<?> sfactory) throws IOException;
 
 	/**
 	 * Creates a client.
@@ -35,5 +37,5 @@ public interface Dispatcher {
 	 * 
 	 * @return session associated with this client
 	 */
-	public ProtocolSession createClient(final ProtocolConnection connection, final ProtocolSessionFactory sfactory) throws IOException;
+	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory) throws IOException;
 }

@@ -14,7 +14,7 @@ import java.util.Timer;
 /**
  * Factory for generating Protocol Sessions. This class should be extended to return protocol specific session.
  */
-public interface ProtocolSessionFactory {
+public interface ProtocolSessionFactory<T extends ProtocolSession> {
 
 	/**
 	 * Creates and returns protocol specific session.
@@ -25,6 +25,6 @@ public interface ProtocolSessionFactory {
 	 * @param sessionId session identifier
 	 * @return new session
 	 */
-	public ProtocolSession getProtocolSession(SessionParent dispatcher, Timer timer, ProtocolConnection connection, int sessionId,
+	public T getProtocolSession(SessionParent dispatcher, Timer timer, ProtocolConnection connection, int sessionId,
 			ChannelHandlerContext ctx);
 }

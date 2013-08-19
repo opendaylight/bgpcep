@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
+import io.netty.util.concurrent.Future;
+
 import java.io.IOException;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
@@ -25,5 +27,5 @@ public interface BGPDispatcher {
 	 * @return client session
 	 * @throws IOException
 	 */
-	BGPSession createClient(BGPConnection connection, ProtocolMessageFactory parser) throws IOException;
+	Future<? extends BGPSession> createClient(BGPConnection connection, ProtocolMessageFactory parser) throws IOException;
 }

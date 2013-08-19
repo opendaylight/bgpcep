@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.util.concurrent.Future;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -47,7 +49,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	}
 
 	@Override
-	public ProtocolServer createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException {
+	public Future<ProtocolServer> createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException {
 		connectionFactory.setProposal(this.proposalFactory, address, 0);
 		return this.dispatcher.createServer(address, connectionFactory, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
 	}
@@ -59,8 +61,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 * @throws InterruptedException
 	 */
 	@Override
-	public PCEPSession createClient(final PCEPConnection connection) throws IOException {
-		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
+	public Future<? extends PCEPSession> createClient(final PCEPConnection connection) throws IOException {
+		return this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
 	}
 
 	@Override

@@ -12,12 +12,11 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.Timer;
 
 import org.opendaylight.protocol.framework.ProtocolConnection;
-import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.ProtocolSessionFactory;
 import org.opendaylight.protocol.framework.SessionParent;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 
-public class PCEPSessionFactoryImpl implements ProtocolSessionFactory {
+public class PCEPSessionFactoryImpl implements ProtocolSessionFactory<PCEPSessionImpl> {
 
 	private final int maxUnknownMessages;
 
@@ -26,7 +25,7 @@ public class PCEPSessionFactoryImpl implements ProtocolSessionFactory {
 	}
 
 	@Override
-	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
+	public PCEPSessionImpl getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
 			final int sessionId, final ChannelHandlerContext ctx) {
 		return new PCEPSessionImpl(parent, timer, (PCEPConnection) connection, new PCEPMessageFactory(), this.maxUnknownMessages, sessionId, ctx);
 	}

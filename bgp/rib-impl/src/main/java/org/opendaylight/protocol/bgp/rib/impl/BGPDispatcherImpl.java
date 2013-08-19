@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.util.concurrent.Future;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -28,8 +30,8 @@ public final class BGPDispatcherImpl implements BGPDispatcher, Closeable {
 	}
 
 	@Override
-	public BGPSession createClient(final BGPConnection connection, final ProtocolMessageFactory parser) throws IOException {
-		return (BGPSession) this.dispatcher.createClient(connection, new BGPSessionFactory(parser));
+	public Future<? extends BGPSession> createClient(final BGPConnection connection, final ProtocolMessageFactory parser) throws IOException {
+		return this.dispatcher.createClient(connection, new BGPSessionFactory(parser));
 	}
 
 	public Dispatcher getDispatcher() {

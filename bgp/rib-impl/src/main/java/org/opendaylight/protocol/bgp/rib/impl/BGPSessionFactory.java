@@ -14,14 +14,13 @@ import java.util.Timer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.framework.ProtocolConnection;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
-import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.ProtocolSessionFactory;
 import org.opendaylight.protocol.framework.SessionParent;
 
 /**
  *
  */
-public final class BGPSessionFactory implements ProtocolSessionFactory {
+public final class BGPSessionFactory implements ProtocolSessionFactory<BGPSessionImpl> {
 
 	private final ProtocolMessageFactory parser;
 
@@ -30,7 +29,7 @@ public final class BGPSessionFactory implements ProtocolSessionFactory {
 	}
 
 	@Override
-	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
+	public BGPSessionImpl getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
 			final int sessionId, final ChannelHandlerContext ctx) {
 		return new BGPSessionImpl(parent, timer, (BGPConnection) connection, sessionId, this.parser, ctx);
 	}

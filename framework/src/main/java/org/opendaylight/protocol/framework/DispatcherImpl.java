@@ -21,12 +21,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Timer;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,15 +67,15 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	}
 
-	final class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+	final class ClientChannelInitializer<T extends ProtocolSession> extends ChannelInitializer<SocketChannel> {
 
-		private final ProtocolSessionFactory sfactory;
+		private final ProtocolSessionFactory<T> sfactory;
 
 		private final ProtocolConnection connection;
 
-		private ProtocolSession session;
+		private T session;
 
-		public ClientChannelInitializer(final ProtocolConnection connection, final ProtocolSessionFactory sfactory) {
+		public ClientChannelInitializer(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory) {
 			this.connection = connection;
 			this.sfactory = sfactory;
 		}
@@ -92,13 +92,27 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 			ch.pipeline().addAfter("inbound", "encoder", factory.getEncoder());
 		}
 
-		public ProtocolSession getSession() {
+		public T getSession() {
 			return this.session;
 		}
-
 	}
 
-	static final class ProtocolSessionPromise extends DefaultPromise<ProtocolSession> {
+	static final class ProtocolServerPromise extends DefaultPromise<ProtocolServer> {
+		private final ChannelFuture cf;
+
+		ProtocolServerPromise(final ChannelFuture cf) {
+			super();
+			this.cf = cf;
+		}
+
+		@Override
+		public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+			this.cf.cancel(mayInterruptIfRunning);
+			return super.cancel(mayInterruptIfRunning);
+		}
+	}
+
+	static final class ProtocolSessionPromise<T extends ProtocolSession> extends DefaultPromise<T> {
 		private final ChannelFuture cf;
 
 		ProtocolSessionPromise(final ChannelFuture cf) {
@@ -140,8 +154,8 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 	}
 
 	@Override
-	public ProtocolServer createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
-			final ProtocolSessionFactory sessionFactory) {
+	public Future<ProtocolServer> createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
+			final ProtocolSessionFactory<?> sessionFactory) {
 		final ProtocolServer server = new ProtocolServer(address, connectionFactory, sessionFactory, this);
 		final ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup);
@@ -152,27 +166,16 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 		// Bind and start to accept incoming connections.
 		final ChannelFuture f = b.bind(address);
-		this.serverSessions.put(server, f.channel());
-		logger.debug("Created server {}.", server);
-		return server;
-	}
-
-	@Override
-	public ProtocolSession createClient(final ProtocolConnection connection, final ProtocolSessionFactory sfactory) {
-		final Bootstrap b = new Bootstrap();
-		b.group(this.workerGroup);
-		b.channel(NioSocketChannel.class);
-		b.option(ChannelOption.SO_KEEPALIVE, true);
-		final ClientChannelInitializer init = new ClientChannelInitializer(connection, sfactory);
-		b.handler(init);
-		final ChannelFuture f = b.connect(connection.getPeerAddress());
-		final ProtocolSessionPromise p = new ProtocolSessionPromise(f);
+		final ProtocolServerPromise p = new ProtocolServerPromise(f);
 
 		f.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(final ChannelFuture cf) {
 				if (cf.isSuccess()) {
-					p.setSuccess(init.getSession());
+					p.setSuccess(server);
+					synchronized (serverSessions) {
+						serverSessions.put(server, cf.channel());
+					}
 					return;
 				} else if (cf.isCancelled()) {
 					p.cancel(false);
@@ -180,15 +183,41 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 					p.setFailure(cf.cause());
 			}
 		});
-		ProtocolSession s = null;
-		try {
-			s = p.get();
-			this.clientSessions.put(p.get(), f.channel());
-		} catch (InterruptedException | ExecutionException e) {
-			logger.warn("Client not created. Exception {}.", e.getMessage(), e);
-		}
+
+		logger.debug("Created server {}.", server);
+		return p;
+	}
+
+	@Override
+	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory) {
+		final Bootstrap b = new Bootstrap();
+		b.group(this.workerGroup);
+		b.channel(NioSocketChannel.class);
+		b.option(ChannelOption.SO_KEEPALIVE, true);
+		final ClientChannelInitializer<T> init = new ClientChannelInitializer<T>(connection, sfactory);
+		b.handler(init);
+		final ChannelFuture f = b.connect(connection.getPeerAddress());
+		final ProtocolSessionPromise<T> p = new ProtocolSessionPromise<T>(f);
+
+		f.addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(final ChannelFuture cf) {
+				if (cf.isSuccess()) {
+					final T s = init.getSession();
+					p.setSuccess(s);
+					synchronized (clientSessions) {
+						clientSessions.put(s, cf.channel());
+					}
+					return;
+				} else if (cf.isCancelled()) {
+					p.cancel(false);
+				} else
+					p.setFailure(cf.cause());
+			}
+		});
+
 		logger.debug("Client created.");
-		return s;
+		return p;
 	}
 
 	@Override
@@ -199,18 +228,22 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	@Override
 	public void onSessionClosed(final ProtocolSession session) {
-		logger.trace("Removing client session: {}", session);
-		final Channel ch = this.clientSessions.get(session);
-		ch.close();
-		this.clientSessions.remove(session);
-		logger.debug("Removed client session: {}", session.toString());
+		synchronized (clientSessions) {
+			logger.trace("Removing client session: {}", session);
+			final Channel ch = this.clientSessions.get(session);
+			ch.close();
+			this.clientSessions.remove(session);
+			logger.debug("Removed client session: {}", session.toString());
+		}
 	}
 
 	void onServerClosed(final ProtocolServer server) {
-		logger.trace("Removing server session: {}", server);
-		final Channel ch = this.serverSessions.get(server);
-		ch.close();
-		this.clientSessions.remove(server);
-		logger.debug("Removed server session: {}", server.toString());
+		synchronized (serverSessions) {
+			logger.trace("Removing server session: {}", server);
+			final Channel ch = this.serverSessions.get(server);
+			ch.close();
+			this.clientSessions.remove(server);
+			logger.debug("Removed server session: {}", server.toString());
+		}
 	}
 }

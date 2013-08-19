@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -18,6 +19,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Implementation of {@link BGP}.
@@ -60,10 +63,10 @@ public class BGPImpl implements BGP, Closeable {
 
 	public BGPImpl(final BGPDispatcher dispatcher, final ProtocolMessageFactory parser, final InetSocketAddress address,
 			final BGPSessionProposal proposal, final BGPSessionProposalChecker checker) throws IOException {
-		this.dispatcher = dispatcher;
-		this.parser = parser;
-		this.address = address;
-		this.proposal = proposal;
+		this.dispatcher = Preconditions.checkNotNull(dispatcher);
+		this.parser = Preconditions.checkNotNull(parser);
+		this.address = Preconditions.checkNotNull(address);
+		this.proposal = Preconditions.checkNotNull(proposal);
 		this.checker = checker;
 	}
 
@@ -71,9 +74,14 @@ public class BGPImpl implements BGP, Closeable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) throws IOException {
-		final BGPSession session = this.dispatcher.createClient(
-				new BGPConnectionImpl(this.address, listener, this.proposal.getProposal(), this.checker), this.parser);
+	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener) throws IOException {
+		final BGPSession session;
+		try {
+			session = this.dispatcher.createClient(
+					new BGPConnectionImpl(this.address, listener, this.proposal.getProposal(), this.checker), this.parser).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new IOException("Failed to connect to peer", e);
+		}
 		return new BGPListenerRegistration(listener, session);
 	}
 
