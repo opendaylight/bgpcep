@@ -55,11 +55,6 @@ public final class SimpleSession implements ProtocolSession {
 	}
 
 	@Override
-	public void onConnectionFailed(final IOException e) {
-		((SimpleSessionListener) this.listener).onConnectionFailed(this, e);
-	}
-
-	@Override
 	public int maximumMessageSize() {
 		return this.maxMsgSize;
 	}

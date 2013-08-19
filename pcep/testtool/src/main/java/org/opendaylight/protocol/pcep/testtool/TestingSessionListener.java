@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,6 @@ import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.message.PCEPXRAddTunnelMessage;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.protocol.pcep.object.PCEPEndPointsObject;
 import org.opendaylight.protocol.pcep.object.PCEPExplicitRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPLspObject;
@@ -54,8 +54,13 @@ public class TestingSessionListener extends PCEPSessionListener {
 	}
 
 	@Override
-	public void onSessionDown(final PCEPSession session, final PCEPCloseObject reason, final Exception e) {
-		logger.debug("Session down because: {}", reason);
+	public void onSessionDown(final PCEPSession session, final TerminationReason cause, final Exception e) {
+		logger.debug("Session down with cause : {} or exception: {}", cause, e);
+		try {
+			session.close();
+		} catch (final IOException e1) {
+			logger.debug("Could not close session, because {}", e1.getMessage(), e1);
+		}
 	}
 
 	@Override

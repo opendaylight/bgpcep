@@ -9,22 +9,24 @@ package org.opendaylight.protocol.pcep;
 
 import java.io.Closeable;
 
+import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
+
 /**
- * PCEP Session represents the finite state machine in PCEP,
- * including timers and its purpose is to create a PCEP connection
- * between PCE/PCC. Session is automatically started, when TCP
- * connection is created, but can be stopped manually.
- * If the session is up, it has to redirect messages to/from user.
- * Handles also malformed messages and unknown requests.
+ * PCEP Session represents the finite state machine in PCEP, including timers and its purpose is to create a PCEP
+ * connection between PCE/PCC. Session is automatically started, when TCP connection is created, but can be stopped
+ * manually. If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown
+ * requests.
  */
 public interface PCEPSession extends Closeable {
 
 	/**
-	 * Sends message from user to PCE/PCC. If the user sends an Open
-	 * Message, the session returns an error (open message is only
-	 * allowed, when a PCEP handshake is in progress). Close message
-	 * will close the session and free all the resources.
+	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
+	 * is only allowed, when a PCEP handshake is in progress). Close message will close the session and free all the
+	 * resources.
+	 * 
 	 * @param message message to be sent
 	 */
 	public void sendMessage(PCEPMessage message);
+
+	public void close(PCEPCloseObject.Reason reason);
 }

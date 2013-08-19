@@ -225,12 +225,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	}
 
 	@Override
-	public void onConnectionFailed(final IOException e) {
-		logger.info("Connection failed before finishing: {}", e.getMessage(), e);
-		this.listener.onSessionDown(this, e);
-	}
-
-	@Override
 	public int maximumMessageSize() {
 		return 4096;
 	}

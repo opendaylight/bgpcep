@@ -10,15 +10,13 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.framework.TerminationReason;
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple Session Listener that is notified about messages and changes in the session.
@@ -35,29 +33,27 @@ public class SimpleSessionListener extends PCEPSessionListener {
 	}
 
 	@Override
-	public void onMessage(PCEPSession session, PCEPMessage message) {
-		logger.debug("Received message: " + message.getClass() + " " + message);
+	public void onMessage(final PCEPSession session, final PCEPMessage message) {
+		logger.debug("Received message: {} {}", message.getClass(), message);
 		this.messages.add(message);
 	}
 
 	@Override
-	public synchronized void onSessionUp(PCEPSession session, PCEPOpenObject local,
-			PCEPOpenObject remote) {
+	public synchronized void onSessionUp(final PCEPSession session, final PCEPOpenObject local, final PCEPOpenObject remote) {
 		logger.debug("Session up.");
 		this.up = true;
 		this.notifyAll();
 	}
 
 	@Override
-	public void onSessionDown(PCEPSession session, PCEPCloseObject reason, Exception e) {
-		logger.debug("Session down.");
+	public void onSessionDown(final PCEPSession session, final TerminationReason reason, final Exception e) {
+		logger.debug("Session down. Cause: {} or {}", reason, e);
 		this.up = false;
-		//this.notifyAll();
+		// this.notifyAll();
 	}
 
 	@Override
-	public void onSessionTerminated(PCEPSession session,
-			TerminationReason cause) {
-		logger.debug("Session terminated. Cause : " + cause.toString());
+	public void onSessionTerminated(final PCEPSession session, final TerminationReason cause) {
+		logger.debug("Session terminated. Cause : ", cause.toString());
 	}
 }

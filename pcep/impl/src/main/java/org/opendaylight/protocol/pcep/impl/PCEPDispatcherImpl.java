@@ -60,13 +60,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 */
 	@Override
 	public PCEPSession createClient(final PCEPConnection connection) throws IOException {
-		PCEPSession session = null;
-		try {
-			session = (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages)).get();
-		} catch (InterruptedException | ExecutionException e) {
-			logger.warn("Client not created. Exception {}.", e.getMessage(), e);
-		}
-		return session;
+		return (PCEPSession) this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
 	}
 
 	@Override

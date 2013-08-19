@@ -29,12 +29,16 @@ final class ProtocolMessageDecoder extends ByteToMessageDecoder {
 
 	@Override
 	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+		if (in.readableBytes() == 0) {
+			logger.debug("No more content in incoming buffer.");
+			return;
+		}
 		in.markReaderIndex();
 		ProtocolMessage msg = null;
 		try {
 			final byte[] bytes = new byte[in.readableBytes()];
-			logger.debug("Received to decode: {}", Arrays.toString(bytes));
 			in.readBytes(bytes);
+			logger.debug("Received to decode: {}", Arrays.toString(bytes));
 			msg = this.factory.parse(bytes);
 		} catch (DeserializerException | DocumentedException e) {
 			this.exceptionCaught(ctx, e);

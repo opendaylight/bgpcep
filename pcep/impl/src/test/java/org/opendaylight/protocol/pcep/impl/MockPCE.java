@@ -10,18 +10,16 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.framework.TerminationReason;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,12 +39,11 @@ public class MockPCE extends PCEPSessionListener {
 	public MockPCE() {
 	}
 
-	public void sendMessage(PCEPMessage msg) {
+	public void sendMessage(final PCEPMessage msg) {
 		this.session.handleMessage(msg);
 	}
 
-	public void sendErrorMessage(PCEPErrors value,
-			PCEPOpenObject open) {
+	public void sendErrorMessage(final PCEPErrors value, final PCEPOpenObject open) {
 		final PCEPErrorObject error = new PCEPErrorObject(value);
 		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
 		errors.add(error);
@@ -57,34 +54,32 @@ public class MockPCE extends PCEPSessionListener {
 		return this.listMsg;
 	}
 
-	public void addSession(PCEPSessionImpl l) {
+	public void addSession(final PCEPSessionImpl l) {
 		this.session = l;
 	}
 
 	@Override
-	public void onMessage(PCEPSession session, PCEPMessage message) {
+	public void onMessage(final PCEPSession session, final PCEPMessage message) {
 		this.listMsg.add(message);
-		logger.debug("Message received:" + message);
+		logger.debug("Message received: {}", message);
 	}
 
 	@Override
-	public void onSessionUp(PCEPSession session, PCEPOpenObject local,
-			PCEPOpenObject remote) {
+	public void onSessionUp(final PCEPSession session, final PCEPOpenObject local, final PCEPOpenObject remote) {
 		logger.debug("Session Up");
 		this.up = true;
 		this.notifyAll();
 	}
 
 	@Override
-	public void onSessionDown(PCEPSession session, PCEPCloseObject reason, Exception e) {
-		logger.debug("Session Down");
+	public void onSessionDown(final PCEPSession session, final TerminationReason reason, final Exception e) {
+		logger.debug("Session Down. Cause {} or {}.", reason, e);
 		this.down = true;
-		//this.notifyAll();
+		// this.notifyAll();
 	}
 
 	@Override
-	public void onSessionTerminated(PCEPSession session,
-			TerminationReason cause) {
-		logger.debug("Session terminated. Cause : " + cause.toString());
+	public void onSessionTerminated(final PCEPSession session, final TerminationReason cause) {
+		logger.debug("Session terminated. Cause : {}", cause);
 	}
 }

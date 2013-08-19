@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.framework;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 /**
  * Protocol Session represents the finite state machine in underlying protocol, including timers and its purpose is to
@@ -59,13 +58,6 @@ public interface ProtocolSession extends Closeable {
 	 * @return protocol specific message factory
 	 */
 	public ProtocolMessageFactory getMessageFactory();
-
-	/**
-	 * Session is notified about the connection not being established successfully.
-	 * 
-	 * @param e IOException that was the cause of failed connection.
-	 */
-	public void onConnectionFailed(final IOException e);
 
 	/**
 	 * Returns the maximum message size (in bytes) for purposes of dispatcher buffering -- the dispatcher allocates a

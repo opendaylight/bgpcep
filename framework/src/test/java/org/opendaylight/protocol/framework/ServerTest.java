@@ -8,13 +8,10 @@
 package org.opendaylight.protocol.framework;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.junit.After;
 import org.junit.Test;
@@ -31,13 +28,13 @@ public class ServerTest {
 
 	ProtocolServer server = null;
 
+	public final InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.5", PORT);
+
 	@Test
 	public void testConnectionEstablished() throws Exception {
 		this.dispatcher = new DispatcherImpl(new MessageFactory());
 
-		final InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.3", PORT);
-
-		this.server = this.dispatcher.createServer(serverAddress, new ProtocolConnectionFactory() {
+		this.server = this.dispatcher.createServer(this.serverAddress, new ProtocolConnectionFactory() {
 			@Override
 			public ProtocolConnection createProtocolConnection(final InetSocketAddress address) {
 
@@ -80,14 +77,14 @@ public class ServerTest {
 
 			@Override
 			public InetSocketAddress getPeerAddress() {
-				return new InetSocketAddress("127.0.0.3", PORT);
+				return ServerTest.this.serverAddress;
 			}
 
 			@Override
 			public SessionListener getListener() {
 				return ServerTest.this.pce;
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
+		}, new SimpleSessionFactory(MAX_MSGSIZE));
 
 		final int maxAttempts = 1000;
 		int attempts = 0;
@@ -105,7 +102,7 @@ public class ServerTest {
 		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
 		final SimpleSessionListener listener = new SimpleSessionListener();
 
-		final Future<ProtocolSession> session = this.clientDispatcher.createClient(new ProtocolConnection() {
+		final ProtocolSession session = this.clientDispatcher.createClient(new ProtocolConnection() {
 			@Override
 			public SessionPreferencesChecker getProposalChecker() {
 				return new SimpleSessionProposalChecker();
@@ -118,7 +115,7 @@ public class ServerTest {
 
 			@Override
 			public InetSocketAddress getPeerAddress() {
-				return new InetSocketAddress("127.0.0.5", PORT);
+				return ServerTest.this.serverAddress;
 			}
 
 			@Override
@@ -126,13 +123,8 @@ public class ServerTest {
 				return listener;
 			}
 		}, new SimpleSessionFactory(MAX_MSGSIZE));
-		try {
-			session.get();
-			fail("Exception should have occurred.");
-		} catch (final ExecutionException e) {
+		if (session == null)
 			listener.failed = true;
-			assertTrue(e.getCause() instanceof ConnectException);
-		}
 		final int maxAttempts = 100;
 		int attempts = 0;
 		synchronized (listener) {
@@ -145,11 +137,10 @@ public class ServerTest {
 
 	@After
 	public void tearDown() throws IOException {
-		this.dispatcher.onSessionClosed(this.session);
 		if (this.server != null)
 			this.server.close();
-		// this.dispatcher.stop();
-		// this.clientDispatcher.stop();
+		this.dispatcher.close();
+		this.clientDispatcher.close();
 		try {
 			Thread.sleep(100);
 		} catch (final InterruptedException e) {

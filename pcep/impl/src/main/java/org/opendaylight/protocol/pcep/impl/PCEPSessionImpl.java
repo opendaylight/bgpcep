@@ -373,45 +373,42 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		}
 	}
 
-	private void commonClose() {
+	/**
+	 * Closes PCEP session without sending a Close message, as the channel is no longer active. Notify parent about
+	 * this.
+	 * 
+	 * @param reason reason, why it was terminated
+	 */
+	@Override
+	public void close() {
+		logger.trace("Closing session: {}", this);
 		this.changeState(State.IDLE);
 		this.parent.onSessionClosed(this);
 	}
 
 	/**
-	 * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
-	 * modified, because he initiated the closing. (To prevent concurrent modification exception).
-	 * 
-	 * @param closeObject
-	 */
-	void closeWithoutMessage() {
-		logger.debug("Closing session: {}", this);
-		commonClose();
-	}
-
-	/**
-	 * Closes PCEP session, cancels all timers, returns to state Idle WITHOUT sending the Close Message. KeepAlive and
-	 * DeadTimer are cancelled if the state of the session changes to IDLE. This method is used to close the PCEP
-	 * session from inside the session or from the listener, therefore the parent of this session should be informed.
-	 * The only closing reason is UNKNOWN.
+	 * Closes PCEP session, cancels all timers, returns to state Idle, sends the Close Message. KeepAlive and DeadTimer
+	 * are cancelled if the state of the session changes to IDLE. This method is used to close the PCEP session from
+	 * inside the session or from the listener, therefore the parent of this session should be informed.
 	 */
 	@Override
-	public synchronized void close() {
+	public synchronized void close(final PCEPCloseObject.Reason reason) {
 		logger.debug("Closing session: {}", this);
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(Reason.UNKNOWN)));
-		commonClose();
+		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.changeState(State.IDLE);
+		this.parent.onSessionClosed(this);
 	}
 
 	private void terminate(final PCEPCloseObject.Reason reason) {
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
-		this.closeWithoutMessage();
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
+		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.close();
 	}
 
 	private void terminate(final PCEPErrors error) {
-		this.sendErrorMessage(error);
-		this.closeWithoutMessage();
 		this.listener.onSessionTerminated(this, new PCEPErrorTermination(error));
+		this.sendErrorMessage(error);
+		this.close();
 	}
 
 	@Override
@@ -666,8 +663,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		 * session DOWN event.
 		 */
 		if (pcepMsg instanceof PCEPCloseMessage) {
-			this.listener.onSessionTerminated(this, new PCEPCloseTermination(((PCEPCloseMessage) pcepMsg).getCloseObject().getReason()));
-			this.closeWithoutMessage();
+			this.close();
 			return;
 		}
 		this.listener.onMessage(this, pcepMsg);
@@ -676,12 +672,6 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	@Override
 	public ProtocolMessageFactory getMessageFactory() {
 		return this.factory;
-	}
-
-	@Override
-	public void onConnectionFailed(final IOException e) {
-		logger.info("Connection failed before finishing: {}", e.getMessage(), e);
-		this.listener.onSessionDown(this, new PCEPCloseObject(Reason.UNKNOWN), e);
 	}
 
 	/**

@@ -68,11 +68,6 @@ public class Session implements ProtocolSession {
 	}
 
 	@Override
-	public void onConnectionFailed(final IOException e) {
-		logger.debug("Connection failed: {}", e.getMessage(), e);
-	}
-
-	@Override
 	public int maximumMessageSize() {
 		return this.maxMsgSize;
 	}

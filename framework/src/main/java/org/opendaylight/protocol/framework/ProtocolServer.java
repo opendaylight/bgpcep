@@ -14,7 +14,6 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 
@@ -23,12 +22,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 
 /**
  * Representation of a server, created by {@link Dispatcher}. Should be extended by a protocol specific server
  * implementation.
  */
-public class ProtocolServer implements SessionParent {
+public final class ProtocolServer implements SessionParent {
 
 	private static final Logger logger = LoggerFactory.getLogger(ProtocolServer.class);
 
@@ -47,23 +47,24 @@ public class ProtocolServer implements SessionParent {
 
 	private final Map<InetSocketAddress, Integer> sessionIds;
 
+	private final Dispatcher parent;
+
 	/**
 	 * Creates a Protocol server.
 	 * 
-	 * @param dispatcher Dispatcher
 	 * @param address address to which this server is bound
 	 * @param connectionFactory factory for connection specific properties
-	 * @param channel server socket channel
+	 * @param parent Dispatcher that created this server
 	 * @param sessionFactory factory for sessions
-	 * @param inputStreamFactory factory for input streams
 	 */
 	public ProtocolServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
-			final ProtocolSessionFactory sessionFactory) {
+			final ProtocolSessionFactory sessionFactory, final Dispatcher parent) {
 		this.serverAddress = address;
 		this.sessions = HashBiMap.create();
 		this.connectionFactory = connectionFactory;
 		this.sessionFactory = sessionFactory;
-		this.sessionIds = new HashMap<InetSocketAddress, Integer>();
+		this.parent = parent;
+		this.sessionIds = Maps.newHashMap();
 	}
 
 	/**
@@ -85,7 +86,7 @@ public class ProtocolServer implements SessionParent {
 				try {
 					session.close();
 				} catch (final IOException e) {
-					logger.error("Session {} could not be closed.", session);
+					logger.error("Could not close session: {}.", session);
 				}
 			}
 		} else {
@@ -98,24 +99,16 @@ public class ProtocolServer implements SessionParent {
 		return session;
 	}
 
-	/**
-	 * Returns server address.
-	 * 
-	 * @return server address
-	 */
-	public InetSocketAddress getAddress() {
-		return this.serverAddress;
-	}
-
 	@Override
 	public synchronized void close() throws IOException {
-		// TODO:
-		logger.debug("Server {} closed.", this);
+		((DispatcherImpl) this.parent).onServerClosed(this);
+		logger.debug("Closed server {}.", this);
 	}
 
 	@Override
 	public synchronized void onSessionClosed(final ProtocolSession session) {
 		this.sessions.inverse().remove(session); // when the session is closed, the key is the instance of the session
+		logger.debug("Closed session {}.", session);
 	}
 
 	private static int getNextId(Integer lastId, final int maxId) {
@@ -149,5 +142,30 @@ public class ProtocolServer implements SessionParent {
 	@Override
 	public String toString() {
 		return "ProtocolServer [serverAddress=" + this.serverAddress + ", hashCode()=" + hashCode() + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.serverAddress == null) ? 0 : this.serverAddress.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final ProtocolServer other = (ProtocolServer) obj;
+		if (this.serverAddress == null) {
+			if (other.serverAddress != null)
+				return false;
+		} else if (!this.serverAddress.equals(other.serverAddress))
+			return false;
+		return true;
 	}
 }

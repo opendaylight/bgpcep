@@ -132,7 +132,7 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 
 	@Override
 	public ProtocolMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		if (bytes == null)
+		if (bytes == null || bytes.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
 
 		logger.trace("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(bytes));

@@ -12,8 +12,6 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import java.util.Arrays;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ final class ProtocolMessageEncoder extends MessageToByteEncoder<ProtocolMessage>
 
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final ProtocolMessage msg, final ByteBuf out) throws Exception {
-		logger.debug("Sent to encode : {}", Arrays.toString(ctx.channel().pipeline().names().toArray()));
+		logger.debug("Sent to encode : {}", msg);
 		out.writeBytes(this.factory.put(msg));
 	}
 }

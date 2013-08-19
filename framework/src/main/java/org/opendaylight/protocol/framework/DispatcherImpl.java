@@ -9,6 +9,7 @@ package org.opendaylight.protocol.framework;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -20,14 +21,17 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Maps;
 
 /**
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
@@ -122,17 +126,23 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	private final ProtocolMessageFactory messageFactory;
 
+	private final Map<ProtocolServer, Channel> serverSessions;
+
+	private final Map<ProtocolSession, Channel> clientSessions;
+
 	public DispatcherImpl(final ProtocolMessageFactory factory) {
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 		this.stateTimer = new Timer();
 		this.messageFactory = factory;
+		this.clientSessions = Maps.newHashMap();
+		this.serverSessions = Maps.newHashMap();
 	}
 
 	@Override
 	public ProtocolServer createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
 			final ProtocolSessionFactory sessionFactory) {
-		final ProtocolServer server = new ProtocolServer(address, connectionFactory, sessionFactory);
+		final ProtocolServer server = new ProtocolServer(address, connectionFactory, sessionFactory, this);
 		final ServerBootstrap b = new ServerBootstrap();
 		b.group(this.bossGroup, this.workerGroup);
 		b.channel(NioServerSocketChannel.class);
@@ -141,13 +151,14 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		b.childOption(ChannelOption.SO_KEEPALIVE, true);
 
 		// Bind and start to accept incoming connections.
-		b.bind(address);
-		logger.debug("Server {} created.", server);
+		final ChannelFuture f = b.bind(address);
+		this.serverSessions.put(server, f.channel());
+		logger.debug("Created server {}.", server);
 		return server;
 	}
 
 	@Override
-	public Future<ProtocolSession> createClient(final ProtocolConnection connection, final ProtocolSessionFactory sfactory) {
+	public ProtocolSession createClient(final ProtocolConnection connection, final ProtocolSessionFactory sfactory) {
 		final Bootstrap b = new Bootstrap();
 		b.group(this.workerGroup);
 		b.channel(NioSocketChannel.class);
@@ -169,8 +180,15 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 					p.setFailure(cf.cause());
 			}
 		});
+		ProtocolSession s = null;
+		try {
+			s = p.get();
+			this.clientSessions.put(p.get(), f.channel());
+		} catch (InterruptedException | ExecutionException e) {
+			logger.warn("Client not created. Exception {}.", e.getMessage(), e);
+		}
 		logger.debug("Client created.");
-		return p;
+		return s;
 	}
 
 	@Override
@@ -181,6 +199,18 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	@Override
 	public void onSessionClosed(final ProtocolSession session) {
-		// TODO Auto-generated method stub
+		logger.trace("Removing client session: {}", session);
+		final Channel ch = this.clientSessions.get(session);
+		ch.close();
+		this.clientSessions.remove(session);
+		logger.debug("Removed client session: {}", session.toString());
+	}
+
+	void onServerClosed(final ProtocolServer server) {
+		logger.trace("Removing server session: {}", server);
+		final Channel ch = this.serverSessions.get(server);
+		ch.close();
+		this.clientSessions.remove(server);
+		logger.debug("Removed server session: {}", server.toString());
 	}
 }
