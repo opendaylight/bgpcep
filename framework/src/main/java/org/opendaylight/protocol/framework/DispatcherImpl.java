@@ -22,16 +22,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Maps;
 
 /**
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
@@ -126,17 +124,15 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	private final ProtocolMessageFactory messageFactory;
 
-	private final Map<ProtocolServer, Channel> serverSessions;
+	private final Map<ProtocolServer, Channel> serverSessions = new HashMap<>();
 
-	private final Map<ProtocolSession, Channel> clientSessions;
+	private final Map<ProtocolSession, Channel> clientSessions = new HashMap<>();;
 
 	public DispatcherImpl(final ProtocolMessageFactory factory) {
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 		this.stateTimer = new Timer();
 		this.messageFactory = factory;
-		this.clientSessions = Maps.newHashMap();
-		this.serverSessions = Maps.newHashMap();
 	}
 
 	@Override
@@ -152,9 +148,12 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 		// Bind and start to accept incoming connections.
 		final ChannelFuture f = b.bind(address);
-		this.serverSessions.put(server, f.channel());
-		logger.debug("Created server {}.", server);
-		return server;
+
+		synchronized (this) {
+			this.serverSessions.put(server, f.channel());
+			logger.debug("Created server {}.", server);
+			return server;
+		}
 	}
 
 	@Override
@@ -180,25 +179,28 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 					p.setFailure(cf.cause());
 			}
 		});
-		ProtocolSession s = null;
-		try {
-			s = p.get();
-			this.clientSessions.put(p.get(), f.channel());
-		} catch (InterruptedException | ExecutionException e) {
-			logger.warn("Client not created. Exception {}.", e.getMessage(), e);
+
+		synchronized (this) {
+			ProtocolSession s = null;
+			try {
+				s = p.get();
+				this.clientSessions.put(p.get(), f.channel());
+			} catch (InterruptedException | ExecutionException e) {
+				logger.warn("Client not created. Exception {}.", e.getMessage(), e);
+			}
+			logger.debug("Client created.");
+			return s;
 		}
-		logger.debug("Client created.");
-		return s;
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		this.workerGroup.shutdownGracefully();
 		this.bossGroup.shutdownGracefully();
 	}
 
 	@Override
-	public void onSessionClosed(final ProtocolSession session) {
+	public synchronized void onSessionClosed(final ProtocolSession session) {
 		logger.trace("Removing client session: {}", session);
 		final Channel ch = this.clientSessions.get(session);
 		ch.close();
@@ -206,7 +208,7 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		logger.debug("Removed client session: {}", session.toString());
 	}
 
-	void onServerClosed(final ProtocolServer server) {
+	synchronized void onServerClosed(final ProtocolServer server) {
 		logger.trace("Removing server session: {}", server);
 		final Channel ch = this.serverSessions.get(server);
 		ch.close();
