@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.framework;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
@@ -60,7 +62,7 @@ public class ServerTest {
 					}
 				};
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE));
+		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
 
 		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
 
@@ -84,7 +86,7 @@ public class ServerTest {
 			public SessionListener getListener() {
 				return ServerTest.this.pce;
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE));
+		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
 
 		final int maxAttempts = 1000;
 		int attempts = 0;
@@ -96,43 +98,39 @@ public class ServerTest {
 		assertTrue(this.pce.up);
 	}
 
-	@Test
-	public void testConnectionFailed() throws IOException, InterruptedException, ExecutionException {
+	public void testConnectionFailed() throws IOException, InterruptedException {
 		this.dispatcher = new DispatcherImpl(new MessageFactory());
 		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
 		final SimpleSessionListener listener = new SimpleSessionListener();
 
-		final ProtocolSession session = this.clientDispatcher.createClient(new ProtocolConnection() {
-			@Override
-			public SessionPreferencesChecker getProposalChecker() {
-				return new SimpleSessionProposalChecker();
-			}
+		try {
+			final ProtocolSession session = this.clientDispatcher.createClient(new ProtocolConnection() {
+				@Override
+				public SessionPreferencesChecker getProposalChecker() {
+					return new SimpleSessionProposalChecker();
+				}
 
-			@Override
-			public SessionPreferences getProposal() {
-				return new SimpleSessionPreferences();
-			}
+				@Override
+				public SessionPreferences getProposal() {
+					return new SimpleSessionPreferences();
+				}
 
-			@Override
-			public InetSocketAddress getPeerAddress() {
-				return ServerTest.this.serverAddress;
-			}
+				@Override
+				public InetSocketAddress getPeerAddress() {
+					return ServerTest.this.serverAddress;
+				}
 
-			@Override
-			public SessionListener getListener() {
-				return listener;
-			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE));
-		if (session == null)
-			listener.failed = true;
-		final int maxAttempts = 100;
-		int attempts = 0;
-		synchronized (listener) {
-			while (!listener.failed && ++attempts < maxAttempts) {
-				listener.wait(100);
-			}
+				@Override
+				public SessionListener getListener() {
+					return listener;
+				}
+			}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
+
+			fail("Connection succeeded unexpectedly");
+		} catch (ExecutionException e) {
+			assertTrue(listener.failed);
+			assertTrue(e.getCause() instanceof ConnectException);
 		}
-		assertTrue(listener.failed);
 	}
 
 	@After

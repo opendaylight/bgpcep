@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import io.netty.util.concurrent.Future;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -26,7 +28,7 @@ public interface PCEPDispatcher {
 	 * @return instance of PCEPServer
 	 * @throws IOException if some IO error occurred
 	 */
-	public ProtocolServer createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException;
+	public Future<ProtocolServer> createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException;
 
 	/**
 	 * Creates a client. Needs to be started via the start method.
@@ -37,7 +39,7 @@ public interface PCEPDispatcher {
 	 * @return session associated with this client.
 	 * @throws IOException if some IO error occurred
 	 */
-	public PCEPSession createClient(PCEPConnection connection) throws IOException;
+	public Future<? extends PCEPSession> createClient(PCEPConnection connection) throws IOException;
 
 	/**
 	 * Sets the limit of maximum unknown messages per minute. If not set by the user, default is 5 messages/minute.

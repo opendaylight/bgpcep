@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -66,7 +65,7 @@ public class Main {
 
 			"With no parameters, this help is printed.";
 
-	public static void main(final String[] args) throws IOException {
+	public static void main(final String[] args) throws Exception {
 		if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
 			System.out.println(Main.usage);
 			return;
@@ -146,7 +145,7 @@ public class Main {
 				@Override
 				public void setProposal(final PCEPSessionProposalFactory proposals, final InetSocketAddress address, final int sessionId) {
 				}
-			});
+			}).get();
 
 			// try {
 			// Thread.sleep(10000);

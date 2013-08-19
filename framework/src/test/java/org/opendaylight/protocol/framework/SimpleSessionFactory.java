@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Timer;
 
-public final class SimpleSessionFactory implements ProtocolSessionFactory {
+public final class SimpleSessionFactory implements ProtocolSessionFactory<SimpleSession> {
 	private final int maximumMessageSize;
 
 	public SimpleSessionFactory(final int maximumMessageSize) {
@@ -19,7 +19,7 @@ public final class SimpleSessionFactory implements ProtocolSessionFactory {
 	}
 
 	@Override
-	public ProtocolSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
+	public SimpleSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
 			final int sessionId, final ChannelHandlerContext ctx) {
 		return new SimpleSession(connection, parent, this.maximumMessageSize);
 	}

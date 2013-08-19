@@ -37,7 +37,7 @@ public final class ProtocolServer implements SessionParent {
 	private final InetSocketAddress serverAddress;
 
 	private final ProtocolConnectionFactory connectionFactory;
-	private final ProtocolSessionFactory sessionFactory;
+	private final ProtocolSessionFactory<?> sessionFactory;
 
 	/**
 	 * Maps clients of this server to their address. The client is represented as PCEP session. Used BiMap for
@@ -58,7 +58,7 @@ public final class ProtocolServer implements SessionParent {
 	 * @param sessionFactory factory for sessions
 	 */
 	public ProtocolServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
-			final ProtocolSessionFactory sessionFactory, final Dispatcher parent) {
+			final ProtocolSessionFactory<?> sessionFactory, final Dispatcher parent) {
 		this.serverAddress = address;
 		this.sessions = HashBiMap.create();
 		this.connectionFactory = connectionFactory;
