@@ -17,21 +17,13 @@ import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
  */
 public class TestingSessionListenerFactory extends PCEPSessionListenerFactory {
 
-	private final String autoResponseMessagesSrc;
-	private final String periodicallySendMessagesSrc;
-	private final String sendNowMessageSrc;
-	private final int period;
+	public TestingSessionListenerFactory() {
 
-	public TestingSessionListenerFactory(String autoResponseMessagesSrc, String periodicallySendMessagesSrc, int period, String sendNowMessageSrc) {
-		this.autoResponseMessagesSrc = autoResponseMessagesSrc;
-		this.periodicallySendMessagesSrc = periodicallySendMessagesSrc;
-		this.period = period;
-		this.sendNowMessageSrc = sendNowMessageSrc;
 	}
 
 	@Override
-	public PCEPSessionListener getSessionListener(InetAddress address) {
-		return new TestingSessionListener(this.autoResponseMessagesSrc, this.periodicallySendMessagesSrc, this.period, this.sendNowMessageSrc);
+	public PCEPSessionListener getSessionListener(final InetAddress address) {
+		return new TestingSessionListener();
 	}
 
 }

@@ -79,10 +79,6 @@ public class Main {
 		boolean active = false;
 		boolean versioned = false;
 		boolean instant = false;
-		String autoResponseMessagesSrc = null;
-		String sendNowMessageSrc = null;
-		String periodicallySendMessagesSrc = null;
-		int period = 0;
 		int timeout = 0;
 
 		int i = 0;
@@ -114,17 +110,6 @@ public class Main {
 					timeout = Integer.valueOf(args[i + 1]);
 					i++;
 				}
-			} else if (args[i].equalsIgnoreCase("--autoResponseMessages") || args[i].equalsIgnoreCase("-arm")) {
-				autoResponseMessagesSrc = args[i + 1];
-				i++;
-			} else if (args[i].equalsIgnoreCase("--periodicallySendMessages") || args[i].equalsIgnoreCase("-psm")) {
-				periodicallySendMessagesSrc = args[i + 1];
-				i++;
-				period = Integer.valueOf(args[i + 1]);
-				i++;
-			} else if (args[i].equalsIgnoreCase("--sendNowMessage") || args[i].equalsIgnoreCase("-snm")) {
-				sendNowMessageSrc = args[i + 1];
-				i++;
 			} else {
 				System.out.println("WARNING: Unrecognized argument: " + args[i]);
 			}
@@ -137,7 +122,7 @@ public class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionListenerFactory slf = new TestingSessionListenerFactory(autoResponseMessagesSrc, periodicallySendMessagesSrc, period, sendNowMessageSrc);
+		final PCEPSessionListenerFactory slf = new TestingSessionListenerFactory();
 		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant, timeout);
 		final PCEPSessionProposalCheckerFactory spcf = new PCEPSessionProposalCheckerFactoryImpl();
 
