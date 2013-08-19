@@ -98,7 +98,7 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	}
 
-	final class ProtocolSessionPromise extends DefaultPromise<ProtocolSession> {
+	static final class ProtocolSessionPromise extends DefaultPromise<ProtocolSession> {
 		private final ChannelFuture cf;
 
 		ProtocolSessionPromise(final ChannelFuture cf) {
