@@ -16,6 +16,24 @@
       "revId": "71f45f3d7b4753d423cc1ab13fcfce29df4c7e70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAE3//9wg\u003d",
+        "filename": "framework/src/test/java/org/opendaylight/protocol/framework/ServerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-20T07:35:04Z",
+      "side": 0,
+      "message": "There is an explicit fail(), plus if an unexpected exception occurs, the test will fail anyway.",
+      "parentUuid": "AAAAE3//9ww\u003d",
+      "revId": "71f45f3d7b4753d423cc1ab13fcfce29df4c7e70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
