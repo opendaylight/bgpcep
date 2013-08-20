@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//9tw\u003d",
+        "filename": "bgp/testtool/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-20T13:20:22Z",
+      "side": 1,
+      "message": "Please make sure the scope of this dependency is \u0027runtime\u0027. Same for pcep.",
+      "revId": "8500238327cc1ff610f5f503cf27da6c0cf287c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
