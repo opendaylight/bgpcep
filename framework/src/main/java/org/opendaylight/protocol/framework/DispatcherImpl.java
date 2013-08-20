@@ -173,8 +173,8 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 			public void operationComplete(final ChannelFuture cf) {
 				if (cf.isSuccess()) {
 					p.setSuccess(server);
-					synchronized (serverSessions) {
-						serverSessions.put(server, cf.channel());
+					synchronized (DispatcherImpl.this.serverSessions) {
+						DispatcherImpl.this.serverSessions.put(server, cf.channel());
 					}
 					return;
 				} else if (cf.isCancelled()) {
@@ -196,6 +196,8 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		b.option(ChannelOption.SO_KEEPALIVE, true);
 		final ClientChannelInitializer<T> init = new ClientChannelInitializer<T>(connection, sfactory);
 		b.handler(init);
+		b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
+
 		final ChannelFuture f = b.connect(connection.getPeerAddress());
 		final ProtocolSessionPromise<T> p = new ProtocolSessionPromise<T>(f);
 
@@ -205,14 +207,17 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 				if (cf.isSuccess()) {
 					final T s = init.getSession();
 					p.setSuccess(s);
-					synchronized (clientSessions) {
-						clientSessions.put(s, cf.channel());
+					synchronized (DispatcherImpl.this.clientSessions) {
+						DispatcherImpl.this.clientSessions.put(s, cf.channel());
 					}
 					return;
 				} else if (cf.isCancelled()) {
 					p.cancel(false);
-				} else
-					p.setFailure(cf.cause());
+				} else {
+					// if the connection fails, try reconnect
+					logger.debug("Connection failed: {}", cf.cause());
+					b.connect(connection.getPeerAddress()).addListener(this);
+				}
 			}
 		});
 
@@ -228,7 +233,7 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 	@Override
 	public void onSessionClosed(final ProtocolSession session) {
-		synchronized (clientSessions) {
+		synchronized (this.clientSessions) {
 			logger.trace("Removing client session: {}", session);
 			final Channel ch = this.clientSessions.get(session);
 			ch.close();
@@ -238,7 +243,7 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 	}
 
 	void onServerClosed(final ProtocolServer server) {
-		synchronized (serverSessions) {
+		synchronized (this.serverSessions) {
 			logger.trace("Removing server session: {}", server);
 			final Channel ch = this.serverSessions.get(server);
 			ch.close();

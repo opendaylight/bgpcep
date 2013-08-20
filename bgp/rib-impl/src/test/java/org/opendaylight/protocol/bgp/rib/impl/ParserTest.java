@@ -79,10 +79,9 @@ public class ParserTest {
 
 	@Test
 	public void testBadMsgType() throws DeserializerException {
-		byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x13, (byte) 0x08 };
-		bytes = ByteArray.cutBytes(bytes, 16);
+		final byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x13, (byte) 0x08 };
 		try {
 			this.factory.parse(bytes);
 			fail("Exception should have occured.");
@@ -96,10 +95,9 @@ public class ParserTest {
 	@Test
 	public void testKeepAliveMsg() throws DeserializerException, DocumentedException {
 		final BGPMessage keepAlive = new BGPKeepAliveMessage();
-		byte[] bytes = this.factory.put(keepAlive);
+		final byte[] bytes = this.factory.put(keepAlive);
 		assertArrayEquals(keepAliveBMsg, bytes);
 
-		bytes = ByteArray.cutBytes(bytes, 16);
 		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPKeepAliveMessage);
@@ -107,11 +105,10 @@ public class ParserTest {
 
 	@Test
 	public void testBadKeepAliveMsg() throws DeserializerException {
-		byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x14, (byte) 0x04, (byte) 0x05 };
+		final byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x14, (byte) 0x04, (byte) 0x05 };
 
-		bytes = ByteArray.cutBytes(bytes, 16);
 		try {
 			this.factory.parse(bytes);
 			fail("Exception should have occured.");
@@ -126,10 +123,9 @@ public class ParserTest {
 	@Test
 	public void testOpenMessage() throws UnknownHostException, DeserializerException, DocumentedException {
 		final BGPMessage open = new BGPOpenMessage(new ASNumber(100), (short) 180, new IPv4Address(InetAddress.getByName("20.20.20.20")), null);
-		byte[] bytes = this.factory.put(open);
+		final byte[] bytes = this.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
-		bytes = ByteArray.cutBytes(bytes, 16);
 		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPOpenMessage);
@@ -141,12 +137,11 @@ public class ParserTest {
 
 	@Test
 	public void testBadHoldTimeError() throws DeserializerException {
-		byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0x01, (byte) 0x14, (byte) 0x14,
-				(byte) 0x14, (byte) 0x14, (byte) 0x00 };
+		final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0x01, (byte) 0x14,
+				(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
-		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
 			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
@@ -160,12 +155,11 @@ public class ParserTest {
 
 	@Test
 	public void testBadMsgLength() throws DeserializerException {
-		byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x1b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff };
+		final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x1b, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff };
 
-		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
 			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
@@ -177,12 +171,11 @@ public class ParserTest {
 
 	@Test
 	public void testBadVersion() throws DeserializerException {
-		byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x1d, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0x14, (byte) 0x14,
-				(byte) 0x14, (byte) 0x14, (byte) 0x00 };
+		final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0x14,
+				(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
-		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
 			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
@@ -200,7 +193,6 @@ public class ParserTest {
 		byte[] bytes = this.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
-		bytes = ByteArray.cutBytes(bytes, 16);
 		BGPMessage m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPNotificationMessage);
@@ -210,7 +202,6 @@ public class ParserTest {
 		notMsg = new BGPNotificationMessage(BGPError.CONNECTION_NOT_SYNC);
 		bytes = this.factory.put(notMsg);
 
-		bytes = ByteArray.cutBytes(bytes, 16);
 		m = (BGPMessage) this.factory.parse(bytes);
 
 		assertTrue(m instanceof BGPNotificationMessage);
@@ -220,11 +211,10 @@ public class ParserTest {
 
 	@Test
 	public void testWrongLength() throws DeserializerException {
-		byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x14, (byte) 0x03, (byte) 0x02 };
+		final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x14, (byte) 0x03, (byte) 0x02 };
 
-		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
 			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
@@ -238,11 +228,10 @@ public class ParserTest {
 
 	@Test
 	public void testUnrecognizedError() throws DeserializerException, DocumentedException {
-		byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00,
-				(byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa };
+		final byte[] bMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+				(byte) 0x00, (byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa };
 
-		bMsg = ByteArray.cutBytes(bMsg, 16);
 		try {
 			this.factory.parse(bMsg);
 			fail("Exception should have occured.");
