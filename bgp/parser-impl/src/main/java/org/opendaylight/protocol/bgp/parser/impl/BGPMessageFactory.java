@@ -54,7 +54,7 @@ public class BGPMessageFactory implements ProtocolMessageFactory {
 	public BGPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		if (bytes == null)
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
-		if (bytes.length < (COMMON_HEADER_LENGTH - MARKER_LENGTH)) {
+		if (bytes.length < COMMON_HEADER_LENGTH) {
 			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + ". Expected: >= "
 					+ COMMON_HEADER_LENGTH + ".");
 		}
@@ -65,14 +65,15 @@ public class BGPMessageFactory implements ProtocolMessageFactory {
 		// Arrays.fill(ones, (byte)0xff);
 		// if (Arrays.equals(bytes, ones))
 		// throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, LENGTH_FIELD_LENGTH));
-		final int messageType = UnsignedBytes.toInt(bytes[LENGTH_FIELD_LENGTH]);
+		final byte[] bs = ByteArray.cutBytes(bytes, MARKER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bs, 0, LENGTH_FIELD_LENGTH));
+		final int messageType = UnsignedBytes.toInt(bs[LENGTH_FIELD_LENGTH]);
 
-		final byte[] msgBody = ByteArray.cutBytes(bytes, LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH);
+		final byte[] msgBody = ByteArray.cutBytes(bs, LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH);
 
 		if (messageLength < COMMON_HEADER_LENGTH)
-			throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
-					bytes, 0, LENGTH_FIELD_LENGTH));
+			throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(bs,
+					0, LENGTH_FIELD_LENGTH));
 		if (msgBody.length != messageLength - COMMON_HEADER_LENGTH)
 			throw new DeserializerException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "
 					+ (messageLength - COMMON_HEADER_LENGTH) + ". ");
@@ -98,10 +99,10 @@ public class BGPMessageFactory implements ProtocolMessageFactory {
 			msg = new BGPKeepAliveMessage();
 			if (messageLength != COMMON_HEADER_LENGTH)
 				throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
-						bytes, 0, LENGTH_FIELD_LENGTH));
+						bs, 0, LENGTH_FIELD_LENGTH));
 			break;
 		default:
-			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bytes[LENGTH_FIELD_LENGTH] });
+			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bs[LENGTH_FIELD_LENGTH] });
 		}
 		return msg;
 	}

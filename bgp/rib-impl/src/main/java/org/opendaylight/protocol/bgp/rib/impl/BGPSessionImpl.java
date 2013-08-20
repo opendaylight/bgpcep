@@ -34,7 +34,6 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ProtocolSession;
-import org.opendaylight.protocol.framework.ProtocolSessionOutboundHandler;
 import org.opendaylight.protocol.framework.SessionParent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,8 +131,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	private final BGPSynchronization sync;
 
-	private final ProtocolSessionOutboundHandler handler;
-
 	private int kaCounter = 0;
 
 	private final ChannelHandlerContext ctx;
@@ -150,7 +147,6 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 		this.ctx = ctx;
 		this.checker = connection.getProposalChecker();
 		this.sync = new BGPSynchronization(this.listener);
-		this.handler = new ProtocolSessionOutboundHandler();
 	}
 
 	@Override
@@ -231,7 +227,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	void sendMessage(final BGPMessage msg) {
 		try {
-			this.handler.writeDown(this.ctx, msg);
+			this.ctx.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
 			logger.debug("Sent message: " + msg);
 		} catch (final Exception e) {

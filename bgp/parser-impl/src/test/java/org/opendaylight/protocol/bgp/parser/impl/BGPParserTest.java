@@ -1077,8 +1077,7 @@ public class BGPParserTest {
 	@Test
 	public void testOpenMessage() throws Exception {
 		final BGPMessageFactory msgFactory = new BGPMessageFactory();
-		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(ByteArray.cutBytes(inputBytes.get(13),
-				BGPMessageFactory.MARKER_LENGTH));
+		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(inputBytes.get(13));
 		final Set<BGPTableType> types = Sets.newHashSet();
 		for (final BGPParameter param : open.getOptParams()) {
 			if (param instanceof MultiprotocolCapability) {
