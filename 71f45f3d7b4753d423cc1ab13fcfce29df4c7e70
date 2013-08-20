@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAE3//9ww\u003d",
+        "filename": "framework/src/test/java/org/opendaylight/protocol/framework/ServerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-08-20T07:17:14Z",
+      "side": 0,
+      "message": "If the Exception is not thrown, because there won\u0027t be any assert.",
+      "revId": "71f45f3d7b4753d423cc1ab13fcfce29df4c7e70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
