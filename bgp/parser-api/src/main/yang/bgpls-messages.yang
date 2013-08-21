@@ -1,0 +1,96 @@
+module bgpls-messages {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgpls-message";
+	prefix "bgp-msg";
+
+	import  ietf-inet-types { prefix inet;}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the base data model of a BGP message.
+		It rolls up the definitions contained in RFC4271
+		and draft-ietf-idr-ls-distribution-03.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-03" {
+		description
+			"Initial revision.";
+		reference "RFC4271";
+	}
+
+	typedef protocol-version {
+		type uint8 {
+			range 1..7;
+		}
+	}
+
+	typedef as-number {
+		type uint32;
+	}
+
+	grouping capability-parameter {
+		reference "http://tools.ietf.org/html/rfc3392#section-4";
+	}
+
+	notification open {
+		description "Open Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.2";
+		leaf version {
+			type protocol-version;
+			default 4;
+		}
+		leaf my-as-number {
+			type as-number;
+			mandatory true;
+		}
+		leaf hold-timer {
+			type uint16;
+			mandatory true;
+		}
+		leaf bgp-identifier {
+			type inet:ipv4-address;
+			mandatory true;
+		}
+		list optional-parameters {
+			container parameter {
+				uses capability-parameter;
+			}
+		}
+	}
+
+	notification update {
+		description "Update Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.3";
+		// TODO: continue
+	}
+
+	notification keepalive {
+		description "Keepalive Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.4";
+	}
+
+	notification notify {
+		description "Notification Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.5";
+
+		leaf error-code {
+			type uint8;
+			mandatory true;
+		}
+		leaf error-subcode {
+			type uint8;
+			mandatory true;
+		}
+		leaf data {
+			type binary;
+		}
+	}
+}
