@@ -165,7 +165,7 @@
 								</pluginExecution>
                                 <pluginExecution>
                                     <pluginExecutionFilter>
-                                        <groupId>org.opendaylight.controller</groupId>
+                                        <groupId>org.opendaylight.yangtools</groupId>
                                         <artifactId>yang-maven-plugin</artifactId>
                                         <versionRange>[0.5,)</versionRange>
                                         <goals>
