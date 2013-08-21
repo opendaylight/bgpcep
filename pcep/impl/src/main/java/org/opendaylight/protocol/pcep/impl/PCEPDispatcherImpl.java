@@ -20,15 +20,11 @@ import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of PCEPDispatcher.
  */
 public class PCEPDispatcherImpl implements PCEPDispatcher {
-
-	private final static Logger logger = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
 
 	public static final int DEFAULT_MAX_UNKNOWN_MSG = 5;
 
