@@ -22,15 +22,20 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Timer;
 
+import javax.annotation.concurrent.GuardedBy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
@@ -92,38 +97,8 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 			ch.pipeline().addAfter("inbound", "encoder", factory.getEncoder());
 		}
 
-		public T getSession() {
+		T getSession() {
 			return this.session;
-		}
-	}
-
-	static final class ProtocolServerPromise extends DefaultPromise<ProtocolServer> {
-		private final ChannelFuture cf;
-
-		ProtocolServerPromise(final ChannelFuture cf) {
-			super();
-			this.cf = cf;
-		}
-
-		@Override
-		public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
-			this.cf.cancel(mayInterruptIfRunning);
-			return super.cancel(mayInterruptIfRunning);
-		}
-	}
-
-	static final class ProtocolSessionPromise<T extends ProtocolSession> extends DefaultPromise<T> {
-		private final ChannelFuture cf;
-
-		ProtocolSessionPromise(final ChannelFuture cf) {
-			super();
-			this.cf = cf;
-		}
-
-		@Override
-		public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
-			this.cf.cancel(mayInterruptIfRunning);
-			return super.cancel(mayInterruptIfRunning);
 		}
 	}
 
@@ -166,7 +141,13 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 
 		// Bind and start to accept incoming connections.
 		final ChannelFuture f = b.bind(address);
-		final ProtocolServerPromise p = new ProtocolServerPromise(f);
+		final Promise<ProtocolServer> p = new DefaultPromise<ProtocolServer>() {
+			@Override
+			public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+				f.cancel(mayInterruptIfRunning);
+				return super.cancel(mayInterruptIfRunning);
+			}
+		};
 
 		f.addListener(new ChannelFutureListener() {
 			@Override
@@ -176,9 +157,6 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 					synchronized (DispatcherImpl.this.serverSessions) {
 						DispatcherImpl.this.serverSessions.put(server, cf.channel());
 					}
-					return;
-				} else if (cf.isCancelled()) {
-					p.cancel(false);
 				} else
 					p.setFailure(cf.cause());
 			}
@@ -188,41 +166,88 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		return p;
 	}
 
+	private final class ConnectionRetryListener<T extends ProtocolSession> implements ChannelFutureListener {
+		private final ClientChannelInitializer<T> init;
+		private final ProtocolConnection connection;
+		private final ReconnectStrategy strategy;
+		private final Bootstrap b;
+
+		private final DefaultPromise<T> promise = new DefaultPromise<T>() {
+			@Override
+			public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+				cancelConnection(mayInterruptIfRunning);
+				return super.cancel(mayInterruptIfRunning);
+			}
+		};
+
+		@GuardedBy("this")
+		private Future<?> pending;
+
+		ConnectionRetryListener(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory, final ReconnectStrategy strategy) {
+			this.connection = Preconditions.checkNotNull(connection);
+			this.strategy = Preconditions.checkNotNull(strategy);
+
+			init = new ClientChannelInitializer<T>(connection, sfactory);
+			b = new Bootstrap();
+			b.group(workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).handler(init);
+		}
+
+		@Override
+		public synchronized void operationComplete(ChannelFuture future) throws Exception {
+			Preconditions.checkState(pending == future);
+
+			/*
+			 * Triggered when a connection attempt is resolved.
+			 */
+			if (future.isSuccess()) {
+				final T s = init.getSession();
+				promise.setSuccess(s);
+				strategy.reconnectSuccessful();
+				synchronized (DispatcherImpl.this.clientSessions) {
+					DispatcherImpl.this.clientSessions.put(s, future.channel());
+				}
+			} else {
+
+				final Future<Void> rf = strategy.scheduleReconnect();
+				rf.addListener(new FutureListener<Void>() {
+					@Override
+					public void operationComplete(final Future<Void> future) {
+						Preconditions.checkState(pending == future);
+
+						if (future.isSuccess())
+							connect();
+						else
+							promise.setFailure(future.cause());
+					}
+				});
+
+				pending = rf;
+			}
+		}
+
+		synchronized void connect() {
+			try {
+				final int timeout = strategy.getConnectTimeout();
+				b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout);
+				pending = b.connect(connection.getPeerAddress()).addListener(this);
+			} catch (Exception e) {
+				promise.setFailure(e);
+			}
+		}
+
+		private synchronized boolean cancelConnection(final boolean mayInterruptIfRunning) {
+			return pending.cancel(mayInterruptIfRunning);
+		}
+	}
+
 	@Override
 	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory, final ReconnectStrategy strategy) {
-		final Bootstrap b = new Bootstrap();
-		b.group(this.workerGroup);
-		b.channel(NioSocketChannel.class);
-		b.option(ChannelOption.SO_KEEPALIVE, true);
-		final ClientChannelInitializer<T> init = new ClientChannelInitializer<T>(connection, sfactory);
-		b.handler(init);
-		b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
+		final ConnectionRetryListener<T> l = new ConnectionRetryListener<>(connection, sfactory, strategy);
 
-		final ChannelFuture f = b.connect(connection.getPeerAddress());
-		final ProtocolSessionPromise<T> p = new ProtocolSessionPromise<T>(f);
-
-		f.addListener(new ChannelFutureListener() {
-			@Override
-			public void operationComplete(final ChannelFuture cf) {
-				if (cf.isSuccess()) {
-					final T s = init.getSession();
-					p.setSuccess(s);
-					synchronized (DispatcherImpl.this.clientSessions) {
-						DispatcherImpl.this.clientSessions.put(s, cf.channel());
-					}
-					return;
-				} else if (cf.isCancelled()) {
-					p.cancel(false);
-				} else {
-					// if the connection fails, try reconnect
-					logger.debug("Connection failed: {}", cf.cause());
-					b.connect(connection.getPeerAddress()).addListener(this);
-				}
-			}
-		});
+		l.connect();
 
 		logger.debug("Client created.");
-		return p;
+		return l.promise;
 	}
 
 	@Override
