@@ -1,0 +1,212 @@
+module bgpls-message {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgp-message";
+	prefix "bgp-msg";
+
+	import  ietf-inet-types { prefix inet;}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the base data model of a BGP message.
+		It rolls up the definitions contained in RFC4271 and RFC4893.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-04" {
+		description
+			"Initial revision.";
+		reference "RFC4271, RFC4893";
+	}
+
+	typedef origin-value {
+		reference "http://tools.ietf.org/html/rfc4271#section-5";
+		type enumeration {
+			enum igp {
+				value 0;
+			}
+			enum egp {
+				value 1;
+			}
+			enum incomplete {
+				value 2;
+			}
+		}
+	}
+
+	typedef protocol-version {
+		type uint8 {
+			range 1..7;
+		}
+	}
+
+	typedef as-number {
+		type uint32;
+	}
+
+	grouping capability-parameter {
+		reference "http://tools.ietf.org/html/rfc3392#section-4";
+	}
+
+	grouping as4-bytes-capability {
+		reference "http://tools.ietf.org/html/rfc6793";
+		uses capability-parameter;
+		leaf as-number {
+			type as-number;
+			mandatory true;
+		}
+	}
+
+	grouping path-attribute {
+		reference "http://tools.ietf.org/html/rfc4271#section-5";
+	}
+
+	grouping origin {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
+		uses path-attribute;
+		leaf value {
+			type origin-value;
+		}
+	}
+
+	grouping as-path-segment {
+		choice segment {
+			case a-set {
+				leaf-list as-set {
+					type as-number;
+				}
+			}
+			case a-list {
+				list as-sequence {
+					container sequence {
+						leaf as {
+							type as-number;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	grouping as-path {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
+		uses path-attribute;
+		list segments {
+			container as-path-segment {
+				uses as-path-segment;
+			}
+		}
+	}
+
+	grouping next-hop {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.3";
+		uses path-attribute;
+		leaf hop {
+			type inet:ipv4-address;
+		}
+	}
+
+	grouping multi-exit-disc {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
+		uses path-attribute;
+		leaf med {
+			type uint32;
+		}
+	}
+
+	grouping local-pref {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.5";
+		uses path-attribute;
+		leaf pref {
+			type uint32;
+		}
+	}
+
+	grouping atomic-aggregate {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
+		uses path-attribute;
+	}
+
+	grouping aggregator {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
+		uses path-attribute;
+		leaf as {
+			type as-number;
+			mandatory true;
+		}
+		leaf ip {
+			type inet:ipv4-address;
+			mandatory true;
+		}
+	}
+
+	notification open {
+		description "Open Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.2";
+		leaf version {
+			type protocol-version;
+			default 4;
+		}
+		leaf my-as-number {
+			type uint16;
+			default 23456;
+		}
+		leaf hold-timer {
+			type uint16;
+			mandatory true;
+		}
+		leaf bgp-identifier {
+			type inet:ipv4-address;
+			mandatory true;
+		}
+		list optional-parameters {
+			container parameter {
+				uses capability-parameter;
+			}
+		}
+	}
+
+	notification update {
+		description "Update Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.3";
+		leaf-list withdrawn-routes {
+			type inet:ipv4-prefix;
+		}
+		list path-attributes {
+			container path-attribute {
+				uses path-attribute;
+			}
+		}
+		leaf-list nlri {
+			type inet:ipv4-prefix;
+		}
+	}
+
+	notification keepalive {
+		description "Keepalive Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.4";
+	}
+
+	notification notify {
+		description "Notification Message";
+		reference "http://tools.ietf.org/html/rfc4271#section-4.5";
+
+		leaf error-code {
+			type uint8;
+			mandatory true;
+		}
+		leaf error-subcode {
+			type uint8;
+			mandatory true;
+		}
+		leaf data {
+			type binary;
+		}
+	}
+}
