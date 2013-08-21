@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
  * Dispatcher class for creating BGP clients.
@@ -27,5 +28,5 @@ public interface BGPDispatcher {
 	 * @return client session
 	 * @throws IOException
 	 */
-	Future<? extends BGPSession> createClient(BGPConnection connection, ProtocolMessageFactory parser) throws IOException;
+	Future<? extends BGPSession> createClient(BGPConnection connection, ProtocolMessageFactory parser, final ReconnectStrategy strategy);
 }

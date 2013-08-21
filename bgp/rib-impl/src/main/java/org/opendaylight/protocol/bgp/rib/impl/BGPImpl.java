@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 import com.google.common.base.Preconditions;
 
@@ -75,10 +76,13 @@ public class BGPImpl implements BGP, Closeable {
 	 */
 	@Override
 	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener) throws IOException {
+		// FIXME: BUG-58: fix this
+		final ReconnectStrategy strategy = null;
+
 		final BGPSession session;
 		try {
 			session = this.dispatcher.createClient(
-					new BGPConnectionImpl(this.address, listener, this.proposal.getProposal(), this.checker), this.parser).get();
+					new BGPConnectionImpl(this.address, listener, this.proposal.getProposal(), this.checker), this.parser, strategy).get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new IOException("Failed to connect to peer", e);
 		}

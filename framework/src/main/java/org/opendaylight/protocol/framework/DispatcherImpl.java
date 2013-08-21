@@ -189,7 +189,7 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 	}
 
 	@Override
-	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory) {
+	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection, final ProtocolSessionFactory<T> sfactory, final ReconnectStrategy strategy) {
 		final Bootstrap b = new Bootstrap();
 		b.group(this.workerGroup);
 		b.channel(NioSocketChannel.class);

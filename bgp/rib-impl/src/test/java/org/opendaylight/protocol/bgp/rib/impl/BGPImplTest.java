@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 public class BGPImplTest {
 
@@ -52,7 +53,7 @@ public class BGPImplTest {
 		doReturn("").when(this.parser).toString();
 
 		doReturn(null).when(this.future).get();
-		doReturn(future).when(this.disp).createClient(any(BGPConnection.class), any(ProtocolMessageFactory.class));
+		doReturn(future).when(this.disp).createClient(any(BGPConnection.class), any(ProtocolMessageFactory.class), any(ReconnectStrategy.class));
 	}
 
 	@Test

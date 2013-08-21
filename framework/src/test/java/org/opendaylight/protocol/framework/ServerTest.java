@@ -9,6 +9,7 @@ package org.opendaylight.protocol.framework;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -86,7 +87,7 @@ public class ServerTest {
 			public SessionListener getListener() {
 				return ServerTest.this.pce;
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
+		}, new SimpleSessionFactory(MAX_MSGSIZE), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
 
 		final int maxAttempts = 1000;
 		int attempts = 0;
@@ -124,7 +125,7 @@ public class ServerTest {
 				public SessionListener getListener() {
 					return listener;
 				}
-			}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
+			}, new SimpleSessionFactory(MAX_MSGSIZE), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
 
 			fail("Connection succeeded unexpectedly");
 		} catch (ExecutionException e) {

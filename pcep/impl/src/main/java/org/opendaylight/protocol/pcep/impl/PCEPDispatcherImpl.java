@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.framework.Dispatcher;
 import org.opendaylight.protocol.framework.ProtocolServer;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
@@ -62,7 +63,10 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 */
 	@Override
 	public Future<? extends PCEPSession> createClient(final PCEPConnection connection) throws IOException {
-		return this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
+		// FIXME: BUG-58: fix this
+		final ReconnectStrategy strategy = null;
+
+		return this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages), strategy);
 	}
 
 	@Override

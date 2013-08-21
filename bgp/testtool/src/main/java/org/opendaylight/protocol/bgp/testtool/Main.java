@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -22,6 +24,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +102,7 @@ public class Main {
 		logger.debug(address + " " + sessionListener + " " + proposal + " " + checker);
 
 		final InetSocketAddress addr = address;
-		m.dispatcher.createClient(new BGPConnectionImpl(addr, sessionListener, proposal, checker), parser);
+		m.dispatcher.createClient(new BGPConnectionImpl(addr, sessionListener, proposal, checker), parser,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
 	}
 }

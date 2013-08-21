@@ -9,13 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.util.concurrent.Future;
 
-import java.io.IOException;
-
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.framework.Dispatcher;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
  * Implementation of BGPDispatcher.
@@ -24,13 +23,14 @@ public final class BGPDispatcherImpl implements BGPDispatcher {
 
 	private final Dispatcher dispatcher;
 
-	public BGPDispatcherImpl(final Dispatcher dispatcher) throws IOException {
+	public BGPDispatcherImpl(final Dispatcher dispatcher) {
 		this.dispatcher = dispatcher;
 	}
 
 	@Override
-	public Future<? extends BGPSession> createClient(final BGPConnection connection, final ProtocolMessageFactory parser) throws IOException {
-		return this.dispatcher.createClient(connection, new BGPSessionFactory(parser));
+	public Future<? extends BGPSession> createClient(final BGPConnection connection, final ProtocolMessageFactory parser,
+			final ReconnectStrategy strategy) {
+		return this.dispatcher.createClient(connection, new BGPSessionFactory(parser), strategy);
 	}
 
 	public Dispatcher getDispatcher() {
