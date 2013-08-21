@@ -154,7 +154,7 @@ module bgpls-nlri {
 		}
 	}
 
-	typedef unnumbered-interface-identifier {
+	typedef unnumbered-link-identifier {
 		reference "http://tools.ietf.org/html/rfc4202#section-2.1";
 		type uint32;
 	}
@@ -199,6 +199,15 @@ module bgpls-nlri {
 			fraction-digits 2;
 		}
 	}
+	
+	grouping unreserved-bandwidth {
+		leaf priority {
+			type uint32;
+		}
+		leaf bandwidth {
+			type bandwidth;
+		}
+	}
 
 	typedef administrative-group {
 		type uint32;
@@ -222,6 +231,7 @@ module bgpls-nlri {
 		}
 	}
 
+	// linkstate
 	typedef mpls-protocol-mask {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
 		type bits {
@@ -231,6 +241,13 @@ module bgpls-nlri {
 			bit rsvpte {
 				position 1;
 			}
+		}
+	}
+	
+	typedef topology-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
+		type uint16 {
+			range "0..4095";
 		}
 	}
 
@@ -280,24 +297,6 @@ module bgpls-nlri {
 		leaf lan-interface {
 			type ospf-interface-identifier;
 			mandatory true;
-		}
-	}
-
-	grouping topology-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
-		leaf-list topology-ids {
-			type uint16 {
-				range "0..4095";
-			}
-		}
-	}
-
-	grouping unnumbered-link-identifier {
-		reference "http://tools.ietf.org/html/rfc4202";
-		leaf value {
-			type uint32 {
-				range "1..max";
-			}
 		}
 	}
 
@@ -365,15 +364,15 @@ module bgpls-nlri {
 
 			case unnum-iface-id {
 				leaf unnum-iface-id {
-					type unnumbered-interface-identifier;
+					type unnumbered-link-identifier;
 				}
 			}
 		}
 	}
 
 	grouping link-identifier {
-		container topology-identifier {
-			uses topology-identifier;
+		leaf topology-identifier {
+			type topology-identifier;
 		}
 		container link-anchor {
 			uses link-anchor;
@@ -384,18 +383,8 @@ module bgpls-nlri {
 		container node-identifier {
 			uses node-identifier;
 		}
-		choice prefix-id {
-			case ipv4-prefix {
-				leaf ipv4-prefix {
-					type inet:ipv4-prefix;
-				}
-			}
-
-			case ipv6-prefix {
-				leaf ipv6-prefix {
-					type inet:ipv6-prefix;
-				}
-			}
+		leaf prefix {
+			type inet:ip-prefix;
 		}
 	}
 
@@ -408,8 +397,8 @@ module bgpls-nlri {
 
 	grouping network-node-state {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
-		list topology-membership {
-			uses topology-identifier;
+		leaf topology-identifier {
+			type topology-identifier;
 		}
 		leaf node-flags {
 			type node-flag-bits;
@@ -460,8 +449,8 @@ module bgpls-nlri {
 		leaf max-reservable-bandwidth {
 			type bandwidth;
 		}
-		leaf-list unreserved-bandwidth {
-			type bandwidth;
+		list unreserved-bandwidth {
+			uses unreserved-bandwidth;
 		}
 		leaf link-protection {
 			type link-protection-type;
@@ -497,33 +486,24 @@ module bgpls-nlri {
 				}
 			}
 		}
-		leaf-list ex-route-tag {
+		leaf-list extended-route-tags {
 			type extended-route-tag;
 		}
 	}
-
+	
 	grouping network-node {
-		container node-identifier {
-			uses node-identifier;
-		}
 		container network-node-state {
 			uses network-node-state;
 		}
 	}
 
 	grouping network-link {
-		container link-identifier {
-			uses link-identifier;
-		}
 		container network-link-state {
 			uses network-link-state;
 		}
 	}
 
 	grouping network-prefix {
-		container prefix-identifier {
-			uses prefix-identifier;
-		}
 		container network-prefix-state {
 			uses network-prefix-state;
 		}
