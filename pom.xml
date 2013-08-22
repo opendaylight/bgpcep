@@ -24,6 +24,7 @@
 		<maven.compiler.version>3.1</maven.compiler.version>
 		<maven.shade.version>2.1</maven.shade.version>
 		<mockito.version>1.9.5</mockito.version>
+		<netty.version>4.0.7.Final</netty.version>
 		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.15</surefire.version>
