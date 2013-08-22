@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAFH///5Q\u003d",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/DispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-08-22T13:51:19Z",
+      "side": 1,
+      "message": "You did not consider moving this to separate file? It\u0027s a rather large class.",
+      "revId": "490421a562e311e990e769b67070540a8c2c7354",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
