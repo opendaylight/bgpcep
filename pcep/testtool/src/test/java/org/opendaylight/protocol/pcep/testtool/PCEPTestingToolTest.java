@@ -12,7 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
 import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 
 public class PCEPTestingToolTest {
@@ -25,14 +24,14 @@ public class PCEPTestingToolTest {
 		assertEquals(1, ssl.messages.size());
 		assertTrue(ssl.messages.get(0) instanceof PCEPKeepAliveMessage);
 		assertFalse(ssl.up);
-		ssl.onSessionUp(null, null, null);
+		ssl.onSessionUp(null);
 		assertTrue(ssl.up);
-		ssl.onSessionDown(null, null, null);
+		ssl.onSessionDown(null, null);
 		assertFalse(ssl.up);
 	}
 
 	@Test
 	public void testSessionListenerFactory() {
-		assertTrue(new SessionListenerFactory().getSessionListener(null) instanceof SimpleSessionListener);
+		assertTrue(new SessionListenerFactory().getSessionListener() instanceof SimpleSessionListener);
 	}
 }

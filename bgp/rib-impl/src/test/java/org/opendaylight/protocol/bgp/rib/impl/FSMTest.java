@@ -50,7 +50,7 @@ public class FSMTest {
 
 	@Test
 	public void testAccSessionChar() throws InterruptedException {
-		this.speaker.startSession();
+		//this.speaker.startSession();
 		assertEquals(1, this.clientListener.getListMsg().size());
 		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
 		final List<BGPParameter> tlvs = Lists.newArrayList();
@@ -60,13 +60,14 @@ public class FSMTest {
 		assertTrue(this.clientListener.getListMsg().get(1) instanceof BGPKeepAliveMessage);
 		this.clientListener.sendMessage(new BGPKeepAliveMessage());
 		synchronized (this.speakerListener) {
-			while (!this.speakerListener.up)
+			while (!this.speakerListener.up) {
 				try {
 					this.speakerListener.wait();
 					fail("Exception should have occured.");
 				} catch (final InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
 		}
 		assertTrue(this.speakerListener.up);
 		assertEquals(this.speakerListener.types,
@@ -83,7 +84,7 @@ public class FSMTest {
 
 	@Test
 	public void testNotAccChars() throws InterruptedException {
-		this.speaker.startSession();
+		//this.speaker.startSession();
 		assertEquals(1, this.clientListener.getListMsg().size());
 		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
 		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 1, null, null));
@@ -100,7 +101,7 @@ public class FSMTest {
 	@Ignore
 	// long duration
 	public void testNoOpen() throws InterruptedException {
-		this.speaker.startSession();
+		//this.speaker.startSession();
 		assertEquals(1, this.clientListener.getListMsg().size());
 		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
 		Thread.sleep(BGPSessionImpl.HOLD_TIMER_VALUE * 1000);
@@ -111,26 +112,22 @@ public class FSMTest {
 
 	@Test
 	public void sendNotification() {
-		this.speaker.startSession();
+		//this.speaker.startSession();
 		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
 		this.clientListener.sendMessage(new BGPKeepAliveMessage());
 		synchronized (this.speakerListener) {
-			while (!this.speakerListener.up)
+			while (!this.speakerListener.up) {
 				try {
 					this.speakerListener.wait();
 					fail("Exception should have occured.");
 				} catch (final InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
 		}
 		assertTrue(this.speakerListener.up);
 		this.clientListener.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
 		assertFalse(this.speakerListener.up);
-	}
-
-	@Test
-	public void complementaryTests() {
-		assertEquals(4096, this.speaker.maximumMessageSize());
 	}
 
 	@After

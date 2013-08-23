@@ -15,12 +15,13 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
+import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -45,8 +46,9 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 	private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<BGPMessage> allPreviousMessages) {
 		this.eventBus = eventBus;
 		this.listener = listener;
-		for (final BGPMessage message : allPreviousMessages)
+		for (final BGPMessage message : allPreviousMessages) {
 			sendMessage(listener, message);
+		}
 	}
 
 	@Subscribe
@@ -56,15 +58,16 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 
 	@Override
 	public synchronized void close() {
-		if (this.closed)
+		if (this.closed) {
 			return;
+		}
 		this.eventBus.unregister(this);
 		this.closed = true;
 	}
 
 	private static void sendMessage(final BGPSessionListener listener, final BGPMessage message) {
 		if (BGPMock.connectionLostMagicMessage.equals(message)) {
-			listener.onSessionTerminated(null);
+			listener.onSessionTerminated(null, null);
 		} else if (message instanceof BGPOpenMessage) {
 			final Set<BGPTableType> tts = Sets.newHashSet();
 			for (final BGPParameter param : ((BGPOpenMessage) message).getOptParams()) {
@@ -72,11 +75,24 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 					tts.add(((MultiprotocolCapability) param).getTableType());
 				}
 			}
-			listener.onSessionUp(tts);
+
+			listener.onSessionUp(new BGPSession() {
+
+				@Override
+				public void close() {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public Set<BGPTableType> getAdvertisedTableTypes() {
+					return tts;
+				}
+			});
 		} else if (message instanceof BGPKeepAliveMessage) {
 			// do nothing
 		} else {
-			listener.onMessage(message);
+			listener.onMessage(null, message);
 		}
 	}
 

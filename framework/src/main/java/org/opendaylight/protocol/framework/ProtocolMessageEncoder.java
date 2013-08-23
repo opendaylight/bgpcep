@@ -16,19 +16,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-final class ProtocolMessageEncoder extends MessageToByteEncoder<ProtocolMessage> {
+final class ProtocolMessageEncoder<T extends ProtocolMessage> extends MessageToByteEncoder<Object> {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageEncoder.class);
 
-	private final ProtocolMessageFactory factory;
+	private final ProtocolMessageFactory<T> factory;
 
-	public ProtocolMessageEncoder(final ProtocolMessageFactory factory) {
+	public ProtocolMessageEncoder(final ProtocolMessageFactory<T> factory) {
 		this.factory = factory;
 	}
 
 	@Override
-	protected void encode(final ChannelHandlerContext ctx, final ProtocolMessage msg, final ByteBuf out) throws Exception {
+	protected void encode(final ChannelHandlerContext ctx, final Object msg, final ByteBuf out) throws Exception {
 		logger.debug("Sent to encode : {}", msg);
-		out.writeBytes(this.factory.put(msg));
+		out.writeBytes(this.factory.put((T)msg));
 	}
 }

@@ -10,21 +10,18 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.framework.TerminationReason;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
-public class MockPCE extends PCEPSessionListener {
+public class MockPCE implements PCEPSessionListener {
 
 	private final List<PCEPMessage> listMsg = new ArrayList<PCEPMessage>();
 
@@ -65,21 +62,21 @@ public class MockPCE extends PCEPSessionListener {
 	}
 
 	@Override
-	public void onSessionUp(final PCEPSession session, final PCEPOpenObject local, final PCEPOpenObject remote) {
+	public void onSessionUp(final PCEPSession session) {
 		logger.debug("Session Up");
 		this.up = true;
 		this.notifyAll();
 	}
 
 	@Override
-	public void onSessionDown(final PCEPSession session, final TerminationReason reason, final Exception e) {
-		logger.debug("Session Down. Cause {} or {}.", reason, e);
+	public void onSessionDown(final PCEPSession session, final Exception e) {
+		logger.debug("Session Down.", e);
 		this.down = true;
 		// this.notifyAll();
 	}
 
 	@Override
-	public void onSessionTerminated(final PCEPSession session, final TerminationReason cause) {
+	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
 		logger.debug("Session terminated. Cause : {}", cause);
 	}
 }

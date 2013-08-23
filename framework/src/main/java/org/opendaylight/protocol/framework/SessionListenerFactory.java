@@ -7,19 +7,16 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.net.InetAddress;
 
 /**
  * Factory for generating Session Listeners. Used by a server. This interface should be
  * implemented by a protocol specific abstract class, that is extended by
  * a final class that implements the methods.
  */
-public interface SessionListenerFactory {
+public interface SessionListenerFactory<T extends SessionListener<?, ?, ?>> {
 	/**
 	 * Returns one session listener
-	 * @param address serves as constraint, so that factory is able to
-	 * return different listeners for different factories
 	 * @return specific session listener
 	 */
-	public SessionListener getSessionListener(final InetAddress address);
+	public T getSessionListener();
 }

@@ -7,12 +7,10 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.net.InetAddress;
-
-public class SimpleSessionListenerFactory implements SessionListenerFactory {
+public class SimpleSessionListenerFactory implements SessionListenerFactory<SimpleSessionListener> {
 
 	@Override
-	public SimpleSessionListener getSessionListener(InetAddress address) {
+	public SimpleSessionListener getSessionListener() {
 		return new SimpleSessionListener();
 	}
 }

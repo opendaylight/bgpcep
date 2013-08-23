@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-public class Session implements ProtocolSession {
+public class Session extends AbstractProtocolSession<SimpleMessage> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Session.class);
 
@@ -23,38 +22,17 @@ public class Session implements ProtocolSession {
 
 	public boolean up = false;
 
-	private final int maxMsgSize;
-
-	public Session(final int maxMsgSize) {
-		this.maxMsgSize = maxMsgSize;
-	}
-
 	@Override
-	public void close() throws IOException {
+	public void close() {
 
 	}
 
 	@Override
-	public void startSession() {
-		// this.pos.putMessage(new Message("hello"), this.pmf);
-	}
-
-	@Override
-	public void handleMessage(final ProtocolMessage msg) {
-		logger.debug("Message received: {}", ((Message) msg).getMessage());
+	public void handleMessage(final SimpleMessage msg) {
+		logger.debug("Message received: {}", msg.getMessage());
 		this.up = true;
 		this.msgs.add(msg);
 		logger.debug(this.msgs.size() + "");
-	}
-
-	@Override
-	public void handleMalformedMessage(final DeserializerException e) {
-		logger.debug("Malformed message: {}", e.getMessage(), e);
-	}
-
-	@Override
-	public void handleMalformedMessage(final DocumentedException e) {
-		logger.debug("Malformed message: {}", e.getMessage(), e);
 	}
 
 	@Override
@@ -63,12 +41,7 @@ public class Session implements ProtocolSession {
 	}
 
 	@Override
-	public ProtocolMessageFactory getMessageFactory() {
-		return null;
-	}
-
-	@Override
-	public int maximumMessageSize() {
-		return this.maxMsgSize;
+	protected void sessionUp() {
+		logger.debug("Session up reported.");
 	}
 }

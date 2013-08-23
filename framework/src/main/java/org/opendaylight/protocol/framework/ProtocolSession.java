@@ -17,53 +17,7 @@ import java.io.Closeable;
  * 
  * This interface should be implemented by a final class representing a protocol specific session.
  */
-public interface ProtocolSession extends Closeable {
-
-	/**
-	 * Starts the session. This method should be used only internally by the Dispatcher.
-	 */
-	public void startSession();
-
-	/**
-	 * Handles incoming message (parsing, reacting if necessary).
-	 * 
-	 * @param msg incoming message
-	 */
-	public void handleMessage(final ProtocolMessage msg);
-
-	/**
-	 * Handles malformed message when a deserializer exception occurred. The handling might be different from when a
-	 * documented exception is thrown.
-	 * 
-	 * @param e deserializer exception that occurred
-	 */
-	public void handleMalformedMessage(final DeserializerException e);
-
-	/**
-	 * Handles malformed message when a documented exception occurred. The handling might be different from when a
-	 * deserializer exception is thrown.
-	 * 
-	 * @param e documented exception that occurred
-	 */
-	public void handleMalformedMessage(final DocumentedException e);
-
-	/**
-	 * Called when reached the end of input stream while reading.
-	 */
-	public void endOfInput();
-
-	/**
-	 * Getter for message factory
-	 * 
-	 * @return protocol specific message factory
-	 */
-	public ProtocolMessageFactory getMessageFactory();
-
-	/**
-	 * Returns the maximum message size (in bytes) for purposes of dispatcher buffering -- the dispatcher allocates a
-	 * buffer this big, and if it gets full without making decoding progress, the dispatcher terminates the session.
-	 * 
-	 * @return maximum message size
-	 */
-	public int maximumMessageSize();
+public interface ProtocolSession<T extends ProtocolMessage> extends Closeable {
+	@Override
+	public void close();
 }

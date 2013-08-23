@@ -9,12 +9,12 @@ package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.framework.SessionProposalFactory;
+import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 
 /**
  * Factory for generating PCEP Session proposals. Used by a server.
  */
-public abstract class PCEPSessionProposalFactory implements SessionProposalFactory {
+public interface PCEPSessionProposalFactory {
 
 	/**
 	 * Returns one session proposal that is registered to this factory
@@ -26,6 +26,5 @@ public abstract class PCEPSessionProposalFactory implements SessionProposalFacto
 	 *            is used for creation of PCEPOpenObject
 	 * @return specific session proposal
 	 */
-	@Override
-	public abstract PCEPSessionProposal getSessionProposal(InetSocketAddress address, int sessionId);
+	public PCEPOpenObject getSessionProposal(InetSocketAddress address, int sessionId);
 }

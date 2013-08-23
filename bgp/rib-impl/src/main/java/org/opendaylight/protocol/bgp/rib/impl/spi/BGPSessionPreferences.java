@@ -10,15 +10,13 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-
-import org.opendaylight.protocol.framework.SessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 
 /**
  * DTO for BGP Session preferences, that contains BGP Open message.
  */
-public final class BGPSessionPreferences implements SessionPreferences {
+public final class BGPSessionPreferences {
 
 	private final ASNumber as;
 

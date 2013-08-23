@@ -10,9 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
@@ -28,5 +29,5 @@ public interface BGPDispatcher {
 	 * @return client session
 	 * @throws IOException
 	 */
-	Future<? extends BGPSession> createClient(BGPConnection connection, ProtocolMessageFactory parser, final ReconnectStrategy strategy);
+	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener, final ReconnectStrategy strategy);
 }

@@ -9,17 +9,16 @@ package org.opendaylight.protocol.pcep.impl;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.protocol.framework.ProtocolMessageHeader;
-import org.opendaylight.protocol.util.ByteArray;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Header parser for {@link org.opendaylight.protocol.pcep.PCEPMessage PCEPMessage}
  */
-public final class PCEPMessageHeader implements ProtocolMessageHeader {
+public final class PCEPMessageHeader {
 
 	public static final Logger logger = LoggerFactory.getLogger(PCEPMessageHeader.class);
 
@@ -70,13 +69,15 @@ public final class PCEPMessageHeader implements ProtocolMessageHeader {
 	}
 
 	public PCEPMessageHeader fromBytes(final byte[] bytes) {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
+		}
 
 		logger.trace("Attempt to parse message header: {}", ByteArray.bytesToHexString(bytes));
 
-		if (bytes.length < COMMON_HEADER_LENGTH)
+		if (bytes.length < COMMON_HEADER_LENGTH) {
 			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + "; Expected: >= " + COMMON_HEADER_LENGTH + ".");
+		}
 
 		this.type = UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]);
 
