@@ -75,10 +75,7 @@ public class BGPImpl implements BGP, Closeable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener) throws IOException {
-		// FIXME: BUG-58: fix this
-		final ReconnectStrategy strategy = null;
-
+	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategy strategy) throws IOException {
 		final BGPSession session;
 		try {
 			session = this.dispatcher.createClient(

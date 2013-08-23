@@ -36,7 +36,7 @@ public final class NeverReconnectStrategy implements ReconnectStrategy {
 
 	@Override
 	public void reconnectSuccessful() {
-		throw new IllegalStateException("Reconnection successful when no reconnect should have been attempted");
+		// Nothing to do
 	}
 
 	@Override

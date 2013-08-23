@@ -7,11 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionPreferences;
 import org.opendaylight.protocol.pcep.PCEPConnection;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -82,7 +85,7 @@ public class PCCMock {
 				public PCEPSessionListener getListener() {
 					return new SimpleSessionListener();
 				}
-			});
+			}, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000));
 			// Thread.sleep(5000);
 			// final List<CompositeRequestObject> cro = new ArrayList<CompositeRequestObject>();
 			// cro.add(new CompositeRequestObject(new PCEPRequestParameterObject(false, true, true, true, true, (short)

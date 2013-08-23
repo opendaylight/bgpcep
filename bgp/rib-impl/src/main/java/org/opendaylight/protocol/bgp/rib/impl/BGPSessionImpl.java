@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.util.Date;
@@ -133,10 +133,10 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	private int kaCounter = 0;
 
-	private final ChannelHandlerContext ctx;
+	private final Channel channel;
 
 	BGPSessionImpl(final SessionParent parent, final Timer timer, final BGPConnection connection, final int sessionId,
-			final ProtocolMessageFactory parser, final ChannelHandlerContext ctx) {
+			final ProtocolMessageFactory parser, final Channel channel) {
 		this.state = State.IDLE;
 		this.listener = connection.getListener();
 		this.sessionId = sessionId;
@@ -144,7 +144,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 		this.stateTimer = timer;
 		this.parent = parent;
 		this.parser = parser;
-		this.ctx = ctx;
+		this.channel = channel;
 		this.checker = connection.getProposalChecker();
 		this.sync = new BGPSynchronization(this.listener);
 	}
@@ -227,7 +227,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	void sendMessage(final BGPMessage msg) {
 		try {
-			this.ctx.writeAndFlush(msg);
+			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
 			logger.debug("Sent message: " + msg);
 		} catch (final Exception e) {
@@ -263,7 +263,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	private synchronized void handleHoldTimer() {
 		final long ct = System.nanoTime();
 
-		final long nextHold = (long) (this.lastMessageReceivedAt + (HOLD_TIMER_VALUE * 1E9));
+		final long nextHold = (long) (this.lastMessageReceivedAt + HOLD_TIMER_VALUE * 1E9);
 
 		if (this.state != State.IDLE) {
 			if (ct >= nextHold) {
@@ -284,12 +284,12 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	private synchronized void handleKeepaliveTimer() {
 		final long ct = System.nanoTime();
 
-		long nextKeepalive = (long) (this.lastMessageSentAt + (this.KEEP_ALIVE_TIMER_VALUE * 1E9));
+		long nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
 
 		if (this.state == State.ESTABLISHED) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new BGPKeepAliveMessage());
-				nextKeepalive = (long) (this.lastMessageSentAt + (this.KEEP_ALIVE_TIMER_VALUE * 1E9));
+				nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
 			}
 			this.stateTimer.schedule(new KeepAliveTimer(this), (long) ((nextKeepalive - ct) / 1E6));
 		}

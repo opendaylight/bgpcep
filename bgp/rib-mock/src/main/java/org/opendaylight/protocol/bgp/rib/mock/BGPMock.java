@@ -25,6 +25,7 @@ import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.util.ByteArray;
 
 import com.google.common.collect.Lists;
@@ -75,7 +76,7 @@ public final class BGPMock implements BGP, Closeable {
 	 * @return ListenerRegistration
 	 */
 	@Override
-	public synchronized ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {
+	public synchronized ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategy strategy) {
 		return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
 	}
 
@@ -84,8 +85,9 @@ public final class BGPMock implements BGP, Closeable {
 	}
 
 	public synchronized void insertMessages(final List<BGPMessage> messages) {
-		for (final BGPMessage message : messages)
+		for (final BGPMessage message : messages) {
 			this.insertMessage(message);
+		}
 	}
 
 	private synchronized void insertMessage(final BGPMessage message) {
@@ -103,13 +105,15 @@ public final class BGPMock implements BGP, Closeable {
 	}
 
 	public boolean isMessageListSame(final List<byte[]> newMessages) {
-		if (this.allPreviousBGPMessages.size() != newMessages.size())
+		if (this.allPreviousBGPMessages.size() != newMessages.size()) {
 			return false;
+		}
 		final Iterator<byte[]> i1 = this.allPreviousByteMessages.iterator();
 		final Iterator<byte[]> i2 = this.allPreviousByteMessages.iterator();
 		for (int i = 0; i < this.allPreviousBGPMessages.size(); i++) {
-			if (!Arrays.equals(i1.next(), i2.next()))
+			if (!Arrays.equals(i1.next(), i2.next())) {
 				return false;
+			}
 		}
 		return true;
 	}

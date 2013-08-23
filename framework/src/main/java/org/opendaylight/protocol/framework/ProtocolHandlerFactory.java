@@ -32,8 +32,4 @@ public class ProtocolHandlerFactory {
 	public ChannelHandler getSessionInboundHandler(final ProtocolSession session) {
 		return new ProtocolSessionInboundHandler(session);
 	}
-
-	public ChannelHandler getSessionOutboundHandler() {
-		return new ProtocolSessionOutboundHandler();
-	}
 }

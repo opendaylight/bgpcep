@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -204,10 +204,10 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 
 	private final String peerAddress;
 
-	private final ChannelHandlerContext ctx;
+	private final Channel channel;
 
 	PCEPSessionImpl(final SessionParent parent, final Timer timer, final PCEPConnection connection, final PCEPMessageFactory factory,
-			final int maxUnknownMessages, final int sessionId, final ChannelHandlerContext ctx) {
+			final int maxUnknownMessages, final int sessionId, final Channel channel) {
 		this.state = State.IDLE;
 		this.listener = connection.getListener();
 		this.checker = connection.getProposalChecker();
@@ -217,9 +217,10 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 		this.stateTimer = timer;
 		this.parent = parent;
 		this.factory = factory;
-		this.ctx = ctx;
-		if (this.maxUnknownMessages != 0)
+		this.channel = channel;
+		if (this.maxUnknownMessages != 0) {
 			this.maxUnknownMessages = maxUnknownMessages;
+		}
 	}
 
 	@Override
@@ -259,7 +260,7 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	private synchronized void handleDeadtimer() {
 		final long ct = System.nanoTime();
 
-		final long nextDead = (long) (this.lastMessageReceivedAt + (this.DEAD_TIMER_VALUE * 1E9));
+		final long nextDead = (long) (this.lastMessageReceivedAt + this.DEAD_TIMER_VALUE * 1E9);
 
 		if (this.state != State.IDLE) {
 			if (ct >= nextDead) {
@@ -281,12 +282,12 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	private synchronized void handleKeepaliveTimer() {
 		final long ct = System.nanoTime();
 
-		long nextKeepalive = (long) (this.lastMessageSentAt + (this.KEEP_ALIVE_TIMER_VALUE * 1E9));
+		long nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
 
 		if (this.state != State.IDLE) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new PCEPKeepAliveMessage());
-				nextKeepalive = (long) (this.lastMessageSentAt + (this.KEEP_ALIVE_TIMER_VALUE * 1E9));
+				nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
 			}
 
 			this.stateTimer.schedule(new KeepAliveTimer(this), (long) ((nextKeepalive - ct) / 1E6));
@@ -363,10 +364,11 @@ class PCEPSessionImpl implements PCEPSession, ProtocolSession, PCEPSessionRuntim
 	@Override
 	public void sendMessage(final PCEPMessage msg) {
 		try {
-			this.ctx.writeAndFlush(msg);
+			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
-			if (!(msg instanceof PCEPKeepAliveMessage))
+			if (!(msg instanceof PCEPKeepAliveMessage)) {
 				logger.debug("Sent message: " + msg);
+			}
 			this.sentMsgCount++;
 		} catch (final Exception e) {
 			logger.warn("Message {} was not sent.", msg, e);
