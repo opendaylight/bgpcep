@@ -10,6 +10,9 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -38,6 +41,7 @@ import com.google.common.base.Preconditions;
  */
 @ThreadSafe
 public final class TimedReconnectStrategy implements ReconnectStrategy {
+	private static final Logger logger = LoggerFactory.getLogger(TimedReconnectStrategy.class);
 	private final EventExecutor executor;
 	private final Long deadline, maxAttempts, maxSleep;
 	private final double sleepFactor;
@@ -69,7 +73,9 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 	}
 
 	@Override
-	public synchronized Future<Void> scheduleReconnect() {
+	public synchronized Future<Void> scheduleReconnect(final Throwable cause) {
+		logger.debug("Connection attempt failed", cause);
+
 		// Check if a reconnect attempt is scheduled
 		Preconditions.checkState(scheduled == false);
 
@@ -77,10 +83,12 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 		final long now = System.nanoTime();
 
 		// Obvious stop conditions
-		if (maxAttempts != null && attempts >= maxAttempts)
+		if (maxAttempts != null && attempts >= maxAttempts) {
 			return executor.newFailedFuture(new Throwable("Maximum reconnection attempts reached"));
-		if (deadline != null && deadline <= now)
+		}
+		if (deadline != null && deadline <= now) {
 			return executor.newFailedFuture(new TimeoutException("Reconnect deadline reached"));
+		}
 
 		/*
 		 * First connection attempt gets initialized to minimum sleep,
@@ -93,8 +101,9 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 		}
 
 		// Cap the sleep time to maxSleep
-		if (maxSleep != null && lastSleep > maxSleep)
+		if (maxSleep != null && lastSleep > maxSleep) {
 			lastSleep = maxSleep;
+		}
 
 		// Check if the reconnect attempt is within the deadline
 		if (deadline != null && deadline <= now + TimeUnit.MILLISECONDS.toNanos(lastSleep)) {
@@ -102,8 +111,9 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 		}
 
 		// If we are not sleeping at all, return an already-succeeded future
-		if (lastSleep == 0)
+		if (lastSleep == 0) {
 			return executor.newSucceededFuture(null);
+		}
 
 		// Need to retain a final reference to this for locking purposes,
 		// also set the scheduled flag.
@@ -139,12 +149,14 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 			// If there is a deadline, we may need to cap the connect
 			// timeout to meet the deadline.
 			final long now = System.nanoTime();
-			if (now >= deadline)
+			if (now >= deadline) {
 				throw new TimeoutException("Reconnect deadline already passed");
+			}
 
 			final long left = TimeUnit.NANOSECONDS.toMillis(deadline - now);
-			if (left < 1)
+			if (left < 1) {
 				throw new TimeoutException("Connect timeout too close to deadline");
+			}
 
 			/*
 			 * A bit of magic:
@@ -153,10 +165,11 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 			 *      - less than maximum integer, set timeout to time left
 			 *      - more than maximum integer, set timeout Integer.MAX_VALUE
 			 */
-			if (timeout > left)
+			if (timeout > left) {
 				timeout = (int) left;
-			else if (timeout == 0)
+			} else if (timeout == 0) {
 				timeout = left <= Integer.MAX_VALUE ? (int) left : Integer.MAX_VALUE;
+			}
 		}
 		return timeout;
 	}

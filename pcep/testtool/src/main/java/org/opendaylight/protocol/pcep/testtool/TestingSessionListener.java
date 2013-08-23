@@ -7,28 +7,26 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv4Prefix;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.framework.TerminationReason;
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.message.PCEPXRAddTunnelMessage;
 import org.opendaylight.protocol.pcep.object.PCEPEndPointsObject;
 import org.opendaylight.protocol.pcep.object.PCEPExplicitRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPLspObject;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestingSessionListener extends PCEPSessionListener {
+public class TestingSessionListener implements PCEPSessionListener {
 
 	public List<PCEPMessage> messages = new ArrayList<PCEPMessage>();
 
@@ -44,7 +42,7 @@ public class TestingSessionListener extends PCEPSessionListener {
 	}
 
 	@Override
-	public void onSessionUp(final PCEPSession session, final PCEPOpenObject local, final PCEPOpenObject remote) {
+	public void onSessionUp(final PCEPSession session) {
 		logger.debug("Session up.");
 		final List<ExplicitRouteSubobject> subs = new ArrayList<ExplicitRouteSubobject>();
 		subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 10, 1, 1, 2 }), 32), false));
@@ -54,17 +52,13 @@ public class TestingSessionListener extends PCEPSessionListener {
 	}
 
 	@Override
-	public void onSessionDown(final PCEPSession session, final TerminationReason cause, final Exception e) {
-		logger.debug("Session down with cause : {} or exception: {}", cause, e);
-		try {
-			session.close();
-		} catch (final IOException e1) {
-			logger.debug("Could not close session, because {}", e1.getMessage(), e1);
-		}
+	public void onSessionDown(final PCEPSession session, final Exception e) {
+		logger.debug("Session down with cause : {} or exception: {}", e);
+		session.close();
 	}
 
 	@Override
-	public void onSessionTerminated(final PCEPSession session, final TerminationReason cause) {
+	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
 		logger.debug("Session terminated. Cause : {}", cause.toString());
 	}
 }

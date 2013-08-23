@@ -11,15 +11,15 @@ import java.nio.ByteBuffer;
 
 import com.google.common.base.Charsets;
 
-public class MessageFactory implements ProtocolMessageFactory {
+public class MessageFactory implements ProtocolMessageFactory<SimpleMessage> {
 
 	@Override
-	public ProtocolMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		return new Message(Charsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
+	public SimpleMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		return new SimpleMessage(Charsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
 	}
 
 	@Override
-	public byte[] put(final ProtocolMessage msg) {
-		return ((Message) msg).getMessage().getBytes();
+	public byte[] put(final SimpleMessage msg) {
+		return ((SimpleMessage) msg).getMessage().getBytes();
 	}
 }

@@ -7,125 +7,90 @@
  */
 package org.opendaylight.protocol.framework;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Test;
 
 public class ServerTest {
-	private static final int MAX_MSGSIZE = 500;
 	public static final int PORT = 18080;
 
 	DispatcherImpl clientDispatcher, dispatcher;
 
 	final SimpleSessionListener pce = new SimpleSessionListener();
 
-	ProtocolSession session = null;
+	SimpleSession session = null;
 
-	ProtocolServer server = null;
+	ChannelFuture server = null;
 
 	public final InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.5", PORT);
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
-		this.dispatcher = new DispatcherImpl(new MessageFactory());
+		this.dispatcher = new DispatcherImpl();
 
-		this.server = this.dispatcher.createServer(this.serverAddress, new ProtocolConnectionFactory() {
+		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
+
+		this.server = this.dispatcher.createServer(this.serverAddress,
+				new SessionListenerFactory<SimpleSessionListener>() {
 			@Override
-			public ProtocolConnection createProtocolConnection(final InetSocketAddress address) {
-
-				return new ProtocolConnection() {
-					@Override
-					public SessionPreferencesChecker getProposalChecker() {
-						return new SimpleSessionProposalChecker();
-					}
-
-					@Override
-					public SessionPreferences getProposal() {
-						return new SimpleSessionPreferences();
-					}
-
-					@Override
-					public InetSocketAddress getPeerAddress() {
-						return address;
-					}
-
-					@Override
-					public SessionListener getListener() {
-						return new SimpleSessionListener();
-					}
-				};
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
 			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE)).get();
-
-		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
-
-		this.session = this.clientDispatcher.createClient(new ProtocolConnection() {
-			@Override
-			public SessionPreferencesChecker getProposalChecker() {
-				return new SimpleSessionProposalChecker();
-			}
+		}, new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
 			@Override
-			public SessionPreferences getProposal() {
-				return new SimpleSessionPreferences();
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				p.setSuccess(true);
+				return new SimpleSessionNegotiator(promise, channel);
 			}
+		}, new MessageFactory());
 
+		server.get();
+
+		this.clientDispatcher = new DispatcherImpl();
+
+		this.session = this.clientDispatcher.createClient(serverAddress,
+				new SimpleSessionListener(), new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 			@Override
-			public InetSocketAddress getPeerAddress() {
-				return ServerTest.this.serverAddress;
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				return new SimpleSessionNegotiator(promise, channel);
 			}
+		}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
 
-			@Override
-			public SessionListener getListener() {
-				return ServerTest.this.pce;
-			}
-		}, new SimpleSessionFactory(MAX_MSGSIZE), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
-
-		final int maxAttempts = 1000;
-		int attempts = 0;
-		synchronized (this.pce) {
-			while (!this.pce.up && ++attempts < maxAttempts) {
-				this.pce.wait(100);
-			}
-		}
-		assertTrue(this.pce.up);
+		assertEquals(true, p.get(3, TimeUnit.SECONDS));
 	}
 
 	public void testConnectionFailed() throws IOException, InterruptedException {
-		this.dispatcher = new DispatcherImpl(new MessageFactory());
-		this.clientDispatcher = new DispatcherImpl(new MessageFactory());
+		this.dispatcher = new DispatcherImpl();
+		this.clientDispatcher = new DispatcherImpl();
 		final SimpleSessionListener listener = new SimpleSessionListener();
 
 		try {
-			final ProtocolSession session = this.clientDispatcher.createClient(new ProtocolConnection() {
+			this.clientDispatcher.createClient(serverAddress, listener,
+					new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 				@Override
-				public SessionPreferencesChecker getProposalChecker() {
-					return new SimpleSessionProposalChecker();
+				public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+						final Channel channel, final Promise<SimpleSession> promise) {
+					// TODO Auto-generated method stub
+					return null;
 				}
-
-				@Override
-				public SessionPreferences getProposal() {
-					return new SimpleSessionPreferences();
-				}
-
-				@Override
-				public InetSocketAddress getPeerAddress() {
-					return ServerTest.this.serverAddress;
-				}
-
-				@Override
-				public SessionListener getListener() {
-					return listener;
-				}
-			}, new SimpleSessionFactory(MAX_MSGSIZE), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
+			}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
 
 			fail("Connection succeeded unexpectedly");
 		} catch (ExecutionException e) {
@@ -136,8 +101,7 @@ public class ServerTest {
 
 	@After
 	public void tearDown() throws IOException {
-		if (this.server != null)
-			this.server.close();
+		server.channel().close();
 		this.dispatcher.close();
 		this.clientDispatcher.close();
 		try {

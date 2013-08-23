@@ -8,91 +8,44 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessage;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
-import org.opendaylight.protocol.framework.ProtocolSession;
-import org.opendaylight.protocol.framework.SessionParent;
+import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-class BGPSessionImpl implements BGPSession, ProtocolSession {
+class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPSession {
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
-
-	/**
-	 * KeepAlive Timer is to be scheduled periodically, each time it starts, it sends KeepAlive Message.
-	 */
-	private class KeepAliveTimer extends TimerTask {
-		private final BGPSessionImpl parent;
-
-		public KeepAliveTimer(final BGPSessionImpl parent) {
-			this.parent = parent;
-		}
-
-		@Override
-		public void run() {
-			this.parent.handleKeepaliveTimer();
-		}
-	}
-
-	/**
-	 * HoldTimer is to be scheduled periodically, when it expires, it closes BGP session.
-	 */
-	private class HoldTimer extends TimerTask {
-		private final BGPSessionImpl parent;
-
-		public HoldTimer(final BGPSessionImpl parent) {
-			this.parent = parent;
-		}
-
-		@Override
-		public void run() {
-			this.parent.handleHoldTimer();
-		}
-	}
 
 	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
 
 	public static int HOLD_TIMER_VALUE = DEFAULT_HOLD_TIMER_VALUE; // 240
-
-	public int KEEP_ALIVE_TIMER_VALUE;
-
-	/**
-	 * Possible states for Finite State Machine
-	 */
-	private enum State {
-		IDLE, OPEN_SENT, OPEN_CONFIRM, ESTABLISHED
-	}
-
-	/**
-	 * Actual state of the FSM.
-	 */
-	private State state;
 
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
@@ -104,30 +57,12 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	 */
 	private long lastMessageReceivedAt;
 
-	private final int sessionId;
-
 	private final BGPSessionListener listener;
-
-	/**
-	 * Open message with session characteristics that were accepted by another BGP (sent from this session).
-	 */
-	private BGPSessionPreferences localOpen = null;
-
-	/**
-	 * Open Object with session characteristics for this session (sent from another BGP speaker).
-	 */
-	private BGPSessionPreferences remoteOpen = null;
 
 	/**
 	 * Timer object grouping FSM Timers
 	 */
 	private final Timer stateTimer;
-
-	private final SessionParent parent;
-
-	private final ProtocolMessageFactory parser;
-
-	private final BGPSessionProposalChecker checker;
 
 	private final BGPSynchronization sync;
 
@@ -135,36 +70,57 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 
 	private final Channel channel;
 
-	BGPSessionImpl(final SessionParent parent, final Timer timer, final BGPConnection connection, final int sessionId,
-			final ProtocolMessageFactory parser, final Channel channel) {
-		this.state = State.IDLE;
-		this.listener = connection.getListener();
-		this.sessionId = sessionId;
-		this.localOpen = connection.getProposal();
-		this.stateTimer = timer;
-		this.parent = parent;
-		this.parser = parser;
-		this.channel = channel;
-		this.checker = connection.getProposalChecker();
-		this.sync = new BGPSynchronization(this.listener);
-	}
+	@GuardedBy("this")
+	private boolean closed = false;
 
-	@Override
-	public void close() {
-		logger.debug("Closing session: " + this);
-		if (this.state == State.ESTABLISHED) {
-			this.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
+	private final short keepAlive;
+
+	private final Set<BGPTableType> tableTypes;
+
+	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final short keepAlive, final BGPOpenMessage remoteOpen) {
+		this.listener = Preconditions.checkNotNull(listener);
+		this.stateTimer = Preconditions.checkNotNull(timer);
+		this.channel = Preconditions.checkNotNull(channel);
+		this.keepAlive = keepAlive;
+
+		final Set<BGPTableType> tts = Sets.newHashSet();
+		if (remoteOpen.getOptParams() != null) {
+			for (final BGPParameter param : remoteOpen.getOptParams()) {
+				if (param instanceof MultiprotocolCapability) {
+					tts.add(((MultiprotocolCapability) param).getTableType());
+				}
+			}
 		}
-		this.changeState(State.IDLE);
-		this.parent.onSessionClosed(this);
+
+		this.sync = new BGPSynchronization(this, this.listener, tts);
+		this.tableTypes = tts;
+
+		if (remoteOpen.getHoldTime() != 0) {
+			this.stateTimer.newTimeout(new TimerTask() {
+
+				@Override
+				public void run(final Timeout timeout) throws Exception {
+					handleHoldTimer();
+				}
+			}, remoteOpen.getHoldTime(), TimeUnit.SECONDS);
+
+			this.stateTimer.newTimeout(new TimerTask() {
+				@Override
+				public void run(final Timeout timeout) throws Exception {
+					handleKeepaliveTimer();
+				}
+			}, keepAlive, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override
-	public void startSession() {
-		logger.debug("Session started.");
-		this.sendMessage(new BGPOpenMessage(this.localOpen.getMyAs(), (short) this.localOpen.getHoldTime(), this.localOpen.getBgpId(), this.localOpen.getParams()));
-		this.stateTimer.schedule(new HoldTimer(this), DEFAULT_HOLD_TIMER_VALUE * 1000);
-		this.changeState(State.OPEN_SENT);
+	public synchronized void close() {
+		logger.debug("Closing session: {}", this);
+		if (!closed) {
+			this.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
+			channel.close();
+			closed = true;
+		}
 	}
 
 	/**
@@ -173,73 +129,52 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	 * @param msg incoming message
 	 */
 	@Override
-	public void handleMessage(final ProtocolMessage msg) {
-		final BGPMessage bgpMsg = (BGPMessage) msg;
+	public void handleMessage(final BGPMessage msg) {
 		// Update last reception time
 		this.lastMessageReceivedAt = System.nanoTime();
 
-		// Open messages are handled internally, but are parsed also in bgp-parser, so notify bgp listener
-		if (bgpMsg instanceof BGPOpenMessage) {
-			this.handleOpenMessage((BGPOpenMessage) bgpMsg);
-		}
-		// Keepalives are handled internally
-		else if (bgpMsg instanceof BGPKeepAliveMessage) {
-			this.handleKeepAliveMessage();
-		}
-		// Notifications are handled internally
-		else if (bgpMsg instanceof BGPNotificationMessage) {
-			logger.info("Session closed because Notification message received: {}" + ((BGPNotificationMessage) bgpMsg).getError());
+		if (msg instanceof BGPOpenMessage) {
+			// Open messages should not be present here
+			this.terminate(BGPError.FSM_ERROR);
+		} else if (msg instanceof BGPNotificationMessage) {
+			// Notifications are handled internally
+			logger.info("Session closed because Notification message received: {}", ((BGPNotificationMessage) msg).getError());
 			this.closeWithoutMessage();
-			this.listener.onSessionTerminated(((BGPNotificationMessage) bgpMsg).getError());
+			this.listener.onSessionTerminated(this, new BGPTerminationReason(((BGPNotificationMessage) msg).getError()));
+		} else if (msg instanceof BGPKeepAliveMessage) {
+			// Keepalives are handled internally
+			logger.debug("Received KeepAlive messsage.");
+			this.kaCounter++;
+			if (this.kaCounter >= 2) {
+				this.sync.kaReceived();
+			}
 		} else {
-			this.listener.onMessage(bgpMsg);
+			// All others are passed up
+			this.listener.onMessage(this, msg);
 		}
 	}
 
 	@Override
-	public void handleMalformedMessage(final DeserializerException e) {
-		logger.warn("Received malformed message: {}", e.getMessage(), e);
-		this.terminate(BGPError.FSM_ERROR);
-	}
-
-	@Override
-	public void handleMalformedMessage(final DocumentedException e) {
-		logger.warn("Received malformed message: {}", e.getMessage(), e);
-		this.terminate(((BGPDocumentedException) e).getError());
-	}
-
-	@Override
-	public void endOfInput() {
-		if (this.state != State.IDLE) {
+	public synchronized void endOfInput() {
+		if (!closed) {
 			this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
 		}
-	}
-
-	@Override
-	public ProtocolMessageFactory getMessageFactory() {
-		return this.parser;
-	}
-
-	@Override
-	public int maximumMessageSize() {
-		return 4096;
 	}
 
 	void sendMessage(final BGPMessage msg) {
 		try {
 			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
-			logger.debug("Sent message: " + msg);
+			logger.debug("Sent message: {}", msg);
 		} catch (final Exception e) {
 			logger.warn("Message {} was not sent.", msg, e);
 		}
 	}
 
-	private void closeWithoutMessage() {
-		logger.debug("Closing session: " + this);
-		HOLD_TIMER_VALUE = DEFAULT_HOLD_TIMER_VALUE;
-		this.changeState(State.IDLE);
-		this.parent.onSessionClosed(this);
+	private synchronized void closeWithoutMessage() {
+		logger.debug("Closing session: {}", this);
+		channel.close();
+		closed = true;
 	}
 
 	/**
@@ -251,7 +186,7 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	private void terminate(final BGPError error) {
 		this.sendMessage(new BGPNotificationMessage(error));
 		this.closeWithoutMessage();
-		this.listener.onSessionTerminated(error);
+		this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
 	}
 
 	/**
@@ -263,15 +198,20 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	private synchronized void handleHoldTimer() {
 		final long ct = System.nanoTime();
 
-		final long nextHold = (long) (this.lastMessageReceivedAt + HOLD_TIMER_VALUE * 1E9);
+		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(HOLD_TIMER_VALUE);
 
-		if (this.state != State.IDLE) {
+		if (!closed) {
 			if (ct >= nextHold) {
 				logger.debug("HoldTimer expired. " + new Date());
 				this.terminate(BGPError.HOLD_TIMER_EXPIRED);
-				return;
+			} else {
+				this.stateTimer.newTimeout(new TimerTask() {
+					@Override
+					public void run(final Timeout timeout) throws Exception {
+						handleHoldTimer();
+					}
+				}, nextHold - ct, TimeUnit.NANOSECONDS);
 			}
-			this.stateTimer.schedule(new HoldTimer(this), (long) ((nextHold - ct) / 1E6));
 		}
 	}
 
@@ -284,129 +224,40 @@ class BGPSessionImpl implements BGPSession, ProtocolSession {
 	private synchronized void handleKeepaliveTimer() {
 		final long ct = System.nanoTime();
 
-		long nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
+		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
-		if (this.state == State.ESTABLISHED) {
+		if (!closed) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new BGPKeepAliveMessage());
-				nextKeepalive = (long) (this.lastMessageSentAt + this.KEEP_ALIVE_TIMER_VALUE * 1E9);
+				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 			}
-			this.stateTimer.schedule(new KeepAliveTimer(this), (long) ((nextKeepalive - ct) / 1E6));
-		}
-	}
-
-	private void changeState(final State finalState) {
-		final String desc = "Changed to state: ";
-		switch (finalState) {
-		case IDLE:
-			logger.debug(desc + State.IDLE);
-			this.state = State.IDLE;
-			return;
-		case OPEN_SENT:
-			logger.debug(desc + State.OPEN_SENT);
-			if (this.state != State.IDLE) {
-				throw new IllegalArgumentException("Cannot change state from " + this.state + " to " + State.OPEN_SENT);
-			}
-			this.state = State.OPEN_SENT;
-			return;
-		case OPEN_CONFIRM:
-			logger.debug(desc + State.OPEN_CONFIRM);
-			if (this.state == State.ESTABLISHED) {
-				throw new IllegalArgumentException("Cannot change state from " + this.state + " to " + State.OPEN_CONFIRM);
-			}
-			this.state = State.OPEN_CONFIRM;
-			return;
-		case ESTABLISHED:
-			logger.debug(desc + State.ESTABLISHED);
-			if (this.state != State.OPEN_CONFIRM) {
-				throw new IllegalArgumentException("Cannot change state from " + this.state + " to " + State.ESTABLISHED);
-			}
-			this.state = State.ESTABLISHED;
-			return;
-		}
-	}
-
-	/**
-	 * Open message should be handled only if the FSM is in OPEN_SENT or IDLE state. When in IDLE state, the Open
-	 * message was received _before_ local Open message was sent. When in OPEN_SENT state, the message was received
-	 * _after_ local Open message was sent.
-	 * 
-	 * @param msg received Open Message.
-	 */
-	private void handleOpenMessage(final BGPOpenMessage msg) {
-		this.remoteOpen = new BGPSessionPreferences(msg.getMyAS(), msg.getHoldTime(), msg.getBgpId(), msg.getOptParams());
-		logger.debug("Received message: {}", msg.toString());
-		if (this.state != State.IDLE && this.state != State.OPEN_SENT) {
-			this.terminate(BGPError.FSM_ERROR);
-			return;
-		}
-		// if the session characteristics were unacceptable, the session is terminated
-		// with given BGP error
-		try {
-			this.checker.checkSessionCharacteristics(this.remoteOpen);
-		} catch (final BGPDocumentedException e) {
-			this.terminate(e.getError());
-		}
-		// the session characteristics were acceptable
-		HOLD_TIMER_VALUE = this.remoteOpen.getHoldTime();
-		logger.debug("Session chars are acceptable. Overwriting: holdtimer: {}", HOLD_TIMER_VALUE);
-		// when in IDLE state, we haven't send Open Message yet, do it now
-		if (this.state == State.IDLE) {
-			this.sendMessage(new BGPOpenMessage(this.localOpen.getMyAs(), (short) this.localOpen.getHoldTime(), this.localOpen.getBgpId(), this.localOpen.getParams()));
-		}
-		this.sendMessage(new BGPKeepAliveMessage());
-		// if the timer is not disabled
-		if (HOLD_TIMER_VALUE != 0) {
-			this.KEEP_ALIVE_TIMER_VALUE = HOLD_TIMER_VALUE / 3;
-			this.stateTimer.schedule(new KeepAliveTimer(this), this.KEEP_ALIVE_TIMER_VALUE * 1000);
-			this.stateTimer.schedule(new HoldTimer(this), HOLD_TIMER_VALUE * 1000);
-		}
-		this.changeState(State.OPEN_CONFIRM);
-	}
-
-	/**
-	 * KeepAlive message should be explicitly parsed in FSM when its state is OPEN_CONFIRM. Otherwise is handled by the
-	 * KeepAliveTimer or it's invalid.
-	 */
-	private void handleKeepAliveMessage() {
-		logger.debug("Received KeepAlive messsage.");
-		if (this.state == State.OPEN_CONFIRM) {
-			if (HOLD_TIMER_VALUE != 0) {
-				this.stateTimer.schedule(new HoldTimer(this), HOLD_TIMER_VALUE * 1000);
-				this.stateTimer.schedule(new KeepAliveTimer(this), this.KEEP_ALIVE_TIMER_VALUE * 1000);
-			}
-			this.changeState(State.ESTABLISHED);
-			final Set<BGPTableType> tts = Sets.newHashSet();
-			if (this.remoteOpen.getParams() != null) {
-				for (final BGPParameter param : this.remoteOpen.getParams()) {
-					if (param instanceof MultiprotocolCapability) {
-						tts.add(((MultiprotocolCapability) param).getTableType());
-					}
+			this.stateTimer.newTimeout(new TimerTask() {
+				@Override
+				public void run(final Timeout timeout) throws Exception {
+					handleKeepaliveTimer();
 				}
-			}
-			this.sync.addTableTypes(tts);
-			this.listener.onSessionUp(tts);
-			// check if the KA is EOR for some AFI/SAFI
-		} else if (this.state == State.ESTABLISHED) {
-			this.kaCounter++;
-			if (this.kaCounter >= 2) {
-				this.sync.kaReceived();
-			}
+			}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
 		}
 	}
 
 	@Override
-	public String toString() {
-		final StringBuilder builder = new StringBuilder();
-		builder.append("BGPSessionImpl [state=");
-		builder.append(this.state);
-		builder.append(", sessionId=");
-		builder.append(this.sessionId);
-		builder.append(", localOpen=");
-		builder.append(this.localOpen);
-		builder.append(", remoteOpen=");
-		builder.append(this.remoteOpen);
-		builder.append("]");
-		return builder.toString();
+	final public String toString() {
+		return addToStringAttributes(Objects.toStringHelper(this)).toString();
+	}
+
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+		toStringHelper.add("channel", channel);
+		toStringHelper.add("closed", closed);
+		return toStringHelper;
+	}
+
+	@Override
+	public Set<BGPTableType> getAdvertisedTableTypes() {
+		return this.tableTypes;
+	}
+
+	@Override
+	protected void sessionUp() {
+		listener.onSessionUp(this);
 	}
 }

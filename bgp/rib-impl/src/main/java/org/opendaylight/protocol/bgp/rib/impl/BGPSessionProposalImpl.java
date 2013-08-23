@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
@@ -19,15 +17,15 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+
 import com.google.common.collect.Lists;
 
 /**
  * Basic implementation of BGP Session Proposal. The values are taken from conf-bgp.
  */
-public final class BGPSessionProposalImpl extends BGPSessionProposal implements Closeable {
+public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
 	private final short holdTimer;
 
@@ -53,17 +51,11 @@ public final class BGPSessionProposalImpl extends BGPSessionProposal implements 
 		// tlvs.add(new GracefulCapability(true, 0, tableTypes));
 		tlvs.add(new AS4BytesCapability(as));
 		this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, tlvs);
-
 	}
 
 	@Override
 	public BGPSessionPreferences getProposal() {
 		return this.prefs;
-	}
-
-	@Override
-	public void close() throws IOException {
-		// nothing to close
 	}
 
 	/**

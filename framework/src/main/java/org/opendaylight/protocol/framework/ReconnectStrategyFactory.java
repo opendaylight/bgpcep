@@ -7,12 +7,8 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.net.InetSocketAddress;
+public interface ReconnectStrategyFactory {
 
-public class SimpleSessionProposalFactory implements SessionProposalFactory {
+	public ReconnectStrategy createReconnectStrategy();
 
-	@Override
-	public SessionProposal getSessionProposal(InetSocketAddress address, int sessionId) {
-		return new SimpleSessionProposal();
-	}
 }

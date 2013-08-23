@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import org.opendaylight.protocol.framework.TerminationReason;
+import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * Used as a reason when a documented error was the cause of the
  * termination of a session.
  */
-public final class PCEPErrorTermination implements TerminationReason {
+public final class PCEPErrorTermination extends PCEPTerminationReason {
 
 	private final PCEPErrors error;
 
@@ -21,7 +21,7 @@ public final class PCEPErrorTermination implements TerminationReason {
 	 * Creates new Termination.
 	 * @param error Error that happened.
 	 */
-	public PCEPErrorTermination(PCEPErrors error) {
+	public PCEPErrorTermination(final PCEPErrors error) {
 		this.error = error;
 	}
 
@@ -33,4 +33,8 @@ public final class PCEPErrorTermination implements TerminationReason {
 		return this.error.toString();
 	}
 
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+		return toStringHelper.add("error", error);
+	}
 }

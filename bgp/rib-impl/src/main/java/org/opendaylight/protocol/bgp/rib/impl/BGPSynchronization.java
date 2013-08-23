@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPPrefix;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
+import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
@@ -27,6 +28,7 @@ import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
@@ -38,7 +40,7 @@ public class BGPSynchronization {
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPSynchronization.class);
 
-	private class SyncVariables {
+	private static class SyncVariables {
 
 		private boolean upd = false;
 		private boolean eor = false;
@@ -64,16 +66,12 @@ public class BGPSynchronization {
 
 	private final BGPSessionListener listener;
 
-	public BGPSynchronization(final BGPSessionListener listener) {
-		this.listener = listener;
-	}
+	private final BGPSession session;
 
-	/**
-	 * Fills in syncStorage map with BGPTableTypes received in speakers Open Message.
-	 * 
-	 * @param types BGPTableTypes from remote Open message
-	 */
-	public void addTableTypes(final Set<BGPTableType> types) {
+	public BGPSynchronization(final BGPSession session, final BGPSessionListener listener, final Set<BGPTableType> types) {
+		this.listener = Preconditions.checkNotNull(listener);
+		this.session = Preconditions.checkNotNull(session);
+
 		for (final BGPTableType type : types) {
 			this.syncStorage.put(type, new SyncVariables());
 		}
@@ -92,9 +90,9 @@ public class BGPSynchronization {
 		if (!msg.getAddedObjects().isEmpty()) {
 			final BGPObject obj = msg.getAddedObjects().iterator().next();
 			if (obj instanceof BGPRoute<?>) {
-				if (((BGPRoute<?>) obj) instanceof BGPIPv4RouteImpl) {
+				if ((BGPRoute<?>) obj instanceof BGPIPv4RouteImpl) {
 					type = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
-				} else if (((BGPRoute<?>) obj) instanceof BGPIPv6RouteImpl) {
+				} else if ((BGPRoute<?>) obj instanceof BGPIPv6RouteImpl) {
 					type = new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast);
 				}
 			} else if (obj instanceof BGPLink || obj instanceof BGPNode || obj instanceof BGPPrefix<?>) {
@@ -122,7 +120,7 @@ public class BGPSynchronization {
 					s.setEorTrue();
 					final BGPUpdateSynchronized up = generateEOR(entry.getKey());
 					logger.debug("Sending synchronization message: {}", up);
-					this.listener.onMessage(up);
+					this.listener.onMessage(session, up);
 				}
 				s.setUpd(false);
 			}

@@ -17,13 +17,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ProtocolMessageDecoder extends ByteToMessageDecoder {
+final class ProtocolMessageDecoder<T extends ProtocolMessage> extends ByteToMessageDecoder {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 
-	private final ProtocolMessageFactory factory;
+	private final ProtocolMessageFactory<T> factory;
 
-	public ProtocolMessageDecoder(final ProtocolMessageFactory factory) {
+	public ProtocolMessageDecoder(final ProtocolMessageFactory<T> factory) {
 		this.factory = factory;
 	}
 

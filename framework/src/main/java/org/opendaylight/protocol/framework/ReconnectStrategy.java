@@ -38,11 +38,12 @@ public interface ReconnectStrategy {
 	 * should be attempted is signaled by successful completion of returned
 	 * future.
 	 * 
+	 * @param cause Cause of previous failure
 	 * @return a future tracking the schedule, may not be null
 	 * @throws IllegalStateException when a connection attempt is currently
 	 *         scheduled.
 	 */
-	public Future<Void> scheduleReconnect();
+	public Future<Void> scheduleReconnect(Throwable cause);
 
 	/**
 	 * Reset the strategy state. Users call this method once the reconnection

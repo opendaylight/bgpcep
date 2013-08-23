@@ -17,16 +17,15 @@ import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
-import org.opendaylight.protocol.framework.SessionPreferences;
 
 public class ApiTest {
 
 	@Test
 	public void testBGPSessionPreferences() {
-		final SessionPreferences sp = new BGPSessionPreferences(new ASNumber(58), (short) 5, null, null);
-		assertNull(((BGPSessionPreferences) sp).getBgpId());
-		assertEquals((short) 5, ((BGPSessionPreferences) sp).getHoldTime());
-		assertEquals(58, ((BGPSessionPreferences) sp).getMyAs().getAsn());
+		final BGPSessionPreferences sp = new BGPSessionPreferences(new ASNumber(58), (short) 5, null, null);
+		assertNull(sp.getBgpId());
+		assertEquals((short) 5, sp.getHoldTime());
+		assertEquals(58, sp.getMyAs().getAsn());
 	}
 
 	@Test

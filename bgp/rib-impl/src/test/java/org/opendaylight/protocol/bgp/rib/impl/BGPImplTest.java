@@ -24,13 +24,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
+import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPImpl.BGPListenerRegistration;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 public class BGPImplTest {
@@ -42,7 +42,7 @@ public class BGPImplTest {
 	private BGPSessionProposal prop;
 
 	@Mock
-	private ProtocolMessageFactory parser;
+	private BGPMessageFactory parser;
 
 	@Mock
 	private Future<BGPSession> future;
@@ -55,13 +55,14 @@ public class BGPImplTest {
 		doReturn("").when(this.parser).toString();
 
 		doReturn(null).when(this.future).get();
-		doReturn(future).when(this.disp).createClient(any(BGPConnection.class), any(ProtocolMessageFactory.class), any(ReconnectStrategy.class));
+		doReturn(future).when(this.disp).createClient(any(InetSocketAddress.class), any(BGPSessionPreferences.class),
+				any(BGPSessionListener.class), any(ReconnectStrategy.class));
 	}
 
 	@Test
 	public void testBgpImpl() throws Exception {
 		doReturn(new BGPSessionPreferences(null, 0, null, Collections.<BGPParameter> emptyList())).when(this.prop).getProposal();
-		this.bgp = new BGPImpl(this.disp, this.parser, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop, null);
+		this.bgp = new BGPImpl(this.disp, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop);
 		final BGPListenerRegistration reg = this.bgp.registerUpdateListener(new SimpleSessionListener(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
 		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
 	}

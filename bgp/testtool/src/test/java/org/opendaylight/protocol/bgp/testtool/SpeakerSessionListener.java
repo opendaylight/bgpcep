@@ -7,18 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
-import java.util.Set;
-
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SpeakerSessionListener extends BGPSessionListener {
+public class SpeakerSessionListener implements BGPSessionListener {
 	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
 
 	DispatcherImpl d;
@@ -28,12 +25,12 @@ public class SpeakerSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onSessionUp(final Set<BGPTableType> remote) {
+	public void onSessionUp(final BGPSession session) {
 		logger.info("Server: Session is up.");
 	}
 
 	@Override
-	public void onSessionTerminated(final BGPError cause) {
+	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.info("Server: Session terminated: {}", cause);
 	}
 
@@ -45,7 +42,7 @@ public class SpeakerSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPMessage message) {
+	public void onMessage(final BGPSession session, final BGPMessage message) {
 		logger.info("Server: Message received: {}", message);
 		// this.d.stop();
 	}
