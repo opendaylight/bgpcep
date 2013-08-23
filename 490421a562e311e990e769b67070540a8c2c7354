@@ -1,0 +1,8 @@
+Verified+1: jenkins-bgpcep
+Code-Review+2: Dana Kutenicsova <dkutenic@cisco.com>
+Verified+1: Dana Kutenicsova <dkutenic@cisco.com>
+Submitted-by: Robert Varga <rovarga@cisco.com>
+Submitted-at: Fri, 23 Aug 2013 07:30:48 +0000
+Reviewed-on: http://git.opendaylight.org/gerrit/940
+Project: bgpcep
+Branch: refs/heads/master
