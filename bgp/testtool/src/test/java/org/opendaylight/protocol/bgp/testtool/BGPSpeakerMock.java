@@ -7,48 +7,39 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import io.netty.util.HashedWheelTimer;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.rib.impl.BGPConnectionImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionFactory;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalCheckerImpl;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnection;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPConnectionFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.framework.DispatcherImpl;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.framework.SessionListenerFactory;
 
 public class BGPSpeakerMock {
 
-	DispatcherImpl dispatcher;
-
-	BGPSpeakerMock() throws IOException {
-		this.dispatcher = new DispatcherImpl(new BGPMessageFactory());
-	}
+	DispatcherImpl dispatcher = new DispatcherImpl();
 
 	public static void main(final String[] args) throws IOException {
 
 		final BGPSpeakerMock m = new BGPSpeakerMock();
 
-		final ProtocolMessageFactory parser = new BGPMessageFactory();
+		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new ASNumber(25), IPv4.FAMILY.addressForString("127.0.0.2")).getProposal();
 
-		m.dispatcher.createServer(new InetSocketAddress("127.0.0.2", 12345), new BGPConnectionFactory() {
+		final SessionListenerFactory<BGPSessionListener> f = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
-			public BGPConnection createProtocolConnection(final InetSocketAddress address) {
-				final BGPSessionProposalImpl prop = new BGPSessionProposalImpl((short) 90, new ASNumber(25), IPv4.FAMILY.addressForString("127.0.0.2"));
-				final BGPSessionPreferences prefs = prop.getProposal();
-				try {
-					prop.close();
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
-				return new BGPConnectionImpl(address, new SpeakerSessionListener(m.dispatcher), prefs, new BGPSessionProposalCheckerImpl());
+			public BGPSessionListener getSessionListener() {
+				return new SpeakerSessionListener(m.dispatcher);
 			}
-		}, new BGPSessionFactory(parser));
+		};
+
+		m.dispatcher.createServer(new InetSocketAddress("127.0.0.2", 12345), f,
+				new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs), new BGPMessageFactory());
 	}
 }

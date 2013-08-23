@@ -7,10 +7,17 @@
  */
 package org.opendaylight.protocol.framework;
 
-/**
- * Interface common for each protocol message header. Needs to be
- * implemented by a specific protocol.
- */
-public interface ProtocolMessageHeader {
+public class SimpleMessage implements ProtocolMessage {
 
+	private static final long serialVersionUID = 1L;
+
+	private final String s;
+
+	public SimpleMessage(final String s) {
+		this.s = s;
+	}
+
+	public String getMessage() {
+		return s;
+	}
 }

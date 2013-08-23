@@ -7,19 +7,19 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.framework.ProtocolServer;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.SessionListenerFactory;
 
 /**
  * Dispatcher class for creating servers and clients.
  */
 public interface PCEPDispatcher {
-
 	/**
 	 * Creates server. Each server needs three factories to pass their instances to client sessions.
 	 * @param address to be bound with the server
@@ -29,7 +29,7 @@ public interface PCEPDispatcher {
 	 * @return instance of PCEPServer
 	 * @throws IOException if some IO error occurred
 	 */
-	public Future<ProtocolServer> createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException;
+	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory);
 
 	/**
 	 * Creates a client. Needs to be started via the start method.
@@ -37,12 +37,6 @@ public interface PCEPDispatcher {
 	 * @param strategy Reconnection strategy to be used for TCP-level connection
 	 * @throws IOException if some IO error occurred
 	 */
-	public Future<? extends PCEPSession> createClient(PCEPConnection connection, final ReconnectStrategy strategy) throws IOException;
-
-	/**
-	 * Sets the limit of maximum unknown messages per minute. If not set by the user, default is 5 messages/minute.
-	 * @param limit maximum unknown messages per minute
-	 */
-	public void setMaxUnknownMessages(final int limit);
+	public Future<? extends PCEPSession> createClient(InetSocketAddress address, final PCEPSessionListener listener, final ReconnectStrategy strategy);
 }
 

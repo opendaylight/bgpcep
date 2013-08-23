@@ -15,17 +15,13 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.rib.impl.BGPConnectionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalCheckerImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +50,11 @@ public class Main {
 	BGPDispatcherImpl dispatcher;
 
 	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(new DispatcherImpl(new BGPMessageFactory()));
+		this.dispatcher = new BGPDispatcherImpl(new DispatcherImpl(), new BGPMessageFactory());
 	}
 
 	public static void main(final String[] args) throws NumberFormatException, IOException {
-		if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
+		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
 			System.out.println(Main.usage);
 			return;
 		}
@@ -93,16 +89,9 @@ public class Main {
 
 		final BGPSessionPreferences proposal = prop.getProposal();
 
-		prop.close();
-
-		final BGPSessionProposalChecker checker = new BGPSessionProposalCheckerImpl();
-
-		final ProtocolMessageFactory parser = new BGPMessageFactory();
-
-		logger.debug(address + " " + sessionListener + " " + proposal + " " + checker);
+		logger.debug("{} {} {}", address, sessionListener, proposal);
 
 		final InetSocketAddress addr = address;
-		m.dispatcher.createClient(new BGPConnectionImpl(addr, sessionListener, proposal, checker), parser,
-				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
+		m.dispatcher.createClient(addr, proposal, sessionListener, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
 	}
 }

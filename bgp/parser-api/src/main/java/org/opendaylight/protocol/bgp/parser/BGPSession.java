@@ -7,7 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import java.io.Closeable;
+import java.util.Set;
+
+import org.opendaylight.protocol.bgp.concepts.BGPTableType;
+import org.opendaylight.protocol.framework.ProtocolSession;
 
 /**
  * BGP Session represents the finite state machine in BGP, including timers and its purpose is to create a BGP
@@ -16,7 +19,7 @@ import java.io.Closeable;
  * 
  * If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown requests.
  */
-public interface BGPSession extends Closeable {
-	@Override
-	public void close();
+public interface BGPSession extends ProtocolSession<BGPMessage> {
+
+	public Set<BGPTableType> getAdvertisedTableTypes();
 }

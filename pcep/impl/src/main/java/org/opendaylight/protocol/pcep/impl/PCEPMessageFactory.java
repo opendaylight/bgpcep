@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
@@ -51,7 +50,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Factory for subclasses of {@link org.opendaylight.protocol.pcep.PCEPMessage PCEPMessage}
  */
-public class PCEPMessageFactory implements ProtocolMessageFactory {
+public class PCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 
 	private final static Logger logger = LoggerFactory.getLogger(PCEPMessageFactory.class);
 
@@ -82,8 +81,9 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 		public static PCEPMessageType getFromInt(final int type) throws PCEPDeserializerException {
 
 			for (final PCEPMessageType type_e : PCEPMessageType.values()) {
-				if (type_e.getIdentifier() == type)
+				if (type_e.getIdentifier() == type) {
 					return type_e;
+				}
 			}
 
 			throw new PCEPDeserializerException("Unknown PCEPMessage Class identifier. Passed: " + type + "; Known: "
@@ -131,9 +131,10 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 	 */
 
 	@Override
-	public ProtocolMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		if (bytes == null || bytes.length == 0)
+	public PCEPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
+		}
 
 		logger.trace("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(bytes));
 
@@ -143,9 +144,10 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 
 		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
 
-		if (msgBody.length != (msgLength - COMMON_HEADER_LENGTH))
+		if (msgBody.length != msgLength - COMMON_HEADER_LENGTH) {
 			throw new DeserializerException("Size don't match size specified in header. Passed: " + msgBody.length + "; Expected: "
 					+ (msgLength - COMMON_HEADER_LENGTH) + ". " + msgLength);
+		}
 
 		/*
 		 * if PCEPObjectIdentifier.getObjectClassFromInt() dont't throws
@@ -157,8 +159,9 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 		} catch (final PCEPDeserializerException e) {
 			throw new DeserializerException(e.getMessage(), e);
 		}
-		if (msgType == null)
+		if (msgType == null) {
 			throw new DocumentedException("Unhandled message type " + type, new PCEPDocumentedException("Unhandled message type " + type, PCEPErrors.CAPABILITY_NOT_SUPPORTED));
+		}
 
 		PCEPMessage msg;
 		try {
@@ -173,45 +176,45 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 	}
 
 	@Override
-	public byte[] put(final ProtocolMessage msg) {
-		final PCEPMessage pcepMsg = (PCEPMessage) msg;
-		if (pcepMsg == null)
+	public byte[] put(final PCEPMessage msg) {
+		if (msg == null) {
 			throw new IllegalArgumentException("PCEPMessage is mandatory.");
+		}
 
 		final PCEPMessageType msgType;
 
-		if (pcepMsg instanceof PCEPOpenMessage) {
+		if (msg instanceof PCEPOpenMessage) {
 			msgType = PCEPMessageType.OPEN;
-		} else if (pcepMsg instanceof PCEPKeepAliveMessage) {
+		} else if (msg instanceof PCEPKeepAliveMessage) {
 			msgType = PCEPMessageType.KEEPALIVE;
-		} else if (pcepMsg instanceof PCEPCloseMessage) {
+		} else if (msg instanceof PCEPCloseMessage) {
 			msgType = PCEPMessageType.CLOSE;
-		} else if (pcepMsg instanceof PCEPReplyMessage) {
+		} else if (msg instanceof PCEPReplyMessage) {
 			msgType = PCEPMessageType.RESPONSE;
-		} else if (pcepMsg instanceof PCEPRequestMessage) {
+		} else if (msg instanceof PCEPRequestMessage) {
 			msgType = PCEPMessageType.REQUEST;
-		} else if (pcepMsg instanceof PCEPNotificationMessage) {
+		} else if (msg instanceof PCEPNotificationMessage) {
 			msgType = PCEPMessageType.NOTIFICATION;
-		} else if (pcepMsg instanceof PCEPErrorMessage) {
+		} else if (msg instanceof PCEPErrorMessage) {
 			msgType = PCEPMessageType.ERROR;
-		} else if (pcepMsg instanceof PCEPReportMessage) {
+		} else if (msg instanceof PCEPReportMessage) {
 			msgType = PCEPMessageType.STATUS_REPORT;
-		} else if (pcepMsg instanceof PCEPUpdateRequestMessage) {
+		} else if (msg instanceof PCEPUpdateRequestMessage) {
 			msgType = PCEPMessageType.UPDATE_REQUEST;
-		} else if (pcepMsg instanceof PCEPXRAddTunnelMessage) {
+		} else if (msg instanceof PCEPXRAddTunnelMessage) {
 			msgType = PCEPMessageType.XR_ADD_TUNNEL;
-		} else if (pcepMsg instanceof PCEPXRDeleteTunnelMessage) {
+		} else if (msg instanceof PCEPXRDeleteTunnelMessage) {
 			msgType = PCEPMessageType.XR_DELETE_TUNNEL;
-		} else if (pcepMsg instanceof PCCreateMessage) {
+		} else if (msg instanceof PCCreateMessage) {
 			msgType = PCEPMessageType.PCCREATE;
 		} else {
-			logger.error("Unknown instance of PCEPMessage. Message class: {}", pcepMsg.getClass());
-			throw new IllegalArgumentException("Unknown instance of PCEPMessage. Passed " + pcepMsg.getClass());
+			logger.error("Unknown instance of PCEPMessage. Message class: {}", msg.getClass());
+			throw new IllegalArgumentException("Unknown instance of PCEPMessage. Passed " + msg.getClass());
 		}
 
 		logger.trace("Serializing {}", msgType);
 
-		final byte[] msgBody = MapOfParsers.getInstance().get(msgType).put(pcepMsg);
+		final byte[] msgBody = MapOfParsers.getInstance().get(msgType).put(msg);
 
 		final PCEPMessageHeader msgHeader = new PCEPMessageHeader(msgType.getIdentifier(), msgBody.length
 				+ PCEPMessageHeader.COMMON_HEADER_LENGTH, PCEPMessage.PCEP_VERSION);

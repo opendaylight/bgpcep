@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.framework;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 
 import java.net.InetSocketAddress;
@@ -18,24 +19,50 @@ public interface Dispatcher {
 	/**
 	 * Creates server. Each server needs factories to pass their instances to client sessions.
 	 * 
-	 * @param connectionFactory factory for connection specific attributes
-	 * @param sfactory to create specific session
-	 * @param handlerFactory protocol specific channel handlers factory
+	 * @param address address to which the server should be bound
+	 * @param listenerFactory factory for creating protocol listeners, passed to the negotiator
+	 * @param negotiatorFactory protocol session negotiator factory
+	 * @param messageFactory message parser
 	 * 
-	 * @return instance of ProtocolServer
+	 * @return ChannelFuture representing the binding process
 	 */
-	public Future<ProtocolServer> createServer(final InetSocketAddress address, final ProtocolConnectionFactory connectionFactory,
-			final ProtocolSessionFactory<?> sfactory);
+	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> ChannelFuture createServer(
+			InetSocketAddress address,  final SessionListenerFactory<L> listenerFactory,
+			SessionNegotiatorFactory<M, S, L> negotiatorFactory, ProtocolMessageFactory<M> messageFactory);
 
 	/**
 	 * Creates a client.
 	 * 
-	 * @param connection connection specific attributes
-	 * @param sfactory protocol session factory to create a specific session
-	 * @param strategy Reconnection strategy to be used when initial connection fails
+	 * @param address remote address
+	 * @param listener session listener
+	 * @param negotiatorFactory session negotiator factory
+	 * @param messageFactory message parser
+	 * @param connectStrategy Reconnection strategy to be used when initial connection fails
 	 * 
-	 * @return session associated with this client
+	 * @return Future representing the connection process. Its result represents
+	 *         the combined success of TCP connection as well as session negotiation.
 	 */
-	public <T extends ProtocolSession> Future<T> createClient(final ProtocolConnection connection,
-			final ProtocolSessionFactory<T> sfactory, final ReconnectStrategy strategy);
+	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<S> createClient(
+			InetSocketAddress address, final L listener, SessionNegotiatorFactory<M, S, L> negotiatorFactory,
+			ProtocolMessageFactory<M> messageFactory, ReconnectStrategy connectStrategy);
+
+	/**
+	 * Creates a client.
+	 * 
+	 * @param address remote address
+	 * @param listener session listener
+	 * @param negotiatorFactory session negotiator factory
+	 * @param messageFactory message parser
+	 * @param connectStrategyFactory Factory for creating reconnection strategy to be used when initial connection fails
+	 * @param reestablishStrategy Reconnection strategy to be used when the already-established session fails
+	 * 
+	 * @return Future representing the reconnection task. It will report
+	 *         completion based on reestablishStrategy, e.g. success if
+	 *         it indicates no further attempts should be made and failure
+	 *         if it reports an error
+	 */
+	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<Void> createReconnectingClient(
+			final InetSocketAddress address, final L listener, final SessionNegotiatorFactory<M, S, L> negotiatorFactory,
+			final ProtocolMessageFactory<M> messageFactory,
+			final ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy);
 }

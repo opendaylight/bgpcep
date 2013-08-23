@@ -30,7 +30,7 @@ public final class NeverReconnectStrategy implements ReconnectStrategy {
 	}
 
 	@Override
-	public Future<Void> scheduleReconnect() {
+	public Future<Void> scheduleReconnect(final Throwable cause) {
 		return executor.newFailedFuture(new Throwable());
 	}
 

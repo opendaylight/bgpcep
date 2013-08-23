@@ -7,8 +7,7 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import java.io.Closeable;
-
+import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 
 /**
@@ -17,7 +16,7 @@ import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
  * manually. If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown
  * requests.
  */
-public interface PCEPSession extends Closeable {
+public interface PCEPSession extends ProtocolSession<PCEPMessage> {
 
 	/**
 	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message

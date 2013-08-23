@@ -12,7 +12,6 @@ import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
@@ -20,7 +19,7 @@ import org.opendaylight.protocol.framework.ProtocolMessageFactory;
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */
-public class BGPMessageParserMock implements ProtocolMessageFactory {
+public class BGPMessageParserMock implements ProtocolMessageFactory<BGPMessage> {
 	private final Map<byte[], BGPMessage> messages;
 
 	/**
@@ -33,13 +32,14 @@ public class BGPMessageParserMock implements ProtocolMessageFactory {
 	@Override
 	public BGPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		final BGPMessage ret = this.messages.get(bytes);
-		if (ret == null)
+		if (ret == null) {
 			throw new IllegalArgumentException("Undefined message encountered");
+		}
 		return ret;
 	}
 
 	@Override
-	public byte[] put(final ProtocolMessage msg) {
+	public byte[] put(final BGPMessage msg) {
 		// nothing
 		return null;
 	}
