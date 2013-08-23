@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl;
 
 import java.util.Arrays;
 
-import org.opendaylight.protocol.framework.ProtocolMessageHeader;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Header parser for {@link org.opendaylight.protocol.pcep.PCEPMessage PCEPMessage}
  */
-public final class PCEPMessageHeader implements ProtocolMessageHeader {
+public final class PCEPMessageHeader {
 
 	public static final Logger logger = LoggerFactory.getLogger(PCEPMessageHeader.class);
 

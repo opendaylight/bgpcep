@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
@@ -14,41 +15,35 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.framework.Dispatcher;
-import org.opendaylight.protocol.framework.ProtocolServer;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.pcep.PCEPConnection;
-import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
+import org.opendaylight.protocol.framework.SessionListenerFactory;
+import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionListener;
 
 /**
  * Implementation of PCEPDispatcher.
  */
 public class PCEPDispatcherImpl implements PCEPDispatcher {
-
-	public static final int DEFAULT_MAX_UNKNOWN_MSG = 5;
-
-	private int maxUnknownMessages = DEFAULT_MAX_UNKNOWN_MSG;
-
+	private static final PCEPMessageFactory msgFactory = new PCEPMessageFactory();
+	private final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf;
 	private final Dispatcher dispatcher;
-
-	private final PCEPSessionProposalFactory proposalFactory;
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
 	 * 
 	 * @throws IOException if some error occurred during opening the selector
 	 */
-	public PCEPDispatcherImpl(final Dispatcher dispatcher, final PCEPSessionProposalFactory proposalFactory) {
+	public PCEPDispatcherImpl(final Dispatcher dispatcher, final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf) {
 		this.dispatcher = dispatcher;
-		this.proposalFactory = proposalFactory;
+		this.snf = snf;
 	}
 
 	@Override
-	public Future<ProtocolServer> createServer(final InetSocketAddress address, final PCEPConnectionFactory connectionFactory) throws IOException {
-		connectionFactory.setProposal(this.proposalFactory, address, 0);
-		return this.dispatcher.createServer(address, connectionFactory, new PCEPSessionFactoryImpl(this.maxUnknownMessages));
+	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
+		return this.dispatcher.createServer(address, listenerFactory, snf, msgFactory);
 	}
 
 	/**
@@ -58,20 +53,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 * @throws InterruptedException
 	 */
 	@Override
-	public Future<? extends PCEPSession> createClient(final PCEPConnection connection, final ReconnectStrategy strategy) throws IOException {
-		return this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages), strategy);
-	}
-
-	@Override
-	public void setMaxUnknownMessages(final int limit) {
-		this.maxUnknownMessages = limit;
-	}
-
-	public int getMaxUnknownMessages() {
-		return this.maxUnknownMessages;
-	}
-
-	public Dispatcher getDispatcher() {
-		return this.dispatcher;
+	public Future<? extends PCEPSession> createClient(final InetSocketAddress address, final PCEPSessionListener listener, final ReconnectStrategy strategy) {
+		return this.dispatcher.createClient(address, listener, snf, msgFactory, strategy);
 	}
 }

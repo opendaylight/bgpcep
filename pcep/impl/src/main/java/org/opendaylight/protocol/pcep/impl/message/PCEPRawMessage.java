@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory.PCEPMessageType;
+import org.opendaylight.protocol.pcep.impl.PCEPMessageType;
 
 /**
  * Class representing raw message.
@@ -22,7 +22,7 @@ public class PCEPRawMessage extends PCEPMessage {
 
 	private final PCEPMessageType msgType;
 
-	public PCEPRawMessage(List<PCEPObject> objects, PCEPMessageType msgType) {
+	public PCEPRawMessage(final List<PCEPObject> objects, final PCEPMessageType msgType) {
 		super(objects);
 		this.msgType = msgType;
 	}

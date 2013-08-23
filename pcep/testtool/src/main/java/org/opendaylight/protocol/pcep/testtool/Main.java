@@ -7,24 +7,22 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import io.netty.util.HashedWheelTimer;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.framework.DispatcherImpl;
-import org.opendaylight.protocol.framework.ProtocolServer;
-import org.opendaylight.protocol.pcep.PCEPConnection;
-import org.opendaylight.protocol.pcep.PCEPConnectionFactory;
+import org.opendaylight.protocol.pcep.PCEPMessage;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionProposal;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalChecker;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalCheckerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPConnectionImpl;
+import org.opendaylight.protocol.pcep.PCEPTerminationReason;
+import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalCheckerFactoryImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
+import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 
 public class Main {
 
@@ -66,7 +64,7 @@ public class Main {
 			"With no parameters, this help is printed.";
 
 	public static void main(final String[] args) throws Exception {
-		if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
+		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
 			System.out.println(Main.usage);
 			return;
 		}
@@ -121,43 +119,40 @@ public class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionListenerFactory slf = new TestingSessionListenerFactory();
-		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant, timeout);
-		final PCEPSessionProposalCheckerFactory spcf = new PCEPSessionProposalCheckerFactoryImpl();
+		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue,
+				keepAliveValue, stateful, active, versioned, instant, timeout);
 
-		final PCEPSessionProposal prefs = spf.getSessionProposal(address, 0);
+		final PCEPOpenObject prefs = spf.getSessionProposal(address, 0);
 
-		final DispatcherImpl d = new DispatcherImpl(new PCEPMessageFactory());
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d, spf);
+		final DispatcherImpl d = new DispatcherImpl();
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d,
+				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
-		ProtocolServer s = null;
+		dispatcher.createServer(address, new PCEPSessionListenerFactory() {
+			@Override
+			public PCEPSessionListener getSessionListener() {
+				return new PCEPSessionListener() {
+					@Override
+					public void onMessage(final PCEPSession session, final PCEPMessage message) {
+						// TODO Auto-generated method stub
+					}
 
-		try {
-			s = dispatcher.createServer(address, new PCEPConnectionFactory() {
-				@Override
-				public PCEPConnection createProtocolConnection(final InetSocketAddress address) {
-					final PCEPSessionProposalChecker checker = spcf.getPreferencesChecker(address);
-					final PCEPSessionListener lsnr = slf.getSessionListener(address.getAddress());
+					@Override
+					public void onSessionUp(final PCEPSession session) {
+						// TODO Auto-generated method stub
+					}
 
-					return new PCEPConnectionImpl(address, lsnr, prefs.getProposal(), checker);
-				}
+					@Override
+					public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
+						// TODO Auto-generated method stub
+					}
 
-				@Override
-				public void setProposal(final PCEPSessionProposalFactory proposals, final InetSocketAddress address, final int sessionId) {
-				}
-			}).get();
-
-			// try {
-			// Thread.sleep(10000);
-			// } catch (final InterruptedException e) {
-			// e.printStackTrace();
-			// }
-			//
-			// s.close();
-
-		} finally {
-			((PCEPSessionProposalCheckerFactoryImpl) spcf).close();
-			// d.stop();
-		}
+					@Override
+					public void onSessionDown(final PCEPSession session, final Exception e) {
+						// TODO Auto-generated method stub
+					}
+				};
+			}
+		}).get();
 	}
 }

@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.mock;
 
+import java.util.List;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 
 /**
@@ -20,26 +20,27 @@ import org.opendaylight.protocol.framework.ProtocolMessageFactory;
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */
-public class BGPMessageParserMock implements ProtocolMessageFactory {
-	private final Map<byte[], BGPMessage> messages;
+public class BGPMessageParserMock implements ProtocolMessageFactory<BGPMessage> {
+	private final Map<byte[], List<BGPMessage>> messages;
 
 	/**
 	 * @param updateMessages Map<byte[], BGPUpdateEvent>
 	 */
-	public BGPMessageParserMock(final Map<byte[], BGPMessage> messages) {
+	public BGPMessageParserMock(final Map<byte[], List<BGPMessage>> messages) {
 		this.messages = messages;
 	}
 
 	@Override
-	public BGPMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		final BGPMessage ret = this.messages.get(bytes);
-		if (ret == null)
+	public List<BGPMessage> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		final List<BGPMessage> ret = this.messages.get(bytes);
+		if (ret == null) {
 			throw new IllegalArgumentException("Undefined message encountered");
+		}
 		return ret;
 	}
 
 	@Override
-	public byte[] put(final ProtocolMessage msg) {
+	public byte[] put(final BGPMessage msg) {
 		// nothing
 		return null;
 	}

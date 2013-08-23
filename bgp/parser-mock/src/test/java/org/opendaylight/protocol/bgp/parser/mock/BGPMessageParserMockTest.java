@@ -81,17 +81,17 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test
 	public void testGetUpdateMessage() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], BGPMessage> updateMap = Maps.newHashMap();
+		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], this.messages.get(i));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage)this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i]));
+			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i]).get(0));
 		}
-		assertThat(this.messages.get(3), not(mockParser.parse(this.inputBytes[8])));
+		assertThat(this.messages.get(3), not(mockParser.parse(this.inputBytes[8]).get(0)));
 	}
 
 	/**
@@ -103,9 +103,9 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUpdateMessageException() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], BGPMessage> updateMap = Maps.newHashMap();
+		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], this.messages.get(i));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage)this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
@@ -164,7 +164,7 @@ public class BGPMessageParserMockTest {
 
 	@Test
 	public void testGetOpenMessage() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], BGPMessage> openMap = Maps.newHashMap();
+		final Map<byte[], List<BGPMessage>> openMap = Maps.newHashMap();
 
 		final Set<BGPTableType> type = Sets.newHashSet();
 		type.add(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.MPLSLabeledVPN));
@@ -174,12 +174,12 @@ public class BGPMessageParserMockTest {
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
-		openMap.put(input, new BGPOpenMessage(new ASNumber(30), (short) 30, null, params));
+		openMap.put(input, Lists.newArrayList((BGPMessage)new BGPOpenMessage(new ASNumber(30), (short) 30, null, params)));
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
 		final Set<BGPTableType> result = Sets.newHashSet();
-		for (final BGPParameter p : ((BGPOpenMessage) mockParser.parse(input)).getOptParams()) {
+		for (final BGPParameter p : ((BGPOpenMessage) mockParser.parse(input).get(0)).getOptParams()) {
 			if (p instanceof MultiprotocolCapability) {
 				result.add(((MultiprotocolCapability) p).getTableType());
 			}

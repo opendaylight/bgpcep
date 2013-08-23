@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,15 +21,14 @@ import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
+import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSynchronization;
-import org.opendaylight.protocol.bgp.rib.impl.BGPUpdateSynchronizedImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
-
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
+
 import com.google.common.collect.Sets;
 
 public class SynchronizationTest {
@@ -51,9 +51,21 @@ public class SynchronizationTest {
 		final BGPIPv6RouteImpl i6 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("::1/32"), new BaseBGPObjectState(null, null), null);
 		this.ipv6m = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(i6), Collections.EMPTY_SET);
 		this.lsm = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(mock(BGPLink.class)), Collections.EMPTY_SET);
-		this.bs = new BGPSynchronization(this.listener);
-		this.bs.addTableTypes(Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast),
-				new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate)));
+
+		final Set<BGPTableType> types = Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast),
+				new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate));
+
+		this.bs = new BGPSynchronization(new BGPSession() {
+
+			@Override
+			public void close() {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public Set<BGPTableType> getAdvertisedTableTypes() {
+				return types;
+			}}, this.listener, types);
 	}
 
 	@Test

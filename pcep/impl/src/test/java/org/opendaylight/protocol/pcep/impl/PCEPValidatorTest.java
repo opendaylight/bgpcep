@@ -32,7 +32,6 @@ import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.concepts.LSPSymbolicName;
 import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
-import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory.PCEPMessageType;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRawMessage;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
@@ -116,7 +115,7 @@ public class PCEPValidatorTest {
 
 	private final PCEPEndPointsObject<IPv4Address> endPoints = new PCEPEndPointsObject<IPv4Address>(this.ip4addr, this.ip4addr);
 
-	private final PCEPMessageFactory msgFactory = new PCEPMessageFactory();
+	private static final RawPCEPMessageFactory msgFactory = new RawPCEPMessageFactory();
 
 	// private final PCEPClassTypeObject classType = new
 	// PCEPClassTypeObject((short) 7);
@@ -124,16 +123,16 @@ public class PCEPValidatorTest {
 	// PCEPClassTypeObjectProvider((short) 7, true);
 
 	private static List<PCEPMessage> deserMsg(final String srcFile) throws IOException, DeserializerException, DocumentedException,
-			PCEPDeserializerException {
+	PCEPDeserializerException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) new PCEPMessageFactory().parse(bytesFromFile);
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytesFromFile).get(0);
 
 		return PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects());
 	}
 
 	@Test
 	public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
-			PCEPDeserializerException {
+	PCEPDeserializerException {
 		assertEquals(
 				deserMsg("src/test/resources/PCEPOpenMessage1.bin"),
 				asList(new PCEPOpenMessage(new PCEPOpenObject(30, 120, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
@@ -149,14 +148,14 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		assertEquals(deserMsg("src/test/resources/PCEPKeepAliveMessage1.bin"), asList(new PCEPKeepAliveMessage()));
 		assertEquals(deserMsg("src/test/resources/Keepalive.1.bin"), asList(new PCEPKeepAliveMessage()));
 	}
 
 	@Test
 	public void testCloseMsg() throws PCEPDeserializerException, IOException, PCEPDocumentedException, DeserializerException,
-			DocumentedException {
+	DocumentedException {
 		assertEquals(deserMsg("src/test/resources/PCEPCloseMessage1.bin"),
 				asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.TOO_MANY_UNKNOWN_MSG))));
 		assertEquals(deserMsg("src/test/resources/Close.1.bin"), asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.UNKNOWN))));
@@ -164,7 +163,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testRequestMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		List<CompositeRequestObject> requests = new ArrayList<CompositeRequestObject>();
 		final byte[] ipAdress = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		requests.add(new CompositeRequestObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 5, 0xDEADBEEFL, true, false), new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipAdress), new IPv4Address(ipAdress))));
@@ -354,7 +353,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testReplyMessageValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 
 		List<PCEPReplyMessage> specMessages = new ArrayList<PCEPReplyMessage>();
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 5, 0xDEADBEEFL, true, true)))));
@@ -462,7 +461,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testUpdMessageValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		List<PCEPMessage> specMessages = new ArrayList<PCEPMessage>();
 
 		List<CompositeUpdateRequestObject> requests = new ArrayList<CompositeUpdateRequestObject>();
@@ -542,7 +541,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testRptMessageValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		List<PCEPMessage> specMessages = new ArrayList<PCEPMessage>();
 		List<CompositeStateReportObject> reports = new ArrayList<CompositeStateReportObject>();
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true)));
@@ -620,7 +619,7 @@ public class PCEPValidatorTest {
 		final PCEPXRDeleteTunnelMessage dTunnel = new PCEPXRDeleteTunnelMessage(new PCEPLspObject(1, false, true, false, true));
 		final byte[] bytes = this.msgFactory.put(dTunnel);
 
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytes).get(0);
 
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) dTunnel));
@@ -633,7 +632,7 @@ public class PCEPValidatorTest {
 		final PCEPXRAddTunnelMessage addTunnel = new PCEPXRAddTunnelMessage(new PCEPLspObject(1, false, false, false, false), new PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForString("127.0.0.2"), IPv4.FAMILY.addressForString("127.0.0.1")), new PCEPExplicitRouteObject(subs, true));
 		final byte[] bytes = this.msgFactory.put(addTunnel);
 
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytes).get(0);
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) addTunnel));
 	}
@@ -660,7 +659,7 @@ public class PCEPValidatorTest {
 		final byte[] bytes = this.msgFactory.put(msg);
 
 		// FIXME: need construct with invalid processed parameter
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) this.msgFactory.parse(bytes);
+		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytes).get(0);
 
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) msg));
@@ -668,7 +667,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testNotificationValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		List<CompositeNotifyObject> notifications = new ArrayList<CompositeNotifyObject>();
 		List<PCEPNotificationObject> notificationsList = new ArrayList<PCEPNotificationObject>();
 		notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
@@ -723,7 +722,7 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testErrorMessageValidatoinFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	DeserializerException, DocumentedException {
 		List<PCEPErrorObject> errorsList = new ArrayList<PCEPErrorObject>();
 		errorsList.add(new PCEPErrorObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
 

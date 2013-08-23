@@ -47,19 +47,19 @@ import com.google.common.collect.Maps;
 public class ParserTest {
 
 	public static final byte[] openBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
-			(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
+		(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
 	public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
 	public static final byte[] notificationBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
+		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+		(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
-	final ProtocolMessageFactory factory = new BGPMessageFactory();
+	final ProtocolMessageFactory<BGPMessage> factory = new BGPMessageFactory();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {
@@ -98,7 +98,7 @@ public class ParserTest {
 		final byte[] bytes = this.factory.put(keepAlive);
 		assertArrayEquals(keepAliveBMsg, bytes);
 
-		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
+		final BGPMessage m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPKeepAliveMessage);
 	}
@@ -126,7 +126,7 @@ public class ParserTest {
 		final byte[] bytes = this.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
-		final BGPMessage m = (BGPMessage) this.factory.parse(bytes);
+		final BGPMessage m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPOpenMessage);
 		assertEquals(new ASNumber(100), ((BGPOpenMessage) m).getMyAS());
@@ -193,7 +193,7 @@ public class ParserTest {
 		byte[] bytes = this.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
-		BGPMessage m = (BGPMessage) this.factory.parse(bytes);
+		BGPMessage m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPNotificationMessage);
 		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, ((BGPNotificationMessage) m).getError());
@@ -202,7 +202,7 @@ public class ParserTest {
 		notMsg = new BGPNotificationMessage(BGPError.CONNECTION_NOT_SYNC);
 		bytes = this.factory.put(notMsg);
 
-		m = (BGPMessage) this.factory.parse(bytes);
+		m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPNotificationMessage);
 		assertEquals(BGPError.CONNECTION_NOT_SYNC, ((BGPNotificationMessage) m).getError());

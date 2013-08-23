@@ -9,16 +9,15 @@ package org.opendaylight.protocol.framework;
 
 import io.netty.channel.ChannelHandler;
 
-public class ProtocolHandlerFactory {
+import com.google.common.base.Preconditions;
 
-	private final ProtocolMessageEncoder encoder;
+public class ProtocolHandlerFactory<T extends ProtocolMessage> {
+	private final ProtocolMessageEncoder<T> encoder;
+	final ProtocolMessageFactory<T> msgFactory;
 
-	private final ProtocolMessageDecoder decoder;
-
-	public ProtocolHandlerFactory(final ProtocolMessageFactory msgFactory) {
-		super();
-		this.encoder = new ProtocolMessageEncoder(msgFactory);
-		this.decoder = new ProtocolMessageDecoder(msgFactory);
+	public ProtocolHandlerFactory(final ProtocolMessageFactory<T> msgFactory) {
+		this.msgFactory = Preconditions.checkNotNull(msgFactory);
+		this.encoder = new ProtocolMessageEncoder<T>(msgFactory);
 	}
 
 	public ChannelHandler getEncoder() {
@@ -26,10 +25,6 @@ public class ProtocolHandlerFactory {
 	}
 
 	public ChannelHandler getDecoder() {
-		return this.decoder;
-	}
-
-	public ChannelHandler getSessionInboundHandler(final ProtocolSession session) {
-		return new ProtocolSessionInboundHandler(session);
+		return new ProtocolMessageDecoder<T>(msgFactory);
 	}
 }

@@ -7,42 +7,17 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.io.IOException;
+public final class SimpleSession extends AbstractProtocolSession<SimpleMessage> {
 
-public final class SimpleSession implements ProtocolSession {
-
-	private final SessionListener listener;
-
-	private final SessionParent d;
-
-	private final int maxMsgSize;
-
-	public SimpleSession(final ProtocolConnection connection, final SessionParent d, final int maxMsgSize) {
-		this.listener = connection.getListener();
-		this.d = d;
-		this.maxMsgSize = maxMsgSize;
+	public SimpleSession() {
 	}
 
 	@Override
-	public void close() throws IOException {
-		this.d.onSessionClosed(this);
+	public void close() {
 	}
 
 	@Override
-	public void startSession() {
-		((SimpleSessionListener) this.listener).onSessionUp(this, null, null);
-	}
-
-	@Override
-	public void handleMessage(final ProtocolMessage msg) {
-	}
-
-	@Override
-	public void handleMalformedMessage(final DeserializerException e) {
-	}
-
-	@Override
-	public void handleMalformedMessage(final DocumentedException e) {
+	public void handleMessage(final SimpleMessage msg) {
 	}
 
 	@Override
@@ -50,12 +25,6 @@ public final class SimpleSession implements ProtocolSession {
 	}
 
 	@Override
-	public ProtocolMessageFactory getMessageFactory() {
-		return null;
-	}
-
-	@Override
-	public int maximumMessageSize() {
-		return this.maxMsgSize;
+	protected void sessionUp() {
 	}
 }

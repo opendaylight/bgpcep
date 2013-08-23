@@ -17,13 +17,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ProtocolMessageDecoder extends ByteToMessageDecoder {
+final class ProtocolMessageDecoder<T extends ProtocolMessage> extends ByteToMessageDecoder {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 
-	private final ProtocolMessageFactory factory;
+	private final ProtocolMessageFactory<T> factory;
 
-	public ProtocolMessageDecoder(final ProtocolMessageFactory factory) {
+	public ProtocolMessageDecoder(final ProtocolMessageFactory<T> factory) {
 		this.factory = factory;
 	}
 
@@ -34,16 +34,14 @@ final class ProtocolMessageDecoder extends ByteToMessageDecoder {
 			return;
 		}
 		in.markReaderIndex();
-		ProtocolMessage msg = null;
 		try {
 			final byte[] bytes = new byte[in.readableBytes()];
 			in.readBytes(bytes);
 			logger.debug("Received to decode: {}", Arrays.toString(bytes));
-			msg = this.factory.parse(bytes);
+			out.addAll(this.factory.parse(bytes));
 		} catch (DeserializerException | DocumentedException e) {
 			this.exceptionCaught(ctx, e);
 		}
 		in.discardReadBytes();
-		out.add(msg);
 	}
 }

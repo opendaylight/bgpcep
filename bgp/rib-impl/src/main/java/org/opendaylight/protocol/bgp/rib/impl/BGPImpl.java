@@ -16,9 +16,7 @@ import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposalChecker;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 import com.google.common.base.Preconditions;
@@ -54,21 +52,14 @@ public class BGPImpl implements BGP, Closeable {
 
 	private final BGPDispatcher dispatcher;
 
-	private final ProtocolMessageFactory parser;
-
 	private final InetSocketAddress address;
 
 	private final BGPSessionProposal proposal;
 
-	private final BGPSessionProposalChecker checker;
-
-	public BGPImpl(final BGPDispatcher dispatcher, final ProtocolMessageFactory parser, final InetSocketAddress address,
-			final BGPSessionProposal proposal, final BGPSessionProposalChecker checker) throws IOException {
+	public BGPImpl(final BGPDispatcher dispatcher, final InetSocketAddress address, final BGPSessionProposal proposal) {
 		this.dispatcher = Preconditions.checkNotNull(dispatcher);
-		this.parser = Preconditions.checkNotNull(parser);
 		this.address = Preconditions.checkNotNull(address);
 		this.proposal = Preconditions.checkNotNull(proposal);
-		this.checker = checker;
 	}
 
 	/**
@@ -78,8 +69,7 @@ public class BGPImpl implements BGP, Closeable {
 	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategy strategy) throws IOException {
 		final BGPSession session;
 		try {
-			session = this.dispatcher.createClient(
-					new BGPConnectionImpl(this.address, listener, this.proposal.getProposal(), this.checker), this.parser, strategy).get();
+			session = this.dispatcher.createClient(this.address, this.proposal.getProposal(), listener, strategy).get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new IOException("Failed to connect to peer", e);
 		}

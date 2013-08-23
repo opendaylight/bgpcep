@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple Session Listener that is notified about messages and changes in the session.
  */
-public class SimpleSessionListener implements SessionListener {
+public class SimpleSessionListener implements SessionListener<SimpleMessage, SimpleSession, TerminationReason> {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleSessionListener.class);
 
 	public List<ProtocolMessage> messages = new ArrayList<ProtocolMessage>();
@@ -26,26 +25,32 @@ public class SimpleSessionListener implements SessionListener {
 
 	public boolean failed = false;
 
-	public void onMessage(ProtocolSession session, ProtocolMessage message) {
+	@Override
+	public void onMessage(final SimpleSession session, final SimpleMessage message) {
 		logger.debug("Received message: " + message.getClass() + " " + message);
 		this.messages.add(message);
 	}
 
-	public synchronized void onSessionUp(ProtocolSession session, SimpleSessionPreferences local,
-			SimpleSessionPreferences remote) {
-		logger.debug("Session up.");
-		this.up = true;
-		this.notifyAll();
-	}
-
-	public synchronized void onConnectionFailed(ProtocolSession session, Exception e) {
+	public synchronized void onConnectionFailed(final ProtocolSession<?> session, final Exception e) {
 		logger.debug("Connection Failed: {}", e.getMessage(), e);
 		this.failed = true;
 		this.notifyAll();
-		try {
-			session.close();
-		} catch (final IOException ex) {
-			logger.warn("Session could not be closed.");
-		}
+		session.close();
+	}
+
+	@Override
+	public void onSessionUp(final SimpleSession session) {
+		this.up = true;
+	}
+
+	@Override
+	public void onSessionDown(final SimpleSession session, final Exception e) {
+		this.up = false;
+	}
+
+	@Override
+	public void onSessionTerminated(final SimpleSession session,
+			final TerminationReason reason) {
+		this.up = false;
 	}
 }

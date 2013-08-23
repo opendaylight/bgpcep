@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 /**
  * Listener for the BGP Speaker.
  */
-public class SpeakerSessionListener extends BGPSessionListener {
+public class SpeakerSessionListener implements BGPSessionListener {
 
 	public List<BGPMessage> messages = Lists.newArrayList();
 
@@ -37,16 +37,16 @@ public class SpeakerSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPMessage message) {
+	public void onMessage(final BGPSession session, final BGPMessage message) {
 		logger.debug("Received message: " + message.getClass() + " " + message);
 		this.messages.add(message);
 	}
 
 	@Override
-	public synchronized void onSessionUp(final Set<BGPTableType> remote) {
+	public synchronized void onSessionUp(final BGPSession session) {
 		logger.debug("Session up.");
 		this.up = true;
-		this.types = remote;
+		this.types = session.getAdvertisedTableTypes();
 		this.notifyAll();
 	}
 
@@ -57,7 +57,7 @@ public class SpeakerSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onSessionTerminated(final BGPError cause) {
+	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.debug("Session terminated. Cause : " + cause.toString());
 		this.up = false;
 	}

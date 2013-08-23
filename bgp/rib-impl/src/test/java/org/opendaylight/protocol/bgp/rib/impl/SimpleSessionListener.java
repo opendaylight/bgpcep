@@ -8,14 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.List;
-import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +21,7 @@ import com.google.common.collect.Lists;
 /**
  * Listener for the client.
  */
-public class SimpleSessionListener extends BGPSessionListener {
+public class SimpleSessionListener implements BGPSessionListener {
 
 	private final List<BGPMessage> listMsg = Lists.newArrayList();
 
@@ -52,13 +49,13 @@ public class SimpleSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPMessage message) {
+	public void onMessage(final BGPSession session, final BGPMessage message) {
 		this.listMsg.add(message);
 		logger.debug("Message received:" + message);
 	}
 
 	@Override
-	public void onSessionUp(final Set<BGPTableType> remote) {
+	public void onSessionUp(final BGPSession session) {
 		logger.debug("Session Up");
 		this.up = true;
 		this.notifyAll();
@@ -71,7 +68,7 @@ public class SimpleSessionListener extends BGPSessionListener {
 	}
 
 	@Override
-	public void onSessionTerminated(final BGPError cause) {
+	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.debug("Session terminated. Cause : " + cause.toString());
 	}
 }

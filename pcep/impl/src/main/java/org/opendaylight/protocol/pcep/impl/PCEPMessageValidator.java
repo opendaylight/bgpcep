@@ -13,7 +13,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPMessageFactory.PCEPMessageType;
 import org.opendaylight.protocol.pcep.impl.message.PCCreateMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageValidator;

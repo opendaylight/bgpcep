@@ -55,13 +55,13 @@ public final class BGPMock implements BGP, Closeable {
 
 	private List<BGPMessage> parsePrevious(final List<byte[]> msgs) {
 		final List<BGPMessage> messages = Lists.newArrayList();
-		final ProtocolMessageFactory parser = new BGPMessageFactory();
+		final ProtocolMessageFactory<BGPMessage> parser = new BGPMessageFactory();
 		try {
 			for (final byte[] b : msgs) {
 
 				final byte[] body = ByteArray.cutBytes(b, 1);
 
-				messages.add((BGPMessage) parser.parse(body));
+				messages.addAll(parser.parse(body));
 			}
 		} catch (final DeserializerException e) {
 			e.printStackTrace();

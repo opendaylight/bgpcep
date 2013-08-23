@@ -5,6 +5,9 @@ import io.netty.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -13,6 +16,7 @@ import com.google.common.base.Preconditions;
  */
 @ThreadSafe
 public final class ReconnectImmediatelyStrategy implements ReconnectStrategy {
+	private static final Logger logger = LoggerFactory.getLogger(ReconnectImmediatelyStrategy.class);
 	private final EventExecutor executor;
 	private final int timeout;
 
@@ -23,7 +27,8 @@ public final class ReconnectImmediatelyStrategy implements ReconnectStrategy {
 	}
 
 	@Override
-	public Future<Void> scheduleReconnect() {
+	public Future<Void> scheduleReconnect(final Throwable cause) {
+		logger.debug("Connection attempt failed", cause);
 		return executor.newSucceededFuture(null);
 	}
 

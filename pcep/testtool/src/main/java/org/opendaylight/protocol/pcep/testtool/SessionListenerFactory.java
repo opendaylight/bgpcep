@@ -7,18 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import java.net.InetAddress;
-
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 
-/**
- *
- */
-public class SessionListenerFactory extends PCEPSessionListenerFactory {
+public class SessionListenerFactory implements PCEPSessionListenerFactory {
 
 	@Override
-	public PCEPSessionListener getSessionListener(InetAddress address) {
+	public PCEPSessionListener getSessionListener() {
 		return new SimpleSessionListener();
 	}
 }

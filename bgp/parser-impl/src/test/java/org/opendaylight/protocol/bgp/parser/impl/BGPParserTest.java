@@ -100,8 +100,9 @@ public class BGPParserTest {
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";
 			final InputStream is = BGPParserTest.class.getResourceAsStream(name);
-			if (is == null)
+			if (is == null) {
 				throw new IOException("Failed to get resource " + name);
+			}
 
 			final ByteArrayOutputStream bis = new ByteArrayOutputStream();
 			final byte[] data = new byte[MAX_SIZE];
@@ -521,7 +522,7 @@ public class BGPParserTest {
 		final IPv4NextHop nextHop = IPv4NextHop.forString("3.3.3.3");
 
 		final Set<ExtendedCommunity> comms = Sets.newHashSet((ExtendedCommunity) new Inet4SpecificExtendedCommunity(false, 4, IPv4.FAMILY.addressForString("192.168.1.0"), new byte[] {
-				0x12, 0x34 }));
+			0x12, 0x34 }));
 
 		// check path attributes
 
@@ -927,7 +928,7 @@ public class BGPParserTest {
 		00 31 <- NLRI length (49)
 		03 <- ProtocolID - OSPF
 		00 00 00 00 00 00 00 01 <- identifier
-	
+
 		01 00 <- local node descriptor type (256)
 		00 24 <- length (36)
 		02 00 <- node descriptor type (member AS - 512)
@@ -942,12 +943,12 @@ public class BGPParserTest {
 		02 03 <- node descriptor type (routeId - 515)
 		00 08 <- length
 		03 03 03 04 0b 0b 0b 03 <- OSPF Router Id
-	
+
 		00 01 <- NLRI type (1 - nodeNLRI)
 		00 2d <- NLRI length (45)
 		03 <- ProtocolID - OSPF
 		00 00 00 00 00 00 00 01 <- identifier
-	
+
 		01 00 <- local node descriptor type (256)
 		00 20 <- length (32)
 		02 00 <- node descriptor type (member AS - 512)
@@ -962,7 +963,7 @@ public class BGPParserTest {
 		02 03 <- node descriptor type (routeId - 515)
 		00 04 <- length
 		03 03 03 04 <- OSPF Router Id
-	
+
 		00 01 <- NLRI type (1 - nodeNLRI)
 		00 2d <- NLRI length (45)
 		03 <- ProtocolID - OSPF
@@ -981,7 +982,7 @@ public class BGPParserTest {
 		02 03 <- node descriptor type (routeId - 515)
 		00 04 <- length
 		01 01 01 02  <- OSPF Router Id
-	
+
 		40 <- attribute flags
 		01 <- attribute type (Origin)
 		01 <- attribute length
@@ -1077,7 +1078,7 @@ public class BGPParserTest {
 	@Test
 	public void testOpenMessage() throws Exception {
 		final BGPMessageFactory msgFactory = new BGPMessageFactory();
-		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(inputBytes.get(13));
+		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(inputBytes.get(13)).get(0);
 		final Set<BGPTableType> types = Sets.newHashSet();
 		for (final BGPParameter param : open.getOptParams()) {
 			if (param instanceof MultiprotocolCapability) {
