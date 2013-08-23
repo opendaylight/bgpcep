@@ -16,6 +16,24 @@
       "revId": "490421a562e311e990e769b67070540a8c2c7354",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAFH///1M\u003d",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/DispatcherImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-08-23T07:30:45Z",
+      "side": 1,
+      "message": "It touches some internal fields of DispatcherImpl and it is really internal to the implementation, so I\u0027d prefer not to move it out.",
+      "parentUuid": "AAAAFH///5Q\u003d",
+      "revId": "490421a562e311e990e769b67070540a8c2c7354",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
