@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.framework;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.util.Timer;
 
@@ -20,7 +20,7 @@ public final class SimpleSessionFactory implements ProtocolSessionFactory<Simple
 
 	@Override
 	public SimpleSession getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
-			final int sessionId, final ChannelHandlerContext ctx) {
+			final int sessionId, final Channel channel) {
 		return new SimpleSession(connection, parent, this.maximumMessageSize);
 	}
 }

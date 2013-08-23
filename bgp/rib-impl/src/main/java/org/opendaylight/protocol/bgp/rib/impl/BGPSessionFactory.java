@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.util.Timer;
 
@@ -30,7 +30,7 @@ public final class BGPSessionFactory implements ProtocolSessionFactory<BGPSessio
 
 	@Override
 	public BGPSessionImpl getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
-			final int sessionId, final ChannelHandlerContext ctx) {
-		return new BGPSessionImpl(parent, timer, (BGPConnection) connection, sessionId, this.parser, ctx);
+			final int sessionId, final Channel channel) {
+		return new BGPSessionImpl(parent, timer, (BGPConnection) connection, sessionId, this.parser, channel);
 	}
 }

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.framework;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.util.Timer;
 
@@ -26,5 +26,5 @@ public interface ProtocolSessionFactory<T extends ProtocolSession> {
 	 * @return new session
 	 */
 	public T getProtocolSession(SessionParent dispatcher, Timer timer, ProtocolConnection connection, int sessionId,
-			ChannelHandlerContext ctx);
+			Channel channel);
 }

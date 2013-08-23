@@ -58,10 +58,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 * @throws InterruptedException
 	 */
 	@Override
-	public Future<? extends PCEPSession> createClient(final PCEPConnection connection) throws IOException {
-		// FIXME: BUG-58: fix this
-		final ReconnectStrategy strategy = null;
-
+	public Future<? extends PCEPSession> createClient(final PCEPConnection connection, final ReconnectStrategy strategy) throws IOException {
 		return this.dispatcher.createClient(connection, new PCEPSessionFactoryImpl(this.maxUnknownMessages), strategy);
 	}
 

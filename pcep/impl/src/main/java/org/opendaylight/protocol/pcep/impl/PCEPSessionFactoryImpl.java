@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
 
 import java.util.Timer;
 
@@ -26,7 +26,7 @@ public class PCEPSessionFactoryImpl implements ProtocolSessionFactory<PCEPSessio
 
 	@Override
 	public PCEPSessionImpl getProtocolSession(final SessionParent parent, final Timer timer, final ProtocolConnection connection,
-			final int sessionId, final ChannelHandlerContext ctx) {
-		return new PCEPSessionImpl(parent, timer, (PCEPConnection) connection, new PCEPMessageFactory(), this.maxUnknownMessages, sessionId, ctx);
+			final int sessionId, final Channel channel) {
+		return new PCEPSessionImpl(parent, timer, (PCEPConnection) connection, new PCEPMessageFactory(), this.maxUnknownMessages, sessionId, channel);
 	}
 }

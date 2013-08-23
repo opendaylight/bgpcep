@@ -12,7 +12,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -58,8 +57,6 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		@Override
 		protected void initChannel(final SocketChannel ch) throws Exception {
 			final ProtocolHandlerFactory factory = new ProtocolHandlerFactory(DispatcherImpl.this.messageFactory);
-			final ChannelHandler handler = factory.getSessionOutboundHandler();
-			ch.pipeline().addFirst("outbound", handler);
 			ch.pipeline().addFirst("decoder", factory.getDecoder());
 			this.session = this.server.createSession(DispatcherImpl.this.stateTimer, ch);
 
@@ -89,11 +86,8 @@ public final class DispatcherImpl implements Dispatcher, SessionParent {
 		@Override
 		protected void initChannel(final SocketChannel ch) throws Exception {
 			final ProtocolHandlerFactory factory = new ProtocolHandlerFactory(DispatcherImpl.this.messageFactory);
-			final ChannelHandler handler = factory.getSessionOutboundHandler();
-			ch.pipeline().addFirst("outbound", handler);
 			ch.pipeline().addFirst("decoder", factory.getDecoder());
-			this.session = this.sfactory.getProtocolSession(DispatcherImpl.this, DispatcherImpl.this.stateTimer, this.connection, 0,
-					ch.pipeline().context(ProtocolSessionOutboundHandler.class));
+			this.session = this.sfactory.getProtocolSession(DispatcherImpl.this, DispatcherImpl.this.stateTimer, this.connection, 0, ch);
 			ch.pipeline().addAfter("decoder", "inbound", factory.getSessionInboundHandler(this.session));
 			ch.pipeline().addAfter("inbound", "encoder", factory.getEncoder());
 		}

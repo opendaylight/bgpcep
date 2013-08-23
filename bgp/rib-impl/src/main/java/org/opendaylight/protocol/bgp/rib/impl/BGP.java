@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.io.IOException;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
  * BGP interface. At this time it only supports listening to changes seen by the backing device, typically a network
@@ -28,5 +28,5 @@ public interface BGP {
 	 * @throws IOException if some IO error occurred
 	 * @return ListenerRegistration
 	 */
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener) throws IOException;
+	public ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener, ReconnectStrategy strategy) throws IOException;
 }

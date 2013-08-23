@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.framework.ProtocolServer;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
  * Dispatcher class for creating servers and clients.
@@ -39,7 +40,7 @@ public interface PCEPDispatcher {
 	 * @return session associated with this client.
 	 * @throws IOException if some IO error occurred
 	 */
-	public Future<? extends PCEPSession> createClient(PCEPConnection connection) throws IOException;
+	public Future<? extends PCEPSession> createClient(PCEPConnection connection, final ReconnectStrategy strategy) throws IOException;
 
 	/**
 	 * Sets the limit of maximum unknown messages per minute. If not set by the user, default is 5 messages/minute.
