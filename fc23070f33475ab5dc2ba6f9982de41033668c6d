@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "AAAAFn///+c\u003d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGP.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-08-26T15:23:10Z",
+      "side": 1,
+      "message": "Update javadoc.",
+      "revId": "fc23070f33475ab5dc2ba6f9982de41033668c6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAFn///+Y\u003d",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolSessionFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-08-26T15:23:10Z",
+      "side": 1,
+      "message": "Update javadoc.",
+      "revId": "fc23070f33475ab5dc2ba6f9982de41033668c6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "AAAAFn///+g\u003d",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPDispatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-08-26T15:23:10Z",
+      "side": 1,
+      "message": "Update the javadoc too.",
+      "revId": "fc23070f33475ab5dc2ba6f9982de41033668c6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
