@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_7a88a522",
+        "filename": "bgp/parser-api/src/main/yang/bgpls-messages.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 651
+      },
+      "writtenOn": "2013-09-03T19:11:04Z",
+      "side": 1,
+      "message": "You probably wanted to select different namespace than bgpls-nlri, in YANG namepsace is unique identifier of module.",
+      "revId": "1b767a2e5be614b13432dd55dca70922efe8b448",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
