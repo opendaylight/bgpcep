@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_1acf61b2",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-03T12:38:20Z",
+      "side": 1,
+      "message": "Why do we need two createClient() methods if both (at least from my point of view) deal with reconnecting?",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_fac37588",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-03T12:38:20Z",
+      "side": 1,
+      "message": "should be connectStrategyFactory (copy+paste)",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_babded04",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-03T12:38:20Z",
+      "side": 1,
+      "message": "Why do we need a ReconnectStrategyFactory AND a ReconnectStrategy?",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_7a3785b1",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolMessageFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-03T12:38:20Z",
+      "side": 1,
+      "message": "update javadoc",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_5a3cc993",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ReconnectStrategyFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-03T12:38:20Z",
+      "side": 1,
+      "message": "update javadoc - factory creates reconnect strategy based on what?",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
