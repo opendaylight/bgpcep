@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a2f8d8d_9affd1aa",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-03T15:22:54Z",
+      "side": 1,
+      "message": "One is TCP-level retry, the other one is a session which gets reconnected after it fails.",
+      "parentUuid": "1a2f8d8d_1acf61b2",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a2f8d8d_fac37588",
         "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2013-09-03T12:38:20Z",
       "side": 1,
       "message": "should be connectStrategyFactory (copy+paste)",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_ba028db2",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-03T15:22:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a2f8d8d_fac37588",
       "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a2f8d8d_daf559cc",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/Dispatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-03T15:22:54Z",
+      "side": 1,
+      "message": "Yes, we do. There are two strategies involved:\n- the factory is used to get the reconnect strategy for use for session establishment (e.g. createClient())\n- the strategy passed in controls how the session is reestablished (e.g. how long to wait after it has been established, but fails)",
+      "parentUuid": "1a2f8d8d_babded04",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a2f8d8d_7a3785b1",
         "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolMessageFactory.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2013-09-03T12:38:20Z",
       "side": 1,
       "message": "update javadoc",
+      "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_7a2c254b",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolMessageFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-03T15:22:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a2f8d8d_7a3785b1",
       "revId": "bba2b2f382f1d6730ba6dfab82145f7cee35882c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
