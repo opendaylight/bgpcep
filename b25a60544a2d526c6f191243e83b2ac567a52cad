@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_fa713578",
+        "filename": "bgp/parser-api/src/main/yang/bgpls-nlri.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-03T13:54:20Z",
+      "side": 1,
+      "message": "this also needs a \u0027key\u0027 statement,",
+      "revId": "b25a60544a2d526c6f191243e83b2ac567a52cad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
