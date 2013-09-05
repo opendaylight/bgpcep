@@ -9,11 +9,11 @@ package org.opendaylight.protocol.pcep.impl;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.framework.ProtocolMessageHeader;
+import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.protocol.framework.ProtocolMessageHeader;
-import org.opendaylight.protocol.util.ByteArray;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -53,15 +53,9 @@ public final class PCEPMessageHeader implements ProtocolMessageHeader {
 	 */
 	public static final int COMMON_HEADER_LENGTH = VER_FLAGS_MF_LENGTH + TYPE_F_LENGTH + LENGTH_F_LENGTH;
 
-	private int type;
-	private int length;
-	private int version;
-
-	private boolean parsed = false;
-
-	public PCEPMessageHeader() {
-
-	}
+	private final int type;
+	private final int length;
+	private final int version;
 
 	public PCEPMessageHeader(final int type, final int length, final int version) {
 		this.type = type;
@@ -69,25 +63,28 @@ public final class PCEPMessageHeader implements ProtocolMessageHeader {
 		this.version = version;
 	}
 
-	public PCEPMessageHeader fromBytes(final byte[] bytes) {
-		if (bytes == null)
+	public static PCEPMessageHeader fromBytes(final byte[] bytes) {
+		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
+		}
 
 		logger.trace("Attempt to parse message header: {}", ByteArray.bytesToHexString(bytes));
 
-		if (bytes.length < COMMON_HEADER_LENGTH)
+		if (bytes.length < COMMON_HEADER_LENGTH) {
 			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + "; Expected: >= " + COMMON_HEADER_LENGTH + ".");
+		}
 
-		this.type = UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]);
+		final int type = UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]);
 
-		this.length = ByteArray.bytesToInt(Arrays.copyOfRange(bytes,
+		final int length = ByteArray.bytesToInt(Arrays.copyOfRange(bytes,
 				LENGTH_F_OFFSET, LENGTH_F_OFFSET + LENGTH_F_LENGTH));
 
-		this.version = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
+		final int version = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
-		logger.trace("Message header was parsed. {}", this);
-		this.parsed = true;
-		return this;
+		final PCEPMessageHeader ret = new PCEPMessageHeader(type, length, version);
+
+		logger.trace("Message header was parsed. {}", ret);
+		return ret;
 	}
 
 	public byte[] toBytes() {
@@ -105,18 +102,6 @@ public final class PCEPMessageHeader implements ProtocolMessageHeader {
 		return retBytes;
 	}
 
-	public void setLength(final int length) {
-		this.length = length;
-	}
-
-	public void setType(final int type) {
-		this.type = type;
-	}
-
-	public void setVersion(final int version) {
-		this.version = version;
-	}
-
 	public int getLength() {
 		return this.length;
 	}
@@ -127,20 +112,6 @@ public final class PCEPMessageHeader implements ProtocolMessageHeader {
 
 	public int getType() {
 		return this.type;
-	}
-
-	/**
-	 * @return the parsed
-	 */
-	public boolean isParsed() {
-		return this.parsed;
-	}
-
-	/**
-	 * @param parsed the parsed to set
-	 */
-	public void setParsed() {
-		this.parsed = false;
 	}
 
 	@Override

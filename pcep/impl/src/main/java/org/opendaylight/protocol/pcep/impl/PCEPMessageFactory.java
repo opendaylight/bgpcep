@@ -124,7 +124,6 @@ public class PCEPMessageFactory implements ProtocolMessageFactory {
 	/**
 	 * 
 	 * @param bytes assume array of bytes without common header
-	 * @param msgHeader
 	 * @return Parsed specific PCEPMessage
 	 * @throws PCEPDeserializerException
 	 * @throws PCEPDocumentedException
