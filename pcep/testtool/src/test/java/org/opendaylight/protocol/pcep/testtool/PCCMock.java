@@ -38,7 +38,7 @@ public class PCCMock {
 				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0));
 
 		try {
-			d.createClient(new InetSocketAddress("127.0.0.3", 12345),
+			d.createClient(new InetSocketAddress("127.0.0.1", 8000),
 					new PCEPSessionListener() {
 
 				@Override
