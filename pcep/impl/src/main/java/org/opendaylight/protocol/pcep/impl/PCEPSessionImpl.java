@@ -52,7 +52,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
-	protected long lastMessageSentAt;
+	protected volatile long lastMessageSentAt;
 
 	/**
 	 * System.nanoTime value about when was received the last message
@@ -137,7 +137,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 	private synchronized void handleDeadTimer() {
 		final long ct = System.nanoTime();
 
-		final long nextDead = (long) (this.lastMessageReceivedAt + getDeadTimerValue() * 1E9);
+		final long nextDead = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(getDeadTimerValue());
 
 		if (this.channel.isActive()) {
 			if (ct >= nextDead) {
@@ -163,12 +163,12 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 	private synchronized void handleKeepaliveTimer() {
 		final long ct = System.nanoTime();
 
-		long nextKeepalive = (long) (this.lastMessageSentAt + getKeepAliveTimerValue() * 1E9);
+		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 
 		if (channel.isActive()) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new PCEPKeepAliveMessage());
-				nextKeepalive = (long) (this.lastMessageSentAt + getKeepAliveTimerValue() * 1E9);
+				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 			}
 
 			this.stateTimer.newTimeout(new TimerTask() {
