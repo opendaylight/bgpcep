@@ -197,7 +197,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	final synchronized protected void handleMessage(final PCEPMessage msg) throws Exception {
 		failTimer.cancel();
 
-		logger.debug("Channel {} handling message in state {}", channel, msg);
+		logger.debug("Channel {} handling message in state {}", channel, state);
 
 		switch (state) {
 		case Finished:
