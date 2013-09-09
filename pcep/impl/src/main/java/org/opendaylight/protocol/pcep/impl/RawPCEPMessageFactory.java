@@ -28,8 +28,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPXRAddTunnelMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPXRDeleteTunnelMessageParser;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
@@ -40,8 +38,6 @@ import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
 import org.opendaylight.protocol.pcep.message.PCEPReportMessage;
 import org.opendaylight.protocol.pcep.message.PCEPRequestMessage;
 import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
-import org.opendaylight.protocol.pcep.message.PCEPXRAddTunnelMessage;
-import org.opendaylight.protocol.pcep.message.PCEPXRDeleteTunnelMessage;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +78,6 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 			this.put(PCEPMessageType.UPDATE_REQUEST, new PCEPUpdateRequestMessageParser());
 			this.put(PCEPMessageType.STATUS_REPORT, new PCEPReportMessageParser());
 			this.put(PCEPMessageType.CLOSE, new PCEPCloseMessageParser());
-			this.put(PCEPMessageType.XR_ADD_TUNNEL, new PCEPXRAddTunnelMessageParser());
-			this.put(PCEPMessageType.XR_DELETE_TUNNEL, new PCEPXRDeleteTunnelMessageParser());
 			this.put(PCEPMessageType.PCCREATE, new PCCreateMessageParser());
 		}
 
@@ -171,10 +165,6 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 			msgType = PCEPMessageType.STATUS_REPORT;
 		} else if (msg instanceof PCEPUpdateRequestMessage) {
 			msgType = PCEPMessageType.UPDATE_REQUEST;
-		} else if (msg instanceof PCEPXRAddTunnelMessage) {
-			msgType = PCEPMessageType.XR_ADD_TUNNEL;
-		} else if (msg instanceof PCEPXRDeleteTunnelMessage) {
-			msgType = PCEPMessageType.XR_DELETE_TUNNEL;
 		} else if (msg instanceof PCCreateMessage) {
 			msgType = PCEPMessageType.PCCREATE;
 		} else {

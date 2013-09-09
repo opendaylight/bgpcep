@@ -114,14 +114,12 @@ public class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue,
-				keepAliveValue, stateful, active, versioned, instant, timeout);
+		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant, timeout);
 
 		final PCEPOpenObject prefs = spf.getSessionProposal(address, 0);
 
 		final DispatcherImpl d = new DispatcherImpl();
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d,
-				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d, new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}

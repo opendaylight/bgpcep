@@ -15,7 +15,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 public enum PCEPMessageType {
 	OPEN(1), NOTIFICATION(5), KEEPALIVE(2), RESPONSE(4), REQUEST(3), ERROR(6), CLOSE(7), UPDATE_REQUEST(11), STATUS_REPORT(10),
 	// TODO: replace with actual values by IANA
-	XR_ADD_TUNNEL(8), XR_DELETE_TUNNEL(9), PCCREATE(12);
+	PCCREATE(12);
 
 	private final int identifier;
 
