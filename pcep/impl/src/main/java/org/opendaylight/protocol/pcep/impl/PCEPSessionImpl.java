@@ -169,14 +169,14 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new PCEPKeepAliveMessage());
 				nextKeepalive = (long) (this.lastMessageSentAt + getKeepAliveTimerValue() * 1E9);
-			} else {
-				this.stateTimer.newTimeout(new TimerTask() {
-					@Override
-					public void run(final Timeout timeout) throws Exception {
-						handleKeepaliveTimer();
-					}
-				}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
 			}
+
+			this.stateTimer.newTimeout(new TimerTask() {
+				@Override
+				public void run(final Timeout timeout) throws Exception {
+					handleKeepaliveTimer();
+				}
+			}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
 		}
 	}
 
