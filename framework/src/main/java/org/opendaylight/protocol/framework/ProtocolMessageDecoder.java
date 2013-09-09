@@ -40,6 +40,7 @@ final class ProtocolMessageDecoder<T extends ProtocolMessage> extends ByteToMess
 			logger.debug("Received to decode: {}", Arrays.toString(bytes));
 			out.addAll(this.factory.parse(bytes));
 		} catch (DeserializerException | DocumentedException e) {
+			logger.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
 		}
 		in.discardReadBytes();
