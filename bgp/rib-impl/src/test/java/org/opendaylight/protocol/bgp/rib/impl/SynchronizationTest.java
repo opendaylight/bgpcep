@@ -59,13 +59,13 @@ public class SynchronizationTest {
 
 			@Override
 			public void close() {
-				// TODO Auto-generated method stub
 			}
 
 			@Override
 			public Set<BGPTableType> getAdvertisedTableTypes() {
 				return types;
-			}}, this.listener, types);
+			}
+		}, this.listener, types);
 	}
 
 	@Test

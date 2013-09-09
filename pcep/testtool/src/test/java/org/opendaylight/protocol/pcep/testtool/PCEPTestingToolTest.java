@@ -18,7 +18,7 @@ public class PCEPTestingToolTest {
 
 	@Test
 	public void testSimpleSessionListener() {
-		final SimpleSessionListener ssl = new SimpleSessionListener();
+		final TestingSessionListener ssl = new TestingSessionListener();
 		assertEquals(0, ssl.messages.size());
 		ssl.onMessage(null, new PCEPKeepAliveMessage());
 		assertEquals(1, ssl.messages.size());
@@ -28,10 +28,5 @@ public class PCEPTestingToolTest {
 		assertTrue(ssl.up);
 		ssl.onSessionDown(null, null);
 		assertFalse(ssl.up);
-	}
-
-	@Test
-	public void testSessionListenerFactory() {
-		assertTrue(new SessionListenerFactory().getSessionListener() instanceof SimpleSessionListener);
 	}
 }

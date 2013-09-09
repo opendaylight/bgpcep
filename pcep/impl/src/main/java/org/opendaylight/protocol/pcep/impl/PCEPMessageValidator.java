@@ -23,8 +23,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageValidator;
-import org.opendaylight.protocol.pcep.impl.message.PCEPXRAddTunnelMessageValidator;
-import org.opendaylight.protocol.pcep.impl.message.PCEPXRDeleteTunnelMessageValidator;
 
 /**
  * Base class for message validators
@@ -51,8 +49,6 @@ public abstract class PCEPMessageValidator {
 			this.put(PCEPMessageType.UPDATE_REQUEST, new PCEPUpdateRequestMessageValidator());
 			this.put(PCEPMessageType.STATUS_REPORT, new PCEPReportMessageValidator());
 			this.put(PCEPMessageType.CLOSE, new PCEPCloseMessageValidator());
-			this.put(PCEPMessageType.XR_ADD_TUNNEL, new PCEPXRAddTunnelMessageValidator());
-			this.put(PCEPMessageType.XR_DELETE_TUNNEL, new PCEPXRDeleteTunnelMessageValidator());
 			this.put(PCEPMessageType.PCCREATE, new PCCreateMessageValidator());
 		}
 

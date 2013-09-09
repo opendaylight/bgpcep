@@ -15,10 +15,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
-import org.opendaylight.protocol.pcep.PCEPMessage;
-import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -34,38 +30,11 @@ public class PCCMock {
 		tlvs.add(new NodeIdentifierTlv(new byte[] { (byte) 127, (byte) 2, (byte) 3, (byte) 7 }));
 
 		final DispatcherImpl di = new DispatcherImpl();
-		final PCEPDispatcherImpl d = new PCEPDispatcherImpl(di,
-				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0));
+		final PCEPDispatcherImpl d = new PCEPDispatcherImpl(di, new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0));
 
 		try {
-			d.createClient(new InetSocketAddress("127.0.0.3", 12345),
-					new PCEPSessionListener() {
-
-				@Override
-				public void onMessage(final PCEPSession session, final PCEPMessage message) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void onSessionUp(final PCEPSession session) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void onSessionDown(final PCEPSession session, final Exception e) {
-					// TODO Auto-generated method stub
-
-				}
-
-				@Override
-				public void onSessionTerminated(final PCEPSession session,
-						final PCEPTerminationReason cause) {
-					// TODO Auto-generated method stub
-
-				}
-			}, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000)).get();
+			d.createClient(new InetSocketAddress("127.0.0.3", 12345), new SimpleSessionListener(),
+					new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000)).get();
 
 			// Thread.sleep(5000);
 			// final List<CompositeRequestObject> cro = new ArrayList<CompositeRequestObject>();
