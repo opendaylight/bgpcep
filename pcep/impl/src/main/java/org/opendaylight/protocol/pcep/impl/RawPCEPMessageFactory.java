@@ -46,6 +46,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -102,9 +103,8 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 
 	@Override
 	public List<PCEPMessage> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory.");
-		}
+		Preconditions.checkArgument(bytes != null, "Bytes may not be null");
+		Preconditions.checkArgument(bytes.length != 0, "Bytes may not be empty");
 
 		logger.trace("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(bytes));
 
@@ -115,8 +115,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
 
 		if (msgBody.length != msgLength - COMMON_HEADER_LENGTH) {
-			throw new DeserializerException("Size don't match size specified in header. Passed: " + msgBody.length + "; Expected: "
-					+ (msgLength - COMMON_HEADER_LENGTH) + ". " + msgLength);
+			throw new DeserializerException("Body size " + msgBody.length + " does not match header size " + (msgLength - COMMON_HEADER_LENGTH));
 		}
 
 		/*
@@ -127,9 +126,11 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		try {
 			msgType = PCEPMessageType.getFromInt(type);
 		} catch (final PCEPDeserializerException e) {
+			logger.debug("Failed to get message type from {}", type);
 			throw new DeserializerException(e.getMessage(), e);
 		}
 		if (msgType == null) {
+			logger.debug("Unknown message type {}", type);
 			throw new DocumentedException("Unhandled message type " + type, new PCEPDocumentedException("Unhandled message type " + type, PCEPErrors.CAPABILITY_NOT_SUPPORTED));
 		}
 
@@ -137,8 +138,10 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		try {
 			msg = new PCEPRawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
 		} catch (final PCEPDeserializerException e) {
+			logger.debug("Unexpected deserializer problem", e);
 			throw new DeserializerException(e.getMessage(), e);
 		} catch (final PCEPDocumentedException e) {
+			logger.debug("Documented deserializer problem", e);
 			throw new DocumentedException(e.getMessage(), e);
 		}
 		logger.debug("Message was parsed. {}", msg);
