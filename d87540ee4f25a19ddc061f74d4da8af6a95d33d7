@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_a07dc0b3",
+        "filename": "bgp/parser-api/src/main/yang/bgpls-message.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-09T14:53:00Z",
+      "side": 1,
+      "message": "please rename this to bgp-message",
+      "revId": "d87540ee4f25a19ddc061f74d4da8af6a95d33d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
