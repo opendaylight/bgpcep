@@ -19,12 +19,10 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.framework.DispatcherImpl;
+import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 
-public class BGPSpeakerMock {
-
-	DispatcherImpl dispatcher = new DispatcherImpl();
+public class BGPSpeakerMock extends AbstractDispatcher {
 
 	public static void main(final String[] args) throws IOException {
 
@@ -35,11 +33,11 @@ public class BGPSpeakerMock {
 		final SessionListenerFactory<BGPSessionListener> f = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
 			public BGPSessionListener getSessionListener() {
-				return new SpeakerSessionListener(m.dispatcher);
+				return new SpeakerSessionListener(m);
 			}
 		};
 
-		m.dispatcher.createServer(new InetSocketAddress("127.0.0.2", 12345), f,
+		m.createServer(new InetSocketAddress("127.0.0.2", 12345), f,
 				new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs), new BGPMessageFactory());
 	}
 }

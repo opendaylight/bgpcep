@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ public class Main {
 	BGPDispatcherImpl dispatcher;
 
 	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(new DispatcherImpl(), new BGPMessageFactory());
+		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactory());
 	}
 
 	public static void main(final String[] args) throws NumberFormatException, IOException {
@@ -83,7 +82,7 @@ public class Main {
 
 		final Main m = new Main();
 
-		final BGPSessionListener sessionListener = new TestingListener((DispatcherImpl) m.dispatcher.getDispatcher());
+		final BGPSessionListener sessionListener = new TestingListener();
 
 		final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as, new IPv4Address(InetAddress.getByName("25.25.25.2")));
 

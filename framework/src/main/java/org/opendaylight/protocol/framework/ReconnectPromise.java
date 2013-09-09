@@ -16,7 +16,7 @@ import java.net.InetSocketAddress;
 import com.google.common.base.Preconditions;
 
 final class ReconnectPromise<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends DefaultPromise<Void> {
-	private final Dispatcher dispatcher;
+	private final AbstractDispatcher dispatcher;
 	private final InetSocketAddress address;
 	private final L listener;
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
@@ -25,7 +25,7 @@ final class ReconnectPromise<M extends ProtocolMessage, S extends ProtocolSessio
 	private final ReconnectStrategy strategy;
 	private Future<?> pending;
 
-	public ReconnectPromise(final Dispatcher dispatcher,
+	public ReconnectPromise(final AbstractDispatcher dispatcher,
 			final InetSocketAddress address, final L listener,
 			final SessionNegotiatorFactory<M, S, L> negotiatorFactory,
 			final ProtocolMessageFactory<M> messageFactory,

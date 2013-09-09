@@ -13,7 +13,6 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
@@ -29,8 +28,7 @@ public class PCCMock {
 		final List<PCEPTlv> tlvs = Lists.newArrayList();
 		tlvs.add(new NodeIdentifierTlv(new byte[] { (byte) 127, (byte) 2, (byte) 3, (byte) 7 }));
 
-		final DispatcherImpl di = new DispatcherImpl();
-		final PCEPDispatcherImpl d = new PCEPDispatcherImpl(di, new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0));
+		final PCEPDispatcherImpl d = new PCEPDispatcherImpl(new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0));
 
 		try {
 			d.createClient(new InetSocketAddress("127.0.0.3", 12345), new SimpleSessionListener(),
