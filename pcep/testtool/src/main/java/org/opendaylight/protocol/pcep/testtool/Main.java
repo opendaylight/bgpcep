@@ -13,12 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.framework.DispatcherImpl;
-import org.opendaylight.protocol.pcep.PCEPMessage;
-import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
@@ -128,31 +123,6 @@ public class Main {
 		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d,
 				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
-		dispatcher.createServer(address, new PCEPSessionListenerFactory() {
-			@Override
-			public PCEPSessionListener getSessionListener() {
-				return new PCEPSessionListener() {
-					@Override
-					public void onMessage(final PCEPSession session, final PCEPMessage message) {
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void onSessionUp(final PCEPSession session) {
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-						// TODO Auto-generated method stub
-					}
-
-					@Override
-					public void onSessionDown(final PCEPSession session, final Exception e) {
-						// TODO Auto-generated method stub
-					}
-				};
-			}
-		}).get();
+		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}
 }
