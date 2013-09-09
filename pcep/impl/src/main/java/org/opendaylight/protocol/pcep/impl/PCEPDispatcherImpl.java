@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
-import org.opendaylight.protocol.framework.Dispatcher;
+import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
@@ -26,24 +26,23 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl implements PCEPDispatcher {
+public class PCEPDispatcherImpl extends AbstractDispatcher implements PCEPDispatcher {
 	private static final PCEPMessageFactory msgFactory = new PCEPMessageFactory();
 	private final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf;
-	private final Dispatcher dispatcher;
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
 	 * 
 	 * @throws IOException if some error occurred during opening the selector
 	 */
-	public PCEPDispatcherImpl(final Dispatcher dispatcher, final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf) {
-		this.dispatcher = dispatcher;
+	public PCEPDispatcherImpl(final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf) {
+		super();
 		this.snf = snf;
 	}
 
 	@Override
 	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-		return this.dispatcher.createServer(address, listenerFactory, snf, msgFactory);
+		return this.createServer(address, listenerFactory, snf, msgFactory);
 	}
 
 	/**
@@ -54,6 +53,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher {
 	 */
 	@Override
 	public Future<? extends PCEPSession> createClient(final InetSocketAddress address, final PCEPSessionListener listener, final ReconnectStrategy strategy) {
-		return this.dispatcher.createClient(address, listener, snf, msgFactory, strategy);
+		return this.createClient(address, listener, snf, msgFactory, strategy);
 	}
 }

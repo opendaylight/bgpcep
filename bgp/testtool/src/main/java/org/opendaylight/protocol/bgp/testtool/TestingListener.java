@@ -11,7 +11,6 @@ import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +19,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TestingListener implements BGPSessionListener {
 	private static final Logger logger = LoggerFactory.getLogger(TestingListener.class);
-
-	DispatcherImpl d;
-
-	TestingListener(final DispatcherImpl d) {
-		this.d = d;
-	}
 
 	@Override
 	public void onMessage(final BGPSession session, final BGPMessage message) {
@@ -41,12 +34,10 @@ public class TestingListener implements BGPSessionListener {
 	public void onSessionDown(final BGPSession session, final Exception e) {
 		logger.info("Client Listener: Connection lost.");
 		session.close();
-		// this.d.stop();
 	}
 
 	@Override
 	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.info("Client Listener: Connection lost: {}.", cause);
-		// this.d.stop();
 	}
 }

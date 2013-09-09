@@ -12,7 +12,6 @@ import io.netty.util.HashedWheelTimer;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.framework.DispatcherImpl;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -119,8 +118,7 @@ public class Main {
 
 		final PCEPOpenObject prefs = spf.getSessionProposal(address, 0);
 
-		final DispatcherImpl d = new DispatcherImpl();
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(d,
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(
 				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();

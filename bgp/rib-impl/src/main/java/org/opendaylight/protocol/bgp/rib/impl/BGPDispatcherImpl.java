@@ -18,7 +18,7 @@ import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.framework.Dispatcher;
+import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
@@ -27,23 +27,18 @@ import com.google.common.base.Preconditions;
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl implements BGPDispatcher {
+public final class BGPDispatcherImpl extends AbstractDispatcher implements BGPDispatcher {
 	private final Timer timer = new HashedWheelTimer();
 	private final ProtocolMessageFactory<BGPMessage> parser;
-	private final Dispatcher dispatcher;
 
-	public BGPDispatcherImpl(final Dispatcher dispatcher, final ProtocolMessageFactory<BGPMessage> parser) {
-		this.dispatcher = Preconditions.checkNotNull(dispatcher);
+	public BGPDispatcherImpl(final ProtocolMessageFactory<BGPMessage> parser) {
+		super();
 		this.parser = Preconditions.checkNotNull(parser);
 	}
 
 	@Override
 	public Future<? extends BGPSession> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
 			final BGPSessionListener listener, final ReconnectStrategy strategy) {
-		return this.dispatcher.createClient(address, listener, new BGPSessionNegotiatorFactory(timer, preferences), parser, strategy);
-	}
-
-	public Dispatcher getDispatcher() {
-		return this.dispatcher;
+		return createClient(address, listener, new BGPSessionNegotiatorFactory(timer, preferences), parser, strategy);
 	}
 }

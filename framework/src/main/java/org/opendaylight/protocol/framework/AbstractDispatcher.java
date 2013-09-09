@@ -29,22 +29,31 @@ import com.google.common.base.Preconditions;
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
  * start method that will handle sockets in different thread.
  */
-public final class DispatcherImpl implements Closeable, Dispatcher {
+public abstract class AbstractDispatcher implements Closeable {
 
-	private static final Logger logger = LoggerFactory.getLogger(DispatcherImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractDispatcher.class);
 
 	private final EventLoopGroup bossGroup;
 
 	private final EventLoopGroup workerGroup;
 
-	public DispatcherImpl() {
+	protected AbstractDispatcher() {
 		// FIXME: we should get these as arguments
 		this.bossGroup = new NioEventLoopGroup();
 		this.workerGroup = new NioEventLoopGroup();
 	}
 
-	@Override
-	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> ChannelFuture createServer(
+	/**
+	 * Creates server. Each server needs factories to pass their instances to client sessions.
+	 * 
+	 * @param address address to which the server should be bound
+	 * @param listenerFactory factory for creating protocol listeners, passed to the negotiator
+	 * @param negotiatorFactory protocol session negotiator factory
+	 * @param messageFactory message parser
+	 * 
+	 * @return ChannelFuture representing the binding process
+	 */
+	protected <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> ChannelFuture createServer(
 			final InetSocketAddress address, final SessionListenerFactory<L> listenerFactory,
 			final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final ProtocolMessageFactory<M> messageFactory) {
 		final ServerBootstrap b = new ServerBootstrap();
@@ -62,8 +71,19 @@ public final class DispatcherImpl implements Closeable, Dispatcher {
 
 	}
 
-	@Override
-	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<S> createClient(
+	/**
+	 * Creates a client.
+	 * 
+	 * @param address remote address
+	 * @param listener session listener
+	 * @param negotiatorFactory session negotiator factory
+	 * @param messageFactory message parser
+	 * @param connectStrategy Reconnection strategy to be used when initial connection fails
+	 * 
+	 * @return Future representing the connection process. Its result represents
+	 *         the combined success of TCP connection as well as session negotiation.
+	 */
+	protected <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<S> createClient(
 			final InetSocketAddress address, final L listener, final SessionNegotiatorFactory<M, S, L> negotiatorFactory,
 			final ProtocolMessageFactory<M> messageFactory,	final ReconnectStrategy strategy) {
 		final ProtocolSessionPromise<M, S, L> p = new ProtocolSessionPromise<M, S, L>(workerGroup, address, negotiatorFactory,
@@ -84,8 +104,22 @@ public final class DispatcherImpl implements Closeable, Dispatcher {
 		return p;
 	}
 
-	@Override
-	public <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<Void> createReconnectingClient(
+	/**
+	 * Creates a client.
+	 * 
+	 * @param address remote address
+	 * @param listener session listener
+	 * @param negotiatorFactory session negotiator factory
+	 * @param messageFactory message parser
+	 * @param connectStrategyFactory Factory for creating reconnection strategy to be used when initial connection fails
+	 * @param reestablishStrategy Reconnection strategy to be used when the already-established session fails
+	 * 
+	 * @return Future representing the reconnection task. It will report
+	 *         completion based on reestablishStrategy, e.g. success if
+	 *         it indicates no further attempts should be made and failure
+	 *         if it reports an error
+	 */
+	protected <M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> Future<Void> createReconnectingClient(
 			final InetSocketAddress address, final L listener, final SessionNegotiatorFactory<M, S, L> negotiatorFactory,
 			final ProtocolMessageFactory<M> messageFactory, final ReconnectStrategyFactory connectStrategyFactory,
 			final ReconnectStrategy reestablishStrategy) {

@@ -28,7 +28,7 @@ import org.junit.Test;
 public class ServerTest {
 	public static final int PORT = 18080;
 
-	DispatcherImpl clientDispatcher, dispatcher;
+	AbstractDispatcher clientDispatcher, dispatcher;
 
 	final SimpleSessionListener pce = new SimpleSessionListener();
 
@@ -40,7 +40,7 @@ public class ServerTest {
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
-		this.dispatcher = new DispatcherImpl();
+		this.dispatcher = new AbstractDispatcher() { };
 
 		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
@@ -62,7 +62,7 @@ public class ServerTest {
 
 		server.get();
 
-		this.clientDispatcher = new DispatcherImpl();
+		this.clientDispatcher = new AbstractDispatcher() { };
 
 		this.session = this.clientDispatcher.createClient(serverAddress,
 				new SimpleSessionListener(), new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
@@ -77,8 +77,8 @@ public class ServerTest {
 	}
 
 	public void testConnectionFailed() throws IOException, InterruptedException {
-		this.dispatcher = new DispatcherImpl();
-		this.clientDispatcher = new DispatcherImpl();
+		this.dispatcher = new AbstractDispatcher() { };
+		this.clientDispatcher = new AbstractDispatcher() { };
 		final SimpleSessionListener listener = new SimpleSessionListener();
 
 		try {
