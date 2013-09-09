@@ -8,8 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
+import io.netty.util.Timeout;
 import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
+
+import java.util.concurrent.TimeUnit;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -26,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMessage, BGPSessionImpl> {
+	// 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
+	private static final int INITIAL_HOLDTIMER = 4;
+
 	private enum State {
 		/**
 		 * Negotiation has not started yet.
@@ -69,7 +76,18 @@ final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMessage, B
 		channel.writeAndFlush(new BGPOpenMessage(localPref.getMyAs(), (short) localPref.getHoldTime(), localPref.getBgpId(), localPref.getParams()));
 		state = State.OpenSent;
 
-		// FIXME: start deadtimer
+		final Object lock = this;
+		timer.newTimeout(new TimerTask() {
+			@Override
+			public void run(final Timeout timeout) throws Exception {
+				synchronized (lock) {
+					if (state != State.Finished) {
+						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+						state = State.Finished;
+					}
+				}
+			}
+		}, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
 	}
 
 	@Override
@@ -113,7 +131,6 @@ final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMessage, B
 		}
 
 		// Catch-all for unexpected message
-		// FIXME: what should we do here?
 		logger.warn("Channel {} state {} unexpected message {}", channel, state, msg);
 		channel.writeAndFlush(new BGPNotificationMessage(BGPError.FSM_ERROR));
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
