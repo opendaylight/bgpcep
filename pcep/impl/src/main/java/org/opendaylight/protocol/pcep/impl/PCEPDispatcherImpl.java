@@ -8,10 +8,13 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.protocol.framework.AbstractDispatcher;
@@ -23,26 +26,33 @@ import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl extends AbstractDispatcher implements PCEPDispatcher {
-	private static final PCEPMessageFactory msgFactory = new PCEPMessageFactory();
+public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl> implements PCEPDispatcher {
+
 	private final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf;
+
+	private SessionListenerFactory<PCEPSessionListener> slf;
+
+	private final PCEPHandlerFactory hf = new PCEPHandlerFactory();
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
 	 * 
 	 * @throws IOException if some error occurred during opening the selector
 	 */
-	public PCEPDispatcherImpl(final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf) {
+	public PCEPDispatcherImpl(final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
 		super();
-		this.snf = snf;
+		this.snf = Preconditions.checkNotNull(negotiatorFactory);
 	}
 
 	@Override
 	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-		return this.createServer(address, listenerFactory, snf, msgFactory);
+		this.slf = listenerFactory;
+		return this.createServer(address);
 	}
 
 	/**
@@ -51,8 +61,24 @@ public class PCEPDispatcherImpl extends AbstractDispatcher implements PCEPDispat
 	 * @throws ExecutionException
 	 * @throws InterruptedException
 	 */
+	public Future<? extends PCEPSession> createClient(final InetSocketAddress address, final PCEPSessionListener listener,
+			final ReconnectStrategy strategy) {
+		this.slf = new SessionListenerFactory<PCEPSessionListener>() {
+
+			@Override
+			public PCEPSessionListener getSessionListener() {
+				return listener;
+			}
+
+		};
+		return this.createClient(address, strategy);
+	}
+
 	@Override
-	public Future<? extends PCEPSession> createClient(final InetSocketAddress address, final PCEPSessionListener listener, final ReconnectStrategy strategy) {
-		return this.createClient(address, listener, snf, msgFactory, strategy);
+	public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
+		ch.pipeline().addLast(this.hf.getDecoders());
+		ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(this.slf, ch, promise));
+		ch.pipeline().addLast(this.hf.getEncoders());
+		System.out.println("Pipeline " + Arrays.toString(ch.pipeline().names().toArray()));
 	}
 }

@@ -7,38 +7,63 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.Promise;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
-
-import com.google.common.base.Preconditions;
+import org.opendaylight.protocol.framework.SessionListenerFactory;
 
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl extends AbstractDispatcher implements BGPDispatcher {
+public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl> implements BGPDispatcher {
 	private final Timer timer = new HashedWheelTimer();
-	private final ProtocolMessageFactory<BGPMessage> parser;
 
-	public BGPDispatcherImpl(final ProtocolMessageFactory<BGPMessage> parser) {
+	private BGPSessionNegotiatorFactory snf;
+
+	private final BGPHandlerFactory hf;
+
+	private SessionListenerFactory<BGPSessionListener> slf;
+
+	public BGPDispatcherImpl(final BGPMessageFactory parser) {
 		super();
-		this.parser = Preconditions.checkNotNull(parser);
+		this.hf = new BGPHandlerFactory(parser);
 	}
 
 	@Override
 	public Future<? extends BGPSession> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
 			final BGPSessionListener listener, final ReconnectStrategy strategy) {
-		return createClient(address, listener, new BGPSessionNegotiatorFactory(timer, preferences), parser, strategy);
+		this.snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+		this.slf = new SessionListenerFactory<BGPSessionListener>() {
+
+			@Override
+			public BGPSessionListener getSessionListener() {
+				return listener;
+			}
+		};
+		return createClient(address, strategy);
+	}
+
+	public ChannelFuture createMockServer(final InetSocketAddress address) {
+		return this.createServer(address);
+	}
+
+	@Override
+	public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+		ch.pipeline().addLast(this.hf.getDecoders());
+		ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(this.slf, ch, promise));
+		ch.pipeline().addLast(this.hf.getEncoders());
 	}
 }

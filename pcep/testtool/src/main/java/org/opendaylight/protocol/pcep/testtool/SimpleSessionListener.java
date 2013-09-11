@@ -22,6 +22,7 @@ import org.opendaylight.protocol.pcep.message.PCCreateMessage;
 import org.opendaylight.protocol.pcep.object.CompositeInstantiationObject;
 import org.opendaylight.protocol.pcep.object.PCEPEndPointsObject;
 import org.opendaylight.protocol.pcep.object.PCEPExplicitRouteObject;
+import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
 import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
 		subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 10, 1, 1, 2 }), 32), false));
 		subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 2, 2, 2, 2 }), 32), false));
 		final CompositeInstantiationObject cpo = new CompositeInstantiationObject(new PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForBytes(new byte[] {
-				1, 1, 1, 1 }), IPv4.FAMILY.addressForBytes(new byte[] { 2, 2, 2, 2 })), null, new PCEPExplicitRouteObject(subs, false), null, null);
+				1, 1, 1, 1 }), IPv4.FAMILY.addressForBytes(new byte[] { 2, 2, 2, 2 })), new PCEPLspaObject(0, 0, 0, (short) 0, (short) 0, false, false, false, false), new PCEPExplicitRouteObject(subs, false), null, null);
 
 		session.sendMessage(new PCCreateMessage(Lists.newArrayList(cpo)));
 	}

@@ -12,9 +12,9 @@ import java.util.List;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 
 /**
- * Basic structure for PCEP Message. Cannot be instantiated directly. Current
- * PCEP version is 1. Each message contains a list of PCEP objects.
- *
+ * Basic structure for PCEP Message. Cannot be instantiated directly. Current PCEP version is 1. Each message contains a
+ * list of PCEP objects.
+ * 
  */
 public abstract class PCEPMessage implements ProtocolMessage {
 
@@ -28,18 +28,20 @@ public abstract class PCEPMessage implements ProtocolMessage {
 	private final List<PCEPObject> objects;
 
 	/**
-	 * Constructor is protected to prevent direct instantiation, but to allow to
-	 * call this constructor via super().
-	 *
+	 * Constructor is protected to prevent direct instantiation, but to allow to call this constructor via super().
+	 * 
 	 * @param objects
 	 */
-	protected PCEPMessage(List<PCEPObject> objects) {
+	protected PCEPMessage(final List<PCEPObject> objects) {
+		if (objects.contains(null))
+			throw new IllegalArgumentException("Object list contains null element at offset " + objects.indexOf(null));
+
 		this.objects = objects;
 	}
 
 	/**
 	 * Returns list of all objects that the message contains
-	 *
+	 * 
 	 * @return list of all objects that the message contains
 	 */
 	public List<PCEPObject> getAllObjects() {
@@ -55,7 +57,7 @@ public abstract class PCEPMessage implements ProtocolMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
