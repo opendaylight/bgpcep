@@ -20,11 +20,11 @@ public class ProtocolHandlerFactory<T extends ProtocolMessage> {
 		this.encoder = new ProtocolMessageEncoder<T>(msgFactory);
 	}
 
-	public ChannelHandler getEncoder() {
-		return this.encoder;
+	public ChannelHandler[] getEncoders() {
+		return new ChannelHandler[] { this.encoder };
 	}
 
-	public ChannelHandler getDecoder() {
-		return new ProtocolMessageDecoder<T>(msgFactory);
+	public ChannelHandler[] getDecoders() {
+		return new ChannelHandler[] { new ProtocolMessageDecoder<T>(this.msgFactory) };
 	}
 }

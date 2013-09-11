@@ -21,6 +21,7 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -40,16 +41,9 @@ public class ServerTest {
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
-		this.dispatcher = new AbstractDispatcher() { };
-
 		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
-			@Override
-			public SimpleSessionListener getSessionListener() {
-				return new SimpleSessionListener();
-			}
-		}, new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
@@ -57,51 +51,86 @@ public class ServerTest {
 				p.setSuccess(true);
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new MessageFactory());
+		}, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
+		this.server = this.dispatcher.createServer(this.serverAddress);
 
 		this.server.get();
 
-		this.clientDispatcher = new AbstractDispatcher() { };
+		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
 
-		this.session = this.clientDispatcher.createClient(this.serverAddress, new SimpleSessionListener(),
-				new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
-					@Override
-					public SessionNegotiator<SimpleSession> getSessionNegotiator(
-							final SessionListenerFactory<SimpleSessionListener> factory, final Channel channel,
-							final Promise<SimpleSession> promise) {
-						return new SimpleSessionNegotiator(promise, channel);
-					}
-				}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
+		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get(6, TimeUnit.SECONDS);
 
 		assertEquals(true, p.get(3, TimeUnit.SECONDS));
 	}
 
+	@Test
 	public void testConnectionFailed() throws IOException, InterruptedException {
-		this.dispatcher = new AbstractDispatcher() { };
-		this.clientDispatcher = new AbstractDispatcher() { };
+		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
+
+		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				p.setSuccess(true);
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
 		final SimpleSessionListener listener = new SimpleSessionListener();
 
+		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return listener;
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
 		try {
-			this.clientDispatcher.createClient(this.serverAddress, listener,
-					new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
-						@Override
-						public SessionNegotiator<SimpleSession> getSessionNegotiator(
-								final SessionListenerFactory<SimpleSessionListener> factory, final Channel channel,
-								final Promise<SimpleSession> promise) {
-							return null;
-						}
-					}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
+			this.clientDispatcher.createClient(this.serverAddress, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get(3,
+					TimeUnit.SECONDS);
 
 			fail("Connection succeeded unexpectedly");
 		} catch (final ExecutionException e) {
 			assertTrue(listener.failed);
 			assertTrue(e.getCause() instanceof ConnectException);
+		} catch (final TimeoutException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	@After
 	public void tearDown() throws IOException {
-		this.server.channel().close();
+		// this.server.channel().close();
 		this.dispatcher.close();
 		this.clientDispatcher.close();
 		try {
