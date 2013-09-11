@@ -13,18 +13,18 @@ import com.google.common.base.Preconditions;
 
 public class ProtocolHandlerFactory<T extends ProtocolMessage> {
 	private final ProtocolMessageEncoder<T> encoder;
-	final ProtocolMessageFactory<T> msgFactory;
+	protected final ProtocolMessageFactory<T> msgFactory;
 
 	public ProtocolHandlerFactory(final ProtocolMessageFactory<T> msgFactory) {
 		this.msgFactory = Preconditions.checkNotNull(msgFactory);
 		this.encoder = new ProtocolMessageEncoder<T>(msgFactory);
 	}
 
-	public ChannelHandler getEncoder() {
-		return this.encoder;
+	public ChannelHandler[] getEncoders() {
+		return new ChannelHandler[] { this.encoder };
 	}
 
-	public ChannelHandler getDecoder() {
-		return new ProtocolMessageDecoder<T>(msgFactory);
+	public ChannelHandler[] getDecoders() {
+		return new ChannelHandler[] { new ProtocolMessageDecoder<T>(this.msgFactory) };
 	}
 }

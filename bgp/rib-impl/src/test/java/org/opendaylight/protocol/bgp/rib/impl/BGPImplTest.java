@@ -22,10 +22,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPImpl.BGPListenerRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -55,7 +55,7 @@ public class BGPImplTest {
 		doReturn("").when(this.parser).toString();
 
 		doReturn(null).when(this.future).get();
-		doReturn(future).when(this.disp).createClient(any(InetSocketAddress.class), any(BGPSessionPreferences.class),
+		doReturn(this.future).when(this.disp).createClient(any(InetSocketAddress.class), any(BGPSessionPreferences.class),
 				any(BGPSessionListener.class), any(ReconnectStrategy.class));
 	}
 
@@ -63,7 +63,8 @@ public class BGPImplTest {
 	public void testBgpImpl() throws Exception {
 		doReturn(new BGPSessionPreferences(null, 0, null, Collections.<BGPParameter> emptyList())).when(this.prop).getProposal();
 		this.bgp = new BGPImpl(this.disp, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop);
-		final BGPListenerRegistration reg = this.bgp.registerUpdateListener(new SimpleSessionListener(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
+		final BGPListenerRegistration reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
 		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
 	}
 
