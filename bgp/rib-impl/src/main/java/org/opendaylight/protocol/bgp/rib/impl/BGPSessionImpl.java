@@ -34,12 +34,14 @@ import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPSession {
+@VisibleForTesting
+public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPSession {
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -77,7 +79,8 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 	private final Set<BGPTableType> tableTypes;
 
-	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final short keepAlive, final BGPOpenMessage remoteOpen) {
+	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final short keepAlive,
+			final BGPOpenMessage remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
@@ -116,10 +119,10 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 	@Override
 	public synchronized void close() {
 		logger.debug("Closing session: {}", this);
-		if (!closed) {
+		if (!this.closed) {
 			this.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
-			channel.close();
-			closed = true;
+			this.channel.close();
+			this.closed = true;
 		}
 	}
 
@@ -156,7 +159,7 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 	@Override
 	public synchronized void endOfInput() {
-		if (!closed) {
+		if (!this.closed) {
 			this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
 		}
 	}
@@ -173,8 +176,8 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 	private synchronized void closeWithoutMessage() {
 		logger.debug("Closing session: {}", this);
-		channel.close();
-		closed = true;
+		this.channel.close();
+		this.closed = true;
 	}
 
 	/**
@@ -200,7 +203,7 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(HOLD_TIMER_VALUE);
 
-		if (!closed) {
+		if (!this.closed) {
 			if (ct >= nextHold) {
 				logger.debug("HoldTimer expired. " + new Date());
 				this.terminate(BGPError.HOLD_TIMER_EXPIRED);
@@ -226,7 +229,7 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
-		if (!closed) {
+		if (!this.closed) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new BGPKeepAliveMessage());
 				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
@@ -246,8 +249,8 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("channel", channel);
-		toStringHelper.add("closed", closed);
+		toStringHelper.add("channel", this.channel);
+		toStringHelper.add("closed", this.closed);
 		return toStringHelper;
 	}
 
@@ -258,6 +261,6 @@ class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPS
 
 	@Override
 	protected void sessionUp() {
-		listener.onSessionUp(this);
+		this.listener.onSessionUp(this);
 	}
 }

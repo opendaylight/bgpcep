@@ -31,13 +31,6 @@ public class SimpleSessionListener implements SessionListener<SimpleMessage, Sim
 		this.messages.add(message);
 	}
 
-	public synchronized void onConnectionFailed(final ProtocolSession<?> session, final Exception e) {
-		logger.debug("Connection Failed: {}", e.getMessage(), e);
-		this.failed = true;
-		this.notifyAll();
-		session.close();
-	}
-
 	@Override
 	public void onSessionUp(final SimpleSession session) {
 		this.up = true;
@@ -45,12 +38,13 @@ public class SimpleSessionListener implements SessionListener<SimpleMessage, Sim
 
 	@Override
 	public void onSessionDown(final SimpleSession session, final Exception e) {
-		this.up = false;
+		this.failed = true;
+		this.notifyAll();
 	}
 
 	@Override
-	public void onSessionTerminated(final SimpleSession session,
-			final TerminationReason reason) {
-		this.up = false;
+	public void onSessionTerminated(final SimpleSession session, final TerminationReason reason) {
+		this.failed = true;
+		this.notifyAll();
 	}
 }
