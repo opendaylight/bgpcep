@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-final class ProtocolMessageEncoder<T extends ProtocolMessage> extends MessageToByteEncoder<Object> {
+public final class ProtocolMessageEncoder<T extends ProtocolMessage> extends MessageToByteEncoder<Object> {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageEncoder.class);
 
@@ -29,6 +29,12 @@ final class ProtocolMessageEncoder<T extends ProtocolMessage> extends MessageToB
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Object msg, final ByteBuf out) throws Exception {
 		logger.debug("Sent to encode : {}", msg);
-		out.writeBytes(this.factory.put((T)msg));
+		final byte[] bytes = this.factory.put((T) msg);
+		out.writeBytes(bytes);
+	}
+
+	@Override
+	public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+		logger.warn("Caught {}", cause);
 	}
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
@@ -21,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +32,9 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * The byte array
  */
-public class BGPMessageFactory implements ProtocolMessageFactory<BGPMessage> {
+public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 
-	private final static Logger logger = LoggerFactory.getLogger(BGPMessageFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(BGPMessageFactoryImpl.class);
 
 	final static int LENGTH_FIELD_LENGTH = 2; // bytes
 
@@ -44,7 +44,7 @@ public class BGPMessageFactory implements ProtocolMessageFactory<BGPMessage> {
 
 	public final static int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
 
-	public BGPMessageFactory() {
+	public BGPMessageFactoryImpl() {
 	}
 
 	/*
