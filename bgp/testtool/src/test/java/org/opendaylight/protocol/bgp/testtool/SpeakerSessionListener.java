@@ -11,18 +11,11 @@ import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpeakerSessionListener implements BGPSessionListener {
 	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
-
-	AbstractDispatcher d;
-
-	SpeakerSessionListener(final AbstractDispatcher d) {
-		this.d = d;
-	}
 
 	@Override
 	public void onSessionUp(final BGPSession session) {

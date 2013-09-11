@@ -8,19 +8,19 @@
 package org.opendaylight.protocol.framework;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
 import org.junit.Test;
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class ServerTest {
 	public static final int PORT = 18080;
 
-	AbstractDispatcher clientDispatcher, dispatcher;
+	AbstractDispatcher<?, SimpleSessionListener> clientDispatcher, dispatcher;
 
 	final SimpleSessionListener pce = new SimpleSessionListener();
 
@@ -40,16 +40,9 @@ public class ServerTest {
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
-		this.dispatcher = new AbstractDispatcher() { };
-
 		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
-			@Override
-			public SimpleSessionListener getSessionListener() {
-				return new SimpleSessionListener();
-			}
-		}, new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
@@ -57,46 +50,83 @@ public class ServerTest {
 				p.setSuccess(true);
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new MessageFactory());
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
+		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		});
 
 		this.server.get();
 
-		this.clientDispatcher = new AbstractDispatcher() { };
+		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
 
-		this.session = this.clientDispatcher.createClient(this.serverAddress, new SimpleSessionListener(),
-				new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
 					@Override
-					public SessionNegotiator<SimpleSession> getSessionNegotiator(
-							final SessionListenerFactory<SimpleSessionListener> factory, final Channel channel,
-							final Promise<SimpleSession> promise) {
-						return new SimpleSessionNegotiator(promise, channel);
+					public SimpleSessionListener getSessionListener() {
+						return new SimpleSessionListener();
 					}
-				}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
+				}).get(6, TimeUnit.SECONDS);
 
 		assertEquals(true, p.get(3, TimeUnit.SECONDS));
 	}
 
-	public void testConnectionFailed() throws IOException, InterruptedException {
-		this.dispatcher = new AbstractDispatcher() { };
-		this.clientDispatcher = new AbstractDispatcher() { };
-		final SimpleSessionListener listener = new SimpleSessionListener();
+	@Test
+	public void testConnectionFailed() throws IOException, InterruptedException, ExecutionException, TimeoutException {
+		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		try {
-			this.clientDispatcher.createClient(this.serverAddress, listener,
-					new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
-						@Override
-						public SessionNegotiator<SimpleSession> getSessionNegotiator(
-								final SessionListenerFactory<SimpleSessionListener> factory, final Channel channel,
-								final Promise<SimpleSession> promise) {
-							return null;
-						}
-					}, new MessageFactory(), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000)).get();
+		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
-			fail("Connection succeeded unexpectedly");
-		} catch (final ExecutionException e) {
-			assertTrue(listener.failed);
-			assertTrue(e.getCause() instanceof ConnectException);
-		}
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				p.setSuccess(true);
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
+		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		});
+
+		this.server.get();
+
+		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+			@Override
+			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
+					final Channel channel, final Promise<SimpleSession> promise) {
+				return new SimpleSessionNegotiator(promise, channel);
+			}
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+
+		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
+					@Override
+					public SimpleSessionListener getSessionListener() {
+						return new SimpleSessionListener();
+					}
+				}).get(6, TimeUnit.SECONDS);
+
+		final Future<?> session = this.clientDispatcher.createClient(this.serverAddress,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
+					@Override
+					public SimpleSessionListener getSessionListener() {
+						return new SimpleSessionListener();
+					}
+				});
+		assertFalse(session.isSuccess());
 	}
 
 	@After

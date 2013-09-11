@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateEventBuilder;
 import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
@@ -90,7 +90,7 @@ public class BGPUpdateMessageParser {
 		byteOffset += TOTAL_PATH_ATTR_LENGTH_SIZE;
 		eventBuilder.setTotalPathAttrLength(totalPathAttrLength);
 
-		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactory.COMMON_HEADER_LENGTH > msgLength)
+		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactoryImpl.COMMON_HEADER_LENGTH > msgLength)
 			throw new BGPDocumentedException("Message length inconsistent with withdrawn router length.", BGPError.MALFORMED_ATTR_LIST);
 
 		if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {

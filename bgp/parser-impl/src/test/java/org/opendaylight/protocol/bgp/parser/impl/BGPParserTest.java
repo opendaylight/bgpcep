@@ -166,9 +166,9 @@ public class BGPParserTest {
 	@Test
 	public void testGetUpdateMessage1() throws Exception {
 
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -292,9 +292,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage2() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -401,9 +401,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage3() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 		assertTrue(ret instanceof BGPUpdateMessage);
 		final BGPUpdateMessage message = (BGPUpdateMessage) ret;
@@ -505,9 +505,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage4() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -587,9 +587,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testGetUpdateMessage5() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -617,9 +617,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORIpv4() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
@@ -653,9 +653,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORIpv6() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
@@ -691,9 +691,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORLS() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateSynchronized);
@@ -865,9 +865,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testBGPLink() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -997,9 +997,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testBGPNode() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageFactory.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), BGPMessageFactory.MARKER_LENGTH,
-				BGPMessageFactory.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), BGPMessageFactoryImpl.MARKER_LENGTH,
+				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
 		final BGPUpdateEvent ret = BGPUpdateMessageParser.parse(body, messageLength);
 
 		assertTrue(ret instanceof BGPUpdateMessage);
@@ -1077,7 +1077,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final BGPMessageFactory msgFactory = new BGPMessageFactory();
+		final BGPMessageFactoryImpl msgFactory = new BGPMessageFactoryImpl();
 		final BGPOpenMessage open = (BGPOpenMessage) msgFactory.parse(inputBytes.get(13)).get(0);
 		final Set<BGPTableType> types = Sets.newHashSet();
 		for (final BGPParameter param : open.getOptParams()) {

@@ -48,7 +48,8 @@ import com.google.common.base.Preconditions;
 /**
  * Implementation of PCEPSession. (Not final for testing.)
  */
-class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PCEPSession, PCEPSessionRuntimeMXBean {
+@VisibleForTesting
+public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PCEPSession, PCEPSessionRuntimeMXBean {
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
@@ -94,8 +95,8 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 
 	private final Channel channel;
 
-	PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages,
-			final Channel channel, final PCEPOpenObject localOpen, final PCEPOpenObject remoteOpen) {
+	PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
+			final PCEPOpenObject localOpen, final PCEPOpenObject remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
@@ -108,7 +109,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 		}
 
 		if (getDeadTimerValue() != 0) {
-			stateTimer.newTimeout(new TimerTask() {
+			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
 				public void run(final Timeout timeout) throws Exception {
 					handleDeadTimer();
@@ -117,7 +118,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 		}
 
 		if (getKeepAliveTimerValue() != 0) {
-			stateTimer.newTimeout(new TimerTask() {
+			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
 				public void run(final Timeout timeout) throws Exception {
 					handleKeepaliveTimer();
@@ -144,7 +145,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 				logger.debug("DeadTimer expired. " + new Date());
 				this.terminate(Reason.EXP_DEADTIMER);
 			} else {
-				stateTimer.newTimeout(new TimerTask() {
+				this.stateTimer.newTimeout(new TimerTask() {
 					@Override
 					public void run(final Timeout timeout) throws Exception {
 						handleDeadTimer();
@@ -165,7 +166,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 
 		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 
-		if (channel.isActive()) {
+		if (this.channel.isActive()) {
 			if (ct >= nextKeepalive) {
 				this.sendMessage(new PCEPKeepAliveMessage());
 				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
@@ -326,17 +327,17 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 
 	@Override
 	public Integer getDeadTimerValue() {
-		return remoteOpen.getDeadTimerValue();
+		return this.remoteOpen.getDeadTimerValue();
 	}
 
 	@Override
 	public Integer getKeepAliveTimerValue() {
-		return localOpen.getKeepAliveTimerValue();
+		return this.localOpen.getKeepAliveTimerValue();
 	}
 
 	@Override
 	public String getPeerAddress() {
-		InetSocketAddress a = (InetSocketAddress) channel.remoteAddress();
+		final InetSocketAddress a = (InetSocketAddress) this.channel.remoteAddress();
 		return a.getHostName();
 	}
 
@@ -347,7 +348,7 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 
 	@Override
 	public String getNodeIdentifier() {
-		for (PCEPTlv tlv : this.remoteOpen.getTlvs()) {
+		for (final PCEPTlv tlv : this.remoteOpen.getTlvs()) {
 			if (tlv instanceof NodeIdentifierTlv) {
 				return tlv.toString();
 			}
@@ -361,13 +362,13 @@ class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PC
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("localOpen", localOpen);
-		toStringHelper.add("remoteOpen", remoteOpen);
+		toStringHelper.add("localOpen", this.localOpen);
+		toStringHelper.add("remoteOpen", this.remoteOpen);
 		return toStringHelper;
 	}
 
 	@Override
 	protected void sessionUp() {
-		listener.onSessionUp(this);
+		this.listener.onSessionUp(this);
 	}
 }
