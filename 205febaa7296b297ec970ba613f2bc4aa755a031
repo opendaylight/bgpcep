@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_b7a62352",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T17:40:14Z",
+      "side": 1,
+      "message": "This will make the dispatcher unshareable and potentially thread-unsafe. What would happen if I were to createServer() with different listenerFactories?\n\nMaybe the answer is passing the listenerfactory down to the super and receive it back as argument to initializeChannel()...",
+      "revId": "205febaa7296b297ec970ba613f2bc4aa755a031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_f7acab37",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T17:40:14Z",
+      "side": 1,
+      "message": "Remove this",
+      "revId": "205febaa7296b297ec970ba613f2bc4aa755a031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
