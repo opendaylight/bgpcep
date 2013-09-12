@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_972b27eb",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BGPMessageFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Missing copyright header.",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_7730bb56",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/BGPMessageFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Documentation, please",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_5735bf44",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPMessageFactoryImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Empty contructor is not needed",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_373a3337",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPHandlerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Missing docs.",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_173f3727",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPHandlerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Private? Protected?",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_b71ce3c2",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/AbstractDispatcher.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Missing documentation",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_777e7be6",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolMessageEncoder.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Remove this please",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_57837fcc",
+        "filename": "framework/src/main/java/org/opendaylight/protocol/framework/ProtocolSessionPromise.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "CheckoNotNull()",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_3788f3e6",
+        "filename": "framework/src/test/java/org/opendaylight/protocol/framework/ServerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Any reason why this is commented out?",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_d7764f06",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Add a checkNotNull()",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_9760c736",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPHandlerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Documentation",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_b773c314",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPHandlerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "Private? Protected?",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_77655b44",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPHandlerFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-12T15:02:17Z",
+      "side": 1,
+      "message": "This does not look right. Why do we need to PCEPMessageFactories?!",
+      "revId": "5ac8c5b4a7ab7b9ec0596ee94e99cfe7a6cac056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
