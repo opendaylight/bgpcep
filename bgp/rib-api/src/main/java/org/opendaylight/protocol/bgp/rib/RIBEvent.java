@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib;
 
-public abstract class RIBEvent {
-	protected RIBEvent() {
+public interface RIBEvent {
 
-	}
 }

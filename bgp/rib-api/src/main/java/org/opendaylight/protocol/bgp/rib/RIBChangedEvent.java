@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
 import com.google.common.base.Preconditions;
 
-public final class RIBChangedEvent extends RIBEvent {
+public final class RIBChangedEvent implements RIBEvent {
 	private final Map<LinkIdentifier, BGPLinkState> links;
 	private final Map<NodeIdentifier, BGPNodeState> nodes;
 	private final Map<PrefixIdentifier<?>, BGPPrefixState> prefixes;

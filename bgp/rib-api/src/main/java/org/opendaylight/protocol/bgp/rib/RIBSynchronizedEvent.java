@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 
-public final class RIBSynchronizedEvent extends RIBEvent {
+public final class RIBSynchronizedEvent implements RIBEvent {
 	private final BGPTableType table;
 
 	public RIBSynchronizedEvent(final BGPTableType table) {
