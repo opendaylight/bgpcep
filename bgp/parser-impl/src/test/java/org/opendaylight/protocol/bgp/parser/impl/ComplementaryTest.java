@@ -190,7 +190,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPHeaderParser() throws IOException {
-		final BGPMessageFactory h = new BGPMessageFactory();
+		final BGPMessageFactoryImpl h = new BGPMessageFactoryImpl();
 		try {
 			h.parse(new byte[] { (byte) 0, (byte) 0 });
 			fail("Exception should have occured.");
@@ -219,7 +219,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testMessageParser() throws IOException {
-		final BGPMessageFactory parser = new BGPMessageFactory();
+		final BGPMessageFactoryImpl parser = new BGPMessageFactoryImpl();
 		String ex = "";
 		try {
 			parser.put(null);

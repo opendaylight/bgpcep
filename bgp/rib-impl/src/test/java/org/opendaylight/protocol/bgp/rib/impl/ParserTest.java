@@ -28,7 +28,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
@@ -59,7 +59,7 @@ public class ParserTest {
 		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 		(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
-	final ProtocolMessageFactory<BGPMessage> factory = new BGPMessageFactory();
+	final ProtocolMessageFactory<BGPMessage> factory = new BGPMessageFactoryImpl();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {
@@ -71,7 +71,7 @@ public class ParserTest {
 			fail("Exception should have occcured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= "
-					+ BGPMessageFactory.COMMON_HEADER_LENGTH + ".", e.getMessage());
+					+ BGPMessageFactoryImpl.COMMON_HEADER_LENGTH + ".", e.getMessage());
 			return;
 		}
 		fail();

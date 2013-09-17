@@ -12,9 +12,11 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPObject;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Structure that combines set of related objects.
- *
+ * 
  * @see <a href="http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt">PCCreate Message</a>
  */
 public class CompositeInstantiationObject {
@@ -31,33 +33,27 @@ public class CompositeInstantiationObject {
 
 	/**
 	 * Constructs basic composite object only with mandatory objects.
-	 *
-	 * @param endPoints
-	 *            PCEPEndPointsObject<?>. Can't be null.
-	 * @param lspa
-	 *            PCEPLspaObject. Can't be null.
+	 * 
+	 * @param endPoints PCEPEndPointsObject<?>. Can't be null.
+	 * @param lspa PCEPLspaObject. Can't be null.
 	 */
-	public CompositeInstantiationObject(PCEPEndPointsObject<?> endPoints, PCEPLspaObject lspa) {
+	public CompositeInstantiationObject(final PCEPEndPointsObject<?> endPoints, final PCEPLspaObject lspa) {
 		this(endPoints, lspa, null, null, null);
 	}
 
 	/**
 	 * Constructs composite object with optional objects.
-	 *
-	 * @param endPoints
-	 * 			PCEPEndPointsObject<?>. Can't be null.
-	 * @param lspa
-	 * 			PCEPLspaObject. Can't be null.
-	 * @param ero
-	 * 			PCEPExplicitRouteObject
-	 * @param bandwidth
-	 * 			PCEPRequestedPathBandwidthObject
-	 * @param metrics
-	 * 			List<PCEPMetricObject>
+	 * 
+	 * @param endPoints PCEPEndPointsObject<?>. Can't be null.
+	 * @param lspa PCEPLspaObject. Can't be null.
+	 * @param ero PCEPExplicitRouteObject
+	 * @param bandwidth PCEPRequestedPathBandwidthObject
+	 * @param metrics List<PCEPMetricObject>
 	 */
-	public CompositeInstantiationObject(PCEPEndPointsObject<?> endPoints, PCEPLspaObject lspa, PCEPExplicitRouteObject ero, PCEPRequestedPathBandwidthObject bandwidth, List<PCEPMetricObject> metrics) {
-		this.endPoints = endPoints;
-		this.lspa = lspa;
+	public CompositeInstantiationObject(final PCEPEndPointsObject<?> endPoints, final PCEPLspaObject lspa,
+			final PCEPExplicitRouteObject ero, final PCEPRequestedPathBandwidthObject bandwidth, final List<PCEPMetricObject> metrics) {
+		this.endPoints = Preconditions.checkNotNull(endPoints);
+		this.lspa = Preconditions.checkNotNull(lspa);
 		this.ero = ero;
 		this.bandwidth = bandwidth;
 		this.metrics = metrics;
@@ -65,7 +61,7 @@ public class CompositeInstantiationObject {
 
 	/**
 	 * Gets list of all objects, which are in appropriate order.
-	 *
+	 * 
 	 * @return List<PCEPObject>. Can't be null or empty.
 	 */
 	public List<PCEPObject> getCompositeAsList() {
@@ -83,13 +79,11 @@ public class CompositeInstantiationObject {
 
 	/**
 	 * Creates this object from a list of PCEPObjects.
-	 *
-	 * @param objects
-	 *            List<PCEPObject> list of PCEPObjects from whose this object
-	 *            should be created.
+	 * 
+	 * @param objects List<PCEPObject> list of PCEPObjects from whose this object should be created.
 	 * @return CompositeInstantiationObject
 	 */
-	public static CompositeInstantiationObject getCompositeFromList(List<PCEPObject> objects) {
+	public static CompositeInstantiationObject getCompositeFromList(final List<PCEPObject> objects) {
 		if (objects == null || objects.isEmpty()) {
 			throw new IllegalArgumentException("List cannot be null or empty.");
 		}
@@ -116,26 +110,26 @@ public class CompositeInstantiationObject {
 		while (!objects.isEmpty()) {
 			final PCEPObject obj = objects.get(0);
 			switch (state) {
-				case 1:
-					state = 2;
-					if (obj instanceof PCEPExplicitRouteObject) {
-						ero = (PCEPExplicitRouteObject) obj;
-						break;
-					}
-				case 2:
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPExplicitRouteObject) {
+					ero = (PCEPExplicitRouteObject) obj;
+					break;
+				}
+			case 2:
+				state = 3;
+				if (obj instanceof PCEPRequestedPathBandwidthObject) {
+					bandwidth = (PCEPRequestedPathBandwidthObject) obj;
+					break;
+				}
+			case 3:
+				state = 4;
+				if (obj instanceof PCEPMetricObject) {
+					metrics.add((PCEPMetricObject) obj);
 					state = 3;
-					if (obj instanceof PCEPRequestedPathBandwidthObject) {
-						bandwidth = (PCEPRequestedPathBandwidthObject) obj;
-						break;
-					}
-				case 3:
-					state = 4;
-					if (obj instanceof PCEPMetricObject) {
-						metrics.add((PCEPMetricObject) obj);
-						state = 3;
 
-						break;
-					}
+					break;
+				}
 			}
 
 			if (state == 4) {
@@ -190,10 +184,8 @@ public class CompositeInstantiationObject {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((this.bandwidth == null) ? 0 : this.bandwidth.hashCode());
-		result = prime * result
-				+ ((this.endPoints == null) ? 0 : this.endPoints.hashCode());
+		result = prime * result + ((this.bandwidth == null) ? 0 : this.bandwidth.hashCode());
+		result = prime * result + ((this.endPoints == null) ? 0 : this.endPoints.hashCode());
 		result = prime * result + ((this.ero == null) ? 0 : this.ero.hashCode());
 		result = prime * result + ((this.lspa == null) ? 0 : this.lspa.hashCode());
 		result = prime * result + ((this.metrics == null) ? 0 : this.metrics.hashCode());
@@ -204,7 +196,7 @@ public class CompositeInstantiationObject {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
