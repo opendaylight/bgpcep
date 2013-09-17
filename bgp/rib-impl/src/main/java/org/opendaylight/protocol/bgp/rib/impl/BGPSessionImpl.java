@@ -75,16 +75,15 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	@GuardedBy("this")
 	private boolean closed = false;
 
-	private final short keepAlive;
+	private final int keepAlive;
 
 	private final Set<BGPTableType> tableTypes;
 
-	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final short keepAlive,
-			final BGPOpenMessage remoteOpen) {
+	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final BGPOpenMessage remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
-		this.keepAlive = keepAlive;
+		this.keepAlive = remoteOpen.getHoldTime() / 3;
 
 		final Set<BGPTableType> tts = Sets.newHashSet();
 		if (remoteOpen.getOptParams() != null) {
@@ -112,7 +111,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 				public void run(final Timeout timeout) throws Exception {
 					handleKeepaliveTimer();
 				}
-			}, keepAlive, TimeUnit.SECONDS);
+			}, this.keepAlive, TimeUnit.SECONDS);
 		}
 	}
 

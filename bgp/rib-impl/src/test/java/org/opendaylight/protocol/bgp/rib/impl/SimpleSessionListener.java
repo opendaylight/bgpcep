@@ -25,27 +25,14 @@ public class SimpleSessionListener implements BGPSessionListener {
 
 	private final List<BGPMessage> listMsg = Lists.newArrayList();
 
-	private BGPSessionImpl session = null;
-
 	public boolean up = false;
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleSessionListener.class);
 
 	public boolean down = false;
 
-	public SimpleSessionListener() {
-	}
-
-	public void sendMessage(final BGPMessage msg) {
-		this.session.handleMessage(msg);
-	}
-
 	public List<BGPMessage> getListMsg() {
 		return this.listMsg;
-	}
-
-	public void addSession(final BGPSessionImpl l) {
-		this.session = l;
 	}
 
 	@Override
@@ -58,7 +45,6 @@ public class SimpleSessionListener implements BGPSessionListener {
 	public void onSessionUp(final BGPSession session) {
 		logger.debug("Session Up");
 		this.up = true;
-		this.notifyAll();
 	}
 
 	@Override

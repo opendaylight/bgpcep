@@ -13,27 +13,36 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
+import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
+import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
+import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMessage, BGPSessionImpl> {
 	// 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
-	private static final int INITIAL_HOLDTIMER = 4;
+	// FIXME to actual value
+	protected static final int INITIAL_HOLDTIMER = 1;
 
-	private enum State {
+	@VisibleForTesting
+	public enum State {
 		/**
 		 * Negotiation has not started yet.
 		 */
@@ -59,7 +68,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 	private final BGPSessionPreferences localPref;
 	private BGPOpenMessage remotePref;
 	private State state = State.Idle;
-	private final short keepAlive = 15;
+	private BGPSessionImpl session;
 
 	public BGPSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
 			final BGPSessionPreferences initialPrefs, final BGPSessionListener listener) {
@@ -82,6 +91,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
 						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+						BGPSessionNegotiator.this.channel.writeAndFlush(new BGPNotificationMessage(BGPError.HOLD_TIMER_EXPIRED));
 						BGPSessionNegotiator.this.state = State.Finished;
 					}
 				}
@@ -99,31 +109,39 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 			throw new IllegalStateException("Unexpected state " + this.state);
 		case OpenConfirm:
 			if (msg instanceof BGPKeepAliveMessage) {
-				final BGPKeepAliveMessage ka = (BGPKeepAliveMessage) msg;
-
-				// FIXME: we miss some stuff over here
-
-				negotiationSuccessful(new BGPSessionImpl(this.timer, this.listener, this.channel, this.keepAlive, this.remotePref));
-				this.state = State.Finished;
-				return;
+				negotiationSuccessful(this.session);
 			} else if (msg instanceof BGPNotificationMessage) {
 				final BGPNotificationMessage ntf = (BGPNotificationMessage) msg;
 				negotiationFailed(new BGPDocumentedException("Peer refusal", ntf.getError()));
-				this.state = State.Finished;
-				return;
 			}
-
-			break;
+			this.state = State.Finished;
+			return;
 		case OpenSent:
 			if (msg instanceof BGPOpenMessage) {
-				final BGPOpenMessage open = (BGPOpenMessage) msg;
+				final BGPOpenMessage openObj = (BGPOpenMessage) msg;
 
-				// TODO: validate the open message
-
-				this.remotePref = open;
-				this.channel.writeAndFlush(new BGPKeepAliveMessage());
-				this.state = State.OpenConfirm;
-				logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+				final List<BGPParameter> prefs = openObj.getOptParams();
+				if (prefs != null && !prefs.isEmpty())
+					for (final BGPParameter param : openObj.getOptParams()) {
+						if (param instanceof CapabilityParameter) {
+							if (((CapabilityParameter) param).getCode() == MultiprotocolCapability.CODE) {
+								final MultiprotocolCapability cap = (MultiprotocolCapability) param;
+								if (cap.getAfi() == BGPAddressFamily.LinkState && cap.getSafi() == BGPSubsequentAddressFamily.Linkstate) {
+									this.remotePref = openObj;
+									this.channel.writeAndFlush(new BGPKeepAliveMessage());
+									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+									this.state = State.OpenConfirm;
+									logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel,
+											this.remotePref);
+									return;
+								}
+							}
+						}
+					}
+				final BGPNotificationMessage ntf = new BGPNotificationMessage(BGPError.UNSPECIFIC_OPEN_ERROR);
+				this.channel.writeAndFlush(ntf);
+				negotiationFailed(new BGPDocumentedException("Linkstate capability not advertised.", ntf.getError()));
+				this.state = State.Finished;
 				return;
 			}
 			break;
@@ -134,5 +152,9 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 		this.channel.writeAndFlush(new BGPNotificationMessage(BGPError.FSM_ERROR));
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
 		this.state = State.Finished;
+	}
+
+	public State getState() {
+		return this.state;
 	}
 }

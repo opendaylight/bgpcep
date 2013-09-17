@@ -23,7 +23,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
 	private final BGPSessionListener client;
 
 	SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
-		super(new HashedWheelTimer(), listener, mock(Channel.class), (short) 3, new BGPOpenMessage(null, (short) 5, null, null));
+		super(new HashedWheelTimer(), listener, mock(Channel.class), new BGPOpenMessage(null, (short) 5, null, null));
 		this.client = client;
 	}
 

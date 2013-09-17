@@ -8,9 +8,19 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.util.List;
 
@@ -18,6 +28,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
@@ -28,113 +42,114 @@ import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class FSMTest {
 
-	private SimpleSessionListener clientListener;
+	private BGPSessionNegotiator clientSession;
 
-	private final SpeakerSessionListener speakerListener = new SpeakerSessionListener();
+	@Mock
+	private Channel speakerListener;
 
-	private SpeakerSessionMock speaker;
+	@Mock
+	private ChannelPipeline pipeline;
+
+	private final BGPTableType ipv4tt = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+
+	private final BGPTableType linkstatett = new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate);
+
+	private final List<BGPMessage> receivedMsgs = Lists.newArrayList();
+
+	private BGPOpenMessage classicOpen;
 
 	@Before
 	public void setUp() {
-		this.clientListener = new SimpleSessionListener();
-		this.speaker = new SpeakerSessionMock(this.speakerListener, this.clientListener);
-		this.clientListener.addSession(this.speaker);
-	}
-
-	@Test
-	@Ignore
-	public void testAccSessionChar() throws InterruptedException {
-		//this.speaker.startSession();
-		assertEquals(1, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
+		MockitoAnnotations.initMocks(this);
 		final List<BGPParameter> tlvs = Lists.newArrayList();
-		tlvs.add(new MultiprotocolCapability(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast)));
-		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, tlvs));
-		assertEquals(2, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(1) instanceof BGPKeepAliveMessage);
-		this.clientListener.sendMessage(new BGPKeepAliveMessage());
-		synchronized (this.speakerListener) {
-			while (!this.speakerListener.up) {
-				try {
-					this.speakerListener.wait();
-					fail("Exception should have occured.");
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
+		tlvs.add(new MultiprotocolCapability(this.ipv4tt));
+		tlvs.add(new MultiprotocolCapability(this.linkstatett));
+		final BGPSessionPreferences prefs = new BGPSessionPreferences(new ASNumber(30), (short) 3, null, tlvs);
+		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
+		doAnswer(new Answer() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) {
+				final Object[] args = invocation.getArguments();
+				FSMTest.this.receivedMsgs.add((BGPMessage) args[0]);
+				return null;
 			}
-		}
-		assertTrue(this.speakerListener.up);
-		assertEquals(this.speakerListener.types,
-				Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast)));
-		Thread.sleep(1 * 1000);
-		assertEquals(3, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(2) instanceof BGPKeepAliveMessage); // test of keepalive timer
-		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
-		assertEquals(4, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(3) instanceof BGPNotificationMessage);
-		final BGPMessage m = this.clientListener.getListMsg().get(3);
-		assertEquals(BGPError.FSM_ERROR, ((BGPNotificationMessage) m).getError());
+		}).when(this.speakerListener).writeAndFlush(any(BGPMessage.class));
+		doReturn("TestingChannel").when(this.speakerListener).toString();
+		doReturn(this.pipeline).when(this.speakerListener).pipeline();
+		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+		doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
+		this.classicOpen = new BGPOpenMessage(new ASNumber(30), (short) 3, null, tlvs);
 	}
 
 	@Test
-	@Ignore
+	public void testAccSessionChar() throws InterruptedException {
+		this.clientSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
+		this.clientSession.handleMessage(this.classicOpen);
+		assertEquals(2, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(1) instanceof BGPKeepAliveMessage);
+		this.clientSession.handleMessage(new BGPKeepAliveMessage());
+		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
+		// Thread.sleep(3 * 1000);
+		// Thread.sleep(100);
+		// assertEquals(3, this.receivedMsgs.size());
+		// assertTrue(this.receivedMsgs.get(2) instanceof BGPKeepAliveMessage); // test of keepalive timer
+		// this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
+		// assertEquals(4, this.receivedMsgs.size());
+		// assertTrue(this.receivedMsgs.get(3) instanceof BGPNotificationMessage);
+		// final BGPMessage m = this.clientListener.getListMsg().get(3);
+		// assertEquals(BGPError.FSM_ERROR, ((BGPNotificationMessage) m).getError());
+	}
+
+	@Test
 	public void testNotAccChars() throws InterruptedException {
-		//this.speaker.startSession();
-		assertEquals(1, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
-		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 1, null, null));
-		assertEquals(2, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(1) instanceof BGPKeepAliveMessage);
-		assertFalse(this.speakerListener.up);
-		Thread.sleep(BGPSessionImpl.HOLD_TIMER_VALUE * 1000);
-		Thread.sleep(100);
-		final BGPMessage m = this.clientListener.getListMsg().get(this.clientListener.getListMsg().size() - 1);
-		assertEquals(BGPError.HOLD_TIMER_EXPIRED, ((BGPNotificationMessage) m).getError());
+		this.clientSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
+		this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 1, null, null));
+		assertEquals(2, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(1) instanceof BGPNotificationMessage);
+		final BGPMessage m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+		assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, ((BGPNotificationMessage) m).getError());
 	}
 
 	@Test
 	@Ignore
 	// long duration
 	public void testNoOpen() throws InterruptedException {
-		//this.speaker.startSession();
-		assertEquals(1, this.clientListener.getListMsg().size());
-		assertTrue(this.clientListener.getListMsg().get(0) instanceof BGPOpenMessage);
-		Thread.sleep(BGPSessionImpl.HOLD_TIMER_VALUE * 1000);
+		this.clientSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
+		Thread.sleep(BGPSessionNegotiator.INITIAL_HOLDTIMER * 1000 * 60);
 		Thread.sleep(100);
-		final BGPMessage m = this.clientListener.getListMsg().get(this.clientListener.getListMsg().size() - 1);
+		final BGPMessage m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
 		assertEquals(BGPError.HOLD_TIMER_EXPIRED, ((BGPNotificationMessage) m).getError());
 	}
 
 	@Test
-	@Ignore
 	public void sendNotification() {
-		//this.speaker.startSession();
-		this.clientListener.sendMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
-		this.clientListener.sendMessage(new BGPKeepAliveMessage());
-		synchronized (this.speakerListener) {
-			while (!this.speakerListener.up) {
-				try {
-					this.speakerListener.wait();
-					fail("Exception should have occured.");
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+		this.clientSession.channelActive(null);
+		this.clientSession.handleMessage(this.classicOpen);
+		this.clientSession.handleMessage(new BGPKeepAliveMessage());
+		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
+		try {
+			this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
+			fail("Exception should be thrown.");
+		} catch (final IllegalStateException e) {
+			assertEquals("Unexpected state Finished", e.getMessage());
 		}
-		assertTrue(this.speakerListener.up);
-		this.clientListener.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
-		assertFalse(this.speakerListener.up);
 	}
 
 	@After
 	public void tearDown() {
-		this.speaker.close();
+
 	}
 }
