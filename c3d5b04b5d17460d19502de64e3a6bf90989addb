@@ -16,6 +16,24 @@
       "revId": "c3d5b04b5d17460d19502de64e3a6bf90989addb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_3eec48c7",
+        "filename": "bgp/parser-api/src/main/yang/bgp-multiprotocol.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-18T15:43:24Z",
+      "side": 1,
+      "message": "bgp-multiprotocol.yang:92 (at bgp-multiprotocol.yang:68): error: cannot augment mandatory node afi\nbgp-multiprotocol.yang:92 (at bgp-multiprotocol.yang:72): error: cannot augment mandatory node safi",
+      "parentUuid": "1a2f8d8d_7e3c1094",
+      "revId": "c3d5b04b5d17460d19502de64e3a6bf90989addb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
