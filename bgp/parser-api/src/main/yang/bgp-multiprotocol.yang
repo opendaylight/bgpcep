@@ -65,12 +65,14 @@ module bgp-multiprotocol {
 	grouping bgp-table-type {
 		leaf afi {
 			type bgp-address-family;
+			mandatory true;
 		}
 		leaf safi {
 			type bgp-subsequent-address-family;
+			mandatory true;
 		}
 	}
-	
+
 	augment "/bgp-msg:open/bgp-msg:optional-parameters/bgp-msg:parameters" {
 		case multiprotocol {
 			list capabilities {

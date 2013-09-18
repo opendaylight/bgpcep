@@ -1,0 +1,297 @@
+module bgp-linkstate {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgp-linkstate";
+	prefix "bgp-ls";
+
+	import  ietf-inet-types {
+		prefix inet;
+		revision-date 2010-09-24;
+	}
+	import bgp-message { prefix bgp-msg;}
+	import bgp-multiprotocol { prefix bgp-mp;}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the base data model of a BGP message.
+		It rolls up the definitions contained in RFC4271
+		and draft-ietf-idr-ls-distribution-03.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-18" {
+		description
+			"Initial revision.";
+		reference "draft-ietf-idr-ls-distribution-03";
+	}
+
+	typedef nlri-type {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+		type enumeration {
+			enum node {
+				value 1;
+			}
+			enum link {
+				value 2;
+			}
+			enum ipv4-prefix {
+				value 3;
+			}
+			enum ipv6-prefix {
+				value 4;
+			}
+		}
+	}
+
+	typedef protocol-id {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+		type enumeration {
+			enum unknown {
+				value 0;
+			}
+			enum isis-level1 {
+				value 1;
+			}
+			enum isis-level2 {
+				value 2;
+			}
+			enum ospf {
+				value 3;
+			}
+			enum direct {
+				value 4;
+			}
+			enum static {
+				value 5;
+			}
+		}
+	}
+
+	typedef ospf-route-type {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.3.1";
+		type enumeration {
+			enum intra-area {
+				value 1;
+			}
+			enum inter-area {
+				value 2;
+			}
+			enum external1 {
+				value 3;
+			}
+			enum external2 {
+				value 4;
+			}
+			enum nssa1 {
+				value 5;
+			}
+			enum nssa2 {
+				value 6;
+			}
+		}
+	}
+
+	typedef route-distinguisher {
+		type uint64;
+	}
+
+	typedef identifier {
+		type uint64;
+	}
+
+	typedef domain-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		type binary {
+			length "4";
+		}
+	}
+
+	typedef area-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		type binary {
+			length "4";
+		}
+	}
+
+	// concepts
+	typedef iso-system-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		type binary {
+			length "6";
+		}
+	}
+
+	typedef ipv4-interface-identifier {
+		reference "http://tools.ietf.org/html/rfc5305#section-3.2";
+		type inet:ipv4-address;
+	}
+
+	typedef ipv6-interface-identifier {
+		reference "http://tools.ietf.org/html/rfc6119#section-4.2";
+		type inet:ipv6-address;
+	}
+
+	typedef ospf-interface-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		type binary {
+			length "4";
+		}
+	}
+
+	typedef topology-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
+		type uint16 {
+			range "0..4095";
+		}
+	}
+
+
+	grouping isis-router-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		leaf iso-system-id {
+			type iso-system-identifier;
+			mandatory true;
+		}
+	}
+
+	grouping isis-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		container is-is-router-identifier {
+			uses isis-router-identifier;
+		}
+		leaf psn {
+			type uint8 {
+				range "1..255";
+			}
+			mandatory true;
+		}
+	}
+
+	grouping ospf-router-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		leaf ospf-router-id {
+			type binary {
+				length "4";
+			}
+			mandatory true;
+		}
+	}
+
+	grouping ospf-v2-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		uses ospf-router-identifier;
+		leaf ipv4-address {
+			type ipv4-interface-identifier;
+			mandatory true;
+		}
+	}
+
+	grouping ospf-v3-lan-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+		uses ospf-router-identifier;
+		leaf lan-interface {
+			type ospf-interface-identifier;
+			mandatory true;
+		}
+	}
+
+	grouping node-identifier {
+		leaf as-number {
+			type inet:as-number;
+		}
+		leaf area-id {
+			type area-identifier;
+		}
+		leaf domain-id {
+			type domain-identifier;
+		}
+		choice router-identifier {
+			case isis-node {
+				container isis-node {
+					uses isis-router-identifier;
+				}
+			}
+
+			case isis-pseudonode {
+				container isis-pseudonode {
+					uses isis-lan-identifier;
+				}
+			}
+
+			case ospf-node {
+				container ospf-node {
+					uses ospf-router-identifier;
+				}
+			}
+
+			case ospf-pseudonode {
+				container ospf-pseudonode {
+					uses ospf-v3-lan-identifier;
+				}
+			}
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:nlri/bgp-mp:nlri-type" {
+		case linkstate {
+			leaf nlri-type {
+				type nlri-type;
+			}
+			leaf distinguisher {
+				type route-distinguisher;
+			}
+			container ls-nlri {
+				leaf protocol-id {
+					type protocol-id;
+				}
+				leaf identifier {
+					type identifier;
+				}
+				container local-node-descriptors {
+					uses node-identifier;
+				}
+				container remote-node-descriptors {
+					when "../nlri-type = link";
+					uses node-identifier;
+				}
+				container Link-Descriptors {
+					when "../nlri-type = link";
+					leaf ipv4-interface-address {
+						type ipv4-interface-identifier;
+					}
+					leaf ipv6-interface-address {
+						type ipv6-interface-identifier;
+					}
+					leaf ipv4-neighbor-address {
+						type ipv4-interface-identifier;
+					}
+					leaf ipv6-neighbor-address {
+						type ipv6-interface-identifier;
+					}
+					leaf multi-topology-id {
+						type topology-identifier;
+					}
+				}
+				container prefix-descriptors {
+					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+					leaf multi-topology-id {
+						type topology-identifier;
+					}
+					leaf ospf-route-type {
+						when "../rotocol-id = 'ospf'";
+						type ospf-route-type;
+					}
+					leaf ip-reachability-information {
+						type inet:ip-prefix;
+					}
+				}
+			}
+		}
+	}
+}

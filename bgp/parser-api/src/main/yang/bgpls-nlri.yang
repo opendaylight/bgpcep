@@ -3,9 +3,13 @@ module bgpls-nlri {
 	namespace "urn:opendaylight:params:xml:ns:yang:bgpls";
 	prefix "nlri";
 
-	import  ietf-inet-types { 
+	import ietf-inet-types {
 		prefix inet;
 		revision-date 2010-09-24;
+	}
+
+	import bgp-linkstate {
+		prefix bgp-ls;
 	}
 
 	organization "Cisco Systems, Inc.";
@@ -27,30 +31,6 @@ module bgpls-nlri {
 		description
 			"Initial revision.";
 		reference "RFC4271";
-	}
-
-	typedef ospf-route-type {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.3.1";
-		type enumeration {
-			enum intra-area {
-				value 1;
-			}
-			enum inter-area {
-				value 2;
-			}
-			enum external1 {
-				value 3;
-			}
-			enum external2 {
-				value 4;
-			}
-			enum nssa1 {
-				value 5;
-			}
-			enum nssa2 {
-				value 6;
-			}
-		}
 	}
 
 	typedef link-protection-type {
@@ -77,37 +57,6 @@ module bgpls-nlri {
 		}
 	}
 
-	typedef protocol-id {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-		type enumeration {
-			enum unknown {
-				value 0;
-			}
-			enum isis-level1 {
-				value 1;
-			}
-			enum isis-level2 {
-				value 2;
-			}
-			enum ospf {
-				value 3;
-			}
-			enum direct {
-				value 4;
-			}
-			enum static {
-				value 5;
-			}
-		}
-	}
-
-	typedef area-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
-	}
-
 	typedef isis-area-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
 		type binary {
@@ -115,46 +64,16 @@ module bgpls-nlri {
 		}
 	}
 
-	typedef domain-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
-	}
-
-	// concepts
-	typedef iso-system-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "6";
-		}
-	}
-
-	typedef ipv4-interface-identifier {
-		reference "http://tools.ietf.org/html/rfc5305#section-3.2";
-		type inet:ipv4-address;
-	}
-
 	typedef ipv4-router-identifier {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
 		type inet:ipv4-address;
 	}
 
-	typedef ipv6-interface-identifier {
-		reference "http://tools.ietf.org/html/rfc6119#section-4.2";
-		type inet:ipv6-address;
-	}
+
 
 	typedef ipv6-router-identifier {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
 		type inet:ipv6-address;
-	}
-
-	typedef ospf-interface-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
 	}
 
 	typedef unnumbered-link-identifier {
@@ -249,121 +168,27 @@ module bgpls-nlri {
 		}
 	}
 
-	typedef topology-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
-		type uint16 {
-			range "0..4095";
-		}
-	}
-
-	grouping isis-router-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		leaf iso-system-id {
-			type iso-system-identifier;
-			mandatory true;
-		}
-	}
-
-	grouping isis-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		container is-is-router-identifier {
-			uses isis-router-identifier;
-		}
-		leaf psn {
-			type uint8 {
-				range "1..255";
-			}
-			mandatory true;
-		}
-	}
-
-	grouping ospf-router-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		leaf ospf-router-id {
-			type binary {
-				length "4";
-			}
-			mandatory true;
-		}
-	}
-
-	grouping ospf-v2-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		uses ospf-router-identifier;
-		leaf ipv4-address {
-			type ipv4-interface-identifier;
-			mandatory true;
-		}
-	}
-
-	grouping ospf-v3-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		uses ospf-router-identifier;
-		leaf lan-interface {
-			type ospf-interface-identifier;
-			mandatory true;
-		}
-	}
-
-	grouping node-identifier {
-		leaf as-number {
-			type inet:as-number;
-			mandatory true;
-		}
-		leaf area-id {
-			type area-identifier;
-		}
-		leaf domain-id {
-			type domain-identifier;
-			mandatory true;
-		}
-		choice router-identifier {
-			case isis-node {
-				container isis-node {
-					uses isis-router-identifier;
-				}
-			}
-
-			case isis-pseudonode {
-				container isis-pseudonode {
-					uses isis-lan-identifier;
-				}
-			}
-
-			case ospf-node {
-				container ospf-node {
-					uses ospf-router-identifier;
-				}
-			}
-
-			case ospf-pseudonode {
-				container ospf-pseudonode {
-					uses ospf-v3-lan-identifier;
-				}
-			}
-		}
-	}
 
 	grouping link-anchor {
 		container node-identifier {
-			uses node-identifier;
+			uses bgp-ls:node-identifier;
 		}
 		choice interface-identifier {
 			case ipv4-iface-id {
 				leaf ipv4-iface-id {
-					type ipv4-interface-identifier;
+					type bgp-ls:ipv4-interface-identifier;
 				}
 			}
 
 			case ipv6-iface-id {
 				leaf ipv6-iface-id {
-					type ipv6-interface-identifier;
+					type bgp-ls:ipv6-interface-identifier;
 				}
 			}
 
 			case ospf-iface-id {
 				leaf ospf-iface-id {
-					type ospf-interface-identifier;
+					type bgp-ls:ospf-interface-identifier;
 				}
 			}
 
@@ -377,7 +202,7 @@ module bgpls-nlri {
 
 	grouping link-identifier {
 		leaf topology-identifier {
-			type topology-identifier;
+			type bgp-ls:topology-identifier;
 		}
 		container link-anchor {
 			uses link-anchor;
@@ -386,7 +211,7 @@ module bgpls-nlri {
 
 	grouping prefix-identifier {
 		container node-identifier {
-			uses node-identifier;
+			uses bgp-ls:node-identifier;
 		}
 		leaf prefix {
 			type inet:ip-prefix;
@@ -396,14 +221,14 @@ module bgpls-nlri {
 	grouping ospf-prefix-identifier {
 		uses prefix-identifier;
 		leaf ospf-route-t {
-			type ospf-route-type;
+			type bgp-ls:ospf-route-type;
 		}
 	}
 
 	grouping network-node-state {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
 		leaf topology-identifier {
-			type topology-identifier;
+			type bgp-ls:topology-identifier;
 		}
 		leaf node-flags {
 			type node-flag-bits;
@@ -517,16 +342,15 @@ module bgpls-nlri {
 
 	notification bgpls-pdu {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-		leaf route-distinguisher {
-			type uint64;
+		leaf distinguisher {
+			type bgp-ls:route-distinguisher;
 		}
 		leaf protocol {
-			type protocol-id;
+			type bgp-ls:protocol-id;
 			mandatory true;
 		}
 		leaf identifier {
-			type uint64;
-			mandatory true;
+			type bgp-ls:identifier;
 		}
 		choice objects {
 			case nodes {
