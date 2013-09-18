@@ -70,7 +70,7 @@ module bgp-multiprotocol {
 			type bgp-subsequent-address-family;
 		}
 	}
-	
+
 	augment "/bgp-msg:open/bgp-msg:optional-parameters/bgp-msg:parameters" {
 		case multiprotocol {
 			list capabilities {
