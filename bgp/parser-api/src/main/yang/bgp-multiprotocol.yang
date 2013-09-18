@@ -1,0 +1,115 @@
+module bgp-multiprotocol {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgp-multiprotocol";
+	prefix "bgp-mp";
+
+	import  ietf-inet-types {
+		prefix inet;
+		revision-date 2010-09-24;
+	}
+	import bgp-message { prefix bgp-msg;}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the base data model of a BGP message.
+		It rolls up the definitions contained in RFC4271
+		and draft-ietf-idr-ls-distribution-03.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-18" {
+		description
+			"Initial revision.";
+		reference "RFC4760";
+	}
+
+	typedef bgp-address-family {
+		reference "http://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml#address-family-numbers-2";
+		type enumeration {
+			enum ipv4 {
+				value 1;
+			}
+			enum ipv6 {
+				value 2;
+			}
+			enum linkstate {
+				value 16388;
+			}
+		}
+	}
+
+	typedef bgp-subsequent-address-family {
+		reference "http://tools.ietf.org/html/rfc4760#section-6
+		http://tools.ietf.org/html/rfc4364#section-16
+		http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+		type enumeration {
+			enum unicast {
+				value 1;
+			}
+			enum mpls-labeled-vpn {
+				value 128;
+			}
+			enum linkstate {
+				value 71;
+			}
+		}
+	}
+
+	grouping bgp-table-type {
+		leaf afi {
+			type bgp-address-family;
+		}
+		leaf safi {
+			type bgp-subsequent-address-family;
+		}
+	}
+	
+	augment "/bgp-msg:open/bgp-msg:optional-parameters/bgp-msg:parameters" {
+		case multiprotocol {
+			list capabilities {
+				container multiprotocol-capability {
+					reference "http://tools.ietf.org/html/rfc4760#section-8";
+					container table-type {
+						uses bgp-table-type;
+					}
+				}
+			}
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes" {
+		container mp-unreach-nlri {
+			reference "http://tools.ietf.org/html/rfc4760#section-4";
+			uses bgp-table-type;
+			container withdrawn-routes {
+				leaf-list withdrawn-routes {
+					type inet:ip-prefix;
+				}
+			}
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes" {
+		container mp-reach-nlri {
+			reference "http://tools.ietf.org/html/rfc4760#section-4";
+			uses bgp-table-type;
+			leaf hop {
+				type inet:ip-address;
+			}
+			container nlri {
+				choice nlri-type {
+					leaf-list nlri {
+						type inet:ip-prefix;
+					}
+				}
+			}
+		}
+	}
+}

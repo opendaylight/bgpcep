@@ -132,7 +132,6 @@ module bgp-message {
 			}
 			container multi-exit-disc {
 				reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
-				presence "MULTI_EXIT_DSC present.";
 				leaf med {
 					type uint32;
 				}
