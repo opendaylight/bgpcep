@@ -3,7 +3,10 @@ module bgpls-nlri {
 	namespace "urn:opendaylight:params:xml:ns:yang:bgpls";
 	prefix "nlri";
 
-	import  ietf-inet-types { prefix inet;}
+	import  ietf-inet-types { 
+		prefix inet;
+		revision-date 2010-09-24;
+	}
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
