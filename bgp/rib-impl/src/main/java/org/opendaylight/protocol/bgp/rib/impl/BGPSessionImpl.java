@@ -50,6 +50,28 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	public static int HOLD_TIMER_VALUE = DEFAULT_HOLD_TIMER_VALUE; // 240
 
 	/**
+	 * Internal session state.
+	 */
+	public enum State {
+		/**
+		 * The session object is created by the negotiator in OpenConfirm state.
+		 * While in this state, the session object is half-alive, e.g. the timers
+		 * are running, but the session is not completely up, e.g. it has not been
+		 * announced to the listener. If the session is torn down in this state,
+		 * we do not inform the listener.
+		 */
+		OpenConfirm,
+		/**
+		 * The session has been completely established.
+		 */
+		Up,
+		/**
+		 * The session has been closed. It will not be resurrected.
+		 */
+		Idle,
+	}
+
+	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
 	protected long lastMessageSentAt;
@@ -73,7 +95,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	private final Channel channel;
 
 	@GuardedBy("this")
-	private boolean closed = false;
+	private State state = State.OpenConfirm;
 
 	private final int keepAlive;
 
@@ -118,10 +140,10 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	@Override
 	public synchronized void close() {
 		logger.debug("Closing session: {}", this);
-		if (!this.closed) {
+		if (this.state != State.Idle) {
 			this.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
 			this.channel.close();
-			this.closed = true;
+			this.state = State.Idle;
 		}
 	}
 
@@ -158,7 +180,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 
 	@Override
 	public synchronized void endOfInput() {
-		if (!this.closed) {
+		if (this.state == State.Up) {
 			this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
 		}
 	}
@@ -176,7 +198,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	private synchronized void closeWithoutMessage() {
 		logger.debug("Closing session: {}", this);
 		this.channel.close();
-		this.closed = true;
+		this.state = State.Idle;
 	}
 
 	/**
@@ -188,6 +210,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	private void terminate(final BGPError error) {
 		this.sendMessage(new BGPNotificationMessage(error));
 		this.closeWithoutMessage();
+
 		this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
 	}
 
@@ -198,22 +221,23 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	 * state will become IDLE), then rescheduling won't occur.
 	 */
 	private synchronized void handleHoldTimer() {
-		final long ct = System.nanoTime();
+		if (this.state == State.Idle) {
+			return;
+		}
 
+		final long ct = System.nanoTime();
 		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(HOLD_TIMER_VALUE);
 
-		if (!this.closed) {
-			if (ct >= nextHold) {
-				logger.debug("HoldTimer expired. " + new Date());
-				this.terminate(BGPError.HOLD_TIMER_EXPIRED);
-			} else {
-				this.stateTimer.newTimeout(new TimerTask() {
-					@Override
-					public void run(final Timeout timeout) throws Exception {
-						handleHoldTimer();
-					}
-				}, nextHold - ct, TimeUnit.NANOSECONDS);
-			}
+		if (ct >= nextHold) {
+			logger.debug("HoldTimer expired. " + new Date());
+			this.terminate(BGPError.HOLD_TIMER_EXPIRED);
+		} else {
+			this.stateTimer.newTimeout(new TimerTask() {
+				@Override
+				public void run(final Timeout timeout) throws Exception {
+					handleHoldTimer();
+				}
+			}, nextHold - ct, TimeUnit.NANOSECONDS);
 		}
 	}
 
@@ -224,22 +248,23 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	 * starts to execute (the session state will become IDLE), that rescheduling won't occur.
 	 */
 	private synchronized void handleKeepaliveTimer() {
-		final long ct = System.nanoTime();
+		if (this.state == State.Idle) {
+			return;
+		}
 
+		final long ct = System.nanoTime();
 		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
-		if (!this.closed) {
-			if (ct >= nextKeepalive) {
-				this.sendMessage(new BGPKeepAliveMessage());
-				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
-			}
-			this.stateTimer.newTimeout(new TimerTask() {
-				@Override
-				public void run(final Timeout timeout) throws Exception {
-					handleKeepaliveTimer();
-				}
-			}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
+		if (ct >= nextKeepalive) {
+			this.sendMessage(new BGPKeepAliveMessage());
+			nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 		}
+		this.stateTimer.newTimeout(new TimerTask() {
+			@Override
+			public void run(final Timeout timeout) throws Exception {
+				handleKeepaliveTimer();
+			}
+		}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
 	}
 
 	@Override
@@ -249,7 +274,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("channel", this.channel);
-		toStringHelper.add("closed", this.closed);
+		toStringHelper.add("state", this.state);
 		return toStringHelper;
 	}
 
@@ -259,7 +284,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	}
 
 	@Override
-	protected void sessionUp() {
+	protected synchronized void sessionUp() {
+		this.state = State.Up;
 		this.listener.onSessionUp(this);
+	}
+
+	public synchronized State getState() {
+		return this.state;
 	}
 }

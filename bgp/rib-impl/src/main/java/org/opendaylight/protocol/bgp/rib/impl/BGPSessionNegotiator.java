@@ -16,6 +16,8 @@ import io.netty.util.concurrent.Promise;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.concurrent.GuardedBy;
+
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -66,8 +68,14 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 	private final BGPSessionListener listener;
 	private final Timer timer;
 	private final BGPSessionPreferences localPref;
+
+	@GuardedBy("this")
 	private BGPOpenMessage remotePref;
+
+	@GuardedBy("this")
 	private State state = State.Idle;
+
+	@GuardedBy("this")
 	private BGPSessionImpl session;
 
 	public BGPSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
@@ -121,7 +129,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 				final BGPOpenMessage openObj = (BGPOpenMessage) msg;
 
 				final List<BGPParameter> prefs = openObj.getOptParams();
-				if (prefs != null && !prefs.isEmpty())
+				if (prefs != null && !prefs.isEmpty()) {
 					for (final BGPParameter param : openObj.getOptParams()) {
 						if (param instanceof CapabilityParameter) {
 							if (((CapabilityParameter) param).getCode() == MultiprotocolCapability.CODE) {
@@ -138,6 +146,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 							}
 						}
 					}
+				}
 				final BGPNotificationMessage ntf = new BGPNotificationMessage(BGPError.UNSPECIFIC_OPEN_ERROR);
 				this.channel.writeAndFlush(ntf);
 				negotiationFailed(new BGPDocumentedException("Linkstate capability not advertised.", ntf.getError()));
@@ -154,7 +163,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 		this.state = State.Finished;
 	}
 
-	public State getState() {
+	public synchronized State getState() {
 		return this.state;
 	}
 }

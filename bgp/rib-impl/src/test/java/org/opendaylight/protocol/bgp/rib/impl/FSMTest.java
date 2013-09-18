@@ -73,7 +73,7 @@ public class FSMTest {
 		tlvs.add(new MultiprotocolCapability(this.linkstatett));
 		final BGPSessionPreferences prefs = new BGPSessionPreferences(new ASNumber(30), (short) 3, null, tlvs);
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
-		doAnswer(new Answer() {
+		doAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
