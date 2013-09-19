@@ -171,22 +171,12 @@ public class ComplementaryTest {
 
 	@Test
 	public void testMPReachParser() {
-		String msg = "";
-		try {
-			MPReachParser.parseSafi(5);
-			fail("Exception shoul have occured.");
-		} catch (final BGPParsingException e) {
-			msg = e.getMessage();
-		}
-		assertEquals("Subsequent Address Family Identifier: '5' not supported.", msg);
-
 		try {
 			MPReachParser.parseAfi(6);
 			fail("Exception should have occured.");
 		} catch (final BGPParsingException e) {
-			msg = e.getMessage();
+			assertEquals("Address Family Identifier: '6' not supported.", e.getMessage());
 		}
-		assertEquals("Address Family Identifier: '6' not supported.", msg);
 	}
 
 	@Test

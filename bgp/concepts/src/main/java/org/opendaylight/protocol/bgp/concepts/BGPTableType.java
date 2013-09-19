@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.concepts;
 
 import org.opendaylight.protocol.concepts.Identifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -17,7 +19,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 
 	private static final long serialVersionUID = -5502662876916458740L;
 
-	private final BGPSubsequentAddressFamily safi;
+	private final BgpSubsequentAddressFamily safi;
 
 	private final BGPAddressFamily afi;
 
@@ -27,7 +29,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 	 * @param afi Address Family Identifier
 	 * @param safi Subsequent Address Family Identifier
 	 */
-	public BGPTableType(final BGPAddressFamily afi, final BGPSubsequentAddressFamily safi) {
+	public BGPTableType(final BGPAddressFamily afi, final BgpSubsequentAddressFamily safi) {
 		this.afi = Preconditions.checkNotNull(afi, "Address family may not be null");
 		this.safi = Preconditions.checkNotNull(safi, "Subsequent address family may not be null");
 	}
@@ -46,7 +48,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 	 * 
 	 * @return safi SAFI
 	 */
-	public BGPSubsequentAddressFamily getSubsequentAddressFamily() {
+	public BgpSubsequentAddressFamily getSubsequentAddressFamily() {
 		return this.safi;
 	}
 

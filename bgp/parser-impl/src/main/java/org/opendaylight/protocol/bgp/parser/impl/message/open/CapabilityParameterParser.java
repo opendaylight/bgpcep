@@ -10,12 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
@@ -23,8 +18,12 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -137,8 +136,11 @@ public final class CapabilityParameterParser {
 
 	private static MultiprotocolCapability parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
 		final BGPAddressFamily afi = MPReachParser.parseAfi(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
-		final BGPSubsequentAddressFamily safi = MPReachParser.parseSafi(ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1,
-				SAFI_SIZE)));
+		final BgpSubsequentAddressFamily safi = BgpSubsequentAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes,
+				AFI_SIZE + 1, SAFI_SIZE)));
+		if (safi == null)
+			throw new BGPParsingException("Subsequent Address Family Identifier: '"
+					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1, SAFI_SIZE)) + "' not supported.");
 		return new MultiprotocolCapability(new BGPTableType(afi, safi));
 	}
 
@@ -151,16 +153,17 @@ public final class CapabilityParameterParser {
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - AFI_SIZE, AFI_SIZE);
 	}
 
-	static byte putSafi(final BGPSubsequentAddressFamily safi) {
+	static byte putSafi(final BgpSubsequentAddressFamily safi) {
 		final byte[] a = ByteArray.intToBytes(serializeSafi(safi));
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - SAFI_SIZE, SAFI_SIZE)[0];
 	}
 
-	private static int serializeSafi(final BGPSubsequentAddressFamily type) {
+	// FIXME: this shouldn't be here, as we have the values in 2 places
+	private static int serializeSafi(final BgpSubsequentAddressFamily type) {
 		switch (type) {
 		case Unicast:
 			return 1;
-		case MPLSLabeledVPN:
+		case MplsLabeledVpn:
 			return 128;
 		case Linkstate:
 			return MPReachParser.LS_SAFI;

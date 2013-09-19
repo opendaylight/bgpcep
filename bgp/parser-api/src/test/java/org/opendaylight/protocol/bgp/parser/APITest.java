@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
@@ -51,6 +50,7 @@ import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -110,8 +110,8 @@ public class APITest {
 	@Test
 	public void testBGPParameter() {
 
-		final BGPTableType t = new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Unicast);
-		final BGPTableType t1 = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+		final BGPTableType t = new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Unicast);
+		final BGPTableType t1 = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
 
 		final BGPParameter tlv1 = new MultiprotocolCapability(t);
 

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
@@ -81,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -633,7 +633,7 @@ public class BGPParserTest {
 
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+				return new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
 			}
 		};
 		assertEquals(expectedMessage.getTableType(), message.getTableType());
@@ -671,7 +671,7 @@ public class BGPParserTest {
 
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast);
+				return new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast);
 			}
 		};
 		assertEquals(expectedMessage.getTableType(), message.getTableType());
@@ -709,7 +709,7 @@ public class BGPParserTest {
 
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Unicast);
+				return new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Unicast);
 			}
 		};
 
@@ -1087,9 +1087,9 @@ public class BGPParserTest {
 				types.add(((MultiprotocolCapability) param).getTableType());
 			}
 		}
-		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast),
-				new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast),
-				new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate));
+		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast),
+				new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast),
+				new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Linkstate));
 		assertEquals(expected, types);
 	}
 

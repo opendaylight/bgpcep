@@ -7,7 +7,8 @@ module bgp-multiprotocol {
 		prefix inet;
 		revision-date 2010-09-24;
 	}
-	import bgp-message { prefix bgp-msg;}
+	import bgp-message { prefix bgp-msg; }
+	import bgp-types { prefix bgp-t; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -45,29 +46,12 @@ module bgp-multiprotocol {
 		}
 	}
 
-	typedef bgp-subsequent-address-family {
-		reference "http://tools.ietf.org/html/rfc4760#section-6
-		http://tools.ietf.org/html/rfc4364#section-16
-		http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-		type enumeration {
-			enum unicast {
-				value 1;
-			}
-			enum mpls-labeled-vpn {
-				value 128;
-			}
-			enum linkstate {
-				value 71;
-			}
-		}
-	}
-
 	grouping bgp-table-type {
 		leaf afi {
 			type bgp-address-family;
 		}
 		leaf safi {
-			type bgp-subsequent-address-family;
+			type bgp-t:bgp-subsequent-address-family;
 		}
 	}
 

@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
@@ -32,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +134,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 						if (param instanceof CapabilityParameter) {
 							if (((CapabilityParameter) param).getCode() == MultiprotocolCapability.CODE) {
 								final MultiprotocolCapability cap = (MultiprotocolCapability) param;
-								if (cap.getAfi() == BGPAddressFamily.LinkState && cap.getSafi() == BGPSubsequentAddressFamily.Linkstate) {
+								if (cap.getAfi() == BGPAddressFamily.LinkState && cap.getSafi() == BgpSubsequentAddressFamily.Linkstate) {
 									this.remotePref = openObj;
 									this.channel.writeAndFlush(new BGPKeepAliveMessage());
 									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);

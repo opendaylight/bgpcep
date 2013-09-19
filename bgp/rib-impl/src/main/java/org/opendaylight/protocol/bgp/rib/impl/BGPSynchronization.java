@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
@@ -25,6 +24,7 @@ import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,12 +91,12 @@ public class BGPSynchronization {
 			final BGPObject obj = msg.getAddedObjects().iterator().next();
 			if (obj instanceof BGPRoute<?>) {
 				if ((BGPRoute<?>) obj instanceof BGPIPv4RouteImpl) {
-					type = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+					type = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
 				} else if ((BGPRoute<?>) obj instanceof BGPIPv6RouteImpl) {
-					type = new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast);
+					type = new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast);
 				}
 			} else if (obj instanceof BGPLink || obj instanceof BGPNode || obj instanceof BGPPrefix<?>) {
-				type = new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate);
+				type = new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Linkstate);
 			}
 		}
 		final SyncVariables s = this.syncStorage.get(type);
@@ -120,7 +120,7 @@ public class BGPSynchronization {
 					s.setEorTrue();
 					final BGPUpdateSynchronized up = generateEOR(entry.getKey());
 					logger.debug("Sending synchronization message: {}", up);
-					this.listener.onMessage(session, up);
+					this.listener.onMessage(this.session, up);
 				}
 				s.setUpd(false);
 			}

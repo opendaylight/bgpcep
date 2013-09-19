@@ -42,6 +42,22 @@ module bgp-types {
 			}
 		}
 	}
+	
+	typedef bgp-subsequent-address-family {
+		reference "http://tools.ietf.org/html/rfc4760#section-6";
+		type enumeration {
+			enum unicast {
+				value 1;
+			}
+			enum mpls-labeled-vpn {
+				value 128;
+			}
+			enum linkstate {
+				reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+				value 71;
+			}
+		}
+	}
 
 	grouping bgp-aggregator {
 		reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";

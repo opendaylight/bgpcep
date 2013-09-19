@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -31,6 +30,7 @@ import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ public class BGPUpdateMessageParser {
 
 				@Override
 				public BGPTableType getTableType() {
-					return new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+					return new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
 				}
 			};
 			return event;
@@ -118,7 +118,7 @@ public class BGPUpdateMessageParser {
 
 						@Override
 						public BGPTableType getTableType() {
-							return new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast);
+							return new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast);
 						}
 
 					};
@@ -130,7 +130,7 @@ public class BGPUpdateMessageParser {
 
 						@Override
 						public BGPTableType getTableType() {
-							return new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Unicast);
+							return new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Unicast);
 						}
 
 					};

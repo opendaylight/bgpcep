@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
@@ -53,6 +52,7 @@ import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -167,10 +167,10 @@ public class BGPMessageParserMockTest {
 		final Map<byte[], List<BGPMessage>> openMap = Maps.newHashMap();
 
 		final Set<BGPTableType> type = Sets.newHashSet();
-		type.add(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.MPLSLabeledVPN));
+		type.add(new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.MplsLabeledVpn));
 
 		final List<BGPParameter> params = Lists.newArrayList();
-		params.add(new MultiprotocolCapability(new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.MPLSLabeledVPN)));
+		params.add(new MultiprotocolCapability(new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.MplsLabeledVpn)));
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 

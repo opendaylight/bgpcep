@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
 import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
@@ -74,6 +73,7 @@ import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class LinkStateParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	protected static MPReach<?> parseLSNlri(final boolean reachable, final BGPSubsequentAddressFamily safi, final NextHop<?> nextHop,
+	protected static MPReach<?> parseLSNlri(final boolean reachable, final BgpSubsequentAddressFamily safi, final NextHop<?> nextHop,
 			final byte[] bytes) throws BGPParsingException {
 		if (bytes.length == 0)
 			return null;
@@ -142,7 +142,7 @@ public class LinkStateParser {
 			// length means total length of the tlvs including route distinguisher not including the type field
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
-			if (safi == BGPSubsequentAddressFamily.MPLSLabeledVPN) {
+			if (safi == BgpSubsequentAddressFamily.MplsLabeledVpn) {
 				// this parses route distinguisher
 				ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, ROUTE_DISTINGUISHER_LENGTH));
 				byteOffset += ROUTE_DISTINGUISHER_LENGTH;
@@ -166,7 +166,7 @@ public class LinkStateParser {
 				localDescriptor = parseNodeDescriptors(ByteArray.subByte(bytes, byteOffset, locallength));
 			}
 			byteOffset += locallength;
-			final int restLength = length - ((safi == BGPSubsequentAddressFamily.MPLSLabeledVPN) ? ROUTE_DISTINGUISHER_LENGTH : 0)
+			final int restLength = length - ((safi == BgpSubsequentAddressFamily.MplsLabeledVpn) ? ROUTE_DISTINGUISHER_LENGTH : 0)
 					- PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH - LENGTH_SIZE - locallength;
 			logger.debug("Restlength {}", restLength);
 			switch (type) {

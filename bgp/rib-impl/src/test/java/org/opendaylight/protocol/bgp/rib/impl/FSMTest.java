@@ -33,7 +33,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
@@ -44,6 +43,7 @@ import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 
@@ -57,9 +57,9 @@ public class FSMTest {
 	@Mock
 	private ChannelPipeline pipeline;
 
-	private final BGPTableType ipv4tt = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.Unicast);
+	private final BGPTableType ipv4tt = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
 
-	private final BGPTableType linkstatett = new BGPTableType(BGPAddressFamily.LinkState, BGPSubsequentAddressFamily.Linkstate);
+	private final BGPTableType linkstatett = new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Linkstate);
 
 	private final List<BGPMessage> receivedMsgs = Lists.newArrayList();
 

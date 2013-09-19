@@ -16,20 +16,21 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.IPv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 public class TableTypeTest {
 
 	@Test
 	public void testTableTypes() {
-		final BGPTableType tt1 = new BGPTableType(BGPAddressFamily.IPv4, BGPSubsequentAddressFamily.MPLSLabeledVPN);
-		final BGPTableType tt2 = new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.valueOf("MPLSLabeledVPN"));
-		final BGPTableType tt3 = new BGPTableType(BGPAddressFamily.IPv6, BGPSubsequentAddressFamily.Unicast);
+		final BGPTableType tt1 = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.MplsLabeledVpn);
+		final BGPTableType tt2 = new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.valueOf("MplsLabeledVpn"));
+		final BGPTableType tt3 = new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast);
 
 		assertEquals(IPv6.FAMILY, BGPAddressFamily.IPv6.getAddressFamily());
 		assertNull(BGPAddressFamily.LinkState.getAddressFamily());
 
 		try {
-			new BGPTableType(null, BGPSubsequentAddressFamily.MPLSLabeledVPN);
+			new BGPTableType(null, BgpSubsequentAddressFamily.MplsLabeledVpn);
 			fail("Null AFI!");
 		} catch (final NullPointerException e) {
 			assertEquals("Address family may not be null", e.getMessage());
