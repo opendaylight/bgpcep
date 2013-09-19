@@ -37,7 +37,7 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import com.google.common.base.Preconditions;
 
 public class BGPSpeakerMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-		AbstractDispatcher<S, L> {
+AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
@@ -48,11 +48,16 @@ public class BGPSpeakerMock<M extends ProtocolMessage, S extends ProtocolSession
 		this.factory = Preconditions.checkNotNull(factory);
 	}
 
-	@Override
-	public void initializeChannel(final SocketChannel ch, final Promise<S> promise, final SessionListenerFactory<L> listenerFactory) {
-		ch.pipeline().addLast(this.factory.getDecoders());
-		ch.pipeline().addLast("negotiator", this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-		ch.pipeline().addLast(this.factory.getEncoders());
+	public void createServer(final InetSocketAddress address, final SessionListenerFactory<L> listenerFactory) {
+		super.createServer(address, new PipelineInitializer<S>() {
+
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
+				ch.pipeline().addLast(factory.getDecoders());
+				ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(factory.getEncoders());
+			}
+		});
 	}
 
 	public static void main(final String[] args) throws IOException {

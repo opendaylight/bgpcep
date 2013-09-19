@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.testtool;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 
@@ -21,6 +22,7 @@ import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
 import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
@@ -37,7 +39,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public class PCCMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-		AbstractDispatcher<S, L> {
+AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
@@ -48,11 +50,15 @@ public class PCCMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L 
 		this.factory = Preconditions.checkNotNull(factory);
 	}
 
-	@Override
-	public void initializeChannel(final SocketChannel ch, final Promise<S> promise, final SessionListenerFactory<L> listenerFactory) {
-		ch.pipeline().addLast(this.factory.getDecoders());
-		ch.pipeline().addLast("negotiator", this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-		ch.pipeline().addLast(this.factory.getEncoders());
+	public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final SessionListenerFactory<L> listenerFactory) {
+		return super.createClient(address, strategy, new PipelineInitializer<S>() {
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
+				ch.pipeline().addLast(factory.getDecoders());
+				ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(factory.getEncoders());
+			}
+		});
 	}
 
 	public static void main(final String[] args) throws Exception {
@@ -66,10 +72,10 @@ public class PCCMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L 
 		pcc.createClient(new InetSocketAddress("127.0.0.3", 12345), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000),
 				new SessionListenerFactory<PCEPSessionListener>() {
 
-					@Override
-					public PCEPSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				}).get();
+			@Override
+			public PCEPSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}).get();
 	}
 }

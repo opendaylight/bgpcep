@@ -44,14 +44,13 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
 	@Override
 	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-		return super.createServer(address, listenerFactory);
-	}
-
-	@Override
-	public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise,
-			final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-		ch.pipeline().addLast(this.hf.getDecoders());
-		ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(listenerFactory, ch, promise));
-		ch.pipeline().addLast(this.hf.getEncoders());
+		return super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
+				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(hf.getEncoders());
+			}
+		});
 	}
 }
