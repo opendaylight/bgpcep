@@ -14,13 +14,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
-import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-
 import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 public class TableTypeTest {
 
@@ -58,16 +53,16 @@ public class TableTypeTest {
 
 	@Test
 	public void testOrigin() {
-		final BGPOrigin or = BGPOrigin.EGP;
-		assertEquals(or.name(), "EGP");
+		final BgpOrigin or = BgpOrigin.Egp;
+		assertEquals(or.name(), "Egp");
 	}
 
 	@Test
 	public void testBaseBGPObjectState() {
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.INCOMPLETE, null);
-		final BaseBGPObjectState state1 = new BaseBGPObjectState(BGPOrigin.INCOMPLETE, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, null);
+		final BaseBGPObjectState state1 = new BaseBGPObjectState(BgpOrigin.Incomplete, null);
 		assertNull(state.getAggregator());
-		assertEquals(BGPOrigin.INCOMPLETE, state.getOrigin());
+		assertEquals(BgpOrigin.Incomplete, state.getOrigin());
 		assertEquals(state.toString(), state1.toString());
 
 		final BaseBGPObjectState s = new BaseBGPObjectState(state);

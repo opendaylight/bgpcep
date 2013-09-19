@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -53,6 +52,7 @@ import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -83,7 +83,7 @@ public class BGPMessageParserMockTest {
 	public void testGetUpdateMessage() throws DeserializerException, DocumentedException, IOException {
 		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage)this.messages.get(i)));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage) this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
@@ -105,7 +105,7 @@ public class BGPMessageParserMockTest {
 	public void testGetUpdateMessageException() throws DeserializerException, DocumentedException, IOException {
 		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage)this.messages.get(i)));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage) this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
@@ -150,7 +150,7 @@ public class BGPMessageParserMockTest {
 		final Set<BGPObject> addedObjects = new HashSet<BGPObject>();
 
 		final NetworkRouteState<IPv6Address> nstate = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
 		final BGPRoute<IPv6Address> route1 = new BGPIPv6RouteImpl(pref1, state, nstate);
 		final BGPRoute<IPv6Address> route2 = new BGPIPv6RouteImpl(pref2, state, nstate);
@@ -174,7 +174,7 @@ public class BGPMessageParserMockTest {
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
-		openMap.put(input, Lists.newArrayList((BGPMessage)new BGPOpenMessage(new ASNumber(30), (short) 30, null, params)));
+		openMap.put(input, Lists.newArrayList((BGPMessage) new BGPOpenMessage(new ASNumber(30), (short) 30, null, params)));
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 

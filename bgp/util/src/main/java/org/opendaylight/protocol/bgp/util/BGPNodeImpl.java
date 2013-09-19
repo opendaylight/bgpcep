@@ -7,15 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
+import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPNodeState;
 
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNode;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
@@ -32,10 +29,8 @@ public final class BGPNodeImpl extends AbstractBGPObject implements BGPNode {
 	/**
 	 * Creates this object with given arguments.
 	 * 
-	 * @param origin {@link BGPOrigin}
-	 * @param aggregator {@link BGPAggregator}
 	 * @param nodeIdentifier {@link NodeIdentifier}
-	 * @param nodeAttributes {@link NetworkNode}
+	 * @param nodeState {@link NetworkNodeState}
 	 */
 	public BGPNodeImpl(final BaseBGPObjectState base, final NodeIdentifier nodeIdentifier, final NetworkNodeState nodeState) {
 		super(new BGPNodeState(base, nodeState));

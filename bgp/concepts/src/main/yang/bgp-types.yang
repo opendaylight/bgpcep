@@ -1,0 +1,45 @@
+module bgp-types {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:bgp-types";
+	prefix "bgp-t";
+
+	import ietf-inet-types {
+		prefix inet;
+		revision-date 2010-09-24;
+	}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the base concepts contained in RFC4271 and RFC4760.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-19" {
+		description
+			"Initial revision.";
+		reference "RFC4271, RFC4760";
+	}
+
+	typedef bgp-origin {
+		reference "http://tools.ietf.org/html/rfc4271#section-5";
+		description "Values of BGP Origin Path Attribute.";
+		type enumeration {
+			enum igp {
+				value 0;
+			}
+			enum egp {
+				value 1;
+			}
+			enum incomplete {
+				value 2;
+			}
+		}
+	}
+}

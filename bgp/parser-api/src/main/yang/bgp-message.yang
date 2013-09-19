@@ -7,6 +7,8 @@ module bgp-message {
 		prefix inet;
 		revision-date 2010-09-24;
 	}
+	
+	import bgp-types { prefix bgp-t; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -26,21 +28,6 @@ module bgp-message {
 		description
 			"Initial revision.";
 		reference "RFC4271, RFC4893";
-	}
-
-	typedef origin-value {
-		reference "http://tools.ietf.org/html/rfc4271#section-5";
-		type enumeration {
-			enum igp {
-				value 0;
-			}
-			enum egp {
-				value 1;
-			}
-			enum incomplete {
-				value 2;
-			}
-		}
 	}
 
 	typedef protocol-version {
@@ -113,7 +100,7 @@ module bgp-message {
 			container origin {
 				reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
 				leaf value {
-					type origin-value;
+					type bgp-t:bgp-origin;
 					mandatory true;
 				}
 			}

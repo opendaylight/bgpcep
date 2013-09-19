@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.ClusterIdentifier;
 import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
@@ -29,10 +27,12 @@ import org.opendaylight.protocol.bgp.parser.impl.MPReach;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.NetworkAddress;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedBytes;
@@ -140,23 +140,11 @@ public class PathAttributeParser {
 	 * @throws BGPParsingException if the Origin value is unknown
 	 * @throws BGPDocumentedException
 	 */
-	private static BGPOrigin parseOrigin(final byte[] bytes) throws BGPDocumentedException {
-		final int value = UnsignedBytes.toInt(bytes[0]);
-		BGPOrigin origin;
-		switch (value) {
-		case 0:
-			origin = BGPOrigin.IGP;
-			break;
-		case 1:
-			origin = BGPOrigin.EGP;
-			break;
-		case 2:
-			origin = BGPOrigin.INCOMPLETE;
-			break;
-		default:
+	private static BgpOrigin parseOrigin(final byte[] bytes) throws BGPDocumentedException {
+		final BgpOrigin origin = BgpOrigin.forValue(UnsignedBytes.toInt(bytes[0]));
+		if (origin == null)
 			throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01,
 					bytes[0] });
-		}
 		return origin;
 	}
 
