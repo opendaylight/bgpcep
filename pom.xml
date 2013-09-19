@@ -28,6 +28,7 @@
 		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.15</surefire.version>
+		<yangtools.version>0.5.8-SNAPSHOT</yangtools.version>
 	</properties>
 	<prerequisites>
 		<maven>3.0.4</maven>
