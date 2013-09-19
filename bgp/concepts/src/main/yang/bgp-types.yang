@@ -42,4 +42,15 @@ module bgp-types {
 			}
 		}
 	}
+
+	grouping bgp-aggregator {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
+		description "BGP Path Attribute AGGREGATOR.";
+		leaf as-number {
+			type inet:as-number;
+		}
+		leaf network-address {
+			type inet:ipv4-address;
+		}
+	}
 }

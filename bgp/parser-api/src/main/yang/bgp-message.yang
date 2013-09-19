@@ -36,22 +36,18 @@ module bgp-message {
 		}
 	}
 
-	typedef as-number {
-		type uint32;
-	}
-
 	grouping as-path-segment {
 		choice segment {
 			case a-set {
 				leaf-list as-set {
-					type as-number;
+					type inet:as-number;
 				}
 			}
 			case a-list {
 				list as-sequence {
 					container sequence {
 						leaf as {
-							type as-number;
+							type inet:as-number;
 						}
 					}
 				}
@@ -85,7 +81,7 @@ module bgp-message {
 				container as4-bytes {
 					reference "http://tools.ietf.org/html/rfc6793";
 					leaf as-number {
-						type as-number;
+						type inet:as-number;
 					}
 				}
 			}
@@ -131,16 +127,10 @@ module bgp-message {
 			}
 			container atomic-aggregate {
 				reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
-				presence "Atomic Aggregare attribute is present.";
+				presence "Atomic Aggregate attribute is present.";
 			}
 			container aggregator {
-				reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
-				leaf as {
-					type as-number;
-				}
-				leaf ip {
-					type inet:ipv4-address;
-				}
+				uses bgp-t:bgp-aggregator;
 			}
 		}
 		container withdrawn-routes {

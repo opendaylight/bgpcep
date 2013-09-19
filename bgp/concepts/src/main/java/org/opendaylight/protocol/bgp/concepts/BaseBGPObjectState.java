@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.concepts;
 
 import org.opendaylight.protocol.concepts.State;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.base.Objects;
@@ -24,15 +25,15 @@ public class BaseBGPObjectState implements State {
 	private static final long serialVersionUID = 2371691093534458869L;
 
 	private final BgpOrigin origin;
-	private final BGPAggregator aggregator;
+	private final BgpAggregator aggregator;
 
 	/**
 	 * Creates BaswBGPObjectState.
 	 * 
-	 * @param origin {@link BGPOrigin}
-	 * @param aggregator {@link BGPAggregator}
+	 * @param origin {@link BgpOrigin}
+	 * @param aggregator {@link BgpAggregator}
 	 */
-	public BaseBGPObjectState(final BgpOrigin origin, final BGPAggregator aggregator) {
+	public BaseBGPObjectState(final BgpOrigin origin, final BgpAggregator aggregator) {
 		super();
 		this.origin = origin;
 		this.aggregator = aggregator;
@@ -56,7 +57,7 @@ public class BaseBGPObjectState implements State {
 	 * 
 	 * @return BGPAggregator attribute of this object
 	 */
-	public final BGPAggregator getAggregator() {
+	public final BgpAggregator getAggregator() {
 		return this.aggregator;
 	}
 
