@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
@@ -78,6 +77,9 @@ import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Lists;
@@ -415,7 +417,7 @@ public class BGPParserTest {
 
 		final ASPath asPath = new ASPath(Lists.newArrayList(new ASNumber(30)), Sets.newHashSet(new ASNumber(10), new ASNumber(20)));
 
-		final BGPAggregator aggregator = new BGPAggregatorImpl<IPv4Address>(new ASNumber(30), IPv4.FAMILY.addressForString("10.0.0.9"));
+		final BgpAggregator aggregator = new BGPAggregatorImpl(new AsNumber((long) 30), new Ipv4Address("10.0.0.9"));
 		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.9");
 
 		final IPv4Prefix pref1 = IPv4.FAMILY.prefixForString("172.16.0.0/21");
@@ -1093,9 +1095,9 @@ public class BGPParserTest {
 
 	@Test
 	public void testHashCodeEquals() throws UnknownHostException {
-		final BGPAggregator agg1 = new BGPAggregatorImpl<IPv4Address>(new ASNumber(6), IPv4.FAMILY.addressForString("10.0.0.9"));
+		final BgpAggregator agg1 = new BGPAggregatorImpl(new AsNumber((long) 6), new Ipv4Address("10.0.0.9"));
 
-		final BGPAggregator agg2 = new BGPAggregatorImpl<IPv4Address>(new ASNumber(6), IPv4.FAMILY.addressForString("10.0.0.9"));
+		final BgpAggregator agg2 = new BGPAggregatorImpl(new AsNumber((long) 6), new Ipv4Address("10.0.0.9"));
 
 		assertEquals(agg1, agg2);
 		assertEquals("HashCodes should be equal", agg1.hashCode(), agg2.hashCode());

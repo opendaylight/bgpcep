@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
 import org.opendaylight.protocol.bgp.concepts.ClusterIdentifier;
 import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
@@ -28,9 +27,13 @@ import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
 import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Lists;
@@ -221,10 +224,11 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return new BGPAggregator object
 	 */
-	private static BGPAggregator parseAggregator(final byte[] bytes) {
-		final ASNumber asNumber = new ASNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, AsPathSegmentParser.AS_NUMBER_LENGTH)));
-		final IPv4Address address = new IPv4Address(ByteArray.subByte(bytes, AsPathSegmentParser.AS_NUMBER_LENGTH, 4));
-		return new BGPAggregatorImpl<IPv4Address>(asNumber, address);
+	private static BgpAggregator parseAggregator(final byte[] bytes) {
+		final AsNumber asNumber = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, AsPathSegmentParser.AS_NUMBER_LENGTH)));
+		final Ipv4Address address = new Ipv4Address(IPv4.FAMILY.addressForBytes(
+				ByteArray.subByte(bytes, AsPathSegmentParser.AS_NUMBER_LENGTH, 4)).toString());
+		return new BGPAggregatorImpl(asNumber, address);
 	}
 
 	/**

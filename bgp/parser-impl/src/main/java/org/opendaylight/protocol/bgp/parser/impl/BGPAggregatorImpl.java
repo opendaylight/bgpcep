@@ -7,34 +7,35 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
-
-import org.opendaylight.protocol.concepts.ASNumber;
-import org.opendaylight.protocol.concepts.NetworkAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 
 /**
- * Implementation of BGP Aggregator object.
+ * Implementation of BGP Aggregator object. RFC4760 assumes that any BGP speaker (including the one that supports
+ * multiprotocol capabilities defined in this document) has to have an IPv4 address (which will be used, among other
+ * things, in the AGGREGATOR attribute).
+ * 
  * @param <T> subtype of Network Address
  */
-public class BGPAggregatorImpl<T extends NetworkAddress<T>> implements
-		BGPAggregator {
+public class BGPAggregatorImpl implements BgpAggregator {
 
-	private final ASNumber asNumber;
+	private final AsNumber asNumber;
 
-	private final T address;
+	private final Ipv4Address address;
 
-	public BGPAggregatorImpl(ASNumber asNumber, T address) {
+	public BGPAggregatorImpl(final AsNumber asNumber, final Ipv4Address address) {
 		this.address = address;
 		this.asNumber = asNumber;
 	}
 
 	@Override
-	public ASNumber getASNumber() {
+	public AsNumber getAsNumber() {
 		return this.asNumber;
 	}
 
 	@Override
-	public T getNetworkAddress() {
+	public Ipv4Address getNetworkAddress() {
 		return this.address;
 	}
 
@@ -43,20 +44,19 @@ public class BGPAggregatorImpl<T extends NetworkAddress<T>> implements
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((this.address == null) ? 0 : this.address.hashCode());
-		result = prime * result
-				+ ((this.asNumber == null) ? 0 : this.asNumber.hashCode());
+		result = prime * result + ((this.asNumber == null) ? 0 : this.asNumber.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (this.getClass() != obj.getClass())
 			return false;
-		final BGPAggregatorImpl<?> other = (BGPAggregatorImpl<?>) obj;
+		final BGPAggregatorImpl other = (BGPAggregatorImpl) obj;
 		if (this.address == null) {
 			if (other.address != null)
 				return false;

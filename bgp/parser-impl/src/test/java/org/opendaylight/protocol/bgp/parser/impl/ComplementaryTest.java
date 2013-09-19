@@ -38,10 +38,11 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParse
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 
 import com.google.common.collect.Sets;
 
@@ -49,14 +50,14 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPAggregatorImpl() {
-		final BGPAggregatorImpl<IPv4Address> ipv4 = new BGPAggregatorImpl<IPv4Address>(new ASNumber(5524), IPv4.FAMILY.addressForString("124.55.42.1"));
-		final BGPAggregatorImpl<IPv4Address> ipv4i = new BGPAggregatorImpl<IPv4Address>(new ASNumber(5525), IPv4.FAMILY.addressForString("124.55.42.1"));
+		final BGPAggregatorImpl ipv4 = new BGPAggregatorImpl(new AsNumber((long) 5524), new Ipv4Address("124.55.42.1"));
+		final BGPAggregatorImpl ipv4i = new BGPAggregatorImpl(new AsNumber((long) 5525), new Ipv4Address("124.55.42.1"));
 
 		assertNotSame(ipv4.hashCode(), ipv4i.hashCode());
 
-		assertEquals(ipv4, new BGPAggregatorImpl<IPv4Address>(new ASNumber(5524), IPv4.FAMILY.addressForString("124.55.42.1")));
+		assertEquals(ipv4, new BGPAggregatorImpl(new AsNumber((long) 5524), new Ipv4Address("124.55.42.1")));
 
-		assertNotSame(ipv4.getASNumber(), ipv4i.getASNumber());
+		assertNotSame(ipv4.getAsNumber(), ipv4i.getAsNumber());
 
 		assertEquals(ipv4.getNetworkAddress(), ipv4i.getNetworkAddress());
 	}

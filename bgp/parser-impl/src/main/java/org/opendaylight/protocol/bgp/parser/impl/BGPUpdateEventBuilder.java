@@ -17,7 +17,6 @@ import java.util.Set;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
@@ -46,6 +45,7 @@ import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +129,7 @@ public class BGPUpdateEventBuilder {
 		BgpOrigin origin = null;
 		ASPath aspath = null;
 		IPv4NextHop nextHop = null;
-		BGPAggregator aggregator = null;
+		BgpAggregator aggregator = null;
 		final Set<ExtendedCommunity> ecomm = Sets.newHashSet();
 		final Set<Community> comm = Sets.newHashSet();
 		final Map<Integer, ByteList> linkstate = Maps.newHashMap();
@@ -140,8 +140,8 @@ public class BGPUpdateEventBuilder {
 				aspath = (ASPath) pa.getValue();
 			} else if (pa.getValue() instanceof IPv4NextHop) {
 				nextHop = (IPv4NextHop) pa.getValue();
-			} else if (pa.getValue() instanceof BGPAggregator) {
-				aggregator = (BGPAggregator) pa.getValue();
+			} else if (pa.getValue() instanceof BgpAggregator) {
+				aggregator = (BgpAggregator) pa.getValue();
 			} else if (pa.getValue() instanceof Set) {
 				for (final Object o : (Set<?>) pa.getValue()) {
 					if (o instanceof ExtendedCommunity) {
