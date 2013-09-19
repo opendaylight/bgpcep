@@ -30,8 +30,6 @@ import org.opendaylight.protocol.framework.SessionListenerFactory;
 public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher {
 	private final Timer timer = new HashedWheelTimer();
 
-	private BGPSessionNegotiatorFactory snf;
-
 	private final BGPHandlerFactory hf;
 
 	public BGPDispatcherImpl(final BGPMessageFactory parser) {
@@ -42,22 +40,20 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 	@Override
 	public Future<? extends BGPSession> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
 			final BGPSessionListener listener, final ReconnectStrategy strategy) {
-		this.snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
 		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
-
 			@Override
 			public BGPSessionListener getSessionListener() {
 				return listener;
 			}
 		};
-		return super.createClient(address, strategy, slf);
-	}
-
-	@Override
-	public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise,
-			final SessionListenerFactory<BGPSessionListener> slf) {
-		ch.pipeline().addLast(this.hf.getDecoders());
-		ch.pipeline().addLast("negotiator", this.snf.getSessionNegotiator(slf, ch, promise));
-		ch.pipeline().addLast(this.hf.getEncoders());
+		return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(slf, ch, promise));
+				ch.pipeline().addLast(hf.getEncoders());
+			}
+		});
 	}
 }

@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.ChannelFuture;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -24,7 +23,6 @@ public interface PCEPDispatcher {
 	 * @param address to be bound with the server
 	 * @param listenerFactory to create listeners for clients
 	 * @return instance of PCEPServer
-	 * @throws IOException if some IO error occurred
 	 */
 	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory);
 }

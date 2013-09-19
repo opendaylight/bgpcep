@@ -47,11 +47,16 @@ AbstractDispatcher<S, L> {
 		this.factory = Preconditions.checkNotNull(factory);
 	}
 
-	@Override
-	public void initializeChannel(final SocketChannel ch, final Promise<S> promise, final SessionListenerFactory<L> listenerFactory) {
-		ch.pipeline().addLast(this.factory.getDecoders());
-		ch.pipeline().addLast("negotiator", this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-		ch.pipeline().addLast(this.factory.getEncoders());
+	public void createServer(final InetSocketAddress address, final SessionListenerFactory<L> listenerFactory) {
+		super.createServer(address, new PipelineInitializer<S>() {
+
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
+				ch.pipeline().addLast(factory.getDecoders());
+				ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(factory.getEncoders());
+			}
+		});
 	}
 
 	public static void main(final String[] args) throws IOException {
