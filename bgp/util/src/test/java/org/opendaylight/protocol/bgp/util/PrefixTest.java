@@ -14,28 +14,26 @@ import java.util.Collections;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
-import org.opendaylight.protocol.bgp.util.BGPIPv4PrefixImpl;
-import org.opendaylight.protocol.bgp.util.BGPIPv6PrefixImpl;
-
-import org.opendaylight.protocol.concepts.ASNumber;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.OSPFRouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
-import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
+import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.protocol.concepts.IPv4;
+import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public class PrefixTest {
-	final BaseBGPObjectState base = new BaseBGPObjectState(BGPOrigin.EGP, null);
+	final BaseBGPObjectState base = new BaseBGPObjectState(BgpOrigin.Egp, null);
 	final NetworkObjectState state = new NetworkObjectState(new ASPath(Lists.newArrayList(new ASNumber(10L))), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 	final NetworkPrefixState prefixState = new NetworkPrefixState(this.state, Sets.<RouteTag> newTreeSet(), null);
 

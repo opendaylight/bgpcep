@@ -26,7 +26,6 @@ import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -79,6 +78,7 @@ import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -218,7 +218,7 @@ public class BGPParserTest {
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1, pref2, pref3);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, comms, Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
@@ -336,7 +336,7 @@ public class BGPParserTest {
 		// TypeCode.CLUSTER_LIST, true, false, false, false, clusters);
 		// assertEquals(clusterAttr, attrs.get(4));
 
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 		final NetworkRouteState<IPv6Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
@@ -447,7 +447,7 @@ public class BGPParserTest {
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.INCOMPLETE, aggregator);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, aggregator);
 		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
@@ -522,7 +522,7 @@ public class BGPParserTest {
 		final IPv4NextHop nextHop = IPv4NextHop.forString("3.3.3.3");
 
 		final Set<ExtendedCommunity> comms = Sets.newHashSet((ExtendedCommunity) new Inet4SpecificExtendedCommunity(false, 4, IPv4.FAMILY.addressForString("192.168.1.0"), new byte[] {
-			0x12, 0x34 }));
+				0x12, 0x34 }));
 
 		// check path attributes
 
@@ -551,7 +551,7 @@ public class BGPParserTest {
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1, pref2, pref3);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.EGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Egp, null);
 		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), comms), nextHop);
 
 		// check API message
@@ -879,7 +879,7 @@ public class BGPParserTest {
 
 		// network object state
 		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
 		// network link state
 		final DefaultingTypesafeContainer<Metric<?>> container = new DefaultingTypesafeContainer<Metric<?>>();
@@ -1011,7 +1011,7 @@ public class BGPParserTest {
 
 		// network object state
 		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-		final BaseBGPObjectState state = new BaseBGPObjectState(BGPOrigin.IGP, null);
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
 
 		// network link state

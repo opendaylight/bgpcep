@@ -19,12 +19,20 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPAggregator;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
+import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.NetworkLinkImpl;
+import org.opendaylight.protocol.bgp.linkstate.NetworkNodeImpl;
+import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
+import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
@@ -35,21 +43,13 @@ import org.opendaylight.protocol.bgp.util.BGPIPv6PrefixImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPLinkImpl;
 import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
-import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NetworkLinkImpl;
-import org.opendaylight.protocol.bgp.linkstate.NetworkNodeImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -126,7 +126,7 @@ public class BGPUpdateEventBuilder {
 
 	private Set<BGPObject> fillAddedObjects(final List<PathAttribute> pathAttributes, final Set<Prefix<IPv4Address>> nlri)
 			throws BGPParsingException {
-		BGPOrigin origin = null;
+		BgpOrigin origin = null;
 		ASPath aspath = null;
 		IPv4NextHop nextHop = null;
 		BGPAggregator aggregator = null;
@@ -134,8 +134,8 @@ public class BGPUpdateEventBuilder {
 		final Set<Community> comm = Sets.newHashSet();
 		final Map<Integer, ByteList> linkstate = Maps.newHashMap();
 		for (final PathAttribute pa : pathAttributes) {
-			if (pa.getValue() instanceof BGPOrigin) {
-				origin = (BGPOrigin) pa.getValue();
+			if (pa.getValue() instanceof BgpOrigin) {
+				origin = (BgpOrigin) pa.getValue();
 			} else if (pa.getValue() instanceof ASPath) {
 				aspath = (ASPath) pa.getValue();
 			} else if (pa.getValue() instanceof IPv4NextHop) {

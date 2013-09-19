@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BGPSubsequentAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -51,26 +50,27 @@ import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class APITest {
 
-	BaseBGPObjectState objState = new BaseBGPObjectState(BGPOrigin.EGP, null);
+	BaseBGPObjectState objState = new BaseBGPObjectState(BgpOrigin.Egp, null);
 	NetworkObjectState netObjState = new NetworkObjectState(null, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 
 	@Test
 	public void testAPI() {
 		final BGPRouteState<IPv4Address> route1 = new BGPRouteState<IPv4Address>(this.objState, new NetworkRouteState<IPv4Address>(new IPv4NextHop(IPv4.FAMILY.addressForString("192.168.5.4"))));
-		final BGPRouteState<IPv4Address> route2 = new BGPRouteState<IPv4Address>(new BaseBGPObjectState(BGPOrigin.IGP, null), new NetworkRouteState<IPv4Address>(new IPv4NextHop(IPv4.FAMILY.addressForString("172.168.5.42"))));
+		final BGPRouteState<IPv4Address> route2 = new BGPRouteState<IPv4Address>(new BaseBGPObjectState(BgpOrigin.Igp, null), new NetworkRouteState<IPv4Address>(new IPv4NextHop(IPv4.FAMILY.addressForString("172.168.5.42"))));
 
 		assertEquals(route1, route1.newInstance());
 		assertNotSame(route1.hashCode(), new BGPRouteState<IPv4Address>(route2).hashCode());
 		assertEquals(route1.toString(), route1.toString());
 		assertNull(route1.getAggregator());
 		assertNotNull(route1.getObjectState().getNextHop());
-		assertEquals(route1.getOrigin(), BGPOrigin.EGP);
+		assertEquals(route1.getOrigin(), BgpOrigin.Egp);
 
 		final BGPParsingException e = new BGPParsingException("Some error message.");
 		assertEquals("Some error message.", e.getError());
@@ -85,7 +85,7 @@ public class APITest {
 		final NetworkPrefixState state = new NetworkPrefixState(this.netObjState, Sets.<RouteTag> newTreeSet(), null);
 
 		final BGPPrefixState ipv4 = new BGPPrefixState(this.objState, state);
-		final BGPPrefixState ipv6 = new BGPPrefixState(new BaseBGPObjectState(BGPOrigin.EGP, null), state);
+		final BGPPrefixState ipv6 = new BGPPrefixState(new BaseBGPObjectState(BgpOrigin.Egp, null), state);
 
 		assertEquals(ipv4.toString(), ipv4.newInstance().toString());
 		assertNotSame(ipv4, new BGPPrefixState(ipv6));

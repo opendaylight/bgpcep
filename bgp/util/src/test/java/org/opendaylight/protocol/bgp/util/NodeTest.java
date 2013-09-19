@@ -13,25 +13,23 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPOrigin;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
-
 import org.opendaylight.protocol.bgp.linkstate.NetworkNodeState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 public class NodeTest {
 
 	@Test
 	public void testNodeImpl() {
-		final BGPNodeImpl node1 = new BGPNodeImpl(new BaseBGPObjectState(BGPOrigin.INCOMPLETE, null), null, NetworkNodeState.EMPTY);
-		final BGPNodeImpl node2 = new BGPNodeImpl(new BaseBGPObjectState(BGPOrigin.EGP, null), null, NetworkNodeState.EMPTY);
+		final BGPNodeImpl node1 = new BGPNodeImpl(new BaseBGPObjectState(BgpOrigin.Incomplete, null), null, NetworkNodeState.EMPTY);
+		final BGPNodeImpl node2 = new BGPNodeImpl(new BaseBGPObjectState(BgpOrigin.Egp, null), null, NetworkNodeState.EMPTY);
 
 		assertFalse(node1.equals(node2));
 		assertNotSame(node1.hashCode(), node2.hashCode());
 		assertEquals(node1.toString(), node1.toString());
 		assertNull(node1.currentState().getAggregator());
-		assertEquals(node1.currentState().getOrigin(), BGPOrigin.INCOMPLETE);
+		assertEquals(node1.currentState().getOrigin(), BgpOrigin.Incomplete);
 		assertEquals(node1.getNodeIdentifier(), node2.getNodeIdentifier());
-		assertEquals(node2, new BGPNodeImpl(new BaseBGPObjectState(BGPOrigin.EGP, null), null, NetworkNodeState.EMPTY));
+		assertEquals(node2, new BGPNodeImpl(new BaseBGPObjectState(BgpOrigin.Egp, null), null, NetworkNodeState.EMPTY));
 	}
 }
