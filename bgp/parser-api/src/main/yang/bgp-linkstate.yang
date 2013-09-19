@@ -294,4 +294,246 @@ module bgp-linkstate {
 			}
 		}
 	}
+
+	typedef node-flag-bits {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.1";
+		type bits {
+			bit overload {
+				position 0;
+			}
+			bit attached {
+				position 1;
+			}
+			bit external {
+				position 2;
+			}
+			bit abr {
+				position 3;
+			}
+		}
+	}
+
+	typedef isis-area-identifier {
+		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
+		type binary {
+			length "20";
+		}
+	}
+
+	typedef ipv4-router-identifier {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+		type inet:ipv4-address;
+	}
+
+	typedef ipv6-router-identifier {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+		type inet:ipv6-address;
+	}
+
+	grouping node-state {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
+		leaf topology-identifier {
+			type topology-identifier;
+		}
+		leaf node-flags {
+			type node-flag-bits;
+		}
+		leaf-list isis-area-id {
+			type isis-area-identifier;
+		}
+		leaf dynamic-hostname {
+			type string;
+		}
+		leaf ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+	}
+
+	typedef link-protection-type {
+		reference "http://tools.ietf.org/html/rfc5307#section-1.2";
+		type enumeration {
+			enum extra-traffix {
+				value 1;
+			}
+			enum unprotected {
+				value 2;
+			}
+			enum shared {
+				value 4;
+			}
+			enum dedicated-1to1 {
+				value 8;
+			}
+			enum dedicated-1plus1 {
+				value 16;
+			}
+			enum enhanced {
+				value 32;
+			}
+		}
+	}
+
+	// linkstate
+	typedef mpls-protocol-mask {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
+		type bits {
+			bit ldp {
+				position 0;
+			}
+			bit rsvpte {
+				position 1;
+			}
+		}
+	}
+
+	// concepts
+	typedef igp-metric {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.3";
+		type uint32 {
+			range "1..16777215";
+		}
+	}
+
+	typedef shared-risk-link-group {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.4";
+		type uint32;
+	}
+
+	// FIXME: to double
+	// concepts
+	typedef bandwidth {
+		type decimal64 {
+			fraction-digits 2;
+		}
+	}
+
+	typedef administrative-group {
+		type uint32;
+	}
+
+	grouping unreserved-bandwidth {
+		leaf priority {
+			type uint8 {
+				range "0..7";
+			}
+		}
+		leaf bandwidth {
+			type bandwidth;
+		}
+	}
+
+	grouping link-state {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
+		leaf local-ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf local-ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+		leaf remote-ipv4-router-id {
+			type ipv4-router-identifier;
+		}
+		leaf remote-ipv6-router-id {
+			type ipv6-router-identifier;
+		}
+		leaf mpls-protocol {
+			type mpls-protocol-mask;
+		}
+		leaf metric {
+			type igp-metric;
+		}
+		leaf-list shared-risk-link-groups {
+			type shared-risk-link-group;
+		}
+		leaf link-name {
+			type string;
+		}
+		leaf max-link-bandwidth {
+			type bandwidth;
+		}
+		leaf max-reservable-bandwidth {
+			type bandwidth;
+		}
+		list unreserved-bandwidth {
+			key "priority";
+			uses unreserved-bandwidth;
+		}
+		leaf link-protection {
+			type link-protection-type;
+		}
+		leaf admin-group {
+			type administrative-group;
+		}
+	}
+
+	typedef route-tag {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.2";
+		type binary {
+			length "4";
+		}
+	}
+
+	typedef extended-route-tag {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.3";
+		type binary {
+			length "8";
+		}
+	}
+
+	// concepts
+	typedef metric {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.4";
+		type uint32;
+	}
+
+	grouping igp-bits {
+		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.1";
+		leaf up-down {
+			type bits {
+				bit up-down {
+					position 0;
+				}
+			}
+		}
+	}
+
+	grouping prefix-state {
+		container igp-bits {
+			uses igp-bits;
+		}
+		leaf-list route-tags {
+			type route-tag;
+		}
+		leaf-list extended-tags {
+			type extended-route-tag;
+		}
+		leaf prefix-metric {
+			type metric;
+		}
+		leaf ospf-forwarding-address {
+			type inet:ipv4-address;
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes" {
+		container linkstate-path-attribute {
+			choice link-state-attribute {
+				case node-attributes {
+					when "../../nlri-type = node";
+					uses node-state;
+				}
+				case link-attributes {
+					when "../../nlri-type = link";
+					uses link-state;
+				}
+				case prefix-attributes {
+					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+					uses prefix-state;
+				}
+			}
+		}
+	}
 }
