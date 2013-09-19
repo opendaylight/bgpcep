@@ -13,6 +13,8 @@ import io.netty.util.concurrent.FutureListener;
 
 import java.net.InetSocketAddress;
 
+import org.opendaylight.protocol.framework.AbstractDispatcher.PipelineInitializer;
+
 import com.google.common.base.Preconditions;
 
 final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionListener<?, ?, ?>> extends DefaultPromise<Void> {
@@ -20,18 +22,18 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 	private final InetSocketAddress address;
 	private final ReconnectStrategyFactory strategyFactory;
 	private final ReconnectStrategy strategy;
+	private final PipelineInitializer<S> initializer;
 	private Future<?> pending;
-	private final SessionListenerFactory<L> lfactory;
 
 	public ReconnectPromise(final AbstractDispatcher<S, L> dispatcher, final InetSocketAddress address,
 			final ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy,
-			final SessionListenerFactory<L> lfactory) {
+			final PipelineInitializer<S> initializer) {
 
 		this.dispatcher = Preconditions.checkNotNull(dispatcher);
 		this.address = Preconditions.checkNotNull(address);
 		this.strategyFactory = Preconditions.checkNotNull(connectStrategyFactory);
 		this.strategy = Preconditions.checkNotNull(reestablishStrategy);
-		this.lfactory = Preconditions.checkNotNull(lfactory);
+		this.initializer = Preconditions.checkNotNull(initializer);
 	}
 
 	synchronized void connect() {
@@ -62,7 +64,7 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 			}
 		};
 
-		final Future<S> cf = this.dispatcher.createClient(this.address, rs, this.lfactory);
+		final Future<S> cf = this.dispatcher.createClient(this.address, rs, this.initializer);
 
 		final Object lock = this;
 		this.pending = cf;

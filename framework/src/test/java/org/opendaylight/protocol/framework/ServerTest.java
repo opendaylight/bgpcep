@@ -28,7 +28,7 @@ import org.junit.Test;
 public class ServerTest {
 	public static final int PORT = 18080;
 
-	AbstractDispatcher<?, SimpleSessionListener> clientDispatcher, dispatcher;
+	SimpleDispatcher clientDispatcher, dispatcher;
 
 	final SimpleSessionListener pce = new SimpleSessionListener();
 
@@ -42,7 +42,7 @@ public class ServerTest {
 	public void testConnectionEstablished() throws Exception {
 		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.dispatcher = new SimpleDispatcher(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
@@ -61,7 +61,7 @@ public class ServerTest {
 
 		this.server.get();
 
-		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.clientDispatcher = new SimpleDispatcher(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
 					final Channel channel, final Promise<SimpleSession> promise) {
@@ -71,11 +71,11 @@ public class ServerTest {
 
 		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
-					@Override
-					public SimpleSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				}).get(6, TimeUnit.SECONDS);
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}).get(6, TimeUnit.SECONDS);
 
 		assertEquals(true, p.get(3, TimeUnit.SECONDS));
 	}
@@ -84,7 +84,7 @@ public class ServerTest {
 	public void testConnectionFailed() throws IOException, InterruptedException, ExecutionException, TimeoutException {
 		final Promise<Boolean> p = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
 
-		this.dispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.dispatcher = new SimpleDispatcher(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
@@ -103,7 +103,7 @@ public class ServerTest {
 
 		this.server.get();
 
-		this.clientDispatcher = new SimpleDispatcher<>(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
+		this.clientDispatcher = new SimpleDispatcher(new SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener>() {
 			@Override
 			public SessionNegotiator<SimpleSession> getSessionNegotiator(final SessionListenerFactory<SimpleSessionListener> factory,
 					final Channel channel, final Promise<SimpleSession> promise) {
@@ -113,19 +113,19 @@ public class ServerTest {
 
 		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
-					@Override
-					public SimpleSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				}).get(6, TimeUnit.SECONDS);
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}).get(6, TimeUnit.SECONDS);
 
 		final Future<?> session = this.clientDispatcher.createClient(this.serverAddress,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
-					@Override
-					public SimpleSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				});
+			@Override
+			public SimpleSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		});
 		assertFalse(session.isSuccess());
 	}
 
