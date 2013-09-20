@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -39,6 +38,7 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
@@ -245,8 +245,8 @@ public class ParserTest {
 	@Test
 	public void testTLVParser() throws UnknownHostException {
 
-		final BGPTableType t1 = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
-		final BGPTableType t2 = new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Unicast);
+		final BGPTableType t1 = new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
+		final BGPTableType t2 = new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Unicast);
 
 		final List<BGPParameter> tlvs = Lists.newArrayList();
 		tlvs.add(new MultiprotocolCapability(t1));

@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -27,6 +26,7 @@ import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 import com.google.common.collect.Sets;
@@ -52,8 +52,8 @@ public class SynchronizationTest {
 		this.ipv6m = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(i6), Collections.EMPTY_SET);
 		this.lsm = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(mock(BGPLink.class)), Collections.EMPTY_SET);
 
-		final Set<BGPTableType> types = Sets.newHashSet(new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast),
-				new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Linkstate));
+		final Set<BGPTableType> types = Sets.newHashSet(new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast),
+				new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate));
 
 		this.bs = new BGPSynchronization(new BGPSession() {
 
@@ -81,7 +81,7 @@ public class SynchronizationTest {
 		assertEquals(1, this.listener.getListMsg().size());
 		this.bs.kaReceived(); // ipv4 sync
 		assertEquals(2, this.listener.getListMsg().size());
-		assertEquals(BGPAddressFamily.IPv4,
+		assertEquals(BgpAddressFamily.Ipv4,
 				((BGPUpdateSynchronizedImpl) this.listener.getListMsg().get(1)).getTableType().getAddressFamily());
 	}
 }

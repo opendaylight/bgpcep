@@ -13,17 +13,17 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Collections;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPRouteState;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 public class BGPEventsTest {
 
 	@Test
 	public void testSynchronizedEvent() {
-		final BGPTableType tt = new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.MplsLabeledVpn);
+		final BGPTableType tt = new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.MplsLabeledVpn);
 		final RIBSynchronizedEvent event = new RIBSynchronizedEvent(tt);
 		assertEquals(tt, event.getTable());
 	}

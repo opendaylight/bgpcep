@@ -33,9 +33,7 @@ import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
@@ -166,16 +164,6 @@ public class ComplementaryTest {
 			fail("Exception should have occured.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Could not parse Extended Community type: 11", e.getMessage());
-		}
-	}
-
-	@Test
-	public void testMPReachParser() {
-		try {
-			MPReachParser.parseAfi(6);
-			fail("Exception should have occured.");
-		} catch (final BGPParsingException e) {
-			assertEquals("Address Family Identifier: '6' not supported.", e.getMessage());
 		}
 	}
 

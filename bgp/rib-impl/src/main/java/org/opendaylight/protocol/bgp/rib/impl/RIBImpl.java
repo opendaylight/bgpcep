@@ -17,6 +17,9 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
+import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
+import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPLinkState;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
@@ -29,13 +32,10 @@ import org.opendaylight.protocol.bgp.rib.RIB;
 import org.opendaylight.protocol.bgp.rib.RIBChangedEvent;
 import org.opendaylight.protocol.bgp.rib.RIBEvent;
 import org.opendaylight.protocol.bgp.rib.RIBEventListener;
-
 import org.opendaylight.protocol.concepts.InitialListenerEvents;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -53,7 +53,7 @@ public final class RIBImpl implements RIB {
 
 	public RIBImpl(final String name) {
 		this.name = Preconditions.checkNotNull(name);
-		bus = new EventBus(name);
+		this.bus = new EventBus(name);
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Set<BGPObject> addedObjects, final Set<?> removedObjects) {
@@ -64,44 +64,44 @@ public final class RIBImpl implements RIB {
 
 		for (final Object id : removedObjects)
 			if (id instanceof Prefix<?>)
-				routes.remove(r, peer, (Prefix<?>)id);
+				this.routes.remove(r, peer, (Prefix<?>) id);
 			else if (id instanceof LinkIdentifier)
-				links.remove(l, peer, (LinkIdentifier)id);
+				this.links.remove(l, peer, (LinkIdentifier) id);
 			else if (id instanceof NodeIdentifier)
-				nodes.remove(n, peer, (NodeIdentifier) id);
+				this.nodes.remove(n, peer, (NodeIdentifier) id);
 			else if (id instanceof PrefixIdentifier<?>)
-				prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
+				this.prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
 			else
 				throw new IllegalArgumentException("Unsupported identifier " + id.getClass());
 
 		for (final BGPObject o : addedObjects)
 			if (o instanceof BGPLink) {
-				final BGPLink link = (BGPLink)o;
-				links.add(l, peer, link.getLinkIdentifier(), link.currentState());
+				final BGPLink link = (BGPLink) o;
+				this.links.add(l, peer, link.getLinkIdentifier(), link.currentState());
 			} else if (o instanceof BGPNode) {
-				final BGPNode node = (BGPNode)o;
-				nodes.add(n, peer, node.getNodeIdentifier(), node.currentState());
+				final BGPNode node = (BGPNode) o;
+				this.nodes.add(n, peer, node.getNodeIdentifier(), node.currentState());
 			} else if (o instanceof BGPPrefix<?>) {
-				final BGPPrefix<?> prefix = (BGPPrefix<?>)o;
-				prefixes.add(p, peer, prefix.getPrefixIdentifier(), prefix.currentState());
-			} else if (o instanceof BGPRoute<?> ) {
-				final BGPRoute<?> route = (BGPRoute<?>)o;
-				routes.add(r, peer, route.getName(), route.currentState());
+				final BGPPrefix<?> prefix = (BGPPrefix<?>) o;
+				this.prefixes.add(p, peer, prefix.getPrefixIdentifier(), prefix.currentState());
+			} else if (o instanceof BGPRoute<?>) {
+				final BGPRoute<?> route = (BGPRoute<?>) o;
+				this.routes.add(r, peer, route.getName(), route.currentState());
 			} else
 				throw new IllegalArgumentException("Unsupported identifier " + o.getClass());
 
 		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty())
-			bus.post(new RIBChangedEvent(l, n, p, r));
+			this.bus.post(new RIBChangedEvent(l, n, p, r));
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final BGPTableType t) {
 		switch (t.getAddressFamily()) {
-		case IPv4:
-		case IPv6:
-			bus.post(new RIBChangedEvent(routes.clear(peer)));
+		case Ipv4:
+		case Ipv6:
+			this.bus.post(new RIBChangedEvent(this.routes.clear(peer)));
 			break;
-		case LinkState:
-			bus.post(new RIBChangedEvent(links.clear(peer), nodes.clear(peer), prefixes.clear(peer)));
+		case Linkstate:
+			this.bus.post(new RIBChangedEvent(this.links.clear(peer), this.nodes.clear(peer), this.prefixes.clear(peer)));
 			break;
 		}
 	}
@@ -110,8 +110,8 @@ public final class RIBImpl implements RIB {
 	synchronized public InitialListenerEvents<RIBEventListener, RIBEvent> registerListener(final RIBEventListener listener) {
 		final List<RIBEvent> events = new ArrayList<>();
 
-		events.add(new RIBChangedEvent(routes.currentState()));
-		events.add(new RIBChangedEvent(links.currentState(), nodes.currentState(), prefixes.currentState()));
+		events.add(new RIBChangedEvent(this.routes.currentState()));
+		events.add(new RIBChangedEvent(this.links.currentState(), this.nodes.currentState(), this.prefixes.currentState()));
 
 		final Object wrapper = new Object() {
 			@Subscribe
@@ -119,12 +119,12 @@ public final class RIBImpl implements RIB {
 				listener.onRIBEvent(event);
 			}
 		};
-		bus.register(wrapper);
+		this.bus.register(wrapper);
 
 		return new InitialListenerEvents<RIBEventListener, RIBEvent>(new ListenerRegistration<RIBEventListener>() {
 			@Override
 			public void close() {
-				bus.unregister(wrapper);
+				RIBImpl.this.bus.unregister(wrapper);
 			}
 
 			@Override
@@ -135,12 +135,12 @@ public final class RIBImpl implements RIB {
 	}
 
 	@Override
-	public final String toString(){
+	public final String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("name", name);
+		toStringHelper.add("name", this.name);
 		return toStringHelper;
 	}
 }

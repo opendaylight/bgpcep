@@ -10,16 +10,15 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachParser;
 import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +134,10 @@ public final class CapabilityParameterParser {
 	}
 
 	private static MultiprotocolCapability parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
-		final BGPAddressFamily afi = MPReachParser.parseAfi(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
+		final BgpAddressFamily afi = BgpAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
+		if (afi == null)
+			throw new BGPParsingException("Address Family Identifier: '" + ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE))
+					+ "' not supported.");
 		final BgpSubsequentAddressFamily safi = BgpSubsequentAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes,
 				AFI_SIZE + 1, SAFI_SIZE)));
 		if (safi == null)
@@ -148,38 +150,13 @@ public final class CapabilityParameterParser {
 		return new AS4BytesCapability(new ASNumber(ByteArray.bytesToLong(bytes)));
 	}
 
-	static byte[] putAfi(final BGPAddressFamily afi) {
-		final byte[] a = ByteArray.intToBytes(serializeAfi(afi));
+	private static byte[] putAfi(final BgpAddressFamily afi) {
+		final byte[] a = ByteArray.intToBytes(afi.getIntValue());
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - AFI_SIZE, AFI_SIZE);
 	}
 
-	static byte putSafi(final BgpSubsequentAddressFamily safi) {
-		final byte[] a = ByteArray.intToBytes(serializeSafi(safi));
+	private static byte putSafi(final BgpSubsequentAddressFamily safi) {
+		final byte[] a = ByteArray.intToBytes(safi.getIntValue());
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - SAFI_SIZE, SAFI_SIZE)[0];
-	}
-
-	// FIXME: this shouldn't be here, as we have the values in 2 places
-	private static int serializeSafi(final BgpSubsequentAddressFamily type) {
-		switch (type) {
-		case Unicast:
-			return 1;
-		case MplsLabeledVpn:
-			return 128;
-		case Linkstate:
-			return MPReachParser.LS_SAFI;
-		}
-		return 0;
-	}
-
-	private static int serializeAfi(final BGPAddressFamily type) {
-		switch (type) {
-		case IPv4:
-			return 1;
-		case IPv6:
-			return 2;
-		case LinkState:
-			return MPReachParser.LS_AFI;
-		}
-		return 0;
 	}
 }

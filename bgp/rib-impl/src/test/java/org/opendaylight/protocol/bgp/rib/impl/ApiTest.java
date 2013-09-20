@@ -11,11 +11,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
 public class ApiTest {
@@ -30,7 +30,7 @@ public class ApiTest {
 
 	@Test
 	public void testBGPUpdateSynchronized() {
-		final BGPTableType tt = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Linkstate);
+		final BGPTableType tt = new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate);
 		final BGPUpdateSynchronized update = new BGPUpdateSynchronizedImpl(tt);
 		assertEquals(tt, update.getTableType());
 	}

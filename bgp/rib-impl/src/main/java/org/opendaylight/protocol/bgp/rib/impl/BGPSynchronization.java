@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPAddressFamily;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
@@ -24,6 +23,7 @@ import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,12 +91,12 @@ public class BGPSynchronization {
 			final BGPObject obj = msg.getAddedObjects().iterator().next();
 			if (obj instanceof BGPRoute<?>) {
 				if ((BGPRoute<?>) obj instanceof BGPIPv4RouteImpl) {
-					type = new BGPTableType(BGPAddressFamily.IPv4, BgpSubsequentAddressFamily.Unicast);
+					type = new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
 				} else if ((BGPRoute<?>) obj instanceof BGPIPv6RouteImpl) {
-					type = new BGPTableType(BGPAddressFamily.IPv6, BgpSubsequentAddressFamily.Unicast);
+					type = new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.Unicast);
 				}
 			} else if (obj instanceof BGPLink || obj instanceof BGPNode || obj instanceof BGPPrefix<?>) {
-				type = new BGPTableType(BGPAddressFamily.LinkState, BgpSubsequentAddressFamily.Linkstate);
+				type = new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate);
 			}
 		}
 		final SyncVariables s = this.syncStorage.get(type);

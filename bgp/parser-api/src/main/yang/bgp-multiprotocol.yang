@@ -31,24 +31,9 @@ module bgp-multiprotocol {
 		reference "RFC4760";
 	}
 
-	typedef bgp-address-family {
-		reference "http://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml#address-family-numbers-2";
-		type enumeration {
-			enum ipv4 {
-				value 1;
-			}
-			enum ipv6 {
-				value 2;
-			}
-			enum linkstate {
-				value 16388;
-			}
-		}
-	}
-
 	grouping bgp-table-type {
 		leaf afi {
-			type bgp-address-family;
+			type bgp-t:bgp-address-family;
 		}
 		leaf safi {
 			type bgp-t:bgp-subsequent-address-family;
