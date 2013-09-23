@@ -11,19 +11,17 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
-
 import org.opendaylight.protocol.concepts.Identifier;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObject;
-import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 /**
  * Implementation of {@link NetworkObject}
- *
+ * 
  * @param <T> {@link Identifier} type
  */
 public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T> {
@@ -32,7 +30,7 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 	protected NetworkObjectState state;
 
 	/**
-	 *
+	 * 
 	 * @param name
 	 */
 	public NetworkObjectImpl(final T name) {
@@ -40,7 +38,7 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 	}
 
 	/**
-	 *
+	 * 
 	 * @param name T
 	 * @param template T
 	 */
@@ -58,33 +56,29 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 
 	/**
 	 * Standard setter for NetworkObject asPath attribute.
-	 *
-	 * @param asPath
-	 *            {@link ASPath}
+	 * 
+	 * @param asPath {@link ASPath}
 	 */
 	public final synchronized void setASPath(final ASPath asPath) {
-		this.state = state.withASPath(asPath);
+		this.state = this.state.withASPath(asPath);
 	}
 
 	/**
 	 * Standard setter for NetworkObject communities attribute.
-	 *
-	 * @param communities
-	 *            {@link Community}
+	 * 
+	 * @param communities {@link CommunityImpl}
 	 */
 	public final synchronized void setCommunities(final Set<Community> communities) {
-		this.state = state.withCommunities(Collections.unmodifiableSet(communities));
+		this.state = this.state.withCommunities(Collections.unmodifiableSet(communities));
 	}
 
 	/**
 	 * Standard setter for NetworkObject extendedCommunities attribute.
-	 *
-	 * @param extendedCommunities
-	 *            {@link ExtendedCommunity}
+	 * 
+	 * @param extendedCommunities {@link ExtendedCommunity}
 	 */
-	public final synchronized void setExtendedCommunities(
-			final Set<ExtendedCommunity> extendedCommunities) {
-		this.state = state.withExtendedCommunities(Collections.unmodifiableSet(extendedCommunities));
+	public final synchronized void setExtendedCommunities(final Set<ExtendedCommunity> extendedCommunities) {
+		this.state = this.state.withExtendedCommunities(Collections.unmodifiableSet(extendedCommunities));
 	}
 
 	@Override
@@ -92,9 +86,9 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
-		toStringHelper.add("name", name);
-		toStringHelper.add("state", state);
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+		toStringHelper.add("name", this.name);
+		toStringHelper.add("state", this.state);
 		return toStringHelper;
 	}
 
@@ -131,6 +125,6 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 
 	@Override
 	public synchronized NetworkObjectState currentState() {
-		return state;
+		return this.state;
 	}
 }

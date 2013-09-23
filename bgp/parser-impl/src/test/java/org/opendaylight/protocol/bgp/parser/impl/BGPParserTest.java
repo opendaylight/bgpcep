@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +27,6 @@ import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
@@ -80,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -185,8 +186,11 @@ public class BGPParserTest {
 
 		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.2");
 
-		final Set<Community> comms = Sets.newHashSet(Community.NO_EXPORT, Community.NO_ADVERTISE, Community.NO_EXPORT_SUBCONFED,
-				new Community(new AsNumber((long) 0xFFFF), 0xFF10));
+		final Set<Community> comms = new HashSet<>();
+		comms.add(CommunityUtil.NO_EXPORT);
+		comms.add(CommunityUtil.NO_ADVERTISE);
+		comms.add(CommunityUtil.NO_EXPORT_SUBCONFED);
+		comms.add(CommunityUtil.create(0xFFFF, 0xFF10));
 
 		// check path attributes
 

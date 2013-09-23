@@ -21,8 +21,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASSpecificExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.Inet4SpecificExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.OpaqueExtendedCommunity;
-import org.opendaylight.protocol.bgp.concepts.RouteOriginCommunity;
-import org.opendaylight.protocol.bgp.concepts.RouteTargetCommunity;
 import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.ISISLANIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.ISISRouterIdentifier;
