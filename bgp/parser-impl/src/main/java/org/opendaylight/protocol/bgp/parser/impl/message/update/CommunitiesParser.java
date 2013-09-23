@@ -11,14 +11,14 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.concepts.ASSpecificExtendedCommunity;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.Inet4SpecificExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.OpaqueExtendedCommunity;
-import org.opendaylight.protocol.bgp.concepts.RouteOriginCommunity;
-import org.opendaylight.protocol.bgp.concepts.RouteTargetCommunity;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.impl.CommunityImpl;
+import org.opendaylight.protocol.bgp.parser.impl.RouteOriginCommunity;
+import org.opendaylight.protocol.bgp.parser.impl.RouteTargetCommunity;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -52,17 +52,17 @@ public class CommunitiesParser {
 	 * @return new Community
 	 * @throws BGPDocumentedException
 	 */
-	static Community parseCommunity(final byte[] bytes) throws BGPDocumentedException {
+	static CommunityImpl parseCommunity(final byte[] bytes) throws BGPDocumentedException {
 		if (bytes.length != COMMUNITY_LENGTH)
 			throw new BGPDocumentedException("Community with wrong length: " + bytes.length, BGPError.OPT_ATTR_ERROR);
 		if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01 })) {
-			return Community.NO_EXPORT;
+			return CommunityImpl.NO_EXPORT;
 		} else if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x02 })) {
-			return Community.NO_ADVERTISE;
+			return CommunityImpl.NO_ADVERTISE;
 		} else if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 })) {
-			return Community.NO_EXPORT_SUBCONFED;
+			return CommunityImpl.NO_EXPORT_SUBCONFED;
 		}
-		return new Community(new AsNumber(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))), ByteArray.bytesToInt(Arrays.copyOfRange(
+		return new CommunityImpl(new AsNumber(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))), ByteArray.bytesToInt(Arrays.copyOfRange(
 				bytes, AS_NUMBER_LENGTH, AS_NUMBER_LENGTH + AS_NUMBER_LENGTH)));
 	}
 

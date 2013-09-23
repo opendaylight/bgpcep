@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
-
 import org.opendaylight.protocol.concepts.State;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 

@@ -15,7 +15,6 @@ import java.util.Collections;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
@@ -28,6 +27,7 @@ import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
