@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.ClusterIdentifier;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.NextHop;
@@ -22,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.BGPAggregatorImpl;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
+import org.opendaylight.protocol.bgp.parser.impl.CommunityImpl;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
@@ -284,8 +284,8 @@ public class PathAttributeParser {
 	 * @return new specific Community object
 	 * @throws BGPDocumentedException
 	 */
-	private static Set<Community> parseCommunities(final byte[] bytes) throws BGPDocumentedException {
-		final Set<Community> set = Sets.newHashSet();
+	private static Set<CommunityImpl> parseCommunities(final byte[] bytes) throws BGPDocumentedException {
+		final Set<CommunityImpl> set = Sets.newHashSet();
 		int i = 0;
 		while (i < bytes.length) {
 			set.add(CommunitiesParser.parseCommunity(ByteArray.subByte(bytes, i, CommunitiesParser.COMMUNITY_LENGTH)));

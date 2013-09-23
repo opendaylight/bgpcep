@@ -19,7 +19,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.Community;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
@@ -47,6 +46,7 @@ import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,8 +146,8 @@ public class BGPUpdateEventBuilder {
 				for (final Object o : (Set<?>) pa.getValue()) {
 					if (o instanceof ExtendedCommunity) {
 						ecomm.add((ExtendedCommunity) o);
-					} else if (o instanceof Community) {
-						comm.add((Community) o);
+					} else if (o instanceof CommunityImpl) {
+						comm.add((CommunityImpl) o);
 					}
 				}
 			} else if (pa.getValue() instanceof Map) {

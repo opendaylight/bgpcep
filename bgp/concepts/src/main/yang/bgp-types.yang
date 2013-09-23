@@ -85,4 +85,17 @@ module bgp-types {
 			type inet:ipv4-address;
 		}
 	}
+
+	grouping community {
+		reference "https://tools.ietf.org/html/rfc1997";
+		description "Community Path Attribute";
+		leaf as-number {
+			type inet:as-number;
+		}
+		leaf semantics {
+			type uint32 {
+				range 0..65535;
+			}
+		}
+	}
 }

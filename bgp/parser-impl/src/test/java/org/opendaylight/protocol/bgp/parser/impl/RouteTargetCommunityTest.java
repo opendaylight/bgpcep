@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.concepts;
+package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.impl.RouteTargetCommunity;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class RouteTargetCommunityTest {
