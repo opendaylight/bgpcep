@@ -41,13 +41,13 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
@@ -123,7 +123,7 @@ public class APITest {
 
 		final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
 
-		final BGPParameter tlv4 = new AS4BytesCapability(new ASNumber(40));
+		final BGPParameter tlv4 = new AS4BytesCapability(new AsNumber((long) 40));
 
 		assertFalse(((GracefulCapability) tlv3).isRestartFlag());
 
@@ -145,9 +145,9 @@ public class APITest {
 
 		assertNotSame(((MultiprotocolCapability) tlv1).getAfi(), ((MultiprotocolCapability) tlv2).getAfi());
 
-		assertEquals(40, ((AS4BytesCapability) tlv4).getASNumber().getAsn());
+		assertEquals(40, ((AS4BytesCapability) tlv4).getASNumber().getValue().longValue());
 
-		assertEquals(new AS4BytesCapability(new ASNumber(40)).toString(), tlv4.toString());
+		assertEquals(new AS4BytesCapability(new AsNumber((long) 40)).toString(), tlv4.toString());
 	}
 
 	@Test
@@ -174,13 +174,13 @@ public class APITest {
 
 	@Test
 	public void testBGPOpenMessage() {
-		final BGPMessage msg = new BGPOpenMessage(new ASNumber(58), (short) 5, null, null);
+		final BGPMessage msg = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
 		assertNull(((BGPOpenMessage) msg).getOptParams());
 	}
 
 	@Test
 	public void testToString() {
-		final BGPMessage o = new BGPOpenMessage(new ASNumber(58), (short) 5, null, null);
+		final BGPMessage o = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
 		final BGPMessage n = new BGPNotificationMessage(BGPError.ATTR_FLAGS_MISSING);
 		assertNotSame(o.toString(), n.toString());
 	}

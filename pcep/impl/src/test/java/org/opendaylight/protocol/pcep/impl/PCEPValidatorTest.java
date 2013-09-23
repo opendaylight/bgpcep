@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
@@ -88,13 +87,14 @@ import org.opendaylight.protocol.pcep.tlv.LSPStateDBVersionTlv;
 import org.opendaylight.protocol.pcep.tlv.LSPSymbolicNameTlv;
 import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class PCEPValidatorTest {
 
 	private static final PCEPLspaObject lspa = new PCEPLspaObject(0L, 0L, 0L, (short) 0, (short) 0, false, false, false, false);
 
 	private final List<ExplicitRouteSubobject> eroSubobjects = asList(
-			new EROAsNumberSubobject(new ASNumber(0xFFFFL), false),
+			new EROAsNumberSubobject(new AsNumber(0xFFFFL), false),
 			new EROUnnumberedInterfaceSubobject(new IPv4Address(new byte[] { (byte) 0x00, (byte) 0x11, (byte) 0x22, (byte) 0x33 }), new UnnumberedInterfaceIdentifier(0x00FF00FF), false));
 
 	private final List<ReportedRouteSubobject> rroSubobjects = asList((ReportedRouteSubobject) new RROUnnumberedInterfaceSubobject(new IPv4Address(new byte[] {
@@ -237,7 +237,7 @@ public class PCEPValidatorTest {
 			private static final long serialVersionUID = 1L;
 
 			{
-				this.add(new XROAsNumberSubobject(new ASNumber(0x12), true));
+				this.add(new XROAsNumberSubobject(new AsNumber((long) 0x12), true));
 			}
 		}, true, true, false), new ArrayList<PCEPMetricObject>() {
 			private static final long serialVersionUID = 1L;
@@ -616,7 +616,7 @@ public class PCEPValidatorTest {
 	public void testPCCreateMessage() throws DeserializerException, DocumentedException, PCEPDeserializerException {
 		final List<CompositeInstantiationObject> insts = new ArrayList<CompositeInstantiationObject>();
 		final List<ExplicitRouteSubobject> subs = new ArrayList<ExplicitRouteSubobject>();
-		subs.add(new EROAsNumberSubobject(new ASNumber(10), false));
+		subs.add(new EROAsNumberSubobject(new AsNumber((long) 10), false));
 		final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>();
 		final LSPSymbolicNameTlv tlv = new LSPSymbolicNameTlv(new LSPSymbolicName(new byte[] { 5, 4 }));
 		tlvs.add(tlv);

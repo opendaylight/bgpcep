@@ -10,108 +10,54 @@ package org.opendaylight.protocol.concepts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class ASNumberTest {
-	private ASNumber asn1, asn2, asn3, asn4;
+	private AsNumber asn1, asn2, asn3, asn4;
 
 	@Before
 	public void setUp() {
-		asn1 = new ASNumber(100, 200);
-		asn2 = new ASNumber(6553800);
-		asn3 = new ASNumber(0, 200);
-		asn4 = new ASNumber(100, 199);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testHighValueUnderflow() {
-		new ASNumber(-1, 0);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testHighValueOverflow() {
-		new ASNumber(65536, 0);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testLowValueUnderflow() {
-		new ASNumber(0, -1);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testLowValueOverflow() {
-		new ASNumber(0, 65536);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testAsnUnderflow() {
-		new ASNumber(0, -1);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void testAsnOverflow() {
-		new ASNumber(4294967296L);
+		this.asn1 = new AsNumber(429496729800L);
+		this.asn3 = new AsNumber((long) 200);
+		this.asn4 = new AsNumber(429496729799L);
 	}
 
 	@Test
 	public void testHashCode() {
-		final Set<ASNumber> set = new HashSet<ASNumber>();
+		final Set<AsNumber> set = new HashSet<>();
 
-		set.add(asn1);
+		set.add(this.asn1);
 		assertEquals(1, set.size());
 
-		set.add(asn2);
-		assertEquals(1, set.size());
-
-		set.add(asn3);
+		set.add(this.asn3);
 		assertEquals(2, set.size());
-	}
-
-	@Test
-	public void testCompareTo() {
-		final Set<ASNumber> set = new TreeSet<ASNumber>();
-
-		set.add(asn1);
-		assertEquals(1, set.size());
-
-		set.add(asn2);
-		assertEquals(1, set.size());
-
-		set.add(asn3);
-		assertEquals(2, set.size());
-
-		set.add(asn4);
-		assertEquals(3, set.size());
 	}
 
 	@Test
 	public void testGetters() {
-		assertEquals(100, asn1.getHighValue());
-		assertEquals(200, asn1.getLowValue());
-		assertEquals(6553800, asn1.getAsn());
+		assertEquals(429496729800L, this.asn1.getValue().longValue());
 	}
 
 	@Test
 	public void testEquals() {
-		assertThat(asn1, equalTo(asn2));
-		assertThat(asn1, not(equalTo(asn3)));
-		assertThat(asn1, not(equalTo(asn4)));
-		assertThat(asn1, not(equalTo(new Object())));
-		assertFalse(asn1.equals(new Object()));
+		assertThat(this.asn1, not(equalTo(this.asn3)));
+		assertThat(this.asn1, not(equalTo(this.asn4)));
+		assertThat(this.asn1, not(equalTo(new Object())));
+		assertFalse(this.asn1.equals(new Object()));
 	}
 
 	@Test
 	public void testToString() {
-		assertEquals("100.200", asn1.toString());
-		assertEquals("200", asn3.toString());
+		assertEquals("AsNumber [_value=429496729800]", this.asn1.toString());
+		assertEquals("AsNumber [_value=200]", this.asn3.toString());
 	}
 }
-

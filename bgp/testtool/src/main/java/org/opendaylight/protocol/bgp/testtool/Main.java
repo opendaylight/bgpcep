@@ -18,9 +18,9 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public class Main {
 
 		InetSocketAddress address = null;
 		short holdTimerValue = 90;
-		ASNumber as = null;
+		AsNumber as = null;
 
 		int i = 0;
 		while (i < args.length) {
@@ -72,7 +72,7 @@ public class Main {
 				holdTimerValue = Short.valueOf(args[i + 1]);
 				i++;
 			} else if (args[i].equalsIgnoreCase("-as")) {
-				as = new ASNumber(Long.valueOf(args[i + 1]));
+				as = new AsNumber(Long.valueOf(args[i + 1]));
 				i++;
 			} else {
 				System.out.println("WARNING: Unrecognized argument: " + args[i]);

@@ -43,13 +43,13 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
@@ -136,10 +136,10 @@ public class BGPMessageParserMockTest {
 	 * 
 	 * @param asn this parameter is passed to ASNumber constructor
 	 */
-	private BGPUpdateMessage fillMessages(final int asn) throws UnknownHostException {
+	private BGPUpdateMessage fillMessages(final long asn) throws UnknownHostException {
 
-		final List<ASNumber> asnums = new ArrayList<ASNumber>();
-		asnums.add(new ASNumber(asn));
+		final List<AsNumber> asnums = new ArrayList<AsNumber>();
+		asnums.add(new AsNumber(asn));
 		final ASPath asPath = new ASPath(asnums);
 		final NextHop<IPv6Address> nextHop = new IPv6NextHop(new IPv6Address(InetAddress.getByName("2001:db8::1")), new IPv6Address(InetAddress.getByName("fe80::c001:bff:fe7e:0")));
 
@@ -174,7 +174,7 @@ public class BGPMessageParserMockTest {
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
-		openMap.put(input, Lists.newArrayList((BGPMessage) new BGPOpenMessage(new ASNumber(30), (short) 30, null, params)));
+		openMap.put(input, Lists.newArrayList((BGPMessage) new BGPOpenMessage(new AsNumber((long) 30), (short) 30, null, params)));
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 

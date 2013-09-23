@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.parameter;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * AS 4B Numbers capability.
@@ -21,9 +21,9 @@ public final class AS4BytesCapability extends CapabilityParameter {
 	 */
 	public static final int CODE = 65;
 
-	private final ASNumber as;
+	private final AsNumber as;
 
-	public AS4BytesCapability(final ASNumber as) {
+	public AS4BytesCapability(final AsNumber as) {
 		super(CODE);
 		this.as = as;
 	}
@@ -33,7 +33,7 @@ public final class AS4BytesCapability extends CapabilityParameter {
 	 * 
 	 * @return 4B AS Number
 	 */
-	public ASNumber getASNumber() {
+	public AsNumber getASNumber() {
 		return this.as;
 	}
 

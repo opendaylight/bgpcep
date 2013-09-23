@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.TEMetric;
@@ -54,6 +53,7 @@ import org.opendaylight.protocol.pcep.subobject.RROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.ReportedRouteSubobject;
 import org.opendaylight.protocol.pcep.tlv.LSPCleanupTlv;
 import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class CompositeTest {
 
@@ -65,7 +65,7 @@ public class CompositeTest {
 		private static final long serialVersionUID = 1L;
 
 		{
-			this.add(new EROAsNumberSubobject(new ASNumber(0L), true));
+			this.add(new EROAsNumberSubobject(new AsNumber(0L), true));
 		}
 	}, false, false);
 	public PCEPRequestParameterObject requestParameter;
@@ -93,7 +93,7 @@ public class CompositeTest {
 		private static final long serialVersionUID = 1L;
 
 		{
-			this.add(new RROAsNumberSubobject(new ASNumber(0L)));
+			this.add(new RROAsNumberSubobject(new AsNumber(0L)));
 		}
 	}, false);
 
@@ -103,7 +103,7 @@ public class CompositeTest {
 			private static final long serialVersionUID = 1L;
 
 			{
-				this.add(new EROAsNumberSubobject(new ASNumber(0L), true));
+				this.add(new EROAsNumberSubobject(new AsNumber(0L), true));
 			}
 		}, false);
 		this.ct = new PCEPClassTypeObject((short) 5);
@@ -130,14 +130,14 @@ public class CompositeTest {
 		this.notifications.add(this.notification);
 
 		final List<ExplicitRouteSubobject> eroSubobjects = new ArrayList<ExplicitRouteSubobject>();
-		eroSubobjects.add(new EROAsNumberSubobject(new ASNumber(0x0L), false));
-		eroSubobjects.add(new EROAsNumberSubobject(new ASNumber(0x0L), false));
-		eroSubobjects.add(new EROAsNumberSubobject(new ASNumber(0x0L), false));
+		eroSubobjects.add(new EROAsNumberSubobject(new AsNumber(0x0L), false));
+		eroSubobjects.add(new EROAsNumberSubobject(new AsNumber(0x0L), false));
+		eroSubobjects.add(new EROAsNumberSubobject(new AsNumber(0x0L), false));
 
 		final List<ReportedRouteSubobject> rroSubobjects = new ArrayList<ReportedRouteSubobject>();
-		rroSubobjects.add(new RROAsNumberSubobject(new ASNumber(0x0L)));
-		rroSubobjects.add(new RROAsNumberSubobject(new ASNumber(0x0L)));
-		rroSubobjects.add(new RROAsNumberSubobject(new ASNumber(0x0L)));
+		rroSubobjects.add(new RROAsNumberSubobject(new AsNumber(0x0L)));
+		rroSubobjects.add(new RROAsNumberSubobject(new AsNumber(0x0L)));
+		rroSubobjects.add(new RROAsNumberSubobject(new AsNumber(0x0L)));
 
 		this.reportedRoute = new PCEPReportedRouteObject(rroSubobjects, true);
 		this.rroBandwidth = new PCEPExistingPathBandwidthObject(new Bandwidth(Float.intBitsToFloat(0xFF)), true, false);
@@ -147,8 +147,7 @@ public class CompositeTest {
 		this.endPoints = new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipbytes), new IPv4Address(ipbytes));
 
 		this.lsp = new PCEPLspObject(0, false, false, true, true, null);
-		this.compositePaths.add(new CompositePathObject(new PCEPExplicitRouteObject(eroSubobjects, true), this.lspa, this.bandwidth, this.metrics,
-				this.includeRoute));
+		this.compositePaths.add(new CompositePathObject(new PCEPExplicitRouteObject(eroSubobjects, true), this.lspa, this.bandwidth, this.metrics, this.includeRoute));
 		this.compositePaths.add(new CompositePathObject(new PCEPExplicitRouteObject(eroSubobjects, true)));
 
 		this.compositeUpdPaths.add(new CompositeUpdPathObject(new PCEPExplicitRouteObject(eroSubobjects, true), this.lspa, this.bandwidth, this.metrics));
@@ -254,7 +253,8 @@ public class CompositeTest {
 
 		objects.addAll(this.requestParameters);
 		objects.addAll(this.errors);
-		compositeErrors = new CompositeErrorObject(this.requestParameters.subList(0, this.requestParameters.size()), this.errors.subList(0, this.errors.size()));
+		compositeErrors = new CompositeErrorObject(this.requestParameters.subList(0, this.requestParameters.size()), this.errors.subList(0,
+				this.errors.size()));
 		assertEquals(compositeErrors, CompositeErrorObject.getCompositeFromList(objects));
 
 		objects.clear();
@@ -271,8 +271,8 @@ public class CompositeTest {
 
 		objects.addAll(this.requestParameters);
 		objects.addAll(this.notifications);
-		compositeNotifications = new CompositeNotifyObject(this.requestParameters.subList(0, this.requestParameters.size()), this.notifications.subList(0,
-				this.notifications.size()));
+		compositeNotifications = new CompositeNotifyObject(this.requestParameters.subList(0, this.requestParameters.size()), this.notifications.subList(
+				0, this.notifications.size()));
 		assertEquals(compositeNotifications, CompositeNotifyObject.getCompositeFromList(objects));
 
 		objects.clear();
@@ -310,8 +310,8 @@ public class CompositeTest {
 		objects.add(this.includeRoute);
 		objects.add(this.loadBalancing);
 
-		compositeRequest = new CompositeRequestObject(this.requestParameter, this.endPoints, this.ct, this.lsp, this.lspa, this.bandwidth,
-				this.metrics.subList(0, this.metrics.size()), this.reportedRoute, this.rroBandwidth, this.includeRoute, this.loadBalancing);
+		compositeRequest = new CompositeRequestObject(this.requestParameter, this.endPoints, this.ct, this.lsp, this.lspa, this.bandwidth, this.metrics.subList(
+				0, this.metrics.size()), this.reportedRoute, this.rroBandwidth, this.includeRoute, this.loadBalancing);
 		assertEquals(compositeRequest, CompositeRequestObject.getCompositeFromList(objects));
 
 		objects.clear();

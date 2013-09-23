@@ -13,15 +13,14 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
- *
- * Representation of one AS Path Segment. It is, in fact, a TLV, but the length
- * field is representing the count of AS Numbers in the collection (in its
- * value). If the segment is of type AS_SEQUENCE, the collection is a List, if
- * AS_SET, the collection is a Set.
- *
+ * 
+ * Representation of one AS Path Segment. It is, in fact, a TLV, but the length field is representing the count of AS
+ * Numbers in the collection (in its value). If the segment is of type AS_SEQUENCE, the collection is a List, if AS_SET,
+ * the collection is a Set.
+ * 
  */
 public class AsPathSegmentParser {
 
@@ -53,14 +52,11 @@ public class AsPathSegmentParser {
 		}
 	}
 
-	static Collection<ASNumber> parseAsPathSegment(final SegmentType type,
-			final int count, final byte[] bytes) {
-		final Collection<ASNumber> coll = (type == SegmentType.AS_SEQUENCE) ? new ArrayList<ASNumber>()
-				: new HashSet<ASNumber>();
+	static Collection<AsNumber> parseAsPathSegment(final SegmentType type, final int count, final byte[] bytes) {
+		final Collection<AsNumber> coll = (type == SegmentType.AS_SEQUENCE) ? new ArrayList<AsNumber>() : new HashSet<AsNumber>();
 		int byteOffset = 0;
 		for (int i = 0; i < count; i++) {
-			coll.add(new ASNumber(ByteArray.bytesToLong(ByteArray.subByte(
-					bytes, byteOffset, AS_NUMBER_LENGTH))));
+			coll.add(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH))));
 			byteOffset += AS_NUMBER_LENGTH;
 		}
 		return coll;

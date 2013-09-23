@@ -12,7 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -29,8 +30,8 @@ public final class ASPath implements Serializable {
 	 */
 	public static final ASPath EMPTY = new ASPath();
 	private static final long serialVersionUID = 7951172606939897308L;
-	private final Set<ASNumber> aggregatedAsPath;
-	private final List<ASNumber> visibleAsPath;
+	private final Set<AsNumber> aggregatedAsPath;
+	private final List<AsNumber> visibleAsPath;
 
 	private ASPath() {
 		this.visibleAsPath = Collections.emptyList();
@@ -43,7 +44,7 @@ public final class ASPath implements Serializable {
 	 * @param visibleAsPath Ordered list of AS numbers in the path, corresponding to the concatenation of all
 	 *        AS_SEQUENCE components.
 	 */
-	public ASPath(final List<ASNumber> visibleAsPath) {
+	public ASPath(final List<AsNumber> visibleAsPath) {
 		this.aggregatedAsPath = Collections.emptySet();
 		this.visibleAsPath = Collections.unmodifiableList(Preconditions.checkNotNull(visibleAsPath));
 	}
@@ -56,7 +57,7 @@ public final class ASPath implements Serializable {
 	 * @param aggregatedAsPath Unordered set of AS numbers in the path, corresponding to the concatenation of all AS_SET
 	 *        components.
 	 */
-	public ASPath(final List<ASNumber> visibleAsPath, final Set<ASNumber> aggregatedAsPath) {
+	public ASPath(final List<AsNumber> visibleAsPath, final Set<AsNumber> aggregatedAsPath) {
 		Preconditions.checkNotNull(aggregatedAsPath);
 		Preconditions.checkNotNull(visibleAsPath);
 		this.aggregatedAsPath = Collections.unmodifiableSet(aggregatedAsPath);
@@ -70,7 +71,7 @@ public final class ASPath implements Serializable {
 	 * 
 	 * @return Ordered list of AS numbers.
 	 */
-	public List<ASNumber> getVisibleAsPath() {
+	public List<AsNumber> getVisibleAsPath() {
 		return this.visibleAsPath;
 	}
 
@@ -79,7 +80,7 @@ public final class ASPath implements Serializable {
 	 * 
 	 * @return Unordered set of AS numbers.
 	 */
-	public Set<ASNumber> getAggregatedAsPath() {
+	public Set<AsNumber> getAggregatedAsPath() {
 		return this.aggregatedAsPath;
 	}
 

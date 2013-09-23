@@ -149,7 +149,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 				}
 				final BGPNotificationMessage ntf = new BGPNotificationMessage(BGPError.UNSPECIFIC_OPEN_ERROR);
 				this.channel.writeAndFlush(ntf);
-				negotiationFailed(new BGPDocumentedException("Linkstate capability not advertised.", ntf.getError()));
+				negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", ntf.getError()));
 				this.state = State.Finished;
 				return;
 			}

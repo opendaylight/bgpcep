@@ -26,11 +26,6 @@ module rsvp {
                 reference "https://tools.ietf.org/html/rfc2205";
         }
 
-	// FIXME: BGP module
-	typedef as-number {
-		type uint32;
-	}
-
 	typedef attribute-filter {
 		type uint32;
 	}
@@ -141,7 +136,7 @@ module rsvp {
 	grouping as-number-subobject {
 		leaf as-number {
 			reference "http://tools.ietf.org/html/rfc3209#section-4.3.3.4";
-			type as-number;
+			type inet:as-number;
 			mandatory true;
 		}
 	}

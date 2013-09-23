@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.concepts;
 
 import java.io.Serializable;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
@@ -19,7 +20,7 @@ import com.google.common.base.Preconditions;
  */
 public class ASSpecificExtendedCommunity extends ExtendedCommunity implements Serializable {
 	private static final long serialVersionUID = 6490173838144366385L;
-	private final ASNumber globalAdmin;
+	private final AsNumber globalAdmin;
 	private final byte[] localAdmin;
 	private final int subType;
 
@@ -31,7 +32,7 @@ public class ASSpecificExtendedCommunity extends ExtendedCommunity implements Se
 	 * @param globalAdmin Globally-assigned namespace (AS number)
 	 * @param localAdmin Locally-assigned value, has to be 4 bytes long
 	 */
-	public ASSpecificExtendedCommunity(final boolean transitive, final int subType, final ASNumber globalAdmin, final byte[] localAdmin) {
+	public ASSpecificExtendedCommunity(final boolean transitive, final int subType, final AsNumber globalAdmin, final byte[] localAdmin) {
 		super(false, transitive);
 		Preconditions.checkArgument(subType > 0 && subType < 255, "Invalid Sub-Type");
 		Preconditions.checkArgument(localAdmin.length == 4, "Invalid Local Administrator");
@@ -50,7 +51,7 @@ public class ASSpecificExtendedCommunity extends ExtendedCommunity implements Se
 	/**
 	 * @return Globally-assigned namespace
 	 */
-	public final ASNumber getGlobalAdmin() {
+	public final AsNumber getGlobalAdmin() {
 		return this.globalAdmin;
 	}
 

@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
-
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
@@ -25,6 +23,7 @@ import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  *
@@ -58,7 +57,7 @@ public class APITest {
 			private static final long serialVersionUID = 1L;
 		};
 
-		assertNotSame(msg1, msg2); //not same because they are anonymous classes
+		assertNotSame(msg1, msg2); // not same because they are anonymous classes
 		assertEquals(msg1.hashCode(), msg2.hashCode());
 		assertEquals(msg1.toString(), msg2.toString());
 	}
@@ -80,12 +79,12 @@ public class APITest {
 
 	@Test
 	public void testSubobject() {
-		final ExplicitRouteSubobject sub1 = new EROAsNumberSubobject(new ASNumber(100), true);
+		final ExplicitRouteSubobject sub1 = new EROAsNumberSubobject(new AsNumber((long) 100), true);
 		final ExplicitRouteSubobject sub2 = new ExplicitRouteSubobject(false) {
 		};
 		final ExplicitRouteSubobject sub3 = new ExplicitRouteSubobject(false) {
 		};
-		final ExplicitRouteSubobject sub4 = new EROAsNumberSubobject(new ASNumber(100), true);
+		final ExplicitRouteSubobject sub4 = new EROAsNumberSubobject(new AsNumber((long) 100), true);
 
 		assertNotSame(sub1, sub2);
 		assertNotSame(sub2, sub3);

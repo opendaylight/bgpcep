@@ -8,24 +8,22 @@
 
 package org.opendaylight.protocol.bgp.concepts;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
- * @see <a  href="http://tools.ietf.org/html/rfc4360#section-5">Route Origin Community</a>
+ * @see <a href="http://tools.ietf.org/html/rfc4360#section-5">Route Origin Community</a>
  */
 public class RouteOriginCommunity extends ASSpecificExtendedCommunity {
 
 	private static final long serialVersionUID = 540725495203637583L;
 
 	/**
-	 * Construct a RouteOriginCommunity based on global and local
-	 * administrator values.
-	 *
+	 * Construct a RouteOriginCommunity based on global and local administrator values.
+	 * 
 	 * @param globalAdmin Global administrator (AS number)
 	 * @param localAdmin Local administrator (AS-specific, opaque value)
 	 */
-	public RouteOriginCommunity(final ASNumber globalAdmin, final byte[] localAdmin) {
+	public RouteOriginCommunity(final AsNumber globalAdmin, final byte[] localAdmin) {
 		super(false, 3, globalAdmin, localAdmin);
 	}
 }
-

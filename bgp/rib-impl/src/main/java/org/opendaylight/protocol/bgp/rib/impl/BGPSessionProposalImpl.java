@@ -15,8 +15,8 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
@@ -29,13 +29,13 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
 	private final short holdTimer;
 
-	private final ASNumber as;
+	private final AsNumber as;
 
 	private final IPv4Address bgpId;
 
 	private final BGPSessionPreferences prefs;
 
-	public BGPSessionProposalImpl(final short holdTimer, final ASNumber as, final IPv4Address bgpId) {
+	public BGPSessionProposalImpl(final short holdTimer, final AsNumber as, final IPv4Address bgpId) {
 		this.holdTimer = holdTimer;
 		this.as = as;
 		this.bgpId = bgpId;
@@ -68,7 +68,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 	/**
 	 * @return the as
 	 */
-	public ASNumber getAs() {
+	public AsNumber getAs() {
 		return this.as;
 	}
 

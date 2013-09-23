@@ -13,9 +13,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.RouteOriginCommunity;
-
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class RouteOriginCommunityTest {
 
@@ -23,7 +21,7 @@ public class RouteOriginCommunityTest {
 
 	@Before
 	public void init() {
-		final ASNumber globalAdmin = new ASNumber(100, 200);
+		final AsNumber globalAdmin = new AsNumber(429496729800L);
 		final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
 		this.community = new RouteOriginCommunity(globalAdmin, localAdmin);
 	}
@@ -35,7 +33,7 @@ public class RouteOriginCommunityTest {
 
 	@Test
 	public void testGetGlobalAdmin() {
-		final ASNumber testAsn = new ASNumber(100, 200);
+		final AsNumber testAsn = new AsNumber(429496729800L);
 		assertEquals(this.community.getGlobalAdmin(), testAsn);
 	}
 

@@ -12,15 +12,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.ASSpecificExtendedCommunity;
-
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class ASSpecificExtendedCommunityTest {
 
 	private final boolean transitive = true;
 	private final int subType = 123;
-	private final ASNumber globalAdmin = new ASNumber(100, 200);
+	private final AsNumber globalAdmin = new AsNumber(429496729800L);
 	private final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
 
 	@Test
@@ -43,7 +41,7 @@ public class ASSpecificExtendedCommunityTest {
 	public void testGetSubType() {
 		final ASSpecificExtendedCommunity asSpecExCom = new ASSpecificExtendedCommunity(this.transitive, this.subType, this.globalAdmin, this.localAdmin);
 		assertEquals(123, asSpecExCom.getSubType());
-		assertEquals(new ASNumber(100, 200), asSpecExCom.getGlobalAdmin());
+		assertEquals(new AsNumber(429496729800L), asSpecExCom.getGlobalAdmin());
 		assertArrayEquals(new byte[] { 10, 0, 0, 1 }, asSpecExCom.getLocalAdmin());
 
 		final ASSpecificExtendedCommunity a1 = new ASSpecificExtendedCommunity(this.transitive, this.subType, this.globalAdmin, this.localAdmin);

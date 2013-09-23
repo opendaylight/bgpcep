@@ -32,12 +32,12 @@ import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
@@ -122,14 +122,14 @@ public class ParserTest {
 
 	@Test
 	public void testOpenMessage() throws UnknownHostException, DeserializerException, DocumentedException {
-		final BGPMessage open = new BGPOpenMessage(new ASNumber(100), (short) 180, new IPv4Address(InetAddress.getByName("20.20.20.20")), null);
+		final BGPMessage open = new BGPOpenMessage(new AsNumber((long) 100), (short) 180, new IPv4Address(InetAddress.getByName("20.20.20.20")), null);
 		final byte[] bytes = this.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
 		final BGPMessage m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPOpenMessage);
-		assertEquals(new ASNumber(100), ((BGPOpenMessage) m).getMyAS());
+		assertEquals(new AsNumber((long) 100), ((BGPOpenMessage) m).getMyAS());
 		assertEquals((short) 180, ((BGPOpenMessage) m).getHoldTime());
 		assertEquals(new IPv4Address(InetAddress.getByName("20.20.20.20")), ((BGPOpenMessage) m).getBgpId());
 		assertTrue(((BGPOpenMessage) m).getOptParams().isEmpty());
@@ -255,9 +255,7 @@ public class ParserTest {
 		tableTypes.put(t1, true);
 		tableTypes.put(t2, true);
 		tlvs.add(new GracefulCapability(true, 0, tableTypes));
-		final BGPOpenMessage open = new BGPOpenMessage(new ASNumber(72), (short) 180, new IPv4Address(InetAddress.getByName("172.20.160.170")), tlvs);
-
-		// System.out.println(Arrays.toString(this.factory.put(open)));
+		final BGPOpenMessage open = new BGPOpenMessage(new AsNumber((long) 72), (short) 180, new IPv4Address(InetAddress.getByName("172.20.160.170")), tlvs);
 
 		this.factory.put(open);
 

@@ -19,9 +19,10 @@ import org.opendaylight.protocol.bgp.concepts.RouteOriginCommunity;
 import org.opendaylight.protocol.bgp.concepts.RouteTargetCommunity;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -61,7 +62,7 @@ public class CommunitiesParser {
 		} else if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 })) {
 			return Community.NO_EXPORT_SUBCONFED;
 		}
-		return new Community(new ASNumber(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))), ByteArray.bytesToInt(Arrays.copyOfRange(
+		return new Community(new AsNumber(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))), ByteArray.bytesToInt(Arrays.copyOfRange(
 				bytes, AS_NUMBER_LENGTH, AS_NUMBER_LENGTH + AS_NUMBER_LENGTH)));
 	}
 
@@ -81,32 +82,32 @@ public class CommunitiesParser {
 		switch (type) {
 		case 0:
 			if (subType == 2) {
-				return new RouteTargetCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteTargetCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else if (subType == 3) {
-				return new RouteOriginCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteOriginCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else
-				return new ASSpecificExtendedCommunity(false, subType, new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0,
+				return new ASSpecificExtendedCommunity(false, subType, new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0,
 						AS_NUMBER_LENGTH))), ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 		case 40: // 01000000
-			return new ASSpecificExtendedCommunity(true, subType, new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0,
+			return new ASSpecificExtendedCommunity(true, subType, new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0,
 					AS_NUMBER_LENGTH))), ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 		case 2:
 			if (subType == 2) {
-				return new RouteTargetCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteTargetCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else if (subType == 3) {
-				return new RouteOriginCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteOriginCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else
 				throw new BGPDocumentedException("Could not parse Extended Community subtype: " + subType, BGPError.OPT_ATTR_ERROR);
 		case 1:
 			if (subType == 2) {
-				return new RouteTargetCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteTargetCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else if (subType == 3) {
-				return new RouteOriginCommunity(new ASNumber(ByteArray.bytesToInt(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
+				return new RouteOriginCommunity(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH))), ByteArray.subByte(
 						value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH));
 			} else
 				return new Inet4SpecificExtendedCommunity(false, subType, new IPv4Address(ByteArray.subByte(value, 0, 4)), ByteArray.subByte(

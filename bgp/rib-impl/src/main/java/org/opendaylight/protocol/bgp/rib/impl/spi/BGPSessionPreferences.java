@@ -10,15 +10,15 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * DTO for BGP Session preferences, that contains BGP Open message.
  */
 public final class BGPSessionPreferences {
 
-	private final ASNumber as;
+	private final AsNumber as;
 
 	private final int hold;
 
@@ -31,7 +31,7 @@ public final class BGPSessionPreferences {
 	 * 
 	 * @param prefs BGP Open message
 	 */
-	public BGPSessionPreferences(final ASNumber as, final int hold, final IPv4Address bgpId, final List<BGPParameter> params) {
+	public BGPSessionPreferences(final AsNumber as, final int hold, final IPv4Address bgpId, final List<BGPParameter> params) {
 		this.as = as;
 		this.hold = hold;
 		this.bgpId = bgpId;
@@ -43,7 +43,7 @@ public final class BGPSessionPreferences {
 	 * 
 	 * @return AS number
 	 */
-	public ASNumber getMyAs() {
+	public AsNumber getMyAs() {
 		return this.as;
 	}
 

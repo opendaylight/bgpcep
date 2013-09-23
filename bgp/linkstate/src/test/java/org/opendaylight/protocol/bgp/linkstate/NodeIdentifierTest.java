@@ -12,14 +12,13 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
 import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class NodeIdentifierTest {
-	private final NodeIdentifierFactory f = new NodeIdentifierFactory(new ASNumber(25600, 0), null, null);
+	private final NodeIdentifierFactory f = new NodeIdentifierFactory(new AsNumber(109951162777600L), null, null);
 
 	@Test
 	public void testHashCodeEquals() {

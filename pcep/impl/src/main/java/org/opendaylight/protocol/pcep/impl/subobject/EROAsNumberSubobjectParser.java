@@ -7,15 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject
- * EROAsNumberSubobject}
+ * Parser for {@link org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject EROAsNumberSubobject}
  */
 
 public class EROAsNumberSubobjectParser {
@@ -25,24 +24,25 @@ public class EROAsNumberSubobjectParser {
 
 	public static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
 
-	public static EROAsNumberSubobject parse(byte[] soContentsBytes, boolean loose) throws PCEPDeserializerException {
+	public static EROAsNumberSubobject parse(final byte[] soContentsBytes, final boolean loose) throws PCEPDeserializerException {
 		if (soContentsBytes == null || soContentsBytes.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		if (soContentsBytes.length != CONTENT_LENGTH)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: " + CONTENT_LENGTH + ".");
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: "
+					+ CONTENT_LENGTH + ".");
 
-		return new EROAsNumberSubobject(new ASNumber((ByteArray.bytesToShort(soContentsBytes) & 0xFFFF)), loose);
+		return new EROAsNumberSubobject(new AsNumber((long) (ByteArray.bytesToShort(soContentsBytes) & 0xFFFF)), loose);
 	}
 
-	public static byte[] put(ExplicitRouteSubobject objToSerialize) {
+	public static byte[] put(final ExplicitRouteSubobject objToSerialize) {
 		if (!(objToSerialize instanceof EROAsNumberSubobject))
 			throw new IllegalArgumentException("Unknown ExplicitRouteSubobject instance. Passed " + objToSerialize.getClass()
 					+ ". Needed EROAsNumberSubobject.");
 
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 
-		System.arraycopy(ByteArray.longToBytes(((EROAsNumberSubobject) objToSerialize).getASNumber().getAsn()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH,
-				retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(((EROAsNumberSubobject) objToSerialize).getASNumber().getValue()), Long.SIZE / Byte.SIZE
+				- AS_NUMBER_LENGTH, retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
 
 		return retBytes;
 	}

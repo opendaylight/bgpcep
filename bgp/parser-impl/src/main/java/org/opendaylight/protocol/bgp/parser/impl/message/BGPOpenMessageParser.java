@@ -12,19 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.BGPParameterParser;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
@@ -80,11 +79,11 @@ public final class BGPOpenMessageParser {
 		offset += VERSION_SIZE;
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
-		ASNumber openAS = msg.getMyAS();
-		if (openAS.getHighValue() != 0)
-			openAS = ASNumber.TRANS;
+		AsNumber openAS = msg.getMyAS();
+		if (openAS.getValue().longValue() > Integer.MAX_VALUE)
+			openAS = new AsNumber((long) 2345);
 
-		System.arraycopy(ByteArray.intToBytes(openAS.getLowValue()), 2, msgBody, offset, AS_SIZE);
+		System.arraycopy(ByteArray.longToBytes(openAS.getValue()), 6, msgBody, offset, AS_SIZE);
 		offset += AS_SIZE;
 
 		System.arraycopy(ByteArray.shortToBytes(msg.getHoldTime()), 0, msgBody, offset, HOLD_TIME_SIZE);
@@ -125,7 +124,7 @@ public final class BGPOpenMessageParser {
 					ByteArray.intToBytes(BGPOpenMessage.BGP_VERSION), 2, 2));
 
 		int offset = VERSION_SIZE;
-		final ASNumber as = new ASNumber(0, ByteArray.bytesToInt(ByteArray.subByte(bytes, offset, AS_SIZE)));
+		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, offset, AS_SIZE)));
 		offset += AS_SIZE;
 
 		// TODO: BAD_PEER_AS Error: when is an AS unacceptable?

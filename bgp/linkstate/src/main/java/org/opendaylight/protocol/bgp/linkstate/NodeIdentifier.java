@@ -8,7 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import org.opendaylight.protocol.concepts.Identifier;
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -19,12 +20,12 @@ import com.google.common.base.Preconditions;
 public final class NodeIdentifier implements Identifier {
 	private static final long serialVersionUID = 1L;
 
-	private final ASNumber asNumber;
+	private final AsNumber asNumber;
 	private final DomainIdentifier domainIdentifier;
 	private final AreaIdentifier areaIdentifier;
 	private final RouterIdentifier routerIdentifier;
 
-	public NodeIdentifier(final ASNumber as, final DomainIdentifier domain, final AreaIdentifier area, final RouterIdentifier router) {
+	public NodeIdentifier(final AsNumber as, final DomainIdentifier domain, final AreaIdentifier area, final RouterIdentifier router) {
 		this.routerIdentifier = Preconditions.checkNotNull(router, "Router Identifier is mandatory.");
 		this.asNumber = as;
 		this.domainIdentifier = domain;
@@ -36,7 +37,7 @@ public final class NodeIdentifier implements Identifier {
 	 * 
 	 * @return AS of residence
 	 */
-	public ASNumber getAsNumber() {
+	public AsNumber getAsNumber() {
 		return this.asNumber;
 	}
 

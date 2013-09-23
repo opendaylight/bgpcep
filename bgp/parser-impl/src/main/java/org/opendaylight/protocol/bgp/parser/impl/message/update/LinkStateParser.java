@@ -59,7 +59,6 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPLinkMP;
 import org.opendaylight.protocol.bgp.parser.impl.BGPNodeMP;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4Address;
@@ -73,6 +72,7 @@ import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -382,7 +382,7 @@ public class LinkStateParser {
 	 */
 	private static NodeIdentifier parseNodeDescriptors(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
-		ASNumber asnumber = null;
+		AsNumber asnumber = null;
 		DomainIdentifier bgpId = null;
 		AreaIdentifier ai = null;
 		RouterIdentifier routerId = null;
@@ -395,7 +395,7 @@ public class LinkStateParser {
 			logger.debug("Parsing Node Descriptor: {}", Arrays.toString(value));
 			switch (type) {
 			case 512:
-				asnumber = new ASNumber(ByteArray.bytesToLong(value));
+				asnumber = new AsNumber(ByteArray.bytesToLong(value));
 				logger.trace("Parsed AS number {}", asnumber);
 				break;
 			case 513:

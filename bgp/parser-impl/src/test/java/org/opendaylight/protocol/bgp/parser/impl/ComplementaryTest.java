@@ -34,7 +34,6 @@ import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -62,7 +61,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPLinkMP() {
-		final NodeIdentifier localnodeid = new NodeIdentifier(new ASNumber(25600, 0), null, null, new ISISRouterIdentifier(new ISOSystemIdentifier(new byte[] {
+		final NodeIdentifier localnodeid = new NodeIdentifier(new AsNumber((long) 25600), null, null, new ISISRouterIdentifier(new ISOSystemIdentifier(new byte[] {
 				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 })));
 		final NodeIdentifier remotenodeid = NodeIdentifierFactory.localIdentifier(new ISISLANIdentifier(new ISOSystemIdentifier(new byte[] {
 				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 }), (short) 1));
@@ -111,14 +110,14 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		assertEquals(as, new ASSpecificExtendedCommunity(false, 5, new ASNumber(54), new byte[] { 0, 0, 1, 76 }));
+		assertEquals(as, new ASSpecificExtendedCommunity(false, 5, new AsNumber((long) 54), new byte[] { 0, 0, 1, 76 }));
 
 		try {
 			as = (ASSpecificExtendedCommunity) CommunitiesParser.parseExtendedCommunity(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		assertEquals(as, new ASSpecificExtendedCommunity(true, 5, new ASNumber(54), new byte[] { 0, 0, 1, 76 }));
+		assertEquals(as, new ASSpecificExtendedCommunity(true, 5, new AsNumber((long) 54), new byte[] { 0, 0, 1, 76 }));
 
 		RouteTargetCommunity rtc = null;
 		try {
@@ -126,7 +125,7 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		assertEquals(rtc, new RouteTargetCommunity(new ASNumber(35), new byte[] { 4, 2, 8, 7 }));
+		assertEquals(rtc, new RouteTargetCommunity(new AsNumber((long) 35), new byte[] { 4, 2, 8, 7 }));
 
 		RouteOriginCommunity roc = null;
 		try {
@@ -134,7 +133,7 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		assertEquals(roc, new RouteOriginCommunity(new ASNumber(24), new byte[] { 4, 2, 8, 7 }));
+		assertEquals(roc, new RouteOriginCommunity(new AsNumber((long) 24), new byte[] { 4, 2, 8, 7 }));
 
 		Inet4SpecificExtendedCommunity sec = null;
 		try {

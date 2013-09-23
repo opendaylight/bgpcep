@@ -64,7 +64,6 @@ import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPLinkImpl;
 import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
@@ -182,12 +181,12 @@ public class BGPParserTest {
 
 		// attributes
 
-		final ASPath asPath = new ASPath(Lists.newArrayList(new ASNumber(65002)));
+		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65002)));
 
 		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.2");
 
 		final Set<Community> comms = Sets.newHashSet(Community.NO_EXPORT, Community.NO_ADVERTISE, Community.NO_EXPORT_SUBCONFED,
-				new Community(new ASNumber(0xFFFF), 0xFF10));
+				new Community(new AsNumber((long) 0xFFFF), 0xFF10));
 
 		// check path attributes
 
@@ -308,7 +307,7 @@ public class BGPParserTest {
 
 		// attributes
 
-		final ASPath asPath = new ASPath(Lists.newArrayList(new ASNumber(65001)));
+		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65001)));
 
 		final IPv6NextHop nextHop = IPv6NextHop.forString("2001:db8::1", "fe80::c001:bff:fe7e:0");
 
@@ -415,7 +414,8 @@ public class BGPParserTest {
 
 		// attributes
 
-		final ASPath asPath = new ASPath(Lists.newArrayList(new ASNumber(30)), Sets.newHashSet(new ASNumber(10), new ASNumber(20)));
+		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 30)), Sets.newHashSet(new AsNumber((long) 10),
+				new AsNumber((long) 20)));
 
 		final BgpAggregator aggregator = new BGPAggregatorImpl(new AsNumber((long) 30), new Ipv4Address("10.0.0.9"));
 		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.9");
@@ -888,8 +888,8 @@ public class BGPParserTest {
 		container.setDefaultEntry(new IGPMetric(1));
 		final NetworkLinkState linkState = new NetworkLinkState(objState, container, null, LinkProtectionType.UNPROTECTED, null, null, null);
 
-		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new ASNumber(100), new DomainIdentifier(new byte[] { 25, 25, 25, 1 }), new AreaIdentifier(new byte[] {
-				0, 0, 0, 0 }));
+		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
+				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
 
 		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
 				0x0b, 0x0b, 0x0b, 0x03 })));
@@ -1018,8 +1018,8 @@ public class BGPParserTest {
 
 		// network link state
 
-		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new ASNumber(100), new DomainIdentifier(new byte[] { 25, 25, 25, 1 }), new AreaIdentifier(new byte[] {
-				0, 0, 0, 0 }));
+		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
+				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
 
 		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
 				0x0b, 0x0b, 0x0b, 0x03 })));

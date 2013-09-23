@@ -24,9 +24,9 @@ import org.opendaylight.protocol.bgp.linkstate.NetworkPrefixState;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.OSPFRouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 
 import com.google.common.collect.Lists;
@@ -34,7 +34,7 @@ import com.google.common.collect.Sets;
 
 public class PrefixTest {
 	final BaseBGPObjectState base = new BaseBGPObjectState(BgpOrigin.Egp, null);
-	final NetworkObjectState state = new NetworkObjectState(new ASPath(Lists.newArrayList(new ASNumber(10L))), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+	final NetworkObjectState state = new NetworkObjectState(new ASPath(Lists.newArrayList(new AsNumber(10L))), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 	final NetworkPrefixState prefixState = new NetworkPrefixState(this.state, Sets.<RouteTag> newTreeSet(), null);
 
 	final BGPIPv4PrefixImpl r4 = new BGPIPv4PrefixImpl(this.base, new IPv4PrefixIdentifier(new NodeIdentifier(null, null, null, new OSPFRouterIdentifier(new byte[] {

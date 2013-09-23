@@ -8,38 +8,37 @@
 
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * Structure of Autonomous System Number Subobject.
- *
- * @see <a href="http://tools.ietf.org/html/rfc3209#section-4.3.3.4">Section
- *      4.3.3.4.: Subobject 32: Autonomous System Number</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc3209#section-4.3.3.4">Section 4.3.3.4.: Subobject 32: Autonomous System
+ *      Number</a>
  */
 public class EROAsNumberSubobject extends ExplicitRouteSubobject {
 
-	private final ASNumber asnumber;
+	private final AsNumber asnumber;
 
 	/**
 	 * Constructs new ASNumber Subobject.
-	 *
-	 * @param asnumber
-	 *            ASNumber
-	 * @param loose
-	 *            boolean
+	 * 
+	 * @param asnumber ASNumber
+	 * @param loose boolean
 	 */
-	public EROAsNumberSubobject(ASNumber asnumber, boolean loose) {
+	public EROAsNumberSubobject(final AsNumber asnumber, final boolean loose) {
 		super(loose);
 		this.asnumber = asnumber;
 	}
 
 	/**
-	 * Gets {@link ASNumber}.
-	 *
+	 * Gets {@link AsNumber}.
+	 * 
 	 * @return ASNumber
 	 */
-	public ASNumber getASNumber() {
+	public AsNumber getASNumber() {
 		return this.asnumber;
 	}
 
@@ -52,7 +51,7 @@ public class EROAsNumberSubobject extends ExplicitRouteSubobject {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -68,8 +67,8 @@ public class EROAsNumberSubobject extends ExplicitRouteSubobject {
 		return true;
 	}
 
-    @Override
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("asnumber", this.asnumber);
 		return super.addToStringAttributes(toStringHelper);
 	}

@@ -41,7 +41,7 @@ import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 
@@ -71,7 +71,7 @@ public class FSMTest {
 		final List<BGPParameter> tlvs = Lists.newArrayList();
 		tlvs.add(new MultiprotocolCapability(this.ipv4tt));
 		tlvs.add(new MultiprotocolCapability(this.linkstatett));
-		final BGPSessionPreferences prefs = new BGPSessionPreferences(new ASNumber(30), (short) 3, null, tlvs);
+		final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber((long) 30), (short) 3, null, tlvs);
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {
 			@Override
@@ -85,7 +85,7 @@ public class FSMTest {
 		doReturn(this.pipeline).when(this.speakerListener).pipeline();
 		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
 		doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
-		this.classicOpen = new BGPOpenMessage(new ASNumber(30), (short) 3, null, tlvs);
+		this.classicOpen = new BGPOpenMessage(new AsNumber((long) 30), (short) 3, null, tlvs);
 	}
 
 	@Test
@@ -114,7 +114,7 @@ public class FSMTest {
 		this.clientSession.channelActive(null);
 		assertEquals(1, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
-		this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 1, null, null));
+		this.clientSession.handleMessage(new BGPOpenMessage(new AsNumber((long) 30), (short) 1, null, null));
 		assertEquals(2, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(1) instanceof BGPNotificationMessage);
 		final BGPMessage m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
@@ -141,7 +141,7 @@ public class FSMTest {
 		this.clientSession.handleMessage(new BGPKeepAliveMessage());
 		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
 		try {
-			this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
+			this.clientSession.handleMessage(new BGPOpenMessage(new AsNumber((long) 30), (short) 3, null, null));
 			fail("Exception should be thrown.");
 		} catch (final IllegalStateException e) {
 			assertEquals("Unexpected state Finished", e.getMessage());

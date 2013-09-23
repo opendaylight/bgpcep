@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.concepts;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * @see <a href="http://tools.ietf.org/html/rfc4360#section-4">Route Target Community</a>
@@ -18,10 +18,10 @@ public class RouteTargetCommunity extends ASSpecificExtendedCommunity {
 
 	/**
 	 * 
-	 * @param globalAdmin Globally-administered identifier, i.e. an {@link ASNumber}
+	 * @param globalAdmin Globally-administered identifier, i.e. an {@link AsNumber}
 	 * @param localAdmin Locally-administered identifier
 	 */
-	public RouteTargetCommunity(final ASNumber globalAdmin, final byte[] localAdmin) {
+	public RouteTargetCommunity(final AsNumber globalAdmin, final byte[] localAdmin) {
 		super(false, 2, globalAdmin, localAdmin);
 	}
 }

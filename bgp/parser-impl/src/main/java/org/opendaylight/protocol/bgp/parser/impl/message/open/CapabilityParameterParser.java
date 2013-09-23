@@ -16,8 +16,8 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.slf4j.Logger;
@@ -130,7 +130,7 @@ public final class CapabilityParameterParser {
 	}
 
 	private static byte[] putAS4BytesParameterValue(final AS4BytesCapability param) {
-		return ByteArray.subByte(ByteArray.longToBytes(param.getASNumber().getAsn()), 4, 4);
+		return ByteArray.subByte(ByteArray.longToBytes(param.getASNumber().getValue()), 4, 4);
 	}
 
 	private static MultiprotocolCapability parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
@@ -147,7 +147,7 @@ public final class CapabilityParameterParser {
 	}
 
 	private static AS4BytesCapability parseAS4BParameterValue(final byte[] bytes) {
-		return new AS4BytesCapability(new ASNumber(ByteArray.bytesToLong(bytes)));
+		return new AS4BytesCapability(new AsNumber(ByteArray.bytesToLong(bytes)));
 	}
 
 	private static byte[] putAfi(final BgpAddressFamily afi) {

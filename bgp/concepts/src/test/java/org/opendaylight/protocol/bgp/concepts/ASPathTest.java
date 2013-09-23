@@ -20,77 +20,75 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.ASPath;
-
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class ASPathTest {
 
-	private ASNumber asn1, asn2, asn3, asn4, asn5, asn6, asn7, asn8;
+	private AsNumber asn1, asn2, asn3, asn4, asn5, asn6, asn7, asn8;
 
-	private List<ASNumber> visibleAsPath;
-	private Set<ASNumber> aggregatedAsPath;
+	private List<AsNumber> visibleAsPath;
+	private Set<AsNumber> aggregatedAsPath;
 
 	@Before
 	public void init() {
-		asn1 = new ASNumber(100, 200);
-		asn2 = new ASNumber(65534);
-		asn3 = new ASNumber(0, 200);
-		asn4 = new ASNumber(100, 199);
-		asn5 = new ASNumber(99, 199);
-		asn6 = new ASNumber(64538);
-		asn7 = new ASNumber(0, 200);
-		asn8 = new ASNumber(100, 0);
+		this.asn1 = new AsNumber(429496729800L);
+		this.asn2 = new AsNumber((long) 65534);
+		this.asn3 = new AsNumber((long) 200);
+		this.asn4 = new AsNumber(429496729799L);
+		this.asn5 = new AsNumber(425201762503L);
+		this.asn6 = new AsNumber((long) 64538);
+		this.asn7 = new AsNumber((long) 200);
+		this.asn8 = new AsNumber(429496729600L);
 
-		visibleAsPath = new ArrayList<ASNumber>();
-		aggregatedAsPath = new HashSet<ASNumber>();
+		this.visibleAsPath = new ArrayList<AsNumber>();
+		this.aggregatedAsPath = new HashSet<AsNumber>();
 
-		visibleAsPath.add(asn1);
-		visibleAsPath.add(asn2);
-		visibleAsPath.add(asn3);
-		visibleAsPath.add(asn4);
+		this.visibleAsPath.add(this.asn1);
+		this.visibleAsPath.add(this.asn2);
+		this.visibleAsPath.add(this.asn3);
+		this.visibleAsPath.add(this.asn4);
 
-		aggregatedAsPath.add(asn5);
-		aggregatedAsPath.add(asn6);
-		aggregatedAsPath.add(asn7);
-		aggregatedAsPath.add(asn8);
+		this.aggregatedAsPath.add(this.asn5);
+		this.aggregatedAsPath.add(this.asn6);
+		this.aggregatedAsPath.add(this.asn7);
+		this.aggregatedAsPath.add(this.asn8);
 	}
 
 	@Test
 	public void testGetXXXPath() {
-		ASPath asp1 = ASPath.EMPTY;
+		final ASPath asp1 = ASPath.EMPTY;
 		assertEquals(0, asp1.getVisibleAsPath().size());
 		assertEquals(0, asp1.getAggregatedAsPath().size());
 
-		ASPath asp2 = new ASPath(visibleAsPath);
+		final ASPath asp2 = new ASPath(this.visibleAsPath);
 		assertEquals(4, asp2.getVisibleAsPath().size());
 		assertEquals(0, asp2.getAggregatedAsPath().size());
 
-		ASPath asp3 = new ASPath(visibleAsPath, aggregatedAsPath);
+		final ASPath asp3 = new ASPath(this.visibleAsPath, this.aggregatedAsPath);
 		assertEquals(4, asp3.getVisibleAsPath().size());
 		assertEquals(4, asp3.getAggregatedAsPath().size());
 	}
 
 	@Test
 	public void testEqualsHashCode() {
-		ASPath asp1 = ASPath.EMPTY;
-		ASPath asp2 = asp1;
+		final ASPath asp1 = ASPath.EMPTY;
+		final ASPath asp2 = asp1;
 		assertEquals(asp1, asp2);
 		assertEquals(asp1.hashCode(), asp2.hashCode());
 		assertNotNull(asp1);
 		assertThat(asp1, not(new Object()));
 
-		ASPath asp3 = new ASPath(visibleAsPath, aggregatedAsPath);
+		final ASPath asp3 = new ASPath(this.visibleAsPath, this.aggregatedAsPath);
 		assertThat(asp1, not(equalTo(asp3)));
 		assertThat(asp1.hashCode(), not(equalTo(asp3.hashCode())));
 
-		ASPath asp4 = new ASPath(new ArrayList<ASNumber>(), aggregatedAsPath);
+		final ASPath asp4 = new ASPath(new ArrayList<AsNumber>(), this.aggregatedAsPath);
 		assertThat(asp3, not(equalTo(asp4)));
 	}
 
 	@Test
 	public void testToString() {
-		ASPath asp = new ASPath(visibleAsPath, aggregatedAsPath);
+		final ASPath asp = new ASPath(this.visibleAsPath, this.aggregatedAsPath);
 		assertNotNull(asp.toString());
 	}
 

@@ -7,37 +7,34 @@
  */
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * Structure of Autonomous System Number Subobject. Defined in RFC5521.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route
- *      Object definition</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route Object definition</a>
  */
 public class XROAsNumberSubobject extends ExcludeRouteSubobject {
 
-	private final ASNumber asnumber;
+	private final AsNumber asnumber;
 
 	/**
 	 * Constructs new ASNumber Subobject.
-	 *
-	 * @param asnumber
-	 *            ASNumber
-	 * @param mandatory
-	 *            boolean
+	 * 
+	 * @param asnumber ASNumber
+	 * @param mandatory boolean
 	 */
-	public XROAsNumberSubobject(ASNumber asnumber, boolean mandatory) {
+	public XROAsNumberSubobject(final AsNumber asnumber, final boolean mandatory) {
 		super(mandatory);
 		this.asnumber = asnumber;
 	}
 
 	/**
-	 * Gets {@link ASNumber}.
-	 *
+	 * Gets {@link AsNumber}.
+	 * 
 	 * @return ASNumber
 	 */
-	public ASNumber getASNumber() {
+	public AsNumber getASNumber() {
 		return this.asnumber;
 	}
 
@@ -50,7 +47,7 @@ public class XROAsNumberSubobject extends ExcludeRouteSubobject {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)

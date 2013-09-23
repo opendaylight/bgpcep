@@ -11,9 +11,8 @@ import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * Representation of BGPOpen message.
@@ -29,7 +28,7 @@ public final class BGPOpenMessage implements BGPMessage {
 	 */
 	public static final int BGP_VERSION = 4;
 
-	private final ASNumber myAS;
+	private final AsNumber myAS;
 
 	private final short holdTime;
 
@@ -45,7 +44,7 @@ public final class BGPOpenMessage implements BGPMessage {
 	 * @param bgpId IPv4 Address of the BGP speaker
 	 * @param optParams List of optional parameters
 	 */
-	public BGPOpenMessage(final ASNumber myAS, final short holdTime, final IPv4Address bgpId, final List<BGPParameter> optParams) {
+	public BGPOpenMessage(final AsNumber myAS, final short holdTime, final IPv4Address bgpId, final List<BGPParameter> optParams) {
 		super();
 		this.myAS = myAS;
 		this.holdTime = holdTime;
@@ -58,7 +57,7 @@ public final class BGPOpenMessage implements BGPMessage {
 	 * 
 	 * @return myAS
 	 */
-	public ASNumber getMyAS() {
+	public AsNumber getMyAS() {
 		return this.myAS;
 	}
 

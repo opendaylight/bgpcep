@@ -26,7 +26,6 @@ import org.opendaylight.protocol.bgp.parser.impl.MPReach;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
-import org.opendaylight.protocol.concepts.ASNumber;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.NetworkAddress;
@@ -161,8 +160,8 @@ public class PathAttributeParser {
 	 */
 	private static ASPath parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		int byteOffset = 0;
-		List<ASNumber> list = null;
-		Set<ASNumber> set = null;
+		List<AsNumber> list = null;
+		Set<AsNumber> set = null;
 		while (byteOffset < bytes.length) {
 			final int type = UnsignedBytes.toInt(bytes[byteOffset]);
 			final SegmentType segmentType = AsPathSegmentParser.parseType(type);
@@ -174,10 +173,10 @@ public class PathAttributeParser {
 			byteOffset += AsPathSegmentParser.LENGTH_SIZE;
 
 			if (segmentType == SegmentType.AS_SEQUENCE) {
-				list = (List<ASNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
+				list = (List<AsNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
 			} else {
-				set = (Set<ASNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
+				set = (Set<AsNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
 			}
 			byteOffset += count * AsPathSegmentParser.AS_NUMBER_LENGTH;

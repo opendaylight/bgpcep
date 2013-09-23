@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.concepts;
 
 import java.io.Serializable;
 
-import org.opendaylight.protocol.concepts.ASNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -22,24 +23,24 @@ public final class Community implements Serializable {
 	 * advertised outside a BGP confederation boundary (a stand-alone autonomous system that is not part of a
 	 * confederation should be considered a confederation itself).
 	 */
-	public static final Community NO_EXPORT = new Community(new ASNumber(0xFFFF), 0xFF01);
+	public static final Community NO_EXPORT = new Community(new AsNumber((long) 0xFFFF), 0xFF01);
 	/**
 	 * NO_ADVERTISE community. All routes received carrying a communities attribute containing this value MUST NOT be
 	 * advertised to other BGP peers.
 	 */
-	public static final Community NO_ADVERTISE = new Community(new ASNumber(0xFFFF), 0xFF02);
+	public static final Community NO_ADVERTISE = new Community(new AsNumber((long) 0xFFFF), 0xFF02);
 	/**
 	 * NO_EXPORT_SUBCONFED community. All routes received carrying a communities attribute containing this value MUST
 	 * NOT be advertised to external BGP peers (this includes peers in other members autonomous systems inside a BGP
 	 * confederation).
 	 */
-	public static final Community NO_EXPORT_SUBCONFED = new Community(new ASNumber(0xFFFF), 0xFF03);
+	public static final Community NO_EXPORT_SUBCONFED = new Community(new AsNumber((long) 0xFFFF), 0xFF03);
 
 	private static final long serialVersionUID = -944853598551415685L;
 
 	private final int semantics;
 
-	private final ASNumber as;
+	private final AsNumber as;
 
 	/**
 	 * Create a new community tag for a particular AS number and semantics.
@@ -47,8 +48,7 @@ public final class Community implements Serializable {
 	 * @param as Global semantics namespace identifier (usually the tagging Autonomous System)
 	 * @param semantics Sematics identifier (specific meaning defined externally by the namespace)
 	 */
-	public Community(final ASNumber as, final int semantics) {
-		Preconditions.checkArgument(as.getHighValue() == 0, "Invalid AS number specified");
+	public Community(final AsNumber as, final int semantics) {
 		Preconditions.checkArgument(semantics > 0 && semantics < 65535, "Invalid semantics specified");
 		this.semantics = semantics;
 		this.as = as;
@@ -66,9 +66,9 @@ public final class Community implements Serializable {
 	/**
 	 * Return ASNumber of community.
 	 * 
-	 * @return {@link ASNumber}
+	 * @return {@link AsNumber}
 	 */
-	public ASNumber getAs() {
+	public AsNumber getAs() {
 		return this.as;
 	}
 
@@ -105,6 +105,6 @@ public final class Community implements Serializable {
 
 		final int asn = Integer.valueOf(parts[0]);
 		final int sem = Integer.valueOf(parts[1]);
-		return new Community(new ASNumber(0, asn), sem);
+		return new Community(new AsNumber((long) asn), sem);
 	}
 }
