@@ -132,6 +132,9 @@ module bgp-message {
 			container aggregator {
 				uses bgp-t:bgp-aggregator;
 			}
+			list communities {
+				uses bgp-t:community; 
+			}
 		}
 		container withdrawn-routes {
 			leaf-list withdrawn-routes {

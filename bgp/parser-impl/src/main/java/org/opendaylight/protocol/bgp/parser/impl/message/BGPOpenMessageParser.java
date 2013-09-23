@@ -80,7 +80,7 @@ public final class BGPOpenMessageParser {
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
 		AsNumber openAS = msg.getMyAS();
-		if (openAS.getValue().longValue() > Integer.MAX_VALUE)
+		if (openAS.getValue().longValue() > 65535)
 			openAS = new AsNumber((long) 2345);
 
 		System.arraycopy(ByteArray.longToBytes(openAS.getValue()), 6, msgBody, offset, AS_SIZE);
