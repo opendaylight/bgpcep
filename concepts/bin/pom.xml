@@ -49,7 +49,6 @@
                             com.google.common.collect,
                             com.google.common.net,
                             com.google.common.primitives,
-                            com.google.guava;
 						</Import-Package>
 						<Export-Package>
                             org.opendaylight.protocol.concepts,

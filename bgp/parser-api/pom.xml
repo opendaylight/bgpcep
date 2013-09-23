@@ -76,7 +76,6 @@
 							com.google.common.collect, 
 							org.opendaylight.protocol.bgp.linkstate,
 							com.google.common.base,
-							com.google.guava,
 							org.slf4j,
 						</Import-Package>
 						<Export-Package>

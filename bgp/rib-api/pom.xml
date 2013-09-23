@@ -73,7 +73,6 @@
                             org.opendaylight.protocol.bgp.parser, 
                             org.opendaylight.protocol.concepts,
 							com.google.common.base,
-							com.google.guava,
 							org.slf4j,
 						</Import-Package>
 						<Export-Package>
