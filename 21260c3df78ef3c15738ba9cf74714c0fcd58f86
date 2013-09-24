@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_50b0138b",
+        "filename": "bgp/concepts/src/main/yang/bgp-types.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T13:08:04Z",
+      "side": 1,
+      "message": "We need to restrict this to 0..65535, too. The basic BGP community is not defined for wide ASes. 4-byte ASes should use Extended Communities.",
+      "revId": "21260c3df78ef3c15738ba9cf74714c0fcd58f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_4b13c65c",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/CommunityUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T13:08:04Z",
+      "side": 1,
+      "message": "Can we use create() here? I think it will shorten the class considerably...",
+      "revId": "21260c3df78ef3c15738ba9cf74714c0fcd58f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
