@@ -75,10 +75,18 @@ module bgp-types {
 		}
 	}
 
+	typedef cluster-identifier {
+		reference "http://tools.ietf.org/html/rfc4456#section-8";
+		type binary {
+			length "4";
+		}
+	}
+
 	grouping bgp-aggregator {
 		reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
 		description "BGP Path Attribute AGGREGATOR.";
 		leaf as-number {
+			// BUG-79 : add range 0..65535 when the bug is fixed.
 			type inet:as-number;
 		}
 		leaf network-address {

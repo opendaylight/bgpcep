@@ -135,6 +135,11 @@ module bgp-message {
 			list communities {
 				uses bgp-t:community; 
 			}
+			container cluster-id {
+				leaf cluster-id {
+					type bgp-t:cluster-identifier;
+				}
+			}
 		}
 		container withdrawn-routes {
 			leaf-list withdrawn-routes {

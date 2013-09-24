@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.ClusterIdentifier;
 import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.NextHop;
@@ -33,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 import com.google.common.collect.Lists;
@@ -304,8 +304,8 @@ public class PathAttributeParser {
 		final List<ClusterIdentifier> list = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
-			list.add(new ClusterIdentifier(ByteArray.subByte(bytes, i, ClusterIdentifier.SIZE)));
-			i += ClusterIdentifier.SIZE;
+			list.add(new ClusterIdentifier(ByteArray.subByte(bytes, i, 4)));
+			i += 4;
 		}
 		return list;
 	}
