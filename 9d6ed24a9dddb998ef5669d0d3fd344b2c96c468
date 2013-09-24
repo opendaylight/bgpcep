@@ -16,6 +16,24 @@
       "revId": "9d6ed24a9dddb998ef5669d0d3fd344b2c96c468",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_10f16bcd",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/Community.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-09-24T09:17:09Z",
+      "side": 0,
+      "message": "Will be pushed as a part of the fix for Communities commit, as this class no longer exists.",
+      "parentUuid": "1a2f8d8d_907c3b74",
+      "revId": "9d6ed24a9dddb998ef5669d0d3fd344b2c96c468",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
