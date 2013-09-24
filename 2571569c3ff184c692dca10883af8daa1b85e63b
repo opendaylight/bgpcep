@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_5096d395",
+        "filename": "bgp/concepts/src/test/java/org/opendaylight/protocol/bgp/concepts/RouteTargetCommunityTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T07:37:04Z",
+      "side": 1,
+      "message": "Again, this should be 655380...",
+      "revId": "2571569c3ff184c692dca10883af8daa1b85e63b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_7081cf49",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/NodeIdentifierTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T07:37:04Z",
+      "side": 1,
+      "message": "This does not look right. AS number is 2x16 bits, so this number should be 25600*65536.",
+      "revId": "2571569c3ff184c692dca10883af8daa1b85e63b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_f08c9f81",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T07:37:04Z",
+      "side": 1,
+      "message": "not MAX_VALUE, but rather 65535",
+      "revId": "2571569c3ff184c692dca10883af8daa1b85e63b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a2f8d8d_d0e9a31b",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T07:37:04Z",
+      "side": 1,
+      "message": "Why are these (long) casts needed?",
+      "revId": "2571569c3ff184c692dca10883af8daa1b85e63b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

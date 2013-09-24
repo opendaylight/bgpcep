@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_907c3b74",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/Community.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-24T07:37:04Z",
+      "side": 0,
+      "message": "Please retain this check",
+      "revId": "9d6ed24a9dddb998ef5669d0d3fd344b2c96c468",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
