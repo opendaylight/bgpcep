@@ -140,6 +140,9 @@ module bgp-message {
 					type bgp-t:cluster-identifier;
 				}
 			}
+			list extended-communities {
+				uses bgp-t:extended-community;
+			}
 		}
 		container withdrawn-routes {
 			leaf-list withdrawn-routes {

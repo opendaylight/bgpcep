@@ -13,7 +13,6 @@ import java.util.Collections;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
 import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
 public class LinkTest {
 

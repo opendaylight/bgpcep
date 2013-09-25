@@ -41,7 +41,7 @@ public final class CommunityUtil {
 	 * @param semantics long
 	 * @return new Community
 	 */
-	public static Community create(final long asn, final long semantics) {
+	public static Community create(final long asn, final int semantics) {
 		final CommunitiesBuilder builder = new CommunitiesBuilder();
 		builder.setAsNumber(new AsNumber(asn));
 		builder.setSemantics(semantics);
@@ -58,7 +58,7 @@ public final class CommunityUtil {
 		final String[] parts = string.split(":", 2);
 		final CommunitiesBuilder builder = new CommunitiesBuilder();
 		builder.setAsNumber(new AsNumber(Long.valueOf(parts[0])));
-		builder.setSemantics(Long.valueOf(parts[1]));
+		builder.setSemantics(Integer.valueOf(parts[1]));
 		return builder.build();
 	}
 }
