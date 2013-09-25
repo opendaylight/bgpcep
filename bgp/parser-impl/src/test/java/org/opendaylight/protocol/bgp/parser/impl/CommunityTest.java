@@ -9,14 +9,10 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
-import org.opendaylight.protocol.bgp.concepts.OpaqueExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 public class CommunityTest {
@@ -58,14 +54,5 @@ public class CommunityTest {
 		final Community comm = CommunityUtil.valueOf("12:50");
 		assertEquals(12, comm.getAsNumber().getValue().intValue());
 		assertEquals(50, comm.getSemantics().intValue());
-	}
-
-	@Test
-	public void testExtendedCommunity() {
-		final ExtendedCommunity ec = new OpaqueExtendedCommunity(false, 5, new byte[] { 1, 2, 3, 4, 5, 6 });
-		final Object ec2 = new RouteOriginCommunity(new AsNumber((long) 84), new byte[] { 1, 2, 3, 4 });
-		assertNotSame(ec, ec2);
-		assertEquals(ec, new OpaqueExtendedCommunity(false, 5, new byte[] { 1, 2, 3, 4, 5, 6 }));
-		assertEquals(ec.hashCode(), (new OpaqueExtendedCommunity(false, 5, new byte[] { 1, 2, 3, 4, 5, 6 })).hashCode());
 	}
 }

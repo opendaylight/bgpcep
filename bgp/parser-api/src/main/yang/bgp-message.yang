@@ -132,6 +132,9 @@ module bgp-message {
 		list communities {
 			uses bgp-t:community; 
 		}
+		list extended-communities {
+			uses bgp-t:extended-community;
+		}
 		container cluster-id {
 			leaf cluster-id {
 				type bgp-t:cluster-identifier;

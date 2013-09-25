@@ -101,8 +101,100 @@ module bgp-types {
 			type inet:as-number;
 		}
 		leaf semantics {
-			type uint32 {
-				range 0..65535;
+			type uint16;
+		}
+	}
+
+	grouping extended-community {
+		leaf comm-type {
+			type uint8;
+		}
+		leaf comm-sub-type {
+			type uint8;
+		}
+		choice extended-community {
+			case c-as-specific-extended-community {
+				container as-specific-extended-community {
+					when "../comm-type = 0 and ../comm-sub-type = 0 or ../comm-type = 40 and ../comm-sub-type = 0";
+					leaf transitive {
+						type boolean;
+					}
+					leaf global-administrator {
+						type inet:as-number;
+						// BUG-79
+						//{
+						//	range 0..65535;
+						//}
+					}
+					leaf local-administrator {
+						type binary {
+							length "4";
+						}
+					}
+				}
+			}
+			case c-inet4-specific-extended-community {
+				container inet4-specific-extended-community {
+					when "../comm-type = 1 and ../comm-sub-type = 0 or ../comm-type = 41 and ../comm-sub-type = 0";
+					leaf transitive {
+						type boolean;
+					}
+					leaf global-administrator {
+						type inet:ipv4-address;
+					}
+					leaf local-administrator {
+						type binary {
+							length "2";
+						}
+					}
+				}
+			}
+			case c-opaque-extended-community {
+				container opaque-extended-community {
+					when "../comm-type = 3 and ../comm-sub-type = 0 or ../comm-type = 43 and ../comm-sub-type = 0";
+					leaf transitive {
+						type boolean;
+					}
+					leaf value {
+						type binary {
+							length "6";
+						}
+					}
+				}
+			}
+			case c-route-target-extended-community {
+				container route-target-extended-community {
+					when "../comm-type = 1 and ../comm-sub-type = 2 or ../comm-type = 2 and ../comm-sub-type = 2 or ../comm-type = 3 and ../comm-sub-type = 2";
+					leaf global-administrator {
+						type inet:as-number;
+						// BUG-79
+						//{
+						//	range 0..65535;
+						//}
+					}
+					leaf local-administrator {
+						type binary {
+							length "4";
+						}
+					}
+				}
+			}
+			case c-route-origin-extended-community {
+				container route-origin-extended-community {
+					when "../comm-type = 1 and ../comm-sub-type = 3 or ../comm-type = 2 and ../comm-sub-type = 3 or ../comm-type = 3 and ../comm-sub-type = 3";
+					leaf global-administrator {
+						type inet:as-number;
+						// BUG-79
+						//{
+						//	range 0..65535;
+						//}
+					}
+					leaf local-administrator {
+						type binary {
+							length "4";
+						}
+					}
+				}
 			}
 		}
 	}
