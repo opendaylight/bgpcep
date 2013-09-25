@@ -136,6 +136,9 @@ module bgp-message {
 			leaf cluster-id {
 				type bgp-t:cluster-identifier;
 			}
+			list extended-communities {
+				uses bgp-t:extended-community;
+			}
 		}
 	}
 
