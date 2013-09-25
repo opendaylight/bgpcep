@@ -38,6 +38,8 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.path.attributes.AggregatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 
 import com.google.common.collect.Sets;
 
@@ -45,12 +47,12 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPAggregatorImpl() {
-		final BGPAggregatorImpl ipv4 = new BGPAggregatorImpl(new AsNumber((long) 5524), new Ipv4Address("124.55.42.1"));
-		final BGPAggregatorImpl ipv4i = new BGPAggregatorImpl(new AsNumber((long) 5525), new Ipv4Address("124.55.42.1"));
+		final BgpAggregator ipv4 = new AggregatorBuilder().setAsNumber(new AsNumber((long) 5524)).setNetworkAddress(
+				new Ipv4Address("124.55.42.1")).build();
+		final BgpAggregator ipv4i = new AggregatorBuilder().setAsNumber(new AsNumber((long) 5525)).setNetworkAddress(
+				new Ipv4Address("124.55.42.1")).build();
 
 		assertNotSame(ipv4.hashCode(), ipv4i.hashCode());
-
-		assertEquals(ipv4, new BGPAggregatorImpl(new AsNumber((long) 5524), new Ipv4Address("124.55.42.1")));
 
 		assertNotSame(ipv4.getAsNumber(), ipv4i.getAsNumber());
 

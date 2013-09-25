@@ -18,7 +18,6 @@ import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.BGPAggregatorImpl;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
 import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
@@ -30,6 +29,7 @@ import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -227,7 +227,7 @@ public class PathAttributeParser {
 		final AsNumber asNumber = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, AsPathSegmentParser.AS_NUMBER_LENGTH)));
 		final Ipv4Address address = new Ipv4Address(IPv4.FAMILY.addressForBytes(
 				ByteArray.subByte(bytes, AsPathSegmentParser.AS_NUMBER_LENGTH, 4)).toString());
-		return new BGPAggregatorImpl(asNumber, address);
+		return new AggregatorBuilder().setAsNumber(asNumber).setNetworkAddress(address).build();
 	}
 
 	/**
