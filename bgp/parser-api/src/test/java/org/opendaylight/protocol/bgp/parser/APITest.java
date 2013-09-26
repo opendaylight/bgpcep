@@ -21,7 +21,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
 import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
@@ -39,18 +38,19 @@ import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -62,11 +62,13 @@ public class APITest {
 
 	@Test
 	public void testAPI() {
-		final BGPRouteState<IPv4Address> route1 = new BGPRouteState<IPv4Address>(this.objState, new NetworkRouteState<IPv4Address>(new IPv4NextHop(IPv4.FAMILY.addressForString("192.168.5.4"))));
-		final BGPRouteState<IPv4Address> route2 = new BGPRouteState<IPv4Address>(new BaseBGPObjectState(BgpOrigin.Igp, null), new NetworkRouteState<IPv4Address>(new IPv4NextHop(IPv4.FAMILY.addressForString("172.168.5.42"))));
+		final BGPRouteState route1 = new BGPRouteState(this.objState, new NetworkRouteState(new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("192.168.5.4")).build()).build()));
+		final BGPRouteState route2 = new BGPRouteState(new BaseBGPObjectState(BgpOrigin.Igp, null), new NetworkRouteState(new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("172.168.5.42")).build()).build()));
 
 		assertEquals(route1, route1.newInstance());
-		assertNotSame(route1.hashCode(), new BGPRouteState<IPv4Address>(route2).hashCode());
+		assertNotSame(route1.hashCode(), new BGPRouteState(route2).hashCode());
 		assertEquals(route1.toString(), route1.toString());
 		assertNull(route1.getAggregator());
 		assertNotNull(route1.getObjectState().getNextHop());

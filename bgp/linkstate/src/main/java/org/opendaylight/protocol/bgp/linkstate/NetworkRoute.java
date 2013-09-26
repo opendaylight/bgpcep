@@ -12,17 +12,14 @@ import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.concepts.Prefix;
 
 /**
- * A single route existing within the network. A route is a way how to get from
- * the local node to a set of network addresses. The set of addresses is
- * represented as a Prefix of a particular address type and is the unique
- * identifier for the route. The routing part is represented as the
- * directly-connected neighbor, which should be used used as a relay for traffic
- * going to the set of addresses.
- *
+ * A single route existing within the network. A route is a way how to get from the local node to a set of network
+ * addresses. The set of addresses is represented as a Prefix of a particular address type and is the unique identifier
+ * for the route. The routing part is represented as the directly-connected neighbor, which should be used used as a
+ * relay for traffic going to the set of addresses.
+ * 
  * @param <T>
  */
 public interface NetworkRoute<T extends NetworkAddress<?>> extends NetworkObject<Prefix<T>> {
 	@Override
-	public NetworkRouteState<T> currentState();
+	public NetworkRouteState currentState();
 }
-

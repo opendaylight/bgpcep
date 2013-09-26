@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.ASPath;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -24,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -34,6 +33,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -193,8 +195,8 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return new NextHop object, it's always IPv4 (basic BGP-4)
 	 */
-	private static NextHop<IPv4Address> parseNextHop(final byte[] bytes) {
-		return new IPv4NextHop(new IPv4Address(bytes));
+	private static CNextHop parseNextHop(final byte[] bytes) {
+		return new CIpv4NextHopBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForBytes(bytes)).build()).build();
 	}
 
 	/**

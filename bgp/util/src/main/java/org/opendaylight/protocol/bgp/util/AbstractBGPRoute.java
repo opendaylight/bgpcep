@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.util;
 
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPRouteState;
-
 import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
+
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
@@ -22,18 +22,18 @@ import com.google.common.base.Preconditions;
  * 
  * @param <T> extends NetworkAddress<T>
  */
-public abstract class AbstractBGPRoute<T extends NetworkAddress<T>> extends AbstractBGPObject implements BGPRoute<T> {
+public abstract class AbstractBGPRoute<T extends NetworkAddress<T>> extends AbstractBGPObject implements BGPRoute {
 	private static final long serialVersionUID = 1L;
 	private final Prefix<T> name;
 
-	protected AbstractBGPRoute(final Prefix<T> name, final BaseBGPObjectState base, final NetworkRouteState<T> routeState) {
-		super(new BGPRouteState<T>(base, routeState));
+	protected AbstractBGPRoute(final Prefix<T> name, final BaseBGPObjectState base, final NetworkRouteState routeState) {
+		super(new BGPRouteState(base, routeState));
 		this.name = Preconditions.checkNotNull(name);
 	}
 
 	@Override
-	final public BGPRouteState<T> currentState() {
-		return (BGPRouteState<T>) super.currentState();
+	final public BGPRouteState currentState() {
+		return (BGPRouteState) super.currentState();
 	}
 
 	@Override

@@ -9,25 +9,24 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
 
 /**
- *
+ * 
  * MP_(UN)REACH_NLRI (basic, IPv4)
- *
+ * 
  */
 public class IPv4MP implements MPReach<Prefix<IPv4Address>> {
 
 	private final boolean reachable;
 
-	private final IPv4NextHop nextHop;
+	private final CIpv4NextHop nextHop;
 
 	private final Set<Prefix<IPv4Address>> nlri;
 
-	public IPv4MP(final boolean reachable, final IPv4NextHop nextHop, final Set<Prefix<IPv4Address>> nlri) {
+	public IPv4MP(final boolean reachable, final CIpv4NextHop nextHop, final Set<Prefix<IPv4Address>> nlri) {
 		this.reachable = reachable;
 		this.nextHop = nextHop;
 		this.nlri = nlri;
@@ -43,7 +42,7 @@ public class IPv4MP implements MPReach<Prefix<IPv4Address>> {
 		return this.nlri;
 	}
 
-	public IPv4NextHop getNextHop() {
+	public CIpv4NextHop getNextHop() {
 		return this.nextHop;
 	}
 

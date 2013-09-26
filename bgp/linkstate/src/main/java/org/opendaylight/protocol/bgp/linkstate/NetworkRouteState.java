@@ -8,9 +8,8 @@
 
 package org.opendaylight.protocol.bgp.linkstate;
 
-import org.opendaylight.protocol.bgp.concepts.NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 
-import org.opendaylight.protocol.concepts.NetworkAddress;
 import com.google.common.base.Preconditions;
 
 /**
@@ -21,27 +20,27 @@ import com.google.common.base.Preconditions;
  * 
  * @param <T>
  */
-public final class NetworkRouteState<T extends NetworkAddress<?>> extends NetworkObjectState {
+public final class NetworkRouteState extends NetworkObjectState {
 	private static final long serialVersionUID = 1L;
-	private final NextHop<T> nextHop;
+	private final CNextHop nextHop;
 
-	public NetworkRouteState(final NextHop<T> nextHop) {
+	public NetworkRouteState(final CNextHop nextHop) {
 		this(NetworkObjectState.EMPTY, nextHop);
 	}
 
-	public NetworkRouteState(final NetworkObjectState orig, final NextHop<T> nextHop) {
+	public NetworkRouteState(final NetworkObjectState orig, final CNextHop nextHop) {
 		super(orig);
 		this.nextHop = Preconditions.checkNotNull(nextHop);
 	}
 
-	protected NetworkRouteState(final NetworkRouteState<T> orig) {
+	protected NetworkRouteState(final NetworkRouteState orig) {
 		super(orig);
 		this.nextHop = orig.nextHop;
 	}
 
 	@Override
-	protected NetworkRouteState<T> newInstance() {
-		return new NetworkRouteState<T>(this);
+	protected NetworkRouteState newInstance() {
+		return new NetworkRouteState(this);
 	}
 
 	/**
@@ -49,7 +48,7 @@ public final class NetworkRouteState<T extends NetworkAddress<?>> extends Networ
 	 * 
 	 * @return NextHop<T> next hop.
 	 */
-	public NextHop<T> getNextHop() {
+	public CNextHop getNextHop() {
 		return this.nextHop;
 	}
 
@@ -75,7 +74,7 @@ public final class NetworkRouteState<T extends NetworkAddress<?>> extends Networ
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final NetworkRouteState<?> other = (NetworkRouteState<?>) obj;
+		final NetworkRouteState other = (NetworkRouteState) obj;
 		if (this.nextHop == null) {
 			if (other.nextHop != null)
 				return false;

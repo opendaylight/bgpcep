@@ -19,8 +19,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.IPv6PrefixIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
@@ -47,6 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class BGPUpdateEventBuilder {
 			throws BGPParsingException {
 		BgpOrigin origin = null;
 		ASPath aspath = null;
-		IPv4NextHop nextHop = null;
+		CIpv4NextHop nextHop = null;
 		BgpAggregator aggregator = null;
 		final Set<ExtendedCommunity> ecomm = Sets.newHashSet();
 		final Set<Community> comm = Sets.newHashSet();
@@ -138,8 +138,8 @@ public class BGPUpdateEventBuilder {
 				origin = (BgpOrigin) pa.getValue();
 			} else if (pa.getValue() instanceof ASPath) {
 				aspath = (ASPath) pa.getValue();
-			} else if (pa.getValue() instanceof IPv4NextHop) {
-				nextHop = (IPv4NextHop) pa.getValue();
+			} else if (pa.getValue() instanceof CIpv4NextHop) {
+				nextHop = (CIpv4NextHop) pa.getValue();
 			} else if (pa.getValue() instanceof BgpAggregator) {
 				aggregator = (BgpAggregator) pa.getValue();
 			} else if (pa.getValue() instanceof Set) {
@@ -164,7 +164,7 @@ public class BGPUpdateEventBuilder {
 		final NetworkObjectState nos = new NetworkObjectState(aspath, comm, ecomm);
 		final Set<BGPObject> added = new HashSet<BGPObject>();
 		if (!nlri.isEmpty()) {
-			final NetworkRouteState<IPv4Address> nrs = new NetworkRouteState<>(nos, nextHop);
+			final NetworkRouteState nrs = new NetworkRouteState(nos, nextHop);
 			for (final Prefix<IPv4Address> p : nlri) {
 				added.add(new BGPIPv4RouteImpl(p, base, nrs));
 			}
@@ -174,15 +174,15 @@ public class BGPUpdateEventBuilder {
 		if (mpreach != null) {
 			if (mpreach instanceof IPv4MP) {
 				final IPv4MP ipv4mp = (IPv4MP) mpreach;
-				final IPv4NextHop v4nextHop = ipv4mp.getNextHop();
-				final NetworkRouteState<IPv4Address> nrs = new NetworkRouteState<>(nos, v4nextHop);
+				final CIpv4NextHop v4nextHop = ipv4mp.getNextHop();
+				final NetworkRouteState nrs = new NetworkRouteState(nos, v4nextHop);
 				for (final Prefix<IPv4Address> p : ipv4mp.getNlri()) {
 					added.add(new BGPIPv4RouteImpl(p, base, nrs));
 				}
 			} else if (mpreach instanceof IPv6MP) {
 				final IPv6MP ipv6mp = (IPv6MP) mpreach;
-				final IPv6NextHop v6nextHop = ipv6mp.getNextHop();
-				final NetworkRouteState<IPv6Address> nrs = new NetworkRouteState<>(nos, v6nextHop);
+				final CIpv6NextHop v6nextHop = ipv6mp.getNextHop();
+				final NetworkRouteState nrs = new NetworkRouteState(nos, v6nextHop);
 				for (final Prefix<IPv6Address> p : ipv6mp.getNlri()) {
 					added.add(new BGPIPv6RouteImpl(p, base, nrs));
 				}

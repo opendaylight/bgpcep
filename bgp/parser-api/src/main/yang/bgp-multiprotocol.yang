@@ -67,11 +67,9 @@ module bgp-multiprotocol {
 
 	augment "/bgp-msg:update/bgp-msg:path-attributes" {
 		container mp-reach-nlri {
-			reference "http://tools.ietf.org/html/rfc4760#section-4";
+			reference "http://tools.ietf.org/html/rfc4760#section-3";
 			uses bgp-table-type;
-			leaf hop {
-				type inet:ip-address;
-			}
+			uses bgp-t:next-hop;
 			container nlri {
 				choice nlri-type {
 					leaf-list nlri {

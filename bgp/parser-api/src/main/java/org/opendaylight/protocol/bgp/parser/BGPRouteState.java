@@ -8,23 +8,21 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-
-import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 
-public final class BGPRouteState<T extends NetworkAddress<?>> extends AbstractBGPObjectState<NetworkRouteState<T>> {
+public final class BGPRouteState extends AbstractBGPObjectState<NetworkRouteState> {
 	private static final long serialVersionUID = 1L;
 
-	public BGPRouteState(BaseBGPObjectState orig, NetworkRouteState<T> routeState) {
+	public BGPRouteState(final BaseBGPObjectState orig, final NetworkRouteState routeState) {
 		super(orig, routeState);
 	}
 
-	protected BGPRouteState(BGPRouteState<T> orig) {
+	protected BGPRouteState(final BGPRouteState orig) {
 		super(orig, orig.getObjectState());
 	}
 
 	@Override
-	protected BGPRouteState<T> newInstance() {
-		return new BGPRouteState<T>(this);
+	protected BGPRouteState newInstance() {
+		return new BGPRouteState(this);
 	}
 }

@@ -12,20 +12,24 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
 
 public class RouteTest {
 
 	BaseBGPObjectState base = new BaseBGPObjectState(BgpOrigin.Egp, null);
-	final NetworkRouteState<IPv4Address> prefix4State = new NetworkRouteState<>(IPv4NextHop.forString("128.54.8.9"));
-	final NetworkRouteState<IPv6Address> prefix6State = new NetworkRouteState<>(IPv6NextHop.forString("2001::4"));
+	final NetworkRouteState prefix4State = new NetworkRouteState(new CIpv4NextHopBuilder().setIpv4NextHop(
+			new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("128.54.8.9")).build()).build());
+	final NetworkRouteState prefix6State = new NetworkRouteState(new CIpv6NextHopBuilder().setIpv6NextHop(
+			new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001::4")).build()).build());
 	final BGPIPv4RouteImpl r4 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.168.4.6/24"), this.base, this.prefix4State);
 	final BGPIPv6RouteImpl r6 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001::4/32"), this.base, this.prefix6State);
 

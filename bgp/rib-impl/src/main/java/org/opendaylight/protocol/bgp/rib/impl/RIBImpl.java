@@ -47,7 +47,7 @@ public final class RIBImpl implements RIB {
 	private final RIBTable<LinkIdentifier, BGPLinkState> links = new RIBTable<>();
 	private final RIBTable<NodeIdentifier, BGPNodeState> nodes = new RIBTable<>();
 	private final RIBTable<PrefixIdentifier<?>, BGPPrefixState> prefixes = new RIBTable<>();
-	private final RIBTable<Prefix<?>, BGPRouteState<?>> routes = new RIBTable<>();
+	private final RIBTable<Prefix<?>, BGPRouteState> routes = new RIBTable<>();
 	private final EventBus bus;
 	private final String name;
 
@@ -60,7 +60,7 @@ public final class RIBImpl implements RIB {
 		final Map<LinkIdentifier, BGPLinkState> l = new HashMap<>();
 		final Map<NodeIdentifier, BGPNodeState> n = new HashMap<>();
 		final Map<PrefixIdentifier<?>, BGPPrefixState> p = new HashMap<>();
-		final Map<Prefix<?>, BGPRouteState<?>> r = new HashMap<>();
+		final Map<Prefix<?>, BGPRouteState> r = new HashMap<>();
 
 		for (final Object id : removedObjects)
 			if (id instanceof Prefix<?>)
@@ -84,8 +84,8 @@ public final class RIBImpl implements RIB {
 			} else if (o instanceof BGPPrefix<?>) {
 				final BGPPrefix<?> prefix = (BGPPrefix<?>) o;
 				this.prefixes.add(p, peer, prefix.getPrefixIdentifier(), prefix.currentState());
-			} else if (o instanceof BGPRoute<?>) {
-				final BGPRoute<?> route = (BGPRoute<?>) o;
+			} else if (o instanceof BGPRoute) {
+				final BGPRoute route = (BGPRoute) o;
 				this.routes.add(r, peer, route.getName(), route.currentState());
 			} else
 				throw new IllegalArgumentException("Unsupported identifier " + o.getClass());

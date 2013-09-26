@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-
 import org.opendaylight.protocol.concepts.NamedObject;
-import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.concepts.Prefix;
 
 /**
@@ -22,8 +20,8 @@ import org.opendaylight.protocol.concepts.Prefix;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-1.1">Definition of Commonly Used Terms</a>
  * @param <T> subtype of Network Address
  */
-public interface BGPRoute<T extends NetworkAddress<T>> extends BGPObject, NamedObject<Prefix<T>> {
-	
+public interface BGPRoute extends BGPObject, NamedObject<Prefix<?>> {
+
 	@Override
-	public BGPRouteState<T> currentState();
+	public BGPRouteState currentState();
 }

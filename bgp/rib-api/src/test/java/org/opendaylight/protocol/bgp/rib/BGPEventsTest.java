@@ -30,7 +30,7 @@ public class BGPEventsTest {
 
 	@Test
 	public void testChangedEvent() {
-		final RIBChangedEvent event = new RIBChangedEvent(Collections.<Prefix<?>, BGPRouteState<?>> emptyMap());
+		final RIBChangedEvent event = new RIBChangedEvent(Collections.<Prefix<?>, BGPRouteState> emptyMap());
 		assertNotNull(event.getLinks());
 		assertNotNull(event.getNodes());
 		assertNotNull(event.getPrefixes());

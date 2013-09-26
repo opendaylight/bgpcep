@@ -9,9 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
-import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.IPv4MP;
 import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
@@ -20,10 +17,19 @@ import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6;
 import org.opendaylight.protocol.concepts.IPv6Address;
+import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
@@ -75,7 +81,7 @@ public class MPReachParser {
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		final int nextHopLength = UnsignedBytes.toInt(bytes[byteOffset]);
 		byteOffset += NEXT_HOP_LENGTH_SIZE;
-		final NextHop<?> nextHop = parseNextHop(ByteArray.subByte(bytes, byteOffset, nextHopLength));
+		final CNextHop nextHop = parseNextHop(ByteArray.subByte(bytes, byteOffset, nextHopLength));
 		byteOffset += nextHopLength + RESERVED_SIZE;
 		return chooseReachParser(afi, safi, nextHop, ByteArray.subByte(bytes, byteOffset, bytes.length - (byteOffset)));
 	}
@@ -96,15 +102,15 @@ public class MPReachParser {
 		}
 	}
 
-	private static MPReach<?> chooseReachParser(final BgpAddressFamily afi, final BgpSubsequentAddressFamily safi,
-			final NextHop<?> nextHop, final byte[] bytes) throws BGPParsingException {
+	private static MPReach<?> chooseReachParser(final BgpAddressFamily afi, final BgpSubsequentAddressFamily safi, final CNextHop nextHop,
+			final byte[] bytes) throws BGPParsingException {
 		switch (afi) {
 		case Ipv4:
 			final Set<Prefix<IPv4Address>> nlri4 = IPv4.FAMILY.prefixListForBytes(bytes);
-			return new IPv4MP(true, (IPv4NextHop) nextHop, nlri4);
+			return new IPv4MP(true, (CIpv4NextHop) nextHop, nlri4);
 		case Ipv6:
 			final Set<Prefix<IPv6Address>> nlri6 = IPv6.FAMILY.prefixListForBytes(bytes);
-			return new IPv6MP(true, (IPv6NextHop) nextHop, nlri6);
+			return new IPv6MP(true, (CIpv6NextHop) nextHop, nlri6);
 		case Linkstate:
 			return LinkStateParser.parseLSNlri(true, safi, nextHop, bytes);
 		default:
@@ -112,18 +118,19 @@ public class MPReachParser {
 		}
 	}
 
-	private static NextHop<?> parseNextHop(final byte[] bytes) throws BGPParsingException {
-		final NextHop<?> addr;
+	private static CNextHop parseNextHop(final byte[] bytes) throws BGPParsingException {
+		final CNextHop addr;
 		switch (bytes.length) {
 		case 4:
-			addr = new IPv4NextHop(IPv4.FAMILY.addressForBytes(bytes));
+			addr = new CIpv4NextHopBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForBytes(bytes)).build()).build();
 			break;
 		case 16:
-			addr = new IPv6NextHop(IPv6.FAMILY.addressForBytes(bytes));
+			addr = new CIpv6NextHopBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForBytes(bytes)).build()).build();
 			break;
 		case 32:
-			addr = new IPv6NextHop(IPv6.FAMILY.addressForBytes(ByteArray.subByte(bytes, 0, 16)), IPv6.FAMILY.addressForBytes(ByteArray.subByte(
-					bytes, 16, 16)));
+			addr = new CIpv6NextHopBuilder().setIpv6NextHop(
+					new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, 0, 16))).setLinkLocal(
+							Ipv6Util.addressForBytes(ByteArray.subByte(bytes, 16, 16))).build()).build();
 			break;
 		default:
 			throw new BGPParsingException("Cannot parse NEXT_HOP attribute. Wrong bytes length: " + bytes.length);

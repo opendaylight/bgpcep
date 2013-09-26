@@ -27,8 +27,6 @@ import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.DomainIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
@@ -64,16 +62,15 @@ import org.opendaylight.protocol.bgp.util.BGPLinkImpl;
 import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv4Prefix;
 import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
@@ -83,6 +80,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -186,7 +189,8 @@ public class BGPParserTest {
 
 		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65002)));
 
-		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.2");
+		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
 		final Set<Community> comms = new HashSet<>();
 		comms.add(CommunityUtil.NO_EXPORT);
@@ -226,21 +230,21 @@ public class BGPParserTest {
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, comms, Collections.<ExtendedCommunity> emptySet()), nextHop);
+		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, comms, Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
 		final Set<BGPObject> addedObjects = Sets.newHashSet();
 
-		final BGPRoute<IPv4Address> route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.2.0/24"), state, routeState);
+		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.2.0/24"), state, routeState);
 
 		addedObjects.add(route1);
 
-		final BGPRoute<IPv4Address> route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.1.0/24"), state, routeState);
+		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.1.0/24"), state, routeState);
 
 		addedObjects.add(route2);
 
-		final BGPRoute<IPv4Address> route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.0.0/24"), state, routeState);
+		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.0.0/24"), state, routeState);
 
 		addedObjects.add(route3);
 	}
@@ -310,7 +314,8 @@ public class BGPParserTest {
 
 		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65001)));
 
-		final IPv6NextHop nextHop = IPv6NextHop.forString("2001:db8::1", "fe80::c001:bff:fe7e:0");
+		final CIpv6NextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
+				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
 		// final List<ClusterIdentifier> clusters = Lists.newArrayList(
 		// new ClusterIdentifier(new byte[] { 1, 2, 3, 4}),
@@ -339,27 +344,23 @@ public class BGPParserTest {
 		// assertEquals(clusterAttr, attrs.get(4));
 
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-		final NetworkRouteState<IPv6Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
+		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
 		final Set<BGPObject> addedObjects = Sets.newHashSet();
 
-		final BGPRoute<IPv6Address> route1 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:2::/64"), state, routeState);
+		final BGPRoute route1 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:2::/64"), state, routeState);
 
 		addedObjects.add(route1);
 
-		final BGPRoute<IPv6Address> route2 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:1::/64"), state, routeState);
+		final BGPRoute route2 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:1::/64"), state, routeState);
 
 		addedObjects.add(route2);
 
-		final BGPRoute<IPv6Address> route3 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1::/64"), state, routeState);
+		final BGPRoute route3 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1::/64"), state, routeState);
 
 		addedObjects.add(route3);
-
-		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(addedObjects, Collections.<Identifier> emptySet());
-
-		assertEquals(expectedMessage, message);
 	}
 
 	/*
@@ -420,7 +421,8 @@ public class BGPParserTest {
 
 		final BgpAggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
 				new Ipv4Address("10.0.0.9")).build();
-		final IPv4NextHop nextHop = IPv4NextHop.forString("10.0.0.9");
+		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
 		final IPv4Prefix pref1 = IPv4.FAMILY.prefixForString("172.16.0.0/21");
 
@@ -452,13 +454,13 @@ public class BGPParserTest {
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, aggregator);
-		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
+		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
 		final Set<BGPObject> addedObjects = Sets.newHashSet();
 
-		final BGPRoute<IPv4Address> route1 = new BGPIPv4RouteImpl(pref1, state, routeState);
+		final BGPRoute route1 = new BGPIPv4RouteImpl(pref1, state, routeState);
 
 		addedObjects.add(route1);
 	}
@@ -518,7 +520,8 @@ public class BGPParserTest {
 
 		// attributes
 
-		final IPv4NextHop nextHop = IPv4NextHop.forString("3.3.3.3");
+		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
 		final Set<ExtendedCommunity> comms = Sets.newHashSet();
 		comms.add(new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
@@ -553,21 +556,21 @@ public class BGPParserTest {
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Egp, null);
-		final NetworkRouteState<IPv4Address> routeState = new NetworkRouteState<>(new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), comms), nextHop);
+		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), comms), nextHop);
 
 		// check API message
 
 		final Set<BGPObject> addedObjects = Sets.newHashSet();
 
-		final BGPRoute<IPv4Address> route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.3.0/24"), state, routeState);
+		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.3.0/24"), state, routeState);
 
 		addedObjects.add(route1);
 
-		final BGPRoute<IPv4Address> route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.2.0/24"), state, routeState);
+		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.2.0/24"), state, routeState);
 
 		addedObjects.add(route2);
 
-		final BGPRoute<IPv4Address> route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.1.0/24"), state, routeState);
+		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.1.0/24"), state, routeState);
 
 		addedObjects.add(route3);
 	}
@@ -1090,22 +1093,6 @@ public class BGPParserTest {
 
 	@Test
 	public void testHashCodeEquals() throws UnknownHostException {
-		final IPv4MP mp41 = new IPv4MP(false, new IPv4NextHop(IPv4.FAMILY.addressForString("10.0.0.9")), null);
-
-		final IPv4MP mp42 = new IPv4MP(false, new IPv4NextHop(IPv4.FAMILY.addressForString("10.0.0.9")), null);
-
-		assertEquals(mp41, mp42);
-		assertEquals("HashCodes should be equal", mp41.hashCode(), mp42.hashCode());
-		assertEquals("toString should be equal", mp41.toString(), mp42.toString());
-
-		final IPv6MP mp61 = new IPv6MP(false, new IPv6NextHop(IPv6.FAMILY.addressForString("fe80::c001:bff:fe7e:0")), null);
-
-		final IPv6MP mp62 = new IPv6MP(false, new IPv6NextHop(IPv6.FAMILY.addressForString("fe80::c001:bff:fe7e:0")), null);
-
-		assertEquals(mp61, mp62);
-		assertEquals("HashCodes should be equal", mp61.hashCode(), mp62.hashCode());
-		assertEquals("toString should be equal", mp61.toString(), mp62.toString());
-
 		final PathAttribute localPref1 = new PathAttribute(TypeCode.LOCAL_PREF, false, true, false, false, 100);
 
 		final PathAttribute localPref2 = new PathAttribute(TypeCode.LOCAL_PREF, false, true, false, false, 100);

@@ -9,25 +9,24 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
-
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
 
 /**
- *
+ * 
  * MP_(UN)REACH_NLRI (basic, for IPv6)
- *
+ * 
  */
 public class IPv6MP implements MPReach<Prefix<IPv6Address>> {
 
 	private final boolean reachable;
 
-	private final IPv6NextHop nextHop;
+	private final CIpv6NextHop nextHop;
 
 	private final Set<Prefix<IPv6Address>> nlri;
 
-	public IPv6MP(final boolean reachable, final IPv6NextHop nextHop, final Set<Prefix<IPv6Address>> nlri) {
+	public IPv6MP(final boolean reachable, final CIpv6NextHop nextHop, final Set<Prefix<IPv6Address>> nlri) {
 		this.reachable = reachable;
 		this.nextHop = nextHop;
 		this.nlri = nlri;
@@ -43,7 +42,7 @@ public class IPv6MP implements MPReach<Prefix<IPv6Address>> {
 		return this.nlri;
 	}
 
-	public IPv6NextHop getNextHop() {
+	public CIpv6NextHop getNextHop() {
 		return this.nextHop;
 	}
 

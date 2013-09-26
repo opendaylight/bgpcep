@@ -29,8 +29,6 @@ import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
-import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
@@ -48,11 +46,15 @@ import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -141,7 +143,8 @@ public class BGPMessageParserMockTest {
 		final List<AsNumber> asnums = new ArrayList<AsNumber>();
 		asnums.add(new AsNumber(asn));
 		final ASPath asPath = new ASPath(asnums);
-		final NextHop<IPv6Address> nextHop = new IPv6NextHop(new IPv6Address(InetAddress.getByName("2001:db8::1")), new IPv6Address(InetAddress.getByName("fe80::c001:bff:fe7e:0")));
+		final CNextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
+				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
 		final Prefix<IPv6Address> pref1 = new IPv6Prefix(new IPv6Address(InetAddress.getByName("2001:db8:1:2::")), 64);
 		final Prefix<IPv6Address> pref2 = new IPv6Prefix(new IPv6Address(InetAddress.getByName("2001:db8:1:1::")), 64);
@@ -149,12 +152,12 @@ public class BGPMessageParserMockTest {
 
 		final Set<BGPObject> addedObjects = new HashSet<BGPObject>();
 
-		final NetworkRouteState<IPv6Address> nstate = new NetworkRouteState<>(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
+		final NetworkRouteState nstate = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
-		final BGPRoute<IPv6Address> route1 = new BGPIPv6RouteImpl(pref1, state, nstate);
-		final BGPRoute<IPv6Address> route2 = new BGPIPv6RouteImpl(pref2, state, nstate);
-		final BGPRoute<IPv6Address> route3 = new BGPIPv6RouteImpl(pref3, state, nstate);
+		final BGPRoute route1 = new BGPIPv6RouteImpl(pref1, state, nstate);
+		final BGPRoute route2 = new BGPIPv6RouteImpl(pref2, state, nstate);
+		final BGPRoute route3 = new BGPIPv6RouteImpl(pref3, state, nstate);
 		addedObjects.add(route1);
 		addedObjects.add(route2);
 		addedObjects.add(route3);

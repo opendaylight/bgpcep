@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.opendaylight.protocol.bgp.concepts.NextHop;
 import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
 import org.opendaylight.protocol.bgp.linkstate.AreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.DomainIdentifier;
@@ -74,6 +73,7 @@ import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class LinkStateParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	protected static MPReach<?> parseLSNlri(final boolean reachable, final BgpSubsequentAddressFamily safi, final NextHop<?> nextHop,
+	protected static MPReach<?> parseLSNlri(final boolean reachable, final BgpSubsequentAddressFamily safi, final CNextHop nextHop,
 			final byte[] bytes) throws BGPParsingException {
 		if (bytes.length == 0)
 			return null;

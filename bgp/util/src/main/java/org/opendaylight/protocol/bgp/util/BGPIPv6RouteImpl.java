@@ -8,10 +8,9 @@
 package org.opendaylight.protocol.bgp.util;
 
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 
 /**
  * Implementation of {@link AbstractBGPPrefix}.
@@ -19,7 +18,7 @@ import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 public final class BGPIPv6RouteImpl extends AbstractBGPRoute<IPv6Address> {
 	private static final long serialVersionUID = 1L;
 
-	public BGPIPv6RouteImpl(final Prefix<IPv6Address> prefix, final BaseBGPObjectState base, final NetworkRouteState<IPv6Address> prefixState) {
+	public BGPIPv6RouteImpl(final Prefix<IPv6Address> prefix, final BaseBGPObjectState base, final NetworkRouteState prefixState) {
 		super(prefix, base, prefixState);
 	}
 }

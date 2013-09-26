@@ -89,10 +89,10 @@ public class BGPSynchronization {
 		BGPTableType type = null;
 		if (!msg.getAddedObjects().isEmpty()) {
 			final BGPObject obj = msg.getAddedObjects().iterator().next();
-			if (obj instanceof BGPRoute<?>) {
-				if ((BGPRoute<?>) obj instanceof BGPIPv4RouteImpl) {
+			if (obj instanceof BGPRoute) {
+				if ((BGPRoute) obj instanceof BGPIPv4RouteImpl) {
 					type = new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
-				} else if ((BGPRoute<?>) obj instanceof BGPIPv6RouteImpl) {
+				} else if ((BGPRoute) obj instanceof BGPIPv6RouteImpl) {
 					type = new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.Unicast);
 				}
 			} else if (obj instanceof BGPLink || obj instanceof BGPNode || obj instanceof BGPPrefix<?>) {
