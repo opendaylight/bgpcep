@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_636226da",
+        "filename": "bgp/parser-api/src/main/yang/bgp-message.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-26T08:51:09Z",
+      "side": 1,
+      "message": "This does not look right. This list should be one layer higher, shouldn\u0027t it?",
+      "revId": "6ee5d85c6d2a02b14529c0fef5cbfc334b317251",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
