@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class SimpleSessionListener implements SessionListener<SimpleMessage, SimpleSession, TerminationReason> {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleSessionListener.class);
 
-	public List<ProtocolMessage> messages = new ArrayList<ProtocolMessage>();
+	public List<SimpleMessage> messages = new ArrayList<SimpleMessage>();
 
 	public boolean up = false;
 

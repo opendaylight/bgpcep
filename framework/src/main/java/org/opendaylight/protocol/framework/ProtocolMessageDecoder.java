@@ -17,7 +17,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ProtocolMessageDecoder<T extends ProtocolMessage> extends ByteToMessageDecoder {
+public final class ProtocolMessageDecoder<T> extends ByteToMessageDecoder {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 

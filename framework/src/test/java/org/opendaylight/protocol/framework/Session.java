@@ -18,7 +18,7 @@ public class Session extends AbstractProtocolSession<SimpleMessage> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Session.class);
 
-	public final List<ProtocolMessage> msgs = Lists.newArrayList();
+	public final List<SimpleMessage> msgs = Lists.newArrayList();
 
 	public boolean up = false;
 

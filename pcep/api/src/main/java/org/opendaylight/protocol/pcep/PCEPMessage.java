@@ -9,14 +9,12 @@ package org.opendaylight.protocol.pcep;
 
 import java.util.List;
 
-import org.opendaylight.protocol.framework.ProtocolMessage;
-
 /**
  * Basic structure for PCEP Message. Cannot be instantiated directly. Current PCEP version is 1. Each message contains a
  * list of PCEP objects.
  * 
  */
-public abstract class PCEPMessage implements ProtocolMessage {
+public abstract class PCEPMessage {
 
 	private static final long serialVersionUID = 4293319459468168384L;
 
@@ -33,8 +31,9 @@ public abstract class PCEPMessage implements ProtocolMessage {
 	 * @param objects
 	 */
 	protected PCEPMessage(final List<PCEPObject> objects) {
-		if (objects.contains(null))
+		if (objects.contains(null)) {
 			throw new IllegalArgumentException("Object list contains null element at offset " + objects.indexOf(null));
+		}
 
 		this.objects = objects;
 	}
@@ -58,18 +57,23 @@ public abstract class PCEPMessage implements ProtocolMessage {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPMessage other = (PCEPMessage) obj;
 		if (this.objects == null) {
-			if (other.objects != null)
+			if (other.objects != null) {
 				return false;
-		} else if (!this.objects.equals(other.objects))
+			}
+		} else if (!this.objects.equals(other.objects)) {
 			return false;
+		}
 		return true;
 	}
 

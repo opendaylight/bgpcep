@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @param <T> type of messages created by this factory
  */
-public interface ProtocolMessageFactory<T extends ProtocolMessage> {
+public interface ProtocolMessageFactory<T> {
 
 	/**
 	 * Parses message from byte array. Requires specific protocol message header object to parse the header.

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.framework;
 
-public class SimpleMessage implements ProtocolMessage {
+public class SimpleMessage {
 
 	private static final long serialVersionUID = 1L;
 

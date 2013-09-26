@@ -27,7 +27,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
-import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -36,8 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 import com.google.common.base.Preconditions;
 
-public class BGPSpeakerMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-		AbstractDispatcher<S, L> {
+public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
+AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;

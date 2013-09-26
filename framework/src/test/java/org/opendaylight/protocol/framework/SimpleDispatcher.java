@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public class SimpleDispatcher<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-		AbstractDispatcher<S, L> {
+public class SimpleDispatcher<M, S extends ProtocolSession<?>, L extends SessionListener<?, ?, ?>> extends
+AbstractDispatcher<S, L> {
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleDispatcher.class);
 

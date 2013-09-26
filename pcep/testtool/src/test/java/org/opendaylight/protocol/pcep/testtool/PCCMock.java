@@ -19,7 +19,6 @@ import java.util.List;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
-import org.opendaylight.protocol.framework.ProtocolMessage;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -36,8 +35,8 @@ import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class PCCMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-		AbstractDispatcher<S, L> {
+public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
+AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
@@ -66,10 +65,10 @@ public class PCCMock<M extends ProtocolMessage, S extends ProtocolSession<M>, L 
 		pcc.createClient(new InetSocketAddress("127.0.0.3", 12345), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000),
 				new SessionListenerFactory<PCEPSessionListener>() {
 
-					@Override
-					public PCEPSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				}).get();
+			@Override
+			public PCEPSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}).get();
 	}
 }

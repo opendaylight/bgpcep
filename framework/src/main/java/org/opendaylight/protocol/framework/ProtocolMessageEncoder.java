@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-public final class ProtocolMessageEncoder<T extends ProtocolMessage> extends MessageToByteEncoder<Object> {
+public final class ProtocolMessageEncoder<T> extends MessageToByteEncoder<Object> {
 
 	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageEncoder.class);
 

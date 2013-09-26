@@ -14,7 +14,7 @@ import java.util.EventListener;
  * implemented by a protocol specific abstract class, that is extended by
  * a final class that implements the methods.
  */
-public interface SessionListener<M extends ProtocolMessage, S extends ProtocolSession<?>, T extends TerminationReason> extends EventListener {
+public interface SessionListener<M, S extends ProtocolSession<?>, T extends TerminationReason> extends EventListener {
 	/**
 	 * Fired when the session was established successfully.
 	 * 

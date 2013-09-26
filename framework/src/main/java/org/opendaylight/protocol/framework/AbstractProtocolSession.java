@@ -13,7 +13,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractProtocolSession<M extends ProtocolMessage> extends SimpleChannelInboundHandler<Object> implements ProtocolSession<M> {
+public abstract class AbstractProtocolSession<M> extends SimpleChannelInboundHandler<Object> implements ProtocolSession<M> {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractProtocolSession.class);
 
 	/**

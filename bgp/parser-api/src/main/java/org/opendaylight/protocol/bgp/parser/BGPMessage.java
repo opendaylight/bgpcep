@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import org.opendaylight.protocol.framework.ProtocolMessage;
 
 /**
  * Basic structure for BGP Message. There is not other common feature than the serialization.
  */
-public interface BGPMessage extends ProtocolMessage {
+@Deprecated
+public interface BGPMessage {
 
 }

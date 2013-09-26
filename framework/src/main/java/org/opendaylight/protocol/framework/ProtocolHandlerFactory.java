@@ -11,7 +11,7 @@ import io.netty.channel.ChannelHandler;
 
 import com.google.common.base.Preconditions;
 
-public class ProtocolHandlerFactory<T extends ProtocolMessage> {
+public class ProtocolHandlerFactory<T> {
 	private final ProtocolMessageEncoder<T> encoder;
 	protected final ProtocolMessageFactory<T> msgFactory;
 
