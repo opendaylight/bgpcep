@@ -19,7 +19,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-import org.opendaylight.protocol.bgp.concepts.ExtendedCommunity;
 import org.opendaylight.protocol.bgp.concepts.IPv4NextHop;
 import org.opendaylight.protocol.bgp.concepts.IPv6NextHop;
 import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
@@ -47,6 +46,7 @@ import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
