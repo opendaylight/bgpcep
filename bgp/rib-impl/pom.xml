@@ -124,7 +124,6 @@
                             org.opendaylight.protocol.bgp.parser.impl,
                             org.opendaylight.protocol.bgp.parser.message,
                             org.opendaylight.protocol.bgp.parser.parameter,
-                            org.opendaylight.protocol.bgp.rib,
                             org.opendaylight.protocol.bgp.util,
                             org.opendaylight.protocol.util,
 							org.slf4j,
