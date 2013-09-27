@@ -652,6 +652,8 @@ public class ObjectsTest {
 		assertFalse(xas.equals(null));
 		assertFalse(xas.equals(new PCEPOpenMessage(new PCEPOpenObject(10, 10, 1))));
 		assertTrue(xas.equals(xas));
+
+		// FIXME BUG-89
 		assertEquals(xas.toString(), "XROAsNumberSubobject [asnumber=AsNumber [_value=2555], mandatory=false]");
 
 		assertEquals(uis.getInterfaceID().getInterfaceId(), 2);
