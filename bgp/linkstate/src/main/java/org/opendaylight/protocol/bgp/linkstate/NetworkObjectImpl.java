@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.concepts.Identifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
@@ -59,7 +60,7 @@ public class NetworkObjectImpl<T extends Identifier> implements NetworkObject<T>
 	 * 
 	 * @param asPath {@link ASPath}
 	 */
-	public final synchronized void setASPath(final ASPath asPath) {
+	public final synchronized void setASPath(final List<AsPathSegment> asPath) {
 		this.state = this.state.withASPath(asPath);
 	}
 

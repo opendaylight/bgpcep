@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -28,10 +27,15 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CASetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
@@ -160,10 +164,10 @@ public class PathAttributeParser {
 	 * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
 	 * @throws BGPParsingException
 	 */
-	private static ASPath parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	private static List<AsPathSegment> parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		int byteOffset = 0;
-		List<AsNumber> list = null;
-		Set<AsNumber> set = null;
+		final List<AsPathSegment> ases = Lists.newArrayList();
+		boolean isSequence = false;
 		while (byteOffset < bytes.length) {
 			final int type = UnsignedBytes.toInt(bytes[byteOffset]);
 			final SegmentType segmentType = AsPathSegmentParser.parseType(type);
@@ -175,18 +179,22 @@ public class PathAttributeParser {
 			byteOffset += AsPathSegmentParser.LENGTH_SIZE;
 
 			if (segmentType == SegmentType.AS_SEQUENCE) {
-				list = (List<AsNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
+				final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+				ases.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(numbers).build()).build());
+				isSequence = true;
 			} else {
-				set = (Set<AsNumber>) AsPathSegmentParser.parseAsPathSegment(segmentType, count,
+				final List<AsNumber> list = AsPathSegmentParser.parseAsSet(count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+				ases.add(new SegmentsBuilder().setCSegment(new CASetBuilder().setAsSet(list).build()).build());
+
 			}
 			byteOffset += count * AsPathSegmentParser.AS_NUMBER_LENGTH;
 		}
 
-		if (list == null && bytes.length != 0)
+		if (!isSequence && bytes.length != 0)
 			throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
-		return (set != null) ? new ASPath(list, set) : (list == null) ? ASPath.EMPTY : new ASPath(list);
+		return ases;
 	}
 
 	/**

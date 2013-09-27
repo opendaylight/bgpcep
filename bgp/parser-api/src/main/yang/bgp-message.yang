@@ -36,26 +36,6 @@ module bgp-message {
 		}
 	}
 
-	grouping as-path-segment {
-		choice segment {
-			case a-set {
-				leaf-list as-set {
-					type inet:as-number;
-				}
-			}
-			case a-list {
-				list as-sequence {
-					container sequence {
-						leaf as {
-							type inet:as-number;
-						}
-					}
-				}
-			}
-			mandatory true;
-		}
-	}
-
 	notification open {
 		description "Open Message";
 		reference "http://tools.ietf.org/html/rfc4271#section-4.2";
@@ -100,7 +80,7 @@ module bgp-message {
 		container as-path {
 			reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
 			list segments {
-				uses as-path-segment;
+				uses bgp-t:as-path-segment;
 			}
 		}
 		uses bgp-t:next-hop;

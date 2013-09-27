@@ -9,11 +9,12 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequenceBuilder;
 
 /**
  * 
@@ -52,8 +53,19 @@ public class AsPathSegmentParser {
 		}
 	}
 
-	static Collection<AsNumber> parseAsPathSegment(final SegmentType type, final int count, final byte[] bytes) {
-		final Collection<AsNumber> coll = (type == SegmentType.AS_SEQUENCE) ? new ArrayList<AsNumber>() : new HashSet<AsNumber>();
+	static List<AsSequence> parseAsSequence(final int count, final byte[] bytes) {
+		final List<AsSequence> coll = new ArrayList<>();
+		int byteOffset = 0;
+		for (int i = 0; i < count; i++) {
+			coll.add(new AsSequenceBuilder().setAs(
+					new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH)))).build());
+			byteOffset += AS_NUMBER_LENGTH;
+		}
+		return coll;
+	}
+
+	static List<AsNumber> parseAsSet(final int count, final byte[] bytes) {
+		final List<AsNumber> coll = new ArrayList<>();
 		int byteOffset = 0;
 		for (int i = 0; i < count; i++) {
 			coll.add(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH))));

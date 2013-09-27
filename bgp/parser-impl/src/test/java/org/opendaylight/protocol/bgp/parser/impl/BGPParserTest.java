@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -74,12 +73,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CASetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequenceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
@@ -190,7 +195,9 @@ public class BGPParserTest {
 
 		// attributes
 
-		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65002)));
+		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
+		final List<AsPathSegment> asPath = Lists.newArrayList();
+		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
 
 		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
@@ -314,8 +321,9 @@ public class BGPParserTest {
 		assertEquals(Collections.EMPTY_SET, message.getRemovedObjects());
 
 		// attributes
-
-		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 65001)));
+		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65001L)).build());
+		final List<AsPathSegment> asPath = Lists.newArrayList();
+		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
 
 		final CIpv6NextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
@@ -419,8 +427,11 @@ public class BGPParserTest {
 
 		// attributes
 
-		final ASPath asPath = new ASPath(Lists.newArrayList(new AsNumber((long) 30)), Sets.newHashSet(new AsNumber((long) 10),
-				new AsNumber((long) 20)));
+		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(30L)).build());
+		final List<AsPathSegment> asPath = Lists.newArrayList();
+		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
+		asPath.add(new SegmentsBuilder().setCSegment(
+				new CASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build());
 
 		final BgpAggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
 				new Ipv4Address("10.0.0.9")).build();
@@ -559,7 +570,7 @@ public class BGPParserTest {
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Egp, null);
-		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), comms), nextHop);
+		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), comms), nextHop);
 
 		// check API message
 
@@ -872,7 +883,7 @@ public class BGPParserTest {
 		assertEquals(Collections.EMPTY_SET, message.getRemovedObjects());
 
 		// network object state
-		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
 		// network link state
@@ -1004,7 +1015,7 @@ public class BGPParserTest {
 		assertEquals(Collections.EMPTY_SET, message.getRemovedObjects());
 
 		// network object state
-		final NetworkObjectState objState = new NetworkObjectState(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
 

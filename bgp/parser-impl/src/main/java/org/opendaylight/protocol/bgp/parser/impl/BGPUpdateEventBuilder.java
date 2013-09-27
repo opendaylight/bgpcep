@@ -16,7 +16,6 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.linkstate.IPv4PrefixIdentifier;
@@ -41,6 +40,7 @@ import org.opendaylight.protocol.bgp.util.BGPNodeImpl;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -127,7 +128,7 @@ public class BGPUpdateEventBuilder {
 	private Set<BGPObject> fillAddedObjects(final List<PathAttribute> pathAttributes, final Set<Prefix<IPv4Address>> nlri)
 			throws BGPParsingException {
 		BgpOrigin origin = null;
-		ASPath aspath = null;
+		final List<AsPathSegment> aspath = Lists.newArrayList();
 		CIpv4NextHop nextHop = null;
 		BgpAggregator aggregator = null;
 		final Set<ExtendedCommunity> ecomm = Sets.newHashSet();
@@ -136,8 +137,12 @@ public class BGPUpdateEventBuilder {
 		for (final PathAttribute pa : pathAttributes) {
 			if (pa.getValue() instanceof BgpOrigin) {
 				origin = (BgpOrigin) pa.getValue();
-			} else if (pa.getValue() instanceof ASPath) {
-				aspath = (ASPath) pa.getValue();
+			} else if (pa.getValue() instanceof List) {
+				for (final Object o : (List<?>) pa.getValue()) {
+					if (o instanceof AsPathSegment) {
+						aspath.add((AsPathSegment) o);
+					}
+				}
 			} else if (pa.getValue() instanceof CIpv4NextHop) {
 				nextHop = (CIpv4NextHop) pa.getValue();
 			} else if (pa.getValue() instanceof BgpAggregator) {

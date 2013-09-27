@@ -194,7 +194,7 @@ module bgp-types {
 			}
 		}
 	}
-	
+
 	grouping next-hop {
 		choice c-next-hop {
 			case c-ipv4-next-hop {
@@ -213,6 +213,24 @@ module bgp-types {
 					}
 					leaf link-local {
 						type inet:ipv6-address;
+					}
+				}
+			}
+		}
+	}
+
+	grouping as-path-segment {
+		reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
+		choice c-segment {
+			case c-a-set {
+				leaf-list as-set {
+					type inet:as-number;
+				}
+			}
+			case c-a-list {
+				list as-sequence {
+					leaf as {
+						type inet:as-number;
 					}
 				}
 			}

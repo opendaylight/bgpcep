@@ -9,10 +9,11 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.ASPath;
 import org.opendaylight.protocol.concepts.State;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
@@ -28,13 +29,14 @@ public class NetworkObjectState implements State {
 	private static final long serialVersionUID = 1L;
 	private Set<ExtendedCommunity> extendedCommunities;
 	private Set<Community> communities;
-	private ASPath asPath;
+	private List<AsPathSegment> asPath;
 
 	protected NetworkObjectState() {
-		this(ASPath.EMPTY, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+		this(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
 	}
 
-	public NetworkObjectState(final ASPath asPath, final Set<Community> communities, final Set<ExtendedCommunity> extendedCommunities) {
+	public NetworkObjectState(final List<AsPathSegment> asPath, final Set<Community> communities,
+			final Set<ExtendedCommunity> extendedCommunities) {
 		this.asPath = asPath;
 		this.communities = communities;
 		this.extendedCommunities = extendedCommunities;
@@ -52,11 +54,11 @@ public class NetworkObjectState implements State {
 	 * 
 	 * @return Path to the advertising Autonomous System.
 	 */
-	public final ASPath getASPath() {
+	public final List<AsPathSegment> getASPath() {
 		return this.asPath;
 	}
 
-	public final NetworkObjectState withASPath(final ASPath asPath) {
+	public final NetworkObjectState withASPath(final List<AsPathSegment> asPath) {
 		final NetworkObjectState ret = newInstance();
 		ret.asPath = asPath;
 		return ret;
