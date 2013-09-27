@@ -106,7 +106,8 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Export-Package>
-							org.opendaylight.protocol.bgp.concepts
+                            org.opendaylight.protocol.bgp.concepts,
+                            org/opendaylight.yang.gen.*
 						</Export-Package>
 						<Import-Package>
 							com.google.common.base,
