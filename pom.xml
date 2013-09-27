@@ -28,7 +28,9 @@
 		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.15</surefire.version>
+
 		<yangtools.version>0.5.8-SNAPSHOT</yangtools.version>
+		<ietf.types.version>2010.09.24-SNAPSHOT</ietf.types.version>
 	</properties>
 	<prerequisites>
 		<maven>3.0.4</maven>
@@ -104,11 +106,11 @@
 				<version>${surefire.version}</version>
 				<configuration>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<parallel>classes</parallel>
+					<!--parallel>classes</parallel>
 					<forkCount>1C</forkCount>
 					<reuseForks>false</reuseForks>
-					<perCoreThreadCount>true</perCoreThreadCount>
-					<threadCount>2</threadCount>
+					<perCoreThreadCount>true</perCoreThreadCount-->
+					<threadCount>1</threadCount>
 				</configuration>
 			</plugin>
 
@@ -187,6 +189,11 @@
 	</build>
 
 	<repositories>
+		<!--repository>
+			<id>opendaylight-release</id>
+			<name>opendaylight-release</name>
+			<url>${nexusproxy}/repositories/opendaylight.release/</url>
+		</repository-->
 		<repository>
 			<id>opendaylight-snapshot</id>
 			<name>opendaylight-snapshot</name>
@@ -195,6 +202,11 @@
 	</repositories>
 
 	<pluginRepositories>
+		<!--pluginRepository>
+			<id>opendaylight-releaset</id>
+			<name>opendaylight-release</name>
+			<url>${nexusproxy}/repositories/opendaylight.release/</url>
+		</pluginRepository-->
 		<pluginRepository>
 			<id>opendaylight-snapshot</id>
 			<name>opendaylight-snapshot</name>
