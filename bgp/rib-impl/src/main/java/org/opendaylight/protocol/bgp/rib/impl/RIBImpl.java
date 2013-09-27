@@ -7,9 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,12 +26,6 @@ import org.opendaylight.protocol.bgp.parser.BGPPrefix;
 import org.opendaylight.protocol.bgp.parser.BGPPrefixState;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPRouteState;
-import org.opendaylight.protocol.bgp.rib.RIB;
-import org.opendaylight.protocol.bgp.rib.RIBChangedEvent;
-import org.opendaylight.protocol.bgp.rib.RIBEvent;
-import org.opendaylight.protocol.bgp.rib.RIBEventListener;
-import org.opendaylight.protocol.concepts.InitialListenerEvents;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -42,21 +34,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 
 @ThreadSafe
-public final class RIBImpl implements RIB {
+public final class RIBImpl {
 	private final RIBTable<LinkIdentifier, BGPLinkState> links = new RIBTable<>();
 	private final RIBTable<NodeIdentifier, BGPNodeState> nodes = new RIBTable<>();
 	private final RIBTable<PrefixIdentifier<?>, BGPPrefixState> prefixes = new RIBTable<>();
 	private final RIBTable<Prefix<?>, BGPRouteState> routes = new RIBTable<>();
-	private final EventBus bus;
 	private final String name;
 
 	public RIBImpl(final String name) {
 		this.name = Preconditions.checkNotNull(name);
-		this.bus = new EventBus(name);
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Set<BGPObject> addedObjects, final Set<?> removedObjects) {
@@ -97,45 +85,17 @@ public final class RIBImpl implements RIB {
 			}
 		}
 
-		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty()) {
-			this.bus.post(new RIBChangedEvent(l, n, p, r));
-		}
+		// FIXME: push into MD SAL
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final BGPTableType t) {
 		if (Ipv4AddressFamily.class == t.getAddressFamily() || Ipv6AddressFamily.class == t.getAddressFamily()) {
-			this.bus.post(new RIBChangedEvent(this.routes.clear(peer)));
+			this.routes.clear(peer);
 		} else if (LinkstateAddressFamily.class == t.getAddressFamily()) {
-			this.bus.post(new RIBChangedEvent(this.links.clear(peer), this.nodes.clear(peer), this.prefixes.clear(peer)));
+			this.links.clear(peer);
+			this.nodes.clear(peer);
+			this.prefixes.clear(peer);
 		}
-	}
-
-	@Override
-	synchronized public InitialListenerEvents<RIBEventListener, RIBEvent> registerListener(final RIBEventListener listener) {
-		final List<RIBEvent> events = new ArrayList<>();
-
-		events.add(new RIBChangedEvent(this.routes.currentState()));
-		events.add(new RIBChangedEvent(this.links.currentState(), this.nodes.currentState(), this.prefixes.currentState()));
-
-		final Object wrapper = new Object() {
-			@Subscribe
-			public void notifyListener(final RIBChangedEvent event) {
-				listener.onRIBEvent(event);
-			}
-		};
-		this.bus.register(wrapper);
-
-		return new InitialListenerEvents<RIBEventListener, RIBEvent>(new ListenerRegistration<RIBEventListener>() {
-			@Override
-			public void close() {
-				RIBImpl.this.bus.unregister(wrapper);
-			}
-
-			@Override
-			public RIBEventListener getListener() {
-				return listener;
-			}
-		}, events);
 	}
 
 	@Override
