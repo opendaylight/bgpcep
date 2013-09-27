@@ -29,8 +29,10 @@ import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +67,9 @@ public class BGPUpdateMessageParser {
 	// Getters & setters --------------------------------------------------
 
 	public static BGPUpdateEvent parse(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+		}
 		logger.trace("Started parsing of update message: {}", Arrays.toString(bytes));
 
 		int byteOffset = 0;
@@ -90,17 +93,15 @@ public class BGPUpdateMessageParser {
 		byteOffset += TOTAL_PATH_ATTR_LENGTH_SIZE;
 		eventBuilder.setTotalPathAttrLength(totalPathAttrLength);
 
-		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactoryImpl.COMMON_HEADER_LENGTH > msgLength)
+		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactoryImpl.COMMON_HEADER_LENGTH > msgLength) {
 			throw new BGPDocumentedException("Message length inconsistent with withdrawn router length.", BGPError.MALFORMED_ATTR_LIST);
+		}
 
 		if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
 			final BGPUpdateSynchronized event = new BGPUpdateSynchronized() {
-
-				private static final long serialVersionUID = 5709361453437508337L;
-
 				@Override
 				public BGPTableType getTableType() {
-					return new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
+					return new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 				}
 			};
 			return event;
@@ -113,26 +114,18 @@ public class BGPUpdateMessageParser {
 			if (pathAttributes.get(0).getType() == TypeCode.MP_UNREACH_NLRI && totalPathAttrLength == 6) {
 				if (pathAttributes.get(0).getValue() instanceof IPv6MP) {
 					final BGPUpdateEvent event = new BGPUpdateSynchronized() {
-
-						private static final long serialVersionUID = -6026212683738125407L;
-
 						@Override
 						public BGPTableType getTableType() {
-							return new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.Unicast);
+							return new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 						}
-
 					};
 					return event;
 				} else if (pathAttributes.get(0).getValue() == null) {
 					final BGPUpdateSynchronized event = new BGPUpdateSynchronized() {
-
-						private static final long serialVersionUID = 5888562784007786559L;
-
 						@Override
 						public BGPTableType getTableType() {
-							return new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Unicast);
+							return new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
 						}
-
 					};
 					return event;
 				}

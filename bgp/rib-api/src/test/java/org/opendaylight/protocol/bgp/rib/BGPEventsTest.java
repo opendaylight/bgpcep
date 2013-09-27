@@ -16,14 +16,14 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPRouteState;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 
 public class BGPEventsTest {
 
 	@Test
 	public void testSynchronizedEvent() {
-		final BGPTableType tt = new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.MplsLabeledVpn);
+		final BGPTableType tt = new BGPTableType(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class);
 		final RIBSynchronizedEvent event = new RIBSynchronizedEvent(tt);
 		assertEquals(tt, event.getTable());
 	}

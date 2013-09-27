@@ -17,8 +17,10 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 
@@ -40,8 +42,8 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 		this.as = as;
 		this.bgpId = bgpId;
 
-		final BGPTableType ipv4 = new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
-		final BGPTableType linkstate = new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate);
+		final BGPTableType ipv4 = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final BGPTableType linkstate = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 		final List<BGPParameter> tlvs = Lists.newArrayList();
 		tlvs.add(new MultiprotocolCapability(ipv4));
 		tlvs.add(new MultiprotocolCapability(linkstate));

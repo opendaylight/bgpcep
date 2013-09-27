@@ -26,8 +26,10 @@ import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 import com.google.common.collect.Sets;
 
@@ -52,8 +54,8 @@ public class SynchronizationTest {
 		this.ipv6m = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(i6), Collections.EMPTY_SET);
 		this.lsm = new BGPUpdateMessageImpl(Sets.<BGPObject> newHashSet(mock(BGPLink.class)), Collections.EMPTY_SET);
 
-		final Set<BGPTableType> types = Sets.newHashSet(new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast),
-				new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate));
+		final Set<BGPTableType> types = Sets.newHashSet(new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
+				new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 
 		this.bs = new BGPSynchronization(new BGPSession() {
 
@@ -81,7 +83,7 @@ public class SynchronizationTest {
 		assertEquals(1, this.listener.getListMsg().size());
 		this.bs.kaReceived(); // ipv4 sync
 		assertEquals(2, this.listener.getListMsg().size());
-		assertEquals(BgpAddressFamily.Ipv4,
+		assertEquals(Ipv4AddressFamily.class,
 				((BGPUpdateSynchronizedImpl) this.listener.getListMsg().get(1)).getTableType().getAddressFamily());
 	}
 }

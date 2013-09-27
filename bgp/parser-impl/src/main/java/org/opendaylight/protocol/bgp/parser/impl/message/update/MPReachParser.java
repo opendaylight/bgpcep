@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.IPv4MP;
 import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
+import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6;
@@ -21,8 +22,11 @@ import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
@@ -52,32 +56,36 @@ public class MPReachParser {
 
 	static MPReach<?> parseMPUnreach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
-		final BgpAddressFamily afi = BgpAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
+		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
 				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
-		if (afi == null)
+		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '"
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
+		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
-		final BgpSubsequentAddressFamily safi = BgpSubsequentAddressFamily.forValue(UnsignedBytes.toInt(bytes[byteOffset]));
-		if (safi == null)
+		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
+		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
 					+ "' not supported.");
+		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		return chooseUnreachParser(afi, safi, ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset));
 	}
 
 	static MPReach<?> parseMPReach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
-		final BgpAddressFamily afi = BgpAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
+		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
 				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
-		if (afi == null)
+		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '"
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
+		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
-		final BgpSubsequentAddressFamily safi = BgpSubsequentAddressFamily.forValue(UnsignedBytes.toInt(bytes[byteOffset]));
-		if (safi == null)
+		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
+		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
 					+ "' not supported.");
+		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		final int nextHopLength = UnsignedBytes.toInt(bytes[byteOffset]);
 		byteOffset += NEXT_HOP_LENGTH_SIZE;
@@ -86,36 +94,34 @@ public class MPReachParser {
 		return chooseReachParser(afi, safi, nextHop, ByteArray.subByte(bytes, byteOffset, bytes.length - (byteOffset)));
 	}
 
-	private static MPReach<?> chooseUnreachParser(final BgpAddressFamily afi, final BgpSubsequentAddressFamily safi, final byte[] bytes)
+	private static MPReach<?> chooseUnreachParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final byte[] bytes)
 			throws BGPParsingException {
-		switch (afi) {
-		case Ipv4:
+		if (afi == Ipv4AddressFamily.class) {
 			final Set<Prefix<IPv4Address>> nlri4 = IPv4.FAMILY.prefixListForBytes(bytes);
 			return new IPv4MP(false, null, nlri4);
-		case Ipv6:
+		} else if (afi == Ipv6AddressFamily.class) {
 			final Set<Prefix<IPv6Address>> nlri6 = IPv6.FAMILY.prefixListForBytes(bytes);
 			return new IPv6MP(false, null, nlri6);
-		case Linkstate:
+		} else if (afi == LinkstateAddressFamily.class) {
 			return LinkStateParser.parseLSNlri(false, safi, null, bytes);
-		default:
-			return null;
 		}
+
+		return null;
 	}
 
-	private static MPReach<?> chooseReachParser(final BgpAddressFamily afi, final BgpSubsequentAddressFamily safi, final CNextHop nextHop,
+	private static MPReach<?> chooseReachParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final CNextHop nextHop,
 			final byte[] bytes) throws BGPParsingException {
-		switch (afi) {
-		case Ipv4:
+		if (afi == Ipv4AddressFamily.class) {
 			final Set<Prefix<IPv4Address>> nlri4 = IPv4.FAMILY.prefixListForBytes(bytes);
 			return new IPv4MP(true, (CIpv4NextHop) nextHop, nlri4);
-		case Ipv6:
+		} else if (afi == Ipv6AddressFamily.class) {
 			final Set<Prefix<IPv6Address>> nlri6 = IPv6.FAMILY.prefixListForBytes(bytes);
 			return new IPv6MP(true, (CIpv6NextHop) nextHop, nlri6);
-		case Linkstate:
+		} else if (afi == LinkstateAddressFamily.class) {
 			return LinkStateParser.parseLSNlri(true, safi, nextHop, bytes);
-		default:
-			return null;
 		}
+
+		return null;
 	}
 
 	private static CNextHop parseNextHop(final byte[] bytes) throws BGPParsingException {

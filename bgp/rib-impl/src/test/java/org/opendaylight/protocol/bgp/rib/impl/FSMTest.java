@@ -42,8 +42,10 @@ import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 
@@ -57,9 +59,9 @@ public class FSMTest {
 	@Mock
 	private ChannelPipeline pipeline;
 
-	private final BGPTableType ipv4tt = new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
+	private final BGPTableType ipv4tt = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-	private final BGPTableType linkstatett = new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate);
+	private final BGPTableType linkstatett = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
 	private final List<BGPMessage> receivedMsgs = Lists.newArrayList();
 
