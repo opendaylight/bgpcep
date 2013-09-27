@@ -40,6 +40,23 @@ module bgp-multiprotocol {
 		}
 	}
 
+	grouping destination {
+		choice nlri {
+			case ipv4 {
+				when "../../afi = ipv4";
+				leaf-list ipv4-prefixes {
+					type inet:ipv4-prefix;
+				}
+			}
+			case ipv6 {
+				when "../../afi = ipv6";
+				leaf-list ipv6-prefixes {
+					type inet:ipv6-prefix;
+				}
+			}
+		}
+	}
+
 	augment "/bgp-msg:open/bgp-msg:optional-parameters/bgp-msg:parameters" {
 		case multiprotocol {
 			list capabilities {
@@ -56,11 +73,27 @@ module bgp-multiprotocol {
 	augment "/bgp-msg:update/bgp-msg:path-attributes" {
 		container mp-unreach-nlri {
 			reference "http://tools.ietf.org/html/rfc4760#section-4";
+
 			uses bgp-table-type;
+
 			container withdrawn-routes {
-				leaf-list withdrawn-routes {
-					type inet:ip-prefix;
+
+		// FIXME: 'uses destination';
+		choice nlri {
+			case ipv4 {
+				when "../../afi = ipv4";
+				leaf-list ipv4-prefixes {
+					type inet:ipv4-prefix;
 				}
+			}
+			case ipv6 {
+				when "../../afi = ipv6";
+				leaf-list ipv6-prefixes {
+					type inet:ipv6-prefix;
+				}
+			}
+		}
+
 			}
 		}
 	}
@@ -68,15 +101,34 @@ module bgp-multiprotocol {
 	augment "/bgp-msg:update/bgp-msg:path-attributes" {
 		container mp-reach-nlri {
 			reference "http://tools.ietf.org/html/rfc4760#section-3";
+
 			uses bgp-table-type;
 			uses bgp-t:next-hop;
-			container nlri {
-				choice nlri-type {
-					leaf-list nlri {
-						type inet:ip-prefix;
-					}
+
+			container advertized-routes {
+
+		// FIXME: 'uses destination';
+		choice nlri {
+			case ipv4 {
+				when "../../afi = ipv4";
+				leaf-list ipv4-prefixes {
+					type inet:ipv4-prefix;
 				}
+			}
+			case ipv6 {
+				when "../../afi = ipv6";
+				leaf-list ipv6-prefixes {
+					type inet:ipv6-prefix;
+				}
+			}
+		}
+
+			}
+
+			leaf hop {
+				type inet:ip-address;
 			}
 		}
 	}
 }
+
