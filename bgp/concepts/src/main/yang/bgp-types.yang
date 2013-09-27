@@ -43,36 +43,32 @@ module bgp-types {
 		}
 	}
 
-	typedef bgp-subsequent-address-family {
-		reference "http://tools.ietf.org/html/rfc4760#section-6";
-		type enumeration {
-			enum unicast {
-				value 1;
-			}
-			enum mpls-labeled-vpn {
-				value 128;
-			}
-			enum linkstate {
-				reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-				value 71;
-			}
-		}
+	identity address-family {
+		reference "http://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml#address-family-numbers-2";
 	}
 
-	typedef bgp-address-family {
-		reference "http://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml#address-family-numbers-2";
-		type enumeration {
-			enum ipv4 {
-				value 1;
-			}
-			enum ipv6 {
-				value 2;
-			}
-			enum linkstate {
-				reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-				value 16388;
-			}
-		}
+	identity ipv4-address-family {
+		base address-family;
+	}
+
+	identity ipv6-address-family {
+		base address-family;
+	}
+
+	identity subsequent-address-family {
+		reference "http://tools.ietf.org/html/rfc4760#section-6";
+	}
+
+	identity unicast-subsequent-address-family {
+		reference "http://tools.ietf.org/html/rfc4760#section-6";
+
+		base subsequent-address-family;
+	}
+
+	identity mpls-labeled-vpn-subsequent-address-family {
+		reference "http://tools.ietf.org/html/rfc4760#section-6";
+
+		base subsequent-address-family;
 	}
 
 	typedef cluster-identifier {

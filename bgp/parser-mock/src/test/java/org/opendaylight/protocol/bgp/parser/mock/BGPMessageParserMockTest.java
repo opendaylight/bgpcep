@@ -47,10 +47,10 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
@@ -170,10 +170,10 @@ public class BGPMessageParserMockTest {
 		final Map<byte[], List<BGPMessage>> openMap = Maps.newHashMap();
 
 		final Set<BGPTableType> type = Sets.newHashSet();
-		type.add(new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.MplsLabeledVpn));
+		type.add(new BGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
 
 		final List<BGPParameter> params = Lists.newArrayList();
-		params.add(new MultiprotocolCapability(new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.MplsLabeledVpn)));
+		params.add(new MultiprotocolCapability(new BGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class)));
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 

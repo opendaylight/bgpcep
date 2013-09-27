@@ -8,21 +8,21 @@
 package org.opendaylight.protocol.bgp.concepts;
 
 import org.opendaylight.protocol.concepts.Identifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 import com.google.common.base.Preconditions;
 
 /**
  * Utility class identifying a BGP table type. A table type is formed by two identifiers: AFI and SAFI.
  */
-public final class BGPTableType implements Comparable<BGPTableType>, Identifier {
+public final class BGPTableType implements Identifier {
 
 	private static final long serialVersionUID = -5502662876916458740L;
 
-	private final BgpSubsequentAddressFamily safi;
+	private final Class<? extends SubsequentAddressFamily> safi;
 
-	private final BgpAddressFamily afi;
+	private final Class<? extends AddressFamily> afi;
 
 	/**
 	 * Creates BGP Table type.
@@ -30,7 +30,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 	 * @param afi Address Family Identifier
 	 * @param safi Subsequent Address Family Identifier
 	 */
-	public BGPTableType(final BgpAddressFamily afi, final BgpSubsequentAddressFamily safi) {
+	public BGPTableType(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
 		this.afi = Preconditions.checkNotNull(afi, "Address family may not be null");
 		this.safi = Preconditions.checkNotNull(safi, "Subsequent address family may not be null");
 	}
@@ -40,7 +40,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 	 * 
 	 * @return afi AFI
 	 */
-	public BgpAddressFamily getAddressFamily() {
+	public Class<? extends AddressFamily> getAddressFamily() {
 		return this.afi;
 	}
 
@@ -49,7 +49,7 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 	 * 
 	 * @return safi SAFI
 	 */
-	public BgpSubsequentAddressFamily getSubsequentAddressFamily() {
+	public Class<? extends SubsequentAddressFamily> getSubsequentAddressFamily() {
 		return this.safi;
 	}
 
@@ -67,17 +67,6 @@ public final class BGPTableType implements Comparable<BGPTableType>, Identifier 
 			return this.afi.equals(o.afi) && this.safi.equals(o.safi);
 		}
 		return false;
-	}
-
-	@Override
-	public int compareTo(final BGPTableType other) {
-		if (other == null)
-			return 1;
-
-		final int c = this.afi.compareTo(other.afi);
-		if (c != 0)
-			return c;
-		return this.safi.compareTo(other.safi);
 	}
 
 	@Override

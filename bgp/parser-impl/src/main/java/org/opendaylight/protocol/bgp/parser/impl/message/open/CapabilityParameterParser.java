@@ -12,14 +12,15 @@ import java.util.Map.Entry;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
 import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +49,9 @@ public final class CapabilityParameterParser {
 	 * @return BGP Capability converted to byte array
 	 */
 	public static byte[] put(final CapabilityParameter cap) {
-		if (cap == null)
+		if (cap == null) {
 			throw new IllegalArgumentException("BGP Capability cannot be null");
+		}
 		logger.trace("Started serializing BGP Capability: {}", cap);
 		byte[] value = null;
 		if (cap instanceof MultiprotocolCapability) {
@@ -75,8 +77,9 @@ public final class CapabilityParameterParser {
 	 * @throws BGPParsingException if the parsing was unsuccessful
 	 */
 	public static CapabilityParameter parse(final byte[] bytes) throws BGPParsingException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+		}
 		logger.trace("Started parsing of BGP Capability: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
 		final int capCode = UnsignedBytes.toInt(bytes[byteOffset++]);
@@ -87,8 +90,9 @@ public final class CapabilityParameterParser {
 		} else if (capCode == AS4BytesCapability.CODE) {
 			logger.trace("Parsed AS4B Capability.");
 			return parseAS4BParameterValue(ByteArray.subByte(bytes, byteOffset, capLength));
-		} else
+		} else {
 			logger.debug("Only Multiprotocol Capability Parameter is supported. Received code {}", capCode);
+		}
 		return null;
 	}
 
@@ -102,8 +106,9 @@ public final class CapabilityParameterParser {
 				* Byte.SIZE)
 				* param.getTableTypes().size())
 				/ Byte.SIZE];
-		if (param.isRestartFlag())
+		if (param.isRestartFlag()) {
 			bytes[0] = (byte) 0x80;
+		}
 		int index = (RESTART_FLAGS_SIZE + TIMER_SIZE) / Byte.SIZE;
 		for (final Entry<BGPTableType, Boolean> entry : param.getTableTypes().entrySet()) {
 			final byte[] a = putAfi(entry.getKey().getAddressFamily());
@@ -134,15 +139,17 @@ public final class CapabilityParameterParser {
 	}
 
 	private static MultiprotocolCapability parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
-		final BgpAddressFamily afi = BgpAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
-		if (afi == null)
+		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
+		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '" + ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE))
 					+ "' not supported.");
-		final BgpSubsequentAddressFamily safi = BgpSubsequentAddressFamily.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes,
+		}
+		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes,
 				AFI_SIZE + 1, SAFI_SIZE)));
-		if (safi == null)
+		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '"
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1, SAFI_SIZE)) + "' not supported.");
+		}
 		return new MultiprotocolCapability(new BGPTableType(afi, safi));
 	}
 
@@ -150,13 +157,13 @@ public final class CapabilityParameterParser {
 		return new AS4BytesCapability(new AsNumber(ByteArray.bytesToLong(bytes)));
 	}
 
-	private static byte[] putAfi(final BgpAddressFamily afi) {
-		final byte[] a = ByteArray.intToBytes(afi.getIntValue());
+	private static byte[] putAfi(final Class<? extends AddressFamily> afi) {
+		final byte[] a = ByteArray.intToBytes(ParserUtil.valueForAfi(afi));
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - AFI_SIZE, AFI_SIZE);
 	}
 
-	private static byte putSafi(final BgpSubsequentAddressFamily safi) {
-		final byte[] a = ByteArray.intToBytes(safi.getIntValue());
+	private static byte putSafi(final Class<? extends SubsequentAddressFamily> safi) {
+		final byte[] a = ByteArray.intToBytes(ParserUtil.valueForSafi(safi));
 		return ByteArray.subByte(a, Integer.SIZE / Byte.SIZE - SAFI_SIZE, SAFI_SIZE)[0];
 	}
 }
