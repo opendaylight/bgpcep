@@ -72,7 +72,8 @@ import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,10 +125,11 @@ public class LinkStateParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	protected static MPReach<?> parseLSNlri(final boolean reachable, final BgpSubsequentAddressFamily safi, final CNextHop nextHop,
+	protected static MPReach<?> parseLSNlri(final boolean reachable, final Class<? extends SubsequentAddressFamily> safi, final CNextHop nextHop,
 			final byte[] bytes) throws BGPParsingException {
-		if (bytes.length == 0)
+		if (bytes.length == 0) {
 			return null;
+		}
 		int byteOffset = 0;
 		final Set<LinkIdentifier> links = Sets.newHashSet();
 		final Set<NodeIdentifier> nodes = Sets.newHashSet();
@@ -142,7 +144,7 @@ public class LinkStateParser {
 			// length means total length of the tlvs including route distinguisher not including the type field
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
-			if (safi == BgpSubsequentAddressFamily.MplsLabeledVpn) {
+			if (safi == MplsLabeledVpnSubsequentAddressFamily.class) {
 				// this parses route distinguisher
 				ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, ROUTE_DISTINGUISHER_LENGTH));
 				byteOffset += ROUTE_DISTINGUISHER_LENGTH;
@@ -166,7 +168,7 @@ public class LinkStateParser {
 				localDescriptor = parseNodeDescriptors(ByteArray.subByte(bytes, byteOffset, locallength));
 			}
 			byteOffset += locallength;
-			final int restLength = length - ((safi == BgpSubsequentAddressFamily.MplsLabeledVpn) ? ROUTE_DISTINGUISHER_LENGTH : 0)
+			final int restLength = length - ((safi == MplsLabeledVpnSubsequentAddressFamily.class) ? ROUTE_DISTINGUISHER_LENGTH : 0)
 					- PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH - LENGTH_SIZE - locallength;
 			logger.debug("Restlength {}", restLength);
 			switch (type) {
@@ -184,10 +186,11 @@ public class LinkStateParser {
 			}
 			byteOffset += restLength;
 		}
-		if (!links.isEmpty())
+		if (!links.isEmpty()) {
 			return new BGPLinkMP(identifier, sp, reachable, links);
-		else if (!nodes.isEmpty())
+		} else if (!nodes.isEmpty()) {
 			return new BGPNodeMP(identifier, sp, reachable, nodes);
+		}
 		// else if (!descs.isEmpty())
 		// return new BGPIPv4PrefixMP(identifier, sp, descs, reachable);
 		return null;
@@ -211,29 +214,32 @@ public class LinkStateParser {
 	}
 
 	public static boolean verifyLink(final Set<Integer> keys) {
-		for (final Integer i : keys)
+		for (final Integer i : keys) {
 			if (!linkTlvs.contains(i)) {
 				logger.warn("Invalid link attribute {}", i);
 				return false;
 			}
+		}
 		return true;
 	}
 
 	public static boolean verifyNode(final Set<Integer> keys) {
-		for (final Integer i : keys)
+		for (final Integer i : keys) {
 			if (!nodeTlvs.contains(i)) {
 				logger.warn("Invalid node attribute {}", i);
 				return false;
 			}
+		}
 		return true;
 	}
 
 	public static boolean verifyPrefix(final Set<Integer> keys) {
-		for (final Integer i : keys)
+		for (final Integer i : keys) {
 			if (!prefixTlvs.contains(i)) {
 				logger.warn("Invalid prefix attribute {}", i);
 				return false;
 			}
+		}
 		return true;
 	}
 
@@ -361,14 +367,16 @@ public class LinkStateParser {
 			byteOffset += length;
 		}
 		logger.debug("Finished parsing Link descriptors.");
-		if (localIdentifiers.size() != 1)
+		if (localIdentifiers.size() != 1) {
 			throw new BGPParsingException("Invalid number of local interface identifiers.");
+		}
 		final LinkAnchor localAnchor = new LinkAnchor(local, localIdentifiers.get(0));
 		LinkAnchor remoteAnchor = null;
 		if (remoteIdentifiers.size() > 0) {
 			remoteAnchor = new LinkAnchor(remote, remoteIdentifiers.get(0));
-		} else
+		} else {
 			remoteAnchor = new LinkAnchor(remote, null);
+		}
 		return new LinkIdentifier(topId, localAnchor, remoteAnchor);
 	}
 
@@ -414,8 +422,9 @@ public class LinkStateParser {
 						logger.warn("PSN octet is 0. Ignoring System ID.");
 						routerId = new ISISRouterIdentifier(new ISOSystemIdentifier(ByteArray.subByte(value, 0, 6)));
 						break;
-					} else
+					} else {
 						routerId = new ISISLANIdentifier(new ISOSystemIdentifier(ByteArray.subByte(value, 0, 6)), value[6]);
+					}
 				} else if (value.length == 4) {
 					routerId = new OSPFRouterIdentifier(ByteArray.subByte(value, 0, 4));
 				} else if (value.length == 8) {
@@ -481,7 +490,7 @@ public class LinkStateParser {
 			}
 		}
 		return (prefix instanceof IPv4Prefix) ? new IPv4PrefixIdentifier(localDescriptor, (IPv4Prefix) prefix)
-				: new IPv6PrefixIdentifier(localDescriptor, (IPv6Prefix) prefix);
+		: new IPv6PrefixIdentifier(localDescriptor, (IPv6Prefix) prefix);
 	}
 
 	/**
@@ -748,10 +757,12 @@ public class LinkStateParser {
 		case ISISLevel2:
 			return new ISISNetworkPrefixState(nps, exRouteTags, upDownBit);
 		case OSPF:
-			if (fwdAddress4 != null)
+			if (fwdAddress4 != null) {
 				return new OSPFNetworkPrefixState<IPv4Address>(nps, fwdAddress4);
-			if (fwdAddress6 != null)
+			}
+			if (fwdAddress6 != null) {
 				return new OSPFNetworkPrefixState<IPv6Address>(nps, fwdAddress6);
+			}
 			logger.debug("OSPF-sourced has no forwarding address");
 			return nps;
 		default:

@@ -71,12 +71,15 @@ import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
@@ -626,12 +629,9 @@ public class BGPParserTest {
 		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
 
 		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-
-			private static final long serialVersionUID = -5128220996581568885L;
-
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast);
+				return new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 			}
 		};
 		assertEquals(expectedMessage.getTableType(), message.getTableType());
@@ -664,12 +664,9 @@ public class BGPParserTest {
 		// check fields
 
 		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-
-			private static final long serialVersionUID = -4811827044855997014L;
-
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.Unicast);
+				return new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 			}
 		};
 		assertEquals(expectedMessage.getTableType(), message.getTableType());
@@ -702,12 +699,9 @@ public class BGPParserTest {
 		// check fields
 
 		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-
-			private static final long serialVersionUID = 3677704232769769042L;
-
 			@Override
 			public BGPTableType getTableType() {
-				return new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Unicast);
+				return new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
 			}
 		};
 
@@ -1085,9 +1079,9 @@ public class BGPParserTest {
 				types.add(((MultiprotocolCapability) param).getTableType());
 			}
 		}
-		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(BgpAddressFamily.Ipv4, BgpSubsequentAddressFamily.Unicast),
-				new BGPTableType(BgpAddressFamily.Ipv6, BgpSubsequentAddressFamily.Unicast),
-				new BGPTableType(BgpAddressFamily.Linkstate, BgpSubsequentAddressFamily.Linkstate));
+		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
+				new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
+				new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 		assertEquals(expected, types);
 	}
 

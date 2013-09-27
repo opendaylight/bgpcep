@@ -30,8 +30,8 @@ import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,7 +134,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 						if (param instanceof CapabilityParameter) {
 							if (((CapabilityParameter) param).getCode() == MultiprotocolCapability.CODE) {
 								final MultiprotocolCapability cap = (MultiprotocolCapability) param;
-								if (cap.getAfi() == BgpAddressFamily.Linkstate && cap.getSafi() == BgpSubsequentAddressFamily.Linkstate) {
+								if (LinkstateAddressFamily.class == cap.getAfi() && LinkstateSubsequentAddressFamily.class == cap.getSafi()) {
 									this.remotePref = openObj;
 									this.channel.writeAndFlush(new BGPKeepAliveMessage());
 									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
