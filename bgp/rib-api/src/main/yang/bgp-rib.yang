@@ -1,0 +1,103 @@
+module bgp-rib {
+        yang-version 1;
+        namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
+        prefix "rib";
+
+	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+	import bgp-message { prefix bgp-msg; revision-date 2013-09-18; }
+	import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-18; }
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+
+        organization "Cisco Systems, Inc.";
+        contact "Robert Varga <rovarga@cisco.com>";
+
+        description
+                "This module contains the concept of a Routing Information Base,
+		as defined by RFC4271.
+
+                Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+                This program and the accompanying materials are made available
+                under the terms of the Eclipse Public License v1.0 which
+                accompanies this distribution, and is available at
+                http://www.eclipse.org/legal/epl-v10.html";
+
+        revision "2013-09-25" {
+                description
+                        "Initial revision.";
+                reference "RFC4271";
+        }
+
+	grouping route {
+		container next-hop {
+			uses bgp-t:next-hop;
+		}
+
+		container attributes {
+			uses bgp-msg:path-attributes;
+		}
+	}
+
+	grouping rib {
+		list tables {
+			uses bgp-mp:bgp-table-type;
+			key "afi safi";
+
+			leaf uptodate {
+				type boolean;
+				default false;
+			}
+
+			choice routes {
+				list ipv4-routes {
+					when "../../afi = ipv4";
+
+					leaf prefix {
+						type inet:ipv4-prefix;
+					}
+					key prefix;
+
+					uses route;
+				}
+				list ipv6-routes {
+					when "../../afi = ipv6";
+
+					leaf prefix {
+						type inet:ipv4-prefix;
+					}
+					key prefix;
+
+					uses route;
+				}
+				case link-state {
+					list link-state-links {
+						// FIXME: fill this out
+
+						uses route;
+					}
+					list link-state-nodes {
+						// FIXME: fill this out
+
+						uses route;
+					}
+					list link-state-ipv4-prefixes {
+						// FIXME: fill this out
+
+						uses route;
+					}
+					list link-state-ipv6-prefixes {
+						// FIXME: fill this out
+
+						uses route;
+					}
+				}
+			}
+		}
+	}
+
+	container loc-rib {
+		config false;
+		uses rib;
+	}
+}
+
