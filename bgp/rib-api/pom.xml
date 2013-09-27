@@ -34,21 +34,6 @@
 			<artifactId>bgp-concepts</artifactId>
             <version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>2.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
@@ -59,12 +44,6 @@
             <artifactId>yang-common</artifactId>
             <version>${yangtools.version}</version>
         </dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -110,19 +89,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Import-Package>
-                            org.opendaylight.protocol.bgp.concepts,
-                            org.opendaylight.protocol.bgp.linkstate, 
-                            org.opendaylight.protocol.bgp.parser, 
-                            org.opendaylight.protocol.concepts,
-							com.google.common.base,
-							com.google.guava,
-							org.slf4j,
-						</Import-Package>
-						<Export-Package>
-                            org.opendaylight.protocol.bgp.rib,
-						</Export-Package>
+                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Export-Package>
+                            org.opendaylight.yang.gen.*
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
