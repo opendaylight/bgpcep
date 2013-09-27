@@ -33,10 +33,14 @@ module bgp-multiprotocol {
 
 	grouping bgp-table-type {
 		leaf afi {
-			type bgp-t:bgp-address-family;
+			type identityref {
+				base bgp-t:address-family;
+			}
 		}
 		leaf safi {
-			type bgp-t:bgp-subsequent-address-family;
+			type identityref {
+				base bgp-t:subsequent-address-family;
+			}
 		}
 	}
 

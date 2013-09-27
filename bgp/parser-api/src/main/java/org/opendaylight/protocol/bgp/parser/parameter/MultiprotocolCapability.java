@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.parameter;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 /**
  * Multiprotocol capability Parameter as described in:
@@ -41,7 +41,7 @@ public final class MultiprotocolCapability extends CapabilityParameter {
 	 * 
 	 * @return AFI
 	 */
-	public BgpAddressFamily getAfi() {
+	public Class<? extends AddressFamily> getAfi() {
 		return this.tableType.getAddressFamily();
 	}
 
@@ -50,7 +50,7 @@ public final class MultiprotocolCapability extends CapabilityParameter {
 	 * 
 	 * @return SAFI
 	 */
-	public BgpSubsequentAddressFamily getSafi() {
+	public Class<? extends SubsequentAddressFamily> getSafi() {
 		return this.tableType.getSubsequentAddressFamily();
 	}
 

@@ -35,6 +35,9 @@ import org.opendaylight.protocol.bgp.rib.RIBEventListener;
 import org.opendaylight.protocol.concepts.InitialListenerEvents;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
@@ -62,19 +65,21 @@ public final class RIBImpl implements RIB {
 		final Map<PrefixIdentifier<?>, BGPPrefixState> p = new HashMap<>();
 		final Map<Prefix<?>, BGPRouteState> r = new HashMap<>();
 
-		for (final Object id : removedObjects)
-			if (id instanceof Prefix<?>)
+		for (final Object id : removedObjects) {
+			if (id instanceof Prefix<?>) {
 				this.routes.remove(r, peer, (Prefix<?>) id);
-			else if (id instanceof LinkIdentifier)
+			} else if (id instanceof LinkIdentifier) {
 				this.links.remove(l, peer, (LinkIdentifier) id);
-			else if (id instanceof NodeIdentifier)
+			} else if (id instanceof NodeIdentifier) {
 				this.nodes.remove(n, peer, (NodeIdentifier) id);
-			else if (id instanceof PrefixIdentifier<?>)
+			} else if (id instanceof PrefixIdentifier<?>) {
 				this.prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
-			else
+			} else {
 				throw new IllegalArgumentException("Unsupported identifier " + id.getClass());
+			}
+		}
 
-		for (final BGPObject o : addedObjects)
+		for (final BGPObject o : addedObjects) {
 			if (o instanceof BGPLink) {
 				final BGPLink link = (BGPLink) o;
 				this.links.add(l, peer, link.getLinkIdentifier(), link.currentState());
@@ -87,22 +92,21 @@ public final class RIBImpl implements RIB {
 			} else if (o instanceof BGPRoute) {
 				final BGPRoute route = (BGPRoute) o;
 				this.routes.add(r, peer, route.getName(), route.currentState());
-			} else
+			} else {
 				throw new IllegalArgumentException("Unsupported identifier " + o.getClass());
+			}
+		}
 
-		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty())
+		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty()) {
 			this.bus.post(new RIBChangedEvent(l, n, p, r));
+		}
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final BGPTableType t) {
-		switch (t.getAddressFamily()) {
-		case Ipv4:
-		case Ipv6:
+		if (Ipv4AddressFamily.class == t.getAddressFamily() || Ipv6AddressFamily.class == t.getAddressFamily()) {
 			this.bus.post(new RIBChangedEvent(this.routes.clear(peer)));
-			break;
-		case Linkstate:
+		} else if (LinkstateAddressFamily.class == t.getAddressFamily()) {
 			this.bus.post(new RIBChangedEvent(this.links.clear(peer), this.nodes.clear(peer), this.prefixes.clear(peer)));
-			break;
 		}
 	}
 
