@@ -251,60 +251,70 @@ module bgp-linkstate {
 		}
 	}
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:nlri/bgp-mp:nlri-type" {
+	grouping linkstate-destination {
+		leaf nlri-type {
+			type nlri-type;
+		}
+		leaf distinguisher {
+			type route-distinguisher;
+		}
+		container ls-nlri {
+			leaf protocol-id {
+				type protocol-id;
+			}
+			leaf identifier {
+				type identifier;
+			}
+			container local-node-descriptors {
+				uses node-identifier;
+			}
+			container remote-node-descriptors {
+				when "../nlri-type = link";
+				uses node-identifier;
+			}
+			container Link-Descriptors {
+				when "../nlri-type = link";
+				leaf ipv4-interface-address {
+					type ipv4-interface-identifier;
+				}
+				leaf ipv6-interface-address {
+					type ipv6-interface-identifier;
+				}
+				leaf ipv4-neighbor-address {
+					type ipv4-interface-identifier;
+				}
+				leaf ipv6-neighbor-address {
+					type ipv6-interface-identifier;
+				}
+				leaf multi-topology-id {
+					type topology-identifier;
+				}
+			}
+			container prefix-descriptors {
+				when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+				leaf multi-topology-id {
+					type topology-identifier;
+				}
+				leaf ospf-route-type {
+					when "../protocol-id = 'ospf'";
+					type ospf-route-type;
+				}
+				leaf ip-reachability-information {
+					type inet:ip-prefix;
+				}
+			}
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:nlri" {
 		case linkstate {
-			leaf nlri-type {
-				type nlri-type;
-			}
-			leaf distinguisher {
-				type route-distinguisher;
-			}
-			container ls-nlri {
-				leaf protocol-id {
-					type protocol-id;
-				}
-				leaf identifier {
-					type identifier;
-				}
-				container local-node-descriptors {
-					uses node-identifier;
-				}
-				container remote-node-descriptors {
-					when "../nlri-type = link";
-					uses node-identifier;
-				}
-				container link-descriptors {
-					when "../nlri-type = link";
-					leaf ipv4-interface-address {
-						type ipv4-interface-identifier;
-					}
-					leaf ipv6-interface-address {
-						type ipv6-interface-identifier;
-					}
-					leaf ipv4-neighbor-address {
-						type ipv4-interface-identifier;
-					}
-					leaf ipv6-neighbor-address {
-						type ipv6-interface-identifier;
-					}
-					leaf multi-topology-id {
-						type topology-identifier;
-					}
-				}
-				container prefix-descriptors {
-					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-					leaf multi-topology-id {
-						type topology-identifier;
-					}
-					leaf ospf-route-type {
-						when "../protocol-id = 'ospf'";
-						type ospf-route-type;
-					}
-					leaf ip-reachability-information {
-						type inet:ip-prefix;
-					}
-				}
-			}
+			uses linkstate-destination;
+		}
+	}
+
+	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:nlri" {
+		case linkstate {
+			uses linkstate-destination;
 		}
 	}
 
