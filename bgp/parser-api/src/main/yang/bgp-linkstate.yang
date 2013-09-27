@@ -260,7 +260,7 @@ module bgp-linkstate {
 					when "../nlri-type = link";
 					uses node-identifier;
 				}
-				container Link-Descriptors {
+				container link-descriptors {
 					when "../nlri-type = link";
 					leaf ipv4-interface-address {
 						type ipv4-interface-identifier;
@@ -284,7 +284,7 @@ module bgp-linkstate {
 						type topology-identifier;
 					}
 					leaf ospf-route-type {
-						when "../rotocol-id = 'ospf'";
+						when "../protocol-id = 'ospf'";
 						type ospf-route-type;
 					}
 					leaf ip-reachability-information {
