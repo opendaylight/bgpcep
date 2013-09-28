@@ -7,16 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.message;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * BGP KeepAlive message. Always empty.
  * 
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.4">BGP KeepAlive message</a>
  */
-public final class BGPKeepAliveMessage implements BGPMessage {
-
-	private static final long serialVersionUID = 5469664138660829255L;
+public final class BGPKeepAliveMessage implements Notification {
 
 	/**
 	 * Creates a BGP KeepAlive message.

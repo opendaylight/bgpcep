@@ -20,7 +20,6 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
@@ -32,13 +31,14 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
-public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMessage, BGPSessionImpl> {
+public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
 	// 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
 	// FIXME to actual value
 	protected static final int INITIAL_HOLDTIMER = 1;
@@ -108,7 +108,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 	}
 
 	@Override
-	protected synchronized void handleMessage(final BGPMessage msg) {
+	protected synchronized void handleMessage(final Notification msg) {
 		logger.debug("Channel {} handling message in state {}", this.channel, this.state);
 
 		switch (this.state) {

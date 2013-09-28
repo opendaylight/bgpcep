@@ -34,7 +34,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
@@ -46,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
 
@@ -63,7 +63,7 @@ public class FSMTest {
 
 	private final BGPTableType linkstatett = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-	private final List<BGPMessage> receivedMsgs = Lists.newArrayList();
+	private final List<Notification> receivedMsgs = Lists.newArrayList();
 
 	private BGPOpenMessage classicOpen;
 
@@ -79,10 +79,10 @@ public class FSMTest {
 			@Override
 			public Object answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
-				FSMTest.this.receivedMsgs.add((BGPMessage) args[0]);
+				FSMTest.this.receivedMsgs.add((Notification) args[0]);
 				return null;
 			}
-		}).when(this.speakerListener).writeAndFlush(any(BGPMessage.class));
+		}).when(this.speakerListener).writeAndFlush(any(Notification.class));
 		doReturn("TestingChannel").when(this.speakerListener).toString();
 		doReturn(this.pipeline).when(this.speakerListener).pipeline();
 		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
@@ -119,7 +119,7 @@ public class FSMTest {
 		this.clientSession.handleMessage(new BGPOpenMessage(new AsNumber((long) 30), (short) 1, null, null));
 		assertEquals(2, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(1) instanceof BGPNotificationMessage);
-		final BGPMessage m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
 		assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, ((BGPNotificationMessage) m).getError());
 	}
 
@@ -132,7 +132,7 @@ public class FSMTest {
 		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
 		Thread.sleep(BGPSessionNegotiator.INITIAL_HOLDTIMER * 1000 * 60);
 		Thread.sleep(100);
-		final BGPMessage m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
 		assertEquals(BGPError.HOLD_TIMER_EXPIRED, ((BGPNotificationMessage) m).getError());
 	}
 

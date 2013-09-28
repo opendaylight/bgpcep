@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
 	 */
 	@Override
-	public List<BGPMessage> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+	public List<Notification> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
 		}
@@ -81,7 +81,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 
 		logger.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
 
-		final BGPMessage msg;
+		final Notification msg;
 
 		switch (messageType) {
 		case 1:
@@ -111,7 +111,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	}
 
 	@Override
-	public byte[] put(final BGPMessage msg) {
+	public byte[] put(final Notification msg) {
 		if (msg == null) {
 			throw new IllegalArgumentException("BGPMessage is mandatory.");
 		}

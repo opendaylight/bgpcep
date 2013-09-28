@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * BGP Session represents the finite state machine in BGP, including timers and its purpose is to create a BGP
@@ -19,7 +20,7 @@ import org.opendaylight.protocol.framework.ProtocolSession;
  * 
  * If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown requests.
  */
-public interface BGPSession extends ProtocolSession<BGPMessage> {
+public interface BGPSession extends ProtocolSession<Notification> {
 
 	public Set<BGPTableType> getAdvertisedTableTypes();
 }

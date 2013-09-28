@@ -10,11 +10,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public final class BGPPeer implements BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPSession session, final BGPMessage message) {
+	public void onMessage(final BGPSession session, final Notification message) {
 		if (message instanceof BGPUpdateMessage) {
 			final BGPUpdateMessage m = (BGPUpdateMessage) message;
 			this.rib.updateTables(this, m.getAddedObjects(), m.getRemovedObjects());

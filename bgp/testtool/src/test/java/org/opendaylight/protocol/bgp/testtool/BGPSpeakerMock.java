@@ -16,7 +16,6 @@ import io.netty.util.concurrent.Promise;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
@@ -32,11 +31,11 @@ import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
 
-public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-AbstractDispatcher<S, L> {
+public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
@@ -52,9 +51,10 @@ AbstractDispatcher<S, L> {
 
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
-				ch.pipeline().addLast(factory.getDecoders());
-				ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-				ch.pipeline().addLast(factory.getEncoders());
+				ch.pipeline().addLast(BGPSpeakerMock.this.factory.getDecoders());
+				ch.pipeline().addLast("negotiator",
+						BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(BGPSpeakerMock.this.factory.getEncoders());
 			}
 		});
 	}
@@ -70,9 +70,9 @@ AbstractDispatcher<S, L> {
 
 		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber((long) 25), IPv4.FAMILY.addressForString("127.0.0.2")).getProposal();
 
-		final SessionNegotiatorFactory<BGPMessage, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
+		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 
-		final BGPSpeakerMock<BGPMessage, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<BGPMessage, BGPSessionImpl, BGPSessionListener>(snf, new BGPHandlerFactory(new BGPMessageFactoryImpl()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
+		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener>(snf, new BGPHandlerFactory(new BGPMessageFactoryImpl()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);
 	}

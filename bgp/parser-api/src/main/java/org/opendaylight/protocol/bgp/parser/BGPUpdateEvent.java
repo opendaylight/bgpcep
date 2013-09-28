@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import org.opendaylight.yangtools.yang.binding.Notification;
+
 /**
  * Marker interface for events resulting from parsing of an BGP UPDATE message. An unfortunate twist in BGP spec makes
  * use of a specially-crafted message to indicate that a per-AFI RIB has been completely synchronized.
  * 
  * Extends ProtocolMessage to allow parsing of BGP Update Messages in BGP listener.
  */
-public interface BGPUpdateEvent extends BGPMessage {
+public interface BGPUpdateEvent extends Notification {
 
 }

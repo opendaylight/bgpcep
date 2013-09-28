@@ -4,16 +4,16 @@ import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiator;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
 
-public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFactory<BGPMessage, BGPSessionImpl, BGPSessionListener> {
+public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
 	private final BGPSessionPreferences initialPrefs;
 	private final Timer timer;
 
@@ -25,6 +25,6 @@ public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFacto
 	@Override
 	public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
 			final Channel channel, final Promise<BGPSessionImpl> promise) {
-		return new BGPSessionNegotiator(timer, promise, channel, initialPrefs, factory.getSessionListener());
+		return new BGPSessionNegotiator(this.timer, promise, channel, this.initialPrefs, factory.getSessionListener());
 	}
 }

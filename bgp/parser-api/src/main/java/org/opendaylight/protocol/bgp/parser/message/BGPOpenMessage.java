@@ -9,19 +9,17 @@ package org.opendaylight.protocol.bgp.parser.message;
 
 import java.util.List;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Representation of BGPOpen message.
  * 
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.2">BGP Open Message</a>
  */
-public final class BGPOpenMessage implements BGPMessage {
-
-	private static final long serialVersionUID = -3507481736478860117L;
+public final class BGPOpenMessage implements Notification {
 
 	/**
 	 * Current BGP version.

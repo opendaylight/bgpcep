@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -163,13 +164,13 @@ public class APITest {
 
 	@Test
 	public void testBGPKeepAliveMessage() {
-		final BGPMessage msg = new BGPKeepAliveMessage();
+		final Notification msg = new BGPKeepAliveMessage();
 		assertTrue(msg instanceof BGPKeepAliveMessage);
 	}
 
 	@Test
 	public void testBGPNotificationMessage() {
-		final BGPMessage msg = new BGPNotificationMessage(BGPError.AS_PATH_MALFORMED);
+		final Notification msg = new BGPNotificationMessage(BGPError.AS_PATH_MALFORMED);
 		assertTrue(msg instanceof BGPNotificationMessage);
 		assertEquals(BGPError.AS_PATH_MALFORMED, ((BGPNotificationMessage) msg).getError());
 		assertNull(((BGPNotificationMessage) msg).getData());
@@ -177,14 +178,14 @@ public class APITest {
 
 	@Test
 	public void testBGPOpenMessage() {
-		final BGPMessage msg = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
+		final Notification msg = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
 		assertNull(((BGPOpenMessage) msg).getOptParams());
 	}
 
 	@Test
 	public void testToString() {
-		final BGPMessage o = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
-		final BGPMessage n = new BGPNotificationMessage(BGPError.ATTR_FLAGS_MISSING);
+		final Notification o = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
+		final Notification n = new BGPNotificationMessage(BGPError.ATTR_FLAGS_MISSING);
 		assertNotSame(o.toString(), n.toString());
 	}
 }

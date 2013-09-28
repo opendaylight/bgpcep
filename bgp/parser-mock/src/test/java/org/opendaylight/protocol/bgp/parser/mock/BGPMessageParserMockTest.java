@@ -30,7 +30,6 @@ import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
@@ -59,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -87,9 +87,9 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test
 	public void testGetUpdateMessage() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
+		final Map<byte[], List<Notification>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage) this.messages.get(i)));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((Notification) this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
@@ -109,9 +109,9 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUpdateMessageException() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], List<BGPMessage>> updateMap = Maps.newHashMap();
+		final Map<byte[], List<Notification>> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], Lists.newArrayList((BGPMessage) this.messages.get(i)));
+			updateMap.put(this.inputBytes[i], Lists.newArrayList((Notification) this.messages.get(i)));
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
@@ -171,7 +171,7 @@ public class BGPMessageParserMockTest {
 
 	@Test
 	public void testGetOpenMessage() throws DeserializerException, DocumentedException, IOException {
-		final Map<byte[], List<BGPMessage>> openMap = Maps.newHashMap();
+		final Map<byte[], List<Notification>> openMap = Maps.newHashMap();
 
 		final Set<BGPTableType> type = Sets.newHashSet();
 		type.add(new BGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
@@ -181,7 +181,7 @@ public class BGPMessageParserMockTest {
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
-		openMap.put(input, Lists.newArrayList((BGPMessage) new BGPOpenMessage(new AsNumber((long) 30), (short) 30, null, params)));
+		openMap.put(input, Lists.newArrayList((Notification) new BGPOpenMessage(new AsNumber((long) 30), (short) 30, null, params)));
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 

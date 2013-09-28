@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -48,19 +48,19 @@ import com.google.common.collect.Maps;
 public class ParserTest {
 
 	public static final byte[] openBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
-		(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
+			(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
 	public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
 	public static final byte[] notificationBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
-	final ProtocolMessageFactory<BGPMessage> factory = new BGPMessageFactoryImpl();
+	final ProtocolMessageFactory<Notification> factory = new BGPMessageFactoryImpl();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {
@@ -95,11 +95,11 @@ public class ParserTest {
 
 	@Test
 	public void testKeepAliveMsg() throws DeserializerException, DocumentedException {
-		final BGPMessage keepAlive = new BGPKeepAliveMessage();
+		final Notification keepAlive = new BGPKeepAliveMessage();
 		final byte[] bytes = this.factory.put(keepAlive);
 		assertArrayEquals(keepAliveBMsg, bytes);
 
-		final BGPMessage m = this.factory.parse(bytes).get(0);
+		final Notification m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPKeepAliveMessage);
 	}
@@ -123,11 +123,11 @@ public class ParserTest {
 
 	@Test
 	public void testOpenMessage() throws UnknownHostException, DeserializerException, DocumentedException {
-		final BGPMessage open = new BGPOpenMessage(new AsNumber((long) 100), (short) 180, new IPv4Address(InetAddress.getByName("20.20.20.20")), null);
+		final Notification open = new BGPOpenMessage(new AsNumber((long) 100), (short) 180, new IPv4Address(InetAddress.getByName("20.20.20.20")), null);
 		final byte[] bytes = this.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
-		final BGPMessage m = this.factory.parse(bytes).get(0);
+		final Notification m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPOpenMessage);
 		assertEquals(new AsNumber((long) 100), ((BGPOpenMessage) m).getMyAS());
@@ -190,11 +190,11 @@ public class ParserTest {
 
 	@Test
 	public void testNotificationMsg() throws DeserializerException, DocumentedException {
-		BGPMessage notMsg = new BGPNotificationMessage(BGPError.OPT_PARAM_NOT_SUPPORTED, new byte[] { 4, 9 });
+		Notification notMsg = new BGPNotificationMessage(BGPError.OPT_PARAM_NOT_SUPPORTED, new byte[] { 4, 9 });
 		byte[] bytes = this.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
-		BGPMessage m = this.factory.parse(bytes).get(0);
+		Notification m = this.factory.parse(bytes).get(0);
 
 		assertTrue(m instanceof BGPNotificationMessage);
 		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, ((BGPNotificationMessage) m).getError());

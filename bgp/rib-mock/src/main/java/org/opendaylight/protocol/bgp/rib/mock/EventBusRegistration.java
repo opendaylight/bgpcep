@@ -13,7 +13,6 @@ import java.util.Set;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -21,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
@@ -37,22 +37,22 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 	private boolean closed = false;
 
 	public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
-			final List<BGPMessage> allPreviousMessages) {
+			final List<Notification> allPreviousMessages) {
 		final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
 		eventBus.register(instance);
 		return instance;
 	}
 
-	private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<BGPMessage> allPreviousMessages) {
+	private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<Notification> allPreviousMessages) {
 		this.eventBus = eventBus;
 		this.listener = listener;
-		for (final BGPMessage message : allPreviousMessages) {
+		for (final Notification message : allPreviousMessages) {
 			sendMessage(listener, message);
 		}
 	}
 
 	@Subscribe
-	public void onMessage(final BGPMessage message) {
+	public void onMessage(final Notification message) {
 		sendMessage(this.listener, message);
 	}
 
@@ -65,7 +65,7 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 		this.closed = true;
 	}
 
-	private static void sendMessage(final BGPSessionListener listener, final BGPMessage message) {
+	private static void sendMessage(final BGPSessionListener listener, final Notification message) {
 		if (BGPMock.connectionLostMagicMessage.equals(message)) {
 			listener.onSessionTerminated(null, null);
 		} else if (message instanceof BGPOpenMessage) {

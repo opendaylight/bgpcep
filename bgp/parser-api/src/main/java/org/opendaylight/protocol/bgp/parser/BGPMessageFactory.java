@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Interface to expose BGP specific MessageFactory.
  */
-public interface BGPMessageFactory extends ProtocolMessageFactory<BGPMessage> {
+public interface BGPMessageFactory extends ProtocolMessageFactory<Notification> {
 
 }

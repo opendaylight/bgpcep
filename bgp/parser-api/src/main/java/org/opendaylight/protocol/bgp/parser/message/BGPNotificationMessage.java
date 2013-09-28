@@ -10,17 +10,14 @@ package org.opendaylight.protocol.bgp.parser.message;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
-
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Representation of BGPNotification message.
  * 
  * @see <a link="http://tools.ietf.org/html/rfc4271#section-4.5">BGP Notification Message</a>
  */
-public final class BGPNotificationMessage implements BGPMessage {
-
-	private static final long serialVersionUID = -5860147919167775673L;
+public final class BGPNotificationMessage implements Notification {
 
 	private final BGPError error;
 

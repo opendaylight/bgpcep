@@ -21,7 +21,6 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -31,6 +30,7 @@ import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 @VisibleForTesting
-public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implements BGPSession {
+public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession {
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
 
@@ -54,11 +54,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	 */
 	public enum State {
 		/**
-		 * The session object is created by the negotiator in OpenConfirm state.
-		 * While in this state, the session object is half-alive, e.g. the timers
-		 * are running, but the session is not completely up, e.g. it has not been
-		 * announced to the listener. If the session is torn down in this state,
-		 * we do not inform the listener.
+		 * The session object is created by the negotiator in OpenConfirm state. While in this state, the session object
+		 * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
+		 * announced to the listener. If the session is torn down in this state, we do not inform the listener.
 		 */
 		OpenConfirm,
 		/**
@@ -153,7 +151,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	 * @param msg incoming message
 	 */
 	@Override
-	public void handleMessage(final BGPMessage msg) {
+	public void handleMessage(final Notification msg) {
 		// Update last reception time
 		this.lastMessageReceivedAt = System.nanoTime();
 
@@ -185,7 +183,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 		}
 	}
 
-	void sendMessage(final BGPMessage msg) {
+	void sendMessage(final Notification msg) {
 		try {
 			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();

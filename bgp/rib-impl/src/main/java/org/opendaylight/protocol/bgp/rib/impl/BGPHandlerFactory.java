@@ -9,21 +9,21 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.ChannelHandler;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
 import org.opendaylight.protocol.framework.ProtocolMessageDecoder;
 import org.opendaylight.protocol.framework.ProtocolMessageEncoder;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * BGP specific factory for protocol inbound/outbound handlers.
  */
-public class BGPHandlerFactory extends ProtocolHandlerFactory<BGPMessage> {
-	private final ProtocolMessageEncoder<BGPMessage> encoder;
+public class BGPHandlerFactory extends ProtocolHandlerFactory<Notification> {
+	private final ProtocolMessageEncoder<Notification> encoder;
 
 	public BGPHandlerFactory(final BGPMessageFactory msgFactory) {
 		super(msgFactory);
-		this.encoder = new ProtocolMessageEncoder<BGPMessage>(this.msgFactory);
+		this.encoder = new ProtocolMessageEncoder<Notification>(this.msgFactory);
 	}
 
 	@Override
@@ -33,6 +33,6 @@ public class BGPHandlerFactory extends ProtocolHandlerFactory<BGPMessage> {
 
 	@Override
 	public ChannelHandler[] getDecoders() {
-		return new ChannelHandler[] { new BGPMessageHeaderDecoder(), new ProtocolMessageDecoder<BGPMessage>(this.msgFactory) };
+		return new ChannelHandler[] { new BGPMessageHeaderDecoder(), new ProtocolMessageDecoder<Notification>(this.msgFactory) };
 	}
 }

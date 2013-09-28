@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
  */
 public class SpeakerSessionListener implements BGPSessionListener {
 
-	public List<BGPMessage> messages = Lists.newArrayList();
+	public List<Notification> messages = Lists.newArrayList();
 
 	public boolean up = false;
 
@@ -37,7 +37,7 @@ public class SpeakerSessionListener implements BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPSession session, final BGPMessage message) {
+	public void onMessage(final BGPSession session, final Notification message) {
 		logger.debug("Received message: " + message.getClass() + " " + message);
 		this.messages.add(message);
 	}

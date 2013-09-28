@@ -11,20 +11,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Mock implementation of {@link BGPListener} for testing purposes.
  */
 final class BGPListenerMock implements BGPSessionListener {
-	private final List<BGPMessage> buffer = Collections.synchronizedList(new ArrayList<BGPMessage>());
+	private final List<Notification> buffer = Collections.synchronizedList(new ArrayList<Notification>());
 	private boolean connected = false;
 
-	protected List<BGPMessage> getBuffer() {
+	protected List<Notification> getBuffer() {
 		return this.buffer;
 	}
 
@@ -33,7 +32,7 @@ final class BGPListenerMock implements BGPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final BGPSession session, final BGPMessage message) {
+	public void onMessage(final BGPSession session, final Notification message) {
 		this.buffer.add(message);
 	}
 

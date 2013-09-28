@@ -11,9 +11,9 @@ import static org.mockito.Mockito.mock;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Mock of the BGP speakers session.
@@ -28,7 +28,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
 	}
 
 	@Override
-	public void sendMessage(final BGPMessage msg) {
+	public void sendMessage(final Notification msg) {
 		this.lastMessageSentAt = System.nanoTime();
 		this.client.onMessage(this, msg);
 	}

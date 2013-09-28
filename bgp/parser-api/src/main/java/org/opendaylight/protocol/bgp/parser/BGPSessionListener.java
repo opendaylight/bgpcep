@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import org.opendaylight.protocol.framework.SessionListener;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Listener that receives session informations from the session.
  */
-public interface BGPSessionListener extends SessionListener<BGPMessage, BGPSession, BGPTerminationReason> {
+public interface BGPSessionListener extends SessionListener<Notification, BGPSession, BGPTerminationReason> {
 
 }

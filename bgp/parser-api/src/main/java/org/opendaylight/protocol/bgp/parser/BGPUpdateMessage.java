@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.parser;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * 
@@ -19,7 +19,7 @@ import org.opendaylight.protocol.bgp.concepts.BGPObject;
  * kind of situation. Therefore, first step is to remove objects, then add the other set.
  * 
  */
-public interface BGPUpdateMessage extends BGPUpdateEvent, BGPMessage {
+public interface BGPUpdateMessage extends BGPUpdateEvent, Notification {
 	/**
 	 * Objects that are identified with Identifiers in this set, need to be removed from topology.
 	 * 
