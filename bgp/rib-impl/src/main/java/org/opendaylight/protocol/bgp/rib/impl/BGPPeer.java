@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.yangtools.yang.binding.Notification;

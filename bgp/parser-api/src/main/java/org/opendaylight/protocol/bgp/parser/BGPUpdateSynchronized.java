@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 
 /**
  * Update event indicating that a RIB has reached initial synchronization. An instance of this interface is generated

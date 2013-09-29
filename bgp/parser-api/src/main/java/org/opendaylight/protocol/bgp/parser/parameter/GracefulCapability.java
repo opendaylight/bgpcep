@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.parser.parameter;
 
 import java.util.Map;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 
 
 /**

@@ -13,10 +13,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;

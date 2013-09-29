@@ -66,9 +66,7 @@ module bgp-multiprotocol {
 			list capabilities {
 				container multiprotocol-capability {
 					reference "http://tools.ietf.org/html/rfc4760#section-8";
-					container table-type {
-						uses bgp-table-type;
-					}
+					uses bgp-table-type;
 				}
 			}
 		}

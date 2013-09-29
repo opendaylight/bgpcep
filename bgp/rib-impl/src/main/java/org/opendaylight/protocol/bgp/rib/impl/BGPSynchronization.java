@@ -12,13 +12,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPPrefix;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;

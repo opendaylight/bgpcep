@@ -14,7 +14,6 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
@@ -26,6 +25,7 @@ import org.opendaylight.protocol.bgp.parser.BGPPrefix;
 import org.opendaylight.protocol.bgp.parser.BGPPrefixState;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPRouteState;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;

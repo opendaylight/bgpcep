@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.linkstate.ISISAreaIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;

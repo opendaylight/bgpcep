@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
 import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
