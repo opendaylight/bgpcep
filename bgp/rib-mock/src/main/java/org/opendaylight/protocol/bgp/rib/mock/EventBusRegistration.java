@@ -16,10 +16,10 @@ import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Sets;
@@ -89,7 +89,7 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 					return tts;
 				}
 			});
-		} else if (message instanceof BGPKeepAliveMessage) {
+		} else if (message instanceof Keepalive) {
 			// do nothing
 		} else {
 			listener.onMessage(null, message);

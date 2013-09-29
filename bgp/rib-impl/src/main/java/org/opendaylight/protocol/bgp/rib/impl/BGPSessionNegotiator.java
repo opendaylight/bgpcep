@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
@@ -31,6 +30,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +117,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		case Idle:
 			throw new IllegalStateException("Unexpected state " + this.state);
 		case OpenConfirm:
-			if (msg instanceof BGPKeepAliveMessage) {
+			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);
 			} else if (msg instanceof BGPNotificationMessage) {
 				final BGPNotificationMessage ntf = (BGPNotificationMessage) msg;
@@ -136,7 +137,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 								final MultiprotocolCapability cap = (MultiprotocolCapability) param;
 								if (LinkstateAddressFamily.class == cap.getAfi() && LinkstateSubsequentAddressFamily.class == cap.getSafi()) {
 									this.remotePref = openObj;
-									this.channel.writeAndFlush(new BGPKeepAliveMessage());
+									this.channel.writeAndFlush(new KeepaliveBuilder().build());
 									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
 									this.state = State.OpenConfirm;
 									logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel,

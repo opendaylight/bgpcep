@@ -16,12 +16,13 @@ import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +98,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 			logger.debug("Received and parsed Notification Message: {}", msg);
 			break;
 		case 4:
-			msg = new BGPKeepAliveMessage();
+			msg = new KeepaliveBuilder().build();
 			if (messageLength != COMMON_HEADER_LENGTH) {
 				throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
 						bs, 0, LENGTH_FIELD_LENGTH));
@@ -130,7 +131,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 		} else if (msg instanceof BGPNotificationMessage) {
 			msgType = 3;
 			msgBody = BGPNotificationMessageParser.put((BGPNotificationMessage) msg);
-		} else if (msg instanceof BGPKeepAliveMessage) {
+		} else if (msg instanceof Keepalive) {
 			msgType = 4;
 			msgBody = new byte[0];
 		} else {

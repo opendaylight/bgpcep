@@ -25,11 +25,12 @@ import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
 
 	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
+
+	private static final Notification keepalive = new KeepaliveBuilder().build();
 
 	public static int HOLD_TIMER_VALUE = DEFAULT_HOLD_TIMER_VALUE; // 240
 
@@ -163,7 +166,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 			logger.info("Session closed because Notification message received: {}", ((BGPNotificationMessage) msg).getError());
 			this.closeWithoutMessage();
 			this.listener.onSessionTerminated(this, new BGPTerminationReason(((BGPNotificationMessage) msg).getError()));
-		} else if (msg instanceof BGPKeepAliveMessage) {
+		} else if (msg instanceof Keepalive) {
 			// Keepalives are handled internally
 			logger.debug("Received KeepAlive messsage.");
 			this.kaCounter++;
@@ -254,7 +257,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
 		if (ct >= nextKeepalive) {
-			this.sendMessage(new BGPKeepAliveMessage());
+			this.sendMessage(keepalive);
 			nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 		}
 		this.stateTimer.newTimeout(new TimerTask() {

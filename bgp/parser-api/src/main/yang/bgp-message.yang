@@ -55,7 +55,7 @@ module bgp-message {
 			type inet:ipv4-address;
 			mandatory true;
 		}
-		list optional-parameters {
+		list bgp-parameters {
 			reference "http://tools.ietf.org/html/rfc3392#section-4";
 			choice parameters {
 				container as4-bytes {
