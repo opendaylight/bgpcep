@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.yangtools.yang.binding.Notification;
 

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.parameter;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
+import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 

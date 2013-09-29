@@ -8,8 +8,11 @@
 package org.opendaylight.protocol.bgp.concepts;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 public class ClusterIdentifierTest {
@@ -31,5 +34,26 @@ public class ClusterIdentifierTest {
 		// assertEquals(id1.toString(), id.toString());
 
 		assertArrayEquals(id1.getValue(), new byte[] { 13, 14, 15, 16 });
+	}
+
+	@Test
+	public void testOrigin() {
+		final BgpOrigin or = BgpOrigin.Egp;
+		assertEquals(or.name(), "Egp");
+	}
+
+	@Test
+	public void testBaseBGPObjectState() {
+		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, null);
+		final BaseBGPObjectState state1 = new BaseBGPObjectState(BgpOrigin.Incomplete, null);
+		assertNull(state.getAggregator());
+		assertEquals(BgpOrigin.Incomplete, state.getOrigin());
+		assertEquals(state.toString(), state1.toString());
+
+		final BaseBGPObjectState s = new BaseBGPObjectState(state);
+		assertEquals(state, s);
+		assertEquals(state.hashCode(), s.hashCode());
+
+		assertEquals(s, s.newInstance());
 	}
 }
