@@ -35,7 +35,6 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
@@ -43,6 +42,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -97,8 +98,8 @@ public class FSMTest {
 		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
 		this.clientSession.handleMessage(this.classicOpen);
 		assertEquals(2, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(1) instanceof BGPKeepAliveMessage);
-		this.clientSession.handleMessage(new BGPKeepAliveMessage());
+		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+		this.clientSession.handleMessage(new KeepaliveBuilder().build());
 		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
 		// Thread.sleep(3 * 1000);
 		// Thread.sleep(100);
@@ -140,7 +141,7 @@ public class FSMTest {
 	public void sendNotification() {
 		this.clientSession.channelActive(null);
 		this.clientSession.handleMessage(this.classicOpen);
-		this.clientSession.handleMessage(new BGPKeepAliveMessage());
+		this.clientSession.handleMessage(new KeepaliveBuilder().build());
 		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
 		try {
 			this.clientSession.handleMessage(new BGPOpenMessage(new AsNumber((long) 30), (short) 3, null, null));
