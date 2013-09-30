@@ -18,7 +18,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -26,6 +25,7 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
@@ -38,7 +38,7 @@ import com.google.common.eventbus.EventBus;
  */
 @ThreadSafe
 public final class BGPMock implements BGP, Closeable {
-	static final Notification connectionLostMagicMessage = new BGPNotificationMessage(BGPError.CEASE);
+	static final Notification connectionLostMagicMessage = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
 	@GuardedBy("this")
 	private final List<byte[]> allPreviousByteMessages;

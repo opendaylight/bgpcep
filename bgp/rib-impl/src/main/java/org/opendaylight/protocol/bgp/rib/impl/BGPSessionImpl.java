@@ -25,12 +25,13 @@ import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +143,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	public synchronized void close() {
 		logger.debug("Closing session: {}", this);
 		if (this.state != State.Idle) {
-			this.sendMessage(new BGPNotificationMessage(BGPError.CEASE));
+			this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build());
 			this.channel.close();
 			this.state = State.Idle;
 		}
@@ -161,11 +162,13 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		if (msg instanceof BGPOpenMessage) {
 			// Open messages should not be present here
 			this.terminate(BGPError.FSM_ERROR);
-		} else if (msg instanceof BGPNotificationMessage) {
+		} else if (msg instanceof Notify) {
 			// Notifications are handled internally
-			logger.info("Session closed because Notification message received: {}", ((BGPNotificationMessage) msg).getError());
+			logger.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
+					((Notify) msg).getErrorSubcode());
 			this.closeWithoutMessage();
-			this.listener.onSessionTerminated(this, new BGPTerminationReason(((BGPNotificationMessage) msg).getError()));
+			this.listener.onSessionTerminated(this,
+					new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
 		} else if (msg instanceof Keepalive) {
 			// Keepalives are handled internally
 			logger.debug("Received KeepAlive messsage.");
@@ -209,7 +212,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	 * @param closeObject
 	 */
 	private void terminate(final BGPError error) {
-		this.sendMessage(new BGPNotificationMessage(error));
+		this.sendMessage(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
 		this.closeWithoutMessage();
 
 		this.listener.onSessionTerminated(this, new BGPTerminationReason(error));

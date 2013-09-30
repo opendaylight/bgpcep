@@ -30,7 +30,6 @@ import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
@@ -45,6 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -170,10 +171,12 @@ public class APITest {
 
 	@Test
 	public void testBGPNotificationMessage() {
-		final Notification msg = new BGPNotificationMessage(BGPError.AS_PATH_MALFORMED);
-		assertTrue(msg instanceof BGPNotificationMessage);
-		assertEquals(BGPError.AS_PATH_MALFORMED, ((BGPNotificationMessage) msg).getError());
-		assertNull(((BGPNotificationMessage) msg).getData());
+		final Notify msg = new NotifyBuilder().setErrorCode(BGPError.AS_PATH_MALFORMED.getCode()).setErrorSubcode(
+				BGPError.AS_PATH_MALFORMED.getSubcode()).build();
+		assertTrue(msg instanceof Notify);
+		assertEquals(BGPError.AS_PATH_MALFORMED.getCode(), msg.getErrorCode().shortValue());
+		assertEquals(BGPError.AS_PATH_MALFORMED.getSubcode(), msg.getErrorSubcode().shortValue());
+		assertNull(msg.getData());
 	}
 
 	@Test
@@ -185,7 +188,8 @@ public class APITest {
 	@Test
 	public void testToString() {
 		final Notification o = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
-		final Notification n = new BGPNotificationMessage(BGPError.ATTR_FLAGS_MISSING);
+		final Notification n = new NotifyBuilder().setErrorCode(BGPError.AS_PATH_MALFORMED.getCode()).setErrorSubcode(
+				BGPError.AS_PATH_MALFORMED.getSubcode()).build();
 		assertNotSame(o.toString(), n.toString());
 	}
 }

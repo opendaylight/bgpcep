@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
@@ -32,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
 						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-						BGPSessionNegotiator.this.channel.writeAndFlush(new BGPNotificationMessage(BGPError.HOLD_TIMER_EXPIRED));
+						BGPSessionNegotiator.this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(
+								BGPError.HOLD_TIMER_EXPIRED.getCode()).setErrorSubcode(BGPError.HOLD_TIMER_EXPIRED.getSubcode()).build());
 						BGPSessionNegotiator.this.state = State.Finished;
 					}
 				}
@@ -119,9 +121,9 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		case OpenConfirm:
 			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);
-			} else if (msg instanceof BGPNotificationMessage) {
-				final BGPNotificationMessage ntf = (BGPNotificationMessage) msg;
-				negotiationFailed(new BGPDocumentedException("Peer refusal", ntf.getError()));
+			} else if (msg instanceof Notify) {
+				final Notify ntf = (Notify) msg;
+				negotiationFailed(new BGPDocumentedException("Peer refusal", BGPError.forValue(ntf.getErrorCode(), ntf.getErrorSubcode())));
 			}
 			this.state = State.Finished;
 			return;
@@ -148,9 +150,11 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 						}
 					}
 				}
-				final BGPNotificationMessage ntf = new BGPNotificationMessage(BGPError.UNSPECIFIC_OPEN_ERROR);
+				final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
+						BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
 				this.channel.writeAndFlush(ntf);
-				negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", ntf.getError()));
+				negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", BGPError.forValue(
+						ntf.getErrorCode(), ntf.getErrorSubcode())));
 				this.state = State.Finished;
 				return;
 			}
@@ -159,7 +163,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 		// Catch-all for unexpected message
 		logger.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
-		this.channel.writeAndFlush(new BGPNotificationMessage(BGPError.FSM_ERROR));
+		this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
+				BGPError.FSM_ERROR.getSubcode()).build());
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
 		this.state = State.Finished;
 	}
