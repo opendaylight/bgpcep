@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a2f8d8d_e4261216",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-09-30T12:32:13Z",
+      "side": 1,
+      "message": "Will we be using this in future? If yes, add a FIXME, if not remove completely.",
+      "revId": "468ff8658dc5dbeb66e7139c0aaa544f521914af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
