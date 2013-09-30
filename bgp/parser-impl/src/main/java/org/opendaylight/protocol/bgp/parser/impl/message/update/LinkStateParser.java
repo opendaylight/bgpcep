@@ -63,7 +63,6 @@ import org.opendaylight.protocol.concepts.IPv4Prefix;
 import org.opendaylight.protocol.concepts.IPv6;
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.IPv6Prefix;
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
@@ -75,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -390,14 +390,14 @@ public class LinkStateParser {
 				break;
 			case 515:
 				if (value.length == 6) {
-					routerId = new ISISRouterIdentifier(new ISOSystemIdentifier(ByteArray.subByte(value, 0, 6)));
+					routerId = new ISISRouterIdentifier(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6)));
 				} else if (value.length == 7) {
 					if (value[6] == 0) {
 						logger.warn("PSN octet is 0. Ignoring System ID.");
-						routerId = new ISISRouterIdentifier(new ISOSystemIdentifier(ByteArray.subByte(value, 0, 6)));
+						routerId = new ISISRouterIdentifier(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6)));
 						break;
 					} else {
-						routerId = new ISISLANIdentifier(new ISOSystemIdentifier(ByteArray.subByte(value, 0, 6)), value[6]);
+						routerId = new ISISLANIdentifier(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6)), value[6]);
 					}
 				} else if (value.length == 4) {
 					routerId = new OSPFRouterIdentifier(ByteArray.subByte(value, 0, 4));

@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.linkstate;
 
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
+
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
@@ -21,10 +22,10 @@ public final class ISISLANIdentifier extends AbstractLANIdentifier<ISISRouterIde
 
 	/**
 	 * Construct a new node identifier. Formed as the unification of component identifiers.
-	 *
+	 * 
 	 * @param systemId ISO System ID, may not be null
 	 */
-	public ISISLANIdentifier(final ISOSystemIdentifier systemId, final short psn) {
+	public ISISLANIdentifier(final IsoSystemIdentifier systemId, final short psn) {
 		this(new ISISRouterIdentifier(systemId), psn);
 	}
 
@@ -35,12 +36,12 @@ public final class ISISLANIdentifier extends AbstractLANIdentifier<ISISRouterIde
 	}
 
 	public short getPSN() {
-		return psn;
+		return this.psn;
 	}
 
 	@Override
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("psn", psn);
+		toStringHelper.add("psn", this.psn);
 		return super.addToStringAttributes(toStringHelper);
 	}
 
@@ -51,7 +52,7 @@ public final class ISISLANIdentifier extends AbstractLANIdentifier<ISISRouterIde
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + psn;
+		result = prime * result + this.psn;
 		return result;
 	}
 
@@ -66,8 +67,8 @@ public final class ISISLANIdentifier extends AbstractLANIdentifier<ISISRouterIde
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ISISLANIdentifier other = (ISISLANIdentifier) obj;
-		if (psn != other.psn)
+		final ISISLANIdentifier other = (ISISLANIdentifier) obj;
+		if (this.psn != other.psn)
 			return false;
 		return true;
 	}

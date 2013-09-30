@@ -30,7 +30,6 @@ import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -53,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.opaque.extended.community.OpaqueExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.origin.extended.community.RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.target.extended.community.RouteTargetExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
 
 import com.google.common.collect.Sets;
 
@@ -74,9 +74,9 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPLinkMP() {
-		final NodeIdentifier localnodeid = new NodeIdentifier(new AsNumber((long) 25600), null, null, new ISISRouterIdentifier(new ISOSystemIdentifier(new byte[] {
+		final NodeIdentifier localnodeid = new NodeIdentifier(new AsNumber((long) 25600), null, null, new ISISRouterIdentifier(new IsoSystemIdentifier(new byte[] {
 				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 })));
-		final NodeIdentifier remotenodeid = NodeIdentifierFactory.localIdentifier(new ISISLANIdentifier(new ISOSystemIdentifier(new byte[] {
+		final NodeIdentifier remotenodeid = NodeIdentifierFactory.localIdentifier(new ISISLANIdentifier(new IsoSystemIdentifier(new byte[] {
 				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 }), (short) 1));
 
 		final InterfaceIdentifier ifaceid = new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("10.1.1.1"));

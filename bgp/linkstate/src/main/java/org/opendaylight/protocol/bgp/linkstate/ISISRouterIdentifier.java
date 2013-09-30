@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.bgp.linkstate;
 
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -18,18 +19,18 @@ import com.google.common.base.Preconditions;
  */
 public final class ISISRouterIdentifier implements RouterIdentifier {
 	private static final long serialVersionUID = 1L;
-	private final ISOSystemIdentifier systemId;
+	private final IsoSystemIdentifier systemId;
 
 	/**
 	 * Construct a new node identifier. Formed as the unification of component identifiers.
 	 * 
 	 * @param systemId ISO System ID, may not be null
 	 */
-	public ISISRouterIdentifier(final ISOSystemIdentifier systemId) {
+	public ISISRouterIdentifier(final IsoSystemIdentifier systemId) {
 		this.systemId = Preconditions.checkNotNull(systemId, "ISO System Identifier is mandatory.");
 	}
 
-	public final ISOSystemIdentifier getSystemId() {
+	public final IsoSystemIdentifier getSystemId() {
 		return this.systemId;
 	}
 

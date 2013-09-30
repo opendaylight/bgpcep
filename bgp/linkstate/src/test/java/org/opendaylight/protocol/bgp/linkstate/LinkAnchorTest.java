@@ -16,10 +16,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.junit.Test;
-
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
-import org.opendaylight.protocol.concepts.ISOSystemIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
 
 public class LinkAnchorTest {
 
@@ -33,7 +32,7 @@ public class LinkAnchorTest {
 
 		final LinkAnchor la1 = new LinkAnchor(NodeIdentifierFactory.localIdentifier(new OSPFRouterIdentifier(new byte[] { 1, 2, 3, 4 })), IPv6InterfaceIdentifier.forString("2001:db8:85a3::8a2e:370:7334"));
 
-		final LinkAnchor la2 = new LinkAnchor(NodeIdentifierFactory.localIdentifier(new ISISRouterIdentifier(new ISOSystemIdentifier(new byte[] {
+		final LinkAnchor la2 = new LinkAnchor(NodeIdentifierFactory.localIdentifier(new ISISRouterIdentifier(new IsoSystemIdentifier(new byte[] {
 				1, 2, 3, 4, 5, 6 }))), null);
 
 		final LinkAnchor la3 = new LinkAnchor(NodeIdentifierFactory.localIdentifier(new OSPFRouterIdentifier(new byte[] { 1, 2, 3, 4 })), IPv6InterfaceIdentifier.forString("2001:db8:85a3::8a2e:370:7334"));
