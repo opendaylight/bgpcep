@@ -26,7 +26,6 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
@@ -39,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -191,24 +192,26 @@ public class ParserTest {
 
 	@Test
 	public void testNotificationMsg() throws DeserializerException, DocumentedException {
-		Notification notMsg = new BGPNotificationMessage(BGPError.OPT_PARAM_NOT_SUPPORTED, new byte[] { 4, 9 });
+		Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
+				BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
 		byte[] bytes = this.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
 		Notification m = this.factory.parse(bytes).get(0);
 
-		assertTrue(m instanceof BGPNotificationMessage);
-		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, ((BGPNotificationMessage) m).getError());
-		assertArrayEquals(new byte[] { 4, 9 }, ((BGPNotificationMessage) m).getData());
+		assertTrue(m instanceof Notify);
+		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+		assertArrayEquals(new byte[] { 4, 9 }, ((Notify) m).getData());
 
-		notMsg = new BGPNotificationMessage(BGPError.CONNECTION_NOT_SYNC);
+		notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
+				BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
 		bytes = this.factory.put(notMsg);
 
 		m = this.factory.parse(bytes).get(0);
 
-		assertTrue(m instanceof BGPNotificationMessage);
-		assertEquals(BGPError.CONNECTION_NOT_SYNC, ((BGPNotificationMessage) m).getError());
-		assertNull(((BGPNotificationMessage) m).getData());
+		assertTrue(m instanceof Notify);
+		assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+		assertNull(((Notify) m).getData());
 	}
 
 	@Test

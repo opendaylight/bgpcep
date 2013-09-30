@@ -35,7 +35,6 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
 import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -44,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -119,9 +119,9 @@ public class FSMTest {
 		assertTrue(this.receivedMsgs.get(0) instanceof BGPOpenMessage);
 		this.clientSession.handleMessage(new BGPOpenMessage(new AsNumber((long) 30), (short) 1, null, null));
 		assertEquals(2, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(1) instanceof BGPNotificationMessage);
+		assertTrue(this.receivedMsgs.get(1) instanceof Notify);
 		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-		assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, ((BGPNotificationMessage) m).getError());
+		assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class FSMTest {
 		Thread.sleep(BGPSessionNegotiator.INITIAL_HOLDTIMER * 1000 * 60);
 		Thread.sleep(100);
 		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-		assertEquals(BGPError.HOLD_TIMER_EXPIRED, ((BGPNotificationMessage) m).getError());
+		assertEquals(BGPError.HOLD_TIMER_EXPIRED, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
 	}
 
 	@Test
