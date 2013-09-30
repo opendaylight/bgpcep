@@ -38,7 +38,7 @@ module topology-tunnel {
 
 	typedef path-ref {
 		type leafref {
-			path "/nt:network-topology/nt:topology/nt:link/paths/path-id";
+			path "/nt:network-topology/nt:topology/paths/path-id";
 		}
 	}
 
@@ -52,12 +52,35 @@ module topology-tunnel {
 		uses topology-tunnel-type;
 	}
 
+	augment "/nt:network-topology/nt:topology" {
+		when "../../nt:topology-types/topology-tunnel";
+
+		list "paths" {
+			config false;
+
+			leaf path-id {
+				type path-id;
+			}
+			key path-id;
+
+			container path-types {
+				description
+					"A path can have multiple traits, each 
+					 of which is indicated by a presence
+					 container under this one. Such
+					 containers should not carry any data.";
+			}
+		}
+	}
+
 	grouping tunnel-link-attributes {
 		description
 			"A topology link which is actually a tunnel has
 			 additional attributes.";
 
 		container tunnel-types {
+			config false;
+
 			description
 				"A tunnel can have multiple traits, each of
 				 which is indicated by a presence container
@@ -65,17 +88,14 @@ module topology-tunnel {
 				 carry any data.";
 		}
 
-		list paths {
+		leaf-list paths {
 			description
 				"List of paths associated with this tunnel.
 				 The exact relationship between the tunnel
 				 and these paths is technology-specific.";
 
-			key path-id;
-
-			leaf path-id {
-				type path-id;
-			}
+			config false;
+			type path-ref;
 		}
 	}
 

@@ -56,12 +56,12 @@ module topology-tunnel-p2p {
 
 		list reported-hops {
 			uses tunnel-p2p-path-hops;
-			config false;
+			key order;
 		}
 	}
 
-	augment "/nt:network-topology/nt:topology/nt:link/tt:paths" {
-		when "../../tunnel-types/p2p-tunnel";
+	augment "/nt:network-topology/nt:topology/tt:paths" {
+		when "../path-types/p2p-tunnel";
 		uses tunnel-p2p-path-attributes;
 	}
 }
