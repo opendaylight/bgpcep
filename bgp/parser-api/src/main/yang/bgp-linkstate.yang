@@ -10,6 +10,7 @@ module bgp-linkstate {
 	import bgp-message { prefix bgp-msg;}
 	import bgp-multiprotocol { prefix bgp-mp;}
 	import bgp-types { prefix bgp-t;}
+	import nps-concepts { prefix nps-c;}
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -132,14 +133,6 @@ module bgp-linkstate {
 		}
 	}
 
-	// concepts
-	typedef iso-system-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "6";
-		}
-	}
-
 	typedef ipv4-interface-identifier {
 		reference "http://tools.ietf.org/html/rfc5305#section-3.2";
 		type inet:ipv4-address;
@@ -168,7 +161,7 @@ module bgp-linkstate {
 	grouping isis-router-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		leaf iso-system-id {
-			type iso-system-identifier;
+			type nps-c:iso-system-identifier;
 			mandatory true;
 		}
 	}
@@ -412,25 +405,9 @@ module bgp-linkstate {
 		}
 	}
 
-	// concepts
-	typedef igp-metric {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.3";
-		type uint32 {
-			range "1..16777215";
-		}
-	}
-
 	typedef shared-risk-link-group {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.4";
 		type uint32;
-	}
-
-	// FIXME: to double
-	// concepts
-	typedef bandwidth {
-		type decimal64 {
-			fraction-digits 2;
-		}
 	}
 
 	typedef administrative-group {
@@ -444,7 +421,7 @@ module bgp-linkstate {
 			}
 		}
 		leaf bandwidth {
-			type bandwidth;
+			type nps-c:bandwidth;
 		}
 	}
 
@@ -466,7 +443,7 @@ module bgp-linkstate {
 			type mpls-protocol-mask;
 		}
 		leaf metric {
-			type igp-metric;
+			type nps-c:igp-metric;
 		}
 		leaf-list shared-risk-link-groups {
 			type shared-risk-link-group;
@@ -475,10 +452,10 @@ module bgp-linkstate {
 			type string;
 		}
 		leaf max-link-bandwidth {
-			type bandwidth;
+			type nps-c:bandwidth;
 		}
 		leaf max-reservable-bandwidth {
-			type bandwidth;
+			type nps-c:bandwidth;
 		}
 		list unreserved-bandwidth {
 			key "priority";
@@ -506,12 +483,6 @@ module bgp-linkstate {
 		}
 	}
 
-	// concepts
-	typedef metric {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.4";
-		type uint32;
-	}
-
 	grouping igp-bits {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.1";
 		leaf up-down {
@@ -534,7 +505,7 @@ module bgp-linkstate {
 			type extended-route-tag;
 		}
 		leaf prefix-metric {
-			type metric;
+			type nps-c:metric;
 		}
 		leaf ospf-forwarding-address {
 			type inet:ipv4-address;

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPMessage;
@@ -39,6 +38,7 @@ import org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestedPathBandwidthObject;
 import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 
 /**
  * PCEPRequestMessage validator. Validates message integrity.
@@ -46,7 +46,7 @@ import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
 public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) {
+	public List<PCEPMessage> validate(final List<PCEPObject> objects) {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -197,7 +197,7 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 				objects.remove(obj);
 			}
 
-			if (rpObj.isReoptimized() && bandwidth != null && bandwidth.getBandwidth().compareTo(new Bandwidth(0)) > 0 && rro == null) {
+			if (rpObj.isReoptimized() && bandwidth != null && bandwidth.getBandwidth() != new Bandwidth(new byte[] { 0 }) && rro == null) {
 				msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(PCEPErrors.RRO_MISSING))));
 				requestRejected = true;
 			}
@@ -211,7 +211,7 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 		return msgs;
 	}
 
-	private static CompositeRequestSvecObject getValidSvecComposite(List<PCEPObject> objects) throws PCEPDocumentedException {
+	private static CompositeRequestSvecObject getValidSvecComposite(final List<PCEPObject> objects) throws PCEPDocumentedException {
 		if (objects == null || objects.isEmpty()) {
 			throw new IllegalArgumentException("List cannot be null or empty.");
 		}
@@ -274,9 +274,7 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 		return new CompositeRequestSvecObject(svec, of, gc, xro, metrics);
 	}
 
-	private static PCEPRequestParameterObject copyRP(PCEPRequestParameterObject origRp, boolean processed) {
-		return new PCEPRequestParameterObject(origRp.isLoose(), origRp.isBidirectional(), origRp.isReoptimized(), origRp.isMakeBeforeBreak(),
-				origRp.isReportRequestOrder(), origRp.isSuplyOFOnResponse(), origRp.isFragmentation(), origRp.isP2mp(), origRp.isEroCompression(),
-				origRp.getPriority(), origRp.getRequestID(), origRp.getTlvs(), processed, origRp.isIgnored());
+	private static PCEPRequestParameterObject copyRP(final PCEPRequestParameterObject origRp, final boolean processed) {
+		return new PCEPRequestParameterObject(origRp.isLoose(), origRp.isBidirectional(), origRp.isReoptimized(), origRp.isMakeBeforeBreak(), origRp.isReportRequestOrder(), origRp.isSuplyOFOnResponse(), origRp.isFragmentation(), origRp.isP2mp(), origRp.isEroCompression(), origRp.getPriority(), origRp.getRequestID(), origRp.getTlvs(), processed, origRp.isIgnored());
 	}
 }

@@ -9,15 +9,9 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Set;
 
-import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
-import org.opendaylight.protocol.bgp.linkstate.AdministrativeGroup;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.LinkProtectionType;
-import org.opendaylight.protocol.bgp.linkstate.MPLSProtocol;
-import org.opendaylight.protocol.bgp.linkstate.NetworkLink;
-import org.opendaylight.protocol.bgp.linkstate.NetworkLinkState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 
 /**
  * Implementation of {@link NetworkLink}
@@ -26,16 +20,15 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	private static final long serialVersionUID = 5203163596015262211L;
 
 	/**
-	 *
-	 * @param name
-	 *            {@link LinkIdentifier}
+	 * 
+	 * @param name {@link LinkIdentifier}
 	 */
 	public NetworkLinkImpl(final LinkIdentifier name) {
 		this(name, NetworkLinkState.EMPTY);
 	}
 
 	/**
-	 *
+	 * 
 	 * @param name {@link LinkIdentifier}
 	 * @param template {@link NetworkLink}
 	 */
@@ -49,9 +42,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param administrativeGroup
-	 *            {@link AdministrativeGroup}
+	 * 
+	 * @param administrativeGroup {@link AdministrativeGroup}
 	 */
 	@Deprecated
 	public synchronized void setAdministrativeGroup(final AdministrativeGroup administrativeGroup) {
@@ -59,9 +51,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param maximumBandwidth
-	 *            {@link Bandwidth}
+	 * 
+	 * @param maximumBandwidth {@link Bandwidth}
 	 */
 	@Deprecated
 	public synchronized void setMaximumBandwidth(final Bandwidth maximumBandwidth) {
@@ -69,9 +60,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param reservableBandwidth
-	 *            {@link Bandwidth}
+	 * 
+	 * @param reservableBandwidth {@link Bandwidth}
 	 */
 	@Deprecated
 	public synchronized void setMaximumReservableBandwidth(final Bandwidth reservableBandwidth) {
@@ -79,9 +69,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param unreservedBandwidth
-	 *            array of {@link Bandwidth}
+	 * 
+	 * @param unreservedBandwidth array of {@link Bandwidth}
 	 */
 	@Deprecated
 	public synchronized void setUnreservedBandwidth(final Bandwidth[] unreservedBandwidth) {
@@ -89,9 +78,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param protectionType
-	 *            {@link LinkProtectionType}
+	 * 
+	 * @param protectionType {@link LinkProtectionType}
 	 */
 	@Deprecated
 	public synchronized void setProtectionType(final LinkProtectionType protectionType) {
@@ -99,9 +87,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param enabledMPLSProtocols
-	 *            set of {@link MPLSProtocol}
+	 * 
+	 * @param enabledMPLSProtocols set of {@link MPLSProtocol}
 	 */
 	@Deprecated
 	public synchronized void setEnabledMPLSProtocols(final Set<MPLSProtocol> enabledMPLSProtocols) {
@@ -109,9 +96,8 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param sharedRiskLinkGroups
-	 *            set of {@link SharedRiskLinkGroup}
+	 * 
+	 * @param sharedRiskLinkGroups set of {@link SharedRiskLinkGroup}
 	 */
 	@Deprecated
 	public synchronized void setSharedRiskLinkGroups(final Set<SharedRiskLinkGroup> sharedRiskLinkGroups) {
@@ -119,11 +105,9 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
-	 * @param <T>
-	 *            metric
-	 * @param metric
-	 *            T
+	 * 
+	 * @param <T> metric
+	 * @param metric T
 	 */
 	@Deprecated
 	public synchronized <T extends Metric<?>> void setDefaultMetric(final T metric) {
@@ -131,7 +115,7 @@ public final class NetworkLinkImpl extends NetworkObjectImpl<LinkIdentifier> imp
 	}
 
 	/**
-	 *
+	 * 
 	 * @param <T> metric
 	 * @param metricType class
 	 * @param metric T
