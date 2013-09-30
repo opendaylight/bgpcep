@@ -40,17 +40,17 @@ module topology-tunnel-sr {
 		}
 	}
 
-	augment "/nt:network-topology/nt:topology/nt:link/tt:tunnel-types" {
+	augment "/nt:network-topology/nt:topology/tt:paths/tt:path-types" {
 		uses tunnel-sr-type;
 	}
 
-	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:explicit-hops" {
+	augment "/nt:network-topology/nt:topology/tt:paths/p2p:explicit-hops" {
 		when "../../tunnel-types/sr-tunnel";
 		uses tunnel-sr-path-p2p-hop-attributes;
 	}
 
-	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:reported-hops" {
-		when "../../tunnel-types/sr-tunnel";
+	augment "/nt:network-topology/nt:topology/tt:paths/p2p:reported-hops" {
+		when "../../path-types/sr-tunnel";
 		uses tunnel-sr-path-p2p-hop-attributes;
 	}
 }
