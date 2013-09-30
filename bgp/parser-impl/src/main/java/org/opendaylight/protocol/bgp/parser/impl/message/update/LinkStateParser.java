@@ -50,7 +50,6 @@ import org.opendaylight.protocol.bgp.linkstate.OSPFv3LANIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.UnnumberedLinkIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -72,6 +71,7 @@ import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
@@ -125,8 +125,8 @@ public class LinkStateParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	protected static MPReach<?> parseLSNlri(final boolean reachable, final Class<? extends SubsequentAddressFamily> safi, final CNextHop nextHop,
-			final byte[] bytes) throws BGPParsingException {
+	protected static MPReach<?> parseLSNlri(final boolean reachable, final Class<? extends SubsequentAddressFamily> safi,
+			final CNextHop nextHop, final byte[] bytes) throws BGPParsingException {
 		if (bytes.length == 0) {
 			return null;
 		}
@@ -136,7 +136,7 @@ public class LinkStateParser {
 		final Set<PrefixIdentifier<?>> descs = Sets.newHashSet();
 
 		long identifier = 0;
-		SourceProtocol sp = null;
+		ProtocolId sp = null;
 
 		while (byteOffset != bytes.length) {
 			final NlriType type = parseNLRItype(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TYPE_LENGTH)));
@@ -150,7 +150,7 @@ public class LinkStateParser {
 				byteOffset += ROUTE_DISTINGUISHER_LENGTH;
 			}
 			// parse source protocol
-			sp = parseProtocolId(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, PROTOCOL_ID_LENGTH)));
+			sp = ProtocolId.forValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, PROTOCOL_ID_LENGTH)));
 			byteOffset += PROTOCOL_ID_LENGTH;
 
 			// parse identifier
@@ -243,32 +243,6 @@ public class LinkStateParser {
 		return true;
 	}
 
-	/**
-	 * Parse protocol ID from int to enum
-	 * 
-	 * @param protocolId int parsed from byte array
-	 * @return enum SourceProtocol
-	 * @throws BGPParsingException if the type is unrecognized
-	 */
-	private static SourceProtocol parseProtocolId(final int protocolId) throws BGPParsingException {
-		switch (protocolId) {
-		case 0:
-			return SourceProtocol.Unknown;
-		case 1:
-			return SourceProtocol.ISISLevel1;
-		case 2:
-			return SourceProtocol.ISISLevel2;
-		case 3:
-			return SourceProtocol.OSPF;
-		case 4:
-			return SourceProtocol.Direct;
-		case 5:
-			return SourceProtocol.Static;
-		default:
-			throw new BGPParsingException("Unknown Source Protocol ID: " + protocolId);
-		}
-	}
-
 	private static OSPFRouteType parseRouteType(final int type) throws BGPParsingException {
 		switch (type) {
 		case 0:
@@ -290,7 +264,7 @@ public class LinkStateParser {
 		}
 	}
 
-	private static LinkIdentifier parseLink(final NodeIdentifier local, final SourceProtocol spi, final byte[] bytes)
+	private static LinkIdentifier parseLink(final NodeIdentifier local, final ProtocolId spi, final byte[] bytes)
 			throws BGPParsingException {
 		int byteOffset = 0;
 		final int type = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TYPE_LENGTH));
@@ -490,7 +464,7 @@ public class LinkStateParser {
 			}
 		}
 		return (prefix instanceof IPv4Prefix) ? new IPv4PrefixIdentifier(localDescriptor, (IPv4Prefix) prefix)
-		: new IPv6PrefixIdentifier(localDescriptor, (IPv6Prefix) prefix);
+				: new IPv6PrefixIdentifier(localDescriptor, (IPv6Prefix) prefix);
 	}
 
 	/**
@@ -684,7 +658,7 @@ public class LinkStateParser {
 		return node;
 	}
 
-	public static NetworkPrefixState parsePrefixAttributes(final SourceProtocol src, final NetworkObjectState nos,
+	public static NetworkPrefixState parsePrefixAttributes(final ProtocolId src, final NetworkObjectState nos,
 			final Map<Integer, ByteList> attributes) throws BGPParsingException {
 
 		boolean upDownBit = false;
@@ -753,10 +727,10 @@ public class LinkStateParser {
 
 		final NetworkPrefixState nps = new NetworkPrefixState(nos, routeTags, metric);
 		switch (src) {
-		case ISISLevel1:
-		case ISISLevel2:
+		case IsisLevel1:
+		case IsisLevel2:
 			return new ISISNetworkPrefixState(nps, exRouteTags, upDownBit);
-		case OSPF:
+		case Ospf:
 			if (fwdAddress4 != null) {
 				return new OSPFNetworkPrefixState<IPv4Address>(nps, fwdAddress4);
 			}

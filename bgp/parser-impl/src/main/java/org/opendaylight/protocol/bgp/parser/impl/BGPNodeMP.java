@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 import java.util.Set;
 
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 
 /**
  * 
@@ -25,11 +25,11 @@ public class BGPNodeMP extends AbstractLinkstateMP<NodeIdentifier> {
 	 * Creates BGP Node MP Reach.
 	 * 
 	 * @param identifier long
-	 * @param sourceProtocol {@link SourceProtocol}
+	 * @param sourceProtocol {@link ProtocolId}
 	 * @param prefixes set of prefix descriptors
 	 * @param reachable true if the attribute is MPReach, false if the attribute is MPUnreach
 	 */
-	public BGPNodeMP(final long identifier, final SourceProtocol sourceProtocol, final boolean reachable, final Set<NodeIdentifier> nodes) {
+	public BGPNodeMP(final long identifier, final ProtocolId sourceProtocol, final boolean reachable, final Set<NodeIdentifier> nodes) {
 		super(identifier, sourceProtocol, reachable);
 		this.nodes = nodes;
 	}

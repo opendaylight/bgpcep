@@ -27,7 +27,6 @@ import org.opendaylight.protocol.bgp.linkstate.LinkAnchor;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
-import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.concepts.IPv4;
@@ -36,6 +35,7 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunity;
@@ -85,15 +85,15 @@ public class ComplementaryTest {
 
 		final Set<LinkIdentifier> links = Sets.newHashSet(l);
 
-		final BGPLinkMP link = new BGPLinkMP(0, SourceProtocol.Direct, true, links);
+		final BGPLinkMP link = new BGPLinkMP(0, ProtocolId.Direct, true, links);
 
-		final BGPLinkMP link1 = new BGPLinkMP(0, SourceProtocol.Direct, true, Collections.<LinkIdentifier> emptySet());
+		final BGPLinkMP link1 = new BGPLinkMP(0, ProtocolId.Direct, true, Collections.<LinkIdentifier> emptySet());
 
 		assertNotSame(link.hashCode(), link1.hashCode());
 
-		assertEquals(link, new BGPLinkMP(0, SourceProtocol.Direct, true, links));
+		assertEquals(link, new BGPLinkMP(0, ProtocolId.Direct, true, links));
 
-		assertEquals(link.hashCode(), (new BGPLinkMP(0, SourceProtocol.Direct, true, links)).hashCode());
+		assertEquals(link.hashCode(), (new BGPLinkMP(0, ProtocolId.Direct, true, links)).hashCode());
 
 		assertNotSame(link.toString(), link1.toString());
 	}

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import org.opendaylight.protocol.bgp.linkstate.SourceProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 
 /**
  *
@@ -18,9 +18,9 @@ public abstract class AbstractLinkstateMP<T> implements MPReach<T> {
 
 	private final long identifier;
 
-	private final SourceProtocol sourceProtocol;
+	private final ProtocolId sourceProtocol;
 
-	protected AbstractLinkstateMP(final long identifier, final SourceProtocol sourceProtocol, final boolean reachable) {
+	protected AbstractLinkstateMP(final long identifier, final ProtocolId sourceProtocol, final boolean reachable) {
 		this.identifier = identifier;
 		this.sourceProtocol = sourceProtocol;
 		this.reachable = reachable;
@@ -35,7 +35,7 @@ public abstract class AbstractLinkstateMP<T> implements MPReach<T> {
 		return this.identifier;
 	}
 
-	public SourceProtocol getSourceProtocol() {
+	public ProtocolId getSourceProtocol() {
 		return this.sourceProtocol;
 	}
 
