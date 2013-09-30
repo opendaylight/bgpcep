@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.pcep.PCEPErrors;
@@ -54,6 +53,7 @@ import org.opendaylight.protocol.pcep.subobject.ReportedRouteSubobject;
 import org.opendaylight.protocol.pcep.tlv.LSPCleanupTlv;
 import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 
 public class CompositeTest {
 
@@ -113,7 +113,7 @@ public class CompositeTest {
 
 		this.requestParameter = new PCEPRequestParameterObject(false, false, false, false, false, false, false, false, (short) 0, 0, false, false);
 		this.noPath = new PCEPNoPathObject((short) 2, false, false);
-		this.bandwidth = new PCEPRequestedPathBandwidthObject(new Bandwidth(0), false, false);
+		this.bandwidth = new PCEPRequestedPathBandwidthObject(new Bandwidth(new byte[] { 0 }), false, false);
 
 		this.requestParameters.add(this.requestParameter);
 		this.requestParameters.add(this.requestParameter);
@@ -140,9 +140,9 @@ public class CompositeTest {
 		rroSubobjects.add(new RROAsNumberSubobject(new AsNumber(0x0L)));
 
 		this.reportedRoute = new PCEPReportedRouteObject(rroSubobjects, true);
-		this.rroBandwidth = new PCEPExistingPathBandwidthObject(new Bandwidth(Float.intBitsToFloat(0xFF)), true, false);
+		this.rroBandwidth = new PCEPExistingPathBandwidthObject(new Bandwidth(new byte[] { (byte) 0xFF }), true, false);
 		this.includeRoute = new PCEPIncludeRouteObject(eroSubobjects, true, false);
-		this.loadBalancing = new PCEPLoadBalancingObject(0x0, new Bandwidth(Float.intBitsToFloat(0x0)), false);
+		this.loadBalancing = new PCEPLoadBalancingObject(0x0, new Bandwidth(new byte[] { 0 }), false);
 		final byte[] ipbytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		this.endPoints = new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipbytes), new IPv4Address(ipbytes));
 

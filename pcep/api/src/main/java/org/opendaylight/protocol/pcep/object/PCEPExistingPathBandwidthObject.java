@@ -7,25 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.object;
 
-import org.opendaylight.protocol.concepts.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 
 /**
- * Structure of specific Bandwidth. Used in Composite Requested Object to refer
- * to bandwidth of existing path.
+ * Structure of specific Bandwidth. Used in Composite Requested Object to refer to bandwidth of existing path.
  */
 public class PCEPExistingPathBandwidthObject extends PCEPBandwidthObject {
 
-    /**
-     * Constructs Existing Path Bandwidth.
-     *
-     * @param bandwidth
-     *            Bandwidth. Can't be null.
-     * @param processed
-     *            boolean
-     * @param ignored
-     *            boolean
-     */
-    public PCEPExistingPathBandwidthObject(Bandwidth bandwidth, boolean processed, boolean ignored) {
-	super(bandwidth, processed, ignored);
-    }
+	/**
+	 * Constructs Existing Path Bandwidth.
+	 * 
+	 * @param bandwidth Bandwidth. Can't be null.
+	 * @param processed boolean
+	 * @param ignored boolean
+	 */
+	public PCEPExistingPathBandwidthObject(final Bandwidth bandwidth, final boolean processed, final boolean ignored) {
+		super(bandwidth, processed, ignored);
+	}
 }

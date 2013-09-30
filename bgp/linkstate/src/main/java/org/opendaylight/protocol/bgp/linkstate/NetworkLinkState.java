@@ -11,10 +11,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;

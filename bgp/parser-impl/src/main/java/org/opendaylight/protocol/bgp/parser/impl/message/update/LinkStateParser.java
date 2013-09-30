@@ -57,7 +57,6 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPLinkMP;
 import org.opendaylight.protocol.bgp.parser.impl.BGPNodeMP;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
 import org.opendaylight.protocol.bgp.parser.impl.MPReach;
-import org.opendaylight.protocol.concepts.Bandwidth;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv4Prefix;
@@ -75,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -517,18 +517,18 @@ public class LinkStateParser {
 					logger.trace("Parsed Administrative Group {}", state.getAdministrativeGroup());
 					break;
 				case 1089:
-					state = state.withMaximumBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
+					state = state.withMaximumBandwidth(new Bandwidth(value));
 					logger.trace("Parsed Max Bandwidth {}", state.getMaximumBandwidth());
 					break;
 				case 1090:
-					state = state.withReservableBandwidth(new Bandwidth(ByteArray.bytesToFloat(value)));
+					state = state.withReservableBandwidth(new Bandwidth(value));
 					logger.trace("Parsed Max Reservable Bandwidth {}", state.getMaximumReservableBandwidth());
 					break;
 				case 1091:
 					int index = 0;
 					final Bandwidth[] unreservedBandwidth = new Bandwidth[8];
 					for (int i = 0; i < 8; i++) {
-						unreservedBandwidth[i] = new Bandwidth(ByteArray.bytesToFloat(ByteArray.subByte(value, index, 4)));
+						unreservedBandwidth[i] = new Bandwidth(ByteArray.subByte(value, index, 4));
 						index += 4;
 					}
 					state = state.withUnreservedBandwidth(unreservedBandwidth);
