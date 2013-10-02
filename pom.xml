@@ -40,6 +40,7 @@
 		<module>mockito-configuration</module>
 		<module>pcep</module>
 		<module>util</module>
+		<module>netconf</module>
 	</modules>
 
 	<dependencies>
