@@ -20,11 +20,7 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
@@ -33,6 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	private final BGPSessionPreferences localPref;
 
 	@GuardedBy("this")
-	private BGPOpenMessage remotePref;
+	private Open remotePref;
 
 	@GuardedBy("this")
 	private State state = State.Idle;
@@ -91,7 +92,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	@Override
 	protected void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
-		this.channel.writeAndFlush(new BGPOpenMessage(this.localPref.getMyAs(), (short) this.localPref.getHoldTime(), this.localPref.getBgpId(), this.localPref.getParams()));
+		this.channel.writeAndFlush(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs()).setHoldTimer(this.localPref.getHoldTime()).setBgpIdentifier(
+				this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
 		this.state = State.OpenSent;
 
 		final Object lock = this;
@@ -128,16 +130,17 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 			this.state = State.Finished;
 			return;
 		case OpenSent:
-			if (msg instanceof BGPOpenMessage) {
-				final BGPOpenMessage openObj = (BGPOpenMessage) msg;
+			if (msg instanceof Open) {
+				final Open openObj = (Open) msg;
 
-				final List<BGPParameter> prefs = openObj.getOptParams();
+				final List<BgpParameters> prefs = openObj.getBgpParameters();
 				if (prefs != null && !prefs.isEmpty()) {
-					for (final BGPParameter param : openObj.getOptParams()) {
-						if (param instanceof CapabilityParameter) {
-							if (((CapabilityParameter) param).getCode() == MultiprotocolCapability.CODE) {
-								final MultiprotocolCapability cap = (MultiprotocolCapability) param;
-								if (LinkstateAddressFamily.class == cap.getAfi() && LinkstateSubsequentAddressFamily.class == cap.getSafi()) {
+					for (final BgpParameters param : openObj.getBgpParameters()) {
+						if (param instanceof CParameters) {
+							if (((CParameters) param) instanceof CMultiprotocol) {
+								final CParameters cap = (CParameters) param;
+								if (((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
+										&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
 									this.remotePref = openObj;
 									this.channel.writeAndFlush(new KeepaliveBuilder().build());
 									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);

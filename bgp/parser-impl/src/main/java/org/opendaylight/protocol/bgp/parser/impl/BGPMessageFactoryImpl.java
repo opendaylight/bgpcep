@@ -16,13 +16,13 @@ import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,9 +125,9 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 		/*
 		 * Update message is not supported
 		 */
-		if (msg instanceof BGPOpenMessage) {
+		if (msg instanceof Open) {
 			msgType = 1;
-			msgBody = BGPOpenMessageParser.put((BGPOpenMessage) msg);
+			msgBody = BGPOpenMessageParser.put((Open) msg);
 		} else if (msg instanceof Notify) {
 			msgType = 3;
 			msgBody = BGPNotificationMessageParser.put((Notify) msg);

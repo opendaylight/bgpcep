@@ -12,7 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -23,7 +23,7 @@ public class SpeakerSessionMock extends BGPSessionImpl {
 	private final BGPSessionListener client;
 
 	SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
-		super(new HashedWheelTimer(), listener, mock(Channel.class), new BGPOpenMessage(null, (short) 5, null, null));
+		super(new HashedWheelTimer(), listener, mock(Channel.class), new OpenBuilder().setHoldTimer(5).build());
 		this.client = client;
 	}
 

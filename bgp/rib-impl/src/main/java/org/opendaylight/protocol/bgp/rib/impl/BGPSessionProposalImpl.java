@@ -9,16 +9,17 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.List;
 
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
@@ -31,27 +32,28 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
 	private final short holdTimer;
 
-	private final AsNumber as;
+	private final int as;
 
-	private final IPv4Address bgpId;
+	private final Ipv4Address bgpId;
 
 	private final BGPSessionPreferences prefs;
 
-	public BGPSessionProposalImpl(final short holdTimer, final AsNumber as, final IPv4Address bgpId) {
+	public BGPSessionProposalImpl(final short holdTimer, final int as, final Ipv4Address bgpId) {
 		this.holdTimer = holdTimer;
 		this.as = as;
 		this.bgpId = bgpId;
 
-		final BGPTableType ipv4 = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-		final BGPTableType linkstate = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-		final List<BGPParameter> tlvs = Lists.newArrayList();
-		tlvs.add(new MultiprotocolCapability(ipv4));
-		tlvs.add(new MultiprotocolCapability(linkstate));
+		final List<BgpParameters> tlvs = Lists.newArrayList();
+		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
+				Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()));
+		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
+				LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).build()));
 		// final Map<BGPTableType, Boolean> tableTypes = Maps.newHashMap();
 		// tableTypes.put(ipv4, true);
 		// tableTypes.put(linkstate,true);
 		// tlvs.add(new GracefulCapability(true, 0, tableTypes));
-		tlvs.add(new AS4BytesCapability(as));
+		tlvs.add((BgpParameters) new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
+				new AsNumber((long) as)).build()));
 		this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, tlvs);
 	}
 
@@ -70,14 +72,14 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 	/**
 	 * @return the as
 	 */
-	public AsNumber getAs() {
+	public int getAs() {
 		return this.as;
 	}
 
 	/**
 	 * @return the bgpId
 	 */
-	public IPv4Address getBgpId() {
+	public Ipv4Address getBgpId() {
 		return this.bgpId;
 	}
 }

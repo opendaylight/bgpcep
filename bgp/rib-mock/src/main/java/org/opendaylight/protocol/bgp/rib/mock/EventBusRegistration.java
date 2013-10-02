@@ -12,14 +12,15 @@ import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Sets;
@@ -68,11 +69,13 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 	private static void sendMessage(final BGPSessionListener listener, final Notification message) {
 		if (BGPMock.connectionLostMagicMessage.equals(message)) {
 			listener.onSessionTerminated(null, null);
-		} else if (message instanceof BGPOpenMessage) {
+		} else if (message instanceof Open) {
 			final Set<BGPTableType> tts = Sets.newHashSet();
-			for (final BGPParameter param : ((BGPOpenMessage) message).getOptParams()) {
-				if (param instanceof MultiprotocolCapability) {
-					tts.add(((MultiprotocolCapability) param).getTableType());
+			for (final BgpParameters param : ((Open) message).getBgpParameters()) {
+				if (param instanceof CParameters) {
+					final CParameters p = (CParameters) param;
+					final BGPTableType type = new BGPTableType(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
+					tts.add(type);
 				}
 			}
 

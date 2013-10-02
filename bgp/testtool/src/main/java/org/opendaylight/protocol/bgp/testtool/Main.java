@@ -18,9 +18,9 @@ import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class Main {
 
 		final BGPSessionListener sessionListener = new TestingListener();
 
-		final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as, new IPv4Address(InetAddress.getByName("25.25.25.2")));
+		final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as.getValue().intValue(), new Ipv4Address("25.25.25.2"));
 
 		final BGPSessionPreferences proposal = prop.getProposal();
 

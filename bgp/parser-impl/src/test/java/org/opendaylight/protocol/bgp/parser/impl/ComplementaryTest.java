@@ -177,7 +177,7 @@ public class ComplementaryTest {
 			fail("Not expected exception: " + e1);
 		}
 		final CInet4SpecificExtendedCommunity iexpected = new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
-				new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new Ipv4Address("/12.51.2.5")).setLocalAdministrator(
+				new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new Ipv4Address("12.51.2.5")).setLocalAdministrator(
 						new byte[] { 21, 45 }).build()).build();
 		assertEquals(iexpected.getInet4SpecificExtendedCommunity().isTransitive(), sec.getInet4SpecificExtendedCommunity().isTransitive());
 		assertEquals(iexpected.getInet4SpecificExtendedCommunity().getGlobalAdministrator(),

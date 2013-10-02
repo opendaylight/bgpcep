@@ -30,11 +30,6 @@ import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.linkstate.RouteTag;
 import org.opendaylight.protocol.bgp.linkstate.RouterIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.AS4BytesCapability;
-import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
-import org.opendaylight.protocol.bgp.parser.parameter.GracefulCapability;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.concepts.TEMetric;
 import org.opendaylight.protocol.framework.DocumentedException;
@@ -46,6 +41,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -118,41 +122,44 @@ public class APITest {
 		final BGPTableType t = new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
 		final BGPTableType t1 = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-		final BGPParameter tlv1 = new MultiprotocolCapability(t);
+		final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
+				UnicastSubsequentAddressFamily.class).build();
+		final CParameters tlv1 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap).build();
 
-		final BGPParameter tlv2 = new MultiprotocolCapability(t1);
+		final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+				UnicastSubsequentAddressFamily.class).build();
+		final CParameters tlv2 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap1).build();
 
 		final Map<BGPTableType, Boolean> tt = Maps.newHashMap();
 		tt.put(t, true);
 		tt.put(t1, false);
 
-		final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
+		// final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
 
-		final BGPParameter tlv4 = new AS4BytesCapability(new AsNumber((long) 40));
+		final CParameters tlv4 = new CAs4BytesBuilder().setAs4BytesCapability(
+				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build();
 
-		assertFalse(((GracefulCapability) tlv3).isRestartFlag());
+		// assertFalse(((GracefulCapability) tlv3).isRestartFlag());
 
-		assertEquals(0, ((GracefulCapability) tlv3).getRestartTimerValue());
-
-		assertEquals(tlv1.getType(), tlv2.getType());
+		// assertEquals(0, ((GracefulCapability) tlv3).getRestartTimerValue());
 
 		assertFalse(tlv1.equals(tlv2));
 
-		assertNotSame(tlv1.hashCode(), tlv3.hashCode());
+		// assertNotSame(tlv1.hashCode(), tlv3.hashCode());
 
-		assertNotSame(tlv2.toString(), tlv3.toString());
+		// assertNotSame(tlv2.toString(), tlv3.toString());
 
-		assertEquals(((GracefulCapability) tlv3).getTableTypes(), tt);
+		// assertEquals(((GracefulCapability) tlv3).getTableTypes(), tt);
 
-		assertNotSame(((CapabilityParameter) tlv1).getCode(), ((CapabilityParameter) tlv3).getCode());
+		assertEquals(cap.getSafi(), cap1.getSafi());
 
-		assertEquals(((MultiprotocolCapability) tlv1).getSafi(), ((MultiprotocolCapability) tlv2).getSafi());
+		assertNotSame(cap.getAfi(), cap1.getAfi());
 
-		assertNotSame(((MultiprotocolCapability) tlv1).getAfi(), ((MultiprotocolCapability) tlv2).getAfi());
+		assertEquals(40, ((CAs4Bytes) tlv4).getAs4BytesCapability().getAsNumber().getValue().longValue());
 
-		assertEquals(40, ((AS4BytesCapability) tlv4).getASNumber().getValue().longValue());
-
-		assertEquals(new AS4BytesCapability(new AsNumber((long) 40)).toString(), tlv4.toString());
+		// FIXME: no generated toString
+		// assertEquals(new As4BytesBuilder().setCAs4Bytes(new CAs4BytesBuilder().setAsNumber(new AsNumber((long)
+		// 40)).build()).build().toString(), tlv4.toString());
 	}
 
 	@Test
@@ -181,13 +188,13 @@ public class APITest {
 
 	@Test
 	public void testBGPOpenMessage() {
-		final Notification msg = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
-		assertNull(((BGPOpenMessage) msg).getOptParams());
+		final Notification msg = new OpenBuilder().setMyAsNumber(58).setHoldTimer(5).build();
+		assertNull(((Open) msg).getBgpParameters());
 	}
 
 	@Test
 	public void testToString() {
-		final Notification o = new BGPOpenMessage(new AsNumber((long) 58), (short) 5, null, null);
+		final Notification o = new OpenBuilder().setMyAsNumber(58).setHoldTimer(5).build();
 		final Notification n = new NotifyBuilder().setErrorCode(BGPError.AS_PATH_MALFORMED.getCode()).setErrorSubcode(
 				BGPError.AS_PATH_MALFORMED.getSubcode()).build();
 		assertNotSame(o.toString(), n.toString());

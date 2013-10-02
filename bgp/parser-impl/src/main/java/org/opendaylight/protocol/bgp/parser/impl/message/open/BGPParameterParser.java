@@ -10,13 +10,13 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.parameter.CapabilityParameter;
-import org.opendaylight.protocol.util.ByteArray;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -41,22 +41,22 @@ public final class BGPParameterParser {
 	 * @param param BGP Parameter to be serialized
 	 * @return BGP Parameter converted to byte array
 	 */
-	public static byte[] put(final BGPParameter param) {
+	public static byte[] put(final BgpParameters param) {
 		if (param == null)
 			throw new IllegalArgumentException("BGP Parameter cannot be null");
 		logger.trace("Started serializing BGPParameter: {}", param);
 
 		byte[] value = null;
 
-		if (param instanceof CapabilityParameter) {
-			value = CapabilityParameterParser.put((CapabilityParameter) param);
+		if (param instanceof CParameters) {
+			value = CapabilityParameterParser.put((CParameters) param);
 		} else {
 			logger.debug("BGP Parameter not supported.");
 			return new byte[] {};
 		}
 
 		final byte[] bytes = new byte[TYPE_SIZE + LENGTH_SIZE + value.length];
-		System.arraycopy(ByteArray.intToBytes(param.getType()), 3, bytes, 0, TYPE_SIZE);
+		System.arraycopy(ByteArray.intToBytes(2), 3, bytes, 0, TYPE_SIZE);
 		System.arraycopy(ByteArray.intToBytes(value.length), 3, bytes, TYPE_SIZE, LENGTH_SIZE);
 		System.arraycopy(value, 0, bytes, TYPE_SIZE + LENGTH_SIZE, value.length);
 		logger.trace("BGP Parameter serialized to: {}", Arrays.toString(bytes));
@@ -70,17 +70,18 @@ public final class BGPParameterParser {
 	 * @return list of BGP Parameters
 	 * @throws BGPParsingException if the parsing was unsuccessful
 	 */
-	public static List<BGPParameter> parse(final byte[] bytes) throws BGPParsingException {
+	public static List<BgpParameters> parse(final byte[] bytes) throws BGPParsingException {
 		if (bytes == null || bytes.length == 0)
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		logger.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
-		final List<BGPParameter> params = Lists.newArrayList();
+		final List<BgpParameters> params = Lists.newArrayList();
 		while (byteOffset < bytes.length) {
 			final int paramType = UnsignedBytes.toInt(bytes[byteOffset++]);
 			final int paramLength = UnsignedBytes.toInt(bytes[byteOffset++]);
 			if (paramType == CAPABILITIES_OPT_PARAM_TYPE) {
-				final BGPParameter param = CapabilityParameterParser.parse(ByteArray.subByte(bytes, byteOffset, paramLength));
+				final BgpParameters param = (BgpParameters) CapabilityParameterParser.parse(ByteArray.subByte(bytes, byteOffset,
+						paramLength));
 				if (param != null)
 					params.add(param);
 			} else

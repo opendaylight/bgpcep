@@ -20,18 +20,19 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,17 +104,19 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private final Set<BGPTableType> tableTypes;
 
-	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final BGPOpenMessage remoteOpen) {
+	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
-		this.keepAlive = remoteOpen.getHoldTime() / 3;
+		this.keepAlive = remoteOpen.getHoldTimer() / 3;
 
 		final Set<BGPTableType> tts = Sets.newHashSet();
-		if (remoteOpen.getOptParams() != null) {
-			for (final BGPParameter param : remoteOpen.getOptParams()) {
-				if (param instanceof MultiprotocolCapability) {
-					tts.add(((MultiprotocolCapability) param).getTableType());
+		if (remoteOpen.getBgpParameters() != null) {
+			for (final BgpParameters param : remoteOpen.getBgpParameters()) {
+				if (param instanceof CParameters) {
+					final CParameters cp = (CParameters) param;
+					final BGPTableType tt = new BGPTableType(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
+					tts.add(tt);
 				}
 			}
 		}
@@ -121,14 +124,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.sync = new BGPSynchronization(this, this.listener, tts);
 		this.tableTypes = tts;
 
-		if (remoteOpen.getHoldTime() != 0) {
+		if (remoteOpen.getHoldTimer() != 0) {
 			this.stateTimer.newTimeout(new TimerTask() {
 
 				@Override
 				public void run(final Timeout timeout) throws Exception {
 					handleHoldTimer();
 				}
-			}, remoteOpen.getHoldTime(), TimeUnit.SECONDS);
+			}, remoteOpen.getHoldTimer(), TimeUnit.SECONDS);
 
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
@@ -159,7 +162,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		// Update last reception time
 		this.lastMessageReceivedAt = System.nanoTime();
 
-		if (msg instanceof BGPOpenMessage) {
+		if (msg instanceof Open) {
 			// Open messages should not be present here
 			this.terminate(BGPError.FSM_ERROR);
 		} else if (msg instanceof Notify) {

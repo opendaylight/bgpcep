@@ -23,14 +23,13 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
@@ -68,7 +67,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 			}
 		};
 
-		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber((long) 25), IPv4.FAMILY.addressForString("127.0.0.2")).getProposal();
+		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, 25, new Ipv4Address("127.0.0.2")).getProposal();
 
 		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 
