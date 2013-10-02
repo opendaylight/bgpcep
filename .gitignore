@@ -1,3 +1,7 @@
 target
 .classpath
 .settings
+.idea
+.metadata
+*.iml
+

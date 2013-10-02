@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<artifactId>netconf-parent</artifactId>
+		<groupId>org.opendaylight.bgpcep</groupId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>netconf-impl</artifactId>
+	<name>${project.artifactId}</name>
+	<packaging>bundle</packaging>
+
+
+	<dependencies>
+		<!-- compile dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-mapping-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>util</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>framework</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mockito-configuration</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>${config.groupId}</groupId>
+			<artifactId>yang-store-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${config.groupId}</groupId>
+			<artifactId>config-util</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-util</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-client</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-Activator>org.opendaylight.netconf.impl.osgi.NetconfImplActivator</Bundle-Activator>
+						<Private-Package>
+							org.opendaylight.netconf.impl.*,
+						</Private-Package>
+						<Import-Package>
+							com.google.common.base,
+							com.google.common.collect,
+							io.netty.channel,
+							io.netty.channel.socket,
+							io.netty.util,
+							io.netty.util.concurrent,
+							javax.management,
+							javax.net.ssl,
+							javax.xml.namespace,
+							javax.xml.xpath,
+							org.opendaylight.netconf.api,
+							org.opendaylight.netconf.api.mapping.jmx,
+							org.opendaylight.netconf.mapping.api,
+							org.opendaylight.netconf.util,
+							org.opendaylight.netconf.util.mapping,
+							org.opendaylight.netconf.util.osgi,
+							org.opendaylight.netconf.util.xml,
+							org.opendaylight.protocol.framework,
+							org.osgi.framework,
+							org.osgi.util.tracker,
+							org.slf4j,
+							org.w3c.dom,
+							org.xml.sax
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>

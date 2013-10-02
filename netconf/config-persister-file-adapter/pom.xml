@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<artifactId>netconf-parent</artifactId>
+		<groupId>org.opendaylight.bgpcep</groupId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<name>${project.artifactId}</name>
+	<packaging>bundle</packaging>
+	<artifactId>config-persister-file-adapter</artifactId>
+
+	<dependencies>
+		<!-- compile dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>config-persister-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+
+			<artifactId>mockito-configuration</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- workaround for creating version according to OSGi specification (major.minor.micro[.qualifier] -->
+			<plugin>
+				<groupId>org.codehaus.groovy.maven</groupId>
+				<artifactId>gmaven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<source>
+								System.setProperty("osgiversion", "${project.version}".replace('-', '.'))
+							</source>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Fragment-Host>${project.groupId}.config-persister-impl;bundle-version=${osgiversion}
+						</Fragment-Host>
+						<Provide-Capability>storage.adapter</Provide-Capability>
+						<Import-Package>
+							com.google.common.base,
+							com.google.common.collect,
+							com.google.common.io,
+							javax.xml.parsers,
+							org.apache.commons.lang,
+							org.opendaylight.controller.config.persist.api,
+							org.opendaylight.controller.config.persist.api.storage,
+							org.opendaylight.netconf.util.osgi,
+							org.opendaylight.netconf.util.xml,
+							org.slf4j,
+							org.w3c.dom,
+							org.xml.sax
+						</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

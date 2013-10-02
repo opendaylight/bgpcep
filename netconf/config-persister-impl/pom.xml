@@ -1,0 +1,97 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>netconf-parent</artifactId>
+		<groupId>org.opendaylight.bgpcep</groupId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>config-persister-impl</artifactId>
+	<name>${project.artifactId}</name>
+	<packaging>bundle</packaging>
+
+	<dependencies>
+		<!-- compile dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>config-persister-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-client</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>config-persister-file-adapter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+
+			<artifactId>mockito-configuration</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Bundle-Activator>org.opendaylight.controller.config.persist.osgi.ConfigPersisterActivator
+						</Bundle-Activator>
+						<Require-Capability>storage.adapter</Require-Capability>
+						<Import-Package>
+							com.google.common.base,
+							com.google.common.collect,
+							javax.management,
+							javax.xml.parsers,
+							org.opendaylight.controller.config.persist.api,
+							org.opendaylight.controller.config.persist.api.storage,
+							org.opendaylight.netconf.api,
+							org.opendaylight.netconf.api.mapping.jmx,
+							org.opendaylight.netconf.client,
+							org.opendaylight.netconf.util.osgi,
+							org.opendaylight.netconf.util.xml,
+							org.osgi.framework,
+							org.slf4j,
+							org.w3c.dom,
+							org.xml.sax
+						</Import-Package>
+						<Export-Package>
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
