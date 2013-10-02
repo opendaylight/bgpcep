@@ -13,56 +13,87 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.protocol.bgp.parser.AbstractBGPObjectState;
+import org.opendaylight.controller.sal.binding.api.data.DataModification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
-import org.opendaylight.protocol.concepts.Identifier;
+import com.google.common.base.Preconditions;
 
 @ThreadSafe
-class RIBTable<ID extends Identifier, STATE extends AbstractBGPObjectState<?>> {
-	private final Comparator<STATE> comparator = new BGPObjectComparator<>();
-	private final Map<ID, RIBEntry<ID, STATE>> entries = new HashMap<>();
+final class RIBTable<ID> {
+	private static final Comparator<PathAttributes> comparator = new BGPObjectComparator();
+	private final InstanceIdentifier basePath;
+	private final NlriHandler<ID> handler;
+	@GuardedBy("this")
+	private final Map<ID, RIBEntry> entries = new HashMap<>();
 
-	RIBTable() {
+	RIBTable(final Class<? extends LocRib> root, final TablesKey key) {
+		basePath = InstanceIdentifier.builder().node(root).node(Tables.class, key).toInstance();
+		handler = (NlriHandler<ID>) Preconditions.checkNotNull(NlriRegistryImpl.INSTANCE.getHandler(key.getAfi(), key.getSafi()));
 	}
 
-	synchronized void add(final Map<ID, STATE> transaction, final BGPPeer peer, final ID id, final STATE state) {
-		RIBEntry<ID, STATE> e = this.entries.get(id);
+	synchronized void clear(final DataModification trans, final BGPPeer peer) {
+		final Iterator<Map.Entry<ID, RIBEntry>> i = this.entries.entrySet().iterator();
+		while (i.hasNext()) {
+			final Map.Entry<ID, RIBEntry> e = i.next();
+
+			if (e.getValue().removeState(trans, peer)) {
+				i.remove();
+			}
+		}
+	}
+
+	synchronized Map<ID, PathAttributes> currentState() {
+		final Map<ID, PathAttributes> ret = new HashMap<>();
+
+		for (final Entry<ID, RIBEntry> e : this.entries.entrySet()) {
+			ret.put(e.getKey(), e.getValue().getState());
+		}
+
+		return ret;
+	}
+
+	private final InstanceIdentifier identifierForId(final ID id) {
+		final InstanceIdentifierBuilder builder = InstanceIdentifier.builder(basePath);
+
+		//			if (id instanceof Prefix<?>) {
+		//				trans.removeRuntimeData(ii);
+		//				trans.addRuntimeData();
+		//				this.routes.remove(r, peer,  id);
+		//			} else if (id instanceof LinkIdentifier) {
+		//				this.links.remove(l, peer, (LinkIdentifier) id);
+		//			} else if (id instanceof NodeIdentifier) {
+		//				this.nodes.remove(n, peer, (NodeIdentifier) id);
+		//			} else if (id instanceof PrefixIdentifier<?>) {
+		//				this.prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
+		//			} else {
+		//				throw new IllegalArgumentException("Unsupported identifier " + id.getClass());
+		//			}
+
+		return builder.toInstance();
+	}
+
+	synchronized void add(final DataModification trans, final BGPPeer peer, final ID id, final PathAttributes attrs) {
+		RIBEntry e = this.entries.get(id);
 		if (e == null) {
-			e = new RIBEntry<ID, STATE>(id, this.comparator);
+			e = new RIBEntry(identifierForId(id), comparator);
 			this.entries.put(id, e);
 		}
 
-		e.setState(transaction, peer, state);
+		e.setState(trans, peer, attrs);
 	}
 
-	synchronized Map<ID, STATE> clear(final BGPPeer peer) {
-		final Map<ID, STATE> transaction = new HashMap<>();
-
-		final Iterator<Map.Entry<ID, RIBEntry<ID, STATE>>> i = this.entries.entrySet().iterator();
-		while (i.hasNext()) {
-			final Map.Entry<ID, RIBEntry<ID, STATE>> e = i.next();
-
-			if (e.getValue().removeState(transaction, peer))
-				i.remove();
-		}
-
-		return transaction;
-	}
-
-	synchronized void remove(final Map<ID, STATE> transaction, final BGPPeer peer, final ID id) {
-		final RIBEntry<ID, STATE> e = this.entries.get(id);
-		if (e != null && e.removeState(transaction, peer))
+	synchronized void remove(final DataModification trans, final BGPPeer peer, final ID id) {
+		final RIBEntry e = this.entries.get(id);
+		if (e != null && e.removeState(trans, peer)) {
 			this.entries.remove(id);
-	}
-
-	synchronized Map<ID, STATE> currentState() {
-		final Map<ID, STATE> ret = new HashMap<>();
-
-		for (final Entry<ID, RIBEntry<ID, STATE>> e : this.entries.entrySet())
-			ret.put(e.getKey(), e.getValue().getState());
-
-		return ret;
+		}
 	}
 }
