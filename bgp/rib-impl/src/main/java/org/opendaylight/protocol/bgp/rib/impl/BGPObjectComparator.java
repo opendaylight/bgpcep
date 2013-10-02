@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.Comparator;
 
-import org.opendaylight.protocol.bgp.parser.AbstractBGPObjectState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 
 
 /**
@@ -19,15 +19,18 @@ import org.opendaylight.protocol.bgp.parser.AbstractBGPObjectState;
  * 
  * @param <T> Actual object state reference
  */
-final class BGPObjectComparator<T extends AbstractBGPObjectState<?>> implements Comparator<T> {
+final class BGPObjectComparator implements Comparator<PathAttributes> {
 	@Override
-	public int compare(final T o1, final T o2) {
-		if (o1 == o2)
+	public int compare(final PathAttributes o1, final PathAttributes o2) {
+		if (o1 == o2) {
 			return 0;
-		if (o1 == null)
+		}
+		if (o1 == null) {
 			return 1;
-		if (o2 == null)
+		}
+		if (o2 == null) {
 			return -1;
+		}
 
 		// FIXME: look at ASPath
 		// FIXME: look at everything else :-)
