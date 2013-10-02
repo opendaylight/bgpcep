@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa5d592f_19bbf773",
+        "filename": "bgp/parser-api/src/test/java/org/opendaylight/protocol/bgp/parser/APITest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T12:36:31Z",
+      "side": 1,
+      "message": "Add a BUG-100 reference?",
+      "revId": "3d4fa7d123e898cd0a53035c45b5e87f76dcadb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5d592f_f9af032a",
+        "filename": "bgp/parser-api/src/test/java/org/opendaylight/protocol/bgp/parser/APITest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T12:36:31Z",
+      "side": 1,
+      "message": "BUG reference?",
+      "revId": "3d4fa7d123e898cd0a53035c45b5e87f76dcadb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5d592f_d9ac3f38",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/CapabilityParameterParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T12:36:31Z",
+      "side": 1,
+      "message": "Add a FIXME?",
+      "revId": "3d4fa7d123e898cd0a53035c45b5e87f76dcadb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5d592f_99a6c752",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/CapabilityParameterParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T12:36:31Z",
+      "side": 1,
+      "message": "Add a FIXME?",
+      "revId": "3d4fa7d123e898cd0a53035c45b5e87f76dcadb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
