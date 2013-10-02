@@ -31,7 +31,7 @@
 
 		<yangtools.version>0.5.8-SNAPSHOT</yangtools.version>
 		<code.generator.version>0.5.8.1</code.generator.version>
-		<ietf.types.version>2010.09.24-SNAPSHOT</ietf.types.version>
+		<ietf.types.version>2010.09.24.1</ietf.types.version>
 	</properties>
 	<prerequisites>
 		<maven>3.0.4</maven>
@@ -190,11 +190,11 @@
 	</build>
 
 	<repositories>
-		<!--repository>
+		<repository>
 			<id>opendaylight-release</id>
 			<name>opendaylight-release</name>
 			<url>${nexusproxy}/repositories/opendaylight.release/</url>
-		</repository-->
+		</repository>
 		<repository>
 			<id>opendaylight-snapshot</id>
 			<name>opendaylight-snapshot</name>

@@ -30,8 +30,7 @@ public class ClusterIdentifierTest {
 
 		final ClusterIdentifier id1 = new ClusterIdentifier(new byte[] { 13, 14, 15, 16 });
 
-		// FIXME: BUG-80 : uncomment, once it's done
-		// assertEquals(id1.toString(), id.toString());
+		assertEquals(id1.toString(), id.toString());
 
 		assertArrayEquals(id1.getValue(), new byte[] { 13, 14, 15, 16 });
 	}

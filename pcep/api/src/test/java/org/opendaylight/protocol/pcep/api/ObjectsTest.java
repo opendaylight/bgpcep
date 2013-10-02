@@ -187,7 +187,7 @@ public class ObjectsTest {
 		final CompositePathObject m3 = new CompositePathObject(new PCEPExplicitRouteObject(subobjects, false));
 
 		// FIXME BUG-89
-		// assertEquals(m.toString(), m2.toString());
+		assertEquals(m.toString(), m2.toString());
 		// assertEquals(m.hashCode(), m2.hashCode());
 		// assertEquals(m.getCompositeAsList(), m2.getCompositeAsList());
 		// assertEquals(m.getBandwidth(), m2.getBandwidth());
