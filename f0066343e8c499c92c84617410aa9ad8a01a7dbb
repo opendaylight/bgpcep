@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa5d592f_dff41f89",
+        "filename": "netconf/config-persister-api/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T19:31:44Z",
+      "side": 1,
+      "message": "Is configuration persistence really needed here? I think it should be kept in the controller project.",
+      "revId": "f0066343e8c499c92c84617410aa9ad8a01a7dbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5d592f_1f03d774",
+        "filename": "netconf/config-persister-api/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T19:31:44Z",
+      "side": 1,
+      "message": "This is only needed for the .osgi package, which should be moved anyway.",
+      "revId": "f0066343e8c499c92c84617410aa9ad8a01a7dbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa5d592f_5f094f94",
+        "filename": "netconf/netconf-util/src/main/java/org/opendaylight/netconf/util/osgi/ConfigProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-10-02T19:31:44Z",
+      "side": 1,
+      "message": "Why is this class here? It has nothing to do with netconf, but rather with OSGi.",
+      "revId": "f0066343e8c499c92c84617410aa9ad8a01a7dbb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
