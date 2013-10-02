@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<parent>
+		<groupId>org.opendaylight.bgpcep</groupId>
+		<artifactId>protocol-parent</artifactId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	<prerequisites>
+		<maven>3.0.4</maven>
+	</prerequisites>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>netconf-parent</artifactId>
+	<description>Netconf-related components</description>
+	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+
+	<properties>
+		<framework.version>0.2.0-SNAPSHOT</framework.version>
+		<config.version>0.2.1-SNAPSHOT</config.version>
+		<config.groupId>org.opendaylight.controller</config.groupId>
+		<osgi.version>4.2.0</osgi.version>
+	</properties>
+
+	<modules>
+		<module>netconf-api</module>
+		<module>netconf-impl</module>
+		<module>config-netconf-connector</module>
+		<module>netconf-util</module>
+		<module>netconf-it</module>
+		<module>config-persister-api</module>
+		<module>config-persister-impl</module>
+		<module>config-persister-file-adapter</module>
+		<module>netconf-mapping-api</module>
+		<module>netconf-client</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>${osgi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>14.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.6</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>mockito-configuration</artifactId>
+				<version>${framework.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>framework</artifactId>
+				<version>${framework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>util</artifactId>
+				<version>${framework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>config-api</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>config-manager</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>yang-jmx-generator</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>config-util</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>yang-store-api</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>yang-store-impl</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>${config.groupId}</groupId>
+				<artifactId>yang-test</artifactId>
+				<version>${config.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${maven.bundle.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+						</instructions>
+					</configuration>
+				</plugin>
+			</plugins>
+
+		</pluginManagement>
+	</build>
+
+
+</project>

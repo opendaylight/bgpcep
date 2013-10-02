@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>netconf-parent</artifactId>
+		<groupId>org.opendaylight.bgpcep</groupId>
+		<version>0.2.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>config-persister-api</artifactId>
+	<name>${project.artifactId}</name>
+	<packaging>bundle</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>netconf-util</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Import-Package>
+							com.google.common.base,
+							org.opendaylight.netconf.util.osgi,
+							org.w3c.dom
+						</Import-Package>
+						<Export-Package>
+							org.opendaylight.controller.config.persist.api,
+							org.opendaylight.controller.config.persist.api.storage,
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
