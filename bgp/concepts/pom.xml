@@ -107,8 +107,6 @@
 						<Import-Package>
 							com.google.common.base,
 							org.opendaylight.protocol.concepts,
-							com.google.guava,
-							org.opendaylight.protocol.util
 						</Import-Package>
 					</instructions>
 				</configuration>

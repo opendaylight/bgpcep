@@ -106,7 +106,6 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Import-Package>
-							org.opendaylight.protocol.concepts,
                             org.opendaylight.protocol.util,
                             com.google.common.base,
                             com.google.common.collect,

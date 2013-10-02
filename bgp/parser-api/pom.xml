@@ -106,20 +106,20 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Import-Package>
-							org.opendaylight.protocol.bgp.concepts, 
+							com.google.common.base,
+							com.google.common.collect,
+							com.google.common.primitives,
+							org.opendaylight.protocol.bgp.concepts,
+							org.opendaylight.protocol.bgp.linkstate,
+							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.concepts, 
 							org.opendaylight.protocol.util,
-							com.google.common.primitives, 
-							com.google.common.collect, 
-							org.opendaylight.protocol.bgp.linkstate,
-							com.google.common.base,
-							com.google.guava,
 							org.slf4j,
 						</Import-Package>
 						<Export-Package>
-							org.opendaylight.protocol.bgp.parser,
+                            org.opendaylight.protocol.bgp.parser,
+                            org.opendaylight.protocol.bgp.parser.message,
 						</Export-Package>
 					</instructions>
 				</configuration>
