@@ -23,6 +23,7 @@
         <module>parser-impl</module>
         <module>parser-mock</module>
         <module>rib-api</module>
+        <module>rib-spi</module>
         <module>rib-impl</module>
         <module>testtool</module>
         <module>rib-mock</module>
