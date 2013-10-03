@@ -13,7 +13,9 @@ import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +28,9 @@ import com.google.common.base.Preconditions;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public final class BGPPeer implements BGPSessionListener {
+public final class BGPPeer implements BGPSessionListener, Peer {
 	private static final Logger logger = LoggerFactory.getLogger(BGPPeer.class);
-	private Set<BGPTableType> tables;
+	private Set<TablesKey> tables;
 	private final String name;
 	private final RIBImpl rib;
 
@@ -39,9 +41,8 @@ public final class BGPPeer implements BGPSessionListener {
 
 	@Override
 	public void onMessage(final BGPSession session, final Notification message) {
-		if (message instanceof BGPUpdateMessage) {
-			final BGPUpdateMessage m = (BGPUpdateMessage) message;
-			this.rib.updateTables(this, m.getAddedObjects(), m.getRemovedObjects());
+		if (message instanceof Update) {
+			this.rib.updateTables(this, (Update)message);
 		} else {
 			logger.info("Ignoring unhandled message class " + message.getClass());
 		}
@@ -50,14 +51,20 @@ public final class BGPPeer implements BGPSessionListener {
 	@Override
 	public void onSessionUp(final BGPSession session) {
 		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
+
+		for (BGPTableType t : session.getAdvertisedTableTypes()) {
+			tables.add(new TablesKey(t.getAddressFamily(), t.getSubsequentAddressFamily()));
+		}
 	}
 
 	@Override
 	public void onSessionDown(final BGPSession session, final Exception e) {
 		// FIXME: support graceful restart
-		for (final BGPTableType t : this.tables) {
-			this.rib.clearTable(this, t);
+		for (final TablesKey key : this.tables) {
+			this.rib.clearTable(this, key);
 		}
+
+		tables.clear();
 	}
 
 	@Override
