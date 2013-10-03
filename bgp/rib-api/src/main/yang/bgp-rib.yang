@@ -29,10 +29,6 @@ module bgp-rib {
         }
 
 	grouping route {
-		container next-hop {
-			uses bgp-t:next-hop;
-		}
-
 		container attributes {
 			uses bgp-msg:path-attributes;
 		}
@@ -63,29 +59,29 @@ module bgp-rib {
 					when "../../afi = ipv6";
 
 					leaf prefix {
-						type inet:ipv4-prefix;
+						type inet:ipv6-prefix;
 					}
 					key prefix;
 
 					uses route;
 				}
-				case link-state {
-					list link-state-links {
+				case linkstate-routes {
+					list linkstate-links {
 						// FIXME: fill this out
 
 						uses route;
 					}
-					list link-state-nodes {
+					list linkstate-nodes {
 						// FIXME: fill this out
 
 						uses route;
 					}
-					list link-state-ipv4-prefixes {
+					list linkstate-ipv4-prefixes {
 						// FIXME: fill this out
 
 						uses route;
 					}
-					list link-state-ipv6-prefixes {
+					list linkstate-ipv6-prefixes {
 						// FIXME: fill this out
 
 						uses route;
