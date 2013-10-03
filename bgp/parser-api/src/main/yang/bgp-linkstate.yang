@@ -245,55 +245,57 @@ module bgp-linkstate {
 	}
 
 	grouping linkstate-destination {
-		leaf nlri-type {
-			type nlri-type;
-		}
-		leaf distinguisher {
-			type route-distinguisher;
-		}
-		container ls-nlri {
-			leaf protocol-id {
-				type protocol-id;
+		container linkstate {
+			leaf nlri-type {
+				type nlri-type;
 			}
-			leaf identifier {
-				type identifier;
+			leaf distinguisher {
+				type route-distinguisher;
 			}
-			container local-node-descriptors {
-				uses node-identifier;
-			}
-			container remote-node-descriptors {
-				when "../nlri-type = link";
-				uses node-identifier;
-			}
-			container Link-Descriptors {
-				when "../nlri-type = link";
-				leaf ipv4-interface-address {
-					type ipv4-interface-identifier;
+			container ls-nlri {
+				leaf protocol-id {
+					type protocol-id;
 				}
-				leaf ipv6-interface-address {
-					type ipv6-interface-identifier;
+				leaf identifier {
+					type identifier;
 				}
-				leaf ipv4-neighbor-address {
-					type ipv4-interface-identifier;
+				container local-node-descriptors {
+					uses node-identifier;
 				}
-				leaf ipv6-neighbor-address {
-					type ipv6-interface-identifier;
+				container remote-node-descriptors {
+					when "../nlri-type = link";
+					uses node-identifier;
 				}
-				leaf multi-topology-id {
-					type topology-identifier;
+				container Link-Descriptors {
+					when "../nlri-type = link";
+					leaf ipv4-interface-address {
+						type ipv4-interface-identifier;
+					}
+					leaf ipv6-interface-address {
+						type ipv6-interface-identifier;
+					}
+					leaf ipv4-neighbor-address {
+						type ipv4-interface-identifier;
+					}
+					leaf ipv6-neighbor-address {
+						type ipv6-interface-identifier;
+					}
+					leaf multi-topology-id {
+						type topology-identifier;
+					}
 				}
-			}
-			container prefix-descriptors {
-				when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-				leaf multi-topology-id {
-					type topology-identifier;
-				}
-				leaf ospf-route-type {
-					when "../protocol-id = 'ospf'";
-					type ospf-route-type;
-				}
-				leaf ip-reachability-information {
-					type inet:ip-prefix;
+				container prefix-descriptors {
+					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+					leaf multi-topology-id {
+						type topology-identifier;
+					}
+					leaf ospf-route-type {
+						when "../protocol-id = 'ospf'";
+						type ospf-route-type;
+					}
+					leaf ip-reachability-information {
+						type inet:ip-prefix;
+					}
 				}
 			}
 		}
