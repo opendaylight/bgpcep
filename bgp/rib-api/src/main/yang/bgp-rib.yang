@@ -29,10 +29,6 @@ module bgp-rib {
         }
 
 	grouping route {
-		container next-hop {
-			uses bgp-t:next-hop;
-		}
-
 		container attributes {
 			uses bgp-msg:path-attributes;
 		}
@@ -63,7 +59,7 @@ module bgp-rib {
 					when "../../afi = ipv6";
 
 					leaf prefix {
-						type inet:ipv4-prefix;
+						type inet:ipv6-prefix;
 					}
 					key prefix;
 
