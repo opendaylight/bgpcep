@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.rib.mock;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTableType;
@@ -31,11 +29,8 @@ import com.google.common.eventbus.Subscribe;
  * This class has @Subscribe annotated methods which receive events from {@link EventBus} . Events are produced by
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
-class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
+class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
 	private final EventBus eventBus;
-	private final BGPSessionListener listener;
-	@GuardedBy("this")
-	private boolean closed = false;
 
 	public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
 			final List<Notification> allPreviousMessages) {
@@ -45,8 +40,8 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 	}
 
 	private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<Notification> allPreviousMessages) {
+		super(listener);
 		this.eventBus = eventBus;
-		this.listener = listener;
 		for (final Notification message : allPreviousMessages) {
 			sendMessage(listener, message);
 		}
@@ -58,12 +53,8 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 	}
 
 	@Override
-	public synchronized void close() {
-		if (this.closed) {
-			return;
-		}
+	public synchronized void removeRegistration() {
 		this.eventBus.unregister(this);
-		this.closed = true;
 	}
 
 	private static void sendMessage(final BGPSessionListener listener, final Notification message) {
@@ -97,10 +88,5 @@ class EventBusRegistration implements ListenerRegistration<BGPSessionListener> {
 		} else {
 			listener.onMessage(null, message);
 		}
-	}
-
-	@Override
-	public BGPSessionListener getListener() {
-		return this.listener;
 	}
 }

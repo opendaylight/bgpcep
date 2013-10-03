@@ -28,25 +28,17 @@ public class BGPImpl implements BGP, Closeable {
 	/**
 	 * Wrapper class to give listener a close method.
 	 */
-	public class BGPListenerRegistration implements ListenerRegistration<BGPSessionListener> {
-
-		private final BGPSessionListener listener;
-
+	public class BGPListenerRegistration extends ListenerRegistration<BGPSessionListener> {
 		private final BGPSession session;
 
 		public BGPListenerRegistration(final BGPSessionListener l, final BGPSession session) {
-			this.listener = l;
+			super(l);
 			this.session = session;
 		}
 
 		@Override
-		public void close() {
+		public void removeRegistration() {
 			this.session.close();
-		}
-
-		@Override
-		public BGPSessionListener getListener() {
-			return this.listener;
 		}
 	}
 

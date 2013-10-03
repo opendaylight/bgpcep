@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import java.io.Closeable;
 import java.util.EventListener;
+
+import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.base.Preconditions;
 
 /**
  * An interface representing a listener registration. Objects offering
@@ -18,15 +21,21 @@ import java.util.EventListener;
  *
  * @param <T> template reference to associated EventListener implementation
  */
-public interface ListenerRegistration<T extends EventListener> extends Closeable {
+@ThreadSafe
+public abstract class ListenerRegistration<T extends EventListener> extends AbstractRegistration {
+	protected final T listener;
+
+	protected ListenerRegistration(final T listener) {
+		this.listener = Preconditions.checkNotNull(listener);
+	}
+
 	/**
 	 * Access the listener object associated with this registration.
 	 *
 	 * @return Associated listener.
 	 */
-	public T getListener();
-
-	@Override
-	public void close();
+	public final T getListener() {
+		return listener;
+	}
 }
 
