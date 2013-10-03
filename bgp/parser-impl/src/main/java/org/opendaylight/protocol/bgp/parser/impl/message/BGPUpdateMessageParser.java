@@ -9,34 +9,23 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateEventBuilder;
-import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
-import org.opendaylight.protocol.bgp.parser.impl.PathAttribute;
-import org.opendaylight.protocol.bgp.parser.impl.PathAttribute.TypeCode;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeParser;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.NlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.WithdrawnRoutesBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * LENGTH fields, that denote the length of the fields with variable length, have fixed SIZE.
@@ -66,7 +55,7 @@ public class BGPUpdateMessageParser {
 
 	// Getters & setters --------------------------------------------------
 
-	public static BGPUpdateEvent parse(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
+	public static Update parse(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
@@ -77,99 +66,41 @@ public class BGPUpdateMessageParser {
 		final int withdrawnRoutesLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, WITHDRAWN_ROUTES_LENGTH_SIZE));
 		byteOffset += WITHDRAWN_ROUTES_LENGTH_SIZE;
 
-		final BGPUpdateEventBuilder eventBuilder = new BGPUpdateEventBuilder();
-		eventBuilder.setWithdrawnRoutesLength(withdrawnRoutesLength);
+		final UpdateBuilder eventBuilder = new UpdateBuilder();
 
-		Set<Prefix<IPv4Address>> withdrawnRoutes;
 		if (withdrawnRoutesLength > 0) {
-			withdrawnRoutes = IPv4.FAMILY.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, withdrawnRoutesLength));
+			final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, withdrawnRoutesLength));
 			byteOffset += withdrawnRoutesLength;
-		} else {
-			withdrawnRoutes = Collections.emptySet();
+			eventBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
 		}
-		eventBuilder.setWithdrawnRoutes(withdrawnRoutes);
 
 		final int totalPathAttrLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TOTAL_PATH_ATTR_LENGTH_SIZE));
 		byteOffset += TOTAL_PATH_ATTR_LENGTH_SIZE;
-		eventBuilder.setTotalPathAttrLength(totalPathAttrLength);
 
 		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactoryImpl.COMMON_HEADER_LENGTH > msgLength) {
 			throw new BGPDocumentedException("Message length inconsistent with withdrawn router length.", BGPError.MALFORMED_ATTR_LIST);
 		}
 
 		if (withdrawnRoutesLength == 0 && totalPathAttrLength == 0) {
-			final BGPUpdateSynchronized event = new BGPUpdateSynchronized() {
-				@Override
-				public BGPTableType getTableType() {
-					return new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-				}
-			};
-			return event;
+			return eventBuilder.build();
 		}
-
-		List<PathAttribute> pathAttributes;
-		if (totalPathAttrLength > 0) {
-			pathAttributes = parsePathAttributes(ByteArray.subByte(bytes, byteOffset, totalPathAttrLength));
-			byteOffset += totalPathAttrLength;
-			if (pathAttributes.get(0).getType() == TypeCode.MP_UNREACH_NLRI && totalPathAttrLength == 6) {
-				if (pathAttributes.get(0).getValue() instanceof IPv6MP) {
-					final BGPUpdateEvent event = new BGPUpdateSynchronized() {
-						@Override
-						public BGPTableType getTableType() {
-							return new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-						}
-					};
-					return event;
-				} else if (pathAttributes.get(0).getValue() == null) {
-					final BGPUpdateSynchronized event = new BGPUpdateSynchronized() {
-						@Override
-						public BGPTableType getTableType() {
-							return new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
-						}
-					};
-					return event;
-				}
-			}
-		} else {
-			pathAttributes = Collections.emptyList();
-		}
-		eventBuilder.setPathAttributes(pathAttributes);
-
-		final Set<Prefix<IPv4Address>> nlri = IPv4.FAMILY.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset));
-		eventBuilder.setNlri(nlri);
 
 		try {
-			logger.trace("Update message was parsed.");
-			return eventBuilder.buildEvent();
-		} catch (final BGPParsingException e) {
-			throw new BGPDocumentedException("Parsing unsuccessful: {}" + e.getMessage(), BGPError.MALFORMED_ATTR_LIST);
-		}
-	}
-
-	/**
-	 * Parse different Path Attributes from given bytes.
-	 * 
-	 * @param bytes byte array to be parsed
-	 * @return list of Path Attributes
-	 * @throws BGPParsingException
-	 */
-	private static List<PathAttribute> parsePathAttributes(byte[] bytes) throws BGPDocumentedException {
-		if (bytes.length == 0) {
-			return Collections.emptyList();
-		}
-		final List<PathAttribute> list = Lists.newArrayList();
-		while (bytes.length != 0) {
-			PathAttribute attr;
-			try {
-				attr = PathAttributeParser.parseAttribute(bytes);
-				bytes = ByteArray.cutBytes(bytes,
-						PathAttribute.ATTR_FLAGS_SIZE + PathAttribute.ATTR_TYPE_CODE_SIZE + attr.getAttrLengthSize() + attr.getLength());
-				list.add(attr);
-			} catch (final BGPParsingException e) {
-				logger.warn("Could not parse BGP attributes: {}", e.getMessage(), e);
-				throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST);
+			if (totalPathAttrLength > 0) {
+				final PathAttributes pathAttributes = PathAttributeParser.parseAttribute(ByteArray.subByte(bytes, byteOffset,
+						totalPathAttrLength));
+				byteOffset += totalPathAttrLength;
+				eventBuilder.setPathAttributes(pathAttributes);
 			}
+		} catch (final BGPParsingException e) {
+			logger.warn("Could not parse BGP attributes: {}", e.getMessage(), e);
+			throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST);
 		}
-		return list;
+
+		final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset));
+		eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
+
+		logger.trace("Update message was parsed.");
+		return eventBuilder.build();
 	}
 }

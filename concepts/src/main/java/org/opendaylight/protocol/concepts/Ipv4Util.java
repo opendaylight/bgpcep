@@ -10,8 +10,16 @@ package org.opendaylight.protocol.concepts;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
 
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Util class for creating generated Ipv4Address.
@@ -34,5 +42,26 @@ public final class Ipv4Util {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 		return a.getAddress();
+	}
+
+	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
+		Preconditions.checkArgument(length <= bytes.length * 8);
+		return new Ipv4Prefix(addressForBytes(bytes).toString() + "/" + length);
+	}
+
+	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
+		if (bytes.length == 0)
+			return Collections.emptyList();
+
+		final List<Ipv4Prefix> list = Lists.newArrayList();
+		int byteOffset = 0;
+		while (byteOffset < bytes.length) {
+			final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
+			byteOffset += 1;
+			final int byteCount = (bitLength % 8 != 0) ? (bitLength / 8) + 1 : bitLength / 8;
+			list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
+			byteOffset += byteCount;
+		}
+		return list;
 	}
 }

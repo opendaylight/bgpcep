@@ -77,23 +77,7 @@ module bgp-multiprotocol {
 			uses bgp-table-type;
 
 			container withdrawn-routes {
-
-		// FIXME: 'uses destination';
-		choice nlri {
-			case ipv4 {
-				when "../../afi = ipv4";
-				leaf-list ipv4-prefixes {
-					type inet:ipv4-prefix;
-				}
-			}
-			case ipv6 {
-				when "../../afi = ipv6";
-				leaf-list ipv6-prefixes {
-					type inet:ipv6-prefix;
-				}
-			}
-		}
-
+				uses destination;
 			}
 		}
 	}
@@ -106,27 +90,7 @@ module bgp-multiprotocol {
 			uses bgp-t:next-hop;
 
 			container advertized-routes {
-
-		// FIXME: 'uses destination';
-		choice nlri {
-			case ipv4 {
-				when "../../afi = ipv4";
-				leaf-list ipv4-prefixes {
-					type inet:ipv4-prefix;
-				}
-			}
-			case ipv6 {
-				when "../../afi = ipv6";
-				leaf-list ipv6-prefixes {
-					type inet:ipv6-prefix;
-				}
-			}
-		}
-
-			}
-
-			leaf hop {
-				type inet:ip-address;
+				uses destination;
 			}
 		}
 	}

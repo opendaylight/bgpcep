@@ -18,11 +18,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
 
 public class BGPUpdateMessageParserTest {
 
@@ -34,7 +34,7 @@ public class BGPUpdateMessageParserTest {
 		final byte[] body = ByteArray.cutBytes(result.get(0), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(result.get(0), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final BGPUpdateEvent event = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update event = BGPUpdateMessageParser.parse(body, messageLength);
 		final BGPUpdateMessage updateMessage = (BGPUpdateMessage) event;
 		final Set<BGPObject> addedObjects = updateMessage.getAddedObjects();
 		assertEquals(14, addedObjects.size());

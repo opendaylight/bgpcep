@@ -15,26 +15,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.linkstate.IPv4InterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISLANIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.ISISRouterIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.InterfaceIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.LinkAnchor;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifierFactory;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
-import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunity;
@@ -52,9 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.opaque.extended.community.OpaqueExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.origin.extended.community.RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.target.extended.community.RouteTargetExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
-
-import com.google.common.collect.Sets;
 
 public class ComplementaryTest {
 
@@ -70,32 +55,6 @@ public class ComplementaryTest {
 		assertNotSame(ipv4.getAsNumber(), ipv4i.getAsNumber());
 
 		assertEquals(ipv4.getNetworkAddress(), ipv4i.getNetworkAddress());
-	}
-
-	@Test
-	public void testBGPLinkMP() {
-		final NodeIdentifier localnodeid = new NodeIdentifier(new AsNumber((long) 25600), null, null, new ISISRouterIdentifier(new IsoSystemIdentifier(new byte[] {
-				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 })));
-		final NodeIdentifier remotenodeid = NodeIdentifierFactory.localIdentifier(new ISISLANIdentifier(new IsoSystemIdentifier(new byte[] {
-				0x22, 0x22, 0x22, 0x22, 0x22, 0x22 }), (short) 1));
-
-		final InterfaceIdentifier ifaceid = new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("10.1.1.1"));
-
-		final LinkIdentifier l = new LinkIdentifier(null, new LinkAnchor(localnodeid, ifaceid), new LinkAnchor(remotenodeid, ifaceid));
-
-		final Set<LinkIdentifier> links = Sets.newHashSet(l);
-
-		final BGPLinkMP link = new BGPLinkMP(0, ProtocolId.Direct, true, links);
-
-		final BGPLinkMP link1 = new BGPLinkMP(0, ProtocolId.Direct, true, Collections.<LinkIdentifier> emptySet());
-
-		assertNotSame(link.hashCode(), link1.hashCode());
-
-		assertEquals(link, new BGPLinkMP(0, ProtocolId.Direct, true, links));
-
-		assertEquals(link.hashCode(), (new BGPLinkMP(0, ProtocolId.Direct, true, links)).hashCode());
-
-		assertNotSame(link.toString(), link1.toString());
 	}
 
 	@Test
