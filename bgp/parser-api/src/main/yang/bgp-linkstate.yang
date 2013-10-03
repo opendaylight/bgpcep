@@ -217,26 +217,26 @@ module bgp-linkstate {
 		leaf domain-id {
 			type domain-identifier;
 		}
-		choice router-identifier {
-			case isis-node {
+		choice c-router-identifier {
+			case c-isis-node {
 				container isis-node {
 					uses isis-router-identifier;
 				}
 			}
 
-			case isis-pseudonode {
+			case c-isis-pseudonode {
 				container isis-pseudonode {
 					uses isis-lan-identifier;
 				}
 			}
 
-			case ospf-node {
+			case c-ospf-node {
 				container ospf-node {
 					uses ospf-router-identifier;
 				}
 			}
 
-			case ospf-pseudonode {
+			case c-ospf-pseudonode {
 				container ospf-pseudonode {
 					uses ospf-v3-lan-identifier;
 				}
@@ -244,58 +244,71 @@ module bgp-linkstate {
 		}
 	}
 
+	grouping link-identifiers {
+		reference "http://tools.ietf.org/html/rfc5307";
+		leaf link-local-identifier {
+			type binary {
+				length "4";
+			}
+		}
+		leaf link-remote-identifier {
+			type binary {
+				length "4";
+			}
+		}
+	}
+
 	grouping linkstate-destination {
-		container linkstate {
+		container c-linkstate-destination {
 			leaf nlri-type {
 				type nlri-type;
 			}
 			leaf distinguisher {
 				type route-distinguisher;
 			}
-			container ls-nlri {
-				leaf protocol-id {
-					type protocol-id;
+			leaf protocol-id {
+				type protocol-id;
+			}
+			leaf identifier {
+				type identifier;
+			}
+			container local-node-descriptors {
+				uses node-identifier;
+			}
+			container remote-node-descriptors {
+				when "../nlri-type = link";
+				uses node-identifier;
+			}
+			container link-descriptors {
+				when "../nlri-type = link";
+				uses link-identifiers;
+				leaf ipv4-interface-address {
+					type ipv4-interface-identifier;
 				}
-				leaf identifier {
-					type identifier;
+				leaf ipv6-interface-address {
+					type ipv6-interface-identifier;
 				}
-				container local-node-descriptors {
-					uses node-identifier;
+				leaf ipv4-neighbor-address {
+					type ipv4-interface-identifier;
 				}
-				container remote-node-descriptors {
-					when "../nlri-type = link";
-					uses node-identifier;
+				leaf ipv6-neighbor-address {
+					type ipv6-interface-identifier;
 				}
-				container Link-Descriptors {
-					when "../nlri-type = link";
-					leaf ipv4-interface-address {
-						type ipv4-interface-identifier;
-					}
-					leaf ipv6-interface-address {
-						type ipv6-interface-identifier;
-					}
-					leaf ipv4-neighbor-address {
-						type ipv4-interface-identifier;
-					}
-					leaf ipv6-neighbor-address {
-						type ipv6-interface-identifier;
-					}
-					leaf multi-topology-id {
-						type topology-identifier;
-					}
+				leaf multi-topology-id {
+					type topology-identifier;
 				}
-				container prefix-descriptors {
-					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-					leaf multi-topology-id {
-						type topology-identifier;
-					}
-					leaf ospf-route-type {
-						when "../protocol-id = 'ospf'";
-						type ospf-route-type;
-					}
-					leaf ip-reachability-information {
-						type inet:ip-prefix;
-					}
+			}
+			container prefix-descriptors {
+				when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+				leaf multi-topology-id {
+					type topology-identifier;
+				}
+				leaf ospf-route-type {
+					when "../protocol-id = 'ospf'";
+					type ospf-route-type;
+				}
+				leaf ip-reachability-information {
+					type inet:ip-prefix;
 				}
 			}
 		}
@@ -350,7 +363,7 @@ module bgp-linkstate {
 
 	grouping node-state {
 		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
-		leaf topology-identifier {
+		leaf-list topology-identifier {
 			type topology-identifier;
 		}
 		leaf node-flags {
@@ -444,8 +457,11 @@ module bgp-linkstate {
 		leaf mpls-protocol {
 			type mpls-protocol-mask;
 		}
+		leaf te-metric {
+			type nps-c:te-metric;
+		}
 		leaf metric {
-			type nps-c:igp-metric;
+			type nps-c:metric;
 		}
 		leaf-list shared-risk-link-groups {
 			type shared-risk-link-group;
@@ -507,7 +523,7 @@ module bgp-linkstate {
 			type extended-route-tag;
 		}
 		leaf prefix-metric {
-			type nps-c:metric;
+			type nps-c:igp-metric;
 		}
 		leaf ospf-forwarding-address {
 			type inet:ipv4-address;

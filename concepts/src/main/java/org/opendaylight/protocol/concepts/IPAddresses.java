@@ -15,12 +15,6 @@ import java.net.InetAddress;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.opendaylight.protocol.concepts.AddressFamily;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
-import org.opendaylight.protocol.concepts.NetworkAddress;
 import com.google.common.net.InetAddresses;
 
 /**
@@ -38,15 +32,15 @@ public final class IPAddresses {
 		FAMILIES.add(IPv6.FAMILY);
 	}
 
-	private IPAddresses() { }
+	private IPAddresses() {
+	}
 
 	/**
 	 * Instantiate a network address from its string representation.
-	 *
+	 * 
 	 * @param string string representation
 	 * @return network address parsed from the string
-	 * @throws IllegalArgumentException if the string failed to parse
-	 *         into any of the supported classes.
+	 * @throws IllegalArgumentException if the string failed to parse into any of the supported classes.
 	 */
 	public static NetworkAddress<?> parseNetworkAddress(final String string) {
 		final InetAddress a = InetAddresses.forString(string);
@@ -57,7 +51,7 @@ public final class IPAddresses {
 		throw new IllegalArgumentException("Unsupported network address");
 	}
 
-	public static NetworkAddress<?> createNetworkAddress(InetAddress inetAddress) {
+	public static NetworkAddress<?> createNetworkAddress(final InetAddress inetAddress) {
 		checkNotNull(inetAddress);
 		if (inetAddress instanceof Inet4Address) {
 			return new IPv4Address(inetAddress);

@@ -8,77 +8,16 @@
 
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import org.omg.CORBA.TypeCode;
 
 /**
- * Path Attribute Object defines attributes to routes that are advertised
- * through BGP. Each Attribute is a triplet <type, length, value>.
- *
+ * Path Attribute Object defines attributes to routes that are advertised through BGP. Each Attribute is a triplet
+ * <type, length, value>.
+ * 
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4</a>
- *
+ * 
  */
 public final class PathAttribute {
-
-	/**
-	 * Currently known path attributes. Although AS4_PATH and AS4_AGGREGATOR
-	 * will not be used, as this is a NEW BGP Speaker, they must be recognizable
-	 * and an Update message that contains them, must be parsed properly.
-	 *
-	 * Added LINK_STATE to conform: <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-02#section-3.3">LINK_STATE Attribute</a>
-	 * Added COMMUNITIES from: <a href="http://tools.ietf.org/html/rfc1997">COMMUNITIES Attribute</a>
-	 * Added ORIGINATION_ID and CLUSTER_LIST from: <a href="http://tools.ietf.org/html/rfc4456">BGP Route Reflection</a>
-	 */
-	public enum TypeCode {
-		ORIGIN, AS_PATH, NEXT_HOP, MULTI_EXIT_DISC, LOCAL_PREF, AGGREGATOR,
-		ATOMIC_AGGREGATE, MP_REACH_NLRI, MP_UNREACH_NLRI, EXTENDED_COMMUNITIES,
-		AS4_PATH, AS4_AGGREGATOR, LINK_STATE, COMMUNITIES, ORIGINATOR_ID,
-		CLUSTER_LIST;
-
-		/**
-		 * Parse typecode from int to enum.
-		 *
-		 * @param type
-		 *            int parsed from byte array
-		 * @return enum TypeCode
-		 */
-		public static TypeCode parseType(final int type) {
-			switch (type) {
-			case 1:
-				return ORIGIN;
-			case 2:
-				return AS_PATH;
-			case 3:
-				return NEXT_HOP;
-			case 4:
-				return MULTI_EXIT_DISC;
-			case 5:
-				return LOCAL_PREF;
-			case 6:
-				return ATOMIC_AGGREGATE;
-			case 7:
-				return AGGREGATOR;
-			case 8:
-				return COMMUNITIES;
-			case 9:
-				return ORIGINATOR_ID;
-			case 10:
-				return CLUSTER_LIST;
-			case 14:
-				return MP_REACH_NLRI;
-			case 15:
-				return MP_UNREACH_NLRI;
-			case 16:
-				return EXTENDED_COMMUNITIES;
-			case 17:
-				return AS4_PATH;
-			case 18:
-				return AS4_AGGREGATOR;
-			case 99:	//TODO: to actual value, after it is approved by IANA
-				return LINK_STATE;
-			default:
-				return null;
-			}
-		}
-	}
 
 	// Attribute type -------------------------------------------------------
 	/**
@@ -87,26 +26,22 @@ public final class PathAttribute {
 	public static final int ATTR_FLAGS_SIZE = 1;
 
 	/**
-	 * 0 - Optional bit: attribute is optional (if set to 1) or well-known (if
-	 * set to 0)
+	 * 0 - Optional bit: attribute is optional (if set to 1) or well-known (if set to 0)
 	 */
 	private final boolean optional;
 
 	/**
-	 * 1 - Transitive bit: attribute is transitive (if set to 1) or
-	 * non-transitive (if set to 0)
+	 * 1 - Transitive bit: attribute is transitive (if set to 1) or non-transitive (if set to 0)
 	 */
 	private final boolean transitive;
 
 	/**
-	 * 2 - Partial bit: attribute is partial (if set to 1) or complete (if set
-	 * to 0)
+	 * 2 - Partial bit: attribute is partial (if set to 1) or complete (if set to 0)
 	 */
 	private final boolean partial;
 
 	/**
-	 * 3 - Extended Length bit: attribute length is one octet (if set to 0) or
-	 * two octets (if set to 1)
+	 * 3 - Extended Length bit: attribute length is one octet (if set to 0) or two octets (if set to 1)
 	 */
 	private final boolean extendedLength;
 
@@ -120,8 +55,7 @@ public final class PathAttribute {
 	// Attribute Length ------------------------------------------------------
 
 	/**
-	 * Size of the attribute length field, in bytes. Depends on
-	 * extendedLengthBit.
+	 * Size of the attribute length field, in bytes. Depends on extendedLengthBit.
 	 */
 	private final int attrLengthSize;
 
@@ -139,13 +73,11 @@ public final class PathAttribute {
 
 	// Constructors ----------------------------------------------------------
 
-	public PathAttribute(final boolean optional, final boolean transitive,
-			final boolean partial, final boolean extendedLength) {
+	public PathAttribute(final boolean optional, final boolean transitive, final boolean partial, final boolean extendedLength) {
 		this(null, optional, transitive, partial, extendedLength, null);
 	}
 
-	public PathAttribute(final TypeCode type, final boolean optional,
-			final boolean transitive, final boolean partial,
+	public PathAttribute(final TypeCode type, final boolean optional, final boolean transitive, final boolean partial,
 			final boolean extendedLength, final Object value) {
 		this.type = type;
 		this.optional = optional;

@@ -7,30 +7,34 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import java.util.Set;
+import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.IPv4MP;
-import org.opendaylight.protocol.bgp.parser.impl.IPv6MP;
-import org.opendaylight.protocol.bgp.parser.impl.MPReach;
 import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.nlri.LinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.Nlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
@@ -54,8 +58,9 @@ public class MPReachParser {
 
 	}
 
-	static MPReach<?> parseMPUnreach(final byte[] bytes) throws BGPParsingException {
+	static MpUnreachNlri parseMPUnreach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
+		final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
 		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
 				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
 		if (afi == null) {
@@ -63,17 +68,26 @@ public class MPReachParser {
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
 		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
+		builder.setAfi(afi);
+
 		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
 		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
 					+ "' not supported.");
 		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
-		return chooseUnreachParser(afi, safi, ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset));
+		builder.setSafi(safi);
+
+		final WithdrawnRoutes routes = new WithdrawnRoutesBuilder().setNlri(
+				(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.Nlri) chooseReachParser(
+						afi, safi, ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset))).build();
+		builder.setWithdrawnRoutes(routes);
+		return builder.build();
 	}
 
-	static MPReach<?> parseMPReach(final byte[] bytes) throws BGPParsingException {
+	static MpReachNlri parseMPReach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
+		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
 		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
 				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
 		if (afi == null) {
@@ -81,46 +95,40 @@ public class MPReachParser {
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
 		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
+		builder.setAfi(afi);
+
 		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
 		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
 					+ "' not supported.");
 		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
+		builder.setSafi(safi);
+
 		final int nextHopLength = UnsignedBytes.toInt(bytes[byteOffset]);
 		byteOffset += NEXT_HOP_LENGTH_SIZE;
 		final CNextHop nextHop = parseNextHop(ByteArray.subByte(bytes, byteOffset, nextHopLength));
 		byteOffset += nextHopLength + RESERVED_SIZE;
-		return chooseReachParser(afi, safi, nextHop, ByteArray.subByte(bytes, byteOffset, bytes.length - (byteOffset)));
+		builder.setCNextHop(nextHop);
+
+		final AdvertizedRoutes routes = new AdvertizedRoutesBuilder().setNlri(
+				(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.Nlri) chooseReachParser(
+						afi, safi, ByteArray.subByte(bytes, byteOffset, bytes.length - (byteOffset)))).build();
+		builder.setAdvertizedRoutes(routes);
+		return builder.build();
 	}
 
-	private static MPReach<?> chooseUnreachParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final byte[] bytes)
-			throws BGPParsingException {
-		if (afi == Ipv4AddressFamily.class) {
-			final Set<Prefix<IPv4Address>> nlri4 = IPv4.FAMILY.prefixListForBytes(bytes);
-			return new IPv4MP(false, null, nlri4);
-		} else if (afi == Ipv6AddressFamily.class) {
-			final Set<Prefix<IPv6Address>> nlri6 = IPv6.FAMILY.prefixListForBytes(bytes);
-			return new IPv6MP(false, null, nlri6);
-		} else if (afi == LinkstateAddressFamily.class) {
-			return LinkStateParser.parseLSNlri(false, safi, null, bytes);
-		}
-
-		return null;
-	}
-
-	private static MPReach<?> chooseReachParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final CNextHop nextHop,
+	private static Nlri chooseReachParser(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
 			final byte[] bytes) throws BGPParsingException {
 		if (afi == Ipv4AddressFamily.class) {
-			final Set<Prefix<IPv4Address>> nlri4 = IPv4.FAMILY.prefixListForBytes(bytes);
-			return new IPv4MP(true, (CIpv4NextHop) nextHop, nlri4);
+			final List<Ipv4Prefix> nlri4 = Ipv4Util.prefixListForBytes(bytes);
+			return new Ipv4Builder().setIpv4Prefixes(nlri4).build();
 		} else if (afi == Ipv6AddressFamily.class) {
-			final Set<Prefix<IPv6Address>> nlri6 = IPv6.FAMILY.prefixListForBytes(bytes);
-			return new IPv6MP(true, (CIpv6NextHop) nextHop, nlri6);
+			final List<Ipv6Prefix> nlri6 = Ipv6Util.prefixListForBytes(bytes);
+			return new Ipv6Builder().setIpv6Prefixes(nlri6).build();
 		} else if (afi == LinkstateAddressFamily.class) {
-			return LinkStateParser.parseLSNlri(true, safi, nextHop, bytes);
+			return new LinkstateBuilder().setCLinkstateDestination(LinkStateParser.parseLSNlri(safi, bytes)).build();
 		}
-
 		return null;
 	}
 
