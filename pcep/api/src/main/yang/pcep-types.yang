@@ -1,7 +1,7 @@
-module pcep-message {
+module pcep-types {
 	yang-version 1;
-	namespace "urn:opendaylight:params:xml:ns:yang:pcep-message";
-	prefix "pcep-msg";
+	namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
+	prefix "pcep-t";
 
 	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
@@ -22,7 +22,7 @@ module pcep-message {
 		accompanies this distribution, and is available at
 		http://www.eclipse.org/legal/epl-v10.html";
 
-	revision "2013-08-20" {
+	revision "2013-10-05" {
 		description
 			"Initial revision.";
 		reference "RFC5440";
@@ -60,7 +60,22 @@ module pcep-message {
 		type uint16;
 	}
 
+	typedef pce-id {
+		type union {
+			type binary {
+				length 4;
+			}
+			type binary {
+				length 16;
+			}
+		}
+	}
+
 	// TLVs
+	grouping tlv {
+		description "Marker grouping for TLV groupings.";
+	}
+
 	grouping no-path-vector-tlv {
 		description "NO-PATH-VECTOR TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
@@ -77,6 +92,7 @@ module pcep-message {
 					position 26;
 				}
 				bit path-key {
+					reference "https://tools.ietf.org/html/rfc5520#section-7.4";
 					position 27;
 				}
 				bit chain-unavailable {
@@ -698,7 +714,17 @@ module pcep-message {
 		uses object-header;
 
 		list path-keys {
-			// FIXME: finish this up
+			min-elements 1;
+
+			leaf loose {
+				type boolean;
+				default false;
+			}
+
+			leaf pce-id {
+				type pce-id;
+				mandatory true;
+			}
 		}
 	}
 
@@ -865,6 +891,10 @@ module pcep-message {
 	}
 
 	// Messages
+	grouping message {
+		description "Marker grouping for message groupings.";
+	}
+
 	grouping message-header {
 		description "Common Header";
 		reference "https://tools.ietf.org/html/rfc5440#section-6.1";
@@ -875,22 +905,30 @@ module pcep-message {
 		}
 	}
 
-	notification open {
-		description "Open Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.2";
+	grouping open-message {
+		uses message;
 
-		uses message-header;
+		container open-message {
+			description "Open Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.2";
 
-		container open{
-			uses open-object;
+			uses message-header;
+
+			container open {
+				uses open-object;
+			}
 		}
 	}
 
-	notification keepalive {
-		description "Keepalive Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.3";
+	grouping keepalive-message {
+		uses message;
 
-		uses message-header;
+		container keepalive-message {
+			description "Keepalive Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.3";
+
+			uses message-header;
+		}
 	}
 
 	grouping lsp-attributes {
@@ -919,81 +957,85 @@ module pcep-message {
 		}
 	}
 
-	notification pcreq {
-		description "Path Computation Request Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.4";
+	grouping pcreq-message {
+		uses message;
 
-		uses message-header;
+		container pcreq-message {
+			description "Path Computation Request Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.4";
 
-		list requests {
-			container rp {
-				uses rp-object;
-			}
+			uses message-header;
 
-			container path-key-expansion {
-				when "rp/path-key = true";
-				container path-key {
-					uses path-key-object;
+			list requests {
+				container rp {
+					uses rp-object;
 				}
-			}
 
-			container segment-computation {
-				when "rp/path-key = false";
-
-				container p2p {
-					when "../rp/p2mp = false";
-
-					container endpoints {
-						uses endpoints-object;
-					}
-
-					container reported-route {
-						uses reported-route-object;
-
-						container bandwidth {
-							uses bandwidth-object;
-						}
-					}
-
-					container load-balancing {
-						uses load-balancing-object;
-					}
-
-					uses lsp-attributes;
-
-					container lsp {
-						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.4";
-						uses lsp-object;
+				container path-key-expansion {
+					when "rp/path-key = true";
+					container path-key {
+						uses path-key-object;
 					}
 				}
 
-				container p2mp {
-					when "../rp/p2mp = true";
+				container segment-computation {
+					when "rp/path-key = false";
 
-					list trees {
+					container p2p {
+						when "../rp/p2mp = false";
+
 						container endpoints {
 							uses endpoints-object;
 						}
 
-						// FIXME: finish this
+						container reported-route {
+							uses reported-route-object;
+
+							container bandwidth {
+								uses bandwidth-object;
+							}
+						}
+
+						container load-balancing {
+							uses load-balancing-object;
+						}
+
+						uses lsp-attributes;
+
+						container lsp {
+							reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.4";
+							uses lsp-object;
+						}
+					}
+
+					container p2mp {
+						when "../rp/p2mp = true";
+
+						list trees {
+							container endpoints {
+								uses endpoints-object;
+							}
+
+							// FIXME: finish this
+						}
 					}
 				}
 			}
-		}
 
-		list svec {
-			uses svec-object;
+			list svec {
+				uses svec-object;
 
-			container of {
-				uses of-object;
-			}
+				container of {
+					uses of-object;
+				}
 
-			container gc {
-				uses gc-object;
-			}
+				container gc {
+					uses gc-object;
+				}
 
-			list metric {
-				uses metric-object;
+				list metric {
+					uses metric-object;
+				}
 			}
 		}
 	}
@@ -1006,36 +1048,40 @@ module pcep-message {
 		uses lsp-attributes;
 	}
 
-	notification pcrep {
-		description "Path Computation Reply Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.5";
+	grouping pcrep-message {
+		uses message;
 
-		uses message-header;
+		container pcrep-message {
+			description "Path Computation Reply Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.5";
 
-		list replies {
-			container rp {
-				uses rp-object;
-			}
+			uses message-header;
 
-			container lsp {
-				reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.5";
-				uses lsp-object;
-			}
-
-			choice result {
-				case success {
-					uses lsp-attributes;
-
-					list paths {
-						uses path-definition;
-					}
+			list replies {
+				container rp {
+					uses rp-object;
 				}
-				case failure {
-					container no-path {
-						uses no-path-object {
-							augment "tlvs" {
-								container no-path-vector {
-									uses no-path-vector-tlv;
+
+				container lsp {
+					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.5";
+					uses lsp-object;
+				}
+
+				choice result {
+					case success {
+						uses lsp-attributes;
+
+						list paths {
+							uses path-definition;
+						}
+					}
+					case failure {
+						container no-path {
+							uses no-path-object {
+								augment "tlvs" {
+									container no-path-vector {
+										uses no-path-vector-tlv;
+									}
 								}
 							}
 						}
@@ -1045,132 +1091,156 @@ module pcep-message {
 		}
 	}
 
-	notification pcntf {
-		description "Notification Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.6";
+	grouping pcntf-message {
+		uses message;
 
-		uses message-header;
+		container pcntf-message {
+			description "Notification Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.6";
 
-		list notifications {
-			list rps {
-				uses rp-object;
-			}
+			uses message-header;
 
 			list notifications {
-				uses notification-object;
-			}
-		}
-	}
-
-	notification pcerr {
-		description "Error Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.7";
-
-		uses message-header;
-
-		list errors {
-			uses pcep-error-object;
-		}
-
-		choice error-type {
-			case request {
 				list rps {
 					uses rp-object;
 				}
-			}
 
-			case session {
-				container open {
-					uses open-object;
+				list notifications {
+					uses notification-object;
 				}
 			}
+		}
+	}
 
-			case stateful {
+	grouping pcerr-message {
+		uses message;
+
+		container pcerr-message {
+			description "Error Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.7";
+
+			uses message-header;
+
+			list errors {
+				uses pcep-error-object;
+			}
+
+			choice error-type {
+				case request {
+					list rps {
+						uses rp-object;
+					}
+				}
+
+				case session {
+					container open {
+						uses open-object;
+					}
+				}
+
+				case stateful {
+					container srp {
+						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
+						uses srp-object;
+					}
+				}
+			}
+		}
+	}
+
+	grouping close-message {
+		uses message;
+
+		container close-message {
+			description "Close Message";
+			reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+
+			uses message-header;
+
+			container close {
+				uses close-object;
+			}
+		}
+	}
+
+	grouping pcupd-message {
+		uses message;
+
+		container pcupd-message {
+			description "State Update Request Message";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.2";
+
+			uses message-header;
+
+			list updates {
 				container srp {
-					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
 					uses srp-object;
 				}
+
+				container lsp {
+					uses lsp-object;
+				}
+
+				container path {
+					uses path-definition;
+				}
 			}
 		}
 	}
 
-	notification close {
-		description "Close Message";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+	grouping pcrpt-message {
+		uses message;
 
-		uses message-header;
+		container pcrpt-message {
+			description "State Report Message";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.1";
 
-		container close {
-			uses close-object;
-		}
-	}
+			uses message-header;
 
-	notification pcupd {
-		description "State Update Request Message";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.2";
+			list reports {
+				container srp {
+					uses srp-object;
+				}
 
-		uses message-header;
+				container lsp {
+					uses lsp-object;
+				}
 
-		list updates {
-			container srp {
-				uses srp-object;
-			}
-
-			container lsp {
-				uses lsp-object;
-			}
-
-			container path {
-				uses path-definition;
+				container path {
+					uses path-definition;
+				}
 			}
 		}
 	}
 
-	notification pcrpt {
-		description "State Report Message";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.1";
+	grouping pcinitiate-message {
+		uses message;
 
-		uses message-header;
+		container pcinitiate-message {
+			description "LSP Initiate Message";
+			reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
 
-		list reports {
-			container srp {
-				uses srp-object;
+			uses message-header;
+
+			list requests {
+				container srp {
+					uses srp-object;
+				}
+
+				container lsp {
+					uses lsp-object;
+				}
+
+				container endpoints {
+					uses endpoints-object;
+				}
+
+				container ero {
+					uses explicit-route-object;
+				}
+
+				uses lsp-attributes;
 			}
-
-			container lsp {
-				uses lsp-object;
-			}
-
-			container path {
-				uses path-definition;
-			}
-		}
-	}
-
-	notification pcinitiate {
-		description "LSP Initiate Message";
-		reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
-
-		uses message-header;
-
-		list requests {
-			container srp {
-				uses srp-object;
-			}
-
-			container lsp {
-				uses lsp-object;
-			}
-
-			container endpoints {
-				uses endpoints-object;
-			}
-
-			container ero {
-				uses explicit-route-object;
-			}
-
-			uses lsp-attributes;
 		}
 	}
 }
