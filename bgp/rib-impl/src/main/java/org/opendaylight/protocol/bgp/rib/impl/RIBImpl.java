@@ -7,29 +7,25 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
-import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
-import org.opendaylight.protocol.bgp.parser.BGPLink;
-import org.opendaylight.protocol.bgp.parser.BGPLinkState;
-import org.opendaylight.protocol.bgp.parser.BGPNode;
-import org.opendaylight.protocol.bgp.parser.BGPNodeState;
-import org.opendaylight.protocol.bgp.parser.BGPPrefix;
-import org.opendaylight.protocol.bgp.parser.BGPPrefixState;
-import org.opendaylight.protocol.bgp.parser.BGPRoute;
-import org.opendaylight.protocol.bgp.parser.BGPRouteState;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
+import org.opendaylight.controller.sal.binding.api.data.DataModification;
+import org.opendaylight.controller.sal.binding.api.data.DataModification.TransactionStatus;
+import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
@@ -37,64 +33,63 @@ import com.google.common.base.Preconditions;
 
 @ThreadSafe
 public final class RIBImpl {
-	private final RIBTable<LinkIdentifier, BGPLinkState> links = new RIBTable<>();
-	private final RIBTable<NodeIdentifier, BGPNodeState> nodes = new RIBTable<>();
-	private final RIBTable<PrefixIdentifier<?>, BGPPrefixState> prefixes = new RIBTable<>();
-	private final RIBTable<Prefix<?>, BGPRouteState> routes = new RIBTable<>();
+	private static final Logger logger = LoggerFactory.getLogger(RIBImpl.class);
+	private final DataProviderService dps;
+	private final RIBTables tables;
 	private final String name;
 
-	public RIBImpl(final String name) {
+	public RIBImpl(final String name, final ProviderContext context) {
 		this.name = Preconditions.checkNotNull(name);
+		this.dps = context.getSALService(DataProviderService.class);
+		this.tables = new RIBTables(new BGPObjectComparator(), AdjRIBsInFactoryRegistryImpl.INSTANCE);
 	}
 
-	synchronized void updateTables(final BGPPeer peer, final Set<BGPObject> addedObjects, final Set<?> removedObjects) {
-		final Map<LinkIdentifier, BGPLinkState> l = new HashMap<>();
-		final Map<NodeIdentifier, BGPNodeState> n = new HashMap<>();
-		final Map<PrefixIdentifier<?>, BGPPrefixState> p = new HashMap<>();
-		final Map<Prefix<?>, BGPRouteState> r = new HashMap<>();
+	synchronized void updateTables(final BGPPeer peer, final Update message) {
+		final DataModification trans = dps.beginTransaction();
 
-		for (final Object id : removedObjects) {
-			if (id instanceof Prefix<?>) {
-				this.routes.remove(r, peer, (Prefix<?>) id);
-			} else if (id instanceof LinkIdentifier) {
-				this.links.remove(l, peer, (LinkIdentifier) id);
-			} else if (id instanceof NodeIdentifier) {
-				this.nodes.remove(n, peer, (NodeIdentifier) id);
-			} else if (id instanceof PrefixIdentifier<?>) {
-				this.prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
+		//remove(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+		//		trans, peer, message.getWithdrawnRoutes().getWithdrawnRoutes().iterator());
+
+		final PathAttributes attrs = message.getPathAttributes();
+		final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
+		if (mpu != null) {
+			final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
+
+			AdjRIBsIn ari = tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			if (ari != null) {
+				ari.removeRoutes(trans, peer, nlri);
 			} else {
-				throw new IllegalArgumentException("Unsupported identifier " + id.getClass());
+				logger.debug("Not removing objects from unhandled NLRI {}", nlri);
 			}
 		}
 
-		for (final BGPObject o : addedObjects) {
-			if (o instanceof BGPLink) {
-				final BGPLink link = (BGPLink) o;
-				this.links.add(l, peer, link.getLinkIdentifier(), link.currentState());
-			} else if (o instanceof BGPNode) {
-				final BGPNode node = (BGPNode) o;
-				this.nodes.add(n, peer, node.getNodeIdentifier(), node.currentState());
-			} else if (o instanceof BGPPrefix<?>) {
-				final BGPPrefix<?> prefix = (BGPPrefix<?>) o;
-				this.prefixes.add(p, peer, prefix.getPrefixIdentifier(), prefix.currentState());
-			} else if (o instanceof BGPRoute) {
-				final BGPRoute route = (BGPRoute) o;
-				this.routes.add(r, peer, route.getName(), route.currentState());
+		//add(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+		//		trans, peer, message.getNlri().getNlri().iterator(), attrs);
+
+		final PathAttributes1 mpr = message.getPathAttributes().getAugmentation(PathAttributes1.class);
+		if (mpr != null) {
+			final MpReachNlri nlri = mpr.getMpReachNlri();
+
+			final AdjRIBsIn ari = tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			if (ari != null) {
+				ari.addRoutes(trans, peer, nlri, attrs);
 			} else {
-				throw new IllegalArgumentException("Unsupported identifier " + o.getClass());
+				logger.debug("Not adding objects from unhandled NLRI {}", nlri);
 			}
 		}
 
-		// FIXME: push into MD SAL
+		// FIXME: we need to attach to this future for failures
+		Future<RpcResult<TransactionStatus>> f = trans.commit();
 	}
 
-	synchronized void clearTable(final BGPPeer peer, final BGPTableType t) {
-		if (Ipv4AddressFamily.class == t.getAddressFamily() || Ipv6AddressFamily.class == t.getAddressFamily()) {
-			this.routes.clear(peer);
-		} else if (LinkstateAddressFamily.class == t.getAddressFamily()) {
-			this.links.clear(peer);
-			this.nodes.clear(peer);
-			this.prefixes.clear(peer);
+	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
+		final AdjRIBsIn ari = tables.get(key);
+		if (ari != null) {
+			final DataModification trans = dps.beginTransaction();
+			ari.clear(trans, peer);
+
+			// FIXME: we need to attach to this future for failures
+			Future<RpcResult<TransactionStatus>> f = trans.commit();
 		}
 	}
 
