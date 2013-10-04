@@ -30,9 +30,9 @@ public class NodeIdentifierTest {
 		final NodeIdentifier id3 = this.f.identifierForRouter(new IPv4RouterIdentifier(IPv4.FAMILY.addressForString("192.168.1.5")));
 		final NodeIdentifier id4 = this.f.identifierForRouter(new IPv6RouterIdentifier(IPv6.FAMILY.addressForString("2001:db8:85a3::8a2e:370:7334")));
 
+		// FIXME BUG-103
 		// assertEquals("HashCodes should be equal", id1.hashCode(), id2.hashCode());
-		// FIXME BUG-89
-		// assertEquals("toString should be equal", id1.toString(), id2.toString());
+		assertEquals("toString should be equal", id1.toString(), id2.toString());
 		// assertEquals(id1, id2);
 
 		assertNotSame(id1, id3);
@@ -71,7 +71,7 @@ public class NodeIdentifierTest {
 
 	@Test
 	@Ignore
-	// FIXME BUG-89
+	// FIXME BUG-103
 	public void testISISRouterIdentifier() {
 		final ISISRouterIdentifier is1 = new ISISRouterIdentifier(new IsoSystemIdentifier(new byte[] { 0x22, 0x22, 0x22, 0x22, 0x22, 0x22 }));
 		final ISISRouterIdentifier is2 = new ISISRouterIdentifier(new IsoSystemIdentifier(new byte[] { 0x22, 0x22, 0x22, 0x22, 0x22, 0x22 }));

@@ -119,7 +119,9 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		switch (this.state) {
 		case Finished:
 		case Idle:
-			throw new IllegalStateException("Unexpected state " + this.state);
+			final Notify fsm_error = new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
+					BGPError.FSM_ERROR.getSubcode()).build();
+			this.channel.writeAndFlush(fsm_error);
 		case OpenConfirm:
 			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);
@@ -136,19 +138,16 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 				final List<BgpParameters> prefs = openObj.getBgpParameters();
 				if (prefs != null && !prefs.isEmpty()) {
 					for (final BgpParameters param : openObj.getBgpParameters()) {
-						if (param instanceof CParameters) {
-							if (((CParameters) param) instanceof CMultiprotocol) {
-								final CParameters cap = (CParameters) param;
-								if (((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
-										&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
-									this.remotePref = openObj;
-									this.channel.writeAndFlush(new KeepaliveBuilder().build());
-									this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
-									this.state = State.OpenConfirm;
-									logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel,
-											this.remotePref);
-									return;
-								}
+						final CParameters cap = param.getCParameters();
+						if (cap instanceof CMultiprotocol) {
+							if (((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
+									&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
+								this.remotePref = openObj;
+								this.channel.writeAndFlush(new KeepaliveBuilder().build());
+								this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+								this.state = State.OpenConfirm;
+								logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+								return;
 							}
 						}
 					}

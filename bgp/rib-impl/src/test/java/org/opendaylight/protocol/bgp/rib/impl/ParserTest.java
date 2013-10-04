@@ -16,10 +16,10 @@ import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -31,6 +31,7 @@ import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
@@ -39,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -63,10 +65,19 @@ public class ParserTest {
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
-	public static final byte[] openWithCpblt = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+	public static final byte[] openWithCpblt1 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-			(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
-			(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
+			(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+			(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+			(byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40,
+			(byte) 0x04, (byte) 0x00, (byte) 0x47 };
+
+	public static final byte[] openWithCpblt2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+			(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+			(byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
+			(byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
 	final ProtocolMessageFactory<Notification> factory = new BGPMessageFactoryImpl();
 
@@ -255,8 +266,6 @@ public class ParserTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void testTLVParser() throws UnknownHostException {
 
 		final BGPTableType t1 = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
@@ -264,10 +273,13 @@ public class ParserTest {
 
 		final List<BgpParameters> tlvs = Lists.newArrayList();
 
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()));
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				LinkstateAddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()));
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
+								LinkstateSubsequentAddressFamily.class).build()).build()).build());
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
 
 		final Map<BGPTableType, Boolean> tableTypes = Maps.newHashMap();
 		tableTypes.put(t1, true);
@@ -275,7 +287,9 @@ public class ParserTest {
 		final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
 				new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
 
-		System.out.println(this.factory.put(open));
-		assertArrayEquals(openWithCpblt, this.factory.put(open));
+		final byte[] result = this.factory.put(open);
+
+		// the capabilities can be swapped.
+		assertTrue(Arrays.equals(openWithCpblt1, result) || Arrays.equals(openWithCpblt2, result));
 	}
 }

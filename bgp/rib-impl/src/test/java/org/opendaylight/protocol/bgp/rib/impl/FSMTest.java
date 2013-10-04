@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -44,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -75,10 +75,14 @@ public class FSMTest {
 		MockitoAnnotations.initMocks(this);
 		final List<BgpParameters> tlvs = Lists.newArrayList();
 
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				this.ipv4tt.getAddressFamily()).setSafi(this.ipv4tt.getSubsequentAddressFamily()).build()));
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				this.linkstatett.getAddressFamily()).setSafi(this.linkstatett.getSubsequentAddressFamily()).build()));
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAddressFamily()).setSafi(
+								this.ipv4tt.getSubsequentAddressFamily()).build()).build()).build());
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAddressFamily()).setSafi(
+								this.linkstatett.getSubsequentAddressFamily()).build()).build()).build());
 		final BGPSessionPreferences prefs = new BGPSessionPreferences(30, (short) 3, null, tlvs);
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {
@@ -98,8 +102,6 @@ public class FSMTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void testAccSessionChar() throws InterruptedException {
 		this.clientSession.channelActive(null);
 		assertEquals(1, this.receivedMsgs.size());
@@ -109,20 +111,13 @@ public class FSMTest {
 		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
 		this.clientSession.handleMessage(new KeepaliveBuilder().build());
 		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
-		// Thread.sleep(3 * 1000);
-		// Thread.sleep(100);
-		// assertEquals(3, this.receivedMsgs.size());
-		// assertTrue(this.receivedMsgs.get(2) instanceof BGPKeepAliveMessage); // test of keepalive timer
-		// this.clientSession.handleMessage(new BGPOpenMessage(new ASNumber(30), (short) 3, null, null));
-		// assertEquals(4, this.receivedMsgs.size());
-		// assertTrue(this.receivedMsgs.get(3) instanceof BGPNotificationMessage);
-		// final BGPMessage m = this.clientListener.getListMsg().get(3);
-		// assertEquals(BGPError.FSM_ERROR, ((BGPNotificationMessage) m).getError());
+		Thread.sleep(1000);
+		Thread.sleep(100);
+		assertEquals(3, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(2) instanceof Keepalive); // test of keepalive timer
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void testNotAccChars() throws InterruptedException {
 		this.clientSession.channelActive(null);
 		assertEquals(1, this.receivedMsgs.size());
@@ -148,19 +143,17 @@ public class FSMTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void sendNotification() {
 		this.clientSession.channelActive(null);
 		this.clientSession.handleMessage(this.classicOpen);
 		this.clientSession.handleMessage(new KeepaliveBuilder().build());
 		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
-		try {
-			this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
-			fail("Exception should be thrown.");
-		} catch (final IllegalStateException e) {
-			assertEquals("Unexpected state Finished", e.getMessage());
-		}
+		this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
+		assertEquals(3, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(2) instanceof Notify);
+		final Notification m = this.receivedMsgs.get(2);
+		assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode().shortValue());
+		assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
 	}
 
 	@After

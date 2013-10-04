@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.concepts.BGPObject;
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
@@ -47,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
@@ -176,8 +176,6 @@ public class BGPMessageParserMockTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void testGetOpenMessage() throws DeserializerException, DocumentedException, IOException {
 		final Map<byte[], List<Notification>> openMap = Maps.newHashMap();
 
@@ -188,7 +186,7 @@ public class BGPMessageParserMockTest {
 
 		final CParameters par = new CMultiprotocolBuilder().setMultiprotocolCapability(
 				new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build();
-		params.add((BgpParameters) par);
+		params.add(new BgpParametersBuilder().setCParameters(par).build());
 
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
@@ -201,11 +199,9 @@ public class BGPMessageParserMockTest {
 
 		final Set<BGPTableType> result = Sets.newHashSet();
 		for (final BgpParameters p : ((Open) mockParser.parse(input).get(0)).getBgpParameters()) {
-			if (p instanceof CParameters) {
-				final CParameters cp = ((CParameters) p);
-				final BGPTableType t = new BGPTableType(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
-				result.add(t);
-			}
+			final CParameters cp = p.getCParameters();
+			final BGPTableType t = new BGPTableType(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
+			result.add(t);
 		}
 
 		assertEquals(type, result);

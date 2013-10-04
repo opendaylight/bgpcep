@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,9 +49,9 @@ public final class BGPParameterParser {
 
 		byte[] value = null;
 
-		if (param instanceof CParameters) {
-			value = CapabilityParameterParser.put((CParameters) param);
-		} else {
+		value = CapabilityParameterParser.put(param.getCParameters());
+
+		if (value == null) {
 			logger.debug("BGP Parameter not supported.");
 			return new byte[] {};
 		}
@@ -80,8 +81,12 @@ public final class BGPParameterParser {
 			final int paramType = UnsignedBytes.toInt(bytes[byteOffset++]);
 			final int paramLength = UnsignedBytes.toInt(bytes[byteOffset++]);
 			if (paramType == CAPABILITIES_OPT_PARAM_TYPE) {
-				final BgpParameters param = (BgpParameters) CapabilityParameterParser.parse(ByteArray.subByte(bytes, byteOffset,
-						paramLength));
+				final CParameters cparam = CapabilityParameterParser.parse(ByteArray.subByte(bytes, byteOffset, paramLength));
+				if (cparam == null) {
+					byteOffset += paramLength;
+					continue;
+				}
+				final BgpParameters param = new BgpParametersBuilder().setCParameters(cparam).build();
 				if (param != null)
 					params.add(param);
 			} else

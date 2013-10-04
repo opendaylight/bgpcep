@@ -1102,15 +1102,13 @@ public class BGPParserTest {
 	 * 00 00 00 64 <- AS number
 	 */
 	@Test
-	@Ignore
-	// FIXME BUG-100
 	public void testOpenMessage() throws Exception {
 		final BGPMessageFactoryImpl msgFactory = new BGPMessageFactoryImpl();
 		final Open open = (Open) msgFactory.parse(inputBytes.get(13)).get(0);
 		final Set<BGPTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
-			if (param instanceof CParameters) {
-				final CParameters p = (CParameters) param;
+			final CParameters p = param.getCParameters();
+			if (p instanceof CMultiprotocol) {
 				final BGPTableType type = new BGPTableType(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
 				types.add(type);
 			}

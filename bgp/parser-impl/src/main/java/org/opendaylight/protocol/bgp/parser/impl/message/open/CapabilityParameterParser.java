@@ -38,7 +38,7 @@ public final class CapabilityParameterParser {
 	private static final int LENGTH_SIZE = 1; // bytes
 	private static final int AFI_SIZE = 2; // bytes
 	private static final int SAFI_SIZE = 1; // bytes
-	
+
 	private static final int As4BytesCapability_CODE = 65;
 	private static final int Multiprotocol_CODE = 1;
 
@@ -63,15 +63,17 @@ public final class CapabilityParameterParser {
 			value = putMultiProtocolParameterValue((CMultiprotocol) cap);
 			bytes = new byte[CODE_SIZE + LENGTH_SIZE + value.length];
 			bytes[0] = ByteArray.intToBytes(Multiprotocol_CODE)[Integer.SIZE / Byte.SIZE - 1];
-		//} else if (cap instanceof GracefulCapability) {
-		//	value = putGracefulParameterValue((GracefulCapability) cap);
+			// } else if (cap instanceof GracefulCapability) {
+			// value = putGracefulParameterValue((GracefulCapability) cap);
 		} else if (cap instanceof CAs4Bytes) {
 			value = putAS4BytesParameterValue((CAs4Bytes) cap);
 			bytes = new byte[CODE_SIZE + LENGTH_SIZE + value.length];
 			bytes[0] = ByteArray.intToBytes(As4BytesCapability_CODE)[Integer.SIZE / Byte.SIZE - 1];
 		}
-		bytes[1] = ByteArray.intToBytes(value.length)[Integer.SIZE / Byte.SIZE - 1];
-		System.arraycopy(value, 0, bytes, CODE_SIZE + LENGTH_SIZE, value.length);
+		if (bytes != null) {
+			bytes[1] = ByteArray.intToBytes(value.length)[Integer.SIZE / Byte.SIZE - 1];
+			System.arraycopy(value, 0, bytes, CODE_SIZE + LENGTH_SIZE, value.length);
+		}
 		logger.trace("BGP Parameter serialized to: {}", Arrays.toString(bytes));
 		return bytes;
 	}
@@ -103,33 +105,34 @@ public final class CapabilityParameterParser {
 		return null;
 	}
 
-//	private static byte[] putGracefulParameterValue(final GracefulCapability param) {
-//		final int RESTART_FLAGS_SIZE = 4; // bits
-//		final int TIMER_SIZE = 12; // bits
-//		final int AFI_SIZE = 2; // bytes
-//		final int SAFI_SIZE = 1; // bytes
-//		final int AF_FLAGS_SIZE = 1; // bytes
-//		final byte[] bytes = new byte[(RESTART_FLAGS_SIZE + TIMER_SIZE + (AFI_SIZE * Byte.SIZE + SAFI_SIZE * Byte.SIZE + AF_FLAGS_SIZE
-//				* Byte.SIZE)
-//				* param.getTableTypes().size())
-//				/ Byte.SIZE];
-//		if (param.isRestartFlag()) {
-//			bytes[0] = (byte) 0x80;
-//		}
-//		int index = (RESTART_FLAGS_SIZE + TIMER_SIZE) / Byte.SIZE;
-//		for (final Entry<BGPTableType, Boolean> entry : param.getTableTypes().entrySet()) {
-//			final byte[] a = putAfi(entry.getKey().getAddressFamily());
-//			final byte s = putSafi(entry.getKey().getSubsequentAddressFamily());
-//			final byte f = (entry.getValue()) ? (byte) 0x80 : (byte) 0x00;
-//			System.arraycopy(a, 0, bytes, index, AFI_SIZE);
-//			index += AFI_SIZE;
-//			bytes[index] = s;
-//			index += SAFI_SIZE;
-//			bytes[index] = f;
-//			index += AF_FLAGS_SIZE;
-//		}
-//		return bytes;
-//	}
+	// private static byte[] putGracefulParameterValue(final GracefulCapability param) {
+	// final int RESTART_FLAGS_SIZE = 4; // bits
+	// final int TIMER_SIZE = 12; // bits
+	// final int AFI_SIZE = 2; // bytes
+	// final int SAFI_SIZE = 1; // bytes
+	// final int AF_FLAGS_SIZE = 1; // bytes
+	// final byte[] bytes = new byte[(RESTART_FLAGS_SIZE + TIMER_SIZE + (AFI_SIZE * Byte.SIZE + SAFI_SIZE * Byte.SIZE +
+	// AF_FLAGS_SIZE
+	// * Byte.SIZE)
+	// * param.getTableTypes().size())
+	// / Byte.SIZE];
+	// if (param.isRestartFlag()) {
+	// bytes[0] = (byte) 0x80;
+	// }
+	// int index = (RESTART_FLAGS_SIZE + TIMER_SIZE) / Byte.SIZE;
+	// for (final Entry<BGPTableType, Boolean> entry : param.getTableTypes().entrySet()) {
+	// final byte[] a = putAfi(entry.getKey().getAddressFamily());
+	// final byte s = putSafi(entry.getKey().getSubsequentAddressFamily());
+	// final byte f = (entry.getValue()) ? (byte) 0x80 : (byte) 0x00;
+	// System.arraycopy(a, 0, bytes, index, AFI_SIZE);
+	// index += AFI_SIZE;
+	// bytes[index] = s;
+	// index += SAFI_SIZE;
+	// bytes[index] = f;
+	// index += AF_FLAGS_SIZE;
+	// }
+	// return bytes;
+	// }
 
 	private static byte[] putMultiProtocolParameterValue(final CMultiprotocol param) {
 		final byte[] a = putAfi(param.getMultiprotocolCapability().getAfi());
@@ -157,12 +160,14 @@ public final class CapabilityParameterParser {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '"
 					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1, SAFI_SIZE)) + "' not supported.");
 		}
-		
-		return new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build();
+
+		return new CMultiprotocolBuilder().setMultiprotocolCapability(
+				new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build();
 	}
 
 	private static CAs4Bytes parseAS4BParameterValue(final byte[] bytes) {
-		return new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
+		return new CAs4BytesBuilder().setAs4BytesCapability(
+				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
 	}
 
 	private static byte[] putAfi(final Class<? extends AddressFamily> afi) {
