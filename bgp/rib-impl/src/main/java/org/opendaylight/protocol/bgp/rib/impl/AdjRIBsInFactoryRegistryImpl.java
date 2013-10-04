@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.Linkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
@@ -133,14 +133,14 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 	}
 
-	private static final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<Linkstate, DataObject> {
+	private static final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, DataObject> {
 		LinkstateAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 			super(comparator, key);
 		}
 
 		@Override
 		public InstanceIdentifier identifierForKey(final InstanceIdentifier basePath,
-				final Linkstate key) {
+				final CLinkstateDestination key) {
 			final InstanceIdentifierBuilder builder = InstanceIdentifier.builder(basePath);
 
 			switch (key.getNlriType()) {
@@ -167,9 +167,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
-			final Linkstate key =
+			final CLinkstateDestination key =
 					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Linkstate) nlri.getAdvertizedRoutes().getNlri()).getLinkstate();
+							update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Linkstate) nlri.getAdvertizedRoutes().getNlri()).getCLinkstateDestination();
 
 			RIBEntryData data = null;
 			switch (key.getNlriType()) {
@@ -220,9 +220,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		@Override
 		public void removeRoutes(final DataModification trans, final Peer peer,
 				final MpUnreachNlri nlri) {
-			final Linkstate key =
+			final CLinkstateDestination key =
 					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Linkstate) nlri.getWithdrawnRoutes().getNlri()).getLinkstate();
+							update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Linkstate) nlri.getWithdrawnRoutes().getNlri()).getCLinkstateDestination();
 
 			super.remove(trans, peer, key);
 		}
