@@ -34,7 +34,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			this.attributes = Preconditions.checkNotNull(attributes);
 		}
 
-		protected abstract DATA getDataObject();
+		protected abstract DATA getDataObject(ID key);
 	}
 
 	/**
@@ -49,13 +49,22 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		 *       automatically through insertion, without the need of a second walk.
 		 */
 		private final Map<Peer, RIBEntryData> candidates = new HashMap<>();
-		private final InstanceIdentifier name;
+		private final ID key;
 
 		@GuardedBy("this")
-		private RIBEntryData currentState = null;
+		private InstanceIdentifier name;
+		@GuardedBy("this")
+		private RIBEntryData currentState;
 
-		RIBEntry(final InstanceIdentifier name) {
-			this.name = Preconditions.checkNotNull(name);
+		RIBEntry(final ID key) {
+			this.key = Preconditions.checkNotNull(key);
+		}
+
+		private InstanceIdentifier getName() {
+			if (name == null) {
+				name = identifierForKey(basePath, key);
+			}
+			return name;
 		}
 
 		private RIBEntryData findCandidate(final RIBEntryData initial) {
@@ -71,7 +80,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 		private void electCandidate(final DataModification transaction, final RIBEntryData candidate) {
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
-				transaction.putRuntimeData(name, candidate.getDataObject());
+				transaction.putRuntimeData(getName(), candidate.getDataObject(key));
 				this.currentState = candidate;
 			}
 		}
@@ -122,7 +131,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 	protected synchronized void add(final DataModification trans, final Peer peer, final ID id, final RIBEntryData data) {
 		RIBEntry e = this.entries.get(id);
 		if (e == null) {
-			e = new RIBEntry(identifierForKey(basePath, id));
+			e = new RIBEntry(id);
 			this.entries.put(id, e);
 		}
 

@@ -27,8 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv4.routes.Ipv4Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv4.routes.Ipv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv4.routes.Ipv4RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv6.routes.Ipv6Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv6.routes.Ipv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.ipv6.routes.Ipv6RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -45,7 +47,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 	private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
 
-	private static final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, DataObject> {
+	private static final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Routes> {
 		private Ipv4AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 			super(comparator, key);
 		}
@@ -69,9 +71,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
 			final RIBEntryData data = new RIBEntryData(attributes) {
 				@Override
-				protected DataObject getDataObject() {
-					// TODO Auto-generated method stub
-					return null;
+				protected Ipv4Routes getDataObject(final Ipv4Prefix key) {
+					// FIXME: key we reuse the key object here?
+					return new Ipv4RoutesBuilder().setKey(new Ipv4RoutesKey(key)).build();
 				}
 			};
 
@@ -89,7 +91,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 	}
 
-	private static final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, DataObject> {
+	private static final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Routes> {
 		Ipv6AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 			super(comparator, key);
 		}
@@ -113,9 +115,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
 			final RIBEntryData data = new RIBEntryData(attributes) {
 				@Override
-				protected DataObject getDataObject() {
-					// TODO Auto-generated method stub
-					return null;
+				protected Ipv6Routes getDataObject(final Ipv6Prefix key) {
+					// FIXME: key we reuse the key object here?
+					return new Ipv6RoutesBuilder().setKey(new Ipv6RoutesKey(key)).build();
 				}
 			};
 
@@ -176,7 +178,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			case Ipv4Prefix:
 				data = new RIBEntryData(attributes) {
 					@Override
-					protected DataObject getDataObject() {
+					protected DataObject getDataObject(final CLinkstateDestination key) {
 						// TODO Auto-generated method stub
 						return null;
 					}
@@ -185,7 +187,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			case Ipv6Prefix:
 				data = new RIBEntryData(attributes) {
 					@Override
-					protected DataObject getDataObject() {
+					protected DataObject getDataObject(final CLinkstateDestination key) {
 						// TODO Auto-generated method stub
 						return null;
 					}
@@ -194,7 +196,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			case Link:
 				data = new RIBEntryData(attributes) {
 					@Override
-					protected DataObject getDataObject() {
+					protected DataObject getDataObject(final CLinkstateDestination key) {
 						// TODO Auto-generated method stub
 						return null;
 					}
@@ -203,7 +205,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			case Node:
 				data = new RIBEntryData(attributes) {
 					@Override
-					protected DataObject getDataObject() {
+					protected DataObject getDataObject(final CLinkstateDestination key) {
 						// TODO Auto-generated method stub
 						return null;
 					}
