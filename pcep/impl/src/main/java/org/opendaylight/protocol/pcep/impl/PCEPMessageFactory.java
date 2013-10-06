@@ -15,7 +15,7 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPMessage;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRawMessage;
+import org.opendaylight.protocol.pcep.spi.RawMessage;
 
 import com.google.common.base.Preconditions;
 
@@ -31,8 +31,8 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<PCEPMess
 		final List<PCEPMessage> validated = new ArrayList<>(parsed.size());
 
 		for (PCEPMessage msg : parsed) {
-			Preconditions.checkState(msg instanceof PCEPRawMessage);
-			final PCEPRawMessage raw = (PCEPRawMessage) msg;
+			Preconditions.checkState(msg instanceof RawMessage);
+			final RawMessage raw = (RawMessage) msg;
 
 			try {
 				validated.addAll(PCEPMessageValidator.getValidator(raw.getMsgType()).validate(raw.getAllObjects()));

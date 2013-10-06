@@ -23,7 +23,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRawMessage;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
@@ -38,6 +37,8 @@ import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
 import org.opendaylight.protocol.pcep.message.PCEPReportMessage;
 import org.opendaylight.protocol.pcep.message.PCEPRequestMessage;
 import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
+import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
+import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,13 +117,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		 * if PCEPObjectIdentifier.getObjectClassFromInt() dont't throws
 		 * exception and if returned null we know the error type
 		 */
-		PCEPMessageType msgType;
-		try {
-			msgType = PCEPMessageType.getFromInt(type);
-		} catch (final PCEPDeserializerException e) {
-			logger.debug("Failed to get message type from {}", type);
-			throw new DeserializerException(e.getMessage(), e);
-		}
+		PCEPMessageType msgType = PCEPMessageType.getFromInt(type);
 		if (msgType == null) {
 			logger.debug("Unknown message type {}", type);
 			throw new DocumentedException("Unhandled message type " + type, new PCEPDocumentedException("Unhandled message type " + type, PCEPErrors.CAPABILITY_NOT_SUPPORTED));
@@ -130,7 +125,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 
 		PCEPMessage msg;
 		try {
-			msg = new PCEPRawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
+			msg = new RawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
 		} catch (final PCEPDeserializerException e) {
 			logger.debug("Unexpected deserializer problem", e);
 			throw new DeserializerException(e.getMessage(), e);

@@ -5,24 +5,20 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.message;
+package org.opendaylight.protocol.pcep.spi;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPMessageType;
 
 /**
  * Class representing raw message.
  */
-public class PCEPRawMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = 1075879993862417873L;
-
+public class RawMessage extends PCEPMessage {
 	private final PCEPMessageType msgType;
 
-	public PCEPRawMessage(final List<PCEPObject> objects, final PCEPMessageType msgType) {
+	public RawMessage(final List<PCEPObject> objects, final PCEPMessageType msgType) {
 		super(objects);
 		this.msgType = msgType;
 	}

@@ -23,6 +23,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageValidator;
+import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
 
 /**
  * Base class for message validators

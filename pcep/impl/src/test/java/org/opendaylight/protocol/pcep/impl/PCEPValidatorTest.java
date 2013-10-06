@@ -30,7 +30,6 @@ import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.concepts.LSPSymbolicName;
 import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRawMessage;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
@@ -75,6 +74,8 @@ import org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestedPathBandwidthObject;
 import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
+import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
+import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROUnnumberedInterfaceSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExcludeRouteSubobject;
@@ -123,7 +124,7 @@ public class PCEPValidatorTest {
 	private static List<PCEPMessage> deserMsg(final String srcFile) throws IOException, DeserializerException, DocumentedException,
 			PCEPDeserializerException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytesFromFile).get(0);
+		final RawMessage rawMessage = (RawMessage) msgFactory.parse(bytesFromFile).get(0);
 
 		return PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects());
 	}
@@ -641,7 +642,7 @@ public class PCEPValidatorTest {
 		final byte[] bytes = msgFactory.put(msg);
 
 		// FIXME: need construct with invalid processed parameter
-		final PCEPRawMessage rawMessage = (PCEPRawMessage) msgFactory.parse(bytes).get(0);
+		final RawMessage rawMessage = (RawMessage) msgFactory.parse(bytes).get(0);
 
 		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
 				asList((PCEPMessage) msg));
