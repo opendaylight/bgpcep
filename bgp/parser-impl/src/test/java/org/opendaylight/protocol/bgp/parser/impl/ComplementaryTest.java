@@ -9,22 +9,34 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunity;
@@ -41,7 +53,55 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.origin.extended.community.RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.target.extended.community.RouteTargetExtendedCommunityBuilder;
 
+import com.google.common.collect.Maps;
+
 public class ComplementaryTest {
+	
+	@Test
+	public void testBGPParameter() {
+
+		final BgpTableType t = new BgpTableTypeImpl(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final BgpTableType t1 = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+
+		final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
+				UnicastSubsequentAddressFamily.class).build();
+		final CParameters tlv1 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap).build();
+
+		final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
+				UnicastSubsequentAddressFamily.class).build();
+		final CParameters tlv2 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap1).build();
+
+		final Map<BgpTableType, Boolean> tt = Maps.newHashMap();
+		tt.put(t, true);
+		tt.put(t1, false);
+
+		// final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
+
+		final CParameters tlv4 = new CAs4BytesBuilder().setAs4BytesCapability(
+				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build();
+
+		// assertFalse(((GracefulCapability) tlv3).isRestartFlag());
+
+		// assertEquals(0, ((GracefulCapability) tlv3).getRestartTimerValue());
+
+		assertFalse(tlv1.equals(tlv2));
+
+		// assertNotSame(tlv1.hashCode(), tlv3.hashCode());
+
+		// assertNotSame(tlv2.toString(), tlv3.toString());
+
+		// assertEquals(((GracefulCapability) tlv3).getTableTypes(), tt);
+
+		assertEquals(cap.getSafi(), cap1.getSafi());
+
+		assertNotSame(cap.getAfi(), cap1.getAfi());
+
+		assertEquals(40, ((CAs4Bytes) tlv4).getAs4BytesCapability().getAsNumber().getValue().longValue());
+
+		// FIXME: no generated toString
+		// assertEquals(new As4BytesBuilder().setCAs4Bytes(new CAs4BytesBuilder().setAsNumber(new AsNumber((long)
+		// 40)).build()).build().toString(), tlv4.toString());
+	}
 
 	@Test
 	public void testBGPAggregatorImpl() {
@@ -55,23 +115,6 @@ public class ComplementaryTest {
 		assertNotSame(ipv4.getAsNumber(), ipv4i.getAsNumber());
 
 		assertEquals(ipv4.getNetworkAddress(), ipv4i.getNetworkAddress());
-	}
-
-	@Test
-	public void testBGPUpdateMessageImpl() {
-		final BGPUpdateMessageImpl msg = new BGPUpdateMessageImpl(null, null);
-		final BGPUpdateMessageImpl msg1 = new BGPUpdateMessageImpl(null, null);
-
-		assertEquals(msg, msg1);
-
-		assertEquals(msg.hashCode(), msg1.hashCode());
-
-		assertNotNull(msg.toString());
-
-		assertNull(msg.getAddedObjects());
-		assertNull(msg.getRemovedObjects());
-
-		assertNotSame(msg1, null);
 	}
 
 	@Test

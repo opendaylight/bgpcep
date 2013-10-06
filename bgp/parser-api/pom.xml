@@ -36,11 +36,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-concepts</artifactId>
             <version>${project.version}</version>
 		</dependency>
@@ -109,8 +104,6 @@
 							com.google.common.base,
 							com.google.common.collect,
 							com.google.common.primitives,
-							org.opendaylight.protocol.bgp.concepts,
-							org.opendaylight.protocol.bgp.linkstate,
 							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.framework,
