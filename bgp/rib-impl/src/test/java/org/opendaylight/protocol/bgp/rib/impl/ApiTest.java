@@ -11,11 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 
 public class ApiTest {
 
@@ -25,12 +21,5 @@ public class ApiTest {
 		assertNull(sp.getBgpId());
 		assertEquals((short) 5, sp.getHoldTime());
 		assertEquals(58, sp.getMyAs());
-	}
-
-	@Test
-	public void testBGPUpdateSynchronized() {
-		final BGPTableType tt = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-		final BGPUpdateSynchronized update = new BGPUpdateSynchronizedImpl(tt);
-		assertEquals(tt, update.getTableType());
 	}
 }

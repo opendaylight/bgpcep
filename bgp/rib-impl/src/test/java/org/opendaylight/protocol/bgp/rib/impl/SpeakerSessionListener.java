@@ -12,8 +12,8 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class SpeakerSessionListener implements BGPSessionListener {
 
 	public boolean up = false;
 
-	public Set<BGPTableType> types;
+	public Set<BgpTableType> types;
 
 	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
 

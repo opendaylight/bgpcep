@@ -22,8 +22,8 @@ import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -102,7 +103,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private final int keepAlive;
 
-	private final Set<BGPTableType> tableTypes;
+	private final Set<BgpTableType> tableTypes;
 
 	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
@@ -110,12 +111,12 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.channel = Preconditions.checkNotNull(channel);
 		this.keepAlive = remoteOpen.getHoldTimer() / 3;
 
-		final Set<BGPTableType> tts = Sets.newHashSet();
+		final Set<BgpTableType> tts = Sets.newHashSet();
 		if (remoteOpen.getBgpParameters() != null) {
 			for (final BgpParameters param : remoteOpen.getBgpParameters()) {
 				if (param instanceof CParameters) {
 					final CParameters cp = (CParameters) param;
-					final BGPTableType tt = new BGPTableType(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
+					final BgpTableType tt = new BgpTableTypeImpl(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
 					tts.add(tt);
 				}
 			}
@@ -286,7 +287,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	}
 
 	@Override
-	public Set<BGPTableType> getAdvertisedTableTypes() {
+	public Set<BgpTableType> getAdvertisedTableTypes() {
 		return this.tableTypes;
 	}
 

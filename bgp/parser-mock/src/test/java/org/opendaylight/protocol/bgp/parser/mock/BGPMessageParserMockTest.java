@@ -30,8 +30,8 @@ import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkObjectState;
 import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPUpdateMessageImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
 import org.opendaylight.protocol.concepts.IPv6Address;
@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
@@ -179,8 +180,8 @@ public class BGPMessageParserMockTest {
 	public void testGetOpenMessage() throws DeserializerException, DocumentedException, IOException {
 		final Map<byte[], List<Notification>> openMap = Maps.newHashMap();
 
-		final Set<BGPTableType> type = Sets.newHashSet();
-		type.add(new BGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
+		final Set<BgpTableType> type = Sets.newHashSet();
+		type.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
 
 		final List<BgpParameters> params = Lists.newArrayList();
 
@@ -197,10 +198,10 @@ public class BGPMessageParserMockTest {
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
-		final Set<BGPTableType> result = Sets.newHashSet();
+		final Set<BgpTableType> result = Sets.newHashSet();
 		for (final BgpParameters p : ((Open) mockParser.parse(input).get(0)).getBgpParameters()) {
 			final CParameters cp = p.getCParameters();
-			final BGPTableType t = new BGPTableType(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
+			final BgpTableType t = new BgpTableTypeImpl(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
 			result.add(t);
 		}
 

@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
@@ -119,8 +120,8 @@ public class APITest {
 	@Test
 	public void testBGPParameter() {
 
-		final BGPTableType t = new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
-		final BGPTableType t1 = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final BgpTableType t = new BgpTableTypeImpl(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final BgpTableType t1 = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
 		final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
 				UnicastSubsequentAddressFamily.class).build();
@@ -130,7 +131,7 @@ public class APITest {
 				UnicastSubsequentAddressFamily.class).build();
 		final CParameters tlv2 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap1).build();
 
-		final Map<BGPTableType, Boolean> tt = Maps.newHashMap();
+		final Map<BgpTableType, Boolean> tt = Maps.newHashMap();
 		tt.put(t, true);
 		tt.put(t1, false);
 

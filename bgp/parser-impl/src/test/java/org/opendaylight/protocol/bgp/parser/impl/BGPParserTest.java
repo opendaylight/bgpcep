@@ -46,10 +46,8 @@ import org.opendaylight.protocol.bgp.linkstate.TopologyIdentifier;
 import org.opendaylight.protocol.bgp.parser.BGPLink;
 import org.opendaylight.protocol.bgp.parser.BGPNode;
 import org.opendaylight.protocol.bgp.parser.BGPRoute;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateEvent;
 import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
 import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
@@ -70,17 +68,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AsPathSegment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CASetBuilder;
@@ -626,7 +629,7 @@ public class BGPParserTest {
 
 		// check API message
 
-		final BGPUpdateEvent expectedMessage = new BGPUpdateMessageImpl(Collections.<BGPObject> emptySet(), Sets.newHashSet((Identifier) pref1));
+		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Collections.<BGPObject> emptySet(), Sets.newHashSet((Identifier) pref1));
 
 		assertEquals(expectedMessage, message);
 	}
@@ -641,24 +644,13 @@ public class BGPParserTest {
 	 * 00 00 <- total path attribute length
 	 */
 	@Test
-	@Ignore
-	// FIXME: to be fixed in testing phase
 	public void testEORIpv4() throws Exception {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update ret = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
 
-		assertTrue(ret instanceof BGPUpdateSynchronized);
-		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
-
-		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-			@Override
-			public BGPTableType getTableType() {
-				return new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-			}
-		};
-		assertEquals(expectedMessage.getTableType(), message.getTableType());
+		assertEquals(new UpdateBuilder().build(), message);
 	}
 
 	/*
@@ -677,25 +669,20 @@ public class BGPParserTest {
 	 */
 	@Test
 	@Ignore
-	// FIXME: to be fixed in testing phase
+	//FIXME: to be fixed in testing phase
 	public void testEORIpv6() throws Exception {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update ret = BGPUpdateMessageParser.parse(body, messageLength);
-
-		assertTrue(ret instanceof BGPUpdateSynchronized);
-		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
+		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
 
 		// check fields
-
-		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-			@Override
-			public BGPTableType getTableType() {
-				return new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-			}
-		};
-		assertEquals(expectedMessage.getTableType(), message.getTableType());
+		
+		Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
+		SubsequentAddressFamily safi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getSafi().newInstance();
+		
+		assertEquals(Ipv6AddressFamily.class, afi);
+		assertEquals(UnicastSubsequentAddressFamily.INSTANCE, safi);
 	}
 
 	/*
@@ -714,26 +701,18 @@ public class BGPParserTest {
 	 */
 	@Test
 	@Ignore
-	// FIXME: to be fixed in testing phase
+	//FIXME: to be fixed in testing phase
 	public void testEORLS() throws Exception {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update ret = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
 
-		assertTrue(ret instanceof BGPUpdateSynchronized);
-		final BGPUpdateSynchronized message = (BGPUpdateSynchronized) ret;
-
-		// check fields
-
-		final BGPUpdateSynchronized expectedMessage = new BGPUpdateSynchronized() {
-			@Override
-			public BGPTableType getTableType() {
-				return new BGPTableType(LinkstateAddressFamily.class, UnicastSubsequentAddressFamily.class);
-			}
-		};
-
-		assertEquals(expectedMessage.getTableType(), message.getTableType());
+		Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
+		SubsequentAddressFamily safi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getSafi().newInstance();
+		
+		assertEquals(LinkstateAddressFamily.class, afi);
+		assertEquals(LinkstateSubsequentAddressFamily.INSTANCE, safi);
 	}
 
 	/*
@@ -1105,17 +1084,18 @@ public class BGPParserTest {
 	public void testOpenMessage() throws Exception {
 		final BGPMessageFactoryImpl msgFactory = new BGPMessageFactoryImpl();
 		final Open open = (Open) msgFactory.parse(inputBytes.get(13)).get(0);
-		final Set<BGPTableType> types = Sets.newHashSet();
+		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
 			final CParameters p = param.getCParameters();
 			if (p instanceof CMultiprotocol) {
-				final BGPTableType type = new BGPTableType(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
+				final BgpTableType type = new BgpTableTypeImpl(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
 				types.add(type);
 			}
 		}
-		final Set<BGPTableType> expected = Sets.newHashSet(new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
-				new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
-				new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+		final Set<BgpTableType> expected = Sets.newHashSet();
+		expected.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+		expected.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
+		expected.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 		assertEquals(expected, types);
 	}
 }

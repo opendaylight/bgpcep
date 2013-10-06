@@ -32,7 +32,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -62,9 +63,9 @@ public class FSMTest {
 	@Mock
 	private ChannelPipeline pipeline;
 
-	private final BGPTableType ipv4tt = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+	private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-	private final BGPTableType linkstatett = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+	private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
 	private final List<Notification> receivedMsgs = Lists.newArrayList();
 
@@ -77,12 +78,12 @@ public class FSMTest {
 
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new CMultiprotocolBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAddressFamily()).setSafi(
-								this.ipv4tt.getSubsequentAddressFamily()).build()).build()).build());
+						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(
+								this.ipv4tt.getSafi()).build()).build()).build());
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new CMultiprotocolBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAddressFamily()).setSafi(
-								this.linkstatett.getSubsequentAddressFamily()).build()).build()).build());
+						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(
+								this.linkstatett.getSafi()).build()).build()).build());
 		final BGPSessionPreferences prefs = new BGPSessionPreferences(30, (short) 3, null, tlvs);
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {

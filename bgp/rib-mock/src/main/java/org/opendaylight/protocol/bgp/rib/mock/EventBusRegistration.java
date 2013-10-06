@@ -12,12 +12,13 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -61,11 +62,11 @@ class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
 		if (BGPMock.connectionLostMagicMessage.equals(message)) {
 			listener.onSessionTerminated(null, null);
 		} else if (message instanceof Open) {
-			final Set<BGPTableType> tts = Sets.newHashSet();
+			final Set<BgpTableType> tts = Sets.newHashSet();
 			for (final BgpParameters param : ((Open) message).getBgpParameters()) {
 				if (param instanceof CParameters) {
 					final CParameters p = (CParameters) param;
-					final BGPTableType type = new BGPTableType(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
+					final BgpTableType type = new BgpTableTypeImpl(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
 					tts.add(type);
 				}
 			}
@@ -79,7 +80,7 @@ class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
 				}
 
 				@Override
-				public Set<BGPTableType> getAdvertisedTableTypes() {
+				public Set<BgpTableType> getAdvertisedTableTypes() {
 					return tts;
 				}
 			});

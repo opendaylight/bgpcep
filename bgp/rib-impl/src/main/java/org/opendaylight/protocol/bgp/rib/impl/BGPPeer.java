@@ -11,10 +11,10 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -52,8 +52,8 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	public void onSessionUp(final BGPSession session) {
 		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
-		for (BGPTableType t : session.getAdvertisedTableTypes()) {
-			tables.add(new TablesKey(t.getAddressFamily(), t.getSubsequentAddressFamily()));
+		for (BgpTableType t : session.getAdvertisedTableTypes()) {
+			tables.add(new TablesKey(t.getAfi(), t.getSafi()));
 		}
 	}
 

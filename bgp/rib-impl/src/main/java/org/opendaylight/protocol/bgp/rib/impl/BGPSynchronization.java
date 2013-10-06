@@ -11,22 +11,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.opendaylight.protocol.bgp.concepts.BGPObject;
-import org.opendaylight.protocol.bgp.parser.BGPLink;
-import org.opendaylight.protocol.bgp.parser.BGPNode;
-import org.opendaylight.protocol.bgp.parser.BGPPrefix;
-import org.opendaylight.protocol.bgp.parser.BGPRoute;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.BGPTableType;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
-import org.opendaylight.protocol.bgp.parser.BGPUpdateSynchronized;
-import org.opendaylight.protocol.bgp.util.BGPIPv4RouteImpl;
-import org.opendaylight.protocol.bgp.util.BGPIPv6RouteImpl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,17 +61,17 @@ public class BGPSynchronization {
 		}
 	}
 
-	private final Map<BGPTableType, SyncVariables> syncStorage = Maps.newHashMap();
+	private final Map<BgpTableType, SyncVariables> syncStorage = Maps.newHashMap();
 
 	private final BGPSessionListener listener;
 
 	private final BGPSession session;
 
-	public BGPSynchronization(final BGPSession session, final BGPSessionListener listener, final Set<BGPTableType> types) {
+	public BGPSynchronization(final BGPSession bgpSession, final BGPSessionListener listener, final Set<BgpTableType> types) {
 		this.listener = Preconditions.checkNotNull(listener);
-		this.session = Preconditions.checkNotNull(session);
+		this.session = Preconditions.checkNotNull(bgpSession);
 
-		for (final BGPTableType type : types) {
+		for (final BgpTableType type : types) {
 			this.syncStorage.put(type, new SyncVariables());
 		}
 	}
@@ -88,18 +84,19 @@ public class BGPSynchronization {
 	 * 
 	 * @param msg received Update message
 	 */
-	public void updReceived(final BGPUpdateMessage msg) {
-		BGPTableType type = null;
-		if (!msg.getAddedObjects().isEmpty()) {
-			final BGPObject obj = msg.getAddedObjects().iterator().next();
-			if (obj instanceof BGPRoute) {
-				if ((BGPRoute) obj instanceof BGPIPv4RouteImpl) {
-					type = new BGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-				} else if ((BGPRoute) obj instanceof BGPIPv6RouteImpl) {
-					type = new BGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-				}
-			} else if (obj instanceof BGPLink || obj instanceof BGPNode || obj instanceof BGPPrefix<?>) {
-				type = new BGPTableType(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+	public void updReceived(final Update msg) {
+		TablesKey type = null;
+		if (msg.getNlri() != null || msg.getWithdrawnRoutes() != null) {
+			type = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		} else if (msg.getPathAttributes().getAugmentation(PathAttributes1.class) != null) {
+			PathAttributes1 pa = msg.getPathAttributes().getAugmentation(PathAttributes1.class);
+			if (pa.getMpReachNlri() != null) {
+				type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
+			}
+		} else if (msg.getPathAttributes().getAugmentation(PathAttributes2.class) != null) {
+			PathAttributes2 pa = msg.getPathAttributes().getAugmentation(PathAttributes2.class);
+			if (pa.getMpUnreachNlri() != null) {
+				type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
 			}
 		}
 		final SyncVariables s = this.syncStorage.get(type);
@@ -116,12 +113,12 @@ public class BGPSynchronization {
 	 * session.
 	 */
 	public void kaReceived() {
-		for (final Entry<BGPTableType, SyncVariables> entry : this.syncStorage.entrySet()) {
+		for (final Entry<BgpTableType, SyncVariables> entry : this.syncStorage.entrySet()) {
 			final SyncVariables s = entry.getValue();
 			if (!s.getEor()) {
 				if (!s.getUpd()) {
 					s.setEorTrue();
-					final BGPUpdateSynchronized up = generateEOR(entry.getKey());
+					final Update up = generateEOR(entry.getKey());
 					logger.debug("Sending synchronization message: {}", up);
 					this.listener.onMessage(this.session, up);
 				}
@@ -130,7 +127,10 @@ public class BGPSynchronization {
 		}
 	}
 
-	private BGPUpdateSynchronized generateEOR(final BGPTableType type) {
-		return new BGPUpdateSynchronizedImpl(type);
+	private Update generateEOR(final BgpTableType type) {
+		if (type.getAfi().equals(Ipv4AddressFamily.class) && type.getSafi().equals(UnicastSubsequentAddressFamily.class)) {
+			return new UpdateBuilder().build();
+		}
+		return new UpdateBuilder().setPathAttributes(new PathAttributesBuilder().addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder().setAfi(type.getAfi()).setSafi(type.getSafi()).build()).build()).build()).build();
 	}
 }

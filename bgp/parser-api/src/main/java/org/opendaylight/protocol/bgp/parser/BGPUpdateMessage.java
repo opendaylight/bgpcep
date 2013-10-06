@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * kind of situation. Therefore, first step is to remove objects, then add the other set.
  * 
  */
-public interface BGPUpdateMessage extends BGPUpdateEvent, Notification {
+public interface BGPUpdateMessage extends Notification {
 	/**
 	 * Objects that are identified with Identifiers in this set, need to be removed from topology.
 	 * 

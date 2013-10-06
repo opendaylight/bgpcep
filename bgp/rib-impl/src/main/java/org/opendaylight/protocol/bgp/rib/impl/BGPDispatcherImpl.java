@@ -16,7 +16,6 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -38,7 +37,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 	}
 
 	@Override
-	public Future<? extends BGPSession> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
+	public Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
 			final BGPSessionListener listener, final ReconnectStrategy strategy) {
 		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
 		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
