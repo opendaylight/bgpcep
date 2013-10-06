@@ -5,7 +5,7 @@ module topology-tunnel-pcep {
 
 	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import network-topology { prefix nt; revision-date 2013-07-12; }
-	import pcep-message { prefix pcep; revision-date 2013-08-20; }
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
