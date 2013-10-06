@@ -91,7 +91,7 @@
 					<instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.opendaylight.yang.gen.*
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.*
                         </Export-Package>
 					</instructions>
 				</configuration>

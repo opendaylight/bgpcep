@@ -144,11 +144,9 @@
                             javax.annotation,
                             javax.management,
                             org.opendaylight.protocol.bgp.concepts,
-                            org.opendaylight.protocol.bgp.linkstate,
                             org.opendaylight.protocol.bgp.parser,
                             org.opendaylight.protocol.bgp.parser.impl,
                             org.opendaylight.protocol.bgp.parser.message,
-                            org.opendaylight.protocol.bgp.parser.parameter,
                             org.opendaylight.protocol.bgp.util,
                             org.opendaylight.protocol.util,
 							org.slf4j,
@@ -156,7 +154,8 @@
 							io.netty.util.concurrent,
 						</Import-Package>
 						<Export-Package>
-							org.opendaylight.protocol.bgp.rib.impl
+							org.opendaylight.protocol.bgp.rib.impl,
+							org.opendaylight.protocol.bgp.rib.impl.spi
 						</Export-Package>
 					</instructions>
 				</configuration>

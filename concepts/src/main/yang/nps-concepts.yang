@@ -3,12 +3,8 @@ module nps-concepts {
 	namespace "urn:opendaylight:params:xml:ns:yang:nps-concepts";
 	prefix "nps-c";
 
-	import  ietf-inet-types {
-		prefix inet;
-		revision-date 2010-09-24;
-	}
-	
-	import ieee754 { prefix ieee754; }
+	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
