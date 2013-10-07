@@ -20,6 +20,7 @@
 		<module>concepts</module>
 		<module>linkstate</module>
         <module>parser-api</module>
+        <module>parser-spi</module>
         <module>parser-impl</module>
         <module>parser-mock</module>
         <module>rib-api</module>
