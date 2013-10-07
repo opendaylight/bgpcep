@@ -41,6 +41,7 @@
 		<module>bgp</module>
 		<module>concepts</module>
 		<module>framework</module>
+		<module>integration-tests</module>
 		<module>mockito-configuration</module>
 		<module>pcep</module>
 		<module>util</module>
