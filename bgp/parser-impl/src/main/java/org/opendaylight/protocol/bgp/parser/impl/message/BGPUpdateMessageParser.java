@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  * 
  */
-public class BGPUpdateMessageParser {
+public class BGPUpdateMessageParser implements MessageParser {
+	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser();
 
 	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
@@ -48,14 +50,14 @@ public class BGPUpdateMessageParser {
 	public static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
 
 	// Constructors -------------------------------------------------------
-
-	public BGPUpdateMessageParser() {
+	private BGPUpdateMessageParser() {
 
 	}
 
 	// Getters & setters --------------------------------------------------
 
-	public static Update parse(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
+	@Override
+	public Update parseMessage(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
