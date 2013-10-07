@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEP Session represents the finite state machine in PCEP, including timers and its purpose is to create a PCEP
@@ -16,7 +17,7 @@ import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
  * manually. If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown
  * requests.
  */
-public interface PCEPSession extends ProtocolSession<PCEPMessage> {
+public interface PCEPSession extends ProtocolSession<Message> {
 
 	/**
 	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
@@ -25,7 +26,7 @@ public interface PCEPSession extends ProtocolSession<PCEPMessage> {
 	 * 
 	 * @param message message to be sent
 	 */
-	public void sendMessage(PCEPMessage message);
+	public void sendMessage(Message message);
 
 	public void close(PCEPCloseObject.Reason reason);
 }

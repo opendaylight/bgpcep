@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Interface for specific message parsers
  */
 public interface PCEPMessageParser {
 
-	public byte[] put(PCEPMessage obj);
+	public byte[] put(Message obj);
 }

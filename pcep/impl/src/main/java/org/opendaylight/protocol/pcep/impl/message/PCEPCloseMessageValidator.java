@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEPCloseMessage validator. Validates message integrity.
@@ -23,7 +23,7 @@ import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 public class PCEPCloseMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -36,7 +36,7 @@ public class PCEPCloseMessageValidator extends PCEPMessageValidator {
 		if (!objects.isEmpty())
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 
-		return new ArrayList<PCEPMessage>() {
+		return new ArrayList<Message>() {
 			private static final long serialVersionUID = 1L;
 			{
 				this.add(msg);

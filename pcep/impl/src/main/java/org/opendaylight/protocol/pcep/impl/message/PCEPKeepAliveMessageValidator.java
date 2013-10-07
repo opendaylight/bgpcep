@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEPKeepAliveMessage validator. Validates message integrity.
@@ -22,11 +22,11 @@ import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 public class PCEPKeepAliveMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects != null && !objects.isEmpty())
 			throw new PCEPDeserializerException("KeepAlive message has content.");
 
-		return new ArrayList<PCEPMessage>() {
+		return new ArrayList<Message>() {
 			private static final long serialVersionUID = 1L;
 
 			{

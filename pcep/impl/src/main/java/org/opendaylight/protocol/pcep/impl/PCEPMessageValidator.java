@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.message.PCCreateMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageValidator;
@@ -24,6 +23,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageValidator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageValidator;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Base class for message validators
@@ -58,7 +58,7 @@ public abstract class PCEPMessageValidator {
 		}
 	}
 
-	public abstract List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException;
+	public abstract List<Message> validate(List<PCEPObject> objects) throws PCEPDeserializerException;
 
 	public static PCEPMessageValidator getValidator(final PCEPMessageType msgType) {
 		return MapOfValidators.getInstance().get(msgType);

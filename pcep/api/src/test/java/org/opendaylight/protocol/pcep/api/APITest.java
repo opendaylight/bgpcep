@@ -11,14 +11,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
@@ -44,22 +40,6 @@ public class APITest {
 	public void testDocumentedException() throws PCEPDocumentedException {
 		final PCEPDocumentedException de = new PCEPDocumentedException("", PCEPErrors.C_BIT_SET);
 		assertEquals(PCEPErrors.C_BIT_SET, de.getError());
-	}
-
-	@Test
-	public void testPCEPMessage() {
-		final List<PCEPObject> objs = new ArrayList<PCEPObject>();
-		objs.add(new PCEPErrorObject(PCEPErrors.ATTEMPT_2ND_SESSION));
-		final PCEPMessage msg1 = new PCEPMessage(objs) {
-			private static final long serialVersionUID = 1L;
-		};
-		final PCEPMessage msg2 = new PCEPMessage(objs) {
-			private static final long serialVersionUID = 1L;
-		};
-
-		assertNotSame(msg1, msg2); // not same because they are anonymous classes
-		assertEquals(msg1.hashCode(), msg2.hashCode());
-		assertEquals(msg1.toString(), msg2.toString());
 	}
 
 	@Test

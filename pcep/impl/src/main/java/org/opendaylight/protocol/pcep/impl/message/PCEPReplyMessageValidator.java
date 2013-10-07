@@ -15,7 +15,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -36,6 +35,9 @@ import org.opendaylight.protocol.pcep.object.PCEPObjectiveFunctionObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestedPathBandwidthObject;
 import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * PCEPReplyMessage validator. Validates message integrity.
@@ -46,7 +48,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 
 		private boolean requestRejected = true;
 
-		private List<PCEPMessage> msgs = new ArrayList<PCEPMessage>();
+		private List<Message> msgs = Lists.newArrayList();
 
 		private PCEPRequestParameterObject rpObj;
 
@@ -60,7 +62,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 
 		private void init() {
 			this.requestRejected = false;
-			this.msgs = new ArrayList<PCEPMessage>();
+			this.msgs = Lists.newArrayList();
 
 			this.noPath = null;
 			this.lsp = null;
@@ -71,7 +73,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			this.paths = new ArrayList<CompositePathObject>();
 		}
 
-		public List<PCEPMessage> validate(List<PCEPObject> objects, List<CompositeReplySvecObject> svecList) {
+		public List<Message> validate(final List<PCEPObject> objects, final List<CompositeReplySvecObject> svecList) {
 			this.init();
 
 			if (!(objects.get(0) instanceof PCEPRequestParameterObject))
@@ -86,8 +88,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 				obj = objects.get(0);
 				if (obj instanceof UnknownObject) {
 					if (((UnknownObject) obj).isProcessed()) {
-						this.msgs.add(new PCEPErrorMessage(
-								new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
+						this.msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
 						this.requestRejected = true;
 					}
 
@@ -96,44 +97,44 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 				}
 
 				switch (state) {
-					case 1:
-						state = 2;
-						if (obj instanceof PCEPNoPathObject) {
-							this.noPath = (PCEPNoPathObject) obj;
-							break;
-						}
-					case 2:
-						state = 3;
-						if (obj instanceof PCEPLspObject) {
-							this.lsp = (PCEPLspObject) obj;
-							break;
-						}
-					case 3:
-						state = 4;
-						if (obj instanceof PCEPLspaObject) {
-							this.lspa = (PCEPLspaObject) obj;
-							break;
-						}
-					case 4:
+				case 1:
+					state = 2;
+					if (obj instanceof PCEPNoPathObject) {
+						this.noPath = (PCEPNoPathObject) obj;
+						break;
+					}
+				case 2:
+					state = 3;
+					if (obj instanceof PCEPLspObject) {
+						this.lsp = (PCEPLspObject) obj;
+						break;
+					}
+				case 3:
+					state = 4;
+					if (obj instanceof PCEPLspaObject) {
+						this.lspa = (PCEPLspaObject) obj;
+						break;
+					}
+				case 4:
+					state = 5;
+					if (obj instanceof PCEPRequestedPathBandwidthObject) {
+						this.bandwidth = (PCEPRequestedPathBandwidthObject) obj;
+						break;
+					}
+				case 5:
+					state = 6;
+					if (obj instanceof PCEPMetricObject) {
+						this.metrics.add((PCEPMetricObject) obj);
 						state = 5;
-						if (obj instanceof PCEPRequestedPathBandwidthObject) {
-							this.bandwidth = (PCEPRequestedPathBandwidthObject) obj;
-							break;
-						}
-					case 5:
-						state = 6;
-						if (obj instanceof PCEPMetricObject) {
-							this.metrics.add((PCEPMetricObject) obj);
-							state = 5;
-							break;
-						}
-					case 6:
-						state = 7;
-						if (obj instanceof PCEPIncludeRouteObject) {
-							this.iro = (PCEPIncludeRouteObject) obj;
-							state = 8;
-							break;
-						}
+						break;
+					}
+				case 6:
+					state = 7;
+					if (obj instanceof PCEPIncludeRouteObject) {
+						this.iro = (PCEPIncludeRouteObject) obj;
+						state = 8;
+						break;
+					}
 				}
 
 				if (state == 7)
@@ -156,14 +157,13 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			}
 
 			if (!this.requestRejected) {
-				this.msgs.add(new PCEPReplyMessage(Collections.unmodifiableList(Arrays.asList(new CompositeResponseObject(rpObj, this.noPath, this.lsp,
-						this.lspa, this.bandwidth, this.metrics, this.iro, this.paths))), Collections.unmodifiableList(svecList)));
+				this.msgs.add(new PCEPReplyMessage(Collections.unmodifiableList(Arrays.asList(new CompositeResponseObject(rpObj, this.noPath, this.lsp, this.lspa, this.bandwidth, this.metrics, this.iro, this.paths))), Collections.unmodifiableList(svecList)));
 			}
 
 			return this.msgs;
 		}
 
-		private CompositePathObject getValidCompositePath(List<PCEPObject> objects) {
+		private CompositePathObject getValidCompositePath(final List<PCEPObject> objects) {
 			if (!(objects.get(0) instanceof PCEPExplicitRouteObject))
 				return null;
 
@@ -181,8 +181,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 				obj = objects.get(0);
 				if (obj instanceof UnknownObject) {
 					if (((UnknownObject) obj).isProcessed()) {
-						this.msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(this.rpObj, false), new PCEPErrorObject(((UnknownObject) obj)
-								.getError()))));
+						this.msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(this.rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
 						this.requestRejected = true;
 					}
 					objects.remove(0);
@@ -190,32 +189,32 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 				}
 
 				switch (state) {
-					case 1:
-						state = 2;
-						if (obj instanceof PCEPLspaObject) {
-							pathLspa = (PCEPLspaObject) obj;
-							break;
-						}
-					case 2:
+				case 1:
+					state = 2;
+					if (obj instanceof PCEPLspaObject) {
+						pathLspa = (PCEPLspaObject) obj;
+						break;
+					}
+				case 2:
+					state = 3;
+					if (obj instanceof PCEPRequestedPathBandwidthObject) {
+						pathBandwidth = (PCEPRequestedPathBandwidthObject) obj;
+						break;
+					}
+				case 3:
+					state = 4;
+					if (obj instanceof PCEPMetricObject) {
+						pathMetrics.add((PCEPMetricObject) obj);
 						state = 3;
-						if (obj instanceof PCEPRequestedPathBandwidthObject) {
-							pathBandwidth = (PCEPRequestedPathBandwidthObject) obj;
-							break;
-						}
-					case 3:
-						state = 4;
-						if (obj instanceof PCEPMetricObject) {
-							pathMetrics.add((PCEPMetricObject) obj);
-							state = 3;
-							break;
-						}
-					case 4:
-						state = 5;
-						if (obj instanceof PCEPIncludeRouteObject) {
-							pathIro = (PCEPIncludeRouteObject) obj;
-							state = 6;
-							break;
-						}
+						break;
+					}
+				case 4:
+					state = 5;
+					if (obj instanceof PCEPIncludeRouteObject) {
+						pathIro = (PCEPIncludeRouteObject) obj;
+						state = 6;
+						break;
+					}
 
 				}
 
@@ -233,11 +232,11 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 	}
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
-		final List<PCEPMessage> msgs = new ArrayList<PCEPMessage>();
+		final List<Message> msgs = Lists.newArrayList();
 		final List<CompositeReplySvecObject> svecList = new ArrayList<CompositeReplySvecObject>();
 
 		CompositeReplySvecObject svecComp;
@@ -253,7 +252,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			svecList.add(svecComp);
 		}
 
-		List<PCEPMessage> subMessages;
+		List<Message> subMessages;
 		final SubReplyValidator subValidator = new SubReplyValidator();
 		while (!objects.isEmpty()) {
 			subMessages = subValidator.validate(objects, svecList);
@@ -273,7 +272,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 		return msgs;
 	}
 
-	private CompositeReplySvecObject getValidSvecComposite(List<PCEPObject> objects) throws PCEPDocumentedException {
+	private CompositeReplySvecObject getValidSvecComposite(final List<PCEPObject> objects) throws PCEPDocumentedException {
 		if (objects == null)
 			throw new IllegalArgumentException("List cannot be null.");
 
@@ -295,19 +294,19 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 
 			switch (state) {
-				case 1:
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPObjectiveFunctionObject) {
+					of = (PCEPObjectiveFunctionObject) obj;
+					break;
+				}
+			case 2:
+				state = 3;
+				if (obj instanceof PCEPMetricObject) {
+					metrics.add((PCEPMetricObject) obj);
 					state = 2;
-					if (obj instanceof PCEPObjectiveFunctionObject) {
-						of = (PCEPObjectiveFunctionObject) obj;
-						break;
-					}
-				case 2:
-					state = 3;
-					if (obj instanceof PCEPMetricObject) {
-						metrics.add((PCEPMetricObject) obj);
-						state = 2;
-						break;
-					}
+					break;
+				}
 			}
 
 			if (state == 3)
@@ -319,9 +318,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 		return new CompositeReplySvecObject(svec, of, metrics);
 	}
 
-	private static PCEPRequestParameterObject copyRP(PCEPRequestParameterObject origRp, boolean processed) {
-		return new PCEPRequestParameterObject(origRp.isLoose(), origRp.isBidirectional(), origRp.isReoptimized(), origRp.isMakeBeforeBreak(),
-				origRp.isReportRequestOrder(), origRp.isSuplyOFOnResponse(), origRp.isFragmentation(), origRp.isP2mp(), origRp.isEroCompression(),
-				origRp.getPriority(), origRp.getRequestID(), origRp.getTlvs(), processed, origRp.isIgnored());
+	private static PCEPRequestParameterObject copyRP(final PCEPRequestParameterObject origRp, final boolean processed) {
+		return new PCEPRequestParameterObject(origRp.isLoose(), origRp.isBidirectional(), origRp.isReoptimized(), origRp.isMakeBeforeBreak(), origRp.isReportRequestOrder(), origRp.isSuplyOFOnResponse(), origRp.isFragmentation(), origRp.isP2mp(), origRp.isEroCompression(), origRp.getPriority(), origRp.getRequestID(), origRp.getTlvs(), processed, origRp.isIgnored());
 	}
 }

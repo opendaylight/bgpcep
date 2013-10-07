@@ -141,6 +141,7 @@
                            org.opendaylight.protocol.pcep.subobject,
                            org.opendaylight.protocol.pcep.tlv,
                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.*,
+                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.*,
                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.*,
                        </Export-Package>
                        <Import-Package>

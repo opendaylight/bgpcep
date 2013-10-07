@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -39,6 +38,9 @@ import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestedPathBandwidthObject;
 import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * PCEPRequestMessage validator. Validates message integrity.
@@ -46,11 +48,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.conc
 public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(final List<PCEPObject> objects) {
+	public List<Message> validate(final List<PCEPObject> objects) {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
-		final List<PCEPMessage> msgs = new ArrayList<PCEPMessage>();
+		final List<Message> msgs = Lists.newArrayList();
 		final List<CompositeRequestSvecObject> svecList = new ArrayList<CompositeRequestSvecObject>();
 
 		CompositeRequestSvecObject svecComp;
