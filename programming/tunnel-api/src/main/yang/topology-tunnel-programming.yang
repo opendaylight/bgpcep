@@ -1,0 +1,143 @@
+module topology-tunnel-programming {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:programming";
+	prefix "ttp";
+
+	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
+	import programming { prefix pgm; revision-date 2013-09-30; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the programming extensions for tunnel
+		topologies.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-30" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	identity attach-path-instruction {
+		base pgm:instruction-type;
+	}
+
+	identity create-path-instruction {
+		base pgm:instruction-type;
+	}
+
+	identity destroy-path-instruction {
+		base pgm:instruction-type;
+	}
+
+	identity detach-path-instruction {
+		base pgm:instruction-type;
+	}
+
+/*
+FIXME: BUG-112
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = attach-path-instruction";
+
+		case attach-path {
+			container attach-path {
+				leaf link-id {
+					type nt:link-id;
+					mandatory true;
+				}
+				leaf path-id {
+					type tt:path-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = create-path-instruction";
+
+		case create-path {
+			container create-path {
+				leaf path-id {
+					type tt:path-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = destroy-path-instruction";
+
+		case destroy-path {
+			container destroy-path {
+				leaf path-id {
+					type tt:path-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = detach-path-instruction";
+
+		case detach-path {
+			container detach-path {
+				leaf link-id {
+					type nt:link-id;
+					mandatory true;
+				}
+				leaf path-id {
+					type tt:path-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	identity create-tunnel-instruction {
+		base pgm:instruction-type;
+	}
+
+	identity destroy-tunnel-instruction {
+		base pgm:instruction-type;
+	}
+
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = create-tunnel-instruction";
+
+		case create-tunnel {
+			container create-tunnel {
+				leaf link-id {
+					type nt:link-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+
+	augment "/pgm:submit-instruction/pgm:input/pgm:arguments" {
+		when "../type = destroy-tunnel-instruction";
+
+		case destroy-tunnel {
+			container destroy-tunnel {
+				leaf link-id {
+					type nt:link-id;
+					mandatory true;
+				}
+			}
+		}
+	}
+*/
+}
+

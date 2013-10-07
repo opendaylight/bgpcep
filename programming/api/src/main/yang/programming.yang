@@ -1,0 +1,263 @@
+module programming {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:programming";
+	prefix "pgm";
+
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the basic programming model primitices.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-30" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	typedef nanotime {
+		description
+			"Absolute number of nanoseconds since the start of the
+			UNIX epoch.";
+		type uint64;
+		units nanoseconds;
+	}
+
+	typedef instruction-id {
+		type inet:uri;
+	}
+
+	typedef instruction-status {
+		type enumeration {
+			enum queued {
+				description
+					"Its immediate prerequisite intructions
+					have not been resolved. The instruction
+					can be cancelled. If any of its
+					prerequisites moves to Unknown, Failed or
+					Cancelled state, the instruction itself
+					moves into Cancelled state. Once all of
+					the dependencies move into Successful
+					state, this instruction moves into
+					Scheduled state. If this instruction's
+					deadline passes, it transitions into
+					Cancelled state.";
+			}
+			enum scheduled {
+				description
+					"All of instruction's prerequisites have
+					been successful and this instruction is
+					ready to be executed, but the resources
+					needed for its execution are not ready.
+					The instruction can be Cancelled. If this
+					instruction's deadline passes, it
+					transitions into Failed state.";
+			}
+			enum executing {
+				description
+					"The instruction is being executed. It
+					cannot be Cancelled on request. If the
+					execution does not complete within the
+					specified deadline, this instruction
+					moves into Unknown state. If the
+					instruction's execution completes within
+					the deadline, it moves into Successful,
+					Failed or Cancelled state, based on the
+					effects it has had on state.";
+			}
+			enum cancelled {
+				description
+					"The instruction has never executed, or
+					has been executing but all its effects
+					have been rolled back. System state is
+					such as if the instruction never
+					executed.";
+			}
+			enum failed {
+				description
+					"The instruciton has failed to execute
+					completely, but some of its effects may
+					have been recorded in the state. A full
+					state resynchronization is required to
+					recover from this failure, and even then
+					an operator intervention may be required
+					(if, for example the effect is not
+					representable in exposed abstractions.)";
+			}
+			enum successful {
+				description
+					"The instruction has executed competely
+					and its effects have been recorded in
+					state.";
+			}
+			enum unknown {
+				description
+					"The instruction has failed to execute
+					within the deadline allocated to it.
+					It's effects on the state are unknown
+					at this point, but can be assumed to
+					either atomically happen or not-happen.
+					This state is transient and the
+					instruction will eventually (at some
+					indeterminate point in the future) enter
+					either Successful, Failed or Cancelled
+					state.";
+			}
+		}
+	}
+
+	grouping instruction-queue {
+		leaf maximum-instructions {
+			config false;
+
+			description
+				"Maximum number of instructions which can be
+				enqueued at the same time.";
+
+			type uint64;
+			mandatory true;
+		}
+
+		leaf available-instructions {
+			config false;
+
+			description
+				"Number of currently available instruction
+				slots.";
+
+			type uint64;
+			mandatory true;
+		}
+
+		list instructions {
+			config false;
+
+			leaf id {
+				type instruction-id;
+			}
+			key id;
+
+			leaf status {
+				type instruction-status;
+				mandatory true;
+			}
+
+			leaf deadline {
+				type nanotime;
+				mandatory true;
+			}
+		}
+	}
+
+	identity cancel-failure {
+		description
+			"The base identity of various reasons for an
+			instruction cancellation to fail.";
+	}
+
+	identity unknown-instruction {
+		description
+			"The specified instruction ID has not been found
+			in the queue.";
+		base cancel-failure;
+	}
+
+	identity uncancellable-instruction {
+		description
+			"The specified instruction is in process of being
+			executed and cannot be cancelled. Wait for the
+			execution process to complete.";
+	}
+
+	rpc cancel-instruction {
+		input {
+			leaf id {
+				type instruction-id;
+				mandatory true;
+			}
+		}
+
+		output {
+			leaf failure {
+				type identityref {
+					base cancel-failure;
+				}
+			}
+		}
+	}
+
+	identity submit-failure {
+		description
+			"The base identity of various reasons for an
+			instruction submission to fail.";
+	}
+
+	identity duplicate-instruction-id {
+		description
+			"Instruction ID clashes with an instruction with an
+			already-queued instruction. Assign a new identifier
+			or wait for the enqueued instruction to complete.";
+	}
+
+	identity too-many-instructions {
+		description
+			"Instruction queue size exceeded.";
+	}
+
+	identity instruction-type {
+		description
+			"Base intruction type. This identity should be
+			extended for each individual instruction defined.";
+	}
+
+	rpc submit-instruction {
+		input {
+			leaf id {
+				type instruction-id;
+				mandatory true;
+			}
+
+			leaf type {
+				type identityref {
+					base instruction-type;
+				}
+				mandatory true;
+			}
+
+			leaf deadline {
+				type nanotime;
+				mandatory true;
+			}
+
+			leaf-list preconditions {
+				type instruction-id;
+			}
+
+			choice arguments {
+
+			}
+		}
+
+		output {
+			choice result {
+				case failure {
+					leaf failure {
+						type identityref {
+							base submit-failure;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
