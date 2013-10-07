@@ -5,16 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep;
+package org.opendaylight.protocol.pcep.spi;
 
-import java.io.Serializable;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 
-/**
- * Interface grouping all implemented tlvs.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.1">PCEP TLV
- *      Format</a>
- */
-public interface PCEPTlv extends Serializable {
+public interface SubobjectSerializer {
+	
+	@Deprecated
+	public int getType();
 
+	public byte[] serializeSubobject(CSubobject subobject);
 }
