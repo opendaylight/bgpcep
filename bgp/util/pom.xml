@@ -86,7 +86,6 @@
 							org.opendaylight.protocol.concepts,
                             org.opendaylight.protocol.util,
 							com.google.common.*, 
-							org.opendaylight.protocol.concepts, 
 							org.apache.commons.*,
 							org.slf4j
 						</Import-Package>

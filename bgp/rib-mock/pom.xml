@@ -94,7 +94,6 @@
 							javax.management,
 							org.apache.commons.codec,
 							org.apache.commons.codec.binary,
-							org.apache.commons.lang,
 							org.opendaylight.protocol.bgp.concepts,
 							org.opendaylight.protocol.bgp.parser,
                             org.opendaylight.protocol.bgp.parser.impl,

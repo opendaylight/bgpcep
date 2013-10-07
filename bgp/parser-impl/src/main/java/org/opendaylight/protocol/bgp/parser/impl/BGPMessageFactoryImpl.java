@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import java.util.Arrays;
-import java.util.List;
-
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
@@ -26,8 +25,8 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The byte array

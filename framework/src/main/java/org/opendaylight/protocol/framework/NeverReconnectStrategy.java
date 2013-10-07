@@ -7,12 +7,11 @@
  */
 package org.opendaylight.protocol.framework;
 
+import com.google.common.base.Preconditions;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Utility ReconnectStrategy singleton, which will cause the reconnect process
@@ -31,7 +30,7 @@ public final class NeverReconnectStrategy implements ReconnectStrategy {
 
 	@Override
 	public Future<Void> scheduleReconnect(final Throwable cause) {
-		return executor.newFailedFuture(new Throwable());
+		return executor.newFailedFuture(cause);
 	}
 
 	@Override
