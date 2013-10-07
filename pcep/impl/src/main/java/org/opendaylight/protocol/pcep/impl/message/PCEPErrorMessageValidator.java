@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.pcep.object.CompositeErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEPErrorMessage validator. Validates message integrity.
@@ -30,7 +30,7 @@ import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 public class PCEPErrorMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -44,39 +44,39 @@ public class PCEPErrorMessageValidator extends PCEPMessageValidator {
 			obj = objects.get(0);
 
 			if (obj instanceof UnknownObject)
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) obj).getError())));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) obj).getError())));
 
 			switch (state) {
-				case 1:
-					if (obj instanceof PCEPErrorObject) {
-						errorObjects.add((PCEPErrorObject) obj);
-						break;
-					}
-					state = 2;
-				case 2:
-					state = 3;
-					if (obj instanceof PCEPOpenObject) {
-						openObj = (PCEPOpenObject) obj;
-						break;
-					}
-				case 3:
-					while (!objects.isEmpty()) {
-						CompositeErrorObject comObj;
-
-						try {
-							comObj = getValidErrorComposite(objects);
-						} catch (final PCEPDocumentedException e) {
-							return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
-						}
-
-						if (comObj == null)
-							break;
-
-						errors.add(comObj);
-					}
-
-					state = 4;
+			case 1:
+				if (obj instanceof PCEPErrorObject) {
+					errorObjects.add((PCEPErrorObject) obj);
 					break;
+				}
+				state = 2;
+			case 2:
+				state = 3;
+				if (obj instanceof PCEPOpenObject) {
+					openObj = (PCEPOpenObject) obj;
+					break;
+				}
+			case 3:
+				while (!objects.isEmpty()) {
+					CompositeErrorObject comObj;
+
+					try {
+						comObj = getValidErrorComposite(objects);
+					} catch (final PCEPDocumentedException e) {
+						return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
+					}
+
+					if (comObj == null)
+						break;
+
+					errors.add(comObj);
+				}
+
+				state = 4;
+				break;
 			}
 
 			if (state == 4) {
@@ -92,10 +92,11 @@ public class PCEPErrorMessageValidator extends PCEPMessageValidator {
 		if (!objects.isEmpty())
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 
-		return Arrays.asList((PCEPMessage) new PCEPErrorMessage(openObj, errorObjects, errors));
+		return Arrays.asList((Message) new PCEPErrorMessage(openObj, errorObjects, errors));
 	}
 
-	private static CompositeErrorObject getValidErrorComposite(List<PCEPObject> objects) throws PCEPDocumentedException, PCEPDeserializerException {
+	private static CompositeErrorObject getValidErrorComposite(final List<PCEPObject> objects) throws PCEPDocumentedException,
+			PCEPDeserializerException {
 		final List<PCEPRequestParameterObject> requestParameters = new ArrayList<PCEPRequestParameterObject>();
 		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
 		PCEPObject obj;
@@ -108,22 +109,22 @@ public class PCEPErrorMessageValidator extends PCEPMessageValidator {
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 
 			switch (state) {
-				case 1:
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPRequestParameterObject) {
+					if (((PCEPRequestParameterObject) obj).isProcessed())
+						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+					requestParameters.add((PCEPRequestParameterObject) obj);
+					state = 1;
+					break;
+				}
+			case 2:
+				if (obj instanceof PCEPErrorObject) {
+					errors.add((PCEPErrorObject) obj);
 					state = 2;
-					if (obj instanceof PCEPRequestParameterObject) {
-						if (((PCEPRequestParameterObject) obj).isProcessed())
-							throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-						requestParameters.add((PCEPRequestParameterObject) obj);
-						state = 1;
-						break;
-					}
-				case 2:
-					if (obj instanceof PCEPErrorObject) {
-						errors.add((PCEPErrorObject) obj);
-						state = 2;
-						break;
-					}
-					state = 3;
+					break;
+				}
+				state = 3;
 			}
 
 			if (state == 3)

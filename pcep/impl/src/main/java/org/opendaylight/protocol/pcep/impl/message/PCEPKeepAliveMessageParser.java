@@ -7,20 +7,20 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
 import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage
- * PCEPKeepAliveMessage}
+ * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage PCEPKeepAliveMessage}
  */
 public class PCEPKeepAliveMessageParser implements PCEPMessageParser {
 
 	@Override
-	public byte[] put(PCEPMessage msg) {
+	public byte[] put(final Message msg) {
 		if (!(msg instanceof PCEPKeepAliveMessage))
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass() + ". Nedded PCEPKeepAliveMessage.");
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Nedded PCEPKeepAliveMessage.");
 
 		return new byte[0];
 	}

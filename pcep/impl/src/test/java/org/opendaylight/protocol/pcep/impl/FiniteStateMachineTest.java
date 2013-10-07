@@ -17,15 +17,16 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 import org.opendaylight.protocol.pcep.message.PCEPNotificationMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
 import org.opendaylight.protocol.pcep.object.CompositeNotifyObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPNotificationObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 public class FiniteStateMachineTest {
 
@@ -43,22 +44,21 @@ public class FiniteStateMachineTest {
 	}
 
 	/**
-	 * Both PCEs accept session characteristics. Also tests KeepAliveTimer and
-	 * error message and when pce attempts to establish pce session for the 2nd
-	 * time.
-	 *
+	 * Both PCEs accept session characteristics. Also tests KeepAliveTimer and error message and when pce attempts to
+	 * establish pce session for the 2nd time.
+	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	@Ignore
 	public void testSessionCharsAccBoth() throws InterruptedException {
-		//this.serverSession.startSession();
+		// this.serverSession.startSession();
 		assertEquals(1, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(0) instanceof PCEPOpenMessage);
 		this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(3, 9, 2)));
 		assertEquals(2, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(1) instanceof PCEPKeepAliveMessage);
-		this.client.sendMessage(new PCEPKeepAliveMessage());
+		assertTrue(this.client.getListMsg().get(1) instanceof KeepaliveMessage);
+		this.client.sendMessage((Message) new KeepaliveMessageBuilder().build());
 		synchronized (this.serverListener) {
 			while (!this.serverListener.up) {
 				try {
@@ -69,13 +69,13 @@ public class FiniteStateMachineTest {
 			}
 		}
 		assertTrue(this.serverListener.up);
-		//		Thread.sleep(PCEPSessionImpl.KEEP_ALIVE_TIMER_VALUE * 1000);
-		//		assertEquals(3, this.client.getListMsg().size());
-		//		assertTrue(this.client.getListMsg().get(2) instanceof PCEPKeepAliveMessage); // test of keepalive timer
+		// Thread.sleep(PCEPSessionImpl.KEEP_ALIVE_TIMER_VALUE * 1000);
+		// assertEquals(3, this.client.getListMsg().size());
+		// assertTrue(this.client.getListMsg().get(2) instanceof PCEPKeepAliveMessage); // test of keepalive timer
 		this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(1, 1, 1)));
 		assertEquals(3, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(2) instanceof PCEPErrorMessage);
-		for (final PCEPMessage m : this.client.getListMsg()) {
+		for (final Message m : this.client.getListMsg()) {
 			if (m instanceof PCEPErrorMessage) {
 				final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
 				assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, obj.getError()); // test of error type 9
@@ -85,21 +85,21 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * Mock PCE does not accept session characteristics the first time.
-	 *
+	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	@Ignore
 	public void testSessionCharsAccMe() throws InterruptedException {
-		//this.serverSession.startSession();
+		// this.serverSession.startSession();
 		this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(4, 9, 2)));
 		assertEquals(2, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(0) instanceof PCEPOpenMessage);
-		assertTrue(this.client.getListMsg().get(1) instanceof PCEPKeepAliveMessage);
+		assertTrue(this.client.getListMsg().get(1) instanceof KeepaliveMessage);
 		this.client.sendErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, new PCEPOpenObject(3, 7, 2, null));
 		assertEquals(3, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(2) instanceof PCEPOpenMessage);
-		this.client.sendMessage(new PCEPKeepAliveMessage());
+		this.client.sendMessage((Message) new KeepaliveMessageBuilder().build());
 		synchronized (this.serverListener) {
 			while (!this.serverListener.up) {
 				try {
@@ -114,13 +114,13 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * Sending different PCEP Message than Open in session establishment phase.
-	 *
+	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	@Ignore
 	public void testErrorOneOne() throws InterruptedException {
-		//this.serverSession.startSession();
+		// this.serverSession.startSession();
 		assertEquals(1, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(0) instanceof PCEPOpenMessage);
 		this.client.sendMessage(new PCEPNotificationMessage(new ArrayList<CompositeNotifyObject>() {
@@ -136,7 +136,7 @@ public class FiniteStateMachineTest {
 				}));
 			}
 		}));
-		for (final PCEPMessage m : this.client.getListMsg()) {
+		for (final Message m : this.client.getListMsg()) {
 			if (m instanceof PCEPErrorMessage) {
 				final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
 				assertEquals(PCEPErrors.NON_OR_INVALID_OPEN_MSG, obj.getError());
@@ -148,17 +148,17 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * OpenWait timer expired.
-	 *
+	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	@Ignore
 	public void testErrorOneTwo() throws InterruptedException {
-		//this.serverSession.startSession();
+		// this.serverSession.startSession();
 		assertEquals(1, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(0) instanceof PCEPOpenMessage);
 		Thread.sleep(60 * 1000);
-		for (final PCEPMessage m : this.client.getListMsg()) {
+		for (final Message m : this.client.getListMsg()) {
 			if (m instanceof PCEPErrorMessage) {
 				final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
 				assertEquals(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT, obj.getError());
@@ -168,18 +168,18 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * KeepWaitTimer expired.
-	 *
+	 * 
 	 * @throws InterruptedException
 	 */
 	@Test
 	@Ignore
 	public void testErrorOneSeven() throws InterruptedException {
-		//this.serverSession.startSession();
+		// this.serverSession.startSession();
 		assertEquals(1, this.client.getListMsg().size());
 		assertTrue(this.client.getListMsg().get(0) instanceof PCEPOpenMessage);
 		this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(3, 9, 2)));
-		Thread.sleep(serverSession.getKeepAliveTimerValue() * 1000);
-		for (final PCEPMessage m : this.client.getListMsg()) {
+		Thread.sleep(this.serverSession.getKeepAliveTimerValue() * 1000);
+		for (final Message m : this.client.getListMsg()) {
 			if (m instanceof PCEPErrorMessage) {
 				final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
 				assertEquals(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT, obj.getError());

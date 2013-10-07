@@ -7,26 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.Collections;
-
-import org.opendaylight.protocol.pcep.PCEPMessage;
-import org.opendaylight.protocol.pcep.PCEPObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Structure of Keepalive Message
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.3">KeepAlive
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.3">KeepAlive Message</a>
  */
-public final class PCEPKeepAliveMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = 8133032616718362219L;
+public final class PCEPKeepAliveMessage implements Message {
 
 	/**
 	 * Default constructor PCEPKeepAliveMessage.
 	 */
 	public PCEPKeepAliveMessage() {
-		super(Collections.<PCEPObject> emptyList());
 	}
 
 	@Override

@@ -11,19 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MockPCE implements PCEPSessionListener {
 
-	private final List<PCEPMessage> listMsg = new ArrayList<PCEPMessage>();
+	private final List<Message> listMsg = new ArrayList<Message>();
 
 	private PCEPSessionImpl session = null;
 
@@ -36,7 +36,7 @@ public class MockPCE implements PCEPSessionListener {
 	public MockPCE() {
 	}
 
-	public void sendMessage(final PCEPMessage msg) {
+	public void sendMessage(final Message msg) {
 		this.session.handleMessage(msg);
 	}
 
@@ -47,7 +47,7 @@ public class MockPCE implements PCEPSessionListener {
 		this.sendMessage(new PCEPErrorMessage(open, errors, null));
 	}
 
-	public List<PCEPMessage> getListMsg() {
+	public List<Message> getListMsg() {
 		return this.listMsg;
 	}
 
@@ -56,7 +56,7 @@ public class MockPCE implements PCEPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final PCEPSession session, final PCEPMessage message) {
+	public void onMessage(final PCEPSession session, final Message message) {
 		this.listMsg.add(message);
 		logger.debug("Message received: {}", message);
 	}

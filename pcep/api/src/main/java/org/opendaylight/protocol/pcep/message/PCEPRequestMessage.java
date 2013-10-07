@@ -7,38 +7,35 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeRequestObject;
 import org.opendaylight.protocol.pcep.object.CompositeRequestSvecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Request Message.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.4">Request
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.4">Request Message</a>
  */
-public class PCEPRequestMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = -1914670070018415483L;
+public class PCEPRequestMessage implements Message {
 
 	private final List<CompositeRequestSvecObject> svecList;
 
 	private final List<CompositeRequestObject> requests;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs new Request Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeRequestObject} in
-	 *             the list.
-	 *
-	 * @param requests
-	 *            List<CompositeRequestObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeRequestObject} in the list.
+	 * 
+	 * @param requests List<CompositeRequestObject>. Can't be empty or null.
 	 */
 	public PCEPRequestMessage(final List<CompositeRequestObject> requests) {
 		this(null, requests);
@@ -46,32 +43,23 @@ public class PCEPRequestMessage extends PCEPMessage {
 
 	/**
 	 * Constructs new Request Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeRequestObject} in
-	 *             the list.
-	 *
-	 * @param svecList
-	 *            List<CompositeSvecObject>
-	 * @param requests
-	 *            List<CompositeRequestObject>. Can't be null or empty.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeRequestObject} in the list.
+	 * 
+	 * @param svecList List<CompositeSvecObject>
+	 * @param requests List<CompositeRequestObject>. Can't be null or empty.
 	 */
 	public PCEPRequestMessage(final List<CompositeRequestSvecObject> svecList, final List<CompositeRequestObject> requests) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = -6183368691183167076L;
-
-			{
-				if (svecList != null)
-					for (final CompositeRequestSvecObject cso : svecList) {
-						this.addAll(cso.getCompositeAsList());
-					}
-				if (requests != null)
-					for (final CompositeRequestObject cro : requests) {
-						this.addAll(cro.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (svecList != null)
+			for (final CompositeRequestSvecObject cso : svecList) {
+				this.objects.addAll(cso.getCompositeAsList());
 			}
-		});
+		if (requests != null)
+			for (final CompositeRequestObject cro : requests) {
+				this.objects.addAll(cro.getCompositeAsList());
+			}
+
 		if (svecList != null)
 			this.svecList = svecList;
 		else
@@ -85,7 +73,7 @@ public class PCEPRequestMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeRequestSvecObject}.
-	 *
+	 * 
 	 * @return List<CompositeSvecObject>. Can't be null, but may be empty.
 	 */
 	public List<CompositeRequestSvecObject> getSvecObjects() {
@@ -94,11 +82,15 @@ public class PCEPRequestMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeRequestObject}.
-	 *
+	 * 
 	 * @return List<CompositeRequestObject>. Can't be null or empty.
 	 */
 	public List<CompositeRequestObject> getRequests() {
 		return this.requests;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -111,7 +103,7 @@ public class PCEPRequestMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

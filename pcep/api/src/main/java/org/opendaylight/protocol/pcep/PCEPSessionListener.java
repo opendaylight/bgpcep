@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.pcep;
 
 import org.opendaylight.protocol.framework.SessionListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Listener that receives session informations from the session.
  */
-public interface PCEPSessionListener extends SessionListener<PCEPMessage, PCEPSession, PCEPTerminationReason> {
+public interface PCEPSessionListener extends SessionListener<Message, PCEPSession, PCEPTerminationReason> {
 
 }

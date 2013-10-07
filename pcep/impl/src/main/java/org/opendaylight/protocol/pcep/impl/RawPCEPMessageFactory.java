@@ -16,7 +16,6 @@ import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.impl.message.PCCreateMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
@@ -30,7 +29,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParse
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 import org.opendaylight.protocol.pcep.message.PCEPNotificationMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
 import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
@@ -40,6 +38,8 @@ import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
 import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +48,9 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Factory for subclasses of {@link org.opendaylight.protocol.pcep.PCEPMessage PCEPMessage}
+ * Factory for subclasses of {@link Message}
  */
-class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
+class RawPCEPMessageFactory implements ProtocolMessageFactory<Message> {
 
 	private final static Logger logger = LoggerFactory.getLogger(PCEPMessageFactory.class);
 
@@ -59,6 +59,11 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 	private final static int LENGTH_SIZE = 2; // bytes
 
 	public final static int COMMON_HEADER_LENGTH = 4; // bytes
+
+	/**
+	 * Current supported version of PCEP.
+	 */
+	public static final int PCEP_VERSION = 1;
 
 	private static class MapOfParsers extends HashMap<PCEPMessageType, PCEPMessageParser> {
 
@@ -97,7 +102,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 	 */
 
 	@Override
-	public List<PCEPMessage> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+	public List<Message> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		Preconditions.checkArgument(bytes != null, "Bytes may not be null");
 		Preconditions.checkArgument(bytes.length != 0, "Bytes may not be empty");
 
@@ -110,20 +115,21 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
 
 		if (msgBody.length != msgLength - COMMON_HEADER_LENGTH) {
-			throw new DeserializerException("Body size " + msgBody.length + " does not match header size " + (msgLength - COMMON_HEADER_LENGTH));
+			throw new DeserializerException("Body size " + msgBody.length + " does not match header size "
+					+ (msgLength - COMMON_HEADER_LENGTH));
 		}
 
 		/*
 		 * if PCEPObjectIdentifier.getObjectClassFromInt() dont't throws
 		 * exception and if returned null we know the error type
 		 */
-		PCEPMessageType msgType = PCEPMessageType.getFromInt(type);
+		final PCEPMessageType msgType = PCEPMessageType.getFromInt(type);
 		if (msgType == null) {
 			logger.debug("Unknown message type {}", type);
 			throw new DocumentedException("Unhandled message type " + type, new PCEPDocumentedException("Unhandled message type " + type, PCEPErrors.CAPABILITY_NOT_SUPPORTED));
 		}
 
-		PCEPMessage msg;
+		Message msg;
 		try {
 			msg = new RawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
 		} catch (final PCEPDeserializerException e) {
@@ -138,7 +144,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 	}
 
 	@Override
-	public byte[] put(final PCEPMessage msg) {
+	public byte[] put(final Message msg) {
 		if (msg == null) {
 			throw new IllegalArgumentException("PCEPMessage is mandatory.");
 		}
@@ -147,7 +153,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 
 		if (msg instanceof PCEPOpenMessage) {
 			msgType = PCEPMessageType.OPEN;
-		} else if (msg instanceof PCEPKeepAliveMessage) {
+		} else if (msg instanceof KeepaliveMessage) {
 			msgType = PCEPMessageType.KEEPALIVE;
 		} else if (msg instanceof PCEPCloseMessage) {
 			msgType = PCEPMessageType.CLOSE;
@@ -175,7 +181,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<PCEPMessage> {
 		final byte[] msgBody = MapOfParsers.getInstance().get(msgType).put(msg);
 
 		final PCEPMessageHeader msgHeader = new PCEPMessageHeader(msgType.getIdentifier(), msgBody.length
-				+ PCEPMessageHeader.COMMON_HEADER_LENGTH, PCEPMessage.PCEP_VERSION);
+				+ PCEPMessageHeader.COMMON_HEADER_LENGTH, PCEP_VERSION);
 
 		final byte[] headerBytes = msgHeader.toBytes();
 		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];

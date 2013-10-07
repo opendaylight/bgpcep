@@ -11,27 +11,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Error Message.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.7">Error
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.7">Error Message</a>
  */
-public class PCEPErrorMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = 604782651368689577L;
+public class PCEPErrorMessage implements Message {
 
 	private PCEPOpenObject openObj;
 
 	private final List<PCEPErrorObject> errorObjects;
 
 	private final List<CompositeErrorObject> errors;
+
+	private final List<PCEPObject> objects;
 
 	public PCEPErrorMessage(final PCEPErrorObject errorObject) {
 		this(new ArrayList<PCEPErrorObject>() {
@@ -55,33 +56,22 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	/**
-	 * Constructs Error Message from list of {@link PCEPErrorObject} or
-	 * {@link CompositeErrorObject}.
-	 *
-	 * @param errorObjects
-	 *            List<?> either objects of type: {@link PCEPErrorObject} or
-	 *            {@link CompositeErrorObject}
-	 *
-	 * @throws IllegalArgumentException
-	 *             if any other type is passed in the list, that cannot be
-	 *             processed
+	 * Constructs Error Message from list of {@link PCEPErrorObject} or {@link CompositeErrorObject}.
+	 * 
+	 * @param errorObjects List<?> either objects of type: {@link PCEPErrorObject} or {@link CompositeErrorObject}
+	 * 
+	 * @throws IllegalArgumentException if any other type is passed in the list, that cannot be processed
 	 */
 	public PCEPErrorMessage(final List<?> errorObjects) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = -8607527575304297642L;
-
-			{
-				if (errorObjects != null)
-					for (int i = 0; i < errorObjects.size(); i++) {
-						if (errorObjects.get(i) instanceof CompositeErrorObject) {
-							this.addAll(((CompositeErrorObject) errorObjects.get(i)).getCompositeAsList());
-						} else if (errorObjects.get(i) instanceof PCEPErrorObject) {
-							this.add((PCEPErrorObject) errorObjects.get(i));
-						}
-					}
+		this.objects = Lists.newArrayList();
+		if (errorObjects != null)
+			for (int i = 0; i < errorObjects.size(); i++) {
+				if (errorObjects.get(i) instanceof CompositeErrorObject) {
+					this.objects.addAll(((CompositeErrorObject) errorObjects.get(i)).getCompositeAsList());
+				} else if (errorObjects.get(i) instanceof PCEPErrorObject) {
+					this.objects.add((PCEPErrorObject) errorObjects.get(i));
+				}
 			}
-		});
 		this.errors = new ArrayList<CompositeErrorObject>();
 		this.errorObjects = new ArrayList<PCEPErrorObject>();
 
@@ -98,35 +88,25 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	/**
-	 * Constructs Error Message from list of {@link PCEPErrorObject} and
-	 * {@link CompositeErrorObject} and {@link PCEPOpenObject} that cannot be
-	 * null. This constructor is used during PCEP handshake to suggest new
-	 * session characteristics for the session that are listen in
-	 * {@link PCEPOpenObject}.
-	 *
-	 * @param openObj
-	 *            {@link PCEPOpenObject} cannot be null
-	 * @param errorObjects
-	 *            List<PCEPErrorObject> list of error objects
-	 * @param errors
-	 *            List<CompositeErrorObject> list of composite error objects
+	 * Constructs Error Message from list of {@link PCEPErrorObject} and {@link CompositeErrorObject} and
+	 * {@link PCEPOpenObject} that cannot be null. This constructor is used during PCEP handshake to suggest new session
+	 * characteristics for the session that are listen in {@link PCEPOpenObject}.
+	 * 
+	 * @param openObj {@link PCEPOpenObject} cannot be null
+	 * @param errorObjects List<PCEPErrorObject> list of error objects
+	 * @param errors List<CompositeErrorObject> list of composite error objects
 	 */
 	public PCEPErrorMessage(final PCEPOpenObject openObj, final List<PCEPErrorObject> errorObjects, final List<CompositeErrorObject> errors) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = -4238105145756981972L;
-
-			{
-				if (errorObjects != null)
-					this.addAll(errorObjects);
-				if (openObj != null)
-					this.add(openObj);
-				if (errors != null)
-					for (final CompositeErrorObject ceo : errors) {
-						this.addAll(ceo.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (errorObjects != null)
+			this.objects.addAll(errorObjects);
+		if (openObj != null)
+			this.objects.add(openObj);
+		if (errors != null)
+			for (final CompositeErrorObject ceo : errors) {
+				this.objects.addAll(ceo.getCompositeAsList());
 			}
-		});
+
 		this.openObj = openObj;
 
 		if (errorObjects == null)
@@ -140,9 +120,9 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	/**
-	 * Gets {@link PCEPOpenObject} if this is included. If its included, it
-	 * proposes alternative acceptable session characteristic values.
-	 *
+	 * Gets {@link PCEPOpenObject} if this is included. If its included, it proposes alternative acceptable session
+	 * characteristic values.
+	 * 
 	 * @return PCEPOpenObject. May be null.
 	 */
 	public PCEPOpenObject getOpenObject() {
@@ -150,10 +130,9 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	/**
-	 * In unsolicited manner can be included List of
-	 * <code>PCEPErrorObjects</code> <code>PCEPErrorMessage</code>, which is not
-	 * sent in response to a request.
-	 *
+	 * In unsolicited manner can be included List of <code>PCEPErrorObjects</code> <code>PCEPErrorMessage</code>, which
+	 * is not sent in response to a request.
+	 * 
 	 * @return List<PCEPErrorObject>
 	 */
 	public List<PCEPErrorObject> getErrorObjects() {
@@ -161,16 +140,19 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	/**
-	 * If the PCErr message is sent in response to a request, the PCErr message
-	 * MUST include set of RP objects related to pending path computation
-	 * requests that triggered the error condition. In this situation it is
-	 * constructed as {@link org.opendaylight.protocol.pcep.object.CompositeErrorObject
-	 * CompCompositeErrorObject}. That includes list of RP objects.
-	 *
+	 * If the PCErr message is sent in response to a request, the PCErr message MUST include set of RP objects related
+	 * to pending path computation requests that triggered the error condition. In this situation it is constructed as
+	 * {@link org.opendaylight.protocol.pcep.object.CompositeErrorObject CompCompositeErrorObject}. That includes list
+	 * of RP objects.
+	 * 
 	 * @return CompositeErrorObject. May be null.
 	 */
 	public List<CompositeErrorObject> getErrors() {
 		return this.errors;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -184,7 +166,7 @@ public class PCEPErrorMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

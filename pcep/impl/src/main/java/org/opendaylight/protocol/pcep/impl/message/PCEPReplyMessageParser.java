@@ -7,21 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectFactory;
 import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPReplyMessage
- * PCEPReplyMessage}
+ * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPReplyMessage PCEPReplyMessage}
  */
 public class PCEPReplyMessageParser implements PCEPMessageParser {
 
 	@Override
-	public byte[] put(PCEPMessage msg) {
+	public byte[] put(final Message msg) {
 		if (!(msg instanceof PCEPReplyMessage))
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass() + ". Nedded PCEPReplyMessage.");
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Nedded PCEPReplyMessage.");
 
 		return PCEPObjectFactory.put(((PCEPReplyMessage) msg).getAllObjects());
 	}

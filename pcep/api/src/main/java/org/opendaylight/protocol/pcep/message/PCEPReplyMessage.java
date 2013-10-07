@@ -7,38 +7,35 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeReplySvecObject;
 import org.opendaylight.protocol.pcep.object.CompositeResponseObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure for Reply Message.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.5">Reply
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.5">Reply Message</a>
  */
-public class PCEPReplyMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = -4604680426345882626L;
+public class PCEPReplyMessage implements Message {
 
 	private final List<CompositeReplySvecObject> svecList;
 
 	private final List<CompositeResponseObject> responses;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs new Reply Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeResponseObject} in
-	 *             the list.
-	 *
-	 * @param responses
-	 *            List<CompositeResponseObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeResponseObject} in the list.
+	 * 
+	 * @param responses List<CompositeResponseObject>. Can't be empty or null.
 	 */
 	public PCEPReplyMessage(final List<CompositeResponseObject> responses) {
 		this(responses, null);
@@ -46,32 +43,22 @@ public class PCEPReplyMessage extends PCEPMessage {
 
 	/**
 	 * Constructs {@link PCEPReplyMessage}.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeResponseObject} in
-	 *             the list.
-	 *
-	 * @param svecList
-	 *            List<CompositeSvecObject>
-	 * @param responses
-	 *            List<CompositeResponseObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeResponseObject} in the list.
+	 * 
+	 * @param svecList List<CompositeSvecObject>
+	 * @param responses List<CompositeResponseObject>. Can't be empty or null.
 	 */
 	public PCEPReplyMessage(final List<CompositeResponseObject> responses, final List<CompositeReplySvecObject> svecList) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = 4464502017081110298L;
-
-			{
-				if (svecList != null)
-					for (final CompositeReplySvecObject cno : svecList) {
-						this.addAll(cno.getCompositeAsList());
-					}
-				if (responses != null)
-					for (final CompositeResponseObject cno : responses) {
-						this.addAll(cno.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (svecList != null)
+			for (final CompositeReplySvecObject cno : svecList) {
+				this.objects.addAll(cno.getCompositeAsList());
 			}
-		});
+		if (responses != null)
+			for (final CompositeResponseObject cno : responses) {
+				this.objects.addAll(cno.getCompositeAsList());
+			}
 
 		if (responses == null || responses.isEmpty())
 			throw new IllegalArgumentException("At least one CompositeResponseObject is mandatory.");
@@ -85,7 +72,7 @@ public class PCEPReplyMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeResponseObject}.
-	 *
+	 * 
 	 * @return List<CompositeResponseObject>. Can't be null or empty.
 	 */
 	public List<CompositeResponseObject> getResponses() {
@@ -94,11 +81,15 @@ public class PCEPReplyMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeReplySvecObject}.
-	 *
+	 * 
 	 * @return List<CompositeReplySvecObject>. Can't be null but may be empty.
 	 */
 	public List<CompositeReplySvecObject> getSvecList() {
 		return this.svecList;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -111,7 +102,7 @@ public class PCEPReplyMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

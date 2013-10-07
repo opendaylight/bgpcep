@@ -18,8 +18,8 @@ import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 import com.google.common.base.Preconditions;
 
@@ -28,7 +28,7 @@ import com.google.common.base.Preconditions;
  */
 public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher {
 
-	private final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf;
+	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
 
 	private final PCEPHandlerFactory hf = new PCEPHandlerFactory();
 
@@ -37,7 +37,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 	 * 
 	 * @throws IOException if some error occurred during opening the selector
 	 */
-	public PCEPDispatcherImpl(final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
+	public PCEPDispatcherImpl(final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
 		super();
 		this.snf = Preconditions.checkNotNull(negotiatorFactory);
 	}
@@ -47,9 +47,9 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 		return super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
-				ch.pipeline().addLast(hf.getDecoders());
-				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(listenerFactory, ch, promise));
-				ch.pipeline().addLast(hf.getEncoders());
+				ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getDecoders());
+				ch.pipeline().addLast("negotiator", PCEPDispatcherImpl.this.snf.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getEncoders());
 			}
 		});
 	}

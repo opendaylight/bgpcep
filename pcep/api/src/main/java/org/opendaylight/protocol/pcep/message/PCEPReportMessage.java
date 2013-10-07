@@ -7,48 +7,38 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeStateReportObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Report Message
- *
- * @see <a
- *      href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.1">State
- *      Report Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.1">State Report Message</a>
  */
-public class PCEPReportMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = -3319055709351802748L;
+public class PCEPReportMessage implements Message {
 
 	private final List<CompositeStateReportObject> reports;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs {@link PCEPReportMessage}.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeStateReportObject}
-	 *             in the list.
-	 *
-	 * @param reports
-	 *            List<CompositeStateReportObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeStateReportObject} in the list.
+	 * 
+	 * @param reports List<CompositeStateReportObject>. Can't be empty or null.
 	 */
 	public PCEPReportMessage(final List<CompositeStateReportObject> reports) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = 2785287687806615951L;
-
-			{
-				if (reports != null)
-					for (final CompositeStateReportObject csro : reports) {
-						this.addAll(csro.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (reports != null)
+			for (final CompositeStateReportObject csro : reports) {
+				this.objects.addAll(csro.getCompositeAsList());
 			}
-		});
 		if (reports == null || reports.isEmpty())
 			throw new IllegalArgumentException("At least one CompositeStateReportObject is mandatory.");
 
@@ -57,11 +47,15 @@ public class PCEPReportMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeStateReportObject}.
-	 *
+	 * 
 	 * @return List<CompositeStateReportObject>. Can't be null or empty.
 	 */
 	public List<CompositeStateReportObject> getStateReports() {
 		return this.reports;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public class PCEPReportMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

@@ -7,48 +7,38 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeUpdateRequestObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Update Request Message.
- *
- * @see <a
- *      href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.2">Update
- *      Request Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.2">Update Request Message</a>
  */
-public class PCEPUpdateRequestMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = 3577204028363946097L;
+public class PCEPUpdateRequestMessage implements Message {
 
 	private final List<CompositeUpdateRequestObject> updateRequests;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs new Update Request Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeUpdateRequestObject}
-	 *             in the list.
-	 *
-	 * @param updateRequests
-	 *            List<CompositeUpdateRequestObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeUpdateRequestObject} in the list.
+	 * 
+	 * @param updateRequests List<CompositeUpdateRequestObject>. Can't be empty or null.
 	 */
 	public PCEPUpdateRequestMessage(final List<CompositeUpdateRequestObject> updateRequests) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = 8591736379229064997L;
-
-			{
-				if (updateRequests != null)
-					for (final CompositeUpdateRequestObject curo : updateRequests) {
-						this.addAll(curo.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (updateRequests != null)
+			for (final CompositeUpdateRequestObject curo : updateRequests) {
+				this.objects.addAll(curo.getCompositeAsList());
 			}
-		});
 
 		if (updateRequests == null || updateRequests.isEmpty())
 			throw new IllegalArgumentException("At least one CompositeUpdateRequestObject is mandatory.");
@@ -57,11 +47,15 @@ public class PCEPUpdateRequestMessage extends PCEPMessage {
 
 	/**
 	 * Gets list of {@link CompositeUpdateRequestObject}.
-	 *
+	 * 
 	 * @return List<CompositeUpdateRequestObject>. Can't be null or empty.
 	 */
 	public List<CompositeUpdateRequestObject> getUpdateRequests() {
 		return this.updateRequests;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -73,7 +67,7 @@ public class PCEPUpdateRequestMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectFactory;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * Parser for {@link PCCreateMessage}
@@ -25,9 +25,10 @@ public class PCCreateMessageParser implements PCEPMessageParser {
 	 * )
 	 */
 	@Override
-	public byte[] put(PCEPMessage msg) {
+	public byte[] put(final Message msg) {
 		if (!(msg instanceof PCCreateMessage))
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass() + ". Needed PCCreateMessage.");
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Needed PCCreateMessage.");
 
 		return PCEPObjectFactory.put(((PCCreateMessage) msg).getAllObjects());
 	}
