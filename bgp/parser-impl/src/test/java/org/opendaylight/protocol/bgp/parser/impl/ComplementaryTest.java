@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -56,7 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.collect.Maps;
 
 public class ComplementaryTest {
-	
+
 	@Test
 	public void testBGPParameter() {
 
@@ -218,7 +219,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPHeaderParser() throws IOException {
-		final BGPMessageFactoryImpl h = new BGPMessageFactoryImpl();
+		final BGPMessageFactory h = BGPMessageFactoryImpl.INSTANCE;
 		try {
 			h.parse(new byte[] { (byte) 0, (byte) 0 });
 			fail("Exception should have occured.");
@@ -247,7 +248,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testMessageParser() throws IOException {
-		final BGPMessageFactoryImpl parser = new BGPMessageFactoryImpl();
+		final BGPMessageFactory parser = BGPMessageFactoryImpl.INSTANCE;
 		String ex = "";
 		try {
 			parser.put(null);

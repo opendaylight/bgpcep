@@ -13,20 +13,17 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -34,16 +31,23 @@ import com.google.common.primitives.UnsignedBytes;
  * The byte array
  */
 public final class BGPMessageFactoryImpl implements BGPMessageFactory {
+	public static final BGPMessageFactory INSTANCE = new BGPMessageFactoryImpl(MessageRegistryImpl.INSTANCE);
 
 	private final static Logger logger = LoggerFactory.getLogger(BGPMessageFactoryImpl.class);
 
-	final static int LENGTH_FIELD_LENGTH = 2; // bytes
+	public final static int LENGTH_FIELD_LENGTH = 2; // bytes
 
 	private final static int TYPE_FIELD_LENGTH = 1; // bytes
 
 	final static int MARKER_LENGTH = 16; // bytes
 
 	public final static int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
+
+	private final MessageRegistry registry;
+
+	private BGPMessageFactoryImpl(final MessageRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -82,31 +86,12 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 
 		logger.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
 
-		final Notification msg;
-
-		switch (messageType) {
-		case 1:
-			msg = BGPOpenMessageParser.parse(msgBody);
-			logger.debug("Received and parsed Open Message: {}", msg);
-			break;
-		case 2:
-			msg = BGPUpdateMessageParser.parse(msgBody, messageLength);
-			logger.debug("Received and parsed Update Message: {}", msg);
-			break;
-		case 3:
-			msg = BGPNotificationMessageParser.parse(msgBody);
-			logger.debug("Received and parsed Notification Message: {}", msg);
-			break;
-		case 4:
-			msg = new KeepaliveBuilder().build();
-			if (messageLength != COMMON_HEADER_LENGTH) {
-				throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(
-						bs, 0, LENGTH_FIELD_LENGTH));
-			}
-			break;
-		default:
+		final MessageParser parser = registry.getMessageParser(messageType);
+		if (parser == null) {
 			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bs[LENGTH_FIELD_LENGTH] });
 		}
+
+		final Notification msg = parser.parseMessage(msgBody, messageLength);
 
 		return Lists.newArrayList(msg);
 	}
@@ -119,26 +104,13 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 
 		logger.trace("Serializing {}", msg);
 
-		byte[] msgBody = null;
-		int msgType = 0;
-
-		/*
-		 * Update message is not supported
-		 */
-		if (msg instanceof Open) {
-			msgType = 1;
-			msgBody = BGPOpenMessageParser.put((Open) msg);
-		} else if (msg instanceof Notify) {
-			msgType = 3;
-			msgBody = BGPNotificationMessageParser.put((Notify) msg);
-		} else if (msg instanceof Keepalive) {
-			msgType = 4;
-			msgBody = new byte[0];
-		} else {
+		final MessageSerializer serializer = registry.getMessageSerializer(msg);
+		if (serializer == null) {
 			throw new IllegalArgumentException("Unknown instance of BGPMessage. Passed " + msg.getClass());
 		}
 
-		final byte[] headerBytes = headerToBytes(msgBody.length + COMMON_HEADER_LENGTH, msgType);
+		final byte[] msgBody = serializer.serializeMessage(msg);
+		final byte[] headerBytes = headerToBytes(msgBody.length + COMMON_HEADER_LENGTH, serializer.messageType());
 		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];
 
 		ByteArray.copyWhole(headerBytes, retBytes, 0);
