@@ -14,5 +14,5 @@ public interface AttributeRegistry {
 	public AttributeParser getAttributeParser(int attributeType);
 
 	public AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attrClass, AttributeSerializer serializer);
-	public AttributeSerializer getAttributeSerializer(DataObject object);
+	public AttributeSerializer getAttributeSerializer(DataObject attribute);
 }

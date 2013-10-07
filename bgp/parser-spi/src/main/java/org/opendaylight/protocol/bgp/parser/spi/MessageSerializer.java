@@ -10,5 +10,13 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageSerializer {
+	/**
+	 * Deprecated method. Needs to be refactored such that we have an abstract
+	 * class which will encode the header, too.
+	 * 
+	 * @return message type to be encoded in the header.
+	 */
+	@Deprecated
+	public int messageType();
 	public byte[] serializeMessage(final Notification message);
 }

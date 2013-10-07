@@ -16,6 +16,8 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.BGPParameterParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -23,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +36,15 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for BGP Open message.
  */
-public final class BGPOpenMessageParser {
+public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
+	public static final MessageParser PARSER;
+	public static final MessageSerializer SERIALIZER;
+
+	static {
+		final BGPOpenMessageParser p = new BGPOpenMessageParser();
+		PARSER = p;
+		SERIALIZER = p;
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPOpenMessageParser.class);
 
@@ -57,24 +68,27 @@ public final class BGPOpenMessageParser {
 	 * @param msg BGP Open message to be serialized.
 	 * @return BGP Open message converted to byte array
 	 */
-	public static byte[] put(final Open msg) {
-		if (msg == null)
+	@Override
+	public byte[] serializeMessage(final Notification msg) {
+		if (msg == null) {
 			throw new IllegalArgumentException("BGPOpen message cannot be null");
+		}
 		logger.trace("Started serializing open message: {}", msg);
+		final Open open = (Open) msg;
 
 		final Map<byte[], Integer> optParams = Maps.newHashMap();
 
 		int optParamsLength = 0;
 
-		if (msg.getBgpParameters() != null) {
-			for (final BgpParameters param : msg.getBgpParameters()) {
+		if (open.getBgpParameters() != null) {
+			for (final BgpParameters param : open.getBgpParameters()) {
 				final byte[] p = BGPParameterParser.put(param);
 				optParams.put(p, p.length);
 				optParamsLength += p.length;
 			}
 		}
 
-		final byte[] msgBody = (msg.getBgpParameters() == null || msg.getBgpParameters().isEmpty()) ? new byte[MIN_MSG_LENGTH]
+		final byte[] msgBody = (open.getBgpParameters() == null || open.getBgpParameters().isEmpty()) ? new byte[MIN_MSG_LENGTH]
 				: new byte[MIN_MSG_LENGTH + optParamsLength];
 
 		int offset = 0;
@@ -83,17 +97,18 @@ public final class BGPOpenMessageParser {
 		offset += VERSION_SIZE;
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
-		int openAS = msg.getMyAsNumber();
-		if (openAS > 65535)
+		int openAS = open.getMyAsNumber();
+		if (openAS > 65535) {
 			openAS = 2345;
+		}
 
 		System.arraycopy(ByteArray.longToBytes(openAS), 6, msgBody, offset, AS_SIZE);
 		offset += AS_SIZE;
 
-		System.arraycopy(ByteArray.intToBytes(msg.getHoldTimer()), 2, msgBody, offset, HOLD_TIME_SIZE);
+		System.arraycopy(ByteArray.intToBytes(open.getHoldTimer()), 2, msgBody, offset, HOLD_TIME_SIZE);
 		offset += HOLD_TIME_SIZE;
 
-		System.arraycopy(Ipv4Util.bytesForAddress(msg.getBgpIdentifier()), 0, msgBody, offset, BGP_ID_SIZE);
+		System.arraycopy(Ipv4Util.bytesForAddress(open.getBgpIdentifier()), 0, msgBody, offset, BGP_ID_SIZE);
 		offset += BGP_ID_SIZE;
 
 		msgBody[offset] = ByteArray.intToBytes(optParamsLength)[Integer.SIZE / Byte.SIZE - 1];
@@ -116,16 +131,20 @@ public final class BGPOpenMessageParser {
 	 * @return BGP Open Message
 	 * @throws BGPDocumentedException if the parsing was unsuccessful
 	 */
-	public static Open parse(final byte[] bytes) throws BGPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	@Override
+	public Open parseMessage(final byte[] bytes, final int messageLength) throws BGPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+		}
 		logger.trace("Started parsing of open message: {}", Arrays.toString(bytes));
 
-		if (bytes.length < MIN_MSG_LENGTH)
+		if (bytes.length < MIN_MSG_LENGTH) {
 			throw new BGPDocumentedException("Open message too small.", BGPError.BAD_MSG_LENGTH, ByteArray.intToBytes(bytes.length));
-		if (UnsignedBytes.toInt(bytes[0]) != BGP_VERSION)
+		}
+		if (UnsignedBytes.toInt(bytes[0]) != BGP_VERSION) {
 			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(bytes[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED, ByteArray.subByte(
 					ByteArray.intToBytes(BGP_VERSION), 2, 2));
+		}
 
 		int offset = VERSION_SIZE;
 		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, offset, AS_SIZE)));
@@ -135,8 +154,9 @@ public final class BGPOpenMessageParser {
 
 		final short holdTime = ByteArray.bytesToShort(ByteArray.subByte(bytes, offset, HOLD_TIME_SIZE));
 		offset += HOLD_TIME_SIZE;
-		if (holdTime == 1 || holdTime == 2)
+		if (holdTime == 1 || holdTime == 2) {
 			throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);
+		}
 
 		Ipv4Address bgpId = null;
 		try {
@@ -159,5 +179,10 @@ public final class BGPOpenMessageParser {
 		logger.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
 		return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer((int) holdTime).setBgpIdentifier(bgpId).setBgpParameters(
 				optParams).build();
+	}
+
+	@Override
+	public int messageType() {
+		return 1;
 	}
 }
