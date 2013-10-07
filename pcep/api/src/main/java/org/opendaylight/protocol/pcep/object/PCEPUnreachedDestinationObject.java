@@ -11,53 +11,63 @@ import java.util.List;
 
 import org.opendaylight.protocol.concepts.NetworkAddress;
 import org.opendaylight.protocol.pcep.PCEPObject;
+
 import com.google.common.base.Objects.ToStringHelper;
 
 public class PCEPUnreachedDestinationObject<T extends NetworkAddress<T>> extends PCEPObject {
 
-    private final List<T> unreachedDestinations;
+	private final List<T> unreachedDestinations;
 
-    public PCEPUnreachedDestinationObject(List<T> unreachedDestinations, boolean processed, boolean ignored) {
-	super(processed, ignored);
-	if (unreachedDestinations == null || unreachedDestinations.isEmpty())
-	    throw new IllegalArgumentException("At least one destination have to be specified.");
+	public PCEPUnreachedDestinationObject(final List<T> unreachedDestinations, final boolean processed, final boolean ignored) {
+		super(processed, ignored);
+		if (unreachedDestinations == null || unreachedDestinations.isEmpty())
+			throw new IllegalArgumentException("At least one destination have to be specified.");
 
-	this.unreachedDestinations = unreachedDestinations;
-    }
+		this.unreachedDestinations = unreachedDestinations;
+	}
 
-    public List<T> getUnreachedDestinations() {
-	return this.unreachedDestinations;
-    }
+	public List<T> getUnreachedDestinations() {
+		return this.unreachedDestinations;
+	}
 
-    @Override
-    public int hashCode() {
-	final int prime = 31;
-	int result = super.hashCode();
-	result = prime * result + ((this.unreachedDestinations == null) ? 0 : this.unreachedDestinations.hashCode());
-	return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((this.unreachedDestinations == null) ? 0 : this.unreachedDestinations.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (!super.equals(obj))
-	    return false;
-	if (this.getClass() != obj.getClass())
-	    return false;
-	final PCEPUnreachedDestinationObject<?> other = (PCEPUnreachedDestinationObject<?>) obj;
-	if (this.unreachedDestinations == null) {
-	    if (other.unreachedDestinations != null)
-		return false;
-	} else if (!this.unreachedDestinations.equals(other.unreachedDestinations))
-	    return false;
-	return true;
-    }
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (this.getClass() != obj.getClass())
+			return false;
+		final PCEPUnreachedDestinationObject<?> other = (PCEPUnreachedDestinationObject<?>) obj;
+		if (this.unreachedDestinations == null) {
+			if (other.unreachedDestinations != null)
+				return false;
+		} else if (!this.unreachedDestinations.equals(other.unreachedDestinations))
+			return false;
+		return true;
+	}
 
-    @Override
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("unreachedDestinations", this.unreachedDestinations);
 		return super.addToStringAttributes(toStringHelper);
 	}
 
+	@Override
+	public Boolean isIgnore() {
+		return super.isIgnored();
+	}
+
+	@Override
+	public Boolean isProcessingRule() {
+		return super.isProcessed();
+	}
 }

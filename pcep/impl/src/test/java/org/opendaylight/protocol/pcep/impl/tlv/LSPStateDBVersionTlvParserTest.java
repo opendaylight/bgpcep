@@ -15,33 +15,21 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 
 import org.junit.Test;
-
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.tlv.LSPStateDBVersionTlv;
+import org.opendaylight.protocol.pcep.impl.HandlerRegistryImpl;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspDbVersionTlv;
 
 public class LSPStateDBVersionTlvParserTest {
-	@Test
-	public void testEquality() throws IOException, PCEPDeserializerException {
-		final LSPStateDBVersionTlv objToTest1a = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
-				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
-		final LSPStateDBVersionTlv objToTest1b = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
-				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
-		final LSPStateDBVersionTlv objToTest2 = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
-				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv2.bin")).get(0);
-
-		assertTrue(objToTest1a.equals(objToTest1a));
-		assertFalse(objToTest1a.equals(objToTest2));
-		assertFalse(objToTest1a == objToTest1b);
-		assertTrue(objToTest1a.equals(objToTest1b));
-	}
+	
+	private final HandlerRegistry registry = new HandlerRegistryImpl();
 
 	@Test
 	public void testSerialization() throws PCEPDeserializerException, IOException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin");
 
-		final LSPStateDBVersionTlv objToTest = (LSPStateDBVersionTlv) PCEPTlvParser.parse(bytesFromFile).get(0);
+		final LspDbVersionTlv objToTest = (LspDbVersionTlv) PCEPTlvParser.parseTlv(bytesFromFile).get(0);
 		assertEquals(objToTest.getDbVersion(), 128L);
 
 		final byte[] bytesActual = PCEPTlvParser.put(objToTest);
@@ -51,7 +39,7 @@ public class LSPStateDBVersionTlvParserTest {
 
 	@Test
 	public void testConstruction() throws PCEPDeserializerException, IOException {
-		final LSPStateDBVersionTlv expected = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
+		final LSPStateDBVersionTlv expected = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(
 				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
 		final LSPStateDBVersionTlv actual = new LSPStateDBVersionTlv(128L);
 
@@ -63,6 +51,6 @@ public class LSPStateDBVersionTlvParserTest {
 		/*
 		 * Should throw exception
 		 */
-		PCEPTlvParser.parse(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
+		PCEPTlvParser.parseTlv(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
 	}
 }

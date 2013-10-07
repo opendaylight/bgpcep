@@ -26,17 +26,17 @@ import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPTlv;
-import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
+import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +146,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		if (this.channel.isActive()) {
 			if (ct >= nextDead) {
 				logger.debug("DeadTimer expired. " + new Date());
-				this.terminate(Reason.EXP_DEADTIMER);
+				this.terminate(TerminationReason.ExpDeadtimer);
 			} else {
 				this.stateTimer.newTimeout(new TimerTask() {
 					@Override
@@ -218,19 +218,19 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * inside the session or from the listener, therefore the parent of this session should be informed.
 	 */
 	@Override
-	public synchronized void close(final PCEPCloseObject.Reason reason) {
+	public synchronized void close(final TerminationReason reason) {
 		logger.debug("Closing session: {}", this);
 		this.closed = true;
-		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.sendMessage(new CloseBuilder().setCCloseMessage(
+				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
 		this.channel.close();
 	}
 
-	private synchronized void terminate(final PCEPCloseObject.Reason reason) {
+	private synchronized void terminate(final TerminationReason reason) {
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
-		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.sendMessage(new CloseBuilder().setCCloseMessage(
+				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
 		this.close();
 	}
 
@@ -257,7 +257,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
 		errors.add(error);
 		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPErrorMessage(open, errors, null));
+		this.sendMessage(new PCEPErrorMessage(open, errors, null));
 	}
 
 	/**
@@ -278,7 +278,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 				this.unknownMessagesTimes.poll();
 			}
 			if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
-				this.terminate(Reason.TOO_MANY_UNKNOWN_MSG);
+				this.terminate(TerminationReason.TooManyUnknownMsg);
 			}
 		}
 	}
@@ -300,7 +300,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			// Do nothing, the timer has been already reset
 		} else if (msg instanceof PCEPOpenMessage) {
 			this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
-		} else if (msg instanceof PCEPCloseMessage) {
+		} else if (msg instanceof CloseMessage) {
 			/*
 			 * Session is up, we are reporting all messages to user. One notable
 			 * exception is CLOSE message, which needs to be converted into a
