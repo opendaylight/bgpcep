@@ -300,37 +300,32 @@ module pcep-types {
 	grouping object {
 		description "Core object structure with optional TLVs";
 		uses object-header;
-
-		container tlvs {
-
-		}
 	}
 
 	grouping open-object {
 		description "OPEN Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.3";
 
-		uses object {
-			augment "tlvs" {
-				container of-list {
-					uses of-list-tlv;
-				}
+		uses object;
+		container "tlvs" {
+			container of-list {
+				uses of-list-tlv;
+			}
 
-				container p2mp {
-					uses p2mp-capable-tlv;
-				}
+			container p2mp {
+				uses p2mp-capable-tlv;
+			}
 
-				container stateful {
-					uses stateful-capability-tlv;
-				}
+			container stateful {
+				uses stateful-capability-tlv;
+			}
 
-				container predundancy-group-id {
-					uses predundancy-group-id-tlv;
-				}
+			container predundancy-group-id {
+				uses predundancy-group-id-tlv;
+			}
 
-				container lsp-db-version {
-					uses lsp-db-version-tlv;
-				}
+			container lsp-db-version {
+				uses lsp-db-version-tlv;
 			}
 		}
 
@@ -364,11 +359,10 @@ module pcep-types {
 		description "RP Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.4";
 
-		uses object {
-			augment "tlvs" {
-				container order {
-					uses order-tlv;
-				}
+		uses object;
+		container "tlvs" {
+			container order {
+				uses order-tlv;
 			}
 		}
 
@@ -631,13 +625,12 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
 
 		// No possibility of TLVs
-		uses object {
-			augment "tlvs" {
-				container overload-duration {
-					when "../type = 2 and ../value = 1";
+		uses object;
+		container "tlvs" {
+			container overload-duration {
+				when "../type = 2 and ../value = 1";
 
-					uses overload-duration-tlv;
-				}
+				uses overload-duration-tlv;
 			}
 		}
 
@@ -657,12 +650,11 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
 
 		// No possibility of TLVs
-		uses object {
-			augment "tlvs" {
-				container req-missing {
-					when "../type = 7";
-					uses req-missing-tlv;
-				}
+		uses object;
+		container "tlvs" {
+			container req-missing {
+				when "../type = 7";
+				uses req-missing-tlv;
 			}
 		}
 
@@ -752,23 +744,22 @@ module pcep-types {
 		description "SRP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 
-		uses object {
-			augment "tlvs" {
-				container lsp-error-code {
-					uses lsp-error-code-tlv;
-				}
+		uses object;
+		container "tlvs" {
+			container lsp-error-code {
+				uses lsp-error-code-tlv;
+			}
 
-				container lsp-identifiers {
-					uses lsp-identifiers-tlv;
-				}
+			container lsp-identifiers {
+				uses lsp-identifiers-tlv;
+			}
 
-				container rsvp-error-spec {
-					uses rsvp-error-spec-tlv;
-				}
+			container rsvp-error-spec {
+				uses rsvp-error-spec-tlv;
+			}
 
-				container symblic-path-name {
-					uses symbolic-path-name-tlv;
-				}
+			container symblic-path-name {
+				uses symbolic-path-name-tlv;
 			}
 		}
 
@@ -1077,11 +1068,10 @@ module pcep-types {
 					}
 					case failure {
 						container no-path {
-							uses no-path-object {
-								augment "tlvs" {
-									container no-path-vector {
-										uses no-path-vector-tlv;
-									}
+							uses no-path-object;
+							container "tlvs" {
+								container no-path-vector {
+									uses no-path-vector-tlv;
 								}
 							}
 						}
