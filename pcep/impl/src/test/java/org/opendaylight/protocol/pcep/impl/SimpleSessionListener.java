@@ -7,22 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * Simple Session Listener that is notified about messages and changes in the session.
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-	public List<PCEPMessage> messages = new ArrayList<PCEPMessage>();
+	public List<Message> messages = Lists.newArrayList();
 
 	public boolean up = false;
 
@@ -32,7 +33,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final PCEPSession session, final PCEPMessage message) {
+	public void onMessage(final PCEPSession session, final Message message) {
 		logger.debug("Received message: {} {}", message.getClass(), message);
 		this.messages.add(message);
 	}

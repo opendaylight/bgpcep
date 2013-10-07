@@ -14,7 +14,6 @@ import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv4Prefix;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -25,6 +24,7 @@ import org.opendaylight.protocol.pcep.object.PCEPExplicitRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
 import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ import com.google.common.collect.Lists;
  */
 public class SimpleSessionListener implements PCEPSessionListener {
 
-	public List<PCEPMessage> messages = new ArrayList<PCEPMessage>();
+	public List<Message> messages = Lists.newArrayList();
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleSessionListener.class);
 
@@ -43,7 +43,7 @@ public class SimpleSessionListener implements PCEPSessionListener {
 	}
 
 	@Override
-	public void onMessage(final PCEPSession session, final PCEPMessage message) {
+	public void onMessage(final PCEPSession session, final Message message) {
 		logger.debug("Received message: {}", message);
 		this.messages.add(message);
 	}

@@ -20,12 +20,13 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,29 +34,25 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Abstract PCEP session negotiator. Takes care of basic handshake without
- * implementing a specific policy. Policies need to be provided by a specific
- * subclass.
+ * Abstract PCEP session negotiator. Takes care of basic handshake without implementing a specific policy. Policies need
+ * to be provided by a specific subclass.
  */
-public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegotiator<PCEPMessage, PCEPSessionImpl> {
+public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegotiator<Message, PCEPSessionImpl> {
 	/**
 	 * Unified KeepWait and OpenWait timer expiration, in seconds.
 	 */
 	public static final int FAIL_TIMER_VALUE = 60;
 
 	/**
-	 * PCEP session negotiation state transitions are described in RFC5440.
-	 * Simplification the two timers (KeepWait and OpenWait) are merged into
-	 * a FailTimer, as they are mutually exclusive, have the same timeout
-	 * value and their action is to terminate negotiation. This timer is
-	 * restarted between state transitions and runs in all states except
-	 * Idle and Finished.
+	 * PCEP session negotiation state transitions are described in RFC5440. Simplification the two timers (KeepWait and
+	 * OpenWait) are merged into a FailTimer, as they are mutually exclusive, have the same timeout value and their
+	 * action is to terminate negotiation. This timer is restarted between state transitions and runs in all states
+	 * except Idle and Finished.
 	 */
 	private enum State {
 		/**
-		 * Negotiation has not begun. It will be activated once we are asked
-		 * to provide our initial proposal, at which point we move into
-		 * OpenWait state.
+		 * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
+		 * point we move into OpenWait state.
 		 */
 		Idle,
 		/**
@@ -96,13 +93,13 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	/**
 	 * Get the initial session parameters proposal.
+	 * 
 	 * @return Session parameters proposal.
 	 */
 	protected abstract PCEPOpenObject getInitialProposal();
 
 	/**
-	 * Get the revised session parameters proposal based on the feedback
-	 * the peer has provided to us.
+	 * Get the revised session parameters proposal based on the feedback the peer has provided to us.
 	 * 
 	 * @param suggestion Peer-provided suggested session parameters
 	 * @return Session parameters proposal.
@@ -118,14 +115,11 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	protected abstract boolean isProposalAcceptable(PCEPOpenObject proposal);
 
 	/**
-	 * Given a peer-provided session parameters proposal which we found
-	 * unacceptable, provide a counter-proposal. The requirement is that
-	 * the isProposalAcceptable() method has to return true when presented
-	 * with this proposal.
+	 * Given a peer-provided session parameters proposal which we found unacceptable, provide a counter-proposal. The
+	 * requirement is that the isProposalAcceptable() method has to return true when presented with this proposal.
 	 * 
 	 * @param proposal unacceptable peer proposal
-	 * @return our counter-proposal, or null if there is no way to negotiate
-	 *         an acceptable proposal
+	 * @return our counter-proposal, or null if there is no way to negotiate an acceptable proposal
 	 */
 	protected abstract PCEPOpenObject getCounterProposal(PCEPOpenObject proposal);
 
@@ -139,8 +133,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param remotePrefs Session preferences proposed by the peer and accepted by us.
 	 * @return New protocol session.
 	 */
-	protected abstract PCEPSessionImpl createSession(Timer timer, Channel channel,
-			PCEPOpenObject localPrefs, PCEPOpenObject remotePrefs);
+	protected abstract PCEPSessionImpl createSession(Timer timer, Channel channel, PCEPOpenObject localPrefs, PCEPOpenObject remotePrefs);
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError.
@@ -148,32 +141,32 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param value
 	 */
 	private void sendErrorMessage(final PCEPErrors value) {
-		channel.writeAndFlush(new PCEPErrorMessage(ImmutableList.of(new PCEPErrorObject(value))));
+		this.channel.writeAndFlush(new PCEPErrorMessage(ImmutableList.of(new PCEPErrorObject(value))));
 	}
 
 	private void scheduleFailTimer() {
 		final Object lock = this;
 
-		failTimer = timer.newTimeout(new TimerTask() {
+		this.failTimer = this.timer.newTimeout(new TimerTask() {
 			@Override
 			public void run(final Timeout timeout) throws Exception {
 				synchronized (lock) {
 					// This closes the race between timer expiring and new timer
 					// being armed while it waits for the lock.
-					if (failTimer == timeout) {
-						switch (state) {
+					if (AbstractPCEPSessionNegotiator.this.failTimer == timeout) {
+						switch (AbstractPCEPSessionNegotiator.this.state) {
 						case Finished:
 						case Idle:
 							break;
 						case KeepWait:
 							sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
 							negotiationFailed(new TimeoutException("KeepWait timer expired"));
-							state = State.Finished;
+							AbstractPCEPSessionNegotiator.this.state = State.Finished;
 							break;
 						case OpenWait:
 							sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
 							negotiationFailed(new TimeoutException("OpenWait timer expired"));
-							state = State.Finished;
+							AbstractPCEPSessionNegotiator.this.state = State.Finished;
 							break;
 						}
 					}
@@ -184,50 +177,50 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	@Override
 	final synchronized protected void startNegotiation() {
-		Preconditions.checkState(state == State.Idle);
-		localPrefs = getInitialProposal();
-		channel.writeAndFlush(new PCEPOpenMessage(localPrefs));
-		state = State.OpenWait;
+		Preconditions.checkState(this.state == State.Idle);
+		this.localPrefs = getInitialProposal();
+		this.channel.writeAndFlush(new PCEPOpenMessage(this.localPrefs));
+		this.state = State.OpenWait;
 		scheduleFailTimer();
 
-		logger.debug("Channel {} started sent proposal {}", channel, localPrefs);
+		logger.debug("Channel {} started sent proposal {}", this.channel, this.localPrefs);
 	}
 
 	@Override
-	final synchronized protected void handleMessage(final PCEPMessage msg) throws Exception {
-		failTimer.cancel();
+	final synchronized protected void handleMessage(final Message msg) throws Exception {
+		this.failTimer.cancel();
 
-		logger.debug("Channel {} handling message in state {}", channel, state);
+		logger.debug("Channel {} handling message in state {}", this.channel, this.state);
 
-		switch (state) {
+		switch (this.state) {
 		case Finished:
 		case Idle:
-			throw new IllegalStateException("Unexpected handleMessage in state " + state);
+			throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
 		case KeepWait:
-			if (msg instanceof PCEPKeepAliveMessage) {
-				localOK = true;
-				if (remoteOK) {
-					negotiationSuccessful(createSession(timer, channel, localPrefs, remotePrefs));
-					state = State.Finished;
+			if (msg instanceof KeepaliveMessage) {
+				this.localOK = true;
+				if (this.remoteOK) {
+					negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
+					this.state = State.Finished;
 				} else {
 					scheduleFailTimer();
-					state = State.OpenWait;
-					logger.debug("Channel {} moved to OpenWait state with localOK=1", channel);
+					this.state = State.OpenWait;
+					logger.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
 				}
 
 				return;
 			} else if (msg instanceof PCEPErrorMessage) {
 				final PCEPErrorMessage err = (PCEPErrorMessage) msg;
-				localPrefs = getRevisedProposal(err.getOpenObject());
-				if (localPrefs == null) {
+				this.localPrefs = getRevisedProposal(err.getOpenObject());
+				if (this.localPrefs == null) {
 					sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
 					negotiationFailed(new RuntimeException("Peer suggested unacceptable retry proposal"));
-					state = State.Finished;
+					this.state = State.Finished;
 					return;
 				}
 
-				if (!remoteOK) {
-					state = State.OpenWait;
+				if (!this.remoteOK) {
+					this.state = State.OpenWait;
 				}
 				scheduleFailTimer();
 				return;
@@ -238,24 +231,24 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 			if (msg instanceof PCEPOpenMessage) {
 				final PCEPOpenObject open = ((PCEPOpenMessage) msg).getOpenObject();
 				if (isProposalAcceptable(open)) {
-					channel.writeAndFlush(new PCEPKeepAliveMessage());
-					remotePrefs = open;
-					remoteOK = true;
-					if (localOK) {
-						negotiationSuccessful(createSession(timer, channel, localPrefs, remotePrefs));
-						state = State.Finished;
+					this.channel.writeAndFlush(new KeepaliveMessageBuilder().build());
+					this.remotePrefs = open;
+					this.remoteOK = true;
+					if (this.localOK) {
+						negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
+						this.state = State.Finished;
 					} else {
 						scheduleFailTimer();
-						state = State.KeepWait;
-						logger.debug("Channel {} moved to KeepWait state with remoteOK=1", channel);
+						this.state = State.KeepWait;
+						logger.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
 					}
 					return;
 				}
 
-				if (openRetry) {
+				if (this.openRetry) {
 					sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
 					negotiationFailed(new RuntimeException("OPEN renegotiation failed"));
-					state = State.Finished;
+					this.state = State.Finished;
 					return;
 				}
 
@@ -263,16 +256,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				if (newPrefs == null) {
 					sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
 					negotiationFailed(new RuntimeException("Peer sent unacceptable session parameters"));
-					state = State.Finished;
+					this.state = State.Finished;
 					return;
 				}
 
-				channel.writeAndFlush(
-						new PCEPErrorMessage(newPrefs, ImmutableList.of(
-								new PCEPErrorObject(PCEPErrors.NON_ACC_NEG_SESSION_CHAR)), null));
+				this.channel.writeAndFlush(new PCEPErrorMessage(newPrefs, ImmutableList.of(new PCEPErrorObject(PCEPErrors.NON_ACC_NEG_SESSION_CHAR)), null));
 
-				openRetry = true;
-				state = localOK ? State.OpenWait : State.KeepWait;
+				this.openRetry = true;
+				this.state = this.localOK ? State.OpenWait : State.KeepWait;
 				scheduleFailTimer();
 				return;
 			}
@@ -280,9 +271,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 			break;
 		}
 
-		logger.warn("Channel {} in state {} received unexpected message {}", channel, state, msg);
+		logger.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
 		sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
 		negotiationFailed(new Exception("Illegal message encountered"));
-		state = State.Finished;
+		this.state = State.Finished;
 	}
 }

@@ -11,13 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -31,6 +27,9 @@ import org.opendaylight.protocol.pcep.object.PCEPLspObject;
 import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
 import org.opendaylight.protocol.pcep.object.PCEPMetricObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestedPathBandwidthObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PCEPUpdateRequestMessage validator. Validates message integrity.
@@ -40,7 +39,7 @@ public class PCEPUpdateRequestMessageValidator extends PCEPMessageValidator {
 	private static final Logger logger = LoggerFactory.getLogger(PCEPUpdateRequestMessageValidator.class);
 
 	@Override
-	public List<PCEPMessage> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -49,10 +48,10 @@ public class PCEPUpdateRequestMessageValidator extends PCEPMessageValidator {
 		while (!objects.isEmpty()) {
 			if (objects.get(0) instanceof UnknownObject) {
 				logger.warn("Unknown object found (should be Lsp) - {}.", objects.get(0));
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
 			}
 			if (!(objects.get(0) instanceof PCEPLspObject))
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
 
 			final PCEPLspObject lsp = (PCEPLspObject) objects.get(0);
 			objects.remove(0);
@@ -71,7 +70,7 @@ public class PCEPUpdateRequestMessageValidator extends PCEPMessageValidator {
 					}
 				} catch (final PCEPDocumentedException e) {
 					logger.warn("Serializing failed: {}.", e);
-					return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
+					return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
 				}
 			}
 
@@ -79,12 +78,12 @@ public class PCEPUpdateRequestMessageValidator extends PCEPMessageValidator {
 		}
 
 		if (updateRequests.isEmpty())
-			return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
+			return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
 
 		if (!objects.isEmpty())
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 
-		return Arrays.asList((PCEPMessage) new PCEPUpdateRequestMessage(updateRequests));
+		return Arrays.asList((Message) new PCEPUpdateRequestMessage(updateRequests));
 	}
 
 	private CompositeUpdPathObject getValidCompositePath(final List<PCEPObject> objects) throws PCEPDocumentedException {
@@ -109,25 +108,25 @@ public class PCEPUpdateRequestMessageValidator extends PCEPMessageValidator {
 			}
 
 			switch (state) {
-				case 1:
-					state = 2;
-					if (obj instanceof PCEPLspaObject) {
-						pathLspa = (PCEPLspaObject) obj;
-						break;
-					}
-				case 2:
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPLspaObject) {
+					pathLspa = (PCEPLspaObject) obj;
+					break;
+				}
+			case 2:
+				state = 3;
+				if (obj instanceof PCEPRequestedPathBandwidthObject) {
+					pathBandwidth = (PCEPRequestedPathBandwidthObject) obj;
+					break;
+				}
+			case 3:
+				state = 4;
+				if (obj instanceof PCEPMetricObject) {
+					pathMetrics.add((PCEPMetricObject) obj);
 					state = 3;
-					if (obj instanceof PCEPRequestedPathBandwidthObject) {
-						pathBandwidth = (PCEPRequestedPathBandwidthObject) obj;
-						break;
-					}
-				case 3:
-					state = 4;
-					if (obj instanceof PCEPMetricObject) {
-						pathMetrics.add((PCEPMetricObject) obj);
-						state = 3;
-						break;
-					}
+					break;
+				}
 			}
 
 			if (state == 4)

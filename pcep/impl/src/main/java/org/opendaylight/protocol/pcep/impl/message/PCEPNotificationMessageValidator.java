@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -24,6 +23,7 @@ import org.opendaylight.protocol.pcep.object.CompositeNotifyObject;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPNotificationObject;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEPNotificationMessage validator. Validates message integrity.
@@ -31,7 +31,7 @@ import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 public class PCEPNotificationMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -42,7 +42,7 @@ public class PCEPNotificationMessageValidator extends PCEPMessageValidator {
 			try {
 				comObj = getValidNotificationComposite(objects);
 			} catch (final PCEPDocumentedException e) {
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
 			}
 
 			if (comObj == null)
@@ -57,10 +57,10 @@ public class PCEPNotificationMessageValidator extends PCEPMessageValidator {
 		if (!objects.isEmpty())
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 
-		return Arrays.asList((PCEPMessage) new PCEPNotificationMessage(compositeNotifications));
+		return Arrays.asList((Message) new PCEPNotificationMessage(compositeNotifications));
 	}
 
-	private static CompositeNotifyObject getValidNotificationComposite(List<PCEPObject> objects) throws PCEPDocumentedException {
+	private static CompositeNotifyObject getValidNotificationComposite(final List<PCEPObject> objects) throws PCEPDocumentedException {
 		final List<PCEPRequestParameterObject> requestParameters = new ArrayList<PCEPRequestParameterObject>();
 		final List<PCEPNotificationObject> notifications = new ArrayList<PCEPNotificationObject>();
 		PCEPObject obj;
@@ -73,22 +73,22 @@ public class PCEPNotificationMessageValidator extends PCEPMessageValidator {
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 
 			switch (state) {
-				case 1:
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPRequestParameterObject) {
+					if (((PCEPRequestParameterObject) obj).isProcessed())
+						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+					requestParameters.add((PCEPRequestParameterObject) obj);
+					state = 1;
+					break;
+				}
+			case 2:
+				if (obj instanceof PCEPNotificationObject) {
+					notifications.add((PCEPNotificationObject) obj);
 					state = 2;
-					if (obj instanceof PCEPRequestParameterObject) {
-						if (((PCEPRequestParameterObject) obj).isProcessed())
-							throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-						requestParameters.add((PCEPRequestParameterObject) obj);
-						state = 1;
-						break;
-					}
-				case 2:
-					if (obj instanceof PCEPNotificationObject) {
-						notifications.add((PCEPNotificationObject) obj);
-						state = 2;
-						break;
-					}
-					state = 3;
+					break;
+				}
+				state = 3;
 			}
 
 			if (state == 3)

@@ -25,7 +25,6 @@ import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
@@ -33,12 +32,12 @@ import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends
-AbstractDispatcher<S, L> {
+public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
@@ -49,13 +48,14 @@ AbstractDispatcher<S, L> {
 		this.factory = Preconditions.checkNotNull(factory);
 	}
 
-	public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final SessionListenerFactory<L> listenerFactory) {
+	public Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy,
+			final SessionListenerFactory<L> listenerFactory) {
 		return super.createClient(address, strategy, new PipelineInitializer<S>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
-				ch.pipeline().addLast(factory.getDecoders());
-				ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-				ch.pipeline().addLast(factory.getEncoders());
+				ch.pipeline().addLast(PCCMock.this.factory.getDecoders());
+				ch.pipeline().addLast("negotiator", PCCMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+				ch.pipeline().addLast(PCCMock.this.factory.getEncoders());
 			}
 		});
 	}
@@ -64,17 +64,17 @@ AbstractDispatcher<S, L> {
 		final List<PCEPTlv> tlvs = Lists.newArrayList();
 		tlvs.add(new NodeIdentifierTlv(new byte[] { (byte) 127, (byte) 2, (byte) 3, (byte) 7 }));
 
-		final SessionNegotiatorFactory<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0);
+		final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new PCEPOpenObject(30, 120, 0, tlvs), 0);
 
-		final PCCMock<PCEPMessage, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
+		final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		pcc.createClient(new InetSocketAddress("127.0.0.3", 12345), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000),
 				new SessionListenerFactory<PCEPSessionListener>() {
 
-			@Override
-			public PCEPSessionListener getSessionListener() {
-				return new SimpleSessionListener();
-			}
-		}).get();
+					@Override
+					public PCEPSessionListener getSessionListener() {
+						return new SimpleSessionListener();
+					}
+				}).get();
 	}
 }

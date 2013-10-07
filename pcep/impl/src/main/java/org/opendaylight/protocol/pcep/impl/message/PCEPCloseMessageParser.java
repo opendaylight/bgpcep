@@ -7,23 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectFactory;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPCloseMessage
- * PCEPCloseMessage}
+ * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPCloseMessage PCEPCloseMessage}
  */
 public class PCEPCloseMessageParser implements PCEPMessageParser {
 
-    @Override
-    public byte[] put(PCEPMessage msg) {
-	if (!(msg instanceof PCEPCloseMessage))
-	    throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass() + ". Nedded PCEPCloseMessage.");
+	@Override
+	public byte[] put(final Message msg) {
+		if (!(msg instanceof PCEPCloseMessage))
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Nedded PCEPCloseMessage.");
 
-	return PCEPObjectFactory.put(((PCEPCloseMessage) msg).getAllObjects());
-    }
+		return PCEPObjectFactory.put(((PCEPCloseMessage) msg).getAllObjects());
+	}
 
 }
