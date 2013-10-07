@@ -16,29 +16,8 @@ import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.impl.message.PCCreateMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
-import org.opendaylight.protocol.pcep.message.PCCreateMessage;
-import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
-import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPNotificationMessage;
-import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
-import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
-import org.opendaylight.protocol.pcep.message.PCEPReportMessage;
-import org.opendaylight.protocol.pcep.message.PCEPRequestMessage;
-import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
-import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,16 +55,16 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<Message> {
 		}
 
 		private void fillInMap() {
-			this.put(PCEPMessageType.OPEN, new PCEPOpenMessageParser());
-			this.put(PCEPMessageType.KEEPALIVE, new PCEPKeepAliveMessageParser());
-			this.put(PCEPMessageType.NOTIFICATION, new PCEPNotificationMessageParser());
-			this.put(PCEPMessageType.ERROR, new PCEPErrorMessageParser());
-			this.put(PCEPMessageType.RESPONSE, new PCEPReplyMessageParser());
-			this.put(PCEPMessageType.REQUEST, new PCEPRequestMessageParser());
-			this.put(PCEPMessageType.UPDATE_REQUEST, new PCEPUpdateRequestMessageParser());
-			this.put(PCEPMessageType.STATUS_REPORT, new PCEPReportMessageParser());
-			this.put(PCEPMessageType.CLOSE, new PCEPCloseMessageParser());
-			this.put(PCEPMessageType.PCCREATE, new PCCreateMessageParser());
+			// this.put(PCEPMessageType.OPEN, new PCEPOpenMessageParser());
+			// this.put(PCEPMessageType.KEEPALIVE, new PCEPKeepAliveMessageParser());
+			// this.put(PCEPMessageType.NOTIFICATION, new PCEPNotificationMessageParser());
+			// this.put(PCEPMessageType.ERROR, new PCEPErrorMessageParser());
+			// this.put(PCEPMessageType.RESPONSE, new PCEPReplyMessageParser());
+			// this.put(PCEPMessageType.REQUEST, new PCEPRequestMessageParser());
+			// this.put(PCEPMessageType.UPDATE_REQUEST, new PCEPUpdateRequestMessageParser());
+			// this.put(PCEPMessageType.STATUS_REPORT, new PCEPReportMessageParser());
+			// this.put(PCEPMessageType.CLOSE, new PCEPCloseMessageParser());
+			// this.put(PCEPMessageType.PCCREATE, new PCCreateMessageParser());
 		}
 
 		public static MapOfParsers getInstance() {
@@ -129,16 +108,16 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<Message> {
 			throw new DocumentedException("Unhandled message type " + type, new PCEPDocumentedException("Unhandled message type " + type, PCEPErrors.CAPABILITY_NOT_SUPPORTED));
 		}
 
-		Message msg;
-		try {
-			msg = new RawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
-		} catch (final PCEPDeserializerException e) {
-			logger.debug("Unexpected deserializer problem", e);
-			throw new DeserializerException(e.getMessage(), e);
-		} catch (final PCEPDocumentedException e) {
-			logger.debug("Documented deserializer problem", e);
-			throw new DocumentedException(e.getMessage(), e);
-		}
+		final Message msg = null;
+		// try {
+		// msg = new RawMessage(PCEPObjectFactory.parseObjects(msgBody), msgType);
+		// } catch (final PCEPDeserializerException e) {
+		// logger.debug("Unexpected deserializer problem", e);
+		// throw new DeserializerException(e.getMessage(), e);
+		// } catch (final PCEPDocumentedException e) {
+		// logger.debug("Documented deserializer problem", e);
+		// throw new DocumentedException(e.getMessage(), e);
+		// }
 		logger.debug("Message was parsed. {}", msg);
 		return Lists.newArrayList(msg);
 	}
@@ -149,32 +128,32 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<Message> {
 			throw new IllegalArgumentException("PCEPMessage is mandatory.");
 		}
 
-		final PCEPMessageType msgType;
+		final PCEPMessageType msgType = null;
 
-		if (msg instanceof PCEPOpenMessage) {
-			msgType = PCEPMessageType.OPEN;
-		} else if (msg instanceof KeepaliveMessage) {
-			msgType = PCEPMessageType.KEEPALIVE;
-		} else if (msg instanceof PCEPCloseMessage) {
-			msgType = PCEPMessageType.CLOSE;
-		} else if (msg instanceof PCEPReplyMessage) {
-			msgType = PCEPMessageType.RESPONSE;
-		} else if (msg instanceof PCEPRequestMessage) {
-			msgType = PCEPMessageType.REQUEST;
-		} else if (msg instanceof PCEPNotificationMessage) {
-			msgType = PCEPMessageType.NOTIFICATION;
-		} else if (msg instanceof PCEPErrorMessage) {
-			msgType = PCEPMessageType.ERROR;
-		} else if (msg instanceof PCEPReportMessage) {
-			msgType = PCEPMessageType.STATUS_REPORT;
-		} else if (msg instanceof PCEPUpdateRequestMessage) {
-			msgType = PCEPMessageType.UPDATE_REQUEST;
-		} else if (msg instanceof PCCreateMessage) {
-			msgType = PCEPMessageType.PCCREATE;
-		} else {
-			logger.error("Unknown instance of PCEPMessage. Message class: {}", msg.getClass());
-			throw new IllegalArgumentException("Unknown instance of PCEPMessage. Passed " + msg.getClass());
-		}
+		// if (msg instanceof PCEPOpenMessage) {
+		// msgType = PCEPMessageType.OPEN;
+		// } else if (msg instanceof KeepaliveMessage) {
+		// msgType = PCEPMessageType.KEEPALIVE;
+		// } else if (msg instanceof CloseMessage) {
+		// msgType = PCEPMessageType.CLOSE;
+		// } else if (msg instanceof PCEPReplyMessage) {
+		// msgType = PCEPMessageType.RESPONSE;
+		// } else if (msg instanceof PCEPRequestMessage) {
+		// msgType = PCEPMessageType.REQUEST;
+		// } else if (msg instanceof PCEPNotificationMessage) {
+		// msgType = PCEPMessageType.NOTIFICATION;
+		// } else if (msg instanceof PCEPErrorMessage) {
+		// msgType = PCEPMessageType.ERROR;
+		// } else if (msg instanceof PCEPReportMessage) {
+		// msgType = PCEPMessageType.STATUS_REPORT;
+		// } else if (msg instanceof PCEPUpdateRequestMessage) {
+		// msgType = PCEPMessageType.UPDATE_REQUEST;
+		// } else if (msg instanceof PCCreateMessage) {
+		// msgType = PCEPMessageType.PCCREATE;
+		// } else {
+		// logger.error("Unknown instance of PCEPMessage. Message class: {}", msg.getClass());
+		// throw new IllegalArgumentException("Unknown instance of PCEPMessage. Passed " + msg.getClass());
+		// }
 
 		logger.trace("Serializing {}", msgType);
 

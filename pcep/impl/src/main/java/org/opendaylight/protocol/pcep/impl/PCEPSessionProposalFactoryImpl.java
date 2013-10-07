@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.PCEPTlv;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-import org.opendaylight.protocol.pcep.tlv.LSPCleanupTlv;
-import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.StatefulBuilder;
 
 public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactory {
 
@@ -23,7 +23,8 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 
 	private final boolean stateful, active, versioned, instant;
 
-	public PCEPSessionProposalFactoryImpl(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active, final boolean versioned, final boolean instant, final int timeout) {
+	public PCEPSessionProposalFactoryImpl(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
+			final boolean versioned, final boolean instant, final int timeout) {
 		this.deadTimer = deadTimer;
 		this.keepAlive = keepAlive;
 		this.stateful = stateful;
@@ -34,16 +35,14 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 	}
 
 	@Override
-	public PCEPOpenObject getSessionProposal(final InetSocketAddress address, final int sessionId) {
-		List<PCEPTlv> tlvs = null;
+	public OpenObject getSessionProposal(final InetSocketAddress address, final int sessionId) {
+		final Tlvs tlvs = null;
+		final TlvsBuilder builder = new TlvsBuilder();
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
-			tlvs = new ArrayList<PCEPTlv>();
-			tlvs.add(new PCEStatefulCapabilityTlv(PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active, PCEPSessionProposalFactoryImpl.this.versioned));
-			if (PCEPSessionProposalFactoryImpl.this.instant) {
-				tlvs.add(new LSPCleanupTlv(PCEPSessionProposalFactoryImpl.this.timeout));
-			}
+			builder.setStateful((new StatefulBuilder().setFlags(new Flags(PCEPSessionProposalFactoryImpl.this.versioned, PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active)).build()));
 		}
-		return new PCEPOpenObject(PCEPSessionProposalFactoryImpl.this.keepAlive, PCEPSessionProposalFactoryImpl.this.deadTimer, sessionId, tlvs);
+		return new OpenBuilder().setKeepalive((short) PCEPSessionProposalFactoryImpl.this.keepAlive).setDeadTimer(
+				(short) PCEPSessionProposalFactoryImpl.this.deadTimer).setSessionId((short) sessionId).setTlvs(tlvs).build();
 	}
 
 	public int getKeepAlive() {

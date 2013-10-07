@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.spi;
 
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
@@ -17,9 +16,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class RawMessage implements Message {
 	private final PCEPMessageType msgType;
-	private final List<PCEPObject> objects;
+	private final List<Object> objects;
 
-	public RawMessage(final List<PCEPObject> objects, final PCEPMessageType msgType) {
+	public RawMessage(final List<Object> objects, final PCEPMessageType msgType) {
 		this.msgType = msgType;
 		if (objects.contains(null)) {
 			throw new IllegalArgumentException("Object list contains null element at offset " + objects.indexOf(null));
@@ -31,7 +30,7 @@ public class RawMessage implements Message {
 		return this.msgType;
 	}
 
-	public List<PCEPObject> getAllObjects() {
+	public List<Object> getAllObjects() {
 		return this.objects;
 	}
 
