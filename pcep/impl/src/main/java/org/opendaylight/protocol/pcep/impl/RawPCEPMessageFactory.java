@@ -27,7 +27,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
-import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
 import org.opendaylight.protocol.pcep.message.PCEPNotificationMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
@@ -38,6 +37,7 @@ import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageType;
 import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
@@ -155,7 +155,7 @@ class RawPCEPMessageFactory implements ProtocolMessageFactory<Message> {
 			msgType = PCEPMessageType.OPEN;
 		} else if (msg instanceof KeepaliveMessage) {
 			msgType = PCEPMessageType.KEEPALIVE;
-		} else if (msg instanceof PCEPCloseMessage) {
+		} else if (msg instanceof CloseMessage) {
 			msgType = PCEPMessageType.CLOSE;
 		} else if (msg instanceof PCEPReplyMessage) {
 			msgType = PCEPMessageType.RESPONSE;

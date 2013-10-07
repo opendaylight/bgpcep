@@ -67,6 +67,10 @@ module rsvp {
 		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.2";
 	}
 
+	typedef srlg-id {
+		type uint32;
+	}
+
 	grouping error-spec {
 		reference "https://tools.ietf.org/html/rfc2205#page-81";
 

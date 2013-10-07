@@ -13,9 +13,13 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
-import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 
 /**
  * PCEPCloseMessage validator. Validates message integrity.
@@ -27,10 +31,12 @@ public class PCEPCloseMessageValidator extends PCEPMessageValidator {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
-		if (objects.isEmpty() || !(objects.get(0) instanceof PCEPCloseObject))
+		if (objects.isEmpty() || !(objects.get(0) instanceof CClose))
 			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
 
-		final PCEPCloseMessage msg = new PCEPCloseMessage((PCEPCloseObject) objects.get(0));
+		final Object o = objects.get(0);
+		final CloseMessage msg = new CloseBuilder().setCCloseMessage(
+				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(((CClose) o).getReason()).build()).build()).build();
 		objects.remove(0);
 
 		if (!objects.isEmpty())
@@ -43,5 +49,4 @@ public class PCEPCloseMessageValidator extends PCEPMessageValidator {
 			}
 		};
 	}
-
 }

@@ -7,57 +7,96 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import org.opendaylight.protocol.concepts.IPv6Address;
+import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.object.PCEPEndPointsObject;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.EndpointsObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
 
 /**
- * Parser for IPv6 {@link org.opendaylight.protocol.pcep.object.PCEPEndPointsObject
- * PCEPEndPointsObject}
+ * Parser for IPv6 {@link EndpointsObject}
  */
-public class PCEPEndPointsIPv6ObjectParser implements PCEPObjectParser {
+public class PCEPEndPointsIPv6ObjectParser extends AbstractObjectParser<EndpointsBuilder> {
+
+	public static final int CLASS = 4;
+
+	public static final int TYPE = 2;
 
 	public static final int SRC6_F_LENGTH = 16;
-	public static final int DEST6_F_LENGT = 16;
+	public static final int DEST6_F_LENGTH = 16;
 
 	public static final int SRC6_F_OFFSET = 0;
 	public static final int DEST6_F_OFFSET = SRC6_F_OFFSET + SRC6_F_LENGTH;
 
-	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null)
-			throw new IllegalArgumentException("Array of bytes is mandatory");
-		if (bytes.length != SRC6_F_LENGTH + DEST6_F_LENGT)
-			throw new PCEPDeserializerException("Wrong length of array of bytes.");
-
-		if (!processed)
-			throw new PCEPDocumentedException("Processed flag not set", PCEPErrors.P_FLAG_NOT_SET);
-
-		return new PCEPEndPointsObject<IPv6Address>(
-				new IPv6Address(ByteArray.subByte(bytes, SRC6_F_OFFSET, SRC6_F_LENGTH)),
-				new IPv6Address(ByteArray.subByte(bytes, DEST6_F_OFFSET, DEST6_F_LENGT)));
+	public PCEPEndPointsIPv6ObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPEndPointsObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPEndPointsObject.");
+	public EndpointsObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+			PCEPDocumentedException {
+		if (bytes == null)
+			throw new IllegalArgumentException("Array of bytes is mandatory");
+		if (bytes.length != SRC6_F_LENGTH + DEST6_F_LENGTH)
+			throw new PCEPDeserializerException("Wrong length of array of bytes.");
 
-		final PCEPEndPointsObject<?> ePObj = (PCEPEndPointsObject<?>) obj;
+		if (!header.isProcessingRule())
+			throw new PCEPDocumentedException("Processed flag not set", PCEPErrors.P_FLAG_NOT_SET);
 
-		if (!(ePObj.getSourceAddress() instanceof IPv6Address))
-			throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + ePObj.getSourceAddress().getClass() + ". Needed IPv6Address");
+		final EndpointsBuilder builder = new EndpointsBuilder();
 
-		final byte[] retBytes = new byte[SRC6_F_LENGTH + DEST6_F_LENGT];
-		ByteArray.copyWhole(((IPv6Address) ePObj.getSourceAddress()).getAddress(), retBytes, SRC6_F_OFFSET);
-		ByteArray.copyWhole(((IPv6Address) ePObj.getDestinationAddress()).getAddress(), retBytes, DEST6_F_OFFSET);
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		final Ipv6Builder b = new Ipv6Builder();
+		b.setSourceIpv6Address(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, SRC6_F_OFFSET, SRC6_F_LENGTH)));
+		b.setDestinationIpv6Address((Ipv6Util.addressForBytes(ByteArray.subByte(bytes, DEST6_F_OFFSET, DEST6_F_LENGTH))));
+		builder.setAddressFamily(b.build());
+
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final EndpointsBuilder builder, final Tlv tlv) {
+		// No tlvs defined
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof EndpointsObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
+
+		final EndpointsObject ePObj = (EndpointsObject) object;
+
+		final AddressFamily afi = ePObj.getAddressFamily();
+
+		if (!(afi instanceof Ipv6))
+			throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + afi.getClass() + ". Needed IPv6");
+
+		final byte[] retBytes = new byte[SRC6_F_LENGTH + DEST6_F_LENGTH];
+		ByteArray.copyWhole(Ipv6Util.bytesForAddress(((Ipv6) afi).getSourceIpv6Address()), retBytes, SRC6_F_OFFSET);
+		ByteArray.copyWhole(Ipv6Util.bytesForAddress(((Ipv6) afi).getDestinationIpv6Address()), retBytes, DEST6_F_OFFSET);
 
 		return retBytes;
 	}
 
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

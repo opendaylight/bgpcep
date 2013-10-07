@@ -8,17 +8,27 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.impl.Util;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.Tlvs;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPCloseObject PCEPCloseObject}
  */
-public class PCEPCloseObjectParser implements PCEPObjectParser {
+public class PCEPCloseObjectParser extends AbstractObjectParser<CCloseBuilder> {
+
+	public static final int CLASS = 15;
+
+	public static final int TYPE = 1;
 
 	/*
 	 * lengths of fields in bytes
@@ -35,75 +45,69 @@ public class PCEPCloseObjectParser implements PCEPObjectParser {
 	/*
 	 * total size of object in bytes
 	 */
-	public static final int TLVS_F_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
+	public static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
-	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
-		if (bytes == null)
-			throw new IllegalArgumentException("Byte array is mandatory.");
-
-		if (bytes.length != TLVS_F_OFFSET)
-			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + TLVS_F_OFFSET + "; Passed: " + bytes.length);
-
-		Reason reason;
-		switch ((short) (bytes[REASON_F_OFFSET] & 0xFF)) {
-			case 1:
-				reason = Reason.UNKNOWN;
-				break;
-			case 2:
-				reason = Reason.EXP_DEADTIMER;
-				break;
-			case 3:
-				reason = Reason.MALFORMED_MSG;
-				break;
-			case 4:
-				reason = Reason.TOO_MANY_UNKNOWN_REQ_REP;
-				break;
-			case 5:
-				reason = Reason.TOO_MANY_UNKNOWN_MSG;
-				break;
-			default:
-				reason = Reason.UNKNOWN;
-				break;
-		}
-
-		return new PCEPCloseObject(reason, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
+	public PCEPCloseObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPCloseObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPCloseObject.");
+	public CloseObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+		if (bytes == null)
+			throw new IllegalArgumentException("Byte array is mandatory.");
 
-		final byte[] tlvs = PCEPTlvParser.put(((PCEPCloseObject) obj).getTlvs());
-		final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length];
-		ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
+		final CCloseBuilder builder = new CCloseBuilder();
 
-		int reason;
-		switch (((PCEPCloseObject) obj).getReason()) {
-			case UNKNOWN:
-				reason = 1;
-				break;
-			case EXP_DEADTIMER:
-				reason = 2;
-				break;
-			case MALFORMED_MSG:
-				reason = 3;
-				break;
-			case TOO_MANY_UNKNOWN_REQ_REP:
-				reason = 4;
-				break;
-			case TOO_MANY_UNKNOWN_MSG:
-				reason = 5;
-				break;
-			default:
-				reason = 1;
-				break;
-		}
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		builder.setReason((short) (bytes[REASON_F_OFFSET] & 0xFF));
+
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final CCloseBuilder builder, final Tlv tlv) {
+		// No tlvs defined
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof CloseObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
+
+		final CloseObject obj = (CloseObject) object;
+
+		final byte[] tlvs = serializeTlvs(obj.getTlvs());
+		int tlvsLength = 0;
+		if (tlvs != null)
+			tlvsLength = tlvs.length;
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+
+		if (tlvs != null)
+			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+
+		final int reason = ((CClose) obj).getReason().intValue();
 
 		retBytes[REASON_F_OFFSET] = (byte) reason;
 
 		return retBytes;
 	}
 
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		// No tlvs defined
+		return new byte[0];
+	}
+
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

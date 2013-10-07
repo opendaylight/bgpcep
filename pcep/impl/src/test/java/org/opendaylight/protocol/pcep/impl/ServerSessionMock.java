@@ -13,7 +13,7 @@ import io.netty.util.HashedWheelTimer;
 
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
+import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
@@ -34,6 +34,6 @@ public class ServerSessionMock extends PCEPSessionImpl {
 
 	@Override
 	public void close() {
-		this.client.onSessionTerminated(this, new PCEPCloseTermination(Reason.UNKNOWN));
+		this.client.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.Unknown));
 	}
 }
