@@ -5,13 +5,13 @@
 
 	<parent>
 		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>pcep-parent</artifactId>
+		<artifactId>topology-parent</artifactId>
 		<version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>pcep-api</artifactId>
-	<description>PCE Protocol API</description>
+	<artifactId>topology-tunnel-api</artifactId>
+	<description>Topology Tunnel API</description>
 	<packaging>bundle</packaging>
 	<name>${project.artifactId}</name>
 	<prerequisites>
@@ -21,71 +21,23 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
+			<artifactId>topology-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>concepts</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>util</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-        <dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-transport</artifactId>
-            <version>${netty.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>mockito-configuration</artifactId>
-            <version>${project.version}</version>
-			<scope>test</scope>
-        </dependency>
-
-        <!--
-            FIXME: this is in support of the generated code. This should not
-                   be here, but the plugin should bring it in.
-        -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${code.generator.version}</version>
+            <version>${yangtools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
             <version>${yangtools.version}</version>
         </dependency>
-
-        <!--
-             FIXME: these are IETF models which are pre-generated in SAL infra.
-                    This should not be here, but rather should somehow be
-                    discovered by the plugin.
-        -->
-        <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
-            <artifactId>ietf-inet-types</artifactId>
-            <version>${ietf.types.version}</version>
-        </dependency>
 	</dependencies>
 
 	<build>
         <plugins>
-
            <plugin>
                <groupId>org.opendaylight.yangtools</groupId>
                <artifactId>yang-maven-plugin</artifactId>
@@ -129,24 +81,9 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
-                           org.opendaylight.protocol.pcep,
-                           org.opendaylight.protocol.pcep.concepts,
-                           org.opendaylight.protocol.pcep.message,
-                           org.opendaylight.protocol.pcep.object,
-                           org.opendaylight.protocol.pcep.subobject,
-                           org.opendaylight.protocol.pcep.tlv,
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.*,
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.*,
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.*,
+                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.rev130819.*,
+                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.*,
                        </Export-Package>
-                       <Import-Package>
-                           org.opendaylight.protocol.concepts,
-                           org.opendaylight.protocol.framework,
-                           org.opendaylight.protocol.util,
-                           com.google.common.*,
-                           javax.management,
-                           org.slf4j.*
-                       </Import-Package>
                    </instructions>
                </configuration>
            </plugin>
@@ -156,7 +93,7 @@
 	<distributionManagement>
 		<site>
 			<id>${project.artifactId}</id>
-			<name>PCEP-API Module site</name>
+			<name>TOPOLOGY-TUNNEL-API Module site</name>
 			<url>${basedir}/target/site/${project.artifactId}</url>
 		</site>
 	</distributionManagement>
