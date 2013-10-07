@@ -47,7 +47,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPP2MPEndPointsIPv4ObjectPar
 import org.opendaylight.protocol.pcep.impl.object.PCEPP2MPEndPointsIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPRequestedPathBandwidthObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSecondaryExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSecondaryRecordRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -106,7 +106,7 @@ public class PCEPObjectFactory {
 	    this.put(new PCEPObjectIdentifier(ObjectClass.OPEN, 1), new PCEPOpenObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.RP, 1), new PCEPRequestParameterObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.NO_PATH, 1), new PCEPNoPathObjectParser());
-	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 1), new PCEPRequestedPathBandwidthObjectParser());
+	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 1), new PCEPBandwidthObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 2), new PCEPExistingPathBandwidthObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.METRIC, 1), new PCEPMetricObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.END_POINTS, 1), new PCEPEndPointsIPv4ObjectParser());

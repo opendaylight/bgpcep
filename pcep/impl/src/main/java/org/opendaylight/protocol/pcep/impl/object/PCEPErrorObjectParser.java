@@ -11,21 +11,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.PCEPErrors;
+import org.opendaylight.protocol.pcep.impl.Util;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcepErrorObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReqMissingTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.tlvs.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPErrorObject PCEPErrorObject}
  */
-public class PCEPErrorObjectParser implements PCEPObjectParser {
+public class PCEPErrorObjectParser extends AbstractObjectParser<ErrorsBuilder> {
+
+	public static final int CLASS = 13;
+
+	public static final int TYPE = 1;
+
 	/**
 	 * Caret for combination of Error-type and Error-value
 	 */
@@ -48,7 +62,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 		}
 
 		@Override
-		public boolean equals(final Object obj) {
+		public boolean equals(final java.lang.Object obj) {
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -70,10 +84,8 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 	}
 
 	/**
-	 * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.PCEPErrors PCEPErrors}
-	 * and
-	 * {@link org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser.PCEPErrorIdentifier
-	 * ErrorIdentifier}
+	 * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.PCEPErrors PCEPErrors} and
+	 * {@link org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser.PCEPErrorIdentifier ErrorIdentifier}
 	 */
 	public static class PCEPErrorsMaping {
 		private static final PCEPErrorsMaping instance = new PCEPErrorsMaping();
@@ -149,7 +161,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 1), PCEPErrors.UPDATE_REQ_FOR_NON_LSP);
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 2), PCEPErrors.UPDATE_REQ_FOR_NO_STATEFUL);
-			//TODO: value TBD
+			// TODO: value TBD
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.LSP_LIMIT_REACHED);
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.DELEGATION_NOT_REVOKED);
 
@@ -192,52 +204,79 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 	public static final int ET_F_LENGTH = 1;
 	public static final int EV_F_LENGTH = 1;
 
-	public static final int FLAGS_F_OFFSET = 1; //added reserved field of size 1 byte
+	public static final int FLAGS_F_OFFSET = 1; // added reserved field of size 1 byte
 	public static final int ET_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
 	public static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
 	public static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
 
 	private final static Logger logger = LoggerFactory.getLogger(PCEPErrorObjectParser.class);
 
-	@Override
-	public PCEPObject parse(final byte[] bytes, final boolean processed, final boolean ignored) throws PCEPDeserializerException {
-		if (bytes == null)
-			throw new IllegalArgumentException("Array of bytes is mandatory.");
-
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong size of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET);
-
-		final PCEPErrorIdentifier eid = new PCEPErrorIdentifier((short) (bytes[ET_F_OFFSET] & 0xFF), (short) (bytes[EV_F_OFFSET] & 0xFF));
-		final PCEPErrors error;
-
-		try {
-			error = PCEPErrorsMaping.getInstance().getFromErrorIdentifier(eid);
-		} catch (final NoSuchElementException e) {
-			logger.debug("Failed to identify error {}", eid, e);
-			throw new PCEPDeserializerException(e, "Error object has unknown identifier.");
-		}
-
-		return new PCEPErrorObject(error, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+	public PCEPErrorObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(final PCEPObject obj) {
-		if (!(obj instanceof PCEPErrorObject))
-			throw new IllegalArgumentException("Unknown PCEPObject instance.");
+	public PcepErrorObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+			PCEPDocumentedException {
+		if (bytes == null)
+			throw new IllegalArgumentException("Array of bytes is mandatory.");
 
-		final PCEPErrorObject errObj = (PCEPErrorObject) obj;
+		final ErrorsBuilder builder = new ErrorsBuilder();
 
-		final byte[] tlvs = PCEPTlvParser.put(errObj.getTlvs());
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 
-		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
 
-		final PCEPErrorIdentifier identifier = PCEPErrorsMaping.getInstance().getFromErrorsEnum(errObj.getError());
+		builder.setType((short) (bytes[ET_F_OFFSET] & 0xFF));
+		builder.setValue((short) (bytes[EV_F_OFFSET] & 0xFF));
 
-		retBytes[ET_F_OFFSET] = ByteArray.shortToBytes(identifier.type)[1];
-		retBytes[EV_F_OFFSET] = ByteArray.shortToBytes(identifier.value)[1];
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final ErrorsBuilder builder, final Tlv tlv) {
+		if (tlv instanceof ReqMissingTlv && builder.getType() == 7)
+			builder.setTlvs(new TlvsBuilder().setReqMissing(
+					new ReqMissingBuilder().setRequestId(((ReqMissingTlv) tlv).getRequestId()).build()).build());
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof PcepErrorObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PcepErrorObject.");
+
+		final PcepErrorObject errObj = (PcepErrorObject) object;
+
+		final byte[] tlvs = serializeTlvs(((Errors) errObj).getTlvs());
+		int tlvsLength = 0;
+		if (tlvs != null)
+			tlvsLength = tlvs.length;
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+
+		if (tlvs != null)
+			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+
+		retBytes[ET_F_OFFSET] = ByteArray.shortToBytes(errObj.getType())[1];
+		retBytes[EV_F_OFFSET] = ByteArray.shortToBytes(errObj.getValue())[1];
 
 		return retBytes;
 	}
 
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		if (tlvs.getReqMissing() != null) {
+			return serializeTlv(new ReqMissingBuilder().setRequestId(tlvs.getReqMissing().getRequestId()).build());
+		}
+		return null;
+	}
+
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

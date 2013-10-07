@@ -67,6 +67,10 @@ module rsvp {
 		reference "https://tools.ietf.org/html/rfc3209#section-4.6.1.2";
 	}
 
+	typedef srlg-id {
+		type uint32;
+	}
+
 	grouping error-spec {
 		reference "https://tools.ietf.org/html/rfc2205#page-81";
 
@@ -141,6 +145,7 @@ module rsvp {
 		}
 	}
 
+
 	grouping label-subobject {
 		leaf c-type {
 			type uint8;
@@ -165,6 +170,13 @@ module rsvp {
 
 		leaf interface-id {
 			type uint32;
+			mandatory true;
+		}
+	}
+
+	grouping srlg-subobject {
+		leaf srlg-id {
+			type srlg-id:
 			mandatory true;
 		}
 	}
@@ -214,5 +226,36 @@ module rsvp {
 			}
 		}
 	}
+
+	grouping exclude-route-subobjects {
+		description "Subobject of an Exclude Route Object";
+		reference "https://tools.ietf.org/html/rfc4874#section-3.1";
+
+		leaf mandatory {
+			type boolean;
+			default false;
+		}
+
+		leaf attribute {
+			type uint8;
+			mandatory true;
+		}
+
+		choice subobject-type {
+			case as-number {
+				uses as-number-subobject;
+			}
+			case ip-prefix {
+				uses ip-prefix-subobject;
+			}
+			case srlg {
+				uses srlg-subobject;
+			}
+			case unnumbered {
+				uses unnumbered-subobject;
+			}
+		}
+	}
+
 }
 

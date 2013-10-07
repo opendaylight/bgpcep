@@ -24,11 +24,11 @@ import org.opendaylight.protocol.util.ByteArray;
 public class LSPStateDBVersionTlvParserTest {
 	@Test
 	public void testEquality() throws IOException, PCEPDeserializerException {
-		final LSPStateDBVersionTlv objToTest1a = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
+		final LSPStateDBVersionTlv objToTest1a = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(
 				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
-		final LSPStateDBVersionTlv objToTest1b = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
+		final LSPStateDBVersionTlv objToTest1b = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(
 				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
-		final LSPStateDBVersionTlv objToTest2 = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
+		final LSPStateDBVersionTlv objToTest2 = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(
 				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv2.bin")).get(0);
 
 		assertTrue(objToTest1a.equals(objToTest1a));
@@ -41,7 +41,7 @@ public class LSPStateDBVersionTlvParserTest {
 	public void testSerialization() throws PCEPDeserializerException, IOException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin");
 
-		final LSPStateDBVersionTlv objToTest = (LSPStateDBVersionTlv) PCEPTlvParser.parse(bytesFromFile).get(0);
+		final LSPStateDBVersionTlv objToTest = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(bytesFromFile).get(0);
 		assertEquals(objToTest.getDbVersion(), 128L);
 
 		final byte[] bytesActual = PCEPTlvParser.put(objToTest);
@@ -51,7 +51,7 @@ public class LSPStateDBVersionTlvParserTest {
 
 	@Test
 	public void testConstruction() throws PCEPDeserializerException, IOException {
-		final LSPStateDBVersionTlv expected = (LSPStateDBVersionTlv) PCEPTlvParser.parse(
+		final LSPStateDBVersionTlv expected = (LSPStateDBVersionTlv) PCEPTlvParser.parseTlv(
 				ByteArray.fileToBytes("src/test/resources/LSPStateDBVersionTlv1.bin")).get(0);
 		final LSPStateDBVersionTlv actual = new LSPStateDBVersionTlv(128L);
 
@@ -63,6 +63,6 @@ public class LSPStateDBVersionTlvParserTest {
 		/*
 		 * Should throw exception
 		 */
-		PCEPTlvParser.parse(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
+		PCEPTlvParser.parseTlv(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
 	}
 }
