@@ -47,6 +47,8 @@ public final class RIBImpl {
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
 		final DataModification trans = dps.beginTransaction();
 
+		// FIXME: detect and handle end-of-RIB markers
+
 		//remove(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
 		//		trans, peer, message.getWithdrawnRoutes().getWithdrawnRoutes().iterator());
 
