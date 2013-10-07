@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutionException;
-
+import com.google.common.base.Preconditions;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -19,7 +17,9 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
-import com.google.common.base.Preconditions;
+import java.io.Closeable;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 /**
  * Implementation of {@link BGP}.
@@ -28,20 +28,35 @@ public class BGPImpl implements BGP, Closeable {
 	/**
 	 * Wrapper class to give listener a close method.
 	 */
-	public class BGPListenerRegistration implements ListenerRegistration<BGPSessionListener> {
+	public static class BGPListenerRegistration implements ListenerRegistration<BGPSessionListener> {
 
 		private final BGPSessionListener listener;
 
-		private final BGPSession session;
+		private BGPSession session;
+		private Object bgpSessionLock = new Object();
 
-		public BGPListenerRegistration(final BGPSessionListener l, final BGPSession session) {
+		public BGPListenerRegistration(final BGPSessionListener l, final Future<? extends BGPSession> sessionFuture) {
 			this.listener = l;
-			this.session = session;
+			sessionFuture.addListener(new GenericFutureListener<Future<BGPSession>>() {
+
+				@Override
+				public void operationComplete(Future<BGPSession> future) throws Exception {
+					if (future.isSuccess() == false) {
+						throw new IOException("Failed to connect to peer with listener " + listener, future.cause());
+					}
+					synchronized (bgpSessionLock) {
+						session = future.get();
+					}
+				}
+			});
 		}
 
 		@Override
 		public void close() {
-			this.session.close();
+			synchronized (bgpSessionLock) {
+				if (session != null)
+					this.session.close();
+			}
 		}
 
 		@Override
@@ -67,13 +82,9 @@ public class BGPImpl implements BGP, Closeable {
 	 */
 	@Override
 	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategy strategy) throws IOException {
-		final BGPSession session;
-		try {
-			session = this.dispatcher.createClient(this.address, this.proposal.getProposal(), listener, strategy).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new IOException("Failed to connect to peer", e);
-		}
-		return new BGPListenerRegistration(listener, session);
+		final Future<? extends BGPSession> sessionFuture;
+		sessionFuture = this.dispatcher.createClient(this.address, this.proposal.getProposal(), listener, strategy);
+		return new BGPListenerRegistration(listener, sessionFuture);
 	}
 
 	@Override

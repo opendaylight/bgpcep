@@ -1,19 +1,16 @@
 package org.opendaylight.protocol.framework;
 
+import com.google.common.base.Preconditions;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Swiss army knife equivalent for reconnect strategies.
@@ -119,6 +116,7 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 		// also set the scheduled flag.
 		final Object lock = this;
 		scheduled = true;
+		attempts++;
 
 		// Schedule a task for the right time. It will also clear the flag.
 		return executor.schedule(new Callable<Void>() {

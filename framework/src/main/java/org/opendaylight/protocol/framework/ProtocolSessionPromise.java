@@ -7,24 +7,18 @@
  */
 package org.opendaylight.protocol.framework;
 
+import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.FutureListener;
-import io.netty.util.concurrent.Promise;
-
-import java.net.InetSocketAddress;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
+import io.netty.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+import java.net.InetSocketAddress;
 
 @ThreadSafe
 final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends DefaultPromise<S> {
@@ -37,6 +31,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 	private Future<?> pending;
 
 	ProtocolSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap b) {
+		super(GlobalEventExecutor.INSTANCE);
 		this.strategy = Preconditions.checkNotNull(strategy);
 		this.address = Preconditions.checkNotNull(address);
 		this.b = Preconditions.checkNotNull(b);
