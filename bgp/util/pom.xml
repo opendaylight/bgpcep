@@ -36,11 +36,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-concepts</artifactId>
             <version>${project.version}</version>
 		</dependency>
@@ -87,12 +82,10 @@
 						</Export-Package>
 						<Import-Package>
 							org.opendaylight.protocol.bgp.concepts,
-                            org.opendaylight.protocol.bgp.linkstate,
 							org.opendaylight.protocol.bgp.parser,
 							org.opendaylight.protocol.concepts,
                             org.opendaylight.protocol.util,
 							com.google.common.*, 
-							org.opendaylight.protocol.concepts, 
 							org.apache.commons.*,
 							org.slf4j
 						</Import-Package>

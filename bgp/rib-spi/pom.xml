@@ -65,7 +65,7 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Import-Package>
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.*,
 						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.bgp.rib.spi

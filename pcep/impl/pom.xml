@@ -113,7 +113,6 @@
 						<Import-Package>
 							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.concepts,
 							com.google.common.base,
 							com.google.common.collect,
 							com.google.common.primitives,

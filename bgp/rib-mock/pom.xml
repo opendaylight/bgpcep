@@ -86,21 +86,13 @@
 							org.opendaylight.protocol.bgp.rib.mock,
 						</Export-Package>
 						<Import-Package>
-							org.opendaylight.protocol.concepts,
-							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.bgp.linkstate,
 							com.google.common.*,
-							javax.annotation,
-							javax.management,
-							org.apache.commons.codec,
-							org.apache.commons.codec.binary,
-							org.apache.commons.lang,
-							org.opendaylight.protocol.bgp.concepts,
 							org.opendaylight.protocol.bgp.parser,
                             org.opendaylight.protocol.bgp.parser.impl,
 							org.opendaylight.protocol.bgp.parser.message,
-                            org.opendaylight.protocol.bgp.parser.parameter,
                             org.opendaylight.protocol.bgp.rib.impl,
+							org.opendaylight.protocol.concepts,
+							org.opendaylight.protocol.framework,
                             org.opendaylight.protocol.util,
 							org.slf4j,
 						</Import-Package>
