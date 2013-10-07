@@ -44,6 +44,8 @@
 		<module>integration-tests</module>
 		<module>mockito-configuration</module>
 		<module>pcep</module>
+		<module>programming</module>
+		<module>topology</module>
 		<module>util</module>
 	</modules>
 
