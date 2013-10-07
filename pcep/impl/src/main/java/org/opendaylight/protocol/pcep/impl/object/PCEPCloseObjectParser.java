@@ -67,7 +67,7 @@ public class PCEPCloseObjectParser implements PCEPObjectParser {
 				break;
 		}
 
-		return new PCEPCloseObject(reason, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
+		return new PCEPCloseObject(reason, PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
 	}
 
 	@Override

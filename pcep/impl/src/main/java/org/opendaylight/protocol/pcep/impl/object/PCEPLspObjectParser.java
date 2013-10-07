@@ -47,7 +47,7 @@ public class PCEPLspObjectParser implements PCEPObjectParser {
 
 		return new PCEPLspObject((ByteArray.bytesToShort(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2] & 0xFF) >> 4,
 				flags.get(DELEGATE_FLAG_OFFSET), flags.get(SYNC_FLAG_OFFSET), flags.get(OPERATIONAL_FLAG_OFFSET), flags.get(REMOVE_FLAG_OFFSET),
-				PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+				PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
 	}
 
 	@Override

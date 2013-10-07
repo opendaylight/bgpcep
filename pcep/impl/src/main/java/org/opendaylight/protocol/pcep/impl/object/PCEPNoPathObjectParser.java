@@ -54,7 +54,7 @@ public class PCEPNoPathObjectParser implements PCEPObjectParser {
 		if (bytes.length < TLVS_OFFSET)
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
-		return new PCEPNoPathObject((short) (bytes[NI_F_OFFSET] & 0xFF), flags.get(C_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)),
+		return new PCEPNoPathObject((short) (bytes[NI_F_OFFSET] & 0xFF), flags.get(C_FLAG_OFFSET), PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_OFFSET)),
 				ignored);
 	}
 

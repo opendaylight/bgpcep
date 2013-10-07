@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
@@ -26,6 +27,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecIPv4TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecIPv6TlvParser;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.tlv.IPv4LSPIdentifiersTlv;
 import org.opendaylight.protocol.pcep.tlv.IPv6LSPIdentifiersTlv;
 import org.opendaylight.protocol.pcep.tlv.LSPCleanupTlv;
@@ -37,15 +39,17 @@ import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
 import org.opendaylight.protocol.pcep.tlv.OFListTlv;
 import org.opendaylight.protocol.pcep.tlv.OrderTlv;
 import org.opendaylight.protocol.pcep.tlv.OverloadedDurationTlv;
-import org.opendaylight.protocol.pcep.tlv.P2MPCapabilityTlv;
 import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.protocol.pcep.tlv.RSVPErrorSpecTlv;
 import org.opendaylight.protocol.pcep.tlv.ReqMissingTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+
+import com.google.common.collect.Lists;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.PCEPTlv PCEPTlv} and its subclasses
  */
-public final class PCEPTlvParser {
+public final class PCEPTlvParser implements TlvParser {
 
     private static final Logger logger = LoggerFactory.getLogger(PCEPTlvParser.class);
 
@@ -58,7 +62,6 @@ public final class PCEPTlvParser {
 	REQ_MISSING(3),
 	OF_LIST_TLV(4),
 	ORDER_TLV(5),
-	P2MP_CAPABILITY(6),
 	PCE_STATEFUL_CAPABILITY(16),
 	LSP_SYMBOLIC_NAME(17),
 	LSP_IDENTIFIER_IPV4(18),
@@ -116,18 +119,17 @@ public final class PCEPTlvParser {
      * constants for specific one-value tlvs
      */
     private static final int DBV_F_LENGTH = 8;
-    private static final int OVERLOADED_DURATION_LENGTH = 4;
     private static final int UPDATE_ERR_CODE_LENGTH = 4;
     private static final int REQ_ID_LENGTH = 4;
     private static final int ORDR_DEL_LENGTH = 4;
     private static final int ORDR_SETUP_LENGTH = 4;
     private static final int P2MP_CAPABLITY_LENGTH = 2;
 
-    public static List<PCEPTlv> parse(final byte[] bytes) throws PCEPDeserializerException {
+    public List<Tlv> parseTlv(final byte[] bytes) throws PCEPDeserializerException {
 	if (bytes == null)
 	    throw new IllegalArgumentException("Byte array is mandatory.");
 
-	final List<PCEPTlv> tlvList = new ArrayList<PCEPTlv>();
+	final List<Tlv> tlvList = Lists.newArrayList();
 	PCEPTlvType type;
 	int length;
 	int offset = 0;
@@ -145,7 +147,7 @@ public final class PCEPTlvParser {
 	    final byte[] tlvBytes = ByteArray.subByte(bytes, offset + VALUE_F_OFFSET, length);
 
 	    logger.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
-	    final PCEPTlv tlv = parseSpecificTLV(type, tlvBytes);
+	    final Tlv tlv = parseSpecificTLV(type, tlvBytes);
 	    logger.trace("Tlv was parsed. {}", tlv);
 
 	    tlvList.add(tlv);
@@ -228,10 +230,6 @@ public final class PCEPTlvParser {
 	    valueBytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
 	    ByteArray.copyWhole(ByteArray.intToBytes((int) ((OrderTlv) objToSerialize).getDeleteOrder()), valueBytes, 0);
 	    ByteArray.copyWhole(ByteArray.intToBytes((int) ((OrderTlv) objToSerialize).getSetupOrder()), valueBytes, ORDR_DEL_LENGTH);
-	} else if (objToSerialize instanceof P2MPCapabilityTlv) {
-	    typeIndicator = PCEPTlvType.P2MP_CAPABILITY.getIndicator();
-	    valueBytes = new byte[P2MP_CAPABLITY_LENGTH];
-	    ByteArray.copyWhole(ByteArray.shortToBytes((short) ((P2MPCapabilityTlv) objToSerialize).getValue()), valueBytes, 0);
 	} else if (objToSerialize instanceof OFListTlv) {
 	    typeIndicator = PCEPTlvType.OF_LIST_TLV.getIndicator();
 	    valueBytes = OFListTlvParser.put((OFListTlv) objToSerialize);
@@ -281,8 +279,6 @@ public final class PCEPTlvParser {
 	    case ORDER_TLV:
 		return new OrderTlv(ByteArray.bytesToLong(ByteArray.subByte(valueBytes, 0, ORDR_DEL_LENGTH)), ByteArray.bytesToLong(ByteArray.subByte(
 			valueBytes, ORDR_DEL_LENGTH, ORDR_SETUP_LENGTH)));
-	    case P2MP_CAPABILITY:
-		return new P2MPCapabilityTlv(ByteArray.bytesToShort(ByteArray.subByte(valueBytes, 0, P2MP_CAPABLITY_LENGTH)) & 0xFFFF);
 	    case OF_LIST_TLV:
 		return OFListTlvParser.parse(valueBytes);
 	    case LSP_CLEANUP_TLV:

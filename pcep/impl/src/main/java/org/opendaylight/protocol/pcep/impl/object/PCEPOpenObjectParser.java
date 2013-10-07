@@ -76,7 +76,7 @@ public class PCEPOpenObjectParser implements PCEPObjectParser {
 		if (versionValue != PCEPOpenObject.PCEP_VERSION)
 			throw new PCEPDocumentedException("Unsupported PCEP version " + versionValue, PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
 
-		final List<PCEPTlv> tlvs = PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		final List<PCEPTlv> tlvs = PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		boolean ofListOccure = false;
 
 		for (final PCEPTlv tlv : tlvs) {

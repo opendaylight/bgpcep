@@ -21,7 +21,6 @@ import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
  *      Identifiers TLVs</a>
  */
 public final class IPv4LSPIdentifiersTlv extends AbstractLSPIdentifiersTlv<IPv4Address> {
-	private static final long serialVersionUID = -8249620306610957898L;
 
 	/**
 	 * Constructs new IPv4 LSP Identifiers TLV.

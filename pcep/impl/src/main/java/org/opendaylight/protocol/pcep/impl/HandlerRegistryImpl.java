@@ -11,6 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.protocol.concepts.AbstractRegistration;
+import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
@@ -42,6 +50,16 @@ public class HandlerRegistryImpl implements HandlerRegistry {
 		//		reg.registerMessageHandler(PCEPReportMessage.class, 10, new PCEPReportMessageParser());
 		//		reg.registerMessageHandler(PCCreateMessage.class, 12, new PCCreateMessageParser());
 
+		reg.registerTlvParser(1, new NoPathVectorTlvParser());
+		reg.registerTlvParser(2, new OverloadedDurationTlvParser());
+		reg.registerTlvParser(3, new ReqMissingTlvParser());
+		reg.registerTlvParser(4, new OFListTlvParser());
+		reg.registerTlvParser(5, new OrderTlvParser());
+		reg.registerTlvParser(16, new PCEStatefulCapabilityTlvParser());
+		reg.registerTlvParser(17, new LspSymbolicNameTlvParser());
+		reg.registerTlvParser(18, parser);
+		reg.registerTlvParser(19, parser);
+		reg.registerTlvParser(20, new LspUpdateErrorTlvParser());
 		INSTANCE = reg;
 	}
 

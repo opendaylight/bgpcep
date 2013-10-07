@@ -12,6 +12,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.concepts.IPv4ExtendedTunnelIdentifier;
 import org.opendaylight.protocol.pcep.concepts.LSPIdentifier;
 import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.tlv.IPv4LSPIdentifiersTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -19,7 +20,7 @@ import org.opendaylight.protocol.util.ByteArray;
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.LSPIdentifiersTlv LSPIdentifiersTlv}
  * parameterized as IPv4Address
  */
-public class LSPIdentifierIPv4TlvParser {
+public class LSPIdentifierIPv4TlvParser implements TlvParser {
 
 	private static final int IP_F_LENGTH = 4;
 	private static final int LSP_ID_F_LENGTH = 2;

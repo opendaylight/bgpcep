@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of LSP State DB Version TLV.
@@ -17,8 +17,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  *      href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.1.2">LSP
  *      State Database Version TLV</a>
  */
-public class LSPStateDBVersionTlv implements PCEPTlv {
-	private static final long serialVersionUID = 3165807743418210453L;
+public class LSPStateDBVersionTlv implements Tlv {
 	private final long dbVersion;
 
 	/**

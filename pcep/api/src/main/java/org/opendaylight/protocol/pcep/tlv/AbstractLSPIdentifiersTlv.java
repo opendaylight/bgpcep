@@ -22,7 +22,6 @@ import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
  * @param <T>
  */
 public abstract class AbstractLSPIdentifiersTlv<T extends NetworkAddress<T>> implements LSPIdentifiersTlv<T> {
-	private static final long serialVersionUID = 2386922658825295806L;
 
 	private final T senderAddress;
 

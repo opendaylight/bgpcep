@@ -59,7 +59,7 @@ public class PCEPLspaObjectParser implements PCEPObjectParser {
 		return new PCEPLspaObject(UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))),
 				UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))), UnsignedInts.toLong(ByteArray
 						.bytesToInt(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))), (short) (bytes[SET_PRIO_F_OFFSET] & 0xFF),
-				(short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF), flags.get(S_FLAG_OFFSET), flags.get(L_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)), processed,
+				(short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF), flags.get(S_FLAG_OFFSET), flags.get(L_FLAG_OFFSET), PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)), processed,
 				ignored);
 	}
 

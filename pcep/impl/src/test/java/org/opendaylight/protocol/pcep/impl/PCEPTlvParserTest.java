@@ -57,7 +57,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testDeserialization() throws PCEPDeserializerException, IOException {
 	final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/PackOfTlvs.bin");
-	final List<PCEPTlv> tlvsToTest = PCEPTlvParser.parse(bytesFromFile);
+	final List<PCEPTlv> tlvsToTest = PCEPTlvParser.parseTlv(bytesFromFile);
 
 	assertEquals(17, tlvsToTest.size());
 	assertEquals(tlvsToTest.get(0), new PCEStatefulCapabilityTlv(false, false, true));

@@ -43,7 +43,7 @@ public class PCEPObjectiveFunctionObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 		try {
 			return new PCEPObjectiveFunctionObject(PCEPOFCodesMapping.getInstance().getFromCodeIdentifier(
-					ByteArray.bytesToShort(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH)) & 0xFFFF), PCEPTlvParser.parse(ByteArray.cutBytes(
+					ByteArray.bytesToShort(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH)) & 0xFFFF), PCEPTlvParser.parseTlv(ByteArray.cutBytes(
 					bytes, TLVS_OFFSET)), processed, ignored);
 		} catch (final NoSuchElementException e) {
 			throw new PCEPDeserializerException(e, "Objective function object has unknown identifier.");

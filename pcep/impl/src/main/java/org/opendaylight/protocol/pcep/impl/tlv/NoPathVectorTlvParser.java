@@ -10,13 +10,14 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.tlv.NoPathVectorTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.NoPathVectorTlv NoPathVectorTlv}
  */
-public class NoPathVectorTlvParser {
+public class NoPathVectorTlvParser implements TlvParser {
 
 	public static final int FLAGS_F_LENGTH = 4;
 

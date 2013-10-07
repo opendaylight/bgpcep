@@ -217,7 +217,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException(e, "Error object has unknown identifier.");
 		}
 
-		return new PCEPErrorObject(error, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+		return new PCEPErrorObject(error, PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
 	}
 
 	@Override
