@@ -9,11 +9,11 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
+import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
 import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPCloseObject PCEPCloseObject}
@@ -38,72 +38,33 @@ public class PCEPCloseObjectParser implements PCEPObjectParser {
 	public static final int TLVS_F_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
 	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
+	public PCEPObject parse(final byte[] bytes, final boolean processed, final boolean ignored) throws PCEPDeserializerException {
 		if (bytes == null)
 			throw new IllegalArgumentException("Byte array is mandatory.");
 
 		if (bytes.length != TLVS_F_OFFSET)
-			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + TLVS_F_OFFSET + "; Passed: " + bytes.length);
+			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + TLVS_F_OFFSET + "; Passed: "
+					+ bytes.length);
 
-		Reason reason;
-		switch ((short) (bytes[REASON_F_OFFSET] & 0xFF)) {
-			case 1:
-				reason = Reason.UNKNOWN;
-				break;
-			case 2:
-				reason = Reason.EXP_DEADTIMER;
-				break;
-			case 3:
-				reason = Reason.MALFORMED_MSG;
-				break;
-			case 4:
-				reason = Reason.TOO_MANY_UNKNOWN_REQ_REP;
-				break;
-			case 5:
-				reason = Reason.TOO_MANY_UNKNOWN_MSG;
-				break;
-			default:
-				reason = Reason.UNKNOWN;
-				break;
-		}
-
+		TerminationReason reason = TerminationReason.forValue((short) (bytes[REASON_F_OFFSET] & 0xFF));
+		if (reason == null)
+			reason = TerminationReason.Unknown;
 		return new PCEPCloseObject(reason, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPCloseObject))
+	public byte[] put(final PCEPObject obj) {
+		if (!(obj instanceof CClose))
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPCloseObject.");
 
-		final byte[] tlvs = PCEPTlvParser.put(((PCEPCloseObject) obj).getTlvs());
+		final byte[] tlvs = PCEPTlvParser.put(((CClose) obj).getTlvs());
 		final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length];
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
 
-		int reason;
-		switch (((PCEPCloseObject) obj).getReason()) {
-			case UNKNOWN:
-				reason = 1;
-				break;
-			case EXP_DEADTIMER:
-				reason = 2;
-				break;
-			case MALFORMED_MSG:
-				reason = 3;
-				break;
-			case TOO_MANY_UNKNOWN_REQ_REP:
-				reason = 4;
-				break;
-			case TOO_MANY_UNKNOWN_MSG:
-				reason = 5;
-				break;
-			default:
-				reason = 1;
-				break;
-		}
+		final int reason = ((CClose) obj).getReason().intValue();
 
 		retBytes[REASON_F_OFFSET] = (byte) reason;
 
 		return retBytes;
 	}
-
 }

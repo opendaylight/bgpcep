@@ -11,73 +11,82 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
+
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * @author miroslav
- *
+ * 
  *         May 2012
- *
+ * 
  *         Copyright (c) 2012 by Cisco Systems, Inc. All rights reserved.
  */
 
 public class PCEPSecondaryExplicitRouteObject extends PCEPObject {
 
-    private final List<ExplicitRouteSubobject> subobjects;
+	private final List<ExplicitRouteSubobject> subobjects;
 
-    /**
-     * Constructs Secondary Explicit Route Object.
-     *
-     * @param subobjects
-     *            List<ExplicitRouteSubobject>. Can't be null or empty.
-     * @param ignored
-     *            boolean
-     */
-    public PCEPSecondaryExplicitRouteObject(List<ExplicitRouteSubobject> subobjects, boolean processed, boolean ignored) {
-	super(processed, ignored);
-	if (subobjects == null || subobjects.isEmpty())
-	    throw new IllegalArgumentException("Subobjects can't be null or empty.");
-	this.subobjects = subobjects;
-    }
+	/**
+	 * Constructs Secondary Explicit Route Object.
+	 * 
+	 * @param subobjects List<ExplicitRouteSubobject>. Can't be null or empty.
+	 * @param ignored boolean
+	 */
+	public PCEPSecondaryExplicitRouteObject(final List<ExplicitRouteSubobject> subobjects, final boolean processed, final boolean ignored) {
+		super(processed, ignored);
+		if (subobjects == null || subobjects.isEmpty())
+			throw new IllegalArgumentException("Subobjects can't be null or empty.");
+		this.subobjects = subobjects;
+	}
 
-    /**
-     * Gets list of {@link ExplicitRouteSubobject}
-     *
-     * @return List<ExplicitRouteSubobject>. Can't be null or empty.
-     */
-    public List<ExplicitRouteSubobject> getSubobjects() {
-	return this.subobjects;
-    }
+	/**
+	 * Gets list of {@link ExplicitRouteSubobject}
+	 * 
+	 * @return List<ExplicitRouteSubobject>. Can't be null or empty.
+	 */
+	public List<ExplicitRouteSubobject> getSubobjects() {
+		return this.subobjects;
+	}
 
-    @Override
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	@Override
+	public Boolean isIgnore() {
+		return super.isIgnored();
+	}
+
+	@Override
+	public Boolean isProcessingRule() {
+		return super.isProcessed();
+	}
+
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("subobjects", this.subobjects);
 		return super.addToStringAttributes(toStringHelper);
 	}
 
-    @Override
-    public int hashCode() {
-	final int prime = 31;
-	int result = super.hashCode();
-	result = prime * result + ((this.subobjects == null) ? 0 : this.subobjects.hashCode());
-	return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((this.subobjects == null) ? 0 : this.subobjects.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (!super.equals(obj))
-	    return false;
-	if (this.getClass() != obj.getClass())
-	    return false;
-	final PCEPSecondaryExplicitRouteObject other = (PCEPSecondaryExplicitRouteObject) obj;
-	if (this.subobjects == null) {
-	    if (other.subobjects != null)
-		return false;
-	} else if (!this.subobjects.equals(other.subobjects))
-	    return false;
-	return true;
-    }
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (this.getClass() != obj.getClass())
+			return false;
+		final PCEPSecondaryExplicitRouteObject other = (PCEPSecondaryExplicitRouteObject) obj;
+		if (this.subobjects == null) {
+			if (other.subobjects != null)
+				return false;
+		} else if (!this.subobjects.equals(other.subobjects))
+			return false;
+		return true;
+	}
 
 }

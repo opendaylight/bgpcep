@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of PCE Stateful Capability Tlv.
@@ -20,9 +20,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  * 		TLV</a>
  *
  */
-public class PCEStatefulCapabilityTlv implements PCEPTlv {
-
-	private static final long serialVersionUID = 5567589958323130325L;
+public class PCEStatefulCapabilityTlv implements Tlv {
 
 	private final boolean update;
 

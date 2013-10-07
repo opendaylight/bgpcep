@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.tlv;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPOFCodes;
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * It MAY be carried within an OPEN object sent by a PCE in an Open message to a
@@ -18,8 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  * 
  * @see <a href="http://tools.ietf.org/html/rfc5541#section-2.1">OF-List TLV</a>
  */
-public class OFListTlv implements PCEPTlv {
-	private static final long serialVersionUID = 3409582385994162451L;
+public class OFListTlv implements Tlv {
 
 	private final List<PCEPOFCodes> ofCodes;
 

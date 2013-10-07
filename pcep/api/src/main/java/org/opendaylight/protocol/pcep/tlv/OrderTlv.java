@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * The Order TLV is an optional TLV in the RP object, that indicates the order
@@ -18,9 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  * @see <a href="http://tools.ietf.org/html/rfc5557#section-5.4">The Order
  *      Response [RFC5557]</a>
  */
-public class OrderTlv implements PCEPTlv {
-
-	private static final long serialVersionUID = 4275350142878198146L;
+public class OrderTlv implements Tlv {
 
 	private final long deleteOrder;
 	private final long setupOrder;

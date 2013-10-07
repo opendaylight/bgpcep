@@ -42,7 +42,7 @@ public class PCEPGlobalConstraintsObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
 		return new PCEPGlobalConstraintsObject((short) (bytes[MAX_HOP_F_OFFSET] & 0xFF), (short) (bytes[MAX_UTIL_F_OFFSET] & 0xFF),
-				(short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF), (short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF), PCEPTlvParser.parse(ByteArray.cutBytes(bytes,
+				(short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF), (short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF), PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes,
 						TLVS_OFFSET)), processed, ignored);
 	}
 

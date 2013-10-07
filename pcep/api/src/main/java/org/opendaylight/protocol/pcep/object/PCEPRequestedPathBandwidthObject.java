@@ -24,4 +24,14 @@ public class PCEPRequestedPathBandwidthObject extends PCEPBandwidthObject {
 	public PCEPRequestedPathBandwidthObject(final Bandwidth bandwidth, final boolean processed, final boolean ignored) {
 		super(bandwidth, processed, ignored);
 	}
+
+	@Override
+	public Boolean isIgnore() {
+		return super.isIgnored();
+	}
+
+	@Override
+	public Boolean isProcessingRule() {
+		return super.isProcessed();
+	}
 }

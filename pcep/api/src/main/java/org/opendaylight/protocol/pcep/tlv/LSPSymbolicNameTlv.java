@@ -8,8 +8,8 @@
 
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.concepts.LSPSymbolicName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of LSP Symbolic Name Tlv.
@@ -18,8 +18,7 @@ import org.opendaylight.protocol.pcep.concepts.LSPSymbolicName;
  *      href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.1">The
  *      LSP Symbolic Name TLV</a>
  */
-public class LSPSymbolicNameTlv implements PCEPTlv {
-	private static final long serialVersionUID = 2525226814028262452L;
+public class LSPSymbolicNameTlv implements Tlv {
 	private final LSPSymbolicName symbolicName;
 
 	/**

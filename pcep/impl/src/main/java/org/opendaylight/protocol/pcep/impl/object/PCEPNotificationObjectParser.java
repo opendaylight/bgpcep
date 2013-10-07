@@ -43,7 +43,7 @@ public class PCEPNotificationObjectParser implements PCEPObjectParser {
 		if (bytes.length < TLVS_OFFSET)
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
-		return new PCEPNotificationObject((short) (bytes[NT_F_OFFSET] & 0xFF), (short) (bytes[NV_F_OFFSET] & 0xFF), PCEPTlvParser.parse(ByteArray.cutBytes(
+		return new PCEPNotificationObject((short) (bytes[NT_F_OFFSET] & 0xFF), (short) (bytes[NV_F_OFFSET] & 0xFF), PCEPTlvParser.parseTlv(ByteArray.cutBytes(
 				bytes, TLVS_OFFSET)));
 	}
 

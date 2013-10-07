@@ -80,6 +80,7 @@ module pcep-types {
 		description "NO-PATH-VECTOR TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
 
+		uses tlv;
 		leaf flags {
 			type bits {
 				bit p2mp-unreachable {
@@ -116,6 +117,7 @@ module pcep-types {
 		description "OVERLOAD-DURATION TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
 
+		uses tlv;
 		leaf duration {
 			type uint32;
 			units seconds;
@@ -126,12 +128,13 @@ module pcep-types {
 		description "REQ-MISSING TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
 
+		uses tlv;
 		leaf request-id {
 			type request-id;
 		}
 	}
-
-	grouping p2mp-capable-tlv {
+	
+    grouping p2mp-capable-tlv {
 		description "P2MP CAPABLE TLV";
 		reference "https://tools.ietf.org/html/rfc6006#section-3.1.2";
 
@@ -140,11 +143,13 @@ module pcep-types {
 			mandatory true;
 		}
 	}
+	
 
 	grouping stateful-capability-tlv {
 		description "Stateful PCE Capability TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
 
+		uses tlv;
 		leaf flags {
 			type bits {
 				bit lsp-update-capability {
@@ -165,6 +170,7 @@ module pcep-types {
 		description "LSP State Database Version TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
 
+		uses tlv;
 		leaf version {
 			type uint64;
 			mandatory true;
@@ -175,6 +181,7 @@ module pcep-types {
 		description "PCE Redundancy Group Identifier TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
 
+		uses tlv;
 		leaf identifier {
 			type binary;
 			mandatory true;
@@ -185,6 +192,7 @@ module pcep-types {
 		description "LSP Identifiers TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
 
+		uses tlv;
 		leaf lsp-id {
 			type rsvp:lsp-id;
 			mandatory true;
@@ -223,6 +231,7 @@ module pcep-types {
 		description "Symbolic Path Name TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
 
+		uses tlv;
 		leaf path-name {
 			type binary;
 			mandatory true;
@@ -233,6 +242,7 @@ module pcep-types {
 		description "LSP Error Code TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.3";
 
+		uses tlv;
 		leaf error-code {
 			type uint32;
 			mandatory true;
@@ -243,6 +253,7 @@ module pcep-types {
 		description "RSVP Error Spec TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.4";
 
+		uses tlv;
 		choice error-type {
 			case rsvp {
 				container rsvp-error {
@@ -261,6 +272,7 @@ module pcep-types {
 		description "OF-List TLV";
 		reference "https://tools.ietf.org/html/rfc5541#section-2.1";
 
+		uses tlv;
 		leaf-list codes {
 			type of-id;
 		}
@@ -270,6 +282,7 @@ module pcep-types {
 		description "Order TLV";
 		reference "https://tools.ietf.org/html/rfc5557#section-5.4";
 
+		uses tlv;
 		leaf delete {
 			type uint32;
 			mandatory true;
@@ -690,12 +703,14 @@ module pcep-types {
 		description "CLOSE Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.17";
 
-		// No possibility of TLVs
 		uses object;
 
 		leaf reason {
 			type uint8;
 			mandatory true;
+		}
+		
+		container tlvs {
 		}
 	}
 
@@ -998,18 +1013,6 @@ module pcep-types {
 							uses lsp-object;
 						}
 					}
-
-					container p2mp {
-						when "../rp/p2mp = true";
-
-						list trees {
-							container endpoints {
-								uses endpoints-object;
-							}
-
-							// FIXME: finish this
-						}
-					}
 				}
 			}
 
@@ -1141,13 +1144,13 @@ module pcep-types {
 	grouping close-message {
 		uses message;
 
-		container close-message {
+		container c-close-message {
 			description "Close Message";
 			reference "https://tools.ietf.org/html/rfc5440#section-6.8";
 
 			uses message-header;
 
-			container close {
+			container c-close {
 				uses close-object;
 			}
 		}

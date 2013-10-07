@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of No Path Vector TLV. Extended to conform RFC5557.
@@ -18,9 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  * @see <a href="http://tools.ietf.org/html/rfc5557#section-5.7">NO-PATH
  *      Indicator [RFC5557]</a>
  */
-public class NoPathVectorTlv implements PCEPTlv {
-
-	private static final long serialVersionUID = -4993945476359800826L;
+public class NoPathVectorTlv implements Tlv {
 
 	private final boolean pceUnavailable;
 

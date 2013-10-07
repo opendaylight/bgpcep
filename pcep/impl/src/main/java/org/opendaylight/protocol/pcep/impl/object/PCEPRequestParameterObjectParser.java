@@ -97,7 +97,7 @@ public class PCEPRequestParameterObjectParser implements PCEPObjectParser {
 
 		return new PCEPRequestParameterObject(flags.get(O_FLAG_OFFSET), flags.get(B_FLAG_OFFSET), flags.get(R_FLAG_OFFSET), flags.get(M_FLAG_OFFSET),
 				flags.get(D_FLAG_OFFSET), flags.get(S_FLAG_OFFSET), flags.get(F_FLAG_OFFSET), flags.get(N_FLAG_OFFSET), flags.get(E_FLAG_OFFSET), priority,
-				ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH)), PCEPTlvParser.parse(ByteArray.cutBytes(bytes,
+				ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH)), PCEPTlvParser.parseTlv(ByteArray.cutBytes(bytes,
 						TLVS_OFFSET)), processed, ignored);
 	}
 

@@ -9,12 +9,13 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 
-public class UnknownObject extends PCEPObject {
+public class UnknownObject extends PCEPObject implements Object {
 
 	private final PCEPErrors error;
 
-	public UnknownObject(boolean processed, boolean ignored, PCEPErrors error) {
+	public UnknownObject(final boolean processed, final boolean ignored, final PCEPErrors error) {
 		super(processed, ignored);
 
 		this.error = error;
@@ -24,4 +25,13 @@ public class UnknownObject extends PCEPObject {
 		return this.error;
 	}
 
+	@Override
+	public Boolean isIgnore() {
+		return super.isIgnored();
+	}
+
+	@Override
+	public Boolean isProcessingRule() {
+		return super.isProcessed();
+	}
 }
