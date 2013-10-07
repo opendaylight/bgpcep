@@ -12,7 +12,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 public class PCEPTestingToolTest {
 
@@ -20,9 +22,9 @@ public class PCEPTestingToolTest {
 	public void testSimpleSessionListener() {
 		final TestingSessionListener ssl = new TestingSessionListener();
 		assertEquals(0, ssl.messages.size());
-		ssl.onMessage(null, new PCEPKeepAliveMessage());
+		ssl.onMessage(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
 		assertEquals(1, ssl.messages.size());
-		assertTrue(ssl.messages.get(0) instanceof PCEPKeepAliveMessage);
+		assertTrue(ssl.messages.get(0) instanceof KeepaliveMessage);
 		assertFalse(ssl.up);
 		ssl.onSessionUp(null);
 		assertTrue(ssl.up);

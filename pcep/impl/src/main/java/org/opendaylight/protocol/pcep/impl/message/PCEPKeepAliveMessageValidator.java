@@ -13,8 +13,9 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 /**
  * PCEPKeepAliveMessage validator. Validates message integrity.
@@ -30,7 +31,7 @@ public class PCEPKeepAliveMessageValidator extends PCEPMessageValidator {
 			private static final long serialVersionUID = 1L;
 
 			{
-				this.add(new PCEPKeepAliveMessage());
+				this.add(new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
 			}
 		};
 	}

@@ -33,7 +33,6 @@ import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 import org.opendaylight.protocol.pcep.message.PCEPNotificationMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
 import org.opendaylight.protocol.pcep.message.PCEPReplyMessage;
@@ -88,7 +87,9 @@ import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 import com.google.common.collect.Lists;
 
@@ -154,8 +155,9 @@ public class PCEPValidatorTest {
 	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
 			DeserializerException, DocumentedException {
 		assertEquals(deserMsg("src/test/resources/PCEPKeepAliveMessage1.bin").toString(),
-				asList((Message) new PCEPKeepAliveMessage()).toString());
-		assertEquals(deserMsg("src/test/resources/Keepalive.1.bin").toString(), asList(new PCEPKeepAliveMessage()).toString());
+				asList(new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build()).toString());
+		assertEquals(deserMsg("src/test/resources/Keepalive.1.bin").toString(),
+				asList(new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build()).toString());
 	}
 
 	@Test
