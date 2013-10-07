@@ -7,45 +7,37 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Open Message.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.2">Open
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.2">Open Message</a>
  */
-public class PCEPOpenMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = -588927926753235030L;
+public class PCEPOpenMessage implements Message {
 
 	private final PCEPOpenObject openObj;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs new Open Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if the PCEPOpenObject is null.
-	 *
-	 * @param openObj
-	 *            {@link PCEPOpenObject}. Can't be null.
+	 * 
+	 * @throws IllegalArgumentException if the PCEPOpenObject is null.
+	 * 
+	 * @param openObj {@link PCEPOpenObject}. Can't be null.
 	 */
 	public PCEPOpenMessage(final PCEPOpenObject openObj) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = -1339062869814655362L;
-
-			{
-				if (openObj != null)
-					this.add(openObj);
-			}
-		});
-
-		if (openObj == null)
+		this.objects = Lists.newArrayList();
+		if (openObj != null)
+			this.objects.add(openObj);
+		else
 			throw new IllegalArgumentException("PCEPOpenObject is mandatory.");
 
 		this.openObj = openObj;
@@ -53,11 +45,15 @@ public class PCEPOpenMessage extends PCEPMessage {
 
 	/**
 	 * Gets {@link PCEPOpenObject}
-	 *
+	 * 
 	 * @return {@link PCEPOpenObject}. Can't be null.
 	 */
 	public PCEPOpenObject getOpenObject() {
 		return this.openObj;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -69,7 +65,7 @@ public class PCEPOpenMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
@@ -29,6 +28,7 @@ import org.opendaylight.protocol.pcep.object.PCEPLspObject;
 import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
 import org.opendaylight.protocol.pcep.object.PCEPMetricObject;
 import org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
  * PCEPReportMessage validator. Validates message integrity.
@@ -36,7 +36,7 @@ import org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject;
 public class PCEPReportMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<PCEPMessage> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -44,10 +44,10 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 
 		while (!objects.isEmpty()) {
 			if (objects.get(0) instanceof UnknownObject)
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
 
 			if (!(objects.get(0) instanceof PCEPLspObject))
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
 
 			final PCEPLspObject lsp = (PCEPLspObject) objects.get(0);
 			objects.remove(0);
@@ -65,7 +65,7 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 						path = this.getValidCompositePath(objects);
 					}
 				} catch (final PCEPDocumentedException e) {
-					return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
+					return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
 				}
 			}
 
@@ -77,11 +77,11 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 
 		if (!objects.isEmpty()) {
 			if (objects.get(0) instanceof UnknownObject)
-				return Arrays.asList((PCEPMessage) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
+				return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject) objects.get(0)).getError())));
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 
-		return Arrays.asList((PCEPMessage) new PCEPReportMessage(report));
+		return Arrays.asList((Message) new PCEPReportMessage(report));
 	}
 
 	private CompositeRptPathObject getValidCompositePath(final List<PCEPObject> objects) throws PCEPDocumentedException {
@@ -106,32 +106,32 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 			}
 
 			switch (state) {
-				case 1:
-					state = 2;
-					if (obj instanceof PCEPLspaObject) {
-						pathLspa = (PCEPLspaObject) obj;
-						break;
-					}
-				case 2:
-					state = 3;
-					if (obj instanceof PCEPExistingPathBandwidthObject) {
-						pathBandwidth = (PCEPExistingPathBandwidthObject) obj;
-						break;
-					}
+			case 1:
+				state = 2;
+				if (obj instanceof PCEPLspaObject) {
+					pathLspa = (PCEPLspaObject) obj;
+					break;
+				}
+			case 2:
+				state = 3;
+				if (obj instanceof PCEPExistingPathBandwidthObject) {
+					pathBandwidth = (PCEPExistingPathBandwidthObject) obj;
+					break;
+				}
 
-				case 3:
+			case 3:
+				state = 4;
+				if (obj instanceof PCEPReportedRouteObject) {
+					pathRro = (PCEPReportedRouteObject) obj;
+					break;
+				}
+			case 4:
+				state = 5;
+				if (obj instanceof PCEPMetricObject) {
+					pathMetrics.add((PCEPMetricObject) obj);
 					state = 4;
-					if (obj instanceof PCEPReportedRouteObject) {
-						pathRro = (PCEPReportedRouteObject) obj;
-						break;
-					}
-				case 4:
-					state = 5;
-					if (obj instanceof PCEPMetricObject) {
-						pathMetrics.add((PCEPMetricObject) obj);
-						state = 4;
-						break;
-					}
+					break;
+				}
 			}
 
 			if (state == 5)

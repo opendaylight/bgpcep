@@ -24,7 +24,6 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPOFCodes;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.PCEPTlv;
@@ -89,6 +88,9 @@ import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 public class PCEPValidatorTest {
 
@@ -121,7 +123,7 @@ public class PCEPValidatorTest {
 	// private final PCEPClassTypeObjectProvider classTypeProvider = new
 	// PCEPClassTypeObjectProvider((short) 7, true);
 
-	private static List<PCEPMessage> deserMsg(final String srcFile) throws IOException, DeserializerException, DocumentedException,
+	private static List<Message> deserMsg(final String srcFile) throws IOException, DeserializerException, DocumentedException,
 			PCEPDeserializerException {
 		final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
 		final RawMessage rawMessage = (RawMessage) msgFactory.parse(bytesFromFile).get(0);
@@ -133,31 +135,36 @@ public class PCEPValidatorTest {
 	public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
 			PCEPDeserializerException {
 		assertEquals(
-				deserMsg("src/test/resources/PCEPOpenMessage1.bin"),
-				asList(new PCEPOpenMessage(new PCEPOpenObject(30, 120, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
-						new LSPStateDBVersionTlv(0x80))))));
+				deserMsg("src/test/resources/PCEPOpenMessage1.bin").toString(),
+				asList(
+						new PCEPOpenMessage(new PCEPOpenObject(30, 120, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
+								new LSPStateDBVersionTlv(0x80))))).toString());
 
-		assertEquals(deserMsg("src/test/resources/Open.1.bin"), asList(new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1))));
+		assertEquals(deserMsg("src/test/resources/Open.1.bin").toString(),
+				asList(new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1))).toString());
 
 		assertEquals(
-				deserMsg("src/test/resources/Open.3.bin"),
-				asList(new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
-						new LSPStateDBVersionTlv(53))))));
+				deserMsg("src/test/resources/Open.3.bin").toString(),
+				asList(
+						new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
+								new LSPStateDBVersionTlv(53))))).toString());
 	}
 
 	@Test
 	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
 			DeserializerException, DocumentedException {
-		assertEquals(deserMsg("src/test/resources/PCEPKeepAliveMessage1.bin"), asList(new PCEPKeepAliveMessage()));
-		assertEquals(deserMsg("src/test/resources/Keepalive.1.bin"), asList(new PCEPKeepAliveMessage()));
+		assertEquals(deserMsg("src/test/resources/PCEPKeepAliveMessage1.bin").toString(),
+				asList((Message) new PCEPKeepAliveMessage()).toString());
+		assertEquals(deserMsg("src/test/resources/Keepalive.1.bin").toString(), asList(new PCEPKeepAliveMessage()).toString());
 	}
 
 	@Test
 	public void testCloseMsg() throws PCEPDeserializerException, IOException, PCEPDocumentedException, DeserializerException,
 			DocumentedException {
-		assertEquals(deserMsg("src/test/resources/PCEPCloseMessage1.bin"),
-				asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.TOO_MANY_UNKNOWN_MSG))));
-		assertEquals(deserMsg("src/test/resources/Close.1.bin"), asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.UNKNOWN))));
+		assertEquals(deserMsg("src/test/resources/PCEPCloseMessage1.bin").toString(),
+				asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.TOO_MANY_UNKNOWN_MSG))).toString());
+		assertEquals(deserMsg("src/test/resources/Close.1.bin").toString(),
+				asList(new PCEPCloseMessage(new PCEPCloseObject(Reason.UNKNOWN))).toString());
 	}
 
 	@Test
@@ -167,11 +174,11 @@ public class PCEPValidatorTest {
 		final byte[] ipAdress = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		requests.add(new CompositeRequestObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 5, 0xDEADBEEFL, true, false), new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipAdress), new IPv4Address(ipAdress))));
 		PCEPRequestMessage specMessage = new PCEPRequestMessage(requests);
-		List<PCEPMessage> deserMsgs = deserMsg("src/test/resources/PCEPRequestMessage1.bin");
-		final List<PCEPMessage> specMessages = new ArrayList<PCEPMessage>();
+		List<Message> deserMsgs = deserMsg("src/test/resources/PCEPRequestMessage1.bin");
+		final List<Message> specMessages = Lists.newArrayList();
 		specMessages.add(specMessage);
 
-		assertEquals(deserMsgs, specMessages);
+		assertEquals(deserMsgs.toString(), specMessages.toString());
 
 		requests = new ArrayList<CompositeRequestObject>();
 		final byte[] ipAdress2 = { (byte) 0x7F, (byte) 0x00, (byte) 0x00, (byte) 0x01 };
@@ -180,7 +187,7 @@ public class PCEPValidatorTest {
 		deserMsgs = deserMsg("src/test/resources/PCReq.1.bin");
 		specMessages.clear();
 		specMessages.add(specMessage);
-		assertEquals(deserMsgs, specMessages);
+		assertEquals(deserMsgs.toString(), specMessages.toString());
 
 		requests = new ArrayList<CompositeRequestObject>();
 		requests.add(new CompositeRequestObject(this.requestParameter, new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipAdress2), new IPv4Address(ipAdress2)), null, null, null, null, null, null, null, null, new PCEPLoadBalancingObject(3, new Bandwidth(ByteArray.floatToBytes((float) 1024.75)), false)));
@@ -188,8 +195,7 @@ public class PCEPValidatorTest {
 		deserMsgs = deserMsg("src/test/resources/PCReq.2.bin");
 		specMessages.clear();
 		specMessages.add(specMessage);
-		// FIXME BUG-89
-		// assertEquals(deserMsgs, specMessages);
+		assertEquals(deserMsgs.toString(), specMessages.toString());
 
 		requests = new ArrayList<CompositeRequestObject>();
 		requests.add(new CompositeRequestObject(this.requestParameter, new PCEPEndPointsObject<IPv4Address>(new IPv4Address(ipAdress2), new IPv4Address(ipAdress2)), null, new PCEPLspObject(1, false, false, true, false), PCEPValidatorTest.lspa, new PCEPRequestedPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(1000)), false, false), new ArrayList<PCEPMetricObject>() {
@@ -231,7 +237,7 @@ public class PCEPValidatorTest {
 
 		specMessages.add(new PCEPRequestMessage(requests));
 		deserMsgs = deserMsg("src/test/resources/PCReq.4.bin");
-		assertEquals(deserMsgs, specMessages);
+		assertEquals(deserMsgs.toString(), specMessages.toString());
 
 		specMessages.clear();
 		svecList = new ArrayList<CompositeRequestSvecObject>();
@@ -274,7 +280,7 @@ public class PCEPValidatorTest {
 		}, new PCEPReportedRouteObject(this.rroSubobjects, false), new PCEPExistingPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(5353)), false, false), new PCEPIncludeRouteObject(this.eroSubobjects, false, false), new PCEPLoadBalancingObject(5, new Bandwidth(ByteArray.floatToBytes(3f)), false)));
 		deserMsgs = deserMsg("src/test/resources/PCReq.5.bin");
 		specMessages.add(new PCEPRequestMessage(svecList, requests));
-		// FIXME BUG-89
+		// FIXME
 		// assertEquals(deserMsgs, specMessages);
 
 		// FIXME: need construct with invalid processed parameter
@@ -298,7 +304,7 @@ public class PCEPValidatorTest {
 	@Test
 	public void testRequestMessageValidationFromRawMsg() throws PCEPDeserializerException {
 		List<PCEPObject> objs = new ArrayList<PCEPObject>();
-		List<PCEPMessage> msgs;
+		List<Message> msgs;
 		PCEPRequestParameterObject tmpRP;
 
 		// test unrecognized object in svec list
@@ -308,13 +314,13 @@ public class PCEPValidatorTest {
 
 		msgs = PCEPMessageValidator.getValidator(PCEPMessageType.REQUEST).validate(objs);
 
-		assertEquals(msgs.get(0), new PCEPErrorMessage(new ArrayList<PCEPErrorObject>() {
+		assertEquals(msgs.get(0).toString(), new PCEPErrorMessage(new ArrayList<PCEPErrorObject>() {
 			private static final long serialVersionUID = 1L;
 
 			{
 				this.add(new PCEPErrorObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
 			}
-		}));
+		}).toString());
 
 		// test with request p flag not set and ignoracion of more than one
 		// end-points objects
@@ -360,16 +366,16 @@ public class PCEPValidatorTest {
 		List<PCEPReplyMessage> specMessages = new ArrayList<PCEPReplyMessage>();
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 5, 0xDEADBEEFL, true, true)))));
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, true, true, false, false, false, false, false, (short) 7, 0x12345678L, false, false)))));
-		assertEquals(deserMsg("src/test/resources/PCEPReplyMessage1.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCEPReplyMessage1.bin").toString(), specMessages.toString());
 
 		specMessages = new ArrayList<PCEPReplyMessage>();
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3, 1, false, false)))));
-		assertEquals(deserMsg("src/test/resources/PCRep.1.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRep.1.bin").toString(), specMessages.toString());
 
 		specMessages = new ArrayList<PCEPReplyMessage>();
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3, 1, false, false)))));
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(false, false, false, false, false, false, false, false, (short) 5, 2, false, false), new PCEPNoPathObject((short) 0, false, false), null, null, null, null, null, null))));
-		assertEquals(deserMsg("src/test/resources/PCRep.2.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRep.2.bin").toString(), specMessages.toString());
 
 		specMessages = new ArrayList<PCEPReplyMessage>();
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3, 1, false, false), new PCEPNoPathObject((short) 1, true, false), new PCEPLspObject(1, true, true, false, true), PCEPValidatorTest.lspa, new PCEPRequestedPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(500)), false, false), new ArrayList<PCEPMetricObject>() {
@@ -400,7 +406,7 @@ public class PCEPValidatorTest {
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 2, 4, false, false)))));
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(false, false, false, false, false, false, false, false, (short) 3, 4, false, false)))));
 		specMessages.add(new PCEPReplyMessage(asList(new CompositeResponseObject(new PCEPRequestParameterObject(false, false, false, false, false, false, false, false, (short) 6, 5, false, false)))));
-		assertEquals(deserMsg("src/test/resources/PCRep.4.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRep.4.bin").toString(), specMessages.toString());
 
 		specMessages = new ArrayList<PCEPReplyMessage>();
 		final List<Long> requestIDs = new ArrayList<Long>();
@@ -459,30 +465,29 @@ public class PCEPValidatorTest {
 				}, new PCEPIncludeRouteObject(PCEPValidatorTest.this.eroSubobjects, false, false)));
 			}
 		})), svecList));
-		// FIXME : BUG-89
-		// assertEquals(deserMsg("src/test/resources/PCRep.5.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRep.5.bin").toString(), specMessages.toString());
 	}
 
 	@Test
 	public void testUpdMessageValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
 			DeserializerException, DocumentedException {
-		List<PCEPMessage> specMessages = new ArrayList<PCEPMessage>();
+		List<Message> specMessages = Lists.newArrayList();
 
 		List<CompositeUpdateRequestObject> requests = new ArrayList<CompositeUpdateRequestObject>();
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true)));
 
 		specMessages.add(new PCEPUpdateRequestMessage(requests));
-		assertEquals(deserMsg("src/test/resources/PCUpd.1.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCUpd.1.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		List<CompositeUpdPathObject> paths = new ArrayList<CompositeUpdPathObject>();
 		paths.add(new CompositeUpdPathObject(new PCEPExplicitRouteObject(this.eroSubobjects, false), PCEPValidatorTest.lspa, null, null));
 		requests = new ArrayList<CompositeUpdateRequestObject>();
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPUpdateRequestMessage(requests));
-		assertEquals(deserMsg("src/test/resources/PCUpd.2.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCUpd.2.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		paths = new ArrayList<CompositeUpdPathObject>();
 		paths.add(new CompositeUpdPathObject(new PCEPExplicitRouteObject(this.eroSubobjects, false), PCEPValidatorTest.lspa, new PCEPRequestedPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(5353)), false, false), new ArrayList<PCEPMetricObject>() {
 			private static final long serialVersionUID = 1L;
@@ -494,17 +499,16 @@ public class PCEPValidatorTest {
 		requests = new ArrayList<CompositeUpdateRequestObject>();
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPUpdateRequestMessage(requests));
-		// FIXME BUG-89
-		// assertEquals(deserMsg("src/test/resources/PCUpd.3.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCUpd.3.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		requests = new ArrayList<CompositeUpdateRequestObject>();
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true)));
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true)));
 		specMessages.add(new PCEPUpdateRequestMessage(requests));
-		assertEquals(deserMsg("src/test/resources/PCUpd.4.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCUpd.4.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		requests = new ArrayList<CompositeUpdateRequestObject>();
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true)));
 		paths = new ArrayList<CompositeUpdPathObject>();
@@ -541,28 +545,27 @@ public class PCEPValidatorTest {
 		}));
 		requests.add(new CompositeUpdateRequestObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPUpdateRequestMessage(requests));
-		// FIXME BUG-89
-		// assertEquals(deserMsg("src/test/resources/PCUpd.5.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCUpd.5.bin").toString(), specMessages.toString());
 	}
 
 	@Test
 	public void testRptMessageValidatorFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
 			DeserializerException, DocumentedException {
-		List<PCEPMessage> specMessages = new ArrayList<PCEPMessage>();
+		List<Message> specMessages = Lists.newArrayList();
 		List<CompositeStateReportObject> reports = new ArrayList<CompositeStateReportObject>();
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true)));
 		specMessages.add(new PCEPReportMessage(reports));
-		assertEquals(deserMsg("src/test/resources/PCRpt.1.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRpt.1.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		List<CompositeRptPathObject> paths = new ArrayList<CompositeRptPathObject>();
 		paths.add(new CompositeRptPathObject(new PCEPExplicitRouteObject(this.eroSubobjects, false), PCEPValidatorTest.lspa, null, null, null));
 		reports = new ArrayList<CompositeStateReportObject>();
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPReportMessage(reports));
-		assertEquals(deserMsg("src/test/resources/PCRpt.2.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRpt.2.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		paths = new ArrayList<CompositeRptPathObject>();
 		paths.add(new CompositeRptPathObject(new PCEPExplicitRouteObject(this.eroSubobjects, false), PCEPValidatorTest.lspa, new PCEPExistingPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(5353)), false, false), new PCEPReportedRouteObject(this.rroSubobjects, false), new ArrayList<PCEPMetricObject>() {
 			private static final long serialVersionUID = 1L;
@@ -575,18 +578,19 @@ public class PCEPValidatorTest {
 		reports = new ArrayList<CompositeStateReportObject>();
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPReportMessage(reports));
-		// FIXME:
+
+		// FIXME
 		// assertEquals(deserMsg("src/test/resources/PCRpt.3.bin"), specMessages);
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		reports = new ArrayList<CompositeStateReportObject>();
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true)));
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true)));
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true)));
 		specMessages.add(new PCEPReportMessage(reports));
-		assertEquals(deserMsg("src/test/resources/PCRpt.4.bin"), specMessages);
+		assertEquals(deserMsg("src/test/resources/PCRpt.4.bin").toString(), specMessages.toString());
 
-		specMessages = new ArrayList<PCEPMessage>();
+		specMessages = Lists.newArrayList();
 		reports = new ArrayList<CompositeStateReportObject>();
 		paths = new ArrayList<CompositeRptPathObject>();
 		paths.add(new CompositeRptPathObject(new PCEPExplicitRouteObject(this.eroSubobjects, false), PCEPValidatorTest.lspa, new PCEPExistingPathBandwidthObject(new Bandwidth(ByteArray.floatToBytes(5353)), false, false), new PCEPReportedRouteObject(this.rroSubobjects, false), new ArrayList<PCEPMetricObject>() {
@@ -617,7 +621,7 @@ public class PCEPValidatorTest {
 		reports.add(new CompositeStateReportObject(new PCEPLspObject(1, true, false, true, true), paths));
 		specMessages.add(new PCEPReportMessage(reports));
 		// FIXME
-		// assertEquals(deserMsg("src/test/resources/PCRpt.5.bin"), specMessages);
+		// assertEquals(deserMsg("src/test/resources/PCRpt.5.bin").toString(), specMessages.toString());
 	}
 
 	@Test
@@ -644,8 +648,8 @@ public class PCEPValidatorTest {
 		// FIXME: need construct with invalid processed parameter
 		final RawMessage rawMessage = (RawMessage) msgFactory.parse(bytes).get(0);
 
-		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()),
-				asList((PCEPMessage) msg));
+		assertEquals(PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects()).toString(),
+				asList((Message) msg).toString());
 	}
 
 	@Test
@@ -656,7 +660,7 @@ public class PCEPValidatorTest {
 		notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
 		notifications.add(new CompositeNotifyObject(notificationsList));
 		PCEPNotificationMessage specMessage = new PCEPNotificationMessage(notifications);
-		assertEquals(deserMsg("src/test/resources/PCNtf.1.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCNtf.1.bin").toString(), asList((Message) specMessage).toString());
 
 		notifications = new ArrayList<CompositeNotifyObject>();
 		notificationsList = new ArrayList<PCEPNotificationObject>();
@@ -665,7 +669,7 @@ public class PCEPValidatorTest {
 		requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3, 1, false, false));
 		notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
 		specMessage = new PCEPNotificationMessage(notifications);
-		assertEquals(deserMsg("src/test/resources/PCNtf.2.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCNtf.2.bin").toString(), asList((Message) specMessage).toString());
 
 		notifications = new ArrayList<CompositeNotifyObject>();
 		notificationsList = new ArrayList<PCEPNotificationObject>();
@@ -674,7 +678,7 @@ public class PCEPValidatorTest {
 		requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1, 10, false, false));
 		notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
 		specMessage = new PCEPNotificationMessage(notifications);
-		assertEquals(deserMsg("src/test/resources/PCNtf.3.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCNtf.3.bin").toString(), asList((Message) specMessage).toString());
 
 		notifications = new ArrayList<CompositeNotifyObject>();
 		notificationsList = new ArrayList<PCEPNotificationObject>();
@@ -684,7 +688,7 @@ public class PCEPValidatorTest {
 		notificationsList.add(new PCEPNotificationObject((short) 2, (short) 2));
 		notifications.add(new CompositeNotifyObject(notificationsList));
 		specMessage = new PCEPNotificationMessage(notifications);
-		assertEquals(deserMsg("src/test/resources/PCNtf.4.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCNtf.4.bin").toString(), asList((Message) specMessage).toString());
 
 		notifications = new ArrayList<CompositeNotifyObject>();
 		notificationsList = new ArrayList<PCEPNotificationObject>();
@@ -700,7 +704,7 @@ public class PCEPValidatorTest {
 		requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1, 10, false, false));
 		notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
 		specMessage = new PCEPNotificationMessage(notifications);
-		assertEquals(deserMsg("src/test/resources/PCNtf.5.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCNtf.5.bin").toString(), asList((Message) specMessage).toString());
 	}
 
 	@Test
@@ -710,7 +714,7 @@ public class PCEPValidatorTest {
 		errorsList.add(new PCEPErrorObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
 
 		PCEPErrorMessage specMessage = new PCEPErrorMessage(errorsList);
-		assertEquals(deserMsg("src/test/resources/PCErr.1.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.1.bin").toString(), asList((Message) specMessage).toString());
 
 		List<PCEPRequestParameterObject> requests = new ArrayList<PCEPRequestParameterObject>();
 		requests.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3, 1, false, false));
@@ -719,10 +723,10 @@ public class PCEPValidatorTest {
 		errors.add(new CompositeErrorObject(requests, errorsList));
 
 		specMessage = new PCEPErrorMessage(errors);
-		assertEquals(deserMsg("src/test/resources/PCErr.2.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.2.bin").toString(), asList((Message) specMessage).toString());
 
 		specMessage = new PCEPErrorMessage(new PCEPOpenObject(0, 0, 0), errorsList, null);
-		assertEquals(deserMsg("src/test/resources/PCErr.3.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.3.bin").toString(), asList((Message) specMessage).toString());
 
 		requests = new ArrayList<PCEPRequestParameterObject>();
 		requests.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1, 53, false, false));
@@ -731,7 +735,7 @@ public class PCEPValidatorTest {
 		errors.add(new CompositeErrorObject(requests, errorsList));
 
 		specMessage = new PCEPErrorMessage(errors);
-		assertEquals(deserMsg("src/test/resources/PCErr.3b.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.3b.bin").toString(), asList((Message) specMessage).toString());
 
 		errorsList = new ArrayList<PCEPErrorObject>();
 		errorsList.add(new PCEPErrorObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
@@ -739,7 +743,7 @@ public class PCEPValidatorTest {
 		errorsList.add(new PCEPErrorObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));
 
 		specMessage = new PCEPErrorMessage(null, errorsList, null);
-		assertEquals(deserMsg("src/test/resources/PCErr.4.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.4.bin").toString(), asList((Message) specMessage).toString());
 
 		requests = new ArrayList<PCEPRequestParameterObject>();
 		requests.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1, 53, false, false));
@@ -752,6 +756,6 @@ public class PCEPValidatorTest {
 		errors.add(new CompositeErrorObject(requests, errorsList));
 
 		specMessage = new PCEPErrorMessage(errors);
-		assertEquals(deserMsg("src/test/resources/PCErr.5.bin"), asList((PCEPMessage) specMessage));
+		assertEquals(deserMsg("src/test/resources/PCErr.5.bin").toString(), asList((Message) specMessage).toString());
 	}
 }

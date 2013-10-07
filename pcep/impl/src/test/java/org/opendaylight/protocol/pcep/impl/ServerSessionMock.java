@@ -12,10 +12,10 @@ import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public class ServerSessionMock extends PCEPSessionImpl {
 
@@ -27,7 +27,7 @@ public class ServerSessionMock extends PCEPSessionImpl {
 	}
 
 	@Override
-	public void sendMessage(final PCEPMessage msg) {
+	public void sendMessage(final Message msg) {
 		this.lastMessageSentAt = System.nanoTime();
 		this.client.onMessage(this, msg);
 	}

@@ -24,19 +24,20 @@ import java.util.concurrent.TimeUnit;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
 import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ import com.google.common.base.Preconditions;
  * Implementation of PCEPSession. (Not final for testing.)
  */
 @VisibleForTesting
-public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implements PCEPSession, PCEPSessionRuntimeMXBean {
+public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements PCEPSession, PCEPSessionRuntimeMXBean {
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
@@ -94,6 +95,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	private boolean closed = false;
 
 	private final Channel channel;
+
+	private final KeepaliveMessage kaMessage = (KeepaliveMessage) new KeepaliveMessageBuilder().build();
 
 	PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
 			final PCEPOpenObject localOpen, final PCEPOpenObject remoteOpen) {
@@ -168,7 +171,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 
 		if (this.channel.isActive()) {
 			if (ct >= nextKeepalive) {
-				this.sendMessage(new PCEPKeepAliveMessage());
+				this.sendMessage(this.kaMessage);
 				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 			}
 
@@ -187,11 +190,11 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	 * @param msg to be sent
 	 */
 	@Override
-	public void sendMessage(final PCEPMessage msg) {
+	public void sendMessage(final Message msg) {
 		try {
 			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
-			if (!(msg instanceof PCEPKeepAliveMessage)) {
+			if (!(msg instanceof KeepaliveMessage)) {
 				logger.debug("Sent message: " + msg);
 			}
 			this.sentMsgCount++;
@@ -218,14 +221,16 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	public synchronized void close(final PCEPCloseObject.Reason reason) {
 		logger.debug("Closing session: {}", this);
 		this.closed = true;
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		// FIXME: just to get rid of compilation errors
+		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
 		this.channel.close();
 	}
 
 	private synchronized void terminate(final PCEPCloseObject.Reason reason) {
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		// FIXME: just to get rid of compilation errors
+		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
 		this.close();
 	}
 
@@ -251,7 +256,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 		final PCEPErrorObject error = new PCEPErrorObject(value);
 		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
 		errors.add(error);
-		this.sendMessage(new PCEPErrorMessage(open, errors, null));
+		// FIXME: just to get rid of compilation errors
+		this.sendMessage((Message) new PCEPErrorMessage(open, errors, null));
 	}
 
 	/**
@@ -284,13 +290,13 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	 * @param msg incoming message
 	 */
 	@Override
-	public void handleMessage(final PCEPMessage msg) {
+	public void handleMessage(final Message msg) {
 		// Update last reception time
 		this.lastMessageReceivedAt = System.nanoTime();
 		this.receivedMsgCount++;
 
 		// Internal message handling. The user does not see these messages
-		if (msg instanceof PCEPKeepAliveMessage) {
+		if (msg instanceof KeepaliveMessage) {
 			// Do nothing, the timer has been already reset
 		} else if (msg instanceof PCEPOpenMessage) {
 			this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);

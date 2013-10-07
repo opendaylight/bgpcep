@@ -7,48 +7,39 @@
  */
 package org.opendaylight.protocol.pcep.message;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPMessage;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.object.CompositeNotifyObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.collect.Lists;
 
 /**
  * Structure of Notification Message.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.6">Notification
- *      Message</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-6.6">Notification Message</a>
  */
-public class PCEPNotificationMessage extends PCEPMessage {
-
-	private static final long serialVersionUID = 2647656169727976386L;
+public class PCEPNotificationMessage implements Message {
 
 	private final List<CompositeNotifyObject> notifications;
 
+	private final List<PCEPObject> objects;
+
 	/**
 	 * Constructs new Notification Message.
-	 *
-	 * @throws IllegalArgumentException
-	 *             if there is not even one {@link CompositeNotifyObject} in the
-	 *             list.
-	 *
-	 * @param notifications
-	 *            List<CompositeNotifyObject>. Can't be empty or null.
+	 * 
+	 * @throws IllegalArgumentException if there is not even one {@link CompositeNotifyObject} in the list.
+	 * 
+	 * @param notifications List<CompositeNotifyObject>. Can't be empty or null.
 	 */
 	public PCEPNotificationMessage(final List<CompositeNotifyObject> notifications) {
-		super(new ArrayList<PCEPObject>() {
-
-			private static final long serialVersionUID = 8359665614469883203L;
-
-			{
-				if (notifications != null)
-					for (final CompositeNotifyObject cno : notifications) {
-						this.addAll(cno.getCompositeAsList());
-					}
+		this.objects = Lists.newArrayList();
+		if (notifications != null) {
+			for (final CompositeNotifyObject cno : notifications) {
+				this.objects.addAll(cno.getCompositeAsList());
 			}
-		});
-
+		}
 		if (notifications == null || notifications.isEmpty())
 			throw new IllegalArgumentException("At least one CompositeNotifyObject is mandatory.");
 
@@ -56,13 +47,16 @@ public class PCEPNotificationMessage extends PCEPMessage {
 	}
 
 	/**
-	 * Gets list of {@link org.opendaylight.protocol.pcep.object.CompositeNotifyObject
-	 * CompositeNotifyObjects}.
-	 *
+	 * Gets list of {@link org.opendaylight.protocol.pcep.object.CompositeNotifyObject CompositeNotifyObjects}.
+	 * 
 	 * @return List<CompositeNotifyObject>. Can't be null or empty.
 	 */
 	public List<CompositeNotifyObject> getNotifications() {
 		return this.notifications;
+	}
+
+	public List<PCEPObject> getAllObjects() {
+		return this.objects;
 	}
 
 	@Override
@@ -74,7 +68,7 @@ public class PCEPNotificationMessage extends PCEPMessage {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
