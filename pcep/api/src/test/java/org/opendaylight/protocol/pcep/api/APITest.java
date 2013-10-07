@@ -45,9 +45,29 @@ public class APITest {
 	@Test
 	public void testPCEPObject() {
 		final PCEPObject obj1 = new PCEPObject(true, false) {
+
+			@Override
+			public Boolean isIgnore() {
+				return super.isIgnored();
+			}
+
+			@Override
+			public Boolean isProcessingRule() {
+				return super.isProcessed();
+			}
 		};
 		final PCEPObject obj2 = new PCEPErrorObject(PCEPErrors.CANNOT_PROCESS_STATE_REPORT);
 		final PCEPObject obj4 = new PCEPObject(true, false) {
+
+			@Override
+			public Boolean isIgnore() {
+				return super.isIgnored();
+			}
+
+			@Override
+			public Boolean isProcessingRule() {
+				return super.isProcessed();
+			}
 		};
 
 		assertNotSame(obj1, obj2);
