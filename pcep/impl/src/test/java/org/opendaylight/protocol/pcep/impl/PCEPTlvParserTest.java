@@ -32,7 +32,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIPv4TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIPv6TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecIPv4TlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecIPv6TlvParser;
 import org.opendaylight.protocol.pcep.tlv.IPv4LSPIdentifiersTlv;
 import org.opendaylight.protocol.pcep.tlv.IPv6LSPIdentifiersTlv;
@@ -57,7 +57,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testDeserialization() throws PCEPDeserializerException, IOException {
 	final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/PackOfTlvs.bin");
-	final List<PCEPTlv> tlvsToTest = PCEPTlvParser.parse(bytesFromFile);
+	final List<PCEPTlv> tlvsToTest = PCEPTlvParser.parseTlv(bytesFromFile);
 
 	assertEquals(17, tlvsToTest.size());
 	assertEquals(tlvsToTest.get(0), new PCEStatefulCapabilityTlv(false, false, true));
@@ -127,7 +127,7 @@ public class PCEPTlvParserTest {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.parse(bytes);
+	    RSVPErrorSpecTlvParser.parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
@@ -166,7 +166,7 @@ public class PCEPTlvParserTest {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.put(null);
+	    RSVPErrorSpecTlvParser.put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
@@ -208,7 +208,7 @@ public class PCEPTlvParserTest {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.parse(bytes);
+	    RSVPErrorSpecTlvParser.parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}

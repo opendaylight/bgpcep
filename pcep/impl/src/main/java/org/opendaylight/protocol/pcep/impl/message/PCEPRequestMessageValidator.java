@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
@@ -45,10 +44,11 @@ import com.google.common.collect.Lists;
 /**
  * PCEPRequestMessage validator. Validates message integrity.
  */
-public class PCEPRequestMessageValidator extends PCEPMessageValidator {
+// FIXME: merge with parser
+class PCEPRequestMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<Message> validate(final List<PCEPObject> objects) {
+	public List<Message> validate(final List<Object> objects) {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -118,9 +118,9 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 
 			int state = 1;
 			while (!objects.isEmpty()) {
-				final PCEPObject obj = objects.get(0);
+				final Object obj = objects.get(0);
 				if (obj instanceof UnknownObject) {
-					if (((UnknownObject) obj).isProcessed()) {
+					if (((UnknownObject) obj).isProcessingRule()) {
 						msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
 						requestRejected = true;
 					}
@@ -213,7 +213,7 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 		return msgs;
 	}
 
-	private static CompositeRequestSvecObject getValidSvecComposite(final List<PCEPObject> objects) throws PCEPDocumentedException {
+	private static CompositeRequestSvecObject getValidSvecComposite(final List<Object> objects) throws PCEPDocumentedException {
 		if (objects == null || objects.isEmpty()) {
 			throw new IllegalArgumentException("List cannot be null or empty.");
 		}
@@ -232,9 +232,9 @@ public class PCEPRequestMessageValidator extends PCEPMessageValidator {
 
 		int state = 1;
 		while (!objects.isEmpty()) {
-			final PCEPObject obj = objects.get(0);
+			final Object obj = objects.get(0);
 
-			if (obj instanceof UnknownObject && ((UnknownObject) obj).isProcessed()) {
+			if (obj instanceof UnknownObject && ((UnknownObject) obj).isProcessingRule()) {
 				throw new PCEPDocumentedException("Unknown object in SVEC list.", ((UnknownObject) obj).getError());
 			}
 

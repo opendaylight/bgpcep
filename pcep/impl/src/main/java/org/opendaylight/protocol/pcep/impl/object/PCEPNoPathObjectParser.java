@@ -10,22 +10,32 @@ package org.opendaylight.protocol.pcep.impl.object;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.object.PCEPNoPathObject;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.impl.Util;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcrep.pcrep.message.replies.result.failure.NoPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcrep.pcrep.message.replies.result.failure.no.path.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.NoPathBuilder;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPNoPathObject
- * PCEPNoPathObject}
+ * Parser for {@link NoPathObject}
  */
-public class PCEPNoPathObjectParser implements PCEPObjectParser {
+public class PCEPNoPathObjectParser extends AbstractObjectParser<NoPathBuilder> {
+
+	public static final int CLASS = 3;
+
+	public static final int TYPE = 1;
 
 	/*
 	 * lengths of fields in bytes
 	 */
-	public static final int NI_F_LENGTH = 1; //multi-field
+	public static final int NI_F_LENGTH = 1; // multi-field
 	public static final int FLAGS_F_LENGTH = 2;
 	public static final int RESERVED_F_LENGTH = 1;
 
@@ -44,31 +54,53 @@ public class PCEPNoPathObjectParser implements PCEPObjectParser {
 
 	public static final int C_FLAG_OFFSET = 0;
 
+	public PCEPNoPathObjectParser(final HandlerRegistry registry) {
+		super(registry);
+	}
+
 	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
+	public NoPathObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
+		final NoPathBuilder builder = new NoPathBuilder();
 
-		return new PCEPNoPathObject((short) (bytes[NI_F_OFFSET] & 0xFF), flags.get(C_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)),
-				ignored);
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		builder.setNatureOfIssue((short) (bytes[NI_F_OFFSET] & 0xFF));
+		builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
+
+		return builder.build();
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPNoPathObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPNoPathObject.");
+	public void addTlv(final NoPathBuilder builder, final Tlv tlv) {
+		// FIXME : add no-path-vector-tlv
+	}
 
-		final PCEPNoPathObject nPObj = (PCEPNoPathObject) obj;
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof NoPathObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NoPathObject.");
 
-		final byte[] tlvs = PCEPTlvParser.put(nPObj.getTlvs());
-		final byte[] retBytes = new byte[tlvs.length + TLVS_OFFSET];
+		final NoPathObject nPObj = (NoPathObject) object;
+
+		final byte[] tlvs = serializeTlvs(((NoPath) nPObj).getTlvs());
+		int tlvsLength = 0;
+		if (tlvs != null)
+			tlvsLength = tlvs.length;
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+
+		if (tlvs != null)
+			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(C_FLAG_OFFSET, nPObj.isConstrained());
+		flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
 		retBytes[NI_F_OFFSET] = ByteArray.shortToBytes(nPObj.getNatureOfIssue())[1];
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
@@ -76,4 +108,21 @@ public class PCEPNoPathObjectParser implements PCEPObjectParser {
 		return retBytes;
 	}
 
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		if (tlvs.getNoPathVector() != null) {
+			// FIXME : add NoPath
+			// return serializeTlv(new NoPathVectorBuilder().setFlags(tlvs.getNoPathVector()).build());
+		}
+		return null;
+	}
+
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

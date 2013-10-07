@@ -15,7 +15,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
@@ -42,7 +41,8 @@ import com.google.common.collect.Lists;
 /**
  * PCEPReplyMessage validator. Validates message integrity.
  */
-public class PCEPReplyMessageValidator extends PCEPMessageValidator {
+//FIXME: merge with parser
+class PCEPReplyMessageValidator extends PCEPMessageValidator {
 
 	private static class SubReplyValidator {
 
@@ -73,7 +73,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			this.paths = new ArrayList<CompositePathObject>();
 		}
 
-		public List<Message> validate(final List<PCEPObject> objects, final List<CompositeReplySvecObject> svecList) {
+		public List<Message> validate(final List<Object> objects, final List<CompositeReplySvecObject> svecList) {
 			this.init();
 
 			if (!(objects.get(0) instanceof PCEPRequestParameterObject))
@@ -82,12 +82,12 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			final PCEPRequestParameterObject rpObj = (PCEPRequestParameterObject) objects.get(0);
 			objects.remove(0);
 
-			PCEPObject obj;
+			Object obj;
 			int state = 1;
 			while (!objects.isEmpty()) {
 				obj = objects.get(0);
 				if (obj instanceof UnknownObject) {
-					if (((UnknownObject) obj).isProcessed()) {
+					if (((UnknownObject) obj).isProcessingRule()) {
 						this.msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
 						this.requestRejected = true;
 					}
@@ -163,7 +163,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			return this.msgs;
 		}
 
-		private CompositePathObject getValidCompositePath(final List<PCEPObject> objects) {
+		private CompositePathObject getValidCompositePath(final List<Object> objects) {
 			if (!(objects.get(0) instanceof PCEPExplicitRouteObject))
 				return null;
 
@@ -175,12 +175,12 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 			final List<PCEPMetricObject> pathMetrics = new ArrayList<PCEPMetricObject>();
 			PCEPIncludeRouteObject pathIro = null;
 
-			PCEPObject obj;
+			Object obj;
 			int state = 1;
 			while (!objects.isEmpty()) {
 				obj = objects.get(0);
 				if (obj instanceof UnknownObject) {
-					if (((UnknownObject) obj).isProcessed()) {
+					if (((UnknownObject) obj).isProcessingRule()) {
 						this.msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(this.rpObj, false), new PCEPErrorObject(((UnknownObject) obj).getError()))));
 						this.requestRejected = true;
 					}
@@ -232,7 +232,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 	}
 
 	@Override
-	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<Object> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -272,7 +272,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 		return msgs;
 	}
 
-	private CompositeReplySvecObject getValidSvecComposite(final List<PCEPObject> objects) throws PCEPDocumentedException {
+	private CompositeReplySvecObject getValidSvecComposite(final List<Object> objects) throws PCEPDocumentedException {
 		if (objects == null)
 			throw new IllegalArgumentException("List cannot be null.");
 
@@ -285,7 +285,7 @@ public class PCEPReplyMessageValidator extends PCEPMessageValidator {
 		PCEPObjectiveFunctionObject of = null;
 		final List<PCEPMetricObject> metrics = new ArrayList<PCEPMetricObject>();
 
-		PCEPObject obj;
+		Object obj;
 		int state = 1;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);

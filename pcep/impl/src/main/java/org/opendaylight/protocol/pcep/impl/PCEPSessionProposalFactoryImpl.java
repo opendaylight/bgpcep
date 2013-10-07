@@ -8,14 +8,15 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-import org.opendaylight.protocol.pcep.tlv.LSPCleanupTlv;
-import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.StatefulBuilder;
+
+import com.google.common.collect.Lists;
 
 public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactory {
 
@@ -35,13 +36,10 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 
 	@Override
 	public PCEPOpenObject getSessionProposal(final InetSocketAddress address, final int sessionId) {
-		List<PCEPTlv> tlvs = null;
+		List<Tlv> tlvs = null;
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
-			tlvs = new ArrayList<PCEPTlv>();
-			tlvs.add(new PCEStatefulCapabilityTlv(PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active, PCEPSessionProposalFactoryImpl.this.versioned));
-			if (PCEPSessionProposalFactoryImpl.this.instant) {
-				tlvs.add(new LSPCleanupTlv(PCEPSessionProposalFactoryImpl.this.timeout));
-			}
+			tlvs = Lists.newArrayList();
+			tlvs.add(new StatefulBuilder().setFlags(new Flags(PCEPSessionProposalFactoryImpl.this.versioned, PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active)).build());
 		}
 		return new PCEPOpenObject(PCEPSessionProposalFactoryImpl.this.keepAlive, PCEPSessionProposalFactoryImpl.this.deadTimer, sessionId, tlvs);
 	}

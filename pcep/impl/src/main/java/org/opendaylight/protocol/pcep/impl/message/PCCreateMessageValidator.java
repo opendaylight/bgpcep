@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCCreateMessage;
@@ -31,10 +30,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * PCCCreateMessage validator. Validates message integrity.
  */
-public class PCCreateMessageValidator extends PCEPMessageValidator {
+//FIXME: merge with parser
+class PCCreateMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<Object> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -61,7 +61,7 @@ public class PCCreateMessageValidator extends PCEPMessageValidator {
 		return Arrays.asList((Message) new PCCreateMessage(insts));
 	}
 
-	private CompositeInstantiationObject getValidInstantiationObject(final List<PCEPObject> objects) throws PCEPDocumentedException {
+	private CompositeInstantiationObject getValidInstantiationObject(final List<Object> objects) throws PCEPDocumentedException {
 		if (objects.get(0) instanceof UnknownObject)
 			throw new PCEPDocumentedException("Unknown object", ((UnknownObject) objects.get(0)).getError());
 		if (!(objects.get(0) instanceof PCEPEndPointsObject<?>))
@@ -81,7 +81,7 @@ public class PCCreateMessageValidator extends PCEPMessageValidator {
 		PCEPRequestedPathBandwidthObject bandwidth = null;
 		final List<PCEPMetricObject> metrics = new ArrayList<PCEPMetricObject>();
 
-		PCEPObject obj;
+		Object obj;
 		int state = 1;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);

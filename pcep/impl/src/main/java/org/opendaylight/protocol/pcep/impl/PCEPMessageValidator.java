@@ -58,7 +58,7 @@ public abstract class PCEPMessageValidator {
 		}
 	}
 
-	public abstract List<Message> validate(List<PCEPObject> objects) throws PCEPDeserializerException;
+	public abstract List<Message> validate(List<Object> objects) throws PCEPDeserializerException;
 
 	public static PCEPMessageValidator getValidator(final PCEPMessageType msgType) {
 		return MapOfValidators.getInstance().get(msgType);

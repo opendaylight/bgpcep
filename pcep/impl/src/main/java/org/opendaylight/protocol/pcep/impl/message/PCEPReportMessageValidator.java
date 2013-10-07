@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPMessageValidator;
 import org.opendaylight.protocol.pcep.impl.object.UnknownObject;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
@@ -33,10 +32,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * PCEPReportMessage validator. Validates message integrity.
  */
-public class PCEPReportMessageValidator extends PCEPMessageValidator {
+// FIXME: merge with parser
+class PCEPReportMessageValidator extends PCEPMessageValidator {
 
 	@Override
-	public List<Message> validate(final List<PCEPObject> objects) throws PCEPDeserializerException {
+	public List<Message> validate(final List<Object> objects) throws PCEPDeserializerException {
 		if (objects == null)
 			throw new IllegalArgumentException("Passed list can't be null.");
 
@@ -84,7 +84,7 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 		return Arrays.asList((Message) new PCEPReportMessage(report));
 	}
 
-	private CompositeRptPathObject getValidCompositePath(final List<PCEPObject> objects) throws PCEPDocumentedException {
+	private CompositeRptPathObject getValidCompositePath(final List<Object> objects) throws PCEPDocumentedException {
 		if (objects.get(0) instanceof UnknownObject)
 			throw new PCEPDocumentedException("Unknown object", ((UnknownObject) objects.get(0)).getError());
 		if (!(objects.get(0) instanceof PCEPExplicitRouteObject))
@@ -97,7 +97,7 @@ public class PCEPReportMessageValidator extends PCEPMessageValidator {
 		PCEPReportedRouteObject pathRro = null;
 		final List<PCEPMetricObject> pathMetrics = new ArrayList<PCEPMetricObject>();
 
-		PCEPObject obj;
+		Object obj;
 		int state = 1;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);

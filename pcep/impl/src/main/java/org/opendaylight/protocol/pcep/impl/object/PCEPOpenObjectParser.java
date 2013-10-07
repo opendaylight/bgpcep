@@ -8,26 +8,41 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
-import java.util.List;
-
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.PCEPTlv;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.impl.Util;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-import org.opendaylight.protocol.pcep.tlv.OFListTlv;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspDbVersionTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfListTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PredundancyGroupIdTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.OfListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.PredundancyGroupIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.StatefulBuilder;
+
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPOpenObject PCEPOpenObject}
+ * Parser for {@link OpenObject}
  */
 
-public class PCEPOpenObjectParser implements PCEPObjectParser {
+public class PCEPOpenObjectParser extends AbstractObjectParser<OpenBuilder> {
+
+	public static final int CLASS = 1;
+
+	public static final int TYPE = 1;
 
 	/*
 	 * lengths of fields in bytes
@@ -60,65 +75,96 @@ public class PCEPOpenObjectParser implements PCEPObjectParser {
 	public static final int VERSION_SF_OFFSET = 0;
 	public static final int FLAGS_SF_OFFSET = VERSION_SF_LENGTH + VERSION_SF_OFFSET;
 
-	public static final int PADDED_TO = 4;
+	private static final int PCEP_VERSION = 1;
 
-	@Override
-	public PCEPOpenObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
-
-		// parse version
-		final int versionValue = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
-
-		if (versionValue != PCEPOpenObject.PCEP_VERSION)
-			throw new PCEPDocumentedException("Unsupported PCEP version " + versionValue, PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
-
-		final List<PCEPTlv> tlvs = PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET));
-		boolean ofListOccure = false;
-
-		for (final PCEPTlv tlv : tlvs) {
-			if (tlv instanceof OFListTlv) {
-				if (ofListOccure)
-					throw new PCEPDocumentedException("Invalid or unexpected message", PCEPErrors.NON_OR_INVALID_OPEN_MSG);
-
-				ofListOccure = true;
-			}
-		}
-
-		return new PCEPOpenObject(UnsignedBytes.toInt(bytes[KEEPALIVE_F_OFFSET]), UnsignedBytes.toInt(bytes[DEAD_TIMER_OFFSET]),
-				UnsignedBytes.toInt(bytes[SID_F_OFFSET]), tlvs);
+	public PCEPOpenObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPOpenObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPOpenObject.");
+	public OpenObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0)
+			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 
-		final PCEPOpenObject openObj = (PCEPOpenObject) obj;
+		final int versionValue = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
-		final byte versionFlagMF = (byte) (PCEPOpenObject.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
+		if (versionValue != PCEP_VERSION)
+			throw new PCEPDocumentedException("Unsupported PCEP version " + versionValue, PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
 
-		final byte[] tlvs = PCEPTlvParser.put(openObj.getTlvs());
+		final OpenBuilder builder = new OpenBuilder();
+
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
+		builder.setVersion(new ProtocolVersion((short) versionValue));
+		builder.setProcessingRule(header.isProcessingRule());
+		builder.setIgnore(header.isIgnore());
+		builder.setDeadTimer((short) UnsignedBytes.toInt(bytes[DEAD_TIMER_OFFSET]));
+		builder.setKeepalive((short) UnsignedBytes.toInt(bytes[KEEPALIVE_F_OFFSET]));
+		builder.setSessionId((short) UnsignedBytes.toInt(bytes[SID_F_OFFSET]));
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final OpenBuilder builder, final Tlv tlv) {
+		final TlvsBuilder tbuilder = new TlvsBuilder();
+		if (tlv instanceof OfListTlv)
+			tbuilder.setOfList(new OfListBuilder().setCodes(((OfListTlv) tlv).getCodes()).build());
+		else if (tlv instanceof StatefulCapabilityTlv)
+			tbuilder.setStateful(new StatefulBuilder().setFlags(((StatefulCapabilityTlv) tlv).getFlags()).build());
+		else if (tlv instanceof PredundancyGroupIdTlv)
+			tbuilder.setPredundancyGroupId(new PredundancyGroupIdBuilder().setIdentifier(((PredundancyGroupIdTlv) tlv).getIdentifier()).build());
+		else if (tlv instanceof LspDbVersionTlv)
+			tbuilder.setLspDbVersion(new LspDbVersionBuilder().build());
+		builder.setTlvs(tbuilder.build());
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof OpenObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
+		final OpenObject open = (OpenObject) object;
+
+		final byte versionFlagMF = (byte) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
+
+		final byte[] tlvs = serializeTlvs(open.getTlvs());
+
 		final byte[] bytes = new byte[TLVS_OFFSET + tlvs.length + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		// serialize version_flags multi-field
 		bytes[VER_FLAGS_MF_OFFSET] = versionFlagMF;
-
-		// serialize keepalive
-		bytes[KEEPALIVE_F_OFFSET] = (byte) openObj.getKeepAliveTimerValue();
-
-		// serialize dead timer
-		bytes[DEAD_TIMER_OFFSET] = (byte) openObj.getDeadTimerValue();
-
-		// serialize SID
-		bytes[SID_F_OFFSET] = (byte) openObj.getSessionId();
-
-		// serialize tlvs
+		bytes[KEEPALIVE_F_OFFSET] = ByteArray.shortToBytes(open.getKeepalive())[1];
+		bytes[DEAD_TIMER_OFFSET] = ByteArray.shortToBytes(open.getDeadTimer())[1];
+		bytes[SID_F_OFFSET] = ByteArray.shortToBytes(open.getSessionId())[1];
 		ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
 
 		return bytes;
+	}
+
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		int finalLength = 0;
+		if (tlvs.getLspDbVersion() != null) {
+			final byte[] lspDbBytes = serializeTlv(new LspDbVersionBuilder().setVersion(tlvs.getLspDbVersion().getVersion()).build());
+			finalLength = lspDbBytes.length;
+		}
+		if (tlvs.getOfList() != null) {
+			final byte[] ofListBytes = serializeTlv(new OfListBuilder().setCodes(tlvs.getOfList().getCodes()).build());
+			finalLength = ofListBytes.length;
+		}
+
+		// FIXME: finish
+
+		final byte[] bytes = new byte[finalLength];
+
+		// FIXME copy result bytes
+		return bytes;
+	}
+
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
 	}
 }

@@ -19,7 +19,7 @@ import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROIPv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIPv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeyWith128PCEIDSubobjectParser;
@@ -150,7 +150,7 @@ public class PCEPEROSubobjectParser {
 
 	if (objToSerialize instanceof EROIPPrefixSubobject<?> && ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv4Prefix) {
 	    typeIndicator = PCEPSubobjectType.IPv4_PREFIX.getIndicator();
-	    soContentsBytes = EROIPv4PrefixSubobjectParser.put(objToSerialize);
+	    soContentsBytes = EROIpPrefixSubobjectParser.put(objToSerialize);
 	} else if (objToSerialize instanceof EROIPPrefixSubobject<?> && ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv6Prefix) {
 	    typeIndicator = PCEPSubobjectType.IPv6_PREFIX.getIndicator();
 	    soContentsBytes = EROIPv6PrefixSubobjectParser.put(objToSerialize);
@@ -194,7 +194,7 @@ public class PCEPEROSubobjectParser {
 
 	switch (type) {
 	    case IPv4_PREFIX:
-		return EROIPv4PrefixSubobjectParser.parse(soContentsBytes, loose_flag);
+		return EROIpPrefixSubobjectParser.parse(soContentsBytes, loose_flag);
 	    case IPv6_PREFIX:
 		return EROIPv6PrefixSubobjectParser.parse(soContentsBytes, loose_flag);
 	    case UNNUMBERED_INTERFACE_ID:

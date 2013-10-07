@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.IPv6Address;
@@ -26,7 +25,7 @@ import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectIdentifier.ObjectClass;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBranchNodeListObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
@@ -47,7 +46,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPP2MPEndPointsIPv4ObjectPar
 import org.opendaylight.protocol.pcep.impl.object.PCEPP2MPEndPointsIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPRequestedPathBandwidthObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSecondaryExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSecondaryRecordRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -81,6 +80,7 @@ import org.opendaylight.protocol.pcep.object.PCEPSecondaryExplicitRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPSecondaryRecordRouteObject;
 import org.opendaylight.protocol.pcep.object.PCEPSvecObject;
 import org.opendaylight.protocol.pcep.object.PCEPUnreachedDestinationObject;
+import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 
 /**
  * Factory for subclasses of {@link org.opendaylight.protocol.pcep.PCEPObject PCEPObject}
@@ -106,10 +106,10 @@ public class PCEPObjectFactory {
 	    this.put(new PCEPObjectIdentifier(ObjectClass.OPEN, 1), new PCEPOpenObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.RP, 1), new PCEPRequestParameterObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.NO_PATH, 1), new PCEPNoPathObjectParser());
-	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 1), new PCEPRequestedPathBandwidthObjectParser());
+	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 1), new PCEPBandwidthObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.BANDWIDTH, 2), new PCEPExistingPathBandwidthObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.METRIC, 1), new PCEPMetricObjectParser());
-	    this.put(new PCEPObjectIdentifier(ObjectClass.END_POINTS, 1), new PCEPEndPointsIPv4ObjectParser());
+	    this.put(new PCEPObjectIdentifier(ObjectClass.END_POINTS, 1), new PCEPEndPointsObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.END_POINTS, 2), new PCEPEndPointsIPv6ObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.LSPA, 1), new PCEPLspaObjectParser());
 	    this.put(new PCEPObjectIdentifier(ObjectClass.SVEC, 1), new PCEPSvecObjectParser());
@@ -143,7 +143,7 @@ public class PCEPObjectFactory {
 	}
     }
 
-    private static PCEPObject parse(final byte[] bytes, final PCEPObjectHeader header) throws PCEPDocumentedException, PCEPDeserializerException {
+    private static PCEPObject parse(final byte[] bytes, final ObjectHeaderImpl header) throws PCEPDocumentedException, PCEPDeserializerException {
 		if (bytes == null)
 		    throw new IllegalArgumentException("Array of bytes is mandatory.");
 		if (header == null)
@@ -173,20 +173,20 @@ public class PCEPObjectFactory {
 		final List<PCEPObject> objs = new ArrayList<PCEPObject>();
 
 		while (bytes.length - offset > 0) {
-		    if (bytes.length - offset < PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH)
+		    if (bytes.length - offset < ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH)
 			throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
-				+ PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH + ".");
+				+ ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH + ".");
 
-		    final PCEPObjectHeader header = PCEPObjectHeader.parseHeader(Arrays.copyOfRange(bytes, offset, offset
-			    + PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH));
+		    final ObjectHeaderImpl header = ObjectHeaderImpl.parseHeader(Arrays.copyOfRange(bytes, offset, offset
+			    + ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH));
 
 		    if (bytes.length - offset < header.objLength)
 			throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= " + header.objLength
 				+ ".");
 
 		    // copy bytes for deeper parsing
-		    final byte[] bytesToPass = ByteArray.subByte(bytes, offset + PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH, header.objLength
-			    - PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH);
+		    final byte[] bytesToPass = ByteArray.subByte(bytes, offset + ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH, header.objLength
+			    - ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH);
 
 		    offset += header.objLength;
 
@@ -316,14 +316,14 @@ public class PCEPObjectFactory {
 		final PCEPObjectParser objParserClass = MapOfParsers.getInstance().get(new PCEPObjectIdentifier(objClass, objType));
 		objBody = objParserClass.put(obj);
 
-		final byte[] objHeader = PCEPObjectHeader.putHeader(new PCEPObjectHeader(objClass.getIdentifier(), objType, objBody.length
-			+ PCEPObjectHeader.COMMON_OBJECT_HEADER_LENGTH, obj.isProcessed(), obj.isIgnored()));
+		final byte[] objHeader = ObjectHeaderImpl.putHeader(new ObjectHeaderImpl(objClass.getIdentifier(), objType, objBody.length
+			+ ObjectHeaderImpl.COMMON_OBJECT_HEADER_LENGTH, obj.isProcessed(), obj.isIgnored()));
 
 		assert objBody.length % 4 == 0 : "Wrong length of PCEPObjectBody. Passed object has length: " + objBody.length + " that is not multiple of 4.";
 
 		final byte[] retBytes = new byte[objHeader.length + objBody.length];
 		ByteArray.copyWhole(objHeader, retBytes, 0);
-		ByteArray.copyWhole(objBody, retBytes, PCEPObjectHeader.OBJ_BODY_OFFSET);
+		ByteArray.copyWhole(objBody, retBytes, ObjectHeaderImpl.OBJ_BODY_OFFSET);
 
 		return retBytes;
     }
