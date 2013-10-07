@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
@@ -28,5 +27,5 @@ public interface PCEPSession extends ProtocolSession<Message> {
 	 */
 	public void sendMessage(Message message);
 
-	public void close(PCEPCloseObject.Reason reason);
+	public void close(TerminationReason reason);
 }
