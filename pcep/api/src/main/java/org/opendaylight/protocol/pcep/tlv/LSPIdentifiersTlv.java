@@ -9,10 +9,10 @@
 package org.opendaylight.protocol.pcep.tlv;
 
 import org.opendaylight.protocol.concepts.NetworkAddress;
-import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.concepts.ExtendedTunnelIdentifier;
 import org.opendaylight.protocol.pcep.concepts.LSPIdentifier;
 import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Interface defining basic LSPIdentifiersTLV.
@@ -22,7 +22,7 @@ import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
  *      Identifiers TLVs</a>
  * @param <T>
  */
-public interface LSPIdentifiersTlv<T extends NetworkAddress<T>> extends PCEPTlv {
+public interface LSPIdentifiersTlv<T extends NetworkAddress<T>> extends Tlv {
 
 	/**
 	 * Gets specific senders {@link NetworkAddress}.

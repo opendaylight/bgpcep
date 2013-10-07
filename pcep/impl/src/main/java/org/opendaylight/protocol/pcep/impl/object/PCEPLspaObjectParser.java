@@ -10,20 +10,26 @@ package org.opendaylight.protocol.pcep.impl.object;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
 import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import com.google.common.primitives.UnsignedInts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspaObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPLspaObject PCEPLspaObject}
+ * Parser for {@link LspaObject}
  */
-public class PCEPLspaObjectParser implements PCEPObjectParser {
+public class PCEPLspaObjectParser extends AbstractObjectParser<LspaBuilder> {
 
 	/*
-	 * lenghts of fields in bytes
+	 * lengths of fields in bytes
 	 */
 	public static final int EXC_ANY_F_LENGTH = 4;
 	public static final int INC_ANY_F_LENGTH = 4;
@@ -47,24 +53,42 @@ public class PCEPLspaObjectParser implements PCEPObjectParser {
 	public static final int SET_PRIO_F_OFFSET = INC_ALL_F_OFFSET + INC_ALL_F_LENGTH;
 	public static final int HOLD_PRIO_F_OFFSET = SET_PRIO_F_OFFSET + SET_PRIO_F_LENGTH;
 	public static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
-	public static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; //added reserved field of length 1B
+	public static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; // added reserved field of length 1B
+
+	public PCEPLspaObjectParser(final HandlerRegistry registry) {
+		super(registry);
+	}
 
 	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
+	public LspaObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null)
 			throw new IllegalArgumentException("Bytes array is mandatory.");
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
-		return new PCEPLspaObject(UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))),
-				UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))), UnsignedInts.toLong(ByteArray
-						.bytesToInt(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))), (short) (bytes[SET_PRIO_F_OFFSET] & 0xFF),
-				(short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF), flags.get(S_FLAG_OFFSET), flags.get(L_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)), processed,
-				ignored);
+		final LspaBuilder builder = new LspaBuilder();
+
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_F_OFFSET));
+
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		builder.setHoldPriority((short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF));
+		builder.setSetupPriority((short) (bytes[SET_PRIO_F_OFFSET] & 0xFF));
+		builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
+		builder.setExcludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))));
+		builder.setIncludeAll(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))));
+		builder.setIncludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))));
+
+		return builder.build();
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
+	public void addTlv(final LspaBuilder builder, final Tlv tlv) {
+		// No tlvs defined
+	}
+
+	public byte[] put(final PCEPObject obj) {
 		if (!(obj instanceof PCEPLspaObject))
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPLspaObject.");
 
@@ -87,5 +111,4 @@ public class PCEPLspaObjectParser implements PCEPObjectParser {
 
 		return retBytes;
 	}
-
 }

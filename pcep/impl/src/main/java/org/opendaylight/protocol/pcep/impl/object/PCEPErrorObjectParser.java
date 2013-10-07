@@ -11,21 +11,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
 import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReqMissingTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.tlvs.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPErrorObject PCEPErrorObject}
  */
-public class PCEPErrorObjectParser implements PCEPObjectParser {
+public class PCEPErrorObjectParser extends AbstractObjectParser<ErrorsBuilder> {
 	/**
 	 * Caret for combination of Error-type and Error-value
 	 */
@@ -48,7 +56,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 		}
 
 		@Override
-		public boolean equals(final Object obj) {
+		public boolean equals(final java.lang.Object obj) {
 			if (this == obj)
 				return true;
 			if (obj == null)
@@ -70,10 +78,8 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 	}
 
 	/**
-	 * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.PCEPErrors PCEPErrors}
-	 * and
-	 * {@link org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser.PCEPErrorIdentifier
-	 * ErrorIdentifier}
+	 * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.PCEPErrors PCEPErrors} and
+	 * {@link org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser.PCEPErrorIdentifier ErrorIdentifier}
 	 */
 	public static class PCEPErrorsMaping {
 		private static final PCEPErrorsMaping instance = new PCEPErrorsMaping();
@@ -149,7 +155,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 1), PCEPErrors.UPDATE_REQ_FOR_NON_LSP);
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 2), PCEPErrors.UPDATE_REQ_FOR_NO_STATEFUL);
-			//TODO: value TBD
+			// TODO: value TBD
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.LSP_LIMIT_REACHED);
 			this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.DELEGATION_NOT_REVOKED);
 
@@ -192,35 +198,42 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 	public static final int ET_F_LENGTH = 1;
 	public static final int EV_F_LENGTH = 1;
 
-	public static final int FLAGS_F_OFFSET = 1; //added reserved field of size 1 byte
+	public static final int FLAGS_F_OFFSET = 1; // added reserved field of size 1 byte
 	public static final int ET_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
 	public static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
 	public static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
 
 	private final static Logger logger = LoggerFactory.getLogger(PCEPErrorObjectParser.class);
 
-	@Override
-	public PCEPObject parse(final byte[] bytes, final boolean processed, final boolean ignored) throws PCEPDeserializerException {
-		if (bytes == null)
-			throw new IllegalArgumentException("Array of bytes is mandatory.");
-
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong size of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET);
-
-		final PCEPErrorIdentifier eid = new PCEPErrorIdentifier((short) (bytes[ET_F_OFFSET] & 0xFF), (short) (bytes[EV_F_OFFSET] & 0xFF));
-		final PCEPErrors error;
-
-		try {
-			error = PCEPErrorsMaping.getInstance().getFromErrorIdentifier(eid);
-		} catch (final NoSuchElementException e) {
-			logger.debug("Failed to identify error {}", eid, e);
-			throw new PCEPDeserializerException(e, "Error object has unknown identifier.");
-		}
-
-		return new PCEPErrorObject(error, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+	public PCEPErrorObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
+	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+		if (bytes == null)
+			throw new IllegalArgumentException("Array of bytes is mandatory.");
+
+		final ErrorsBuilder builder = new ErrorsBuilder();
+
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		builder.setType((short) (bytes[ET_F_OFFSET] & 0xFF));
+		builder.setValue((short) (bytes[EV_F_OFFSET] & 0xFF));
+
+		return null;
+	}
+
+	@Override
+	public void addTlv(final ErrorsBuilder builder, final Tlv tlv) {
+		if (tlv instanceof ReqMissingTlv && builder.getType() == 7)
+			builder.setTlvs(new TlvsBuilder().setReqMissing(
+					new ReqMissingBuilder().setRequestId(((ReqMissingTlv) tlv).getRequestId()).build()).build());
+	}
+
 	public byte[] put(final PCEPObject obj) {
 		if (!(obj instanceof PCEPErrorObject))
 			throw new IllegalArgumentException("Unknown PCEPObject instance.");
@@ -239,5 +252,4 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 
 		return retBytes;
 	}
-
 }

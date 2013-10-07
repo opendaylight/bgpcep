@@ -7,56 +7,68 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
-import org.opendaylight.protocol.concepts.IPv4Address;
+import io.netty.buffer.ByteBuf;
+
+import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.concepts.IPv4ExtendedTunnelIdentifier;
-import org.opendaylight.protocol.pcep.concepts.LSPIdentifier;
-import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
-import org.opendaylight.protocol.pcep.tlv.IPv4LSPIdentifiersTlv;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
+import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspIdentifiersTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.TunnelId;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.tlv.LSPIdentifiersTlv LSPIdentifiersTlv}
- * parameterized as IPv4Address
+ * Parser for {@link LspIdentifiersTlv}
  */
-public class LSPIdentifierIPv4TlvParser {
+public class LSPIdentifierIPv4TlvParser implements TlvParser, TlvSerializer {
 
 	private static final int IP_F_LENGTH = 4;
 	private static final int LSP_ID_F_LENGTH = 2;
 	private static final int TUNNEL_ID_F_LENGTH = 2;
 	private static final int EX_TUNNEL_ID_F_LENGTH = 4;
 
-	private static final int IP_F_OFFSET = 0;
-	private static final int LSP_ID_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
-	private static final int TUNNLE_ID_F_OFFSET = LSP_ID_F_OFFSET + LSP_ID_F_LENGTH;
-	private static final int EX_TUNNEL_ID_F_OFFSET = TUNNLE_ID_F_OFFSET + TUNNEL_ID_F_LENGTH;
-
-	private static final int SIZE = EX_TUNNEL_ID_F_OFFSET + EX_TUNNEL_ID_F_LENGTH;
-
-	public static IPv4LSPIdentifiersTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
+	@Override
+	public LspIdentifiersTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
+		int position = 0;
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
-		if (valueBytes.length != SIZE)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + valueBytes.length + "; Expected: " + SIZE + ".");
 
-		return new IPv4LSPIdentifiersTlv(new IPv4Address(
-				ByteArray.subByte(valueBytes, IP_F_OFFSET, IP_F_LENGTH)), new LSPIdentifier(ByteArray.subByte(valueBytes, LSP_ID_F_OFFSET, LSP_ID_F_LENGTH)),
-				new TunnelIdentifier(ByteArray.subByte(valueBytes, TUNNLE_ID_F_OFFSET, TUNNEL_ID_F_LENGTH)),
-				new IPv4ExtendedTunnelIdentifier(new IPv4Address(ByteArray.subByte(valueBytes, EX_TUNNEL_ID_F_OFFSET, EX_TUNNEL_ID_F_LENGTH))));
+		final AddressFamily afi = new Ipv4Builder().setIpv4TunnelSenderAddress(
+				Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position, IP_F_LENGTH))).setIpv4ExtendedTunnelId(
+				new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position += IP_F_LENGTH,
+						EX_TUNNEL_ID_F_LENGTH)))).build();
+
+		return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(
+				new LspId(ByteArray.bytesToLong(ByteArray.subByte(valueBytes, position += EX_TUNNEL_ID_F_LENGTH, LSP_ID_F_LENGTH)))).setTunnelId(
+				new TunnelId(ByteArray.bytesToInt(ByteArray.subByte(valueBytes, position += LSP_ID_F_LENGTH, TUNNEL_ID_F_LENGTH)))).build();
 	}
 
-	public static byte[] put(IPv4LSPIdentifiersTlv objToSerialize) {
-		if (objToSerialize == null)
-			throw new IllegalArgumentException("IPv4LSPIdentifiersTlv is mandatory.");
-
-		final byte[] retBytes = new byte[SIZE];
-
-		ByteArray.copyWhole(objToSerialize.getSenderAddress().getAddress(), retBytes, IP_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getLspID().getLspId(), retBytes, LSP_ID_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getTunnelID().getBytes(), retBytes, TUNNLE_ID_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getExtendedTunnelID().getIdentifier().getAddress(), retBytes, EX_TUNNEL_ID_F_OFFSET);
-
-		return retBytes;
+	@Override
+	public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+		if (tlv == null)
+			throw new IllegalArgumentException("LspIdentifiersTlv is mandatory.");
+		final LspIdentifiersTlv lsp = (LspIdentifiersTlv) tlv;
+		final AddressFamily afi = lsp.getAddressFamily();
+		if (afi.getClass().equals(Ipv4.class)) {
+			final Ipv4 ipv4 = (Ipv4) afi;
+			buffer.writeBytes(ipv4.getIpv4TunnelSenderAddress().getValue().getBytes());
+			buffer.writeBytes(ByteArray.subByte(ByteArray.longToBytes(lsp.getLspId().getValue()), 6, LSP_ID_F_LENGTH));
+			buffer.writeBytes(ByteArray.subByte(ByteArray.intToBytes(lsp.getTunnelId().getValue()), 2, TUNNEL_ID_F_LENGTH));
+			buffer.writeBytes(ipv4.getIpv4TunnelSenderAddress().getValue().getBytes());
+		} else {
+			final Ipv6 ipv6 = (Ipv6) afi;
+			buffer.writeBytes(ipv6.getIpv6TunnelSenderAddress().getValue().getBytes());
+			buffer.writeBytes(ByteArray.subByte(ByteArray.longToBytes(lsp.getLspId().getValue()), 6, LSP_ID_F_LENGTH));
+			buffer.writeBytes(ByteArray.subByte(ByteArray.intToBytes(lsp.getTunnelId().getValue()), 2, TUNNEL_ID_F_LENGTH));
+			buffer.writeBytes(ipv6.getIpv6TunnelSenderAddress().getValue().getBytes());
+		}
 	}
-
 }

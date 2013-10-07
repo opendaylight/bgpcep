@@ -7,16 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of LSP Cleanup Tlv
  *
  * @see <a href="http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-6.2.1">LSP-CLEANUP TLV</a>
  */
-public class LSPCleanupTlv implements PCEPTlv {
-
-	private static final long serialVersionUID = -2540695596612553355L;
+public class LSPCleanupTlv implements Tlv {
 
 	private final int timeout;
 

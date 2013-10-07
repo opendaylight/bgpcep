@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.pcep.tlv;
 
 import org.opendaylight.protocol.concepts.NetworkAddress;
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of RSVP Error Spec Tlv.
@@ -18,8 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  *      Class</a>
  * @param <T>
  */
-public class RSVPErrorSpecTlv<T extends NetworkAddress<T>> implements PCEPTlv {
-	private static final long serialVersionUID = 3948879942549682846L;
+public class RSVPErrorSpecTlv<T extends NetworkAddress<T>> implements Tlv {
 
 	private final T errorNodeAddress;
 

@@ -10,16 +10,22 @@ package org.opendaylight.protocol.pcep.impl.object;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
 import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.object.PCEPLspObject;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.LspBuilder;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPLspObject PCEPLspObject}
  */
-public class PCEPLspObjectParser implements PCEPObjectParser {
+public class PCEPLspObjectParser extends AbstractObjectParser<LspBuilder> {
 
 	/*
 	 * offset of TLVs offset of other fields are not defined as constants
@@ -35,23 +41,40 @@ public class PCEPLspObjectParser implements PCEPObjectParser {
 	private static final int SYNC_FLAG_OFFSET = 14;
 	private static final int REMOVE_FLAG_OFFSET = 12;
 
-	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0)
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
-
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, 2, 2));
-
-		return new PCEPLspObject((ByteArray.bytesToShort(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2] & 0xFF) >> 4,
-				flags.get(DELEGATE_FLAG_OFFSET), flags.get(SYNC_FLAG_OFFSET), flags.get(OPERATIONAL_FLAG_OFFSET), flags.get(REMOVE_FLAG_OFFSET),
-				PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+	public PCEPLspObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
+	public LspObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0)
+			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, 2, 2));
+
+		final LspBuilder builder = new LspBuilder();
+
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+
+		// builder.setPlspId(new PlspId(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2]
+		// & 0xFF) >> 4));
+		builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
+		builder.setSync(flags.get(SYNC_FLAG_OFFSET));
+		// builder.setOperational(Operational.flags.get(OPERATIONAL_FLAG_OFFSET));
+		builder.setRemove(flags.get(REMOVE_FLAG_OFFSET));
+
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final LspBuilder builder, final Tlv tlv) {
+		// FIXME : finish
+	}
+
+	public byte[] put(final PCEPObject obj) {
 		if (!(obj instanceof PCEPLspObject))
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPLspObject.");
 
@@ -78,5 +101,4 @@ public class PCEPLspObjectParser implements PCEPObjectParser {
 
 		return retBytes;
 	}
-
 }

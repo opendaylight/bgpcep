@@ -12,15 +12,14 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of Node Identifier TLV.
  *
  * @see draft-ietf-pce-stateful-pce-01 (sec. 7.1.3) - NODE_IDENTIFIER_TLV
  */
-public class NodeIdentifierTlv implements PCEPTlv {
-	private static final long serialVersionUID = -7959631526276210055L;
+public class NodeIdentifierTlv implements Tlv {
 	private final byte[] value;
 
 	/**

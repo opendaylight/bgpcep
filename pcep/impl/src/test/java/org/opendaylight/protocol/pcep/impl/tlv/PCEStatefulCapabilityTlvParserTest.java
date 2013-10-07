@@ -25,11 +25,11 @@ import org.opendaylight.protocol.util.ByteArray;
 public class PCEStatefulCapabilityTlvParserTest {
     @Test
     public void testEquality() throws IOException, PCEPDeserializerException {
-	final PCEStatefulCapabilityTlv objToTest1a = (PCEStatefulCapabilityTlv) PCEPTlvParser.parse(
+	final PCEStatefulCapabilityTlv objToTest1a = (PCEStatefulCapabilityTlv) PCEPTlvParser.parseTlv(
 		ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlv1.bin")).get(0);
-	final PCEStatefulCapabilityTlv objToTest1b = (PCEStatefulCapabilityTlv) PCEPTlvParser.parse(
+	final PCEStatefulCapabilityTlv objToTest1b = (PCEStatefulCapabilityTlv) PCEPTlvParser.parseTlv(
 		ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlv1.bin")).get(0);
-	final PCEStatefulCapabilityTlv objToTest2 = (PCEStatefulCapabilityTlv) PCEPTlvParser.parse(
+	final PCEStatefulCapabilityTlv objToTest2 = (PCEStatefulCapabilityTlv) PCEPTlvParser.parseTlv(
 		ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlv2.bin")).get(0);
 
 	assertTrue(objToTest1a.equals(objToTest1a));
@@ -42,7 +42,7 @@ public class PCEStatefulCapabilityTlvParserTest {
     public void testSerialization() throws PCEPDeserializerException, IOException {
 	final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlv1.bin");
 
-	final PCEStatefulCapabilityTlv objToTest = (PCEStatefulCapabilityTlv) PCEPTlvParser.parse(bytesFromFile).get(0);
+	final PCEStatefulCapabilityTlv objToTest = (PCEStatefulCapabilityTlv) PCEPTlvParser.parseTlv(bytesFromFile).get(0);
 	assertTrue(objToTest.isUpdate());
 	assertTrue(objToTest.isVersioned());
 
@@ -53,7 +53,7 @@ public class PCEStatefulCapabilityTlvParserTest {
 
     @Test
     public void testConstruction() throws PCEPDeserializerException, IOException {
-	final PCEStatefulCapabilityTlv expected = (PCEStatefulCapabilityTlv) PCEPTlvParser.parse(
+	final PCEStatefulCapabilityTlv expected = (PCEStatefulCapabilityTlv) PCEPTlvParser.parseTlv(
 		ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlv1.bin")).get(0);
 
 	final PCEStatefulCapabilityTlv actual = new PCEStatefulCapabilityTlv(false, true, true);
@@ -66,7 +66,7 @@ public class PCEStatefulCapabilityTlvParserTest {
 	/*
 	 * Should throw exception
 	 */
-	PCEPTlvParser.parse(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
+	PCEPTlvParser.parseTlv(ByteArray.fileToBytes("src/test/resources/PCEStatefulCapabilityTlvInvalid1.bin"));
     }
 
 }

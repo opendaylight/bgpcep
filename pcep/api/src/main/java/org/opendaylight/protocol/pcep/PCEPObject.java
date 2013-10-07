@@ -7,39 +7,36 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * Basic structure for PCEP Objects.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2">Common Object
- *      Header</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2">Common Object Header</a>
  */
-public abstract class PCEPObject {
+public abstract class PCEPObject implements Object {
 
 	private final boolean processed;
 
 	private final boolean ignored;
 
 	/**
-	 * Constructor is protected to prevent direct instantiation, but to allow to
-	 * call this constructor via super().
-	 *
-	 * @param processed
-	 *            P flag
-	 * @param ignored
-	 *            I flag
+	 * Constructor is protected to prevent direct instantiation, but to allow to call this constructor via super().
+	 * 
+	 * @param processed P flag
+	 * @param ignored I flag
 	 */
-	protected PCEPObject(boolean processed, boolean ignored) {
+	protected PCEPObject(final boolean processed, final boolean ignored) {
 		this.processed = processed;
 		this.ignored = ignored;
 	}
 
 	/**
-	 * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2"> Common
-	 *      Object Header</a>
-	 *
+	 * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2"> Common Object Header</a>
+	 * 
 	 * @return true if P flag is set and false if is not.
 	 */
 	public boolean isProcessed() {
@@ -47,9 +44,8 @@ public abstract class PCEPObject {
 	}
 
 	/**
-	 * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2"> Common
-	 *      Object Header</a>
-	 *
+	 * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.2"> Common Object Header</a>
+	 * 
 	 * @return true if I flag is set and false if is not.
 	 */
 	public boolean isIgnored() {
@@ -66,7 +62,7 @@ public abstract class PCEPObject {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final java.lang.Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -82,11 +78,11 @@ public abstract class PCEPObject {
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("processed", this.processed);
 		toStringHelper.add("ignored", this.ignored);
 		return toStringHelper;

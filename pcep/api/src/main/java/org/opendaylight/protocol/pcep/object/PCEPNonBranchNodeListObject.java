@@ -13,23 +13,29 @@ import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
 
 /**
  * Structure of Non-Branch Node list object.
- *
- * @see <a href="http://tools.ietf.org/html/rfc6006#section-3.11.1">Branch Node
- *      Object [RFC6006]</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc6006#section-3.11.1">Branch Node Object [RFC6006]</a>
  */
 public class PCEPNonBranchNodeListObject extends PCEPBranchNodeObject {
 
-    /**
-     * Constructs Non-Branch Node list object.
-     *
-     * @param subobjects
-     *            List<ExplicitRouteSubobject>
-     * @param processed
-     *            boolean
-     * @param ignored
-     *            boolean
-     */
-    public PCEPNonBranchNodeListObject(List<ExplicitRouteSubobject> subobjects, boolean processed, boolean ignored) {
-	super(subobjects, processed, ignored);
-    }
+	/**
+	 * Constructs Non-Branch Node list object.
+	 * 
+	 * @param subobjects List<ExplicitRouteSubobject>
+	 * @param processed boolean
+	 * @param ignored boolean
+	 */
+	public PCEPNonBranchNodeListObject(final List<ExplicitRouteSubobject> subobjects, final boolean processed, final boolean ignored) {
+		super(subobjects, processed, ignored);
+	}
+
+	@Override
+	public Boolean isIgnore() {
+		return super.isIgnored();
+	}
+
+	@Override
+	public Boolean isProcessingRule() {
+		return super.isProcessed();
+	}
 }

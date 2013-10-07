@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.tlv;
 
 import java.util.Arrays;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of LSP Update Error TLV.
@@ -19,8 +19,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  *      href="http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.3">LSP
  *      Update Error Code TLV</a>
  */
-public class LSPUpdateErrorTlv implements PCEPTlv {
-	private static final long serialVersionUID = -6919035417806059716L;
+public class LSPUpdateErrorTlv implements Tlv {
 	private final byte[] errorCode;
 
 	/**

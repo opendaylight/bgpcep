@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.tlv;
 
-import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Structure of Request Missing Tlv.
@@ -16,8 +16,7 @@ import org.opendaylight.protocol.pcep.PCEPTlv;
  * @see <a href="http://tools.ietf.org/html/rfc5440#section-7.15">PCEP-ERROR
  *      Object</a> - defined in text (Error-type=7)
  */
-public class ReqMissingTlv implements PCEPTlv {
-	private static final long serialVersionUID = -3910927830017195746L;
+public class ReqMissingTlv implements Tlv {
 	private final long requestID;
 
 	/**
