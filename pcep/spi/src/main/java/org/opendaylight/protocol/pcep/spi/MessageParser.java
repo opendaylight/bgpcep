@@ -9,9 +9,8 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
-public interface TlvHandler {
-	public Tlv tlvFromBytes(ByteBuf bytes);
-	public ByteBuf bytesFromTlv(Tlv tlv);
+public interface MessageParser {
+	public Message parseMessage(ByteBuf buffer);
 }

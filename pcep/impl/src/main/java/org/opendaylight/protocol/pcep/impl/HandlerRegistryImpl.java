@@ -12,9 +12,12 @@ import java.util.Map;
 
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.MessageHandler;
-import org.opendaylight.protocol.pcep.spi.ObjectHandler;
-import org.opendaylight.protocol.pcep.spi.TlvHandler;
+import org.opendaylight.protocol.pcep.spi.MessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageSerializer;
+import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
+import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
@@ -42,127 +45,160 @@ public class HandlerRegistryImpl implements HandlerRegistry {
 		INSTANCE = reg;
 	}
 
-	private final Map<Integer, MessageHandler> msgHandlerInts = new HashMap<>();
-	private final Map<Class<? extends Message>, MessageHandler> msgHandlerClasses = new HashMap<>();
+	private final Map<Integer, MessageParser> msgParsers = new HashMap<>();
+	private final Map<Class<? extends Message>, MessageSerializer> msgSerializers = new HashMap<>();
 
-	private final Map<Integer, ObjectHandler> objHandlerInts = new HashMap<>();
-	private final Map<Class<? extends Object>, ObjectHandler> objHandlerClasses = new HashMap<>();
+	private final Map<Integer, ObjectParser> objParsers = new HashMap<>();
+	private final Map<Class<? extends Object>, ObjectSerializer> objSerializers = new HashMap<>();
 
-	private final Map<Integer, TlvHandler> tlvHandlerInts = new HashMap<>();
-	private final Map<Class<? extends Tlv>, TlvHandler> tlvHandlerClasses = new HashMap<>();
+	private final Map<Integer, TlvParser> tlvParsers = new HashMap<>();
+	private final Map<Class<? extends Tlv>, TlvSerializer> tlvSerializers = new HashMap<>();
 
 	private HandlerRegistryImpl() {
 
 	}
 
 	@Override
-	public synchronized MessageHandler getMessageHandler(final int messageType) {
+	public synchronized MessageParser getMessageParser(final int messageType) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
-		return msgHandlerInts.get(messageType);
+		return msgParsers.get(messageType);
 	}
 
 	@Override
-	public synchronized MessageHandler getMessageHandler(final Message message) {
-		return msgHandlerClasses.get(message.getClass());
+	public synchronized MessageSerializer getMessageSerializer(final Message message) {
+		return msgSerializers.get(message.getClass());
 	}
 
 	@Override
-	public synchronized ObjectHandler getObjectHandler(final int objectClass, final int objectType) {
+	public synchronized ObjectParser getObjectParser(final int objectClass, final int objectType) {
 		Preconditions.checkArgument(objectClass >= 0 && objectClass <= 255);
 		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
 
-		return objHandlerInts.get((objectClass << 4) + objectType);
+		return objParsers.get((objectClass << 4) + objectType);
 	}
 
 	@Override
-	public synchronized ObjectHandler getObjectHandler(final Object object) {
-		return objHandlerClasses.get(object.getClass());
+	public synchronized ObjectSerializer getObjectSerializer(final Object object) {
+		return objSerializers.get(object.getClass());
 	}
 
 	@Override
-	public synchronized TlvHandler getTlvHandler(final int tlvType) {
+	public synchronized TlvParser getTlvParser(final int tlvType) {
 		Preconditions.checkArgument(tlvType >= 0 && tlvType <= 65535);
-		return tlvHandlerInts.get(tlvType);
+		return tlvParsers.get(tlvType);
 	}
 
 	@Override
-	public synchronized TlvHandler getTlvHandler(final Tlv tlv) {
-		return tlvHandlerClasses.get(tlv.getClass());
+	public synchronized TlvSerializer getTlvSerializer(final Tlv tlv) {
+		return tlvSerializers.get(tlv.getClass());
 	}
 
-	private synchronized void unregisterMessageHandler(final Integer msgType, final Class<? extends Message> msgClass) {
-		msgHandlerInts.remove(msgType);
-		msgHandlerClasses.remove(msgClass);
+	private synchronized void unregisterMessageParser(final Integer msgType) {
+		msgParsers.remove(msgType);
 	}
 
 	@Override
-	public synchronized AutoCloseable registerMessageHandler(
-			final Class<? extends Message> msgClass, final int msgType,
-			final MessageHandler handler) {
+	public synchronized AutoCloseable registerMessageParser(final int msgType, final MessageParser parser) {
 		Preconditions.checkArgument(msgType >= 0 && msgType <= 255);
-
-		Preconditions.checkArgument(!msgHandlerInts.containsKey(msgType), "Message type %s already registered", msgType);
-		Preconditions.checkArgument(!msgHandlerClasses.containsKey(msgClass), "Message class %s already registered", msgClass);
-
-		msgHandlerInts.put(msgType, handler);
-		msgHandlerClasses.put(msgClass, handler);
+		Preconditions.checkArgument(!msgParsers.containsKey(msgType), "Message type %s already registered", msgType);
+		msgParsers.put(msgType, parser);
 
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
-				unregisterMessageHandler(msgType, msgClass);
+				unregisterMessageParser(msgType);
 			}
 		};
 	}
 
-	private synchronized void unregisterObjectHandler(final Integer key, final Class<? extends Object> objClass) {
-		objHandlerInts.remove(key);
-		objHandlerClasses.remove(objClass);
+	private synchronized void unregisterMessageSerializer(final Class<? extends Message> msgClass) {
+		msgSerializers.remove(msgClass);
 	}
 
 	@Override
-	public synchronized AutoCloseable registerObjectHandler(
-			final Class<? extends Object> objClass, final int objectClass, final int objectType,
-			final ObjectHandler handler) {
+	public synchronized AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass, final MessageSerializer serializer) {
+		Preconditions.checkArgument(!msgSerializers.containsKey(msgClass), "Message class %s already registered", msgClass);
+		msgSerializers.put(msgClass, serializer);
+
+		return new AbstractRegistration() {
+			@Override
+			protected void removeRegistration() {
+				unregisterMessageSerializer(msgClass);
+			}
+		};
+	}
+
+	private synchronized void unregisterObjectParser(final Integer key) {
+		objParsers.remove(key);
+	}
+
+	@Override
+	public synchronized AutoCloseable registerObjectParser(final int objectClass, final int objectType,
+			final ObjectParser parser) {
 		Preconditions.checkArgument(objectClass >= 0 && objectClass <= 255);
 		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
 
 		final Integer key = (objectClass << 4) + objectType;
-		Preconditions.checkArgument(!objHandlerInts.containsKey(key), "Object class %s type %s already registered",
-				objectClass, objectType);
-		Preconditions.checkArgument(!objHandlerClasses.containsKey(objectClass), "TLV class %s already registered", objectClass);
-
-		objHandlerInts.put(key, handler);
-		objHandlerClasses.put(objClass, handler);
+		Preconditions.checkArgument(!objParsers.containsKey(key), "Object class %s type %s already registered",	objectClass, objectType);
+		objParsers.put(key, parser);
 
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
-				unregisterObjectHandler(key, objClass);
+				unregisterObjectParser(key);
 			}
 		};
 	}
 
-	private synchronized void unregisterTlvHandler(final int tlvType, final Class<? extends Tlv> tlvClass) {
-		tlvHandlerInts.remove(tlvType);
-		tlvHandlerClasses.remove(tlvClass);
+	private synchronized void unregisterObjectSerializer(final Class<? extends Object> objClass) {
+		objSerializers.remove(objClass);
 	}
 
 	@Override
-	public synchronized AutoCloseable registerTlvHandler(final Class<? extends Tlv> tlvClass,
-			final int tlvType, final TlvHandler handler) {
-		Preconditions.checkArgument(tlvType >= 0 && tlvType <= 65535);
-
-		Preconditions.checkArgument(!tlvHandlerInts.containsKey(tlvType), "TLV type %s already registered", tlvType);
-		Preconditions.checkArgument(!tlvHandlerClasses.containsKey(tlvClass), "TLV class %s already registered", tlvClass);
-
-		tlvHandlerInts.put(tlvType, handler);
-		tlvHandlerClasses.put(tlvClass, handler);
+	public synchronized AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
+		Preconditions.checkArgument(!objSerializers.containsKey(objClass), "Object class %s already registered", objClass);
+		objSerializers.put(objClass, serializer);
 
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
-				unregisterTlvHandler(tlvType, tlvClass);
+				unregisterObjectSerializer(objClass);
+			}
+		};
+	}
+
+	private synchronized void unregisterTlvParser(final int tlvType) {
+		tlvParsers.remove(tlvType);
+	}
+
+	@Override
+	public synchronized AutoCloseable registerTlvParser(final int tlvType, final TlvParser parser) {
+		Preconditions.checkArgument(tlvType >= 0 && tlvType <= 65535);
+		Preconditions.checkArgument(!tlvParsers.containsKey(tlvType), "TLV type %s already registered", tlvType);
+
+		tlvParsers.put(tlvType, parser);
+
+		return new AbstractRegistration() {
+			@Override
+			protected void removeRegistration() {
+				unregisterTlvParser(tlvType);
+			}
+		};
+	}
+
+	private synchronized void unregisterTlvSerializer(final Class<? extends Tlv> tlvClass) {
+		tlvSerializers.remove(tlvClass);
+	}
+
+	@Override
+	public synchronized AutoCloseable registerTlvSerializer(final Class<? extends Tlv> tlvClass, final TlvSerializer serializer) {
+		Preconditions.checkArgument(!tlvSerializers.containsKey(tlvClass), "TLV class %s already registered", tlvClass);
+		tlvSerializers.put(tlvClass, serializer);
+
+		return new AbstractRegistration() {
+			@Override
+			protected void removeRegistration() {
+				unregisterTlvSerializer(tlvClass);
 			}
 		};
 	}

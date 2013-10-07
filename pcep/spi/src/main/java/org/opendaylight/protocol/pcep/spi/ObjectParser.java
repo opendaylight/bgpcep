@@ -11,7 +11,6 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 
-public interface ObjectHandler {
-	public Object objectFromBytes(ByteBuf bytes);
-	public ByteBuf bytesFromObject(Object object);
+public interface ObjectParser {
+	public Object parseObject(ByteBuf buffer);
 }
