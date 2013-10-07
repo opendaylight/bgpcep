@@ -7,21 +7,42 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
+import io.netty.buffer.ByteBuf;
+
+import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage PCEPKeepAliveMessage}
+ * Parser for {@link KeepaliveMessage}
  */
-public class PCEPKeepAliveMessageParser implements PCEPMessageParser {
+public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
+	
+	private final int TYPE = 2;
+
+	public PCEPKeepAliveMessageParser(HandlerRegistry registry) {
+		super(registry);
+	}
 
 	@Override
-	public byte[] put(final Message msg) {
-		if (!(msg instanceof KeepaliveMessage))
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
-					+ ". Nedded PCEPKeepAliveMessage.");
+	public void serializeMessage(Message message, ByteBuf buffer) {
+		if (!(message instanceof KeepaliveMessage))
+			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
+					+ ". Nedded KeepaliveMessage.");
 
-		return new byte[0];
+		buffer.writeBytes(new byte[0]);
+	}
+
+	@Override
+	public KeepaliveMessage parseMessage(byte[] buffer) {
+		return new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+	}
+
+	@Override
+	public int getMessageType() {
+		return TYPE;
 	}
 }

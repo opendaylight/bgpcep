@@ -20,18 +20,18 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
-import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcerr.pcerr.message.error.type.Session;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Abstract PCEP session negotiator. Takes care of basic handshake without implementing a specific policy. Policies need
@@ -70,6 +70,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
+
 	private final Timer timer;
 
 	@GuardedBy("this")
@@ -79,10 +80,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	private Timeout failTimer;
 
 	@GuardedBy("this")
-	private PCEPOpenObject localPrefs;
+	private OpenObject localPrefs;
 
 	@GuardedBy("this")
-	private PCEPOpenObject remotePrefs;
+	private OpenObject remotePrefs;
 
 	private volatile boolean localOK, openRetry, remoteOK;
 
@@ -96,7 +97,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * 
 	 * @return Session parameters proposal.
 	 */
-	protected abstract PCEPOpenObject getInitialProposal();
+	protected abstract OpenObject getInitialProposal();
 
 	/**
 	 * Get the revised session parameters proposal based on the feedback the peer has provided to us.
@@ -104,7 +105,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param suggestion Peer-provided suggested session parameters
 	 * @return Session parameters proposal.
 	 */
-	protected abstract PCEPOpenObject getRevisedProposal(PCEPOpenObject suggestion);
+	protected abstract OpenObject getRevisedProposal(OpenObject suggestion);
 
 	/**
 	 * Check whether a peer-provided session parameters proposal is acceptable.
@@ -112,7 +113,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param proposal peer-proposed session parameters
 	 * @return true if the proposal is acceptable, false otherwise
 	 */
-	protected abstract boolean isProposalAcceptable(PCEPOpenObject proposal);
+	protected abstract boolean isProposalAcceptable(OpenObject proposal);
 
 	/**
 	 * Given a peer-provided session parameters proposal which we found unacceptable, provide a counter-proposal. The
@@ -121,7 +122,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param proposal unacceptable peer proposal
 	 * @return our counter-proposal, or null if there is no way to negotiate an acceptable proposal
 	 */
-	protected abstract PCEPOpenObject getCounterProposal(PCEPOpenObject proposal);
+	protected abstract OpenObject getCounterProposal(OpenObject proposal);
 
 	/**
 	 * Create the protocol session.
@@ -133,7 +134,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param remotePrefs Session preferences proposed by the peer and accepted by us.
 	 * @return New protocol session.
 	 */
-	protected abstract PCEPSessionImpl createSession(Timer timer, Channel channel, PCEPOpenObject localPrefs, PCEPOpenObject remotePrefs);
+	protected abstract PCEPSessionImpl createSession(Timer timer, Channel channel, OpenObject localPrefs, OpenObject remotePrefs);
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError.
@@ -141,7 +142,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * @param value
 	 */
 	private void sendErrorMessage(final PCEPErrors value) {
-		this.channel.writeAndFlush(new PCEPErrorMessage(ImmutableList.of(new PCEPErrorObject(value))));
+
+		this.channel.writeAndFlush(Util.createErrorMessage(value, null));
 	}
 
 	private void scheduleFailTimer() {
@@ -179,7 +181,10 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	final synchronized protected void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
 		this.localPrefs = getInitialProposal();
-		this.channel.writeAndFlush(new PCEPOpenMessage(this.localPrefs));
+		final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
+				new OpenMessageBuilder().setOpen(
+						(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.Open) this.localPrefs).build()).build();
+		this.channel.writeAndFlush(m);
 		this.state = State.OpenWait;
 		scheduleFailTimer();
 
@@ -209,9 +214,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				}
 
 				return;
-			} else if (msg instanceof PCEPErrorMessage) {
-				final PCEPErrorMessage err = (PCEPErrorMessage) msg;
-				this.localPrefs = getRevisedProposal(err.getOpenObject());
+			} else if (msg instanceof PcerrMessage) {
+				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) msg).getPcerrMessage();
+				this.localPrefs = getRevisedProposal((OpenObject) ((Session) err.getErrorType()).getOpen());
 				if (this.localPrefs == null) {
 					sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
 					negotiationFailed(new RuntimeException("Peer suggested unacceptable retry proposal"));
@@ -228,8 +233,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 			break;
 		case OpenWait:
-			if (msg instanceof PCEPOpenMessage) {
-				final PCEPOpenObject open = ((PCEPOpenMessage) msg).getOpenObject();
+			if (msg instanceof OpenMessage) {
+				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((OpenMessage) msg).getOpenMessage();
+				final OpenObject open = o.getOpen();
 				if (isProposalAcceptable(open)) {
 					this.channel.writeAndFlush(new KeepaliveMessageBuilder().build());
 					this.remotePrefs = open;
@@ -252,7 +258,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					return;
 				}
 
-				final PCEPOpenObject newPrefs = getCounterProposal(open);
+				final OpenObject newPrefs = getCounterProposal(open);
 				if (newPrefs == null) {
 					sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
 					negotiationFailed(new RuntimeException("Peer sent unacceptable session parameters"));
@@ -260,7 +266,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					return;
 				}
 
-				this.channel.writeAndFlush(new PCEPErrorMessage(newPrefs, ImmutableList.of(new PCEPErrorObject(PCEPErrors.NON_ACC_NEG_SESSION_CHAR)), null));
+				this.channel.writeAndFlush(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
 
 				this.openRetry = true;
 				this.state = this.localOK ? State.OpenWait : State.KeepWait;

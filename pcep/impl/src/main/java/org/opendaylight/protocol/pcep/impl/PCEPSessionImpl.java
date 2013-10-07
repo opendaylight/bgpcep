@@ -14,10 +14,8 @@ import io.netty.util.TimerTask;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
@@ -26,17 +24,15 @@ import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.PCEPTlv;
-import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
-import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
-import org.opendaylight.protocol.pcep.message.PCEPOpenMessage;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
-import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
-import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
+import org.opendaylight.protocol.pcep.TerminationReason;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,12 +69,12 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	/**
 	 * Open Object with session characteristics that were accepted by another PCE (sent from this session).
 	 */
-	private final PCEPOpenObject localOpen;
+	private final OpenObject localOpen;
 
 	/**
 	 * Open Object with session characteristics for this session (sent from another PCE).
 	 */
-	private final PCEPOpenObject remoteOpen;
+	private final OpenObject remoteOpen;
 
 	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
@@ -99,7 +95,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	private final KeepaliveMessage kaMessage = (KeepaliveMessage) new KeepaliveMessageBuilder().build();
 
 	PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
-			final PCEPOpenObject localOpen, final PCEPOpenObject remoteOpen) {
+			final OpenObject localOpen, final OpenObject remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
@@ -146,7 +142,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		if (this.channel.isActive()) {
 			if (ct >= nextDead) {
 				logger.debug("DeadTimer expired. " + new Date());
-				this.terminate(Reason.EXP_DEADTIMER);
+				this.terminate(TerminationReason.ExpDeadtimer);
 			} else {
 				this.stateTimer.newTimeout(new TimerTask() {
 					@Override
@@ -218,19 +214,19 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * inside the session or from the listener, therefore the parent of this session should be informed.
 	 */
 	@Override
-	public synchronized void close(final PCEPCloseObject.Reason reason) {
+	public synchronized void close(final TerminationReason reason) {
 		logger.debug("Closing session: {}", this);
 		this.closed = true;
-		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.sendMessage(new CloseBuilder().setCCloseMessage(
+				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
 		this.channel.close();
 	}
 
-	private synchronized void terminate(final PCEPCloseObject.Reason reason) {
+	private synchronized void terminate(final TerminationReason reason) {
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
-		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		this.sendMessage(new CloseBuilder().setCCloseMessage(
+				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
 		this.close();
 	}
 
@@ -252,12 +248,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * @param value
 	 * @param open
 	 */
-	private void sendErrorMessage(final PCEPErrors value, final PCEPOpenObject open) {
-		final PCEPErrorObject error = new PCEPErrorObject(value);
-		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
-		errors.add(error);
-		// FIXME: just to get rid of compilation errors
-		this.sendMessage((Message) new PCEPErrorMessage(open, errors, null));
+	private void sendErrorMessage(final PCEPErrors value, final OpenObject open) {
+		this.sendMessage(Util.createErrorMessage(value, open));
 	}
 
 	/**
@@ -278,7 +270,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 				this.unknownMessagesTimes.poll();
 			}
 			if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
-				this.terminate(Reason.TOO_MANY_UNKNOWN_MSG);
+				this.terminate(TerminationReason.TooManyUnknownMsg);
 			}
 		}
 	}
@@ -298,9 +290,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		// Internal message handling. The user does not see these messages
 		if (msg instanceof KeepaliveMessage) {
 			// Do nothing, the timer has been already reset
-		} else if (msg instanceof PCEPOpenMessage) {
+		} else if (msg instanceof OpenMessage) {
 			this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
-		} else if (msg instanceof PCEPCloseMessage) {
+		} else if (msg instanceof CloseMessage) {
 			/*
 			 * Session is up, we are reporting all messages to user. One notable
 			 * exception is CLOSE message, which needs to be converted into a
@@ -333,12 +325,12 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	@Override
 	public Integer getDeadTimerValue() {
-		return this.remoteOpen.getDeadTimerValue();
+		return new Integer(this.remoteOpen.getDeadTimer());
 	}
 
 	@Override
 	public Integer getKeepAliveTimerValue() {
-		return this.localOpen.getKeepAliveTimerValue();
+		return new Integer(this.localOpen.getKeepalive());
 	}
 
 	@Override
@@ -350,16 +342,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	@Override
 	public void tearDown() {
 		this.close();
-	}
-
-	@Override
-	public String getNodeIdentifier() {
-		for (final PCEPTlv tlv : this.remoteOpen.getTlvs()) {
-			if (tlv instanceof NodeIdentifierTlv) {
-				return tlv.toString();
-			}
-		}
-		return "";
 	}
 
 	@Override
@@ -377,4 +359,14 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	protected void sessionUp() {
 		this.listener.onSessionUp(this);
 	}
+
+	@Override
+	public String getNodeIdentifier() {
+		if (this.remoteOpen.getTlvs() == null)
+			if (this.remoteOpen.getTlvs().getPredundancyGroupId() != null) {
+				return new String(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier());
+			}
+		return "";
+	}
+
 }

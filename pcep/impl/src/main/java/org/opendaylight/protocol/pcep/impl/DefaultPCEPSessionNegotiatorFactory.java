@@ -12,25 +12,24 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 
 import com.google.common.base.Preconditions;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
-	private final PCEPOpenObject localPrefs;
+	private final OpenObject localPrefs;
 	private final int maxUnknownMessages;
 	private final Timer timer;
 
-	public DefaultPCEPSessionNegotiatorFactory(final Timer timer, final PCEPOpenObject localPrefs,
-			final int maxUnknownMessages) {
+	public DefaultPCEPSessionNegotiatorFactory(final Timer timer, final OpenObject localPrefs, final int maxUnknownMessages) {
 		this.timer = Preconditions.checkNotNull(timer);
 		this.localPrefs = Preconditions.checkNotNull(localPrefs);
 		this.maxUnknownMessages = maxUnknownMessages;
 	}
 
 	@Override
-	protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise,
-			final PCEPSessionListener listener , final Channel channel, final short sessionId) {
-		return new DefaultPCEPSessionNegotiator(timer, promise, channel, listener, sessionId, maxUnknownMessages, localPrefs);
+	protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSessionImpl> promise, final PCEPSessionListener listener,
+			final Channel channel, final short sessionId) {
+		return new DefaultPCEPSessionNegotiator(this.timer, promise, channel, listener, sessionId, this.maxUnknownMessages, this.localPrefs);
 	}
 }

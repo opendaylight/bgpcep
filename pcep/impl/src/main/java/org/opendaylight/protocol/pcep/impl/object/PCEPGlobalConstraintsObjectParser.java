@@ -9,17 +9,23 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
-import org.opendaylight.protocol.pcep.object.PCEPGlobalConstraintsObject;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.GcObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPGlobalConstraintsObject
- * PCEPGlobalConstraints}
+ * Parser for {@link GcObject}
  */
-public class PCEPGlobalConstraintsObjectParser implements PCEPObjectParser {
+public class PCEPGlobalConstraintsObjectParser extends AbstractObjectParser<GcBuilder> {
+
+	public static final int CLASS = 24;
+
+	public static final int TYPE = 1;
 
 	private final static int MAX_HOP_F_LENGTH = 1;
 	private final static int MAX_UTIL_F_LENGTH = 1;
@@ -33,37 +39,62 @@ public class PCEPGlobalConstraintsObjectParser implements PCEPObjectParser {
 
 	private final static int TLVS_OFFSET = OVER_BOOKING_FACTOR_F_OFFSET + OVER_BOOKING_FACTOR_F_LENGTH;
 
-	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-
-		if (bytes.length < TLVS_OFFSET)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
-
-		return new PCEPGlobalConstraintsObject((short) (bytes[MAX_HOP_F_OFFSET] & 0xFF), (short) (bytes[MAX_UTIL_F_OFFSET] & 0xFF),
-				(short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF), (short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF), PCEPTlvParser.parse(ByteArray.cutBytes(bytes,
-						TLVS_OFFSET)), processed, ignored);
+	public PCEPGlobalConstraintsObjectParser(final HandlerRegistry registry) {
+		super(registry);
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-		if (!(obj instanceof PCEPGlobalConstraintsObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPGlobalConstraints.");
+	public GcObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0)
+			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 
-		final PCEPGlobalConstraintsObject specObj = (PCEPGlobalConstraintsObject) obj;
+		final GcBuilder builder = new GcBuilder();
 
-		final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 
-		retBytes[MAX_HOP_F_OFFSET] = (byte) specObj.getMaxHop();
-		retBytes[MAX_UTIL_F_OFFSET] = (byte) specObj.getMaxUtilization();
-		retBytes[MIN_UTIL_F_OFFSET] = (byte) specObj.getMinUtilization();
-		retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = (byte) specObj.getOverBookingFactor();
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
 
-		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		builder.setMaxHop((short) (bytes[MAX_HOP_F_OFFSET] & 0xFF));
+		builder.setMinUtilization((short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF));
+		builder.setMaxUtilization((short) (bytes[MAX_UTIL_F_OFFSET] & 0xFF));
+		builder.setOverBookingFactor((short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF));
+
+		return builder.build();
+	}
+
+	@Override
+	public void addTlv(final GcBuilder builder, final Tlv tlv) {
+		// No tlvs defined
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof GcObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed GcObject.");
+
+		final GcObject specObj = (GcObject) object;
+
+		// final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
+		final byte[] retBytes = new byte[TLVS_OFFSET + 0];
+
+		retBytes[MAX_HOP_F_OFFSET] = specObj.getMaxHop().byteValue();
+		retBytes[MAX_UTIL_F_OFFSET] = specObj.getMaxUtilization().byteValue();
+		retBytes[MIN_UTIL_F_OFFSET] = specObj.getMinUtilization().byteValue();
+		retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = specObj.getOverBookingFactor().byteValue();
+
+		// ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 
 		return retBytes;
 	}
 
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

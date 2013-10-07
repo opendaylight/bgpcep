@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import io.netty.buffer.ByteBuf;
-
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 public interface TlvParser {
-	public Tlv parseTlv(ByteBuf buffer);
+	public Tlv parseTlv(final byte[] buffer) throws PCEPDeserializerException;
 }
