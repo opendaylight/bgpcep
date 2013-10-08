@@ -11,9 +11,10 @@ import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.data.DataModification;
-import org.opendaylight.controller.sal.binding.api.data.DataModification.TransactionStatus;
+
+
+import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
@@ -32,20 +33,18 @@ import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-public final class RIBImpl {
+final class RIBImpl {
 	private static final Logger logger = LoggerFactory.getLogger(RIBImpl.class);
 	private final DataProviderService dps;
 	private final RIBTables tables;
-	private final String name;
 
-	public RIBImpl(final String name, final ProviderContext context) {
-		this.name = Preconditions.checkNotNull(name);
-		this.dps = context.getSALService(DataProviderService.class);
-		this.tables = new RIBTables(new BGPObjectComparator(), AdjRIBsInFactoryRegistryImpl.INSTANCE);
+	RIBImpl(final DataProviderService dps) {
+		this.dps = Preconditions.checkNotNull(dps);
+		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, AdjRIBsInFactoryRegistryImpl.INSTANCE);
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
-		final DataModification trans = dps.beginTransaction();
+		final DataModificationTransaction trans = dps.beginTransaction();
 
 		// FIXME: detect and handle end-of-RIB markers
 
@@ -87,7 +86,7 @@ public final class RIBImpl {
 	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
 		final AdjRIBsIn ari = tables.get(key);
 		if (ari != null) {
-			final DataModification trans = dps.beginTransaction();
+			final DataModificationTransaction trans = dps.beginTransaction();
 			ari.clear(trans, peer);
 
 			// FIXME: we need to attach to this future for failures
@@ -101,7 +100,6 @@ public final class RIBImpl {
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("name", this.name);
 		return toStringHelper;
 	}
 }
