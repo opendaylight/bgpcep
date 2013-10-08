@@ -99,6 +99,11 @@
             <artifactId>sal-binding-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-binding</artifactId>
+            <version>${code.generator.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
@@ -135,27 +140,11 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Import-Package>
-                            org.opendaylight.protocol.concepts,
-                            org.opendaylight.protocol.framework,
-							com.google.common.base,
-                            com.google.common.collect,
-                            com.google.common.eventbus,
-                            javax.annotation,
-                            javax.management,
-                            org.opendaylight.protocol.bgp.concepts,
-                            org.opendaylight.protocol.bgp.parser,
-                            org.opendaylight.protocol.bgp.parser.impl,
-                            org.opendaylight.protocol.bgp.util,
-                            org.opendaylight.protocol.util,
-							org.slf4j,
-							io.netty.channel, 
-							io.netty.util.concurrent,
-						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.bgp.rib.impl,
 							org.opendaylight.protocol.bgp.rib.impl.spi
-						</Export-Package>
+                        </Export-Package>
+                        <Bundle-Activator>org.opendaylight.protocol.bgp.rib.impl.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

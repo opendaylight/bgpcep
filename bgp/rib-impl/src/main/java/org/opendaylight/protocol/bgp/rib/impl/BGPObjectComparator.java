@@ -20,6 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * @param <T> Actual object state reference
  */
 final class BGPObjectComparator implements Comparator<PathAttributes> {
+	public static final BGPObjectComparator INSTANCE = new BGPObjectComparator();
+
+	private BGPObjectComparator() {
+	}
+
 	@Override
 	public int compare(final PathAttributes o1, final PathAttributes o2) {
 		if (o1 == o2) {
