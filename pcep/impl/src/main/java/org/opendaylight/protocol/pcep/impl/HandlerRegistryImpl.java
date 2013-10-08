@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 import com.google.common.base.Preconditions;
@@ -45,28 +46,35 @@ public class HandlerRegistryImpl implements HandlerRegistry {
 		INSTANCE = reg;
 	}
 
-	private final Map<Integer, MessageParser> msgParsers = new HashMap<>();
-	private final Map<Class<? extends Message>, MessageSerializer> msgSerializers = new HashMap<>();
+	private final Map<Integer, MessageParser> msgParsers = new ConcurrentHashMap<>();
+	private final Map<Class<? extends Message>, MessageSerializer> msgSerializers = new ConcurrentHashMap<>();
 
-	private final Map<Integer, ObjectParser> objParsers = new HashMap<>();
-	private final Map<Class<? extends Object>, ObjectSerializer> objSerializers = new HashMap<>();
+	private final Map<Integer, ObjectParser> objParsers = new ConcurrentHashMap<>();
+	private final Map<Class<? extends Object>, ObjectSerializer> objSerializers = new ConcurrentHashMap<>();
 
-	private final Map<Integer, TlvParser> tlvParsers = new HashMap<>();
-	private final Map<Class<? extends Tlv>, TlvSerializer> tlvSerializers = new HashMap<>();
+	private final Map<Integer, TlvParser> tlvParsers = new ConcurrentHashMap<>();
+	private final Map<Class<? extends Tlv>, TlvSerializer> tlvSerializers = new ConcurrentHashMap<>();
 
 	private HandlerRegistryImpl() {
 
 	}
 
 	@Override
-	public synchronized MessageParser getMessageParser(final int messageType) {
+	public MessageParser getMessageParser(final int messageType) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
 		return msgParsers.get(messageType);
 	}
 
 	@Override
-	public synchronized MessageSerializer getMessageSerializer(final Message message) {
-		return msgSerializers.get(message.getClass());
+	public MessageSerializer getMessageSerializer(final Message message) {
+		final Class<? extends Message> c = message.getClass();
+		for (Map.Entry<Class<? extends Message>, MessageSerializer> s : msgSerializers.entrySet()) {
+			if (s.getKey().isAssignableFrom(c)) {
+				return s.getValue();
+			}
+		}
+
+		return null;
 	}
 
 	@Override
@@ -78,19 +86,33 @@ public class HandlerRegistryImpl implements HandlerRegistry {
 	}
 
 	@Override
-	public synchronized ObjectSerializer getObjectSerializer(final Object object) {
-		return objSerializers.get(object.getClass());
+	public ObjectSerializer getObjectSerializer(final Object object) {
+		final Class<? extends Object> c = object.getClass();
+		for (Map.Entry<Class<? extends Object>, ObjectSerializer> s : objSerializers.entrySet()) {
+			if (s.getKey().isAssignableFrom(c)) {
+				return s.getValue();
+			}
+		}
+
+		return null;
 	}
 
 	@Override
-	public synchronized TlvParser getTlvParser(final int tlvType) {
+	public TlvParser getTlvParser(final int tlvType) {
 		Preconditions.checkArgument(tlvType >= 0 && tlvType <= 65535);
 		return tlvParsers.get(tlvType);
 	}
 
 	@Override
-	public synchronized TlvSerializer getTlvSerializer(final Tlv tlv) {
-		return tlvSerializers.get(tlv.getClass());
+	public TlvSerializer getTlvSerializer(final Tlv tlv) {
+		final Class<? extends Tlv> c = tlv.getClass();
+		for (Map.Entry<Class<? extends Tlv>, TlvSerializer> s : tlvSerializers.entrySet()) {
+			if (s.getKey().isAssignableFrom(c)) {
+				return s.getValue();
+			}
+		}
+
+		return null;
 	}
 
 	private synchronized void unregisterMessageParser(final Integer msgType) {
