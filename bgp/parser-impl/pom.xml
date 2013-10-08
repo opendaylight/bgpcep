@@ -99,7 +99,6 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Import-Package>
-							org.opendaylight.protocol.bgp.parser.message,
 							org.opendaylight.protocol.bgp.concepts,
                             org.opendaylight.protocol.bgp.parser,
                             org.opendaylight.protocol.bgp.util,
