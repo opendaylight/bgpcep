@@ -14,5 +14,5 @@ public interface CapabilityRegistry {
 	public CapabilityParser getCapabilityParser(int capabilityType);
 
 	public AutoCloseable registerCapabilitySerializer(Class<? extends CParameters> capabilityClass, CapabilitySerializer serializer);
-	public CapabilitySerializer getCapabilitySerializer(CParameters object);
+	public CapabilitySerializer getCapabilitySerializer(CParameters capability);
 }

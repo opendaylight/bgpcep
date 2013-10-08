@@ -22,6 +22,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.concepts.IGPMetric;
@@ -82,6 +83,8 @@ public class BGPParserTest {
 	private static int COUNTER = 17;
 
 	private static int MAX_SIZE = 300;
+
+	private final BGPUpdateMessageParser updateParser = BGPUpdateMessageParser.PARSER;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -160,7 +163,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
 
@@ -212,24 +215,24 @@ public class BGPParserTest {
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1, pref2, pref3);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, comms, Collections.<ExtendedCommunity> emptySet()), nextHop);
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, comms, Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
-//		final Set<BGPObject> addedObjects = Sets.newHashSet();
-//
-//		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.2.0/24"), state, routeState);
-//
-//		addedObjects.add(route1);
-//
-//		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.1.0/24"), state, routeState);
-//
-//		addedObjects.add(route2);
-//
-//		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.0.0/24"), state, routeState);
-//
-//		addedObjects.add(route3);
+		//		final Set<BGPObject> addedObjects = Sets.newHashSet();
+		//
+		//		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.2.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route1);
+		//
+		//		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.1.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route2);
+		//
+		//		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("172.17.0.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route3);
 	}
 
 	/*
@@ -286,7 +289,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
@@ -325,24 +328,24 @@ public class BGPParserTest {
 		// TypeCode.CLUSTER_LIST, true, false, false, false, clusters);
 		// assertEquals(clusterAttr, attrs.get(4));
 
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
-//		final Set<BGPObject> addedObjects = Sets.newHashSet();
-//
-//		final BGPRoute route1 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:2::/64"), state, routeState);
-//
-//		addedObjects.add(route1);
-//
-//		final BGPRoute route2 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:1::/64"), state, routeState);
-//
-//		addedObjects.add(route2);
-//
-//		final BGPRoute route3 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1::/64"), state, routeState);
-//
-//		addedObjects.add(route3);
+		//		final Set<BGPObject> addedObjects = Sets.newHashSet();
+		//
+		//		final BGPRoute route1 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:2::/64"), state, routeState);
+		//
+		//		addedObjects.add(route1);
+		//
+		//		final BGPRoute route2 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1:1::/64"), state, routeState);
+		//
+		//		addedObjects.add(route2);
+		//
+		//		final BGPRoute route3 = new BGPIPv6RouteImpl(IPv6.FAMILY.prefixForString("2001:db8:1::/64"), state, routeState);
+		//
+		//		addedObjects.add(route3);
 	}
 
 	/*
@@ -391,8 +394,8 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
-		
+		final Update message = updateParser.parseMessage(body, messageLength);
+
 		// check fields
 		assertNull(message.getWithdrawnRoutes());
 
@@ -437,17 +440,17 @@ public class BGPParserTest {
 		//
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
-//
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, aggregator);
-//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
+		//
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Incomplete, aggregator);
+		//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
 
 		// check API message
 
-//		final Set<BGPObject> addedObjects = Sets.newHashSet();
-//
-//		final BGPRoute route1 = new BGPIPv4RouteImpl(pref1, state, routeState);
-//
-//		addedObjects.add(route1);
+		//		final Set<BGPObject> addedObjects = Sets.newHashSet();
+		//
+		//		final BGPRoute route1 = new BGPIPv4RouteImpl(pref1, state, routeState);
+		//
+		//		addedObjects.add(route1);
 	}
 
 	/*
@@ -496,7 +499,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
 
@@ -539,24 +542,24 @@ public class BGPParserTest {
 		// final Set<IPv4Prefix> nlri = Sets.newHashSet(pref1, pref2, pref3);
 		// assertEquals(nlri, ret.getBgpUpdateMessageBuilder().getNlri());
 
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Egp, null);
-//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), comms), nextHop);
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Egp, null);
+		//		final NetworkRouteState routeState = new NetworkRouteState(new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), comms), nextHop);
 
 		// check API message
 
-//		final Set<BGPObject> addedObjects = Sets.newHashSet();
-//
-//		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.3.0/24"), state, routeState);
-//
-//		addedObjects.add(route1);
-//
-//		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.2.0/24"), state, routeState);
-//
-//		addedObjects.add(route2);
-//
-//		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.1.0/24"), state, routeState);
-//
-//		addedObjects.add(route3);
+		//		final Set<BGPObject> addedObjects = Sets.newHashSet();
+		//
+		//		final BGPRoute route1 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.3.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route1);
+		//
+		//		final BGPRoute route2 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.2.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route2);
+		//
+		//		final BGPRoute route3 = new BGPIPv4RouteImpl(IPv4.FAMILY.prefixForString("10.30.1.0/24"), state, routeState);
+		//
+		//		addedObjects.add(route3);
 	}
 
 	/*
@@ -576,7 +579,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// attributes
 
@@ -603,7 +606,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		assertEquals(new UpdateBuilder().build(), message);
 	}
@@ -629,13 +632,13 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
-		
+
 		Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
 		SubsequentAddressFamily safi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getSafi().newInstance();
-		
+
 		assertEquals(Ipv6AddressFamily.class, afi);
 		assertEquals(UnicastSubsequentAddressFamily.INSTANCE, safi);
 	}
@@ -661,11 +664,11 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
 		SubsequentAddressFamily safi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getSafi().newInstance();
-		
+
 		assertEquals(LinkstateAddressFamily.class, afi);
 		assertEquals(LinkstateSubsequentAddressFamily.INSTANCE, safi);
 	}
@@ -826,44 +829,44 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
 
 		// network object state
-//		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		//		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
 		// network link state
 		final DefaultingTypesafeContainer<Metric<?>> container = new DefaultingTypesafeContainer<Metric<?>>();
 		container.setDefaultEntry(new IGPMetric(1));
 		//final NetworkLinkState linkState = new NetworkLinkState(objState, container, null, LinkProtectionType.UNPROTECTED, null, null, null);
 
-//		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
-//				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
-//
-//		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
-//				0x0b, 0x0b, 0x0b, 0x03 })));
-//		final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
-//
-//		final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
+		//		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
+		//				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+		//
+		//		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
+		//				0x0b, 0x0b, 0x0b, 0x03 })));
+		//		final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
+		//
+		//		final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
 
 		// check API message
 
-//		final LinkIdentifier linkId1 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.3"))), new LinkAnchor(nodeid2, null));
-//		final LinkIdentifier linkId2 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid3, null));
-//		final LinkIdentifier linkId3 = new LinkIdentifier(null, new LinkAnchor(nodeid3, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid1, null));
-//
-//		final BGPLink link1 = new BGPLinkImpl(state, linkId1, linkState);
-//		final BGPLink link2 = new BGPLinkImpl(state, linkId2, linkState);
-//		final BGPLink link3 = new BGPLinkImpl(state, linkId3, linkState);
-//
-//		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) link1, (BGPObject) link2,
-//				(BGPObject) link3), Collections.<Identifier> emptySet());
-//
-//		assertEquals(expectedMessage, message);
+		//		final LinkIdentifier linkId1 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.3"))), new LinkAnchor(nodeid2, null));
+		//		final LinkIdentifier linkId2 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid3, null));
+		//		final LinkIdentifier linkId3 = new LinkIdentifier(null, new LinkAnchor(nodeid3, new IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid1, null));
+		//
+		//		final BGPLink link1 = new BGPLinkImpl(state, linkId1, linkState);
+		//		final BGPLink link2 = new BGPLinkImpl(state, linkId2, linkState);
+		//		final BGPLink link3 = new BGPLinkImpl(state, linkId3, linkState);
+		//
+		//		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) link1, (BGPObject) link2,
+		//				(BGPObject) link3), Collections.<Identifier> emptySet());
+		//
+		//		assertEquals(expectedMessage, message);
 	}
 
 	/*
@@ -957,38 +960,38 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), BGPMessageFactoryImpl.MARKER_LENGTH,
 				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
-		final Update message = BGPUpdateMessageParser.parse(body, messageLength);
+		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
 
 		// network object state
-//		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-//		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
+		//		final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(), Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
+		//		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		//		final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(), Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier> emptySet(), null);
 
 		// network link state
 
-//		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
-//				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
-//
-//		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
-//				0x0b, 0x0b, 0x0b, 0x03 })));
-//		final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
-//
-//		final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
+		//		final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new DomainIdentifier(new byte[] { 25, 25,
+		//				25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+		//
+		//		final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
+		//				0x0b, 0x0b, 0x0b, 0x03 })));
+		//		final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
+		//
+		//		final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
 
 		// check API message
 
-//		final BGPNode node1 = new BGPNodeImpl(state, nodeid1, nstate);
-//		final BGPNode node2 = new BGPNodeImpl(state, nodeid2, nstate);
-//		final BGPNode node3 = new BGPNodeImpl(state, nodeid3, nstate);
-//
-//		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) node1, (BGPObject) node2,
-//				(BGPObject) node3), Collections.<Identifier> emptySet());
-//
-//		assertEquals(expectedMessage, message);
+		//		final BGPNode node1 = new BGPNodeImpl(state, nodeid1, nstate);
+		//		final BGPNode node2 = new BGPNodeImpl(state, nodeid2, nstate);
+		//		final BGPNode node3 = new BGPNodeImpl(state, nodeid3, nstate);
+		//
+		//		final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) node1, (BGPObject) node2,
+		//				(BGPObject) node3), Collections.<Identifier> emptySet());
+		//
+		//		assertEquals(expectedMessage, message);
 	}
 
 	/*
@@ -1031,7 +1034,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final BGPMessageFactoryImpl msgFactory = new BGPMessageFactoryImpl();
+		final BGPMessageFactory msgFactory = BGPMessageFactoryImpl.INSTANCE;
 		final Open open = (Open) msgFactory.parse(inputBytes.get(13)).get(0);
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
