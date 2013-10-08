@@ -17,7 +17,8 @@
 	<name>${project.artifactId}</name>
 	
 	<modules>
-		<module>api</module>
+        <module>api</module>
+        <module>provider-bgp</module>
 		<module>tunnel-api</module>
         <module>tunnel-pcep</module>
         <module>segment-routing</module>
