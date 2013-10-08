@@ -11,7 +11,6 @@ import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataModification.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -32,16 +31,14 @@ import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-public final class RIBImpl {
+final class RIBImpl {
 	private static final Logger logger = LoggerFactory.getLogger(RIBImpl.class);
 	private final DataProviderService dps;
 	private final RIBTables tables;
-	private final String name;
 
-	public RIBImpl(final String name, final ProviderContext context) {
-		this.name = Preconditions.checkNotNull(name);
-		this.dps = context.getSALService(DataProviderService.class);
-		this.tables = new RIBTables(new BGPObjectComparator(), AdjRIBsInFactoryRegistryImpl.INSTANCE);
+	RIBImpl(final DataProviderService dps) {
+		this.dps = Preconditions.checkNotNull(dps);
+		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, AdjRIBsInFactoryRegistryImpl.INSTANCE);
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
@@ -101,7 +98,6 @@ public final class RIBImpl {
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("name", this.name);
 		return toStringHelper;
 	}
 }

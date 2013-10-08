@@ -60,6 +60,11 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common", "0.5.9-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-inet-types", "2010.09.24.1"));
 
+		ret.add(mavenBundle("org.javassist", "javassist", "3.17.1-GA"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-common", "1.0-SNAPSHOT"));
+
 		return ret;
 	}
 
