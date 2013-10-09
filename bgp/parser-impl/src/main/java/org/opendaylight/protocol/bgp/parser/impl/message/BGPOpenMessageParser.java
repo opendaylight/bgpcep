@@ -88,8 +88,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			}
 		}
 
-		final byte[] msgBody = (open.getBgpParameters() == null || open.getBgpParameters().isEmpty()) ? new byte[MIN_MSG_LENGTH]
-				: new byte[MIN_MSG_LENGTH + optParamsLength];
+		final byte[] msgBody = new byte[MIN_MSG_LENGTH + optParamsLength];
 
 		int offset = 0;
 
@@ -127,32 +126,32 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 	/**
 	 * Parses given byte array to BGP Open message
 	 * 
-	 * @param bytes byte array representing BGP Open message, without header
+	 * @param body byte array representing BGP Open message, without header
 	 * @return BGP Open Message
 	 * @throws BGPDocumentedException if the parsing was unsuccessful
 	 */
 	@Override
-	public Open parseMessage(final byte[] bytes, final int messageLength) throws BGPDocumentedException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+	public Open parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+		if (body == null) {
+			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
-		logger.trace("Started parsing of open message: {}", Arrays.toString(bytes));
+		logger.trace("Started parsing of open message: {}", Arrays.toString(body));
 
-		if (bytes.length < MIN_MSG_LENGTH) {
-			throw new BGPDocumentedException("Open message too small.", BGPError.BAD_MSG_LENGTH, ByteArray.intToBytes(bytes.length));
+		if (body.length < MIN_MSG_LENGTH) {
+			throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
 		}
-		if (UnsignedBytes.toInt(bytes[0]) != BGP_VERSION) {
-			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(bytes[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED, ByteArray.subByte(
+		if (UnsignedBytes.toInt(body[0]) != BGP_VERSION) {
+			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(body[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED, ByteArray.subByte(
 					ByteArray.intToBytes(BGP_VERSION), 2, 2));
 		}
 
 		int offset = VERSION_SIZE;
-		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, offset, AS_SIZE)));
+		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(body, offset, AS_SIZE)));
 		offset += AS_SIZE;
 
 		// TODO: BAD_PEER_AS Error: when is an AS unacceptable?
 
-		final short holdTime = ByteArray.bytesToShort(ByteArray.subByte(bytes, offset, HOLD_TIME_SIZE));
+		final short holdTime = ByteArray.bytesToShort(ByteArray.subByte(body, offset, HOLD_TIME_SIZE));
 		offset += HOLD_TIME_SIZE;
 		if (holdTime == 1 || holdTime == 2) {
 			throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);
@@ -160,18 +159,18 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		Ipv4Address bgpId = null;
 		try {
-			bgpId = Ipv4Util.addressForBytes(ByteArray.subByte(bytes, offset, BGP_ID_SIZE));
+			bgpId = Ipv4Util.addressForBytes(ByteArray.subByte(body, offset, BGP_ID_SIZE));
 		} catch (final IllegalArgumentException e) {
 			throw new BGPDocumentedException("BGP Identifier is not a valid IPv4 Address", BGPError.BAD_BGP_ID);
 		}
 		offset += BGP_ID_SIZE;
 
-		final int optLength = UnsignedBytes.toInt(bytes[offset]);
+		final int optLength = UnsignedBytes.toInt(body[offset]);
 
 		List<BgpParameters> optParams = Lists.newArrayList();
 		if (optLength > 0) {
 			try {
-				optParams = BGPParameterParser.parse(ByteArray.subByte(bytes, MIN_MSG_LENGTH, optLength));
+				optParams = BGPParameterParser.parse(ByteArray.subByte(body, MIN_MSG_LENGTH, optLength));
 			} catch (final BGPParsingException e) {
 				throw new BGPDocumentedException("Optional parameter not parsed: ." + e.getMessage(), BGPError.UNSPECIFIC_OPEN_ERROR);
 			}

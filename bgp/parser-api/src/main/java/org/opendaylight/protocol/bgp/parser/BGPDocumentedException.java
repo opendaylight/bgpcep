@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import org.opendaylight.protocol.framework.DocumentedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.opendaylight.protocol.framework.DocumentedException;
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP. This exception is
@@ -66,5 +68,13 @@ public final class BGPDocumentedException extends DocumentedException {
 	 */
 	public byte[] getData() {
 		return this.data;
+	}
+
+	public static BGPDocumentedException badMessageLength(final String message, final int length) {
+		Preconditions.checkArgument(length >= 0 && length <= 65535);
+
+		return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] {
+				UnsignedBytes.checkedCast(length / 256), UnsignedBytes.checkedCast(length % 256) });
+
 	}
 }
