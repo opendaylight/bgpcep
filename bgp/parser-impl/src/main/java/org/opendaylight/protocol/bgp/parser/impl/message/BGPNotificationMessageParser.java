@@ -74,26 +74,26 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 	/**
 	 * Parses BGP Notification message to bytes.
 	 * 
-	 * @param bytes byte array to be parsed
+	 * @param body byte array to be parsed
 	 * @return BGPNotification message
 	 * @throws BGPDocumentedException
 	 */
 	@Override
-	public Notify parseMessage(final byte[] bytes, final int messageLength) throws BGPDocumentedException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+	public Notify parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+		if (body == null) {
+			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
-		logger.trace("Started parsing of notification message: {}", Arrays.toString(bytes));
+		logger.trace("Started parsing of notification message: {}", Arrays.toString(body));
 
-		if (bytes.length < ERROR_SIZE) {
-			throw new BGPDocumentedException("Notification message too small.", BGPError.BAD_MSG_LENGTH, ByteArray.intToBytes(bytes.length));
+		if (body.length < ERROR_SIZE) {
+			throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
 		}
-		final int errorCode = UnsignedBytes.toInt(bytes[0]);
-		final int errorSubcode = UnsignedBytes.toInt(bytes[1]);
+		final int errorCode = UnsignedBytes.toInt(body[0]);
+		final int errorSubcode = UnsignedBytes.toInt(body[1]);
 
 		byte[] data = null;
-		if (bytes.length > ERROR_SIZE) {
-			data = ByteArray.subByte(bytes, ERROR_SIZE, bytes.length - ERROR_SIZE);
+		if (body.length > ERROR_SIZE) {
+			data = ByteArray.subByte(body, ERROR_SIZE, body.length - ERROR_SIZE);
 		}
 		logger.trace("Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
 				Arrays.toString(data));

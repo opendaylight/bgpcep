@@ -91,8 +91,7 @@ public class ParserTest {
 			this.factory.parse(wrong);
 			fail("Exception should have occcured.");
 		} catch (final IllegalArgumentException e) {
-			assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= "
-					+ BGPMessageFactoryImpl.COMMON_HEADER_LENGTH + ".", e.getMessage());
+			assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= 19.", e.getMessage());
 			return;
 		}
 		fail();

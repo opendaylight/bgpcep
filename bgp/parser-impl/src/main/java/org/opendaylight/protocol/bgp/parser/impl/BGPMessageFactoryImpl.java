@@ -22,6 +22,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
@@ -34,13 +35,15 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 
 	private final static Logger logger = LoggerFactory.getLogger(BGPMessageFactoryImpl.class);
 
-	public final static int LENGTH_FIELD_LENGTH = 2; // bytes
+	@VisibleForTesting
+	final static int LENGTH_FIELD_LENGTH = 2; // bytes
 
 	private final static int TYPE_FIELD_LENGTH = 1; // bytes
 
 	final static int MARKER_LENGTH = 16; // bytes
 
-	public final static int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
+	@VisibleForTesting
+	final static int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
 
 	private final MessageRegistry registry;
 
@@ -75,8 +78,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 		final byte[] msgBody = ByteArray.cutBytes(bs, LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH);
 
 		if (messageLength < COMMON_HEADER_LENGTH) {
-			throw new BGPDocumentedException("Message length field not within valid range.", BGPError.BAD_MSG_LENGTH, ByteArray.subByte(bs,
-					0, LENGTH_FIELD_LENGTH));
+			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
 		if (msgBody.length != messageLength - COMMON_HEADER_LENGTH) {
 			throw new DeserializerException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "

@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -57,29 +56,29 @@ public class BGPUpdateMessageParser implements MessageParser {
 	// Getters & setters --------------------------------------------------
 
 	@Override
-	public Update parseMessage(final byte[] bytes, final int msgLength) throws BGPDocumentedException {
-		if (bytes == null || bytes.length == 0) {
+	public Update parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+		if (body == null || body.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
-		logger.trace("Started parsing of update message: {}", Arrays.toString(bytes));
+		logger.trace("Started parsing of update message: {}", Arrays.toString(body));
 
 		int byteOffset = 0;
 
-		final int withdrawnRoutesLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, WITHDRAWN_ROUTES_LENGTH_SIZE));
+		final int withdrawnRoutesLength = ByteArray.bytesToInt(ByteArray.subByte(body, byteOffset, WITHDRAWN_ROUTES_LENGTH_SIZE));
 		byteOffset += WITHDRAWN_ROUTES_LENGTH_SIZE;
 
 		final UpdateBuilder eventBuilder = new UpdateBuilder();
 
 		if (withdrawnRoutesLength > 0) {
-			final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, withdrawnRoutesLength));
+			final List<Ipv4Prefix> withdrawnRoutes = Ipv4Util.prefixListForBytes(ByteArray.subByte(body, byteOffset, withdrawnRoutesLength));
 			byteOffset += withdrawnRoutesLength;
 			eventBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setWithdrawnRoutes(withdrawnRoutes).build());
 		}
 
-		final int totalPathAttrLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TOTAL_PATH_ATTR_LENGTH_SIZE));
+		final int totalPathAttrLength = ByteArray.bytesToInt(ByteArray.subByte(body, byteOffset, TOTAL_PATH_ATTR_LENGTH_SIZE));
 		byteOffset += TOTAL_PATH_ATTR_LENGTH_SIZE;
 
-		if (withdrawnRoutesLength + totalPathAttrLength + BGPMessageFactoryImpl.COMMON_HEADER_LENGTH > msgLength) {
+		if (withdrawnRoutesLength + totalPathAttrLength > body.length) {
 			throw new BGPDocumentedException("Message length inconsistent with withdrawn router length.", BGPError.MALFORMED_ATTR_LIST);
 		}
 
@@ -89,7 +88,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 
 		try {
 			if (totalPathAttrLength > 0) {
-				final PathAttributes pathAttributes = PathAttributeParser.parseAttribute(ByteArray.subByte(bytes, byteOffset,
+				final PathAttributes pathAttributes = PathAttributeParser.parseAttribute(ByteArray.subByte(body, byteOffset,
 						totalPathAttrLength));
 				byteOffset += totalPathAttrLength;
 				eventBuilder.setPathAttributes(pathAttributes);
@@ -99,7 +98,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 			throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST);
 		}
 
-		final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset));
+		final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.subByte(body, byteOffset, body.length - byteOffset));
 		eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
 
 		logger.trace("Update message was parsed.");
