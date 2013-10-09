@@ -5,14 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.spi;
+package org.opendaylight.protocol.bgp.parser.impl;
 
+import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageRegistry {
-	public AutoCloseable registerMessageParser(int messageType, MessageParser parser);
 	public MessageParser getMessageParser(int messageType);
-
-	public AutoCloseable registerMessageSerializer(Class<? extends Notification> msgClass, MessageSerializer serializer);
 	public MessageSerializer getMessageSerializer(Notification message);
 }

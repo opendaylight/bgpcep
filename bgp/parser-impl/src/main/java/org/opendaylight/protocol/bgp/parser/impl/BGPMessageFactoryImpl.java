@@ -14,7 +14,6 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
@@ -110,11 +109,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 		}
 
 		final byte[] msgBody = serializer.serializeMessage(msg);
-		final byte[] headerBytes = headerToBytes(msgBody.length + COMMON_HEADER_LENGTH, serializer.messageType());
-		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];
-
-		ByteArray.copyWhole(headerBytes, retBytes, 0);
-		ByteArray.copyWhole(msgBody, retBytes, COMMON_HEADER_LENGTH);
+		final byte[] retBytes = formatMessage(serializer.messageType(), msgBody);
 
 		logger.trace("Serialized BGP message {}.", Arrays.toString(retBytes));
 		return retBytes;
@@ -125,15 +120,16 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	 * 
 	 * @return byte array representation of this header
 	 */
-	public byte[] headerToBytes(final int msgLength, final int msgType) {
-		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH];
+	private byte[] formatMessage(final int msgType, final byte[] body) {
+		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
 
 		Arrays.fill(retBytes, 0, MARKER_LENGTH, (byte) 0xff);
+		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH),
+				Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH,
+				retBytes, MARKER_LENGTH, LENGTH_FIELD_LENGTH);
 
-		System.arraycopy(ByteArray.intToBytes(msgLength), Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH, retBytes, MARKER_LENGTH,
-				LENGTH_FIELD_LENGTH);
-
-		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = (byte) msgType;
+		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(msgType);
+		ByteArray.copyWhole(body, retBytes, COMMON_HEADER_LENGTH);
 
 		return retBytes;
 	}

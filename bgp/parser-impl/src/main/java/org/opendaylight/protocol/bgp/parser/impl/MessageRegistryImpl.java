@@ -12,7 +12,6 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageP
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
@@ -26,7 +25,7 @@ implements MessageRegistry {
 	public static final MessageRegistry INSTANCE;
 
 	static {
-		final MessageRegistry reg = new MessageRegistryImpl();
+		final MessageRegistryImpl reg = new MessageRegistryImpl();
 
 		reg.registerMessageParser(1, BGPOpenMessageParser.PARSER);
 		reg.registerMessageSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
@@ -40,8 +39,7 @@ implements MessageRegistry {
 		INSTANCE = reg;
 	}
 
-	@Override
-	public synchronized AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+	private synchronized AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
 		return super.registerParser(messageType, parser);
 	}
@@ -51,8 +49,7 @@ implements MessageRegistry {
 		return super.getParser(messageType);
 	}
 
-	@Override
-	public AutoCloseable registerMessageSerializer(final Class<? extends Notification> msgClass, final MessageSerializer serializer) {
+	private AutoCloseable registerMessageSerializer(final Class<? extends Notification> msgClass, final MessageSerializer serializer) {
 		return super.registerSerializer(msgClass, serializer);
 	}
 
