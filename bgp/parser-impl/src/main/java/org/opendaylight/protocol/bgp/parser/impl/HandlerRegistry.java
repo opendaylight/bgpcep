@@ -21,7 +21,7 @@ public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 	private final Map<Class<? extends CLASS>, SERIALIZER> serializers = new ConcurrentHashMap<>();
 	private final Map<Integer, PARSER> parsers = new ConcurrentHashMap<>();
 
-	public AutoCloseable registerParser(final Integer type, final PARSER parser) {
+	public AutoCloseable registerParser(final int type, final PARSER parser) {
 		synchronized (parsers) {
 			Preconditions.checkArgument(!parsers.containsKey(type), "Type %s already registered", type);
 			parsers.put(type, parser);

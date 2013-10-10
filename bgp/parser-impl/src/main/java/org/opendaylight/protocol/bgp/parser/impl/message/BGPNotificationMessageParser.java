@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
@@ -67,8 +68,10 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		if (ntf.getData() != null) {
 			System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
 		}
-		logger.trace("Notification message serialized to: {}", Arrays.toString(msgBody));
-		return msgBody;
+
+		final byte[] ret = MessageUtil.formatMessage(3, msgBody);
+		logger.trace("Notification message serialized to: {}", Arrays.toString(ret));
+		return ret;
 	}
 
 	/**
@@ -102,10 +105,5 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 			builder.setData(data);
 		}
 		return builder.build();
-	}
-
-	@Override
-	public int messageType() {
-		return 3;
 	}
 }

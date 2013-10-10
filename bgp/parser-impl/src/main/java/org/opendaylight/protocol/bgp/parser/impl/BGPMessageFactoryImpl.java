@@ -15,41 +15,34 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import com.google.common.base.Preconditions;
-
-/**
- * The byte array
- */
 public final class BGPMessageFactoryImpl extends AbstractMessageRegistry {
 
 	public static final BGPMessageFactory INSTANCE;
 
 	static {
-		final HandlerRegistry<Notification, MessageParser, MessageSerializer> reg = new HandlerRegistry<>();
+		final BGPMessageFactoryImpl reg = new BGPMessageFactoryImpl();
 
-		reg.registerParser(1, BGPOpenMessageParser.PARSER);
-		reg.registerSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
-		reg.registerParser(2, BGPUpdateMessageParser.PARSER);
+		reg.registerMessageParser(1, BGPOpenMessageParser.PARSER);
+		reg.registerMessageSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
+		reg.registerMessageParser(2, BGPUpdateMessageParser.PARSER);
 		// Serialization of Update message is not supported
-		reg.registerParser(3, BGPNotificationMessageParser.PARSER);
-		reg.registerSerializer(Notify.class, BGPNotificationMessageParser.SERIALIZER);
-		reg.registerParser(4, BGPKeepAliveMessageParser.PARSER);
-		reg.registerSerializer(Keepalive.class, BGPKeepAliveMessageParser.SERIALIZER);
+		reg.registerMessageParser(3, BGPNotificationMessageParser.PARSER);
+		reg.registerMessageSerializer(Notify.class, BGPNotificationMessageParser.SERIALIZER);
+		reg.registerMessageParser(4, BGPKeepAliveMessageParser.PARSER);
+		reg.registerMessageSerializer(Keepalive.class, BGPKeepAliveMessageParser.SERIALIZER);
 
-		INSTANCE = new BGPMessageFactoryImpl(reg);
+		INSTANCE = reg;
 	}
 
-	private final HandlerRegistry<Notification, MessageParser, MessageSerializer> handlers;
+	private final HandlerRegistry<Notification, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-	private BGPMessageFactoryImpl(final HandlerRegistry<Notification, MessageParser, MessageSerializer> handlers) {
-		this.handlers = Preconditions.checkNotNull(handlers);
+	private BGPMessageFactoryImpl() {
+
 	}
 
 	@Override
@@ -69,24 +62,16 @@ public final class BGPMessageFactoryImpl extends AbstractMessageRegistry {
 			return null;
 		}
 
-		final byte[] msgBody = serializer.serializeMessage(message);
-		final byte[] retBytes = MessageUtil.formatMessage(serializer.messageType(), msgBody);
-
-		return retBytes;
+		return serializer.serializeMessage(message);
 	}
 
 	@Override
-	public AutoCloseable registerMessageParser(final int messageType,
-			final MessageParser parser) {
-		// TODO Auto-generated method stub
-		return null;
+	public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+		return handlers.registerParser(messageType, parser);
 	}
 
 	@Override
-	public AutoCloseable registerMessageSerializer(
-			final Class<? extends DataObject> messageClass,
-			final MessageSerializer serializer) {
-		// TODO Auto-generated method stub
-		return null;
+	public AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
+		return handlers.registerSerializer(messageClass, serializer);
 	}
 }

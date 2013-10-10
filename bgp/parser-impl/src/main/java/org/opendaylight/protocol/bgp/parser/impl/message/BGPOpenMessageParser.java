@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.BGPParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -119,8 +120,10 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 				index += entry.getValue();
 			}
 		}
-		logger.trace("Open message serialized to: {}", Arrays.toString(msgBody));
-		return msgBody;
+
+		final byte[] ret = MessageUtil.formatMessage(1, msgBody);
+		logger.trace("Open message serialized to: {}", Arrays.toString(ret));
+		return ret;
 	}
 
 	/**
@@ -178,10 +181,5 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		logger.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
 		return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer((int) holdTime).setBgpIdentifier(bgpId).setBgpParameters(
 				optParams).build();
-	}
-
-	@Override
-	public int messageType() {
-		return 1;
 	}
 }
