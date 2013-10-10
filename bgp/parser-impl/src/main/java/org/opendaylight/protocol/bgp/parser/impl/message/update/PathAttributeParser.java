@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AsPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AtomicAggregateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.LocalPref;
@@ -58,64 +57,6 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public class PathAttributeParser {
 
-	/**
-	 * Currently known path attributes. Although AS4_PATH and AS4_AGGREGATOR will not be used, as this is a NEW BGP
-	 * Speaker, they must be recognizable and an Update message that contains them, must be parsed properly.
-	 * 
-	 * Added LINK_STATE to conform: <a
-	 * href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-02#section-3.3">LINK_STATE Attribute</a> Added
-	 * COMMUNITIES from: <a href="http://tools.ietf.org/html/rfc1997">COMMUNITIES Attribute</a> Added ORIGINATION_ID and
-	 * CLUSTER_LIST from: <a href="http://tools.ietf.org/html/rfc4456">BGP Route Reflection</a>
-	 */
-	public enum TypeCode {
-		ORIGIN, AS_PATH, NEXT_HOP, MULTI_EXIT_DISC, LOCAL_PREF, AGGREGATOR, ATOMIC_AGGREGATE, MP_REACH_NLRI, MP_UNREACH_NLRI, EXTENDED_COMMUNITIES, AS4_PATH, AS4_AGGREGATOR, LINK_STATE, COMMUNITIES, ORIGINATOR_ID, CLUSTER_LIST;
-
-		/**
-		 * Parse typecode from int to enum.
-		 * 
-		 * @param type int parsed from byte array
-		 * @return enum TypeCode
-		 */
-		public static TypeCode parseType(final int type) {
-			switch (type) {
-			case 1:
-				return ORIGIN;
-			case 2:
-				return AS_PATH;
-			case 3:
-				return NEXT_HOP;
-			case 4:
-				return MULTI_EXIT_DISC;
-			case 5:
-				return LOCAL_PREF;
-			case 6:
-				return ATOMIC_AGGREGATE;
-			case 7:
-				return AGGREGATOR;
-			case 8:
-				return COMMUNITIES;
-			case 9:
-				return ORIGINATOR_ID;
-			case 10:
-				return CLUSTER_LIST;
-			case 14:
-				return MP_REACH_NLRI;
-			case 15:
-				return MP_UNREACH_NLRI;
-			case 16:
-				return EXTENDED_COMMUNITIES;
-			case 17:
-				return AS4_PATH;
-			case 18:
-				return AS4_AGGREGATOR;
-			case 99: // TODO: to actual value, after it is approved by IANA
-				return LINK_STATE;
-			default:
-				return null;
-			}
-		}
-	}
-
 	private static final int FLAGS_LENGTH = 1;
 
 	private static final int TYPE_LENGTH = 1;
@@ -142,84 +83,18 @@ public class PathAttributeParser {
 			final boolean[] bits = ByteArray.parseBits(bytes[0]);
 			final boolean optional = bits[0];
 			final int attrLength = (bits[3]) ? ByteArray.bytesToInt(ByteArray.subByte(bytes, 2, 2)) : UnsignedBytes.toInt(bytes[2]);
+			final int hdrLength = FLAGS_LENGTH + TYPE_LENGTH + ((bits[3]) ? 2 : 1);
 
-			final TypeCode code = TypeCode.parseType(UnsignedBytes.toInt(bytes[1]));
+			final byte[] attrBody = ByteArray.subByte(bytes, hdrLength, attrLength);
 
-			if (code == null && !optional) {
+			boolean found = SimpleAttributeRegistry.INSTANCE.parseAttribute(UnsignedBytes.toInt(bytes[1]), attrBody, builder);
+			if (!optional && !found) {
 				throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
 			}
 
-			chooseParser(builder, code, ByteArray.subByte(bytes, FLAGS_LENGTH + TYPE_LENGTH + ((bits[3]) ? 2 : 1), attrLength));
-			byteOffset += FLAGS_LENGTH + TYPE_LENGTH + ((bits[3]) ? 2 : 1) + attrLength;
+			byteOffset += hdrLength + attrLength;
 		}
 		return builder.build();
-	}
-
-	/**
-	 * Choose corresponding parser to the typecode, that was already parsed.
-	 * 
-	 * @param type typecode of the path attribute
-	 * @param bytes byte array to be parsed
-	 * @return Object, because there are various Path Attributes and there is no superclass or interface common for all
-	 *         of them.
-	 * @throws BGPDocumentedException
-	 * @throws BGPParsingException
-	 */
-	private static void chooseParser(final PathAttributesBuilder b, final TypeCode type, final byte[] bytes) throws BGPDocumentedException,
-	BGPParsingException {
-		switch (type) {
-		case ORIGIN:
-			b.setOrigin(parseOrigin(bytes));
-			return;
-		case AS_PATH:
-			b.setAsPath(parseAsPath(bytes));
-			return;
-		case NEXT_HOP:
-			b.setCNextHop(parseNextHop(bytes));
-			return;
-		case MULTI_EXIT_DISC:
-			b.setMultiExitDisc(parseMultiExitDisc(bytes));
-			return;
-		case LOCAL_PREF:
-			b.setLocalPref(parseLocalPref(bytes));
-			return;
-		case ATOMIC_AGGREGATE:
-			b.setAtomicAggregate(new AtomicAggregateBuilder().build());
-			return;
-		case AGGREGATOR:
-			b.setAggregator(parseAggregator(bytes));
-			return;
-		case COMMUNITIES:
-			b.setCommunities(parseCommunities(bytes));
-			return;
-		case ORIGINATOR_ID:
-			b.setOriginatorId(parseOriginatorId(bytes));
-			return;
-		case CLUSTER_LIST:
-			b.setClusterId(parseClusterList(bytes));
-			return;
-		case EXTENDED_COMMUNITIES:
-			b.setExtendedCommunities(parseExtendedCommunities(bytes));
-			return;
-		case MP_REACH_NLRI:
-			parseMPReach(b, bytes);
-			return;
-		case MP_UNREACH_NLRI:
-			parseMPUnreach(b, bytes);
-			return;
-		case LINK_STATE:
-			parseLinkState(b, bytes);
-			return;
-			/**
-			 * Recognize, but ignore.
-			 */
-		case AS4_AGGREGATOR:
-			/**
-			 * Recognize, but ignore.
-			 */
-		case AS4_PATH:
-			return;
-		}
 	}
 
 	/**
