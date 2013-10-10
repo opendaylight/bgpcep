@@ -3,6 +3,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -11,7 +12,7 @@ import com.google.common.base.Preconditions;
 
 public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
 	private static final Keepalive msg = new KeepaliveBuilder().build();
-	private static final byte[] bytes = new byte[0];
+	private static final byte[] bytes = MessageUtil.formatMessage(4, new byte[0]);
 
 	public static final MessageParser PARSER;
 	public static final MessageSerializer SERIALIZER;
@@ -33,11 +34,6 @@ public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializ
 		}
 
 		return msg;
-	}
-
-	@Override
-	public int messageType() {
-		return 4;
 	}
 
 	@Override
