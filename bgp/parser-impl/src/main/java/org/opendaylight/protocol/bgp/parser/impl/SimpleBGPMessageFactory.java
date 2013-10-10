@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;

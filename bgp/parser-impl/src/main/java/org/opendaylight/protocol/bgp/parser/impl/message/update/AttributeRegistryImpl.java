@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import org.opendaylight.protocol.bgp.parser.impl.HandlerRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 import com.google.common.base.Preconditions;

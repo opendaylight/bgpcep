@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.concepts;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.ThreadSafe;
-
-import org.opendaylight.protocol.concepts.AbstractRegistration;
 
 import com.google.common.base.Preconditions;
 
