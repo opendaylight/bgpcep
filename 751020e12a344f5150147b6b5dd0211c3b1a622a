@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_4f1d2173",
+        "filename": "bgp/rib-impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-10-10T06:49:43Z",
+      "side": 1,
+      "message": "put code.generator.version variable here",
+      "revId": "751020e12a344f5150147b6b5dd0211c3b1a622a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_2f12ed62",
+        "filename": "bgp/rib-spi/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-10-10T06:49:43Z",
+      "side": 1,
+      "message": "put code.generator.version here",
+      "revId": "751020e12a344f5150147b6b5dd0211c3b1a622a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
