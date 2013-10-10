@@ -8,8 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 
 public interface AttributeParser {
-	public void parseAttribute(final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException;
+	public void parseAttribute(final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
 }

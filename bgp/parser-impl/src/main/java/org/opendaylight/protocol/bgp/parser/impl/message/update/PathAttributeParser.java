@@ -133,8 +133,9 @@ public class PathAttributeParser {
 	 * @throws BGPDocumentedException
 	 */
 	public static PathAttributes parseAttribute(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new BGPParsingException("Insufficient length of byte array: " + bytes.length);
+		}
 		int byteOffset = 0;
 		final PathAttributesBuilder builder = new PathAttributesBuilder();
 		while (byteOffset < bytes.length) {
@@ -144,8 +145,9 @@ public class PathAttributeParser {
 
 			final TypeCode code = TypeCode.parseType(UnsignedBytes.toInt(bytes[1]));
 
-			if (code == null && !optional)
+			if (code == null && !optional) {
 				throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
+			}
 
 			chooseParser(builder, code, ByteArray.subByte(bytes, FLAGS_LENGTH + TYPE_LENGTH + ((bits[3]) ? 2 : 1), attrLength));
 			byteOffset += FLAGS_LENGTH + TYPE_LENGTH + ((bits[3]) ? 2 : 1) + attrLength;
@@ -164,7 +166,7 @@ public class PathAttributeParser {
 	 * @throws BGPParsingException
 	 */
 	private static void chooseParser(final PathAttributesBuilder b, final TypeCode type, final byte[] bytes) throws BGPDocumentedException,
-			BGPParsingException {
+	BGPParsingException {
 		switch (type) {
 		case ORIGIN:
 			b.setOrigin(parseOrigin(bytes));
@@ -227,11 +229,12 @@ public class PathAttributeParser {
 	 * @return {@link Origin} BGP origin value
 	 * @throws BGPDocumentedException
 	 */
-	private static Origin parseOrigin(final byte[] bytes) throws BGPDocumentedException {
+	static Origin parseOrigin(final byte[] bytes) throws BGPDocumentedException {
 		final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(bytes[0]));
-		if (borigin == null)
+		if (borigin == null) {
 			throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01,
 					bytes[0] });
+		}
 		return new OriginBuilder().setValue(borigin).build();
 	}
 
@@ -243,15 +246,16 @@ public class PathAttributeParser {
 	 * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
 	 * @throws BGPParsingException
 	 */
-	private static AsPath parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	static AsPath parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		int byteOffset = 0;
 		final List<Segments> ases = Lists.newArrayList();
 		boolean isSequence = false;
 		while (byteOffset < bytes.length) {
 			final int type = UnsignedBytes.toInt(bytes[byteOffset]);
 			final SegmentType segmentType = AsPathSegmentParser.parseType(type);
-			if (segmentType == null)
+			if (segmentType == null) {
 				throw new BGPParsingException("AS Path segment type unknown : " + type);
+			}
 			byteOffset += AsPathSegmentParser.TYPE_LENGTH;
 
 			final int count = UnsignedBytes.toInt(bytes[byteOffset]);
@@ -271,8 +275,9 @@ public class PathAttributeParser {
 			byteOffset += count * AsPathSegmentParser.AS_NUMBER_LENGTH;
 		}
 
-		if (!isSequence && bytes.length != 0)
+		if (!isSequence && bytes.length != 0) {
 			throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
+		}
 		return new AsPathBuilder().setSegments(ases).build();
 	}
 
@@ -282,7 +287,7 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return new NextHop object, it's always IPv4 (basic BGP-4)
 	 */
-	private static CNextHop parseNextHop(final byte[] bytes) {
+	static CNextHop parseNextHop(final byte[] bytes) {
 		return new CIpv4NextHopBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForBytes(bytes)).build()).build();
 	}
 
@@ -292,7 +297,7 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return integer representing MULTI_EXIT_DISC path attribute
 	 */
-	private static MultiExitDisc parseMultiExitDisc(final byte[] bytes) {
+	static MultiExitDisc parseMultiExitDisc(final byte[] bytes) {
 		return new MultiExitDiscBuilder().setMed(ByteArray.bytesToLong(bytes)).build();
 	}
 
@@ -302,7 +307,7 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return integer representing LOCAL_PREF path attribute
 	 */
-	private static LocalPref parseLocalPref(final byte[] bytes) {
+	static LocalPref parseLocalPref(final byte[] bytes) {
 		return new LocalPrefBuilder().setPref(ByteArray.bytesToLong(bytes)).build();
 	}
 
@@ -312,7 +317,7 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return {@link Aggregator} BGP Aggregator
 	 */
-	private static Aggregator parseAggregator(final byte[] bytes) {
+	static Aggregator parseAggregator(final byte[] bytes) {
 		final AsNumber asNumber = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, AsPathSegmentParser.AS_NUMBER_LENGTH)));
 		final Ipv4Address address = new Ipv4Address(IPv4.FAMILY.addressForBytes(
 				ByteArray.subByte(bytes, AsPathSegmentParser.AS_NUMBER_LENGTH, 4)).toString());
@@ -326,7 +331,7 @@ public class PathAttributeParser {
 	 * @return new specific MPReach object with reachable flag set to true
 	 * @throws BGPDocumentedException
 	 */
-	private static void parseMPReach(final PathAttributesBuilder b, final byte[] bytes) throws BGPDocumentedException {
+	static void parseMPReach(final PathAttributesBuilder b, final byte[] bytes) throws BGPDocumentedException {
 
 		try {
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1 a = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1Builder().setMpReachNlri(
@@ -346,7 +351,7 @@ public class PathAttributeParser {
 	 * @return new specific MPReach object with reachable flag set to false
 	 * @throws BGPDocumentedException
 	 */
-	private static void parseMPUnreach(final PathAttributesBuilder b, final byte[] bytes) throws BGPDocumentedException {
+	static void parseMPUnreach(final PathAttributesBuilder b, final byte[] bytes) throws BGPDocumentedException {
 		try {
 			final PathAttributes2 a = new PathAttributes2Builder().setMpUnreachNlri(MPReachParser.parseMPUnreach(bytes)).build();
 
@@ -363,7 +368,7 @@ public class PathAttributeParser {
 	 * @return new specific Extended Community object
 	 * @throws BGPDocumentedException l
 	 */
-	private static List<ExtendedCommunities> parseExtendedCommunities(final byte[] bytes) throws BGPDocumentedException {
+	static List<ExtendedCommunities> parseExtendedCommunities(final byte[] bytes) throws BGPDocumentedException {
 		final List<ExtendedCommunities> set = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
@@ -381,7 +386,7 @@ public class PathAttributeParser {
 	 * @return new specific Community object
 	 * @throws BGPDocumentedException
 	 */
-	private static List<Communities> parseCommunities(final byte[] bytes) throws BGPDocumentedException {
+	static List<Communities> parseCommunities(final byte[] bytes) throws BGPDocumentedException {
 		final List<Communities> set = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
@@ -397,7 +402,7 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return new List of Cluster Identifiers
 	 */
-	private static List<ClusterIdentifier> parseClusterList(final byte[] bytes) {
+	static List<ClusterIdentifier> parseClusterList(final byte[] bytes) {
 		final List<ClusterIdentifier> list = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
@@ -413,9 +418,10 @@ public class PathAttributeParser {
 	 * @param bytes byte array to be parsed
 	 * @return IP address of the speaker
 	 */
-	private static byte[] parseOriginatorId(final byte[] bytes) {
-		if (bytes.length != 4)
+	static byte[] parseOriginatorId(final byte[] bytes) {
+		if (bytes.length != 4) {
 			throw new IllegalArgumentException("Length of byte array for ORIGINATOR_ID should be 4, but is " + bytes.length);
+		}
 		return bytes;
 	}
 
@@ -426,7 +432,7 @@ public class PathAttributeParser {
 	 * @return Map, where the key is the type of a tlv and the value is the value of the tlv
 	 * @throws BGPParsingException
 	 */
-	private static void parseLinkState(final PathAttributesBuilder builder, final byte[] bytes) throws BGPParsingException {
+	static void parseLinkState(final PathAttributesBuilder builder, final byte[] bytes) throws BGPParsingException {
 		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(LinkStateParser.parseLinkState(bytes)).build();
 		builder.addAugmentation(PathAttributes1.class, a);
 	}
