@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import org.opendaylight.protocol.bgp.parser.impl.AbstractRegistryImpl;
+import org.opendaylight.protocol.bgp.parser.impl.HandlerRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -15,7 +15,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 import com.google.common.base.Preconditions;
 
-public final class AttributeRegistryImpl extends AbstractRegistryImpl<DataObject, AttributeParser, AttributeSerializer>
+public final class AttributeRegistryImpl extends HandlerRegistry<DataObject, AttributeParser, AttributeSerializer>
 implements AttributeRegistry {
 	public static final AttributeRegistry INSTANCE;
 

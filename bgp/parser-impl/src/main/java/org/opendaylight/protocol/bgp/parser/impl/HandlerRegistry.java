@@ -17,11 +17,11 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-public abstract class AbstractRegistryImpl<CLASS, PARSER, SERIALIZER> {
+public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 	private final Map<Class<? extends CLASS>, SERIALIZER> serializers = new ConcurrentHashMap<>();
 	private final Map<Integer, PARSER> parsers = new ConcurrentHashMap<>();
 
-	protected AutoCloseable registerParser(final Integer type, final PARSER parser) {
+	public AutoCloseable registerParser(final Integer type, final PARSER parser) {
 		synchronized (parsers) {
 			Preconditions.checkArgument(!parsers.containsKey(type), "Type %s already registered", type);
 			parsers.put(type, parser);
@@ -37,11 +37,11 @@ public abstract class AbstractRegistryImpl<CLASS, PARSER, SERIALIZER> {
 		}
 	}
 
-	protected PARSER getParser(final int messageType) {
+	public PARSER getParser(final int messageType) {
 		return parsers.get(messageType);
 	}
 
-	protected AutoCloseable registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {
+	public AutoCloseable registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {
 		synchronized (serializers) {
 			Preconditions.checkArgument(!serializers.containsKey(clazz), "Message class %s already registered", clazz);
 			serializers.put(clazz, serializer);
@@ -57,7 +57,7 @@ public abstract class AbstractRegistryImpl<CLASS, PARSER, SERIALIZER> {
 		}
 	}
 
-	protected SERIALIZER getSerializer(final CLASS obj) {
+	public SERIALIZER getSerializer(final CLASS obj) {
 		final Class<?> c = obj.getClass();
 
 		for (Map.Entry<Class<? extends CLASS>, SERIALIZER> e : serializers.entrySet()) {

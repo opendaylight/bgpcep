@@ -20,7 +20,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
 
-public final class MessageRegistryImpl extends AbstractRegistryImpl<Notification, MessageParser, MessageSerializer>
+public final class MessageRegistryImpl extends HandlerRegistry<Notification, MessageParser, MessageSerializer>
 implements MessageRegistry {
 	public static final MessageRegistry INSTANCE;
 

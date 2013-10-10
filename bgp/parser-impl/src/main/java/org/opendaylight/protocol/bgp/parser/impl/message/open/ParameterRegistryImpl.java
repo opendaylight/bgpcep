@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
-import org.opendaylight.protocol.bgp.parser.impl.AbstractRegistryImpl;
+import org.opendaylight.protocol.bgp.parser.impl.HandlerRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 import com.google.common.base.Preconditions;
 
-public final class ParameterRegistryImpl extends AbstractRegistryImpl<BgpParameters, ParameterParser, ParameterSerializer> implements ParameterRegistry {
+public final class ParameterRegistryImpl extends HandlerRegistry<BgpParameters, ParameterParser, ParameterSerializer> implements ParameterRegistry {
 	public static final ParameterRegistry INSTANCE;
 
 	static {
