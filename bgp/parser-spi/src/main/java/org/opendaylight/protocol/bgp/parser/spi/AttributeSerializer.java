@@ -10,5 +10,5 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeSerializer {
-	public byte[] serializeMessage(final DataObject message);
+	public byte[] serializeAttribute(final DataObject attribute);
 }

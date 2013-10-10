@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeRegistry {
 	public AutoCloseable registerAttributeParser(int attributeType, AttributeParser parser);
-	public AttributeParser getAttributeParser(int attributeType);
+	public AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attributeClass, AttributeSerializer serializer);
 
-	public AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attrClass, AttributeSerializer serializer);
-	public AttributeSerializer getAttributeSerializer(DataObject attribute);
+	public boolean parseAttribute(int attributeType, final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
+	public byte[] serializeAttribute(DataObject attribute);
 }
