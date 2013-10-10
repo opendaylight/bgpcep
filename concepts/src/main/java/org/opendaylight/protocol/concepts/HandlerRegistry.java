@@ -35,8 +35,8 @@ public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 		}
 	}
 
-	public PARSER getParser(final int messageType) {
-		return parsers.get(messageType);
+	public PARSER getParser(final int type) {
+		return parsers.get(type);
 	}
 
 	public AutoCloseable registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {

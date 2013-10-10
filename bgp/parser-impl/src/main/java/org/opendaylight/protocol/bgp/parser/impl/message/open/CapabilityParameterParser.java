@@ -9,14 +9,12 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
@@ -84,8 +82,9 @@ public final class CapabilityParameterParser {
 	 * @param bytes byte array representing BGP Parameters
 	 * @return list of BGP Parameters
 	 * @throws BGPParsingException if the parsing was unsuccessful
+	 * @throws BGPDocumentedException
 	 */
-	public static CParameters parse(final byte[] bytes) throws BGPParsingException {
+	public static CParameters parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
@@ -93,16 +92,13 @@ public final class CapabilityParameterParser {
 		int byteOffset = 0;
 		final int capCode = UnsignedBytes.toInt(bytes[byteOffset++]);
 		final int capLength = UnsignedBytes.toInt(bytes[byteOffset++]);
-		if (capCode == Multiprotocol_CODE) {
-			logger.trace("Parsed BGP Capability.");
-			return parseMultiProtocolParameterValue(ByteArray.subByte(bytes, byteOffset, capLength));
-		} else if (capCode == As4BytesCapability_CODE) {
-			logger.trace("Parsed AS4B Capability.");
-			return parseAS4BParameterValue(ByteArray.subByte(bytes, byteOffset, capLength));
-		} else {
-			logger.debug("Only Multiprotocol Capability Parameter is supported. Received code {}", capCode);
+		final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, capLength);
+
+		final CParameters ret = SimpleCapabilityRegistry.INSTANCE.parseCapability(capCode, paramBody);
+		if (ret == null) {
+			logger.debug("Ignoring unsupported capability {}", capCode);
 		}
-		return null;
+		return ret;
 	}
 
 	// private static byte[] putGracefulParameterValue(final GracefulCapability param) {
@@ -148,7 +144,7 @@ public final class CapabilityParameterParser {
 		return ByteArray.subByte(ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue()), 4, 4);
 	}
 
-	private static CMultiprotocol parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
+	static CMultiprotocol parseMultiProtocolParameterValue(final byte[] bytes) throws BGPParsingException {
 		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE)));
 		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '" + ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE))
@@ -163,11 +159,6 @@ public final class CapabilityParameterParser {
 
 		return new CMultiprotocolBuilder().setMultiprotocolCapability(
 				new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build();
-	}
-
-	private static CAs4Bytes parseAS4BParameterValue(final byte[] bytes) {
-		return new CAs4BytesBuilder().setAs4BytesCapability(
-				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
 	}
 
 	private static byte[] putAfi(final Class<? extends AddressFamily> afi) {
