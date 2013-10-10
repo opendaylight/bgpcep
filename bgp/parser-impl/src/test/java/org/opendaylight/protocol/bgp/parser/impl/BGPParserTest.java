@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.IPv4Prefix;
@@ -160,9 +161,9 @@ public class BGPParserTest {
 	// FIXME: to be fixed in testing phase
 	public void testGetUpdateMessage1() throws Exception {
 
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
@@ -286,9 +287,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testGetUpdateMessage2() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 		// check fields
 
@@ -391,9 +392,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testGetUpdateMessage3() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
@@ -496,9 +497,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testGetUpdateMessage4() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
@@ -576,9 +577,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testGetUpdateMessage5() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// attributes
@@ -603,9 +604,9 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testEORIpv4() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		assertEquals(new UpdateBuilder().build(), message);
@@ -629,9 +630,9 @@ public class BGPParserTest {
 	@Ignore
 	//FIXME: to be fixed in testing phase
 	public void testEORIpv6() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
@@ -661,9 +662,9 @@ public class BGPParserTest {
 	@Ignore
 	//FIXME: to be fixed in testing phase
 	public void testEORLS() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
@@ -826,9 +827,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testBGPLink() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
@@ -957,9 +958,9 @@ public class BGPParserTest {
 	@Ignore
 	// FIXME: to be fixed in testing phase
 	public void testBGPNode() throws Exception {
-		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), BGPMessageFactoryImpl.COMMON_HEADER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), BGPMessageFactoryImpl.MARKER_LENGTH,
-				BGPMessageFactoryImpl.LENGTH_FIELD_LENGTH));
+		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), MessageUtil.COMMON_HEADER_LENGTH);
+		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), MessageUtil.MARKER_LENGTH,
+				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = updateParser.parseMessage(body, messageLength);
 
 		// check fields
