@@ -55,10 +55,16 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("io.netty", "netty-transport", "4.0.9.Final"));
 		ret.add(mavenBundle("org.slf4j", "slf4j-api", "1.7.2"));
 
-		ret.add(mavenBundle("org.opendaylight.yangtools", "concepts", "0.5-SNAPSHOT"));
-		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding", "0.5.9-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.yangtools", "concepts", "0.1.1-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding", "0.6.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common", "0.5.9-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-inet-types", "2010.09.24.1"));
+
+		ret.add(mavenBundle("org.javassist", "javassist", "3.17.1-GA"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-api", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-common", "1.0-SNAPSHOT"));
 
 		return ret;
 	}

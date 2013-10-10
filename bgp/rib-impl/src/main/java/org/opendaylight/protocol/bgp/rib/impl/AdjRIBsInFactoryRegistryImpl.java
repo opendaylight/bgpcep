@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModification;
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction  ;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
@@ -53,9 +53,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier identifierForKey(final InstanceIdentifier basePath,
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
 				final Ipv4Prefix key) {
-			final InstanceIdentifierBuilder builder = InstanceIdentifier.builder(basePath);
+			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.Ipv4Routes.class);
 			builder.node(Ipv4Routes.class, new Ipv4RoutesKey(key));
@@ -65,7 +65,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModification trans,
+				final DataModificationTransaction   trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
@@ -83,7 +83,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public void removeRoutes(final DataModification trans, final Peer peer,
+		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
 				final MpUnreachNlri nlri) {
 			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Ipv4)nlri.getWithdrawnRoutes().getNlri()).getIpv4Prefixes()) {
 				super.remove(trans, peer, id);
@@ -97,9 +97,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier identifierForKey(final InstanceIdentifier basePath,
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
 				final Ipv6Prefix key) {
-			final InstanceIdentifierBuilder builder = InstanceIdentifier.builder(basePath);
+			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.Ipv6Routes.class);
 			builder.node(Ipv6Routes.class, new Ipv6RoutesKey(key));
@@ -109,7 +109,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModification trans,
+				final DataModificationTransaction   trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
@@ -127,7 +127,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public void removeRoutes(final DataModification trans, final Peer peer,
+		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
 				final MpUnreachNlri nlri) {
 			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Ipv6)nlri.getWithdrawnRoutes().getNlri()).getIpv6Prefixes()) {
 				super.remove(trans, peer, id);
@@ -141,9 +141,9 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier identifierForKey(final InstanceIdentifier basePath,
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
 				final CLinkstateDestination key) {
-			final InstanceIdentifierBuilder builder = InstanceIdentifier.builder(basePath);
+			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			switch (key.getNlriType()) {
 			case Ipv4Prefix:
@@ -165,7 +165,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModification trans,
+				final DataModificationTransaction   trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
@@ -220,7 +220,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public void removeRoutes(final DataModification trans, final Peer peer,
+		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
 				final MpUnreachNlri nlri) {
 			final CLinkstateDestination key =
 					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
