@@ -70,7 +70,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 			return null;
 		}
 
-		return parser.parseMessage(body, messageLength);
+		return parser.parseMessageBody(body, messageLength);
 	}
 
 	private byte[] serializeMessage(final Notification message) {

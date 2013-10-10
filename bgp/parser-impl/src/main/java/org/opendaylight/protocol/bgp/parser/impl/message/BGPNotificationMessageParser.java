@@ -79,7 +79,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 	 * @throws BGPDocumentedException
 	 */
 	@Override
-	public Notify parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+	public Notify parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
 		if (body == null) {
 			throw new IllegalArgumentException("Byte array cannot be null.");
 		}

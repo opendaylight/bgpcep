@@ -56,7 +56,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 	// Getters & setters --------------------------------------------------
 
 	@Override
-	public Update parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+	public Update parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
 		if (body == null || body.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}

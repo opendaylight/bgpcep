@@ -131,7 +131,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 	 * @throws BGPDocumentedException if the parsing was unsuccessful
 	 */
 	@Override
-	public Open parseMessage(final byte[] body, final int messageLength) throws BGPDocumentedException {
+	public Open parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
 		if (body == null) {
 			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
