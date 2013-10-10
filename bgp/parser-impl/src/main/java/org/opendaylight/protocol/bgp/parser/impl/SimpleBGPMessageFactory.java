@@ -20,12 +20,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class BGPMessageFactoryImpl extends AbstractMessageRegistry {
+public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 
 	public static final BGPMessageFactory INSTANCE;
 
 	static {
-		final BGPMessageFactoryImpl reg = new BGPMessageFactoryImpl();
+		final SimpleBGPMessageFactory reg = new SimpleBGPMessageFactory();
 
 		reg.registerMessageParser(1, BGPOpenMessageParser.PARSER);
 		reg.registerMessageSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
@@ -41,7 +41,7 @@ public final class BGPMessageFactoryImpl extends AbstractMessageRegistry {
 
 	private final HandlerRegistry<Notification, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-	private BGPMessageFactoryImpl() {
+	private SimpleBGPMessageFactory() {
 
 	}
 
