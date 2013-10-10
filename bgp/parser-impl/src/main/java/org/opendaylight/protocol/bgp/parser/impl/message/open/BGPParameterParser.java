@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
@@ -43,8 +44,9 @@ public final class BGPParameterParser {
 	 * @return BGP Parameter converted to byte array
 	 */
 	public static byte[] put(final BgpParameters param) {
-		if (param == null)
+		if (param == null) {
 			throw new IllegalArgumentException("BGP Parameter cannot be null");
+		}
 		logger.trace("Started serializing BGPParameter: {}", param);
 
 		byte[] value = null;
@@ -70,10 +72,12 @@ public final class BGPParameterParser {
 	 * @param bytes byte array representing BGP Parameters
 	 * @return list of BGP Parameters
 	 * @throws BGPParsingException if the parsing was unsuccessful
+	 * @throws BGPDocumentedException
 	 */
-	public static List<BgpParameters> parse(final byte[] bytes) throws BGPParsingException {
-		if (bytes == null || bytes.length == 0)
+	public static List<BgpParameters> parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+		}
 		logger.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
 		final List<BgpParameters> params = Lists.newArrayList();
@@ -87,10 +91,12 @@ public final class BGPParameterParser {
 					continue;
 				}
 				final BgpParameters param = new BgpParametersBuilder().setCParameters(cparam).build();
-				if (param != null)
+				if (param != null) {
 					params.add(param);
-			} else
+				}
+			} else {
 				logger.debug("BGP Parameter not recognized. Type: {}", paramType);
+			}
 			byteOffset += paramLength;
 		}
 		logger.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
