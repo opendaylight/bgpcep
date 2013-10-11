@@ -70,7 +70,8 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 
 	@Override
 	public byte[] serializeCapability(final CParameters capability) {
-		final CapabilitySerializer serializer = handlers.getSerializer(capability);
+		// FIXME: getClass() here is wrong
+		final CapabilitySerializer serializer = handlers.getSerializer(capability.getClass());
 		if (serializer == null) {
 			return null;
 		}

@@ -19,6 +19,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
@@ -40,7 +41,7 @@ public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 		INSTANCE = reg;
 	}
 
-	private final HandlerRegistry<Notification, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
+	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
 	private SimpleBGPMessageFactory() {
 
@@ -58,7 +59,7 @@ public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 
 	@Override
 	protected byte[] serializeMessageImpl(final Notification message) {
-		final MessageSerializer serializer = handlers.getSerializer(message);
+		final MessageSerializer serializer = handlers.getSerializer(message.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}

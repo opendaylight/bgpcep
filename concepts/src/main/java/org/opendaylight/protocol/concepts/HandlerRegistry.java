@@ -55,15 +55,7 @@ public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 		}
 	}
 
-	public SERIALIZER getSerializer(final CLASS obj) {
-		final Class<?> c = obj.getClass();
-
-		for (Map.Entry<Class<? extends CLASS>, SERIALIZER> e : serializers.entrySet()) {
-			if (e.getKey().isAssignableFrom(c)) {
-				return e.getValue();
-			}
-		}
-
-		return null;
+	public SERIALIZER getSerializer(final Class<? extends CLASS> clazz) {
+		return serializers.get(clazz);
 	}
 }

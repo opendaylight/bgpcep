@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AtomicAggregateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 import com.google.common.base.Preconditions;
@@ -129,7 +130,7 @@ public final class SimpleAttributeRegistry implements AttributeRegistry {
 		INSTANCE = reg;
 	}
 
-	private final HandlerRegistry<DataObject, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
+	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
 	@Override
 	public AutoCloseable registerAttributeParser(final int messageType, final AttributeParser parser) {
@@ -155,7 +156,7 @@ public final class SimpleAttributeRegistry implements AttributeRegistry {
 
 	@Override
 	public byte[] serializeAttribute(final DataObject attribute) {
-		final AttributeSerializer serializer = handlers.getSerializer(attribute);
+		final AttributeSerializer serializer = handlers.getSerializer(attribute.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}

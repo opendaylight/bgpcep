@@ -12,10 +12,11 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class ParameterRegistryImpl extends HandlerRegistry<BgpParameters, ParameterParser, ParameterSerializer> implements ParameterRegistry {
+public final class ParameterRegistryImpl extends HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> implements ParameterRegistry {
 	public static final ParameterRegistry INSTANCE;
 
 	static {
@@ -44,6 +45,6 @@ public final class ParameterRegistryImpl extends HandlerRegistry<BgpParameters, 
 
 	@Override
 	public ParameterSerializer getParameterSerializer(final BgpParameters message) {
-		return super.getSerializer(message);
+		return super.getSerializer(message.getImplementedInterface());
 	}
 }
