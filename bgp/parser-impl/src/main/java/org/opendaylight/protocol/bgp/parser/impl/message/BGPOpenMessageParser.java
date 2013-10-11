@@ -84,8 +84,10 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (open.getBgpParameters() != null) {
 			for (final BgpParameters param : open.getBgpParameters()) {
 				final byte[] p = BGPParameterParser.put(param);
-				optParams.put(p, p.length);
-				optParamsLength += p.length;
+				if (p != null) {
+					optParams.put(p, p.length);
+					optParamsLength += p.length;
+				}
 			}
 		}
 
