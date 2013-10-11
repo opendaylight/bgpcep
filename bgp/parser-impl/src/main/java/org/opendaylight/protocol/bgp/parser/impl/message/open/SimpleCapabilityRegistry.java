@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.SimpleAddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.impl.SimpleSubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
@@ -27,7 +29,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 		final SimpleCapabilityRegistry reg = new SimpleCapabilityRegistry();
 
 		final MultiProtocolCapabilityHandler multi =
-				new MultiProtocolCapabilityHandler();
+				new MultiProtocolCapabilityHandler(iSimpleAddressFamilyRegistry.INSTANCE, SimpleSubsequentAddressFamilyRegistry.INSTANCE);
 		reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
 		reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
 
