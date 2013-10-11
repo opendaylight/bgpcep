@@ -13,7 +13,6 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AtomicAggregateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -26,106 +25,22 @@ public final class SimpleAttributeRegistry implements AttributeRegistry {
 	static {
 		final AttributeRegistry reg = new SimpleAttributeRegistry();
 
-		reg.registerAttributeParser(1, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-				builder.setOrigin(PathAttributeParser.parseOrigin(bytes));
-			}
-		});
-		reg.registerAttributeParser(2, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder)	throws BGPDocumentedException, BGPParsingException {
-				builder.setAsPath(PathAttributeParser.parseAsPath(bytes));
-			}
-		});
-		reg.registerAttributeParser(3, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setCNextHop(PathAttributeParser.parseNextHop(bytes));
-			}
-		});
-		reg.registerAttributeParser(4, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setMultiExitDisc(PathAttributeParser.parseMultiExitDisc(bytes));
-			}
-		});
-		reg.registerAttributeParser(5, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setLocalPref(PathAttributeParser.parseLocalPref(bytes));
-			}
-		});
-		reg.registerAttributeParser(6, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setAtomicAggregate(new AtomicAggregateBuilder().build());
-			}
-		});
-		reg.registerAttributeParser(7, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setAggregator(PathAttributeParser.parseAggregator(bytes));
-			}
-		});
-		reg.registerAttributeParser(8, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-				builder.setCommunities(PathAttributeParser.parseCommunities(bytes));
-			}
-		});
-		reg.registerAttributeParser(9, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setOriginatorId(PathAttributeParser.parseOriginatorId(bytes));
-			}
-		});
-
-		reg.registerAttributeParser(10, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				builder.setClusterId(PathAttributeParser.parseClusterList(bytes));
-			}
-		});
-
-		reg.registerAttributeParser(14, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-				PathAttributeParser.parseMPReach(builder, bytes);
-			}
-		});
-		reg.registerAttributeParser(15, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-				PathAttributeParser.parseMPUnreach(builder, bytes);
-			}
-		});
-		reg.registerAttributeParser(16, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-				builder.setExtendedCommunities(PathAttributeParser.parseExtendedCommunities(bytes));
-			}
-		});
-		reg.registerAttributeParser(17, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				// AS4 Aggregator is ignored
-			}
-		});
-		reg.registerAttributeParser(18, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-				// AS4 Path is ignored
-			}
-		});
-
-		// FIXME: update to IANA number once it is known
-		reg.registerAttributeParser(99, new AttributeParser() {
-			@Override
-			public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPParsingException {
-				PathAttributeParser.parseLinkState(builder, bytes);
-			}
-		});
+		reg.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser());
+		reg.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser());
+		reg.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser());
+		reg.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser());
+		reg.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser());
+		reg.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser());
+		reg.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser());
+		reg.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser());
+		reg.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser());
+		reg.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser());
+		reg.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser());
+		reg.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser());
+		reg.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser());
+		reg.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser());
+		reg.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser());
+		reg.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser());
 
 		INSTANCE = reg;
 	}
@@ -133,9 +48,9 @@ public final class SimpleAttributeRegistry implements AttributeRegistry {
 	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
 	@Override
-	public AutoCloseable registerAttributeParser(final int messageType, final AttributeParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
-		return handlers.registerParser(messageType, parser);
+	public AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
+		Preconditions.checkArgument(attributeType >= 0 && attributeType <= 255);
+		return handlers.registerParser(attributeType, parser);
 	}
 
 	@Override
