@@ -15,10 +15,11 @@ import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.open.BGPParameterParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.SimpleParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -59,6 +60,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 	private static final int BGP_VERSION = 4;
 
+	@Deprecated
+	private static final ParameterRegistry reg = SimpleParameterRegistry.INSTANCE;
+
 	private BGPOpenMessageParser() {
 
 	}
@@ -83,9 +87,11 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		if (open.getBgpParameters() != null) {
 			for (final BgpParameters param : open.getBgpParameters()) {
-				final byte[] p = BGPParameterParser.put(param);
-				optParams.put(p, p.length);
-				optParamsLength += p.length;
+				final byte[] p = reg.serializeParameter(param);
+				if (p != null) {
+					optParams.put(p, p.length);
+					optParamsLength += p.length;
+				}
 			}
 		}
 
@@ -172,14 +178,45 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		List<BgpParameters> optParams = Lists.newArrayList();
 		if (optLength > 0) {
-			try {
-				optParams = BGPParameterParser.parse(ByteArray.subByte(body, MIN_MSG_LENGTH, optLength));
-			} catch (final BGPParsingException e) {
-				throw new BGPDocumentedException("Optional parameter not parsed: ." + e.getMessage(), BGPError.UNSPECIFIC_OPEN_ERROR);
-			}
+			fillParams(ByteArray.subByte(body, MIN_MSG_LENGTH, optLength), optParams);
 		}
 		logger.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
 		return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer((int) holdTime).setBgpIdentifier(bgpId).setBgpParameters(
 				optParams).build();
+	}
+
+	private void fillParams(final byte[] bytes, final List<BgpParameters> params) throws BGPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
+			throw new IllegalArgumentException("Byte array cannot be null or empty.");
+		}
+
+		logger.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
+		int byteOffset = 0;
+		while (byteOffset < bytes.length) {
+			if (byteOffset + 2 >= bytes.length) {
+				// FIXME: throw a BGPDocumentedException here?
+				throw new IllegalArgumentException("Malformed parameter encountered (" + (bytes.length - byteOffset) + " bytes left)");
+			}
+
+			final int paramType = UnsignedBytes.toInt(bytes[byteOffset++]);
+			final int paramLength = UnsignedBytes.toInt(bytes[byteOffset++]);
+			final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, paramLength);
+			byteOffset += paramLength;
+
+			final BgpParameters param;
+			try {
+				param = reg.parseParameter(paramType, paramBody);
+			} catch (final BGPParsingException e) {
+				throw new BGPDocumentedException("Optional parameter not parsed: ." + e.getMessage(), BGPError.UNSPECIFIC_OPEN_ERROR);
+			}
+
+			if (param != null) {
+				params.add(param);
+			} else {
+				logger.debug("Ignoring BGP Parameter type: {}", paramType);
+			}
+		}
+
+		logger.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
 	}
 }
