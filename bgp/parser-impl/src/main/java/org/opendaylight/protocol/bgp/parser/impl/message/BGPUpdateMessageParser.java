@@ -14,7 +14,8 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleAttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
@@ -27,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 /**
  * LENGTH fields, that denote the length of the fields with variable length, have fixed SIZE.
  * 
@@ -35,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
-	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser();
+	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser(SimpleAttributeRegistry.INSTANCE);
 
 	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
@@ -49,9 +52,11 @@ public class BGPUpdateMessageParser implements MessageParser {
 	 */
 	public static final int TOTAL_PATH_ATTR_LENGTH_SIZE = 2;
 
-	// Constructors -------------------------------------------------------
-	private BGPUpdateMessageParser() {
+	private final AttributeRegistry reg;
 
+	// Constructors -------------------------------------------------------
+	public BGPUpdateMessageParser(final AttributeRegistry reg) {
+		this.reg = Preconditions.checkNotNull(reg);
 	}
 
 	// Getters & setters --------------------------------------------------
@@ -89,7 +94,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 
 		try {
 			if (totalPathAttrLength > 0) {
-				final PathAttributes pathAttributes = PathAttributeParser.parseAttribute(ByteArray.subByte(body, byteOffset,
+				final PathAttributes pathAttributes = reg.parseAttributes(ByteArray.subByte(body, byteOffset,
 						totalPathAttrLength));
 				byteOffset += totalPathAttrLength;
 				eventBuilder.setPathAttributes(pathAttributes);
