@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class BGPUpdateMessageParser implements MessageParser {
+	public static final int TYPE = 2;
 	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser();
 
 	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);

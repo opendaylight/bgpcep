@@ -27,6 +27,7 @@ import com.google.common.primitives.UnsignedBytes;
  * Parser for BGPNotification message.
  */
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
+	public static final int TYPE = 3;
 	public static final MessageParser PARSER;
 	public static final MessageSerializer SERIALIZER;
 
@@ -69,7 +70,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 			System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
 		}
 
-		final byte[] ret = MessageUtil.formatMessage(3, msgBody);
+		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
 		logger.trace("Notification message serialized to: {}", Arrays.toString(ret));
 		return ret;
 	}

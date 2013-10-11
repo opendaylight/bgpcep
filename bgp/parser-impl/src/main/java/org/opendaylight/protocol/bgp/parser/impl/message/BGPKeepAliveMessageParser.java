@@ -11,11 +11,13 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import com.google.common.base.Preconditions;
 
 public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
-	private static final Keepalive msg = new KeepaliveBuilder().build();
-	private static final byte[] bytes = MessageUtil.formatMessage(4, new byte[0]);
-
+	public static final int TYPE = 4;
 	public static final MessageParser PARSER;
 	public static final MessageSerializer SERIALIZER;
+
+	private static final Keepalive msg = new KeepaliveBuilder().build();
+	private static final byte[] bytes = MessageUtil.formatMessage(TYPE, new byte[0]);
+
 
 	static {
 		final BGPKeepAliveMessageParser p = new BGPKeepAliveMessageParser();
