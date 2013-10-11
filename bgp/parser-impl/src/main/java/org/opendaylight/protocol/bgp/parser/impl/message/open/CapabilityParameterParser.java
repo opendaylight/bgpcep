@@ -11,54 +11,35 @@ import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.ParameterUtil;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Parser for BGP Capability Parameter.
  */
-public final class CapabilityParameterParser {
+public final class CapabilityParameterParser implements ParameterParser, ParameterSerializer {
+	public static final int TYPE = 2;
 
 	private static final Logger logger = LoggerFactory.getLogger(CapabilityParameterParser.class);
+	private final CapabilityRegistry reg;
 
-	private CapabilityParameterParser() {
-
+	public CapabilityParameterParser(final CapabilityRegistry reg) {
+		this.reg = Preconditions.checkNotNull(reg);
 	}
 
-	/**
-	 * Serializes given BGP Capability Parameter to byte array.
-	 * 
-	 * @param param BGP Capability to be serialized
-	 * @return BGP Capability converted to byte array
-	 */
-	public static byte[] put(final CParameters cap) {
-		if (cap == null) {
-			throw new IllegalArgumentException("BGP Capability cannot be null");
-		}
-		logger.trace("Started serializing BGP Capability: {}", cap);
-
-		byte[] bytes = SimpleCapabilityRegistry.INSTANCE.serializeCapability(cap);
-		if (bytes == null) {
-			throw new IllegalArgumentException("Unhandled capability " + cap);
-		}
-
-		logger.trace("BGP Parameter serialized to: {}", Arrays.toString(bytes));
-		return bytes;
-	}
-
-	/**
-	 * Parses given byte array to Capability Parameter. Only Multiprotocol capability is supported.
-	 * 
-	 * @param bytes byte array representing BGP Parameters
-	 * @return list of BGP Parameters
-	 * @throws BGPParsingException if the parsing was unsuccessful
-	 * @throws BGPDocumentedException
-	 */
-	public static CParameters parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
+	@Override
+	public BgpParameters parseParameter(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
@@ -68,10 +49,28 @@ public final class CapabilityParameterParser {
 		final int capLength = UnsignedBytes.toInt(bytes[byteOffset++]);
 		final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, capLength);
 
-		final CParameters ret = SimpleCapabilityRegistry.INSTANCE.parseCapability(capCode, paramBody);
+		final CParameters ret = reg.parseCapability(capCode, paramBody);
 		if (ret == null) {
 			logger.debug("Ignoring unsupported capability {}", capCode);
+			return null;
 		}
-		return ret;
+
+		return new BgpParametersBuilder().setCParameters(ret).build();
+	}
+
+	@Override
+	public byte[] serializeParameter(final BgpParameters parameter) {
+		final CParameters cap = parameter.getCParameters();
+
+		logger.trace("Started serializing BGP Capability: {}", cap);
+
+		byte[] bytes = reg.serializeCapability(cap);
+		if (bytes == null) {
+			throw new IllegalArgumentException("Unhandled capability " + cap);
+		}
+
+		logger.trace("BGP capability serialized to: {}", Arrays.toString(bytes));
+
+		return ParameterUtil.formatParameter(TYPE, bytes);
 	}
 }

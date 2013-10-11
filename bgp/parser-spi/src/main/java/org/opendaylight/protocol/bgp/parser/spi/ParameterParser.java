@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 
 public interface ParameterParser {
-	public BgpParameters parseParameter(final byte[] bytes) throws BGPParsingException;
+	public BgpParameters parseParameter(final byte[] bytes) throws BGPParsingException, BGPDocumentedException;
 }
