@@ -58,7 +58,7 @@ public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 
 	@Override
 	protected byte[] serializeMessageImpl(final Notification message) {
-		final MessageSerializer serializer = handlers.getSerializer(message);
+		final MessageSerializer serializer = handlers.getSerializer(message.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}
