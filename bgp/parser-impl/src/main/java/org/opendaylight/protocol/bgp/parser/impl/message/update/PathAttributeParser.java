@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.concepts.IPv4;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
@@ -61,6 +62,8 @@ public class PathAttributeParser {
 
 	private static final int TYPE_LENGTH = 1;
 
+	private static AttributeRegistry reg = SimpleAttributeRegistry.INSTANCE;
+
 	private PathAttributeParser() {
 
 	}
@@ -87,7 +90,7 @@ public class PathAttributeParser {
 
 			final byte[] attrBody = ByteArray.subByte(bytes, hdrLength, attrLength);
 
-			boolean found = SimpleAttributeRegistry.INSTANCE.parseAttribute(UnsignedBytes.toInt(bytes[1]), attrBody, builder);
+			boolean found = reg.parseAttribute(UnsignedBytes.toInt(bytes[1]), attrBody, builder);
 			if (!optional && !found) {
 				throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
 			}
