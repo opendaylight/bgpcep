@@ -13,11 +13,9 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
@@ -28,20 +26,14 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	static {
 		final SimpleCapabilityRegistry reg = new SimpleCapabilityRegistry();
 
-		reg.registerCapabilityParser(1, new CapabilityParser() {
-			@Override
-			public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-				return CapabilityParameterParser.parseMultiProtocolParameterValue(bytes);
-			}
-		});
-		reg.registerCapabilityParser(65, new CapabilityParser() {
-			@Override
-			public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-				return new CAs4BytesBuilder().setAs4BytesCapability(
-						new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
+		final MultiProtocolCapabilityHandler multi =
+				new MultiProtocolCapabilityHandler();
+		reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
+		reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
 
-			}
-		});
+		final As4CapabilityHandler as4 = new As4CapabilityHandler();
+		reg.registerCapabilityParser(As4CapabilityHandler.CODE, as4);
+		reg.registerCapabilitySerializer(CAs4Bytes.class, as4);
 
 		INSTANCE = reg;
 	}
