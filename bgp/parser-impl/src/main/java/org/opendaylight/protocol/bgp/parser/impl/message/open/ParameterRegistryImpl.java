@@ -44,6 +44,6 @@ public final class ParameterRegistryImpl extends HandlerRegistry<BgpParameters, 
 
 	@Override
 	public ParameterSerializer getParameterSerializer(final BgpParameters message) {
-		return super.getSerializer(message);
+		return super.getSerializer(message.getImplementedInterface());
 	}
 }
