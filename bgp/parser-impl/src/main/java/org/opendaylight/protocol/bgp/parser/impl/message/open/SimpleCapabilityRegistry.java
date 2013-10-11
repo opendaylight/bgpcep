@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
@@ -45,7 +46,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 		INSTANCE = reg;
 	}
 
-	private final HandlerRegistry<CParameters, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
+	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
 
 	@Override
 	public AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
@@ -70,7 +71,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 
 	@Override
 	public byte[] serializeCapability(final CParameters capability) {
-		final CapabilitySerializer serializer = handlers.getSerializer(capability);
+		final CapabilitySerializer serializer = handlers.getSerializer(capability.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}
