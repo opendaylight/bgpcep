@@ -10,7 +10,10 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.ParserUtil;
+import org.opendaylight.protocol.bgp.parser.impl.SimpleAddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.impl.SimpleSubsequentAddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.util.ByteArray;
@@ -45,7 +48,6 @@ import com.google.common.primitives.UnsignedBytes;
  * Parser for MP_REACH or MP_UNREACH fields.
  */
 public class MPReachParser {
-
 	private static final int ADDRESS_FAMILY_IDENTIFIER_SIZE = 2;
 
 	private static final int SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE = 1;
@@ -54,26 +56,28 @@ public class MPReachParser {
 
 	private static final int RESERVED_SIZE = 1;
 
-	private MPReachParser() {
+	private static final AddressFamilyRegistry afiReg = SimpleAddressFamilyRegistry.INSTANCE;
+	private static final SubsequentAddressFamilyRegistry safiReg = SimpleSubsequentAddressFamilyRegistry.INSTANCE;
 
+	private MPReachParser() {
 	}
 
 	static MpUnreachNlri parseMPUnreach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
 		final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
-		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
-				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
+
+		final int afiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE));
+		final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
 		if (afi == null) {
-			throw new BGPParsingException("Address Family Identifier: '"
-					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
+			throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
 		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		builder.setAfi(afi);
 
-		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
+		final int safiVal = UnsignedBytes.toInt(bytes[byteOffset]);
+		final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
 		if (safi == null) {
-			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
-					+ "' not supported.");
+			throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
 		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		builder.setSafi(safi);
@@ -88,19 +92,19 @@ public class MPReachParser {
 	static MpReachNlri parseMPReach(final byte[] bytes) throws BGPParsingException {
 		int byteOffset = 0;
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-		final Class<? extends AddressFamily> afi = ParserUtil.afiForValue(ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset,
-				ADDRESS_FAMILY_IDENTIFIER_SIZE)));
+
+		final int afiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE));
+		final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
 		if (afi == null) {
-			throw new BGPParsingException("Address Family Identifier: '"
-					+ ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, ADDRESS_FAMILY_IDENTIFIER_SIZE)) + "' not supported.");
+			throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
 		}
 		byteOffset += ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		builder.setAfi(afi);
 
-		final Class<? extends SubsequentAddressFamily> safi = ParserUtil.safiForValue(UnsignedBytes.toInt(bytes[byteOffset]));
+		final int safiVal = UnsignedBytes.toInt(bytes[byteOffset]);
+		final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
 		if (safi == null) {
-			throw new BGPParsingException("Subsequent Address Family Identifier: '" + UnsignedBytes.toInt(bytes[byteOffset])
-					+ "' not supported.");
+			throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
 		}
 		byteOffset += SUBSEQUENT_ADDRESS_FAMILY_IDENTIFIER_SIZE;
 		builder.setSafi(safi);
