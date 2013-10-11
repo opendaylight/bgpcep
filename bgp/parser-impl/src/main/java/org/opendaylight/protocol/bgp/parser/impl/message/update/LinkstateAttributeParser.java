@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.ByteList;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.util.ByteArray;
@@ -41,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.OspfInterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.OspfRouteType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.RouteTag;
@@ -76,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
@@ -96,9 +100,11 @@ import com.google.common.primitives.UnsignedBytes;
  * 
  * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-01">BGP-LS draft</a>
  */
-public class LinkStateParser {
+public class LinkstateAttributeParser implements AttributeParser {
+	// FIXME: update to IANA number once it is known
+	static final int TYPE = 99;
 
-	private static final Logger logger = LoggerFactory.getLogger(LinkStateParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(LinkstateAttributeParser.class);
 
 	private static final int TYPE_LENGTH = 2;
 
@@ -117,7 +123,10 @@ public class LinkStateParser {
 
 	private static final Set<Integer> prefixTlvs = Sets.newHashSet(1152, 1153, 1154, 1155, 1156, 1157);
 
-	private LinkStateParser() {
+	@Override
+	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPParsingException {
+		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(bytes)).build();
+		builder.addAugmentation(PathAttributes1.class, a);
 	}
 
 	/**
@@ -375,8 +384,9 @@ public class LinkStateParser {
 			case 264:
 				final int rt = ByteArray.bytesToInt(value);
 				final OspfRouteType routeType = OspfRouteType.forValue(rt);
-				if (routeType == null)
+				if (routeType == null) {
 					throw new BGPParsingException("Unknown OSPF Route Type: " + rt);
+				}
 				builder.setOspfRouteType(routeType);
 				logger.trace("Parser RouteType: {}", routeType);
 				break;
@@ -388,10 +398,11 @@ public class LinkStateParser {
 					logger.debug("Expected length {}, actual length {}.", size, value.length - 1);
 					throw new BGPParsingException("Illegal length of IP reachability TLV: " + (value.length - 1));
 				}
-				if (size == 4)
+				if (size == 4) {
 					prefix = new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(value, 1, size), prefixLength));
-				else
+				} else {
 					prefix = new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(value, 1, size), prefixLength));
+				}
 				builder.setIpReachabilityInformation(prefix);
 				logger.trace("Parsed IP reachability info: {}", prefix);
 				break;
@@ -494,8 +505,9 @@ public class LinkStateParser {
 					break;
 				case 1093:
 					final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[0]));
-					if (lpt == null)
+					if (lpt == null) {
 						throw new BGPParsingException("Link Protection Type not recognized: " + UnsignedBytes.toInt(value[0]));
+					}
 					builder.setLinkProtection(lpt);
 					logger.trace("Parsed Link Protection Type {}", lpt);
 					break;

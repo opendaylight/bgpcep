@@ -131,7 +131,7 @@ public class MPReachParser {
 			final List<Ipv6Prefix> nlri6 = Ipv6Util.prefixListForBytes(bytes);
 			return new Ipv6Builder().setIpv6Prefixes(nlri6).build();
 		} else if (afi == LinkstateAddressFamily.class) {
-			return new LinkstateBuilder().setCLinkstateDestination(LinkStateParser.parseLSNlri(safi, bytes)).build();
+			return new LinkstateBuilder().setCLinkstateDestination(LinkstateAttributeParser.parseLSNlri(safi, bytes)).build();
 		}
 		return null;
 	}
