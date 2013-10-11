@@ -35,13 +35,15 @@ public class PCEPUpdateRequestMessage implements Message {
 	 */
 	public PCEPUpdateRequestMessage(final List<CompositeUpdateRequestObject> updateRequests) {
 		this.objects = Lists.newArrayList();
-		if (updateRequests != null)
+		if (updateRequests != null) {
 			for (final CompositeUpdateRequestObject curo : updateRequests) {
 				this.objects.addAll(curo.getCompositeAsList());
 			}
+		}
 
-		if (updateRequests == null || updateRequests.isEmpty())
+		if (updateRequests == null || updateRequests.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeUpdateRequestObject is mandatory.");
+		}
 		this.updateRequests = updateRequests;
 	}
 
@@ -68,18 +70,23 @@ public class PCEPUpdateRequestMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPUpdateRequestMessage other = (PCEPUpdateRequestMessage) obj;
 		if (this.updateRequests == null) {
-			if (other.updateRequests != null)
+			if (other.updateRequests != null) {
 				return false;
-		} else if (!this.updateRequests.equals(other.updateRequests))
+			}
+		} else if (!this.updateRequests.equals(other.updateRequests)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -90,5 +97,10 @@ public class PCEPUpdateRequestMessage implements Message {
 		builder.append(this.updateRequests);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

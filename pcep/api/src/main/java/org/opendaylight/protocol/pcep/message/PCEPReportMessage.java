@@ -35,12 +35,14 @@ public class PCEPReportMessage implements Message {
 	 */
 	public PCEPReportMessage(final List<CompositeStateReportObject> reports) {
 		this.objects = Lists.newArrayList();
-		if (reports != null)
+		if (reports != null) {
 			for (final CompositeStateReportObject csro : reports) {
 				this.objects.addAll(csro.getCompositeAsList());
 			}
-		if (reports == null || reports.isEmpty())
+		}
+		if (reports == null || reports.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeStateReportObject is mandatory.");
+		}
 
 		this.reports = reports;
 	}
@@ -68,18 +70,23 @@ public class PCEPReportMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPReportMessage other = (PCEPReportMessage) obj;
 		if (this.reports == null) {
-			if (other.reports != null)
+			if (other.reports != null) {
 				return false;
-		} else if (!this.reports.equals(other.reports))
+			}
+		} else if (!this.reports.equals(other.reports)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -90,5 +97,10 @@ public class PCEPReportMessage implements Message {
 		builder.append(this.reports);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

@@ -49,8 +49,9 @@ public class PCEPErrorMessage implements Message {
 			private static final long serialVersionUID = 72172137965955228L;
 
 			{
-				if (compositeErrorObject != null)
+				if (compositeErrorObject != null) {
 					this.add(compositeErrorObject);
+				}
 			}
 		});
 	}
@@ -64,7 +65,7 @@ public class PCEPErrorMessage implements Message {
 	 */
 	public PCEPErrorMessage(final List<?> errorObjects) {
 		this.objects = Lists.newArrayList();
-		if (errorObjects != null)
+		if (errorObjects != null) {
 			for (int i = 0; i < errorObjects.size(); i++) {
 				if (errorObjects.get(i) instanceof CompositeErrorObject) {
 					this.objects.addAll(((CompositeErrorObject) errorObjects.get(i)).getCompositeAsList());
@@ -72,6 +73,7 @@ public class PCEPErrorMessage implements Message {
 					this.objects.add((PCEPErrorObject) errorObjects.get(i));
 				}
 			}
+		}
 		this.errors = new ArrayList<CompositeErrorObject>();
 		this.errorObjects = new ArrayList<PCEPErrorObject>();
 
@@ -81,8 +83,9 @@ public class PCEPErrorMessage implements Message {
 					this.errors.add((CompositeErrorObject) errorObjects.get(i));
 				} else if (errorObjects.get(i) instanceof PCEPErrorObject) {
 					this.errorObjects.add((PCEPErrorObject) errorObjects.get(i));
-				} else
+				} else {
 					throw new IllegalArgumentException("Wrong instance passed in list. Acceptable is only CompositeErrorObject or PCEPErrorObject.");
+				}
 			}
 		}
 	}
@@ -98,25 +101,30 @@ public class PCEPErrorMessage implements Message {
 	 */
 	public PCEPErrorMessage(final PCEPOpenObject openObj, final List<PCEPErrorObject> errorObjects, final List<CompositeErrorObject> errors) {
 		this.objects = Lists.newArrayList();
-		if (errorObjects != null)
+		if (errorObjects != null) {
 			this.objects.addAll(errorObjects);
-		if (openObj != null)
+		}
+		if (openObj != null) {
 			this.objects.add(openObj);
-		if (errors != null)
+		}
+		if (errors != null) {
 			for (final CompositeErrorObject ceo : errors) {
 				this.objects.addAll(ceo.getCompositeAsList());
 			}
+		}
 
 		this.openObj = openObj;
 
-		if (errorObjects == null)
+		if (errorObjects == null) {
 			throw new IllegalArgumentException("At least one PCEPErrorObject is mandatory.");
+		}
 		this.errorObjects = errorObjects;
 
-		if (errors == null)
+		if (errors == null) {
 			this.errors = Collections.emptyList();
-		else
+		} else {
 			this.errors = errors;
+		}
 	}
 
 	/**
@@ -167,28 +175,37 @@ public class PCEPErrorMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPErrorMessage other = (PCEPErrorMessage) obj;
 		if (this.errorObjects == null) {
-			if (other.errorObjects != null)
+			if (other.errorObjects != null) {
 				return false;
-		} else if (!this.errorObjects.equals(other.errorObjects))
+			}
+		} else if (!this.errorObjects.equals(other.errorObjects)) {
 			return false;
+		}
 		if (this.errors == null) {
-			if (other.errors != null)
+			if (other.errors != null) {
 				return false;
-		} else if (!this.errors.equals(other.errors))
+			}
+		} else if (!this.errors.equals(other.errors)) {
 			return false;
+		}
 		if (this.openObj == null) {
-			if (other.openObj != null)
+			if (other.openObj != null) {
 				return false;
-		} else if (!this.openObj.equals(other.openObj))
+			}
+		} else if (!this.openObj.equals(other.openObj)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -203,5 +220,10 @@ public class PCEPErrorMessage implements Message {
 		builder.append(this.errors);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

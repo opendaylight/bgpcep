@@ -34,4 +34,9 @@ public class RawMessage implements Message {
 	public List<PCEPObject> getAllObjects() {
 		return this.objects;
 	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
+	}
 }

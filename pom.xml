@@ -30,7 +30,7 @@
 		<surefire.version>2.15</surefire.version>
 
 		<yangtools.version>0.5.9-SNAPSHOT</yangtools.version>
-		<code.generator.version>0.6.0-SNAPSHOT</code.generator.version>
+		<yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
 		<ietf.types.version>2010.09.24.1</ietf.types.version>
 	</properties>
 	<prerequisites>

@@ -51,23 +51,27 @@ public class PCEPReplyMessage implements Message {
 	 */
 	public PCEPReplyMessage(final List<CompositeResponseObject> responses, final List<CompositeReplySvecObject> svecList) {
 		this.objects = Lists.newArrayList();
-		if (svecList != null)
+		if (svecList != null) {
 			for (final CompositeReplySvecObject cno : svecList) {
 				this.objects.addAll(cno.getCompositeAsList());
 			}
-		if (responses != null)
+		}
+		if (responses != null) {
 			for (final CompositeResponseObject cno : responses) {
 				this.objects.addAll(cno.getCompositeAsList());
 			}
+		}
 
-		if (responses == null || responses.isEmpty())
+		if (responses == null || responses.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeResponseObject is mandatory.");
+		}
 		this.responses = responses;
 
-		if (svecList != null)
+		if (svecList != null) {
 			this.svecList = svecList;
-		else
+		} else {
 			this.svecList = Collections.emptyList();
+		}
 	}
 
 	/**
@@ -103,23 +107,30 @@ public class PCEPReplyMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPReplyMessage other = (PCEPReplyMessage) obj;
 		if (this.responses == null) {
-			if (other.responses != null)
+			if (other.responses != null) {
 				return false;
-		} else if (!this.responses.equals(other.responses))
+			}
+		} else if (!this.responses.equals(other.responses)) {
 			return false;
+		}
 		if (this.svecList == null) {
-			if (other.svecList != null)
+			if (other.svecList != null) {
 				return false;
-		} else if (!this.svecList.equals(other.svecList))
+			}
+		} else if (!this.svecList.equals(other.svecList)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -132,5 +143,10 @@ public class PCEPReplyMessage implements Message {
 		builder.append(this.responses);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

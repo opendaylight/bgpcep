@@ -51,22 +51,26 @@ public class PCEPRequestMessage implements Message {
 	 */
 	public PCEPRequestMessage(final List<CompositeRequestSvecObject> svecList, final List<CompositeRequestObject> requests) {
 		this.objects = Lists.newArrayList();
-		if (svecList != null)
+		if (svecList != null) {
 			for (final CompositeRequestSvecObject cso : svecList) {
 				this.objects.addAll(cso.getCompositeAsList());
 			}
-		if (requests != null)
+		}
+		if (requests != null) {
 			for (final CompositeRequestObject cro : requests) {
 				this.objects.addAll(cro.getCompositeAsList());
 			}
+		}
 
-		if (svecList != null)
+		if (svecList != null) {
 			this.svecList = svecList;
-		else
+		} else {
 			this.svecList = Collections.emptyList();
+		}
 
-		if (requests == null || requests.isEmpty())
+		if (requests == null || requests.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeRequestObject is mandatory.");
+		}
 		this.requests = requests;
 
 	}
@@ -104,23 +108,30 @@ public class PCEPRequestMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPRequestMessage other = (PCEPRequestMessage) obj;
 		if (this.requests == null) {
-			if (other.requests != null)
+			if (other.requests != null) {
 				return false;
-		} else if (!this.requests.equals(other.requests))
+			}
+		} else if (!this.requests.equals(other.requests)) {
 			return false;
+		}
 		if (this.svecList == null) {
-			if (other.svecList != null)
+			if (other.svecList != null) {
 				return false;
-		} else if (!this.svecList.equals(other.svecList))
+			}
+		} else if (!this.svecList.equals(other.svecList)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -135,4 +146,8 @@ public class PCEPRequestMessage implements Message {
 		return builder.toString();
 	}
 
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
+	}
 }

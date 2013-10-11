@@ -34,6 +34,11 @@ public final class BgpTableTypeImpl implements BgpTableType {
 	}
 
 	@Override
+	public Class<BgpTableType> getImplementedInterface() {
+		return BgpTableType.class;
+	}
+
+	@Override
 	public int hashCode() {
 		int ret = 3 * this.afi.hashCode();
 		ret += this.safi.hashCode();

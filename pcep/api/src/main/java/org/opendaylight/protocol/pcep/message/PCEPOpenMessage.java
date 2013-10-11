@@ -35,10 +35,11 @@ public class PCEPOpenMessage implements Message {
 	 */
 	public PCEPOpenMessage(final PCEPOpenObject openObj) {
 		this.objects = Lists.newArrayList();
-		if (openObj != null)
+		if (openObj != null) {
 			this.objects.add(openObj);
-		else
+		} else {
 			throw new IllegalArgumentException("PCEPOpenObject is mandatory.");
+		}
 
 		this.openObj = openObj;
 	}
@@ -66,18 +67,23 @@ public class PCEPOpenMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPOpenMessage other = (PCEPOpenMessage) obj;
 		if (this.openObj == null) {
-			if (other.openObj != null)
+			if (other.openObj != null) {
 				return false;
-		} else if (!this.openObj.equals(other.openObj))
+			}
+		} else if (!this.openObj.equals(other.openObj)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -88,5 +94,10 @@ public class PCEPOpenMessage implements Message {
 		builder.append(this.openObj);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

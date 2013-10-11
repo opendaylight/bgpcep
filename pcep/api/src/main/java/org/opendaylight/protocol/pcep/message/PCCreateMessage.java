@@ -33,8 +33,9 @@ public class PCCreateMessage implements Message {
 	 * @param lsps List<CompositeInstantiationObject>. Can't be empty or null.
 	 */
 	public PCCreateMessage(final List<CompositeInstantiationObject> lsps) {
-		if (lsps == null || lsps.isEmpty())
+		if (lsps == null || lsps.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeStateReportObject is mandatory.");
+		}
 
 		this.lsps = lsps;
 		this.objects = Lists.newArrayList();
@@ -72,18 +73,23 @@ public class PCCreateMessage implements Message {
 	 */
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (!(obj instanceof PCCreateMessage))
+		}
+		if (!(obj instanceof PCCreateMessage)) {
 			return false;
+		}
 		final PCCreateMessage other = (PCCreateMessage) obj;
 		if (this.lsps == null) {
-			if (other.lsps != null)
+			if (other.lsps != null) {
 				return false;
-		} else if (!this.lsps.equals(other.lsps))
+			}
+		} else if (!this.lsps.equals(other.lsps)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -97,5 +103,10 @@ public class PCCreateMessage implements Message {
 		builder.append(this.lsps);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

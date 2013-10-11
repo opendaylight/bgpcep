@@ -40,8 +40,9 @@ public class PCEPNotificationMessage implements Message {
 				this.objects.addAll(cno.getCompositeAsList());
 			}
 		}
-		if (notifications == null || notifications.isEmpty())
+		if (notifications == null || notifications.isEmpty()) {
 			throw new IllegalArgumentException("At least one CompositeNotifyObject is mandatory.");
+		}
 
 		this.notifications = notifications;
 	}
@@ -69,18 +70,23 @@ public class PCEPNotificationMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPNotificationMessage other = (PCEPNotificationMessage) obj;
 		if (this.notifications == null) {
-			if (other.notifications != null)
+			if (other.notifications != null) {
 				return false;
-		} else if (!this.notifications.equals(other.notifications))
+			}
+		} else if (!this.notifications.equals(other.notifications)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -91,5 +97,10 @@ public class PCEPNotificationMessage implements Message {
 		builder.append(this.notifications);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }

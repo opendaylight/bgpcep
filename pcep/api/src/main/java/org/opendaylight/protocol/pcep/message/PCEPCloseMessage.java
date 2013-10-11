@@ -37,13 +37,15 @@ public class PCEPCloseMessage implements Message {
 	 * @param closeObj Can't be null.
 	 */
 	public PCEPCloseMessage(final PCEPCloseObject closeObj) {
-		if (closeObj == null)
+		if (closeObj == null) {
 			throw new IllegalArgumentException("PCEPCloseObject is mandatory. Can't be null.");
+		}
 
 		this.closeObj = closeObj;
 		this.objects = Lists.newArrayList();
-		if (closeObj != null)
+		if (closeObj != null) {
 			this.objects.add(closeObj);
+		}
 	}
 
 	/**
@@ -69,18 +71,23 @@ public class PCEPCloseMessage implements Message {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (this.getClass() != obj.getClass())
+		}
+		if (this.getClass() != obj.getClass()) {
 			return false;
+		}
 		final PCEPCloseMessage other = (PCEPCloseMessage) obj;
 		if (this.closeObj == null) {
-			if (other.closeObj != null)
+			if (other.closeObj != null) {
 				return false;
-		} else if (!this.closeObj.equals(other.closeObj))
+			}
+		} else if (!this.closeObj.equals(other.closeObj)) {
 			return false;
+		}
 		return true;
 	}
 
@@ -91,5 +98,10 @@ public class PCEPCloseMessage implements Message {
 		builder.append(this.closeObj);
 		builder.append("]");
 		return builder.toString();
+	}
+
+	@Override
+	public Class<Message> getImplementedInterface() {
+		return Message.class;
 	}
 }
