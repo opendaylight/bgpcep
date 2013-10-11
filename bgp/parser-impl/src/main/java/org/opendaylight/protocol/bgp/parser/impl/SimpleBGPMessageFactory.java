@@ -29,13 +29,13 @@ public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 	static {
 		final SimpleBGPMessageFactory reg = new SimpleBGPMessageFactory();
 
-		reg.registerMessageParser(1, BGPOpenMessageParser.PARSER);
+		reg.registerMessageParser(BGPOpenMessageParser.TYPE, BGPOpenMessageParser.PARSER);
 		reg.registerMessageSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
-		reg.registerMessageParser(2, BGPUpdateMessageParser.PARSER);
+		reg.registerMessageParser(BGPUpdateMessageParser.TYPE, BGPUpdateMessageParser.PARSER);
 		// Serialization of Update message is not supported
-		reg.registerMessageParser(3, BGPNotificationMessageParser.PARSER);
+		reg.registerMessageParser(BGPNotificationMessageParser.TYPE, BGPNotificationMessageParser.PARSER);
 		reg.registerMessageSerializer(Notify.class, BGPNotificationMessageParser.SERIALIZER);
-		reg.registerMessageParser(4, BGPKeepAliveMessageParser.PARSER);
+		reg.registerMessageParser(BGPKeepAliveMessageParser.TYPE, BGPKeepAliveMessageParser.PARSER);
 		reg.registerMessageSerializer(Keepalive.class, BGPKeepAliveMessageParser.SERIALIZER);
 
 		INSTANCE = reg;

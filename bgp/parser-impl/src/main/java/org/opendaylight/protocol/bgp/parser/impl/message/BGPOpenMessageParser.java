@@ -31,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
@@ -39,11 +40,12 @@ import com.google.common.primitives.UnsignedBytes;
  * Parser for BGP Open message.
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
+	public static final int TYPE = 1;
 	public static final MessageParser PARSER;
 	public static final MessageSerializer SERIALIZER;
 
 	static {
-		final BGPOpenMessageParser p = new BGPOpenMessageParser();
+		final BGPOpenMessageParser p = new BGPOpenMessageParser(SimpleParameterRegistry.INSTANCE);
 		PARSER = p;
 		SERIALIZER = p;
 	}
@@ -60,11 +62,10 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 	private static final int BGP_VERSION = 4;
 
-	@Deprecated
-	private static final ParameterRegistry reg = SimpleParameterRegistry.INSTANCE;
+	private final ParameterRegistry reg;
 
-	private BGPOpenMessageParser() {
-
+	private BGPOpenMessageParser(final ParameterRegistry reg) {
+		this.reg = Preconditions.checkNotNull(reg);
 	}
 
 	/**
@@ -127,7 +128,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			}
 		}
 
-		final byte[] ret = MessageUtil.formatMessage(1, msgBody);
+		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
 		logger.trace("Open message serialized to: {}", Arrays.toString(ret));
 		return ret;
 	}
