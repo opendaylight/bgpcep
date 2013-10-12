@@ -29,7 +29,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 		final SimpleCapabilityRegistry reg = new SimpleCapabilityRegistry();
 
 		final MultiProtocolCapabilityHandler multi =
-				new MultiProtocolCapabilityHandler(iSimpleAddressFamilyRegistry.INSTANCE, SimpleSubsequentAddressFamilyRegistry.INSTANCE);
+				new MultiProtocolCapabilityHandler(SimpleAddressFamilyRegistry.INSTANCE, SimpleSubsequentAddressFamilyRegistry.INSTANCE);
 		reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
 		reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
 
