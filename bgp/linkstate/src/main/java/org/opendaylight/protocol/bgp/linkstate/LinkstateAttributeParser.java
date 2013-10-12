@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl.message.update;
+package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,7 +65,7 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public class LinkstateAttributeParser implements AttributeParser {
 	// FIXME: update to IANA number once it is known
-	static final int TYPE = 99;
+	public static final int TYPE = 99;
 
 	private static final Logger logger = LoggerFactory.getLogger(LinkstateAttributeParser.class);
 

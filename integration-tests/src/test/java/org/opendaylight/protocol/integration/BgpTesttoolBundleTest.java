@@ -15,8 +15,9 @@ public final class BgpTesttoolBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
 		return Lists.newArrayList("bgp-parser-api", "bgp-concepts", "bgp-linkstate",
-				"bgp-parser-impl", "bgp-util", "concepts", "framework", "bgp-rib-api",
-				"bgp-rib-impl", "bgp-rib-spi", "util");
+				"bgp-parser-impl", "bgp-parser-spi", "bgp-util", "concepts",
+				"framework", "bgp-rib-api", "bgp-rib-impl", "bgp-rib-spi",
+				"util");
 	}
 
 	@Override
