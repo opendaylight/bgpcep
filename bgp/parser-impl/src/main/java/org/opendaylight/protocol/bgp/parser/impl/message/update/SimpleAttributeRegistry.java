@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import org.opendaylight.protocol.bgp.linkstate.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
