@@ -314,14 +314,14 @@ module bgp-linkstate {
 		}
 	}
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:nlri" {
-		case linkstate {
+	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+		case destination-linkstate {
 			uses linkstate-destination;
 		}
 	}
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:nlri" {
-		case linkstate {
+	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+		case destination-linkstate {
 			uses linkstate-destination;
 		}
 	}
