@@ -39,8 +39,8 @@ public final class SimpleAttributeRegistry implements AttributeRegistry {
 		reg.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser());
 		reg.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser());
 		reg.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser());
-		reg.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser());
-		reg.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser());
+		reg.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(SimpleNlriRegistry.INSTANCE));
+		reg.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(SimpleNlriRegistry.INSTANCE));
 		reg.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser());
 		reg.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser());
 		reg.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser());

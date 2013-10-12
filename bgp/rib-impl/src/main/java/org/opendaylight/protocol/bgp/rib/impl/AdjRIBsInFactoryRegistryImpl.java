@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction  ;
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
@@ -77,7 +77,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				}
 			};
 
-			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Ipv4)nlri.getAdvertizedRoutes().getNlri()).getIpv4Prefixes()) {
+			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4)nlri.getAdvertizedRoutes().getDestinationType()).getIpv4Prefixes()) {
 				super.add(trans, peer, id, data);
 			}
 		}
@@ -85,7 +85,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		@Override
 		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
 				final MpUnreachNlri nlri) {
-			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Ipv4)nlri.getWithdrawnRoutes().getNlri()).getIpv4Prefixes()) {
+			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4)nlri.getWithdrawnRoutes().getDestinationType()).getIpv4Prefixes()) {
 				super.remove(trans, peer, id);
 			}
 		}
@@ -121,7 +121,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				}
 			};
 
-			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Ipv6)nlri.getAdvertizedRoutes().getNlri()).getIpv6Prefixes()) {
+			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv6)nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
 				super.add(trans, peer, id, data);
 			}
 		}
@@ -129,7 +129,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		@Override
 		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
 				final MpUnreachNlri nlri) {
-			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Ipv6)nlri.getWithdrawnRoutes().getNlri()).getIpv6Prefixes()) {
+			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv6)nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
 				super.remove(trans, peer, id);
 			}
 		}
@@ -171,7 +171,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
 			final CLinkstateDestination key =
 					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.reach.nlri.advertized.routes.nlri.Linkstate) nlri.getAdvertizedRoutes().getNlri()).getCLinkstateDestination();
+							update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstate) nlri.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
 
 			RIBEntryData data = null;
 			switch (key.getNlriType()) {
@@ -224,7 +224,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final MpUnreachNlri nlri) {
 			final CLinkstateDestination key =
 					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.unreach.nlri.withdrawn.routes.nlri.Linkstate) nlri.getWithdrawnRoutes().getNlri()).getCLinkstateDestination();
+							update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstate) nlri.getWithdrawnRoutes().getDestinationType()).getCLinkstateDestination();
 
 			super.remove(trans, peer, key);
 		}
