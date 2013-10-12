@@ -45,14 +45,14 @@ module bgp-multiprotocol {
 	}
 
 	grouping destination {
-		choice nlri {
-			case ipv4 {
+		choice destination-type {
+			case destination-ipv4 {
 				when "../../afi = ipv4";
 				leaf-list ipv4-prefixes {
 					type inet:ipv4-prefix;
 				}
 			}
-			case ipv6 {
+			case destination-ipv6 {
 				when "../../afi = ipv6";
 				leaf-list ipv6-prefixes {
 					type inet:ipv6-prefix;
