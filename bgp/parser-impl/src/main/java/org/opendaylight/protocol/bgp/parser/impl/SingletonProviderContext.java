@@ -46,7 +46,7 @@ public final class SingletonProviderContext implements ProviderContext {
 
 	@Override
 	public MessageRegistry getMessageRegistry() {
-		return SimpleBGPMessageFactory.getInstance();
+		return SimpleMessageRegistry.getInstance();
 	}
 
 	@Override
