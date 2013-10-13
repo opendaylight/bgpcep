@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import org.opendaylight.protocol.bgp.linkstate.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -26,30 +25,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 public final class SimpleAttributeRegistry implements AttributeRegistry {
 	private static final class Holder {
-		private static final AttributeRegistry INSTANCE;
-
-		static {
-			final AttributeRegistry reg = new SimpleAttributeRegistry();
-
-			reg.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser());
-			reg.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser());
-			reg.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser());
-			reg.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser());
-			reg.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser());
-			reg.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser());
-			reg.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser());
-			reg.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser());
-			reg.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser());
-			reg.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser());
-			reg.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(SimpleNlriRegistry.getInstance()));
-			reg.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(SimpleNlriRegistry.getInstance()));
-			reg.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser());
-			reg.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser());
-			reg.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser());
-			reg.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser());
-
-			INSTANCE = reg;
-		}
+		private static final AttributeRegistry INSTANCE = new SimpleAttributeRegistry();
 	}
 
 	private SimpleAttributeRegistry() {

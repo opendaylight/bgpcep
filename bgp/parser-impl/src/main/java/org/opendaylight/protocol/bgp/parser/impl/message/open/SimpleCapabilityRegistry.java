@@ -9,38 +9,18 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.SimpleAddressFamilyRegistry;
-import org.opendaylight.protocol.bgp.parser.impl.SimpleSubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4Bytes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
 public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	private static final class Holder {
-		private static final CapabilityRegistry INSTANCE;
-
-		static {
-			final CapabilityRegistry reg = new SimpleCapabilityRegistry();
-
-			final MultiProtocolCapabilityHandler multi =
-					new MultiProtocolCapabilityHandler(SimpleAddressFamilyRegistry.getInstance(),
-							SimpleSubsequentAddressFamilyRegistry.getInstance());
-			reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
-			reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
-
-			final As4CapabilityHandler as4 = new As4CapabilityHandler();
-			reg.registerCapabilityParser(As4CapabilityHandler.CODE, as4);
-			reg.registerCapabilitySerializer(CAs4Bytes.class, as4);
-
-			INSTANCE = reg;
-		}
+		private static final CapabilityRegistry INSTANCE = new SimpleCapabilityRegistry();
 	}
 
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();

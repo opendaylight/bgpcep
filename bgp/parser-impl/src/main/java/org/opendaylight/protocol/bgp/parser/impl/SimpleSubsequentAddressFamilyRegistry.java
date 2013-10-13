@@ -8,26 +8,14 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 import com.google.common.base.Preconditions;
 
 public final class SimpleSubsequentAddressFamilyRegistry implements SubsequentAddressFamilyRegistry {
 	private static final class Holder {
-		private static final SubsequentAddressFamilyRegistry INSTANCE;
-
-		static {
-			final SimpleSubsequentAddressFamilyRegistry reg = new SimpleSubsequentAddressFamilyRegistry();
-
-			reg.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1);
-			reg.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, 71);
-			reg.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128);
-
-			INSTANCE = reg;
-		}
+		private static final SubsequentAddressFamilyRegistry INSTANCE =
+				new SimpleSubsequentAddressFamilyRegistry();
 	}
 
 	private final SimpleFamilyRegistry<SubsequentAddressFamily, Integer> registry = new SimpleFamilyRegistry<>();

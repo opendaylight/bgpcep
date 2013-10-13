@@ -8,26 +8,13 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 
 import com.google.common.base.Preconditions;
 
 public final class SimpleAddressFamilyRegistry implements AddressFamilyRegistry {
 	private static final class Holder {
-		private static final AddressFamilyRegistry INSTANCE;
-
-		static {
-			final AddressFamilyRegistry reg = new SimpleAddressFamilyRegistry();
-
-			reg.registerAddressFamily(Ipv4AddressFamily.class, 1);
-			reg.registerAddressFamily(Ipv6AddressFamily.class, 2);
-			reg.registerAddressFamily(LinkstateAddressFamily.class, 16388);
-
-			INSTANCE = reg;
-		}
+		private static final AddressFamilyRegistry INSTANCE = new SimpleAddressFamilyRegistry();
 	}
 
 	private final SimpleFamilyRegistry<AddressFamily, Integer> registry = new SimpleFamilyRegistry<>();

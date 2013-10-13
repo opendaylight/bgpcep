@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.open.SimpleParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
@@ -41,14 +40,6 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
 	public static final int TYPE = 1;
-	public static final MessageParser PARSER;
-	public static final MessageSerializer SERIALIZER;
-
-	static {
-		final BGPOpenMessageParser p = new BGPOpenMessageParser(SimpleParameterRegistry.getInstance());
-		PARSER = p;
-		SERIALIZER = p;
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPOpenMessageParser.class);
 
@@ -64,7 +55,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 	private final ParameterRegistry reg;
 
-	private BGPOpenMessageParser(final ParameterRegistry reg) {
+	public BGPOpenMessageParser(final ParameterRegistry reg) {
 		this.reg = Preconditions.checkNotNull(reg);
 	}
 

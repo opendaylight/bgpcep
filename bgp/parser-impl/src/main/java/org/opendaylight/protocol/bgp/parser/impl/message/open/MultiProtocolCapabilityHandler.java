@@ -25,8 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
-final class MultiProtocolCapabilityHandler implements CapabilityParser, CapabilitySerializer {
-	static final int CODE = 1;
+public final class MultiProtocolCapabilityHandler implements CapabilityParser, CapabilitySerializer {
+	public static final int CODE = 1;
 
 	private static final int AFI_SIZE = 2; // bytes
 	private static final int SAFI_SIZE = 1; // bytes
@@ -34,7 +34,7 @@ final class MultiProtocolCapabilityHandler implements CapabilityParser, Capabili
 	private final AddressFamilyRegistry afiReg;
 	private final SubsequentAddressFamilyRegistry safiReg;
 
-	MultiProtocolCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+	public MultiProtocolCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
 		this.afiReg = Preconditions.checkNotNull(afiReg);
 		this.safiReg = Preconditions.checkNotNull(safiReg);
 	}
