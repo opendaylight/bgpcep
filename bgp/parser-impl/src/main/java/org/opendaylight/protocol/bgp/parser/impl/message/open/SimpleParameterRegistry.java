@@ -19,19 +19,29 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import com.google.common.base.Preconditions;
 
 public final class SimpleParameterRegistry implements ParameterRegistry {
-	public static final ParameterRegistry INSTANCE;
+	private static final class Holder {
+		private static final ParameterRegistry INSTANCE;
 
-	static {
-		final ParameterRegistry reg = new SimpleParameterRegistry();
+		static {
+			final ParameterRegistry reg = new SimpleParameterRegistry();
 
-		final CapabilityParameterParser cpp = new CapabilityParameterParser(SimpleCapabilityRegistry.INSTANCE);
-		reg.registerParameterParser(CapabilityParameterParser.TYPE, cpp);
-		reg.registerParameterSerializer(BgpParameters.class, cpp);
+			final CapabilityParameterParser cpp = new CapabilityParameterParser(SimpleCapabilityRegistry.getInstance());
+			reg.registerParameterParser(CapabilityParameterParser.TYPE, cpp);
+			reg.registerParameterSerializer(BgpParameters.class, cpp);
 
-		INSTANCE = reg;
+			INSTANCE = reg;
+		}
 	}
 
 	private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
+
+	private SimpleParameterRegistry() {
+
+	}
+
+	public static ParameterRegistry getInstance() {
+		return Holder.INSTANCE;
+	}
 
 	@Override
 	public AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {

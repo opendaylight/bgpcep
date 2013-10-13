@@ -71,7 +71,9 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 
 		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 
-		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener>(snf, new BGPHandlerFactory(SimpleBGPMessageFactory.INSTANCE), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
+		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf,
+				new BGPHandlerFactory(SimpleBGPMessageFactory.getInstance()),
+				new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);
 	}

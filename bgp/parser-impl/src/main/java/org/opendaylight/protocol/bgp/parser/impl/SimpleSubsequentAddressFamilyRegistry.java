@@ -16,19 +16,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Preconditions;
 
 public final class SimpleSubsequentAddressFamilyRegistry implements SubsequentAddressFamilyRegistry {
-	public static final SubsequentAddressFamilyRegistry INSTANCE;
+	private static final class Holder {
+		private static final SubsequentAddressFamilyRegistry INSTANCE;
 
-	static {
-		final SubsequentAddressFamilyRegistry reg = new SimpleSubsequentAddressFamilyRegistry();
+		static {
+			final SimpleSubsequentAddressFamilyRegistry reg = new SimpleSubsequentAddressFamilyRegistry();
 
-		reg.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1);
-		reg.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, 71);
-		reg.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128);
+			reg.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1);
+			reg.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, 71);
+			reg.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128);
 
-		INSTANCE = reg;
+			INSTANCE = reg;
+		}
 	}
 
 	private final SimpleFamilyRegistry<SubsequentAddressFamily, Integer> registry = new SimpleFamilyRegistry<>();
+
+	private SimpleSubsequentAddressFamilyRegistry() {
+
+	}
+
+	public static final SubsequentAddressFamilyRegistry getInstance() {
+		return Holder.INSTANCE;
+	}
 
 	@Override
 	public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
