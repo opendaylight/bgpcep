@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -20,6 +21,12 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleAttributeR
  * To test incorrect values.
  */
 public class PathAttributeParserTest {
+
+	@Before
+	public void setUp() {
+		// Activates everything
+		SimpleBGPMessageFactory.getInstance();
+	}
 
 	@Test
 	public void testOriginParser() {

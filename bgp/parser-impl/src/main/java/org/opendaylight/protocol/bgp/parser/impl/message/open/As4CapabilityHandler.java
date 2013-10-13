@@ -19,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
 
-final class As4CapabilityHandler implements CapabilityParser, CapabilitySerializer {
-	static final int CODE = 65;
+public final class As4CapabilityHandler implements CapabilityParser, CapabilitySerializer {
+	public static final int CODE = 65;
 
 	@Override
 	public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {

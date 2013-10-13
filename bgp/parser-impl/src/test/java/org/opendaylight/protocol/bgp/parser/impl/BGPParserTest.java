@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleAttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
@@ -85,10 +87,14 @@ public class BGPParserTest {
 
 	private static int MAX_SIZE = 300;
 
-	private final BGPUpdateMessageParser updateParser = BGPUpdateMessageParser.PARSER;
+	private static MessageRegistry reg;
+
+	private static BGPUpdateMessageParser updateParser;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
+		reg = SimpleBGPMessageFactory.getInstance();
+		updateParser = new BGPUpdateMessageParser(SimpleAttributeRegistry.getInstance());
 
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";

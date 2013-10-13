@@ -20,17 +20,7 @@ import com.google.common.base.Preconditions;
 
 public final class SimpleParameterRegistry implements ParameterRegistry {
 	private static final class Holder {
-		private static final ParameterRegistry INSTANCE;
-
-		static {
-			final ParameterRegistry reg = new SimpleParameterRegistry();
-
-			final CapabilityParameterParser cpp = new CapabilityParameterParser(SimpleCapabilityRegistry.getInstance());
-			reg.registerParameterParser(CapabilityParameterParser.TYPE, cpp);
-			reg.registerParameterSerializer(BgpParameters.class, cpp);
-
-			INSTANCE = reg;
-		}
+		private static final ParameterRegistry INSTANCE = new SimpleParameterRegistry();
 	}
 
 	private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
