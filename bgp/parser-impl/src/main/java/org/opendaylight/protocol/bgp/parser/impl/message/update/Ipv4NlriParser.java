@@ -11,7 +11,7 @@ import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4Builder;
 
-final class Ipv4NlriParser extends IpNlriParser {
+public final class Ipv4NlriParser extends IpNlriParser {
 	@Override
 	protected DestinationIpv4 parseNlri(final byte[] nlri) {
 		return new DestinationIpv4Builder().setIpv4Prefixes(Ipv4Util.prefixListForBytes(nlri)).build();

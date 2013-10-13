@@ -28,22 +28,10 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
 	public static final int TYPE = 3;
-	public static final MessageParser PARSER;
-	public static final MessageSerializer SERIALIZER;
-
-	static {
-		final BGPNotificationMessageParser p = new BGPNotificationMessageParser();
-		PARSER = p;
-		SERIALIZER = p;
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
 
 	private static final int ERROR_SIZE = 2; // bytes
-
-	private BGPNotificationMessageParser() {
-
-	}
 
 	/**
 	 * Serializes BGP Notification message.

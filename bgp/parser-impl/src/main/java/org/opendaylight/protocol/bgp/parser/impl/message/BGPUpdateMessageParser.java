@@ -14,7 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleAttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -38,7 +37,6 @@ import com.google.common.base.Preconditions;
  */
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
-	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser(SimpleAttributeRegistry.getInstance());
 
 	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 

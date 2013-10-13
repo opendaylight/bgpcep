@@ -8,16 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Keepalive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Notify;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -26,18 +19,13 @@ public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
 		private static final SimpleBGPMessageFactory INSTANCE;
 
 		static {
-			final SimpleBGPMessageFactory reg = new SimpleBGPMessageFactory();
-
-			reg.registerMessageParser(BGPOpenMessageParser.TYPE, BGPOpenMessageParser.PARSER);
-			reg.registerMessageSerializer(Open.class, BGPOpenMessageParser.SERIALIZER);
-			reg.registerMessageParser(BGPUpdateMessageParser.TYPE, BGPUpdateMessageParser.PARSER);
-			// Serialization of Update message is not supported
-			reg.registerMessageParser(BGPNotificationMessageParser.TYPE, BGPNotificationMessageParser.PARSER);
-			reg.registerMessageSerializer(Notify.class, BGPNotificationMessageParser.SERIALIZER);
-			reg.registerMessageParser(BGPKeepAliveMessageParser.TYPE, BGPKeepAliveMessageParser.PARSER);
-			reg.registerMessageSerializer(Keepalive.class, BGPKeepAliveMessageParser.SERIALIZER);
-
-			INSTANCE = reg;
+			final SimpleBGPMessageFactory f = new SimpleBGPMessageFactory();
+			try {
+				new ActivatorImpl().start(SingletonProviderContext.getInstance());
+			} catch (Exception e) {
+				throw new ExceptionInInitializerError(e);
+			}
+			INSTANCE = f;
 		}
 	}
 
