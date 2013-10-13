@@ -18,6 +18,7 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
+import org.opendaylight.protocol.bgp.parser.impl.SingletonProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
@@ -72,7 +73,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 
 		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf,
-				new BGPHandlerFactory(BGPMessageFactoryImpl.getInstance()),
+				new BGPHandlerFactory(new BGPMessageFactoryImpl(SingletonProviderContext.getInstance().getMessageRegistry())),
 				new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);

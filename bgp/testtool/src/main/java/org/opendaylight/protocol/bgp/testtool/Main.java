@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
+import org.opendaylight.protocol.bgp.parser.impl.SingletonProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -49,7 +50,7 @@ public class Main {
 	BGPDispatcherImpl dispatcher;
 
 	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(BGPMessageFactoryImpl.getInstance());
+		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(SingletonProviderContext.getInstance().getMessageRegistry()));
 	}
 
 	public static void main(final String[] args) throws NumberFormatException, IOException {

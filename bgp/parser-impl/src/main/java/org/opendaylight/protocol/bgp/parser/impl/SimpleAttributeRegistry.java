@@ -24,18 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class SimpleAttributeRegistry implements AttributeRegistry {
-	private static final class Holder {
-		private static final AttributeRegistry INSTANCE = new SimpleAttributeRegistry();
-	}
-
-	private SimpleAttributeRegistry() {
-
-	}
-
-	public static AttributeRegistry getInstance() {
-		return Holder.INSTANCE;
-	}
-
 	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
 	@Override

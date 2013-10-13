@@ -22,9 +22,9 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.concepts.IGPMetric;
 import org.opendaylight.protocol.concepts.IPv4;
@@ -85,14 +85,11 @@ public class BGPParserTest {
 
 	private static int MAX_SIZE = 300;
 
-	private static BGPMessageFactory reg;
-
 	private static BGPUpdateMessageParser updateParser;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		reg = BGPMessageFactoryImpl.getInstance();
-		updateParser = new BGPUpdateMessageParser(SimpleAttributeRegistry.getInstance());
+		updateParser = new BGPUpdateMessageParser(SingletonProviderContext.getInstance().getAttributeRegistry());
 
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";
@@ -1039,8 +1036,8 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final BGPMessageFactory msgFactory = BGPMessageFactoryImpl.getInstance();
-		final Open open = (Open) msgFactory.parse(inputBytes.get(13)).get(0);
+		final MessageRegistry msgReg = SingletonProviderContext.getInstance().getMessageRegistry();
+		final Open open = (Open) msgReg.parseMessage(inputBytes.get(13));
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
 			final CParameters p = param.getCParameters();
