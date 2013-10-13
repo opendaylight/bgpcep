@@ -38,7 +38,7 @@ import com.google.common.base.Preconditions;
  */
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
-	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser(SimpleAttributeRegistry.INSTANCE);
+	public static final BGPUpdateMessageParser PARSER = new BGPUpdateMessageParser(SimpleAttributeRegistry.getInstance());
 
 	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
