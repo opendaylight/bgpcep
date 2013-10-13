@@ -20,42 +20,22 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class SimpleNlriRegistry implements NlriRegistry {
 	private static final class Holder {
-		private static final NlriRegistry INSTANCE;
-
-		static {
-			final NlriRegistry reg = new SimpleNlriRegistry(SimpleAddressFamilyRegistry.getInstance(),
-					SimpleSubsequentAddressFamilyRegistry.getInstance());
-
-			final NlriParser ipv4 = new Ipv4NlriParser();
-			reg.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv4);
-
-			final NlriParser ipv6 = new Ipv6NlriParser();
-			reg.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv6);
-
-			reg.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new LinkstateNlriParser(false));
-			reg.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new LinkstateNlriParser(true));
-
-			INSTANCE = reg;
-		}
+		private static final NlriRegistry INSTANCE =
+				new SimpleNlriRegistry(SimpleAddressFamilyRegistry.getInstance(),
+						SimpleSubsequentAddressFamilyRegistry.getInstance());
 	}
 
 	private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
@@ -126,7 +106,6 @@ public final class SimpleNlriRegistry implements NlriRegistry {
 		final NlriParser parser = handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 		parser.parseNlri(ByteArray.subByte(bytes, 3, bytes.length - 3), builder);
 
-		//		builder.setWithdrawnRoutes(routes);
 		return builder.build();
 	}
 
