@@ -24,7 +24,7 @@ public class PathAttributeParserTest {
 	@Before
 	public void setUp() {
 		// Activates everything
-		SimpleBGPMessageFactory.getInstance();
+		BGPMessageFactoryImpl.getInstance();
 	}
 
 	@Test

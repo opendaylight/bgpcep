@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.impl.SimpleBGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
@@ -80,7 +80,7 @@ public class ParserTest {
 		(byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
 		(byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
-	final ProtocolMessageFactory<Notification> factory = SimpleBGPMessageFactory.getInstance();
+	final ProtocolMessageFactory<Notification> factory = BGPMessageFactoryImpl.getInstance();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {
