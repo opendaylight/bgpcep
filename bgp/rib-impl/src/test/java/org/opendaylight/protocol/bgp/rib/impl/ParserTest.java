@@ -80,7 +80,7 @@ public class ParserTest {
 		(byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
 		(byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
-	final ProtocolMessageFactory<Notification> factory = SimpleBGPMessageFactory.INSTANCE;
+	final ProtocolMessageFactory<Notification> factory = SimpleBGPMessageFactory.getInstance();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {

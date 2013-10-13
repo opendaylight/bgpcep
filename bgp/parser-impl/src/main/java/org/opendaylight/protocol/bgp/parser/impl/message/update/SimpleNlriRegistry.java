@@ -38,22 +38,37 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class SimpleNlriRegistry implements NlriRegistry {
-	public static final NlriRegistry INSTANCE;
+	private static final class Holder {
+		private static final NlriRegistry INSTANCE;
 
-	static {
-		final NlriRegistry reg = new SimpleNlriRegistry(SimpleAddressFamilyRegistry.INSTANCE,
-				SimpleSubsequentAddressFamilyRegistry.INSTANCE);
+		static {
+			final NlriRegistry reg = new SimpleNlriRegistry(SimpleAddressFamilyRegistry.getInstance(),
+					SimpleSubsequentAddressFamilyRegistry.getInstance());
 
-		final NlriParser ipv4 = new Ipv4NlriParser();
-		reg.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv4);
+			final NlriParser ipv4 = new Ipv4NlriParser();
+			reg.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv4);
 
-		final NlriParser ipv6 = new Ipv6NlriParser();
-		reg.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv6);
+			final NlriParser ipv6 = new Ipv6NlriParser();
+			reg.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv6);
 
-		reg.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new LinkstateNlriParser(false));
-		reg.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new LinkstateNlriParser(true));
+			reg.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new LinkstateNlriParser(false));
+			reg.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new LinkstateNlriParser(true));
 
-		INSTANCE = reg;
+			INSTANCE = reg;
+		}
+	}
+
+	private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
+	private final SubsequentAddressFamilyRegistry safiReg;
+	private final AddressFamilyRegistry afiReg;
+
+	private SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+		this.afiReg = Preconditions.checkNotNull(afiReg);
+		this.safiReg = Preconditions.checkNotNull(safiReg);
+	}
+
+	public static NlriRegistry getInstance() {
+		return Holder.INSTANCE;
 	}
 
 	private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
@@ -61,15 +76,6 @@ public final class SimpleNlriRegistry implements NlriRegistry {
 		Preconditions.checkNotNull(afi);
 		Preconditions.checkNotNull(safi);
 		return new BgpTableTypeImpl(afi, safi);
-	}
-
-	private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
-	private final SubsequentAddressFamilyRegistry safiReg;
-	private final AddressFamilyRegistry afiReg;
-
-	public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-		this.afiReg = Preconditions.checkNotNull(afiReg);
-		this.safiReg = Preconditions.checkNotNull(safiReg);
 	}
 
 	@Override
