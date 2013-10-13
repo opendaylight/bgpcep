@@ -23,11 +23,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ServerTest {
-	public static final int PORT = 18080;
-
 	SimpleDispatcher clientDispatcher, dispatcher;
 
 	final SimpleSessionListener pce = new SimpleSessionListener();
@@ -36,7 +35,13 @@ public class ServerTest {
 
 	ChannelFuture server = null;
 
-	public final InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.5", PORT);
+	InetSocketAddress serverAddress;
+
+	@Before
+	public void setUp() {
+		final int port = 10000 + (int)(10000 * Math.random());
+		serverAddress = new InetSocketAddress("127.0.0.5", port);
+	}
 
 	@Test
 	public void testConnectionEstablished() throws Exception {
