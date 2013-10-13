@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.ProviderContext;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -20,26 +19,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 public final class BGPMessageFactoryImpl implements BGPMessageFactory {
-	private static final class Holder {
-		private static final BGPMessageFactoryImpl INSTANCE;
-
-		static {
-			final ProviderContext pc = SingletonProviderContext.getInstance();
-
-			new ActivatorImpl().start(pc);
-
-			INSTANCE = new BGPMessageFactoryImpl(pc.getMessageRegistry());
-		}
-	}
-
 	private final MessageRegistry registry;
 
-	private BGPMessageFactoryImpl(final MessageRegistry registry) {
+	public BGPMessageFactoryImpl(final MessageRegistry registry) {
 		this.registry = Preconditions.checkNotNull(registry);
-	}
-
-	public static BGPMessageFactoryImpl getInstance() {
-		return Holder.INSTANCE;
 	}
 
 	/*
