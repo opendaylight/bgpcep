@@ -49,7 +49,7 @@ public class Main {
 	BGPDispatcherImpl dispatcher;
 
 	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(SimpleBGPMessageFactory.INSTANCE);
+		this.dispatcher = new BGPDispatcherImpl(SimpleBGPMessageFactory.getInstance());
 	}
 
 	public static void main(final String[] args) throws NumberFormatException, IOException {

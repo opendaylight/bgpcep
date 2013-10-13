@@ -23,24 +23,35 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import com.google.common.base.Preconditions;
 
 public final class SimpleCapabilityRegistry implements CapabilityRegistry {
-	public static final CapabilityRegistry INSTANCE;
+	private static final class Holder {
+		private static final CapabilityRegistry INSTANCE;
 
-	static {
-		final SimpleCapabilityRegistry reg = new SimpleCapabilityRegistry();
+		static {
+			final CapabilityRegistry reg = new SimpleCapabilityRegistry();
 
-		final MultiProtocolCapabilityHandler multi =
-				new MultiProtocolCapabilityHandler(SimpleAddressFamilyRegistry.INSTANCE, SimpleSubsequentAddressFamilyRegistry.INSTANCE);
-		reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
-		reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
+			final MultiProtocolCapabilityHandler multi =
+					new MultiProtocolCapabilityHandler(SimpleAddressFamilyRegistry.getInstance(),
+							SimpleSubsequentAddressFamilyRegistry.getInstance());
+			reg.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi);
+			reg.registerCapabilitySerializer(CMultiprotocol.class, multi);
 
-		final As4CapabilityHandler as4 = new As4CapabilityHandler();
-		reg.registerCapabilityParser(As4CapabilityHandler.CODE, as4);
-		reg.registerCapabilitySerializer(CAs4Bytes.class, as4);
+			final As4CapabilityHandler as4 = new As4CapabilityHandler();
+			reg.registerCapabilityParser(As4CapabilityHandler.CODE, as4);
+			reg.registerCapabilitySerializer(CAs4Bytes.class, as4);
 
-		INSTANCE = reg;
+			INSTANCE = reg;
+		}
 	}
 
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
+
+	private SimpleCapabilityRegistry() {
+
+	}
+
+	public static CapabilityRegistry getInstance() {
+		return Holder.INSTANCE;
+	}
 
 	@Override
 	public AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {

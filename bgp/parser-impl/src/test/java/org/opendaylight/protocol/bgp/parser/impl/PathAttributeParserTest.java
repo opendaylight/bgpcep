@@ -24,7 +24,7 @@ public class PathAttributeParserTest {
 	@Test
 	public void testOriginParser() {
 		try {
-			SimpleAttributeRegistry.INSTANCE.parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
+			SimpleAttributeRegistry.getInstance().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
 			fail("This needs to fail.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Unknown Origin type.", e.getMessage());

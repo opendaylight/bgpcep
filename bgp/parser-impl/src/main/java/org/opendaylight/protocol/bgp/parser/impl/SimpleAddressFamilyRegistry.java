@@ -16,19 +16,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Preconditions;
 
 public final class SimpleAddressFamilyRegistry implements AddressFamilyRegistry {
-	public static final AddressFamilyRegistry INSTANCE;
+	private static final class Holder {
+		private static final AddressFamilyRegistry INSTANCE;
 
-	static {
-		final AddressFamilyRegistry reg = new SimpleAddressFamilyRegistry();
+		static {
+			final AddressFamilyRegistry reg = new SimpleAddressFamilyRegistry();
 
-		reg.registerAddressFamily(Ipv4AddressFamily.class, 1);
-		reg.registerAddressFamily(Ipv6AddressFamily.class, 2);
-		reg.registerAddressFamily(LinkstateAddressFamily.class, 16388);
+			reg.registerAddressFamily(Ipv4AddressFamily.class, 1);
+			reg.registerAddressFamily(Ipv6AddressFamily.class, 2);
+			reg.registerAddressFamily(LinkstateAddressFamily.class, 16388);
 
-		INSTANCE = reg;
+			INSTANCE = reg;
+		}
 	}
 
 	private final SimpleFamilyRegistry<AddressFamily, Integer> registry = new SimpleFamilyRegistry<>();
+
+	private SimpleAddressFamilyRegistry() {
+
+	}
+
+	public static AddressFamilyRegistry getInstance() {
+		return Holder.INSTANCE;
+	}
 
 	@Override
 	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {

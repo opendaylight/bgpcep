@@ -45,7 +45,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 	public static final MessageSerializer SERIALIZER;
 
 	static {
-		final BGPOpenMessageParser p = new BGPOpenMessageParser(SimpleParameterRegistry.INSTANCE);
+		final BGPOpenMessageParser p = new BGPOpenMessageParser(SimpleParameterRegistry.getInstance());
 		PARSER = p;
 		SERIALIZER = p;
 	}

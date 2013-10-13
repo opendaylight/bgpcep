@@ -1035,7 +1035,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final BGPMessageFactory msgFactory = SimpleBGPMessageFactory.INSTANCE;
+		final BGPMessageFactory msgFactory = SimpleBGPMessageFactory.getInstance();
 		final Open open = (Open) msgFactory.parse(inputBytes.get(13)).get(0);
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
