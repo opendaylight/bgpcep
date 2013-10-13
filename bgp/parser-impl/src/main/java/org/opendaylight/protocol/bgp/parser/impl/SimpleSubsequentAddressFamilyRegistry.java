@@ -14,19 +14,6 @@ import com.google.common.base.Preconditions;
 
 public final class SimpleSubsequentAddressFamilyRegistry extends
 AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements SubsequentAddressFamilyRegistry {
-	private static final class Holder {
-		private static final SubsequentAddressFamilyRegistry INSTANCE =
-				new SimpleSubsequentAddressFamilyRegistry();
-	}
-
-	private SimpleSubsequentAddressFamilyRegistry() {
-
-	}
-
-	public static final SubsequentAddressFamilyRegistry getInstance() {
-		return Holder.INSTANCE;
-	}
-
 	@Override
 	public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 255);

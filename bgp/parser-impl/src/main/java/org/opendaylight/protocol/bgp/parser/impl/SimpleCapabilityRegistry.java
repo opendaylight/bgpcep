@@ -19,19 +19,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import com.google.common.base.Preconditions;
 
 public final class SimpleCapabilityRegistry implements CapabilityRegistry {
-	private static final class Holder {
-		private static final CapabilityRegistry INSTANCE = new SimpleCapabilityRegistry();
-	}
-
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
-
-	private SimpleCapabilityRegistry() {
-
-	}
-
-	public static CapabilityRegistry getInstance() {
-		return Holder.INSTANCE;
-	}
 
 	@Override
 	public AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {

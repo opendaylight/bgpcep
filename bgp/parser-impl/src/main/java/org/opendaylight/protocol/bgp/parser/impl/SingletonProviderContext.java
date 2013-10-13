@@ -18,11 +18,25 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 
 public final class SingletonProviderContext implements ProviderContext {
 	private static final class Holder {
-		private static final ProviderContext INSTANCE = new SingletonProviderContext();
+		private static final ProviderContext INSTANCE;
+
+		static {
+			final ProviderContext pc = new SingletonProviderContext();
+			new ActivatorImpl().start(pc);
+			INSTANCE = pc;
+		}
 	}
 
-	private SingletonProviderContext() {
+	private final AddressFamilyRegistry afiReg = new SimpleAddressFamilyRegistry();
+	private final AttributeRegistry attrReg = new SimpleAttributeRegistry();
+	private final CapabilityRegistry capReg = new SimpleCapabilityRegistry();
+	private final MessageRegistry msgReg = new SimpleMessageRegistry();
+	private final NlriRegistry nlriReg;
+	private final ParameterRegistry paramReg = new SimpleParameterRegistry();
+	private final SubsequentAddressFamilyRegistry safiReg= new SimpleSubsequentAddressFamilyRegistry();
 
+	private SingletonProviderContext() {
+		nlriReg = new SimpleNlriRegistry(afiReg, safiReg);
 	}
 
 	public static ProviderContext getInstance() {
@@ -31,36 +45,36 @@ public final class SingletonProviderContext implements ProviderContext {
 
 	@Override
 	public AddressFamilyRegistry getAddressFamilyRegistry() {
-		return SimpleAddressFamilyRegistry.getInstance();
+		return afiReg;
 	}
 
 	@Override
 	public AttributeRegistry getAttributeRegistry() {
-		return SimpleAttributeRegistry.getInstance();
+		return attrReg;
 	}
 
 	@Override
 	public CapabilityRegistry getCapabilityRegistry() {
-		return SimpleCapabilityRegistry.getInstance();
+		return capReg;
 	}
 
 	@Override
 	public MessageRegistry getMessageRegistry() {
-		return SimpleMessageRegistry.getInstance();
+		return msgReg;
 	}
 
 	@Override
 	public NlriRegistry getNlriRegistry() {
-		return SimpleNlriRegistry.getInstance();
+		return nlriReg;
 	}
 
 	@Override
 	public ParameterRegistry getParameterRegistry() {
-		return SimpleParameterRegistry.getInstance();
+		return paramReg;
 	}
 
 	@Override
 	public SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry() {
-		return SimpleSubsequentAddressFamilyRegistry.getInstance();
+		return safiReg;
 	}
 }

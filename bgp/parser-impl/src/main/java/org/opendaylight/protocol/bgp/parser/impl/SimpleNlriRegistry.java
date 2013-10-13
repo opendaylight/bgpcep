@@ -30,23 +30,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class SimpleNlriRegistry implements NlriRegistry {
-	private static final class Holder {
-		private static final NlriRegistry INSTANCE =
-				new SimpleNlriRegistry(SimpleAddressFamilyRegistry.getInstance(),
-						SimpleSubsequentAddressFamilyRegistry.getInstance());
-	}
-
 	private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
 	private final SubsequentAddressFamilyRegistry safiReg;
 	private final AddressFamilyRegistry afiReg;
 
-	private SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+	public SimpleNlriRegistry(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
 		this.afiReg = Preconditions.checkNotNull(afiReg);
 		this.safiReg = Preconditions.checkNotNull(safiReg);
-	}
-
-	public static NlriRegistry getInstance() {
-		return Holder.INSTANCE;
 	}
 
 	private static BgpTableType createKey(final Class<? extends AddressFamily> afi,

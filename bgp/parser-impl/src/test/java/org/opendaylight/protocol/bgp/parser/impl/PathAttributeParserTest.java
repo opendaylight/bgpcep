@@ -11,7 +11,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -20,17 +19,10 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
  * To test incorrect values.
  */
 public class PathAttributeParserTest {
-
-	@Before
-	public void setUp() {
-		// Activates everything
-		BGPMessageFactoryImpl.getInstance();
-	}
-
 	@Test
 	public void testOriginParser() {
 		try {
-			SimpleAttributeRegistry.getInstance().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
+			SingletonProviderContext.getInstance().getAttributeRegistry().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
 			fail("This needs to fail.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Unknown Origin type.", e.getMessage());
