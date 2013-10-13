@@ -9,35 +9,24 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class SimpleBGPMessageFactory extends AbstractMessageRegistry {
+public final class SimpleMessageRegistry extends AbstractMessageRegistry {
 	private static final class Holder {
-		private static final SimpleBGPMessageFactory INSTANCE;
-
-		static {
-			final SimpleBGPMessageFactory f = new SimpleBGPMessageFactory();
-
-			// Wrong order, but needed for circular dep.
-			INSTANCE = f;
-			try {
-				new ActivatorImpl().start(SingletonProviderContext.getInstance());
-			} catch (Exception e) {
-				throw new ExceptionInInitializerError(e);
-			}
-		}
+		private static final MessageRegistry INSTANCE = new SimpleMessageRegistry();
 	}
 
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-	private SimpleBGPMessageFactory() {
+	private SimpleMessageRegistry() {
 
 	}
 
-	public static SimpleBGPMessageFactory getInstance() {
+	public static MessageRegistry getInstance() {
 		return Holder.INSTANCE;
 	}
 
