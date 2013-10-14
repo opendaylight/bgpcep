@@ -26,10 +26,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
-import org.opendaylight.protocol.concepts.IGPMetric;
-import org.opendaylight.protocol.concepts.Metric;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.DefaultingTypesafeContainer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -853,8 +850,8 @@ public class BGPParserTest {
 		// final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
 
 		// network link state
-		final DefaultingTypesafeContainer<Metric<?>> container = new DefaultingTypesafeContainer<Metric<?>>();
-		container.setDefaultEntry(new IGPMetric(1));
+		// final DefaultingTypesafeContainer<Metric<?>> container = new DefaultingTypesafeContainer<Metric<?>>();
+		// container.setDefaultEntry(new IGPMetric(1));
 		// final NetworkLinkState linkState = new NetworkLinkState(objState, container, null,
 		// LinkProtectionType.UNPROTECTED, null, null, null);
 

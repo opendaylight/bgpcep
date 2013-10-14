@@ -7,46 +7,41 @@
  */
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
-
 /**
  * Structure of Shared Risk Link Group Subobject. Defined in RFC5521.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route
- *      Object definition</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route Object definition</a>
  */
 public class XROSRLGSubobject extends ExcludeRouteSubobject {
 
 	private final XROSubobjectAttribute attribute;
 
-	private final SharedRiskLinkGroup srlgId;
+	// private final SharedRiskLinkGroup srlgId;
 
 	/**
 	 * Constructs new Shared Risk Link Group Subobject.
-	 *
-	 * @param srlgId
-	 *            SharedRiskLinkGroup
-	 * @param mandatory
-	 *            boolean
+	 * 
+	 * @param srlgId SharedRiskLinkGroup
+	 * @param mandatory boolean
 	 */
-	public XROSRLGSubobject(SharedRiskLinkGroup srlgId, boolean mandatory) {
+	public XROSRLGSubobject(final boolean mandatory) {
 		super(mandatory);
 		this.attribute = XROSubobjectAttribute.SRLG;
-		this.srlgId = srlgId;
+		// this.srlgId = srlgId;
 	}
 
 	/**
 	 * Gets the Shared Risk Link Group.
-	 *
+	 * 
 	 * @return SharedRiskLinkGroup
 	 */
-	public SharedRiskLinkGroup getSrlgId() {
-		return this.srlgId;
-	}
+	// public SharedRiskLinkGroup getSrlgId() {
+	// return this.srlgId;
+	// }
 
 	/**
 	 * Gets the attribute of the subobject
-	 *
+	 * 
 	 * @return the attribute
 	 */
 	public XROSubobjectAttribute getAttribute() {
@@ -58,8 +53,6 @@ public class XROSRLGSubobject extends ExcludeRouteSubobject {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("XROSRLGSubobject [attribute=");
 		builder.append(this.attribute);
-		builder.append(", srlgId=");
-		builder.append(this.srlgId.getValue());
 		builder.append(", mandatory=");
 		builder.append(this.mandatory);
 		builder.append("]");
@@ -71,12 +64,11 @@ public class XROSRLGSubobject extends ExcludeRouteSubobject {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((this.attribute == null) ? 0 : this.attribute.hashCode());
-		result = prime * result + ((this.srlgId == null) ? 0 : this.srlgId.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
@@ -85,11 +77,6 @@ public class XROSRLGSubobject extends ExcludeRouteSubobject {
 			return false;
 		final XROSRLGSubobject other = (XROSRLGSubobject) obj;
 		if (this.attribute != other.attribute)
-			return false;
-		if (this.srlgId == null) {
-			if (other.srlgId != null)
-				return false;
-		} else if (!this.srlgId.equals(other.srlgId))
 			return false;
 		return true;
 	}
