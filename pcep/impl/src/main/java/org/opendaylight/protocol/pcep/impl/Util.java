@@ -7,26 +7,30 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.opendaylight.protocol.concepts.AddressFamily;
-import org.opendaylight.protocol.concepts.NetworkAddress;
+import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrorMapping.PCEPErrorIdentifier;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session.Open;
+
+import com.google.common.collect.Lists;
 
 /**
  * Utilities used in pcep-impl
@@ -55,22 +59,26 @@ public final class Util {
 		}
 	}
 
-	public static <T extends NetworkAddress<T>> List<T> parseAddresses(final byte[] bytes, int offset, final AddressFamily<T> family,
-			final int addrLen) {
-		final List<T> addresses = new ArrayList<T>();
+	public static List<IpAddress> parseAddresses(final byte[] bytes, int offset, final AddressFamily family, final int addrLen) {
+		final List<IpAddress> addresses = Lists.newArrayList();
 
 		while (bytes.length > offset) {
-			addresses.add(family.addressForBytes(ByteArray.subByte(bytes, offset, addrLen)));
+			if (family instanceof Ipv4)
+				addresses.add(new IpAddress(Ipv4Util.addressForBytes(ByteArray.subByte(bytes, offset, addrLen))));
+			else
+				addresses.add(new IpAddress(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, offset, addrLen))));
 			offset += addrLen;
 		}
 
 		return addresses;
 	}
 
-	public static <T extends NetworkAddress<T>> void putAddresses(final byte[] destBytes, int offset, final List<T> addresses,
-			final int addrLen) {
-		for (final T address : addresses) {
-			System.arraycopy(address.getAddress(), 0, destBytes, offset, addrLen);
+	public static void putAddresses(final byte[] destBytes, int offset, final List<IpAddress> addresses, final int addrLen) {
+		for (final IpAddress address : addresses) {
+			if (address.getIpv4Address() != null)
+				System.arraycopy(address.getIpv4Address().getValue().getBytes(), 0, destBytes, offset, addrLen);
+			else
+				System.arraycopy(address.getIpv6Address().getValue().getBytes(), 0, destBytes, offset, addrLen);
 			offset += addrLen;
 		}
 	}

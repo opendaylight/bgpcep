@@ -18,7 +18,6 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
@@ -41,7 +40,6 @@ import org.opendaylight.protocol.pcep.subobject.RROWavebandSwitchingLabelSubobje
 import org.opendaylight.protocol.pcep.subobject.ReportedRouteSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROIPPrefixSubobject;
-import org.opendaylight.protocol.pcep.subobject.XROSRLGSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROSubobjectAttribute;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -144,7 +142,7 @@ public class PCEPSubobjectParserTest {
 		objsToTest.add(new XROAsNumberSubobject(new AsNumber((long) 0x1234), true));
 		// objsToTest.add(new XROUnnumberedInterfaceSubobject(new IPv4Address(this.ipv4bytes1), new
 		// UnnumberedInterfaceIdentifier(0xFFFFFFFFL), true, XROSubobjectAttribute.SRLG));
-		objsToTest.add(new XROSRLGSubobject(new SharedRiskLinkGroup(0x12345678L), false));
+		// objsToTest.add(new XROSRLGSubobject(new SharedRiskLinkGroup(0x12345678L), false));
 
 		// assertEquals(objsToTest, PCEPXROSubobjectParser.parse(PCEPXROSubobjectParser.put(objsToTest)));
 	}

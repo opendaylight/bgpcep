@@ -8,43 +8,39 @@
 
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
  * Parametrized structure of IP Prefix Subobject.
- *
- * @see <a href="http://tools.ietf.org/html/rfc3209#section-4.3.3.2">Section
- *      4.3.3.2.: Subobject 1: IPv4 prefix</a> and <a
- *      href="http://tools.ietf.org/html/rfc3209#section-4.3.3.3">Section
- *      4.3.3.2.: Subobject 2: IPv6 prefix</a>
- *
- * @param <T>
- *            subtype of Prefix
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc3209#section-4.3.3.2">Section 4.3.3.2.: Subobject 1: IPv4 prefix</a> and
+ *      <a href="http://tools.ietf.org/html/rfc3209#section-4.3.3.3">Section 4.3.3.2.: Subobject 2: IPv6 prefix</a>
+ * 
+ * @param <T> subtype of Prefix
  */
-public class EROIPPrefixSubobject<T extends Prefix<?>> extends ExplicitRouteSubobject {
+public class EROIPPrefixSubobject extends ExplicitRouteSubobject {
 
-	private final T prefix;
+	private final IpPrefix prefix;
 
 	/**
 	 * Constructs IPPrefix Subobject.
-	 *
-	 * @param prefix
-	 *            T
-	 * @param loose
-	 *            boolean
+	 * 
+	 * @param prefix T
+	 * @param loose boolean
 	 */
-	public EROIPPrefixSubobject(T prefix, boolean loose) {
+	public EROIPPrefixSubobject(final IpPrefix prefix, final boolean loose) {
 		super(loose);
 		this.prefix = prefix;
 	}
 
 	/**
 	 * Gets specific {@link Prefix}.
-	 *
+	 * 
 	 * @return prefix T
 	 */
-	public T getPrefix() {
+	public IpPrefix getPrefix() {
 		return this.prefix;
 	}
 
@@ -57,14 +53,14 @@ public class EROIPPrefixSubobject<T extends Prefix<?>> extends ExplicitRouteSubo
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (this.getClass() != obj.getClass())
 			return false;
-		final EROIPPrefixSubobject<?> other = (EROIPPrefixSubobject<?>) obj;
+		final EROIPPrefixSubobject other = (EROIPPrefixSubobject) obj;
 		if (this.prefix == null) {
 			if (other.prefix != null)
 				return false;
@@ -73,8 +69,8 @@ public class EROIPPrefixSubobject<T extends Prefix<?>> extends ExplicitRouteSubo
 		return true;
 	}
 
-    @Override
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("prefix", this.prefix);
 		return super.addToStringAttributes(toStringHelper);
 	}

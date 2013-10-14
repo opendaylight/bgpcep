@@ -16,7 +16,6 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIPv4PrefixSubobjectParser;
@@ -25,7 +24,6 @@ import org.opendaylight.protocol.pcep.impl.subobject.XROUnnumberedInterfaceSubob
 import org.opendaylight.protocol.pcep.subobject.ExcludeRouteSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROIPPrefixSubobject;
-import org.opendaylight.protocol.pcep.subobject.XROSRLGSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROSubobjectAttribute;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -52,7 +50,7 @@ public class PCEPXROSubobjectParserTest {
 		// (byte) 0, (byte) 0,
 		// (byte) 0x20 }), new UnnumberedInterfaceIdentifier(0x1234L), false, XROSubobjectAttribute.SRLG));
 		assertEquals(objsToTest.get(3), new XROAsNumberSubobject(new AsNumber((long) 0x1234), false));
-		assertEquals(objsToTest.get(4), new XROSRLGSubobject(new SharedRiskLinkGroup(0x12345678L), false));
+		// assertEquals(objsToTest.get(4), new XROSRLGSubobject(new SharedRiskLinkGroup(0x12345678L), false));
 
 		// assertArrayEquals(bytesFromFile, PCEPXROSubobjectParser.put(objsToTest));
 
