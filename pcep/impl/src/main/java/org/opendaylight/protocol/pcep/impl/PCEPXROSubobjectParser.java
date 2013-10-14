@@ -10,12 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.concepts.IPv4Prefix;
-import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIPv4PrefixSubobjectParser;
@@ -27,6 +21,9 @@ import org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROSRLGSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROUnnumberedInterfaceSubobject;
+import org.opendaylight.protocol.util.ByteArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.PCEPXROSubobject PCEPXROSubobject}
@@ -36,15 +33,14 @@ public class PCEPXROSubobjectParser {
 	private static final Logger logger = LoggerFactory.getLogger(PCEPXROSubobjectParser.class);
 
 	/**
-	 * Type identifier for {@link org.opendaylight.protocol.pcep.PCEPXROSubobject
-	 * PCEPXROSubobject}
+	 * Type identifier for {@link org.opendaylight.protocol.pcep.PCEPXROSubobject PCEPXROSubobject}
 	 */
 	public enum PCEPXROSubobjectType {
 		IPv4_PREFIX(1), IPv6_PREFIX(2), UNNUMBERED_INTERFACE_ID(4), AS_NUMBER(32), SRLG(34);
 
 		private final int indicator;
 
-		PCEPXROSubobjectType(int indicator) {
+		PCEPXROSubobjectType(final int indicator) {
 			this.indicator = indicator;
 		}
 
@@ -52,14 +48,15 @@ public class PCEPXROSubobjectParser {
 			return this.indicator;
 		}
 
-		public static PCEPXROSubobjectType getFromInt(int type) throws PCEPDeserializerException {
+		public static PCEPXROSubobjectType getFromInt(final int type) throws PCEPDeserializerException {
 
 			for (final PCEPXROSubobjectType type_e : PCEPXROSubobjectType.values()) {
 				if (type_e.getIndicator() == type)
 					return type_e;
 			}
 
-			throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + "; Known: " + PCEPXROSubobjectType.values() + ".");
+			throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + "; Known: " + PCEPXROSubobjectType.values()
+					+ ".");
 		}
 	}
 
@@ -76,7 +73,7 @@ public class PCEPXROSubobjectParser {
 	public static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + TYPE_FLAG_F_LENGTH;
 	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + LENGTH_F_LENGTH;
 
-	public static List<ExcludeRouteSubobject> parse(byte[] bytes) throws PCEPDeserializerException {
+	public static List<ExcludeRouteSubobject> parse(final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null)
 			throw new IllegalArgumentException("Byte array is mandatory.");
 
@@ -95,7 +92,8 @@ public class PCEPXROSubobjectParser {
 			type = PCEPXROSubobjectType.getFromInt((bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7));
 
 			if (length > bytes.length - offset)
-				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= " + (bytes.length - offset));
+				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+						+ (bytes.length - offset));
 
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
@@ -112,7 +110,7 @@ public class PCEPXROSubobjectParser {
 		return subobjsList;
 	}
 
-	public static byte[] put(List<ExcludeRouteSubobject> objsToSerialize) {
+	public static byte[] put(final List<ExcludeRouteSubobject> objsToSerialize) {
 		final List<byte[]> bytesList = new ArrayList<byte[]>(objsToSerialize.size());
 
 		int length = 0;
@@ -133,15 +131,16 @@ public class PCEPXROSubobjectParser {
 		return retBytes;
 	}
 
-	public static byte[] put(ExcludeRouteSubobject objToSerialize) {
+	public static byte[] put(final ExcludeRouteSubobject objToSerialize) {
 		int typeIndicator = 0;
 
 		final byte[] soContentsBytes;
 
-		if (objToSerialize instanceof XROIPPrefixSubobject<?> && ((XROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv4Prefix) {
+		if (objToSerialize instanceof XROIPPrefixSubobject && ((XROIPPrefixSubobject) objToSerialize).getPrefix().getIpv4Prefix() != null) {
 			typeIndicator = PCEPXROSubobjectType.IPv4_PREFIX.getIndicator();
 			soContentsBytes = XROIPv4PrefixSubobjectParser.put(objToSerialize);
-		} else if (objToSerialize instanceof XROIPPrefixSubobject<?> && ((XROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv6Prefix) {
+		} else if (objToSerialize instanceof XROIPPrefixSubobject
+				&& ((XROIPPrefixSubobject) objToSerialize).getPrefix().getIpv6Prefix() != null) {
 			typeIndicator = PCEPXROSubobjectType.IPv6_PREFIX.getIndicator();
 			soContentsBytes = XROIPv6PrefixSubobjectParser.put(objToSerialize);
 		} else if (objToSerialize instanceof XROAsNumberSubobject) {
@@ -158,31 +157,32 @@ public class PCEPXROSubobjectParser {
 
 		final byte[] bytes = new byte[SO_CONTENTS_OFFSET + soContentsBytes.length];
 
-		bytes[TYPE_FLAG_F_OFFSET] = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(typeIndicator), (Integer.SIZE / 8) - TYPE_FLAG_F_LENGTH)[0] | (objToSerialize
-				.isMandatory() ? 1 << 7 : 0));
-		bytes[LENGTH_F_OFFSET] = ByteArray.cutBytes(ByteArray.intToBytes(soContentsBytes.length + SO_CONTENTS_OFFSET), (Integer.SIZE / 8) - LENGTH_F_LENGTH)[0];
+		bytes[TYPE_FLAG_F_OFFSET] = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(typeIndicator), (Integer.SIZE / 8) - TYPE_FLAG_F_LENGTH)[0] | (objToSerialize.isMandatory() ? 1 << 7
+				: 0));
+		bytes[LENGTH_F_OFFSET] = ByteArray.cutBytes(ByteArray.intToBytes(soContentsBytes.length + SO_CONTENTS_OFFSET), (Integer.SIZE / 8)
+				- LENGTH_F_LENGTH)[0];
 
 		System.arraycopy(soContentsBytes, 0, bytes, SO_CONTENTS_OFFSET, soContentsBytes.length);
 
 		return bytes;
 	}
 
-	private static ExcludeRouteSubobject parseSpecificSubobject(PCEPXROSubobjectType type, byte[] soContentsBytes, boolean mandatory)
-			throws PCEPDeserializerException {
+	private static ExcludeRouteSubobject parseSpecificSubobject(final PCEPXROSubobjectType type, final byte[] soContentsBytes,
+			final boolean mandatory) throws PCEPDeserializerException {
 
 		switch (type) {
-			case IPv4_PREFIX:
-				return XROIPv4PrefixSubobjectParser.parse(soContentsBytes, mandatory);
-			case IPv6_PREFIX:
-				return XROIPv6PrefixSubobjectParser.parse(soContentsBytes, mandatory);
-			case UNNUMBERED_INTERFACE_ID:
-				return XROUnnumberedInterfaceSubobjectParser.parse(soContentsBytes, mandatory);
-			case AS_NUMBER:
-				return XROAsNumberSubobjectParser.parse(soContentsBytes, mandatory);
-			case SRLG:
-				return XROSRLGSubobjectParser.parse(soContentsBytes, mandatory);
-			default:
-				throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + ".");
+		case IPv4_PREFIX:
+			return XROIPv4PrefixSubobjectParser.parse(soContentsBytes, mandatory);
+		case IPv6_PREFIX:
+			return XROIPv6PrefixSubobjectParser.parse(soContentsBytes, mandatory);
+		case UNNUMBERED_INTERFACE_ID:
+			return XROUnnumberedInterfaceSubobjectParser.parse(soContentsBytes, mandatory);
+		case AS_NUMBER:
+			return XROAsNumberSubobjectParser.parse(soContentsBytes, mandatory);
+		case SRLG:
+			return XROSRLGSubobjectParser.parse(soContentsBytes, mandatory);
+		default:
+			throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + ".");
 		}
 	}
 }

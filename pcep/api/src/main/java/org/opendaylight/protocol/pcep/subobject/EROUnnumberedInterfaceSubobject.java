@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
 
 import com.google.common.base.Objects.ToStringHelper;
@@ -20,7 +20,7 @@ import com.google.common.base.Objects.ToStringHelper;
  */
 public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 	private final UnnumberedSubobject interfaceID;
-	private final IPv4Address routerID;
+	private final Ipv4Address routerID;
 
 	/**
 	 * Constructs new Unnumbered Interface Subobject.
@@ -29,7 +29,7 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 	 * @param interfaceID UnnumberedInterfaceIdentifier
 	 * @param loose boolean
 	 */
-	public EROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedSubobject interfaceID, final boolean loose) {
+	public EROUnnumberedInterfaceSubobject(final Ipv4Address routerID, final UnnumberedSubobject interfaceID, final boolean loose) {
 		super(loose);
 		this.routerID = routerID;
 		this.interfaceID = interfaceID;
@@ -40,7 +40,7 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 	 * 
 	 * @return IPv4Address
 	 */
-	public IPv4Address getRouterID() {
+	public Ipv4Address getRouterID() {
 		return this.routerID;
 	}
 

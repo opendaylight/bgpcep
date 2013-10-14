@@ -9,46 +9,32 @@ package org.opendaylight.protocol.concepts;
 
 import static org.junit.Assert.assertTrue;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.junit.Test;
-
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.IPv6;
-import org.opendaylight.protocol.concepts.IPv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 
 public class IPAddressesAndPrefixesTest {
 
 	@Test
-	public void test1(){
-		assertTrue(IPAddresses.parseNetworkAddress("123.123.123.123") instanceof IPv4Address);
-		assertTrue(IPAddresses.parseNetworkAddress("2001::1") instanceof IPv6Address);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void test2(){
-		IPAddresses.parseNetworkAddress("256.125.126.256");
-	}
-
-	@Test
 	public void test3() {
-		assertTrue("123.123.123.123".equals(IPv4.FAMILY.addressForString("123.123.123.123").toString()));
-		assertTrue("2001:0:0:0:0:0:0:1".equals(IPv6.FAMILY.addressForString("2001::1").toString()));
+		assertTrue("123.123.123.123".equals(new Ipv4Address("123.123.123.123").getValue()));
+		assertTrue("2001::1".equals(new Ipv6Address("2001::1").getValue()));
 	}
 
 	@Test
-	public void test4() throws UnknownHostException{
-		assertTrue(IPAddresses.createNetworkAddress(InetAddress.getByName("123.123.123.123")) instanceof IPv4Address);
-		assertTrue(IPAddresses.createNetworkAddress(InetAddress.getByName("2001::1")) instanceof IPv6Address);
+	public void test4() throws UnknownHostException {
+		assertTrue(new IpPrefix(new Ipv4Prefix("123.123.123.123")).getIpv4Prefix() != null);
+		assertTrue(new IpPrefix(new Ipv6Prefix("2001::1")).getIpv6Prefix() != null);
 	}
 
 	@Test
 	public void test5() {
-		assertTrue("123.123.123.0/24".equals(IPv4.FAMILY.addressForString("123.123.123.123").asPrefix(24).toString()));
-		assertTrue("123.123.123.0/24".equals(IPv4.FAMILY.prefixForString("123.123.123.123/24").toString()));
-		assertTrue("2001:0:0:0:0:0:0:0/120".equals(IPv6.FAMILY.addressForString("2001::1").asPrefix(120).toString()));
-		assertTrue("2001:0:0:0:0:0:0:0/120".equals(IPv6.FAMILY.prefixForString("2001::1/120").toString()));
+		assertTrue("123.123.123.123/24".equals(new Ipv4Prefix("123.123.123.123/24").getValue()));
+		assertTrue("2001::1/120".equals(new Ipv6Prefix("2001::1/120").getValue()));
 	}
 }

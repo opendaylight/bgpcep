@@ -49,7 +49,7 @@ public class RROUnnumberedInterfaceSubobjectParser {
 		retBytes = new byte[CONTENT_LENGTH];
 		final RROUnnumberedInterfaceSubobject specObj = (RROUnnumberedInterfaceSubobject) objToSerialize;
 
-		ByteArray.copyWhole(specObj.getRouterID().getAddress(), retBytes, ROUTER_ID_NUMBER_OFFSET);
+		ByteArray.copyWhole(specObj.getRouterID().getValue().getBytes(), retBytes, ROUTER_ID_NUMBER_OFFSET);
 		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceID().getInterfaceId()), Long.SIZE / Byte.SIZE
 				- INTERFACE_ID_NUMBER_LENGTH, retBytes, INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.subobject;
 
-import org.opendaylight.protocol.concepts.IPv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
 
 /**
@@ -21,7 +21,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 
 	private final UnnumberedSubobject interfaceID;
 
-	private final IPv4Address routerID;
+	private final Ipv4Address routerID;
 
 	/**
 	 * Constructs new Unnumbered Interface Subobject.
@@ -31,7 +31,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 	 * @param mandatory boolean
 	 * @param attribute XROSubobjectAttribute
 	 */
-	public XROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedSubobject interfaceID, final boolean mandatory,
+	public XROUnnumberedInterfaceSubobject(final Ipv4Address routerID, final UnnumberedSubobject interfaceID, final boolean mandatory,
 			final XROSubobjectAttribute attribute) {
 		super(mandatory);
 		this.attribute = attribute;
@@ -53,7 +53,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 	 * 
 	 * @return IPv4Address
 	 */
-	public IPv4Address getRouterID() {
+	public Ipv4Address getRouterID() {
 		return this.routerID;
 	}
 
