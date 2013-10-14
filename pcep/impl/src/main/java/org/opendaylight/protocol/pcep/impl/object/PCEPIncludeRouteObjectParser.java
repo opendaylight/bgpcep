@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.IncludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -26,15 +27,16 @@ public class PCEPIncludeRouteObjectParser extends AbstractObjectParser<IncludeRo
 
 	public static final int TYPE = 1;
 
-	public PCEPIncludeRouteObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPIncludeRouteObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public IncludeRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
+		}
 
 		final IncludeRouteBuilder builder = new IncludeRouteBuilder();
 
@@ -51,8 +53,9 @@ public class PCEPIncludeRouteObjectParser extends AbstractObjectParser<IncludeRo
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof IncludeRouteObject))
+		if (!(object instanceof IncludeRouteObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed IncludeRouteObject.");
+		}
 
 		assert !(((IncludeRouteObject) object).getSubobjects().isEmpty()) : "Empty Include Route Object.";
 

@@ -11,7 +11,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NotificationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -47,15 +48,16 @@ public class PCEPNotificationObjectParser extends AbstractObjectParser<Notificat
 	public static final int NV_F_OFFSET = NT_F_OFFSET + NT_F_LENGTH;
 	public static final int TLVS_OFFSET = NV_F_OFFSET + NV_F_LENGTH;
 
-	public PCEPNotificationObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPNotificationObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public NotificationObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final NotificationsBuilder builder = new NotificationsBuilder();
 
@@ -72,26 +74,30 @@ public class PCEPNotificationObjectParser extends AbstractObjectParser<Notificat
 
 	@Override
 	public void addTlv(final NotificationsBuilder builder, final Tlv tlv) {
-		if (tlv instanceof OverloadDurationTlv && builder.getType() == 2 && builder.getValue() == 1)
+		if (tlv instanceof OverloadDurationTlv && builder.getType() == 2 && builder.getValue() == 1) {
 			builder.setTlvs(new TlvsBuilder().setOverloadDuration(
 					new OverloadDurationBuilder().setDuration(((OverloadDurationTlv) tlv).getDuration()).build()).build());
+		}
 	}
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof NotificationObject))
+		if (!(object instanceof NotificationObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NotificationObject.");
+		}
 
 		final NotificationObject notObj = (NotificationObject) object;
 
 		final byte[] tlvs = serializeTlvs(notObj.getTlvs());
 		int tlvsLength = 0;
-		if (tlvs != null)
+		if (tlvs != null) {
 			tlvsLength = tlvs.length;
+		}
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null)
+		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		}
 
 		retBytes[NT_F_OFFSET] = ByteArray.shortToBytes(notObj.getType())[1];
 		retBytes[NV_F_OFFSET] = ByteArray.shortToBytes(notObj.getValue())[1];

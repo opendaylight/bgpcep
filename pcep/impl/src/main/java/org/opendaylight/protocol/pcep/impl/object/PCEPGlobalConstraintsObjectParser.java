@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.GcObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -39,14 +40,15 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectParser<GcBu
 
 	private final static int TLVS_OFFSET = OVER_BOOKING_FACTOR_F_OFFSET + OVER_BOOKING_FACTOR_F_LENGTH;
 
-	public PCEPGlobalConstraintsObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPGlobalConstraintsObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public GcObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final GcBuilder builder = new GcBuilder();
 
@@ -70,8 +72,9 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectParser<GcBu
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof GcObject))
+		if (!(object instanceof GcObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed GcObject.");
+		}
 
 		final GcObject specObj = (GcObject) object;
 

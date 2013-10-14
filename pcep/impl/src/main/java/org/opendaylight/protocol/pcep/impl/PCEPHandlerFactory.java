@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandler;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
 import org.opendaylight.protocol.framework.ProtocolMessageDecoder;
 import org.opendaylight.protocol.framework.ProtocolMessageEncoder;
+import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 /**
@@ -20,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPHandlerFactory extends ProtocolHandlerFactory<Message> {
 	private final ProtocolMessageEncoder<Message> encoder;
 
-	public PCEPHandlerFactory() {
-		super(new PCEPMessageFactory());
+	public PCEPHandlerFactory(final MessageHandlerRegistry registry) {
+		super(new PCEPMessageFactory(registry));
 		this.encoder = new ProtocolMessageEncoder<Message>(this.msgFactory);
 	}
 

@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrptMessage;
 
@@ -22,20 +22,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPReportMessageParser extends AbstractMessageParser {
 
 	private final int TYPE = 10;
-	
-	public PCEPReportMessageParser(HandlerRegistry registry) {
+
+	public PCEPReportMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
-	public void serializeMessage(Message message, ByteBuf buffer) {
-		if (!(message instanceof PcrptMessage))
+	public void serializeMessage(final Message message, final ByteBuf buffer) {
+		if (!(message instanceof PcrptMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded PcrptMessage.");
+		}
 	}
 
 	@Override
-	public PcrptMessage parseMessage(byte[] buffer) throws PCEPDeserializerException {
+	public PcrptMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException {
 		return null;
 	}
 

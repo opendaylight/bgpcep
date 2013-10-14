@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -38,14 +39,15 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectParser<OfBu
 	public static final int OF_CODE_F_OFFSET = 0;
 	public static final int TLVS_OFFSET = OF_CODE_F_OFFSET + OF_CODE_F_LENGTH + 2; // added reserved field of size 2
 
-	public PCEPObjectiveFunctionObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPObjectiveFunctionObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public OfObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final OfBuilder builder = new OfBuilder();
 
@@ -65,9 +67,10 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectParser<OfBu
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof OfObject))
+		if (!(object instanceof OfObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed PCEPObjectiveFunction.");
+		}
 
 		final OfObject specObj = (OfObject) object;
 		// FIXME

@@ -13,7 +13,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.EndpointsObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -43,7 +44,7 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 
 	public static final int SRC4_F_OFFSET = 0;
 	public static final int DEST4_F_OFFSET = SRC4_F_OFFSET + SRC4_F_LENGTH;
-	
+
 	public static final int CLASS_6 = 4;
 
 	public static final int TYPE_6 = 2;
@@ -54,23 +55,25 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 	public static final int SRC6_F_OFFSET = 0;
 	public static final int DEST6_F_OFFSET = SRC6_F_OFFSET + SRC6_F_LENGTH;
 
-	public PCEPEndPointsObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPEndPointsObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public EndpointsObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null)
+	PCEPDocumentedException {
+		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
-		
-		if (!header.isProcessingRule())
+		}
+
+		if (!header.isProcessingRule()) {
 			throw new PCEPDocumentedException("Processed flag not set", PCEPErrors.P_FLAG_NOT_SET);
-		
+		}
+
 		final EndpointsBuilder builder = new EndpointsBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		
+
 		if (bytes.length == SRC4_F_LENGTH + DEST4_F_LENGTH) {
 			final Ipv4Builder b = new Ipv4Builder();
 			b.setSourceIpv4Address(Ipv4Util.addressForBytes(ByteArray.subByte(bytes, SRC4_F_OFFSET, SRC4_F_LENGTH)));
@@ -81,8 +84,9 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 			b.setSourceIpv6Address(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, SRC6_F_OFFSET, SRC6_F_LENGTH)));
 			b.setDestinationIpv6Address((Ipv6Util.addressForBytes(ByteArray.subByte(bytes, DEST6_F_OFFSET, DEST6_F_LENGTH))));
 			builder.setAddressFamily(b.build());
-		} else
+		} else {
 			throw new PCEPDeserializerException("Wrong length of array of bytes.");
+		}
 		return builder.build();
 	}
 
@@ -93,8 +97,9 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof EndpointsObject))
+		if (!(object instanceof EndpointsObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
+		}
 
 		final EndpointsObject ePObj = (EndpointsObject) object;
 
@@ -110,8 +115,9 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 			ByteArray.copyWhole(Ipv6Util.bytesForAddress(((Ipv6) afi).getSourceIpv6Address()), retBytes, SRC6_F_OFFSET);
 			ByteArray.copyWhole(Ipv6Util.bytesForAddress(((Ipv6) afi).getDestinationIpv6Address()), retBytes, DEST6_F_OFFSET);
 			return retBytes;
-		} else
+		} else {
 			throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + afi.getClass() + ". Needed IPv4");
+		}
 	}
 
 	@Override
@@ -123,7 +129,7 @@ public class PCEPEndPointsObjectParser extends AbstractObjectParser<EndpointsBui
 	public int getObjectClass() {
 		return CLASS;
 	}
-	
+
 	public int get6ObjectType() {
 		return TYPE_6;
 	}

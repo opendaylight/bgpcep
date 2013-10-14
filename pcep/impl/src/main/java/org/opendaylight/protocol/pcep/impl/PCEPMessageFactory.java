@@ -15,7 +15,7 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -45,8 +45,6 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 
 	private static final int VERSION_SF_LENGTH = 3;
 
-	private final HandlerRegistry registry;
-
 	private static final int VER_FLAGS_MF_LENGTH = 1;
 	private static final int TYPE_F_LENGTH = 1;
 	private static final int LENGTH_F_LENGTH = 2;
@@ -55,8 +53,10 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 	private static final int TYPE_F_OFFSET = VER_FLAGS_MF_LENGTH + VER_FLAGS_MF_OFFSET;
 	private static final int LENGTH_F_OFFSET = TYPE_F_LENGTH + TYPE_F_OFFSET;
 
-	public PCEPMessageFactory() {
-		this.registry = HandlerRegistryImpl.INSTANCE;
+	private final MessageHandlerRegistry registry;
+
+	public PCEPMessageFactory(final MessageHandlerRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
 	}
 
 	@Override

@@ -11,7 +11,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -47,14 +48,15 @@ public class PCEPCloseObjectParser extends AbstractObjectParser<CCloseBuilder> {
 	 */
 	public static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
-	public PCEPCloseObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPCloseObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public CloseObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
+		}
 
 		final CCloseBuilder builder = new CCloseBuilder();
 
@@ -75,19 +77,22 @@ public class PCEPCloseObjectParser extends AbstractObjectParser<CCloseBuilder> {
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof CloseObject))
+		if (!(object instanceof CloseObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
+		}
 
 		final CloseObject obj = (CloseObject) object;
 
 		final byte[] tlvs = serializeTlvs(obj.getTlvs());
 		int tlvsLength = 0;
-		if (tlvs != null)
+		if (tlvs != null) {
 			tlvsLength = tlvs.length;
+		}
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null)
+		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		}
 
 		final int reason = ((CClose) obj).getReason().intValue();
 

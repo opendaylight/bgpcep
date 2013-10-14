@@ -30,7 +30,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
 	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
 
-	private final PCEPHandlerFactory hf = new PCEPHandlerFactory();
+	private final PCEPHandlerFactory hf = new PCEPHandlerFactory(SimpleMessageHandlerFactory.INSTANCE);
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.

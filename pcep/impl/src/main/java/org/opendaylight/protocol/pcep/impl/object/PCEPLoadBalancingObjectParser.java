@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LoadBalancingObject;
@@ -38,18 +39,20 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectParser<LoadBala
 
 	public static final int SIZE = MIN_BAND_F_OFFSET + MIN_BAND_F_LENGTH;
 
-	public PCEPLoadBalancingObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPLoadBalancingObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public LoadBalancingObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
+		}
 
-		if (bytes.length != SIZE)
+		if (bytes.length != SIZE) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: " + SIZE + ".");
+		}
 
 		final LoadBalancingBuilder builder = new LoadBalancingBuilder();
 
@@ -69,9 +72,10 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectParser<LoadBala
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof LoadBalancingObject))
+		if (!(object instanceof LoadBalancingObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed LoadBalancingObject.");
+		}
 
 		final LoadBalancingObject specObj = (LoadBalancingObject) object;
 

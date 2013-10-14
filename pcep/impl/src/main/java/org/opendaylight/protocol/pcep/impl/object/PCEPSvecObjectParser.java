@@ -13,7 +13,8 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -57,18 +58,20 @@ public class PCEPSvecObjectParser extends AbstractObjectParser<SvecBuilder> {
 	 */
 	public static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
 
-	public PCEPSvecObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPSvecObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public SvecObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
-		if (bytes.length < MIN_SIZE)
+		if (bytes.length < MIN_SIZE) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + MIN_SIZE
 					+ ".");
+		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 		final List<RequestId> requestIDs = Lists.newArrayList();
@@ -77,8 +80,9 @@ public class PCEPSvecObjectParser extends AbstractObjectParser<SvecBuilder> {
 			requestIDs.add(new RequestId(ByteArray.bytesToLong(ByteArray.subByte(bytes, i, REQ_LIST_ITEM_LENGTH))));
 		}
 
-		if (requestIDs.isEmpty())
+		if (requestIDs.isEmpty()) {
 			throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
+		}
 
 		final SvecBuilder builder = new SvecBuilder();
 
@@ -99,8 +103,9 @@ public class PCEPSvecObjectParser extends AbstractObjectParser<SvecBuilder> {
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof SvecObject))
+		if (!(object instanceof SvecObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SvecObject.");
+		}
 
 		final SvecObject svecObj = (SvecObject) object;
 		final byte[] retBytes = new byte[svecObj.getRequestsIds().size() * REQ_LIST_ITEM_LENGTH + REQ_ID_LIST_OFFSET];

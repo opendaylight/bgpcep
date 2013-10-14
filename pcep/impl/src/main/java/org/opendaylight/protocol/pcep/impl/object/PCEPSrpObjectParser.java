@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpObject;
@@ -23,8 +24,8 @@ public final class PCEPSrpObjectParser extends AbstractObjectParser<SrpBuilder> 
 
 	public static final int TYPE = 1;
 
-	public PCEPSrpObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPSrpObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
@@ -47,8 +48,9 @@ public final class PCEPSrpObjectParser extends AbstractObjectParser<SrpBuilder> 
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof SrpObject))
+		if (!(object instanceof SrpObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
+		}
 
 		final SrpObject srp = (SrpObject) object;
 		// FIXME: finish

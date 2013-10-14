@@ -18,7 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -45,19 +45,21 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
 	public final int TYPE = 6;
 
-	public PCEPErrorMessageParser(final HandlerRegistry registry) {
+	public PCEPErrorMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof PcerrMessage))
+		if (!(message instanceof PcerrMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass()
 					+ ". Nedded ErrorMessage.");
+		}
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
 
-		if (err.getErrors() == null || err.getErrors().isEmpty())
+		if (err.getErrors() == null || err.getErrors().isEmpty()) {
 			throw new IllegalArgumentException("Errors should not be empty.");
+		}
 
 		if (err.getErrorType() instanceof Request) {
 			final List<Rps> rps = ((Request) err.getErrorType()).getRps();
@@ -95,8 +97,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	private PcerrMessage validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (objects == null)
+		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
+		}
 
 		Open openObj = null;
 		final List<Rps> requestParameters = Lists.newArrayList();
@@ -108,8 +111,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
 
-			if (obj instanceof UnknownObject)
+			if (obj instanceof UnknownObject) {
 				return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
+			}
 
 			switch (state) {
 			case 1:
@@ -132,8 +136,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 						state = 2;
 						if (obj instanceof RpObject) {
 							final RpObject o = ((RpObject) obj);
-							if (o.isProcessingRule())
+							if (o.isProcessingRule()) {
 								throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+							}
 							requestParameters.add((Rps) o);
 							state = 1;
 							break;
@@ -148,8 +153,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 						state = 3;
 					}
 
-					if (state == 3)
+					if (state == 3) {
 						break;
+					}
 
 					objects.remove(0);
 				}
@@ -165,15 +171,19 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			objects.remove(0);
 		}
 
-		if (errorObjects.isEmpty() && errorObjects.isEmpty())
+		if (errorObjects.isEmpty() && errorObjects.isEmpty()) {
 			throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
+		}
 
-		if (!objects.isEmpty())
+		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-		if (requestParameters != null)
+		}
+		if (requestParameters != null) {
 			b.setErrorType(new RequestBuilder().setRps(requestParameters).build());
-		if (openObj != null)
+		}
+		if (openObj != null) {
 			b.setErrorType(new SessionBuilder().setOpen(openObj).build());
+		}
 
 		return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
 	}

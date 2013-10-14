@@ -14,7 +14,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
@@ -31,15 +31,16 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
 	private final int TYPE = 7;
 
-	public PCEPCloseMessageParser(final HandlerRegistry registry) {
+	public PCEPCloseMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof CloseMessage))
+		if (!(message instanceof CloseMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded CloseMessage.");
+		}
 		final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
 
 		if (close.getCClose() == null) {
@@ -59,18 +60,21 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 	}
 
 	private Close validate(final List<Object> objects) throws PCEPDeserializerException {
-		if (objects == null)
+		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
+		}
 
-		if (objects.isEmpty() || !(objects.get(0) instanceof CClose))
+		if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
 			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
+		}
 
 		final Object o = objects.get(0);
 		final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
 		objects.remove(0);
 
-		if (!objects.isEmpty())
+		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+		}
 
 		return new CloseBuilder().setCCloseMessage(msg).build();
 	}
