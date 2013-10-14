@@ -7,23 +7,21 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
-
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
- * Used as a reason when one of the regular reasons was the cause of the
- * termination of a session.
+ * Used as a reason when one of the regular reasons was the cause of the termination of a session.
  */
 public final class PCEPCloseTermination extends PCEPTerminationReason {
 
-	private final Reason reason;
+	private final TerminationReason reason;
 
 	/**
 	 * Creates new Termination.
+	 * 
 	 * @param reason reason for termination
 	 */
-	public PCEPCloseTermination(final Reason reason) {
+	public PCEPCloseTermination(final TerminationReason reason) {
 		super();
 		this.reason = reason;
 	}
@@ -38,7 +36,7 @@ public final class PCEPCloseTermination extends PCEPTerminationReason {
 
 	@Override
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		return toStringHelper.add("reason", reason);
+		return toStringHelper.add("reason", this.reason);
 
 	}
 }

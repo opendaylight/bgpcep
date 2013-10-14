@@ -8,36 +8,31 @@
 package org.opendaylight.protocol.pcep.subobject;
 
 import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
 
 /**
- * Structure of unnumbered Iterface Subobject. Defined in RFC5521.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route
- *      Object definition</a>
+ * Structure of unnumbered Interface Subobject. Defined in RFC5521.
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route Object definition</a>
  */
 public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 
 	private final XROSubobjectAttribute attribute;
 
-	private final UnnumberedInterfaceIdentifier interfaceID;
+	private final UnnumberedSubobject interfaceID;
 
 	private final IPv4Address routerID;
 
 	/**
 	 * Constructs new Unnumbered Interface Subobject.
-	 *
-	 * @param routerID
-	 *            IPv4Address
-	 * @param interfaceID
-	 *            UnnumberedInterfaceIdentifier
-	 * @param mandatory
-	 *            boolean
-	 * @param attribute
-	 *            XROSubobjectAttribute
+	 * 
+	 * @param routerID IPv4Address
+	 * @param interfaceID UnnumberedInterfaceIdentifier
+	 * @param mandatory boolean
+	 * @param attribute XROSubobjectAttribute
 	 */
-	public XROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedInterfaceIdentifier interfaceID, boolean mandatory,
-			XROSubobjectAttribute attribute) {
+	public XROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedSubobject interfaceID, final boolean mandatory,
+			final XROSubobjectAttribute attribute) {
 		super(mandatory);
 		this.attribute = attribute;
 		this.routerID = routerID;
@@ -46,7 +41,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 
 	/**
 	 * Gets the attribute of the subobject
-	 *
+	 * 
 	 * @return the attribute
 	 */
 	public XROSubobjectAttribute getAttribute() {
@@ -55,7 +50,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 
 	/**
 	 * Gets {@link IPv4Address} representation of router ID.
-	 *
+	 * 
 	 * @return IPv4Address
 	 */
 	public IPv4Address getRouterID() {
@@ -63,12 +58,11 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 	}
 
 	/**
-	 * Gets {@link UnnumberedInterfaceIdentifier} representation of Interface
-	 * ID.
-	 *
+	 * Gets {@link UnnumberedInterfaceIdentifier} representation of Interface ID.
+	 * 
 	 * @return UnnumberedInterfaceIdentifier
 	 */
-	public UnnumberedInterfaceIdentifier getInterfaceID() {
+	public UnnumberedSubobject getInterfaceID() {
 		return this.interfaceID;
 	}
 
@@ -83,7 +77,7 @@ public class XROUnnumberedInterfaceSubobject extends ExcludeRouteSubobject {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))

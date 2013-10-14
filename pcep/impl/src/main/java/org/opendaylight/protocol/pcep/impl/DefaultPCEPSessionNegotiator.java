@@ -12,7 +12,8 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
 
 import com.google.common.base.Preconditions;
 
@@ -21,37 +22,39 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
 	private final int maxUnknownMessages;
 
 	public DefaultPCEPSessionNegotiator(final Timer timer, final Promise<PCEPSessionImpl> promise, final Channel channel,
-			final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final PCEPOpenObject localPrefs) {
+			final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final OpenObject localPrefs) {
 		super(timer, promise, channel);
 		this.maxUnknownMessages = maxUnknownMessages;
-		this.myLocalPrefs = new PCEPOpenObject(localPrefs.getKeepAliveTimerValue(), localPrefs.getDeadTimerValue(), sessionId, localPrefs.getTlvs());
+		this.myLocalPrefs = new OpenBuilder().setKeepalive(localPrefs.getKeepalive()).setDeadTimer(localPrefs.getDeadTimer()).setSessionId(
+				sessionId).setTlvs(localPrefs.getTlvs()).build();
 		this.listener = Preconditions.checkNotNull(listener);
 	}
 
-	private final PCEPOpenObject myLocalPrefs;
+	private final OpenObject myLocalPrefs;
 
 	@Override
-	protected PCEPOpenObject getInitialProposal() {
-		return myLocalPrefs;
+	protected OpenObject getInitialProposal() {
+		return this.myLocalPrefs;
 	}
 
 	@Override
-	protected PCEPSessionImpl createSession(final Timer timer, final Channel channel, final PCEPOpenObject localPrefs, final PCEPOpenObject remotePrefs) {
-		return new PCEPSessionImpl(timer, listener, maxUnknownMessages, channel, localPrefs, remotePrefs);
+	protected PCEPSessionImpl createSession(final Timer timer, final Channel channel, final OpenObject localPrefs,
+			final OpenObject remotePrefs) {
+		return new PCEPSessionImpl(timer, this.listener, this.maxUnknownMessages, channel, localPrefs, remotePrefs);
 	}
 
 	@Override
-	protected boolean isProposalAcceptable(final PCEPOpenObject open) {
+	protected boolean isProposalAcceptable(final OpenObject open) {
 		return true;
 	}
 
 	@Override
-	protected PCEPOpenObject getCounterProposal(final PCEPOpenObject open) {
+	protected OpenObject getCounterProposal(final OpenObject open) {
 		return null;
 	}
 
 	@Override
-	protected PCEPOpenObject getRevisedProposal(final PCEPOpenObject suggestion) {
-		return myLocalPrefs;
+	protected OpenObject getRevisedProposal(final OpenObject suggestion) {
+		return this.myLocalPrefs;
 	}
 }

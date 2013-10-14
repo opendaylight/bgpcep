@@ -7,42 +7,67 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import java.util.List;
-
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPObject;
-import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPRROSubobjectParser;
-import org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject;
-import org.opendaylight.protocol.pcep.subobject.ReportedRouteSubobject;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPReportedRouteObject
- * PCEPReportedRouteObject}
+ * Parser for {@link ReportedRouteObject}
  */
-public class PCEPReportedRouteObjectParser implements PCEPObjectParser {
+public class PCEPReportedRouteObjectParser extends AbstractObjectParser<ReportedRouteBuilder> {
+
+	public static final int CLASS = 8;
+
+	public static final int TYPE = 1;
+
+	public PCEPReportedRouteObjectParser(final HandlerRegistry registry) {
+		super(registry);
+	}
 
 	@Override
-	public PCEPObject parse(byte[] bytes, boolean processed, boolean ignored) throws PCEPDeserializerException {
+	public ReportedRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0)
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 
-		final List<ReportedRouteSubobject> subobjects = PCEPRROSubobjectParser.parse(bytes);
-		if (subobjects.isEmpty())
-			throw new PCEPDeserializerException("Empty Reported Route Object.");
+		final ReportedRouteBuilder builder = new ReportedRouteBuilder();
 
-		return new PCEPReportedRouteObject(subobjects, processed);
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
+		// FIXME: add subobjects
+		return builder.build();
 	}
 
 	@Override
-	public byte[] put(PCEPObject obj) {
-
-		if (!(obj instanceof PCEPReportedRouteObject))
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPReportedRouteObject.");
-
-		assert !(((PCEPReportedRouteObject) obj).getSubobjects().isEmpty()) : "Empty Reported Route Object.";
-
-		return PCEPRROSubobjectParser.put(((PCEPReportedRouteObject) obj).getSubobjects());
+	public void addTlv(final ReportedRouteBuilder builder, final Tlv tlv) {
+		// No tlvs defined
 	}
 
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof ReportedRouteObject))
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
+					+ ". Needed ReportedRouteObject.");
+
+		assert !(((ReportedRouteObject) object).getSubobjects().isEmpty()) : "Empty Reported Route Object.";
+		// FIXME add subobjects
+		// return PCEPRROSubobjectParser.put(((ReportedRouteObject) object).getSubobjects());
+		return null;
+	}
+
+	@Override
+	public int getObjectType() {
+		return TYPE;
+	}
+
+	@Override
+	public int getObjectClass() {
+		return CLASS;
+	}
 }

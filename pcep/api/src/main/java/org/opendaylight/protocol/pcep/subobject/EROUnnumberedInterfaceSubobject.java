@@ -9,30 +9,27 @@
 package org.opendaylight.protocol.pcep.subobject;
 
 import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
+
 import com.google.common.base.Objects.ToStringHelper;
 
 /**
- * Structure of unnumbered Iterface Subobject.
- *
- * @see <a href="http://tools.ietf.org/html/rfc3477">Section 4: Signalling
- *      Unnumbered Links in EROs</a>
+ * Structure of unnumbered Interface Subobject.
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc3477">Section 4: Signalling Unnumbered Links in EROs</a>
  */
 public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
-	private final UnnumberedInterfaceIdentifier interfaceID;
+	private final UnnumberedSubobject interfaceID;
 	private final IPv4Address routerID;
 
 	/**
 	 * Constructs new Unnumbered Interface Subobject.
-	 *
-	 * @param routerID
-	 *            IPv4Address
-	 * @param interfaceID
-	 *            UnnumberedInterfaceIdentifier
-	 * @param loose
-	 *            boolean
+	 * 
+	 * @param routerID IPv4Address
+	 * @param interfaceID UnnumberedInterfaceIdentifier
+	 * @param loose boolean
 	 */
-	public EROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedInterfaceIdentifier interfaceID, boolean loose) {
+	public EROUnnumberedInterfaceSubobject(final IPv4Address routerID, final UnnumberedSubobject interfaceID, final boolean loose) {
 		super(loose);
 		this.routerID = routerID;
 		this.interfaceID = interfaceID;
@@ -40,7 +37,7 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 
 	/**
 	 * Gets {@link IPv4Address} representation of router ID.
-	 *
+	 * 
 	 * @return IPv4Address
 	 */
 	public IPv4Address getRouterID() {
@@ -48,12 +45,11 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 	}
 
 	/**
-	 * Gets {@link UnnumberedInterfaceIdentifier} representation of Interface
-	 * ID.
-	 *
-	 * @return UnnumberedInterfaceIdentifier
+	 * Gets {@link UnnumberedSubobject} representation of Interface ID.
+	 * 
+	 * @return UnnumberedSubobject
 	 */
-	public UnnumberedInterfaceIdentifier getInterfaceID() {
+	public UnnumberedSubobject getInterfaceID() {
 		return this.interfaceID;
 	}
 
@@ -67,7 +63,7 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -101,8 +97,8 @@ public class EROUnnumberedInterfaceSubobject extends ExplicitRouteSubobject {
 		return builder.toString();
 	}
 
-    @Override
-	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
+	@Override
+	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		toStringHelper.add("interfaceID", this.interfaceID);
 		toStringHelper.add("routerID", this.routerID);
 		toStringHelper.add("loose", this.loose);

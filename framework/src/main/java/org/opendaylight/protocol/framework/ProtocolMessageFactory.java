@@ -13,7 +13,7 @@ import java.util.List;
  * Interface for factory for parsing and serializing protocol specific messages. Needs to be implemented by a protocol
  * specific message factory. The methods put/parse should delegate parsing to specific message parsers, e.g.
  * OpenMessageParser etc.
- *
+ * 
  * @param <T> type of messages created by this factory
  */
 public interface ProtocolMessageFactory<T> {

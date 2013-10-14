@@ -13,16 +13,17 @@ import io.netty.util.HashedWheelTimer;
 
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
-import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
+import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
 
 public class ServerSessionMock extends PCEPSessionImpl {
 
 	private final MockPCE client;
 
 	public ServerSessionMock(final PCEPSessionListener listener, final PCEPSessionListener client) {
-		super(new HashedWheelTimer(), listener, 5, mock(Channel.class), new PCEPOpenObject(4, 9, 2), new PCEPOpenObject(4, 9, 2));
+		super(new HashedWheelTimer(), listener, 5, mock(Channel.class), new OpenBuilder().setKeepalive((short) 4).setDeadTimer((short) 9).setSessionId(
+				(short) 2).build(), new OpenBuilder().setKeepalive((short) 4).setDeadTimer((short) 9).setSessionId((short) 2).build());
 		this.client = (MockPCE) client;
 	}
 
@@ -34,6 +35,6 @@ public class ServerSessionMock extends PCEPSessionImpl {
 
 	@Override
 	public void close() {
-		this.client.onSessionTerminated(this, new PCEPCloseTermination(Reason.UNKNOWN));
+		this.client.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason.Unknown));
 	}
 }

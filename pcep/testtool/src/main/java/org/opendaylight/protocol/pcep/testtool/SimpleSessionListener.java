@@ -7,23 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.concepts.IPv4;
-import org.opendaylight.protocol.concepts.IPv4Address;
-import org.opendaylight.protocol.concepts.IPv4Prefix;
-import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
-import org.opendaylight.protocol.pcep.message.PCCreateMessage;
-import org.opendaylight.protocol.pcep.object.CompositeInstantiationObject;
-import org.opendaylight.protocol.pcep.object.PCEPEndPointsObject;
-import org.opendaylight.protocol.pcep.object.PCEPExplicitRouteObject;
-import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
-import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
-import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +39,17 @@ public class SimpleSessionListener implements PCEPSessionListener {
 	@Override
 	public void onSessionUp(final PCEPSession session) {
 		logger.debug("Session up.");
-		final List<ExplicitRouteSubobject> subs = new ArrayList<ExplicitRouteSubobject>();
-		subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 10, 1, 1, 2 }), 32), false));
-		subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 2, 2, 2, 2 }), 32), false));
-		final CompositeInstantiationObject cpo = new CompositeInstantiationObject(new PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForBytes(new byte[] {
-				1, 1, 1, 1 }), IPv4.FAMILY.addressForBytes(new byte[] { 2, 2, 2, 2 })), new PCEPLspaObject(0, 0, 0, (short) 0, (short) 0, false, false, false, false), new PCEPExplicitRouteObject(subs, false), null, null);
-
-		session.sendMessage(new PCCreateMessage(Lists.newArrayList(cpo)));
+		// final List<ExplicitRouteSubobject> subs = new ArrayList<ExplicitRouteSubobject>();
+		// subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 10, 1, 1, 2 }), 32),
+		// false));
+		// subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 2, 2, 2, 2 }), 32),
+		// false));
+		// final CompositeInstantiationObject cpo = new CompositeInstantiationObject(new
+		// PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForBytes(new byte[] {
+		// 1, 1, 1, 1 }), IPv4.FAMILY.addressForBytes(new byte[] { 2, 2, 2, 2 })), new PCEPLspaObject(0, 0, 0, (short)
+		// 0, (short) 0, false, false, false, false), new PCEPExplicitRouteObject(subs, false), null, null);
+		//
+		// session.sendMessage(new PCCreateMessage(Lists.newArrayList(cpo)));
 	}
 
 	@Override
