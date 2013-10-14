@@ -7,22 +7,27 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.protocol.util.ByteArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.concurrent.Immutable;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
+import com.google.common.io.CharStreams;
 
 /**
  * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff marker.
@@ -34,16 +39,18 @@ public class HexDumpBGPFileParser {
 	private static final Logger LOG = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
 	private static final String ff_16 = Strings.repeat("FF", 16);
 
-	public static List<byte[]> parseMessages(File file) {
+	public static List<byte[]> parseMessages(final File file) throws FileNotFoundException, IOException {
 		Preconditions.checkArgument(file != null, "Filename cannot be null");
-		Preconditions.checkArgument(file.exists() && file.canRead(), "File " + file + " does not exist or is not readable");
-		String content;
-		try {
-			content = Files.toString(file, Charset.defaultCharset());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		return parseMessages(new FileInputStream(file));
+	}
+
+	public static List<byte[]> parseMessages(final InputStream is) throws IOException {
+		Preconditions.checkNotNull(is);
+		try (InputStreamReader isr = new InputStreamReader(is)) {
+			return parseMessages(CharStreams.toString(isr));
+		} finally {
+			is.close();
 		}
-		return parseMessages(content);
 	}
 
 	public static List<byte[]> parseMessages(String content) {
@@ -70,7 +77,7 @@ public class HexDumpBGPFileParser {
 			// If length in BGP message would be 0, loop would never end
 			Preconditions.checkArgument(length >=  MINIMAL_LENGTH,
 					"Invalid message at index " + idx
-							+ ", length atribute is lower than " + MINIMAL_LENGTH);
+					+ ", length atribute is lower than " + MINIMAL_LENGTH);
 
 			String hexMessage = content.substring(idx, messageEndIdx);
 			byte[] message = null;
@@ -87,7 +94,7 @@ public class HexDumpBGPFileParser {
 	}
 
 	@VisibleForTesting
-	static String clearWhiteSpace_toUpper(String line){
+	static String clearWhiteSpace_toUpper(final String line){
 		return line.replaceAll("\\s", "").toUpperCase();
 	}
 

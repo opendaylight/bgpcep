@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 import org.junit.Test;
@@ -20,7 +21,7 @@ import org.junit.Test;
 public class BGPHexFileParserTest {
 
 	public static final String hexDumpFileName = "/bgp_hex.txt";
-	private final String fileNameInvalid = "BgpMessage_Hex_InvalidLength";
+	private final String fileNameInvalid = "/BgpMessage_Hex_InvalidLength";
 	private final int expectedSize = 9;
 
 	@Test
@@ -30,18 +31,29 @@ public class BGPHexFileParserTest {
 	}
 
 	@Test
-	public void testParsing() {
-		final List<byte[]> result = HexDumpBGPFileParser.parseMessages(new File(getClass().getResource(BGPHexFileParserTest.hexDumpFileName).getFile()));
+	public void testParsing() throws Exception {
+		final List<byte[]> result = HexDumpBGPFileParser.parseMessages(getClass().getResourceAsStream(BGPHexFileParserTest.hexDumpFileName));
 		assertEquals(this.expectedSize, result.size());
 	}
 
 	@Test
-	public void testParsingInvalidMessage() {
+	public void testParsingInvalidMessage() throws Exception {
 		try {
-			HexDumpBGPFileParser.parseMessages(new File(this.fileNameInvalid));
+			HexDumpBGPFileParser.parseMessages(getClass().getResourceAsStream(this.fileNameInvalid));
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
-			assertThat(e.getMessage(), containsString("File BgpMessage_Hex_InvalidLength does not exist or is not readable"));
+			assertThat(e.getMessage(), containsString("Invalid message at index 0, length atribute is lower than 19"));
 		}
 	}
+
+	@Test
+	public void testParsingInvalidFile() throws Exception {
+		try {
+			HexDumpBGPFileParser.parseMessages(new File("bad file name"));
+			fail("Exception should have occured.");
+		} catch (final FileNotFoundException e) {
+			assertThat(e.getMessage(), containsString("bad file name (No such file or directory)"));
+		}
+	}
+
 }
