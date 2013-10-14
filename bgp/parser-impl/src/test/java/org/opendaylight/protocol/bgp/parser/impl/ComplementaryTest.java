@@ -18,9 +18,9 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteList;
@@ -220,9 +220,9 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPHeaderParser() throws IOException {
-		final BGPMessageFactory h = BGPMessageFactoryImpl.getInstance();
+		final MessageRegistry msgReg = SingletonProviderContext.getInstance().getMessageRegistry();
 		try {
-			h.parse(new byte[] { (byte) 0, (byte) 0 });
+			msgReg.parseMessage(new byte[] { (byte) 0, (byte) 0 });
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
@@ -249,10 +249,10 @@ public class ComplementaryTest {
 
 	@Test
 	public void testMessageParser() throws IOException {
-		final BGPMessageFactory parser = BGPMessageFactoryImpl.getInstance();
+		final MessageRegistry msgReg = SingletonProviderContext.getInstance().getMessageRegistry();
 		String ex = "";
 		try {
-			parser.put(null);
+			msgReg.serializeMessage(null);
 		} catch (final IllegalArgumentException e) {
 			ex = e.getMessage();
 		}

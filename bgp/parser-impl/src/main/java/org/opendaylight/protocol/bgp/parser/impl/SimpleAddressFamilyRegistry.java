@@ -13,18 +13,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Preconditions;
 
 public final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
-	private static final class Holder {
-		private static final AddressFamilyRegistry INSTANCE = new SimpleAddressFamilyRegistry();
-	}
-
-	private SimpleAddressFamilyRegistry() {
-
-	}
-
-	public static AddressFamilyRegistry getInstance() {
-		return Holder.INSTANCE;
-	}
-
 	@Override
 	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 65535);

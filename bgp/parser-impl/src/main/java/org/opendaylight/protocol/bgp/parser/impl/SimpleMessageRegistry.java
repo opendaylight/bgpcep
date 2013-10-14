@@ -9,26 +9,13 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public final class SimpleMessageRegistry extends AbstractMessageRegistry {
-	private static final class Holder {
-		private static final MessageRegistry INSTANCE = new SimpleMessageRegistry();
-	}
-
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
-
-	private SimpleMessageRegistry() {
-
-	}
-
-	public static MessageRegistry getInstance() {
-		return Holder.INSTANCE;
-	}
 
 	@Override
 	protected Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException {
