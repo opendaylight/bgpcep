@@ -12,13 +12,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleSubsequentAddressFamilyRegistry implements SubsequentAddressFamilyRegistry {
+public final class SimpleSubsequentAddressFamilyRegistry extends
+AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements SubsequentAddressFamilyRegistry {
 	private static final class Holder {
 		private static final SubsequentAddressFamilyRegistry INSTANCE =
 				new SimpleSubsequentAddressFamilyRegistry();
 	}
-
-	private final SimpleFamilyRegistry<SubsequentAddressFamily, Integer> registry = new SimpleFamilyRegistry<>();
 
 	private SimpleSubsequentAddressFamilyRegistry() {
 
@@ -31,16 +30,16 @@ public final class SimpleSubsequentAddressFamilyRegistry implements SubsequentAd
 	@Override
 	public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 255);
-		return registry.registerFamily(clazz, number);
+		return super.registerFamily(clazz, number);
 	}
 
 	@Override
 	public Class<? extends SubsequentAddressFamily> classForFamily(final int number) {
-		return registry.classForFamily(number);
+		return super.classForFamily(number);
 	}
 
 	@Override
 	public Integer numberForClass(final Class<? extends SubsequentAddressFamily> clazz) {
-		return registry.numberForClass(clazz);
+		return super.numberForClass(clazz);
 	}
 }

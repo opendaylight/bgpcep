@@ -12,12 +12,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleAddressFamilyRegistry implements AddressFamilyRegistry {
+public final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
 	private static final class Holder {
 		private static final AddressFamilyRegistry INSTANCE = new SimpleAddressFamilyRegistry();
 	}
-
-	private final SimpleFamilyRegistry<AddressFamily, Integer> registry = new SimpleFamilyRegistry<>();
 
 	private SimpleAddressFamilyRegistry() {
 
@@ -30,16 +28,16 @@ public final class SimpleAddressFamilyRegistry implements AddressFamilyRegistry 
 	@Override
 	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 65535);
-		return registry.registerFamily(clazz, number);
+		return super.registerFamily(clazz, number);
 	}
 
 	@Override
 	public Class<? extends AddressFamily> classForFamily(final int number) {
-		return registry.classForFamily(number);
+		return super.classForFamily(number);
 	}
 
 	@Override
 	public Integer numberForClass(final Class<? extends AddressFamily> clazz) {
-		return registry.numberForClass(clazz);
+		return super.numberForClass(clazz);
 	}
 }

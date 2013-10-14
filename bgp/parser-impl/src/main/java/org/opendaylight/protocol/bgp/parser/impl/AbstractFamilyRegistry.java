@@ -14,11 +14,11 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 
 import com.google.common.base.Preconditions;
 
-final class SimpleFamilyRegistry<CLASS, NUMBER> {
+abstract class AbstractFamilyRegistry<CLASS, NUMBER> {
 	private final Map<Class<? extends CLASS>, NUMBER> classToNumber = new ConcurrentHashMap<>();
 	private final Map<NUMBER, Class<? extends CLASS>> numberToClass = new ConcurrentHashMap<>();
 
-	public synchronized AutoCloseable registerFamily(final Class<? extends CLASS> clazz, final NUMBER number) {
+	protected synchronized AutoCloseable registerFamily(final Class<? extends CLASS> clazz, final NUMBER number) {
 		Preconditions.checkNotNull(clazz);
 
 		final Class<?> c = numberToClass.get(number);
@@ -43,11 +43,11 @@ final class SimpleFamilyRegistry<CLASS, NUMBER> {
 		};
 	}
 
-	public Class<? extends CLASS> classForFamily(final NUMBER number) {
+	protected Class<? extends CLASS> classForFamily(final NUMBER number) {
 		return numberToClass.get(number);
 	}
 
-	public NUMBER numberForClass(final Class<? extends CLASS> clazz) {
+	protected NUMBER numberForClass(final Class<? extends CLASS> clazz) {
 		return classToNumber.get(clazz);
 	}
 }
