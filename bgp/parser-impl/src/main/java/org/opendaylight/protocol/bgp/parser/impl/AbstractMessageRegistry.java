@@ -8,24 +8,20 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
-abstract class AbstractMessageRegistry implements BGPMessageFactory, MessageRegistry {
+abstract class AbstractMessageRegistry implements MessageRegistry {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractMessageRegistry.class);
 
 	protected abstract Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException;
@@ -86,19 +82,5 @@ abstract class AbstractMessageRegistry implements BGPMessageFactory, MessageRegi
 
 		logger.trace("Serialized BGP message {}.", Arrays.toString(ret));
 		return ret;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
-	 */
-	@Override
-	public final List<Notification> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		return Lists.newArrayList(parseMessage(bytes));
-	}
-
-	@Override
-	public final byte[] put(final Notification msg) {
-		return serializeMessage(msg);
 	}
 }

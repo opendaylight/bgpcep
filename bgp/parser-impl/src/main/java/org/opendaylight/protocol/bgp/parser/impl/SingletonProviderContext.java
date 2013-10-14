@@ -7,10 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import org.opendaylight.protocol.bgp.parser.impl.message.open.SimpleCapabilityRegistry;
-import org.opendaylight.protocol.bgp.parser.impl.message.open.SimpleParameterRegistry;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleAttributeRegistry;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.SimpleNlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
@@ -50,7 +46,7 @@ public final class SingletonProviderContext implements ProviderContext {
 
 	@Override
 	public MessageRegistry getMessageRegistry() {
-		return SimpleBGPMessageFactory.getInstance();
+		return SimpleMessageRegistry.getInstance();
 	}
 
 	@Override
