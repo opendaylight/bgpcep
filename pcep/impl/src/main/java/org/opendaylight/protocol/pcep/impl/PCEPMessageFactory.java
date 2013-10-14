@@ -10,9 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
@@ -63,7 +60,7 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 	}
 
 	@Override
-	public List<Message> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+	public Message parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		Preconditions.checkArgument(bytes != null, "Bytes may not be null");
 		Preconditions.checkArgument(bytes.length != 0, "Bytes may not be empty");
 
@@ -92,7 +89,7 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 			throw new DocumentedException(e.getMessage(), e);
 		}
 		logger.debug("Message was parsed. {}", msg);
-		return Arrays.asList(msg);
+		return msg;
 	}
 
 	@Override

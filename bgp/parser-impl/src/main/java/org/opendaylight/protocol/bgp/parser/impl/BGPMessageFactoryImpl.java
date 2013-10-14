@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -16,7 +14,6 @@ import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	private final MessageRegistry registry;
@@ -30,12 +27,12 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
 	 */
 	@Override
-	public final List<Notification> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		return Lists.newArrayList(registry.parseMessage(bytes));
+	public final Notification parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		return this.registry.parseMessage(bytes);
 	}
 
 	@Override
 	public final byte[] put(final Notification msg) {
-		return registry.serializeMessage(msg);
+		return this.registry.serializeMessage(msg);
 	}
 }

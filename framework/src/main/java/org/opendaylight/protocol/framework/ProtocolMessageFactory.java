@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.framework;
 
-import java.util.List;
 
 /**
  * Interface for factory for parsing and serializing protocol specific messages. Needs to be implemented by a protocol
@@ -26,7 +25,7 @@ public interface ProtocolMessageFactory<T> {
 	 * @throws DeserializerException if some parsing error occurs
 	 * @throws DocumentedException if some documented error occurs
 	 */
-	public List<T> parse(final byte[] bytes) throws DeserializerException, DocumentedException;
+	public T parse(final byte[] bytes) throws DeserializerException, DocumentedException;
 
 	/**
 	 * Serializes protocol specific message to byte array.

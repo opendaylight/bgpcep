@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.mock;
 
-import java.util.List;
 import java.util.Map;
 
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -21,18 +20,18 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * the map.
  */
 public class BGPMessageParserMock implements ProtocolMessageFactory<Notification> {
-	private final Map<byte[], List<Notification>> messages;
+	private final Map<byte[], Notification> messages;
 
 	/**
 	 * @param updateMessages Map<byte[], BGPUpdateEvent>
 	 */
-	public BGPMessageParserMock(final Map<byte[], List<Notification>> messages) {
+	public BGPMessageParserMock(final Map<byte[], Notification> messages) {
 		this.messages = messages;
 	}
 
 	@Override
-	public List<Notification> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		final List<Notification> ret = this.messages.get(bytes);
+	public Notification parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		final Notification ret = this.messages.get(bytes);
 		if (ret == null) {
 			throw new IllegalArgumentException("Undefined message encountered");
 		}

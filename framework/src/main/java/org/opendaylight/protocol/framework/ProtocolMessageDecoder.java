@@ -38,7 +38,7 @@ public final class ProtocolMessageDecoder<T> extends ByteToMessageDecoder {
 			final byte[] bytes = new byte[in.readableBytes()];
 			in.readBytes(bytes);
 			logger.debug("Received to decode: {}", Arrays.toString(bytes));
-			out.addAll(this.factory.parse(bytes));
+			out.add(this.factory.parse(bytes));
 		} catch (DeserializerException | DocumentedException e) {
 			logger.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);

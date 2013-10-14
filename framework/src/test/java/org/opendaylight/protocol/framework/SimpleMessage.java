@@ -9,8 +9,6 @@ package org.opendaylight.protocol.framework;
 
 public class SimpleMessage {
 
-	private static final long serialVersionUID = 1L;
-
 	private final String s;
 
 	public SimpleMessage(final String s) {
@@ -18,6 +16,6 @@ public class SimpleMessage {
 	}
 
 	public String getMessage() {
-		return s;
+		return this.s;
 	}
 }

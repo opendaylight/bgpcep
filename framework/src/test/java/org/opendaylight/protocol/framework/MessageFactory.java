@@ -8,16 +8,14 @@
 package org.opendaylight.protocol.framework;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 
 public class MessageFactory implements ProtocolMessageFactory<SimpleMessage> {
 
 	@Override
-	public List<SimpleMessage> parse(final byte[] bytes) throws DeserializerException, DocumentedException {
-		return Lists.newArrayList(new SimpleMessage(Charsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString()));
+	public SimpleMessage parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+		return new SimpleMessage(Charsets.UTF_8.decode(ByteBuffer.wrap(bytes)).toString());
 	}
 
 	@Override
