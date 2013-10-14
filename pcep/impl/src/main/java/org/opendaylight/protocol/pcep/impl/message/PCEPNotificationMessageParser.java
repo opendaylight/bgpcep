@@ -18,7 +18,7 @@ import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -41,15 +41,16 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
 	private final int TYPE = 5;
 
-	public PCEPNotificationMessageParser(final HandlerRegistry registry) {
+	public PCEPNotificationMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof PcntfMessage))
+		if (!(message instanceof PcntfMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Needed PcntfMessage.");
+		}
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessage msg = ((PcntfMessage) message).getPcntfMessage();
 
 		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications n : msg.getNotifications()) {
@@ -79,8 +80,9 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 	}
 
 	public Message validate(final List<Object> objects) throws PCEPDeserializerException {
-		if (objects == null)
+		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
+		}
 
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 
@@ -97,17 +99,20 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 				return new PcerrBuilder().setPcerrMessage(b.build()).build();
 			}
 
-			if (comObj == null)
+			if (comObj == null) {
 				break;
+			}
 
 			compositeNotifications.add(comObj);
 		}
 
-		if (compositeNotifications.isEmpty())
+		if (compositeNotifications.isEmpty()) {
 			throw new PCEPDeserializerException("Atleast one CompositeNotifiObject is mandatory.");
+		}
 
-		if (!objects.isEmpty())
+		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+		}
 
 		return new PcntfBuilder().setPcntfMessage(new PcntfMessageBuilder().setNotifications(compositeNotifications).build()).build();
 	}
@@ -122,16 +127,18 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
 
-			if (obj instanceof UnknownObject)
+			if (obj instanceof UnknownObject) {
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
+			}
 
 			switch (state) {
 			case 1:
 				state = 2;
 				if (obj instanceof RpObject) {
 					final RpObject rp = (RpObject) obj;
-					if (rp.isProcessingRule())
+					if (rp.isProcessingRule()) {
 						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+					}
 					requestParameters.add((Rps) rp);
 					state = 1;
 					break;
@@ -146,14 +153,16 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 				state = 3;
 			}
 
-			if (state == 3)
+			if (state == 3) {
 				break;
+			}
 
 			objects.remove(obj);
 		}
 
-		if (notifications.isEmpty())
+		if (notifications.isEmpty()) {
 			return null;
+		}
 
 		return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.NotificationsBuilder().setNotifications(
 				notifications).setRps(requestParameters).build();

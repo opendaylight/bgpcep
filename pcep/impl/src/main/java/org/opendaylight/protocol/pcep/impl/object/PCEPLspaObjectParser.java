@@ -12,7 +12,8 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspaObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -57,14 +58,15 @@ public class PCEPLspaObjectParser extends AbstractObjectParser<LspaBuilder> {
 	public static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
 	public static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; // added reserved field of length 1B
 
-	public PCEPLspaObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPLspaObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public LspaObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Bytes array is mandatory.");
+		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
@@ -92,8 +94,9 @@ public class PCEPLspaObjectParser extends AbstractObjectParser<LspaBuilder> {
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof LspaObject))
+		if (!(object instanceof LspaObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspaObject.");
+		}
 
 		final LspaObject lspaObj = (LspaObject) object;
 

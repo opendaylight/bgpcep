@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -39,15 +40,18 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 
 	protected static final int PADDED_TO = 4;
 
-	private final HandlerRegistry registry;
+	private final SubobjectHandlerRegistry subobjReg;
+	private final TlvHandlerRegistry tlvReg;
 
-	protected AbstractObjectParser(final HandlerRegistry registry) {
-		this.registry = registry;
+	protected AbstractObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		this.subobjReg = Preconditions.checkNotNull(subobjReg);
+		this.tlvReg = Preconditions.checkNotNull(tlvReg);
 	}
 
 	protected final void parseTlvs(final BUILDER builder, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
+		}
 
 		int length;
 		int byteOffset = 0;
@@ -59,14 +63,15 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TLV_LENGTH_F_LENGTH));
 			byteOffset += TLV_LENGTH_F_LENGTH;
 
-			if (TLV_HEADER_LENGTH + length > bytes.length - byteOffset)
+			if (TLV_HEADER_LENGTH + length > bytes.length - byteOffset) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + (TLV_HEADER_LENGTH + length) + "; Expected: <= "
 						+ (bytes.length - byteOffset) + ".");
+			}
 
 			final byte[] tlvBytes = ByteArray.subByte(bytes, byteOffset, length);
 
 			logger.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
-			final Tlv tlv = this.registry.getTlvParser(type).parseTlv(tlvBytes);
+			final Tlv tlv = this.tlvReg.getTlvParser(type).parseTlv(tlvBytes);
 			logger.trace("Tlv was parsed. {}", tlv);
 
 			addTlv(builder, tlv);
@@ -77,7 +82,7 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 
 	protected final byte[] serializeTlv(final Tlv tlv) {
 
-		final TlvSerializer serializer = this.registry.getTlvSerializer(tlv);
+		final TlvSerializer serializer = this.tlvReg.getTlvSerializer(tlv);
 
 		final byte[] typeBytes = (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - TLV_TYPE_F_LENGTH));
 
@@ -95,8 +100,9 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 	}
 
 	protected final void parseSubobjects(final BUILDER builder, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
+		}
 
 		boolean loose_flag = false;
 		int type;
@@ -114,15 +120,16 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 
 			type = (bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7);
 
-			if (length > bytes.length - offset)
+			if (length > bytes.length - offset) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
 						+ (bytes.length - offset));
+			}
 
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
 
 			logger.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final CSubobject subObj = this.registry.getSubobjectParser(type).parseSubobject(soContentsBytes);
+			final CSubobject subObj = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes);
 			logger.debug("Subobject was parsed. {}", subObj);
 
 			subs.put(subObj, loose_flag);
@@ -142,7 +149,7 @@ public abstract class AbstractObjectParser<BUILDER> implements ObjectParser, Obj
 
 			final CSubobject subobject = entry.getKey();
 
-			final SubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject);
+			final SubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject);
 
 			final byte[] valueBytes = serializer.serializeSubobject(subobject);
 

@@ -13,7 +13,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcrep.pcrep.message.replies.result.failure.NoPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcrep.pcrep.message.replies.result.failure.no.path.Tlvs;
@@ -54,15 +55,16 @@ public class PCEPNoPathObjectParser extends AbstractObjectParser<NoPathBuilder> 
 
 	public static final int C_FLAG_OFFSET = 0;
 
-	public PCEPNoPathObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPNoPathObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public NoPathObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
@@ -86,19 +88,22 @@ public class PCEPNoPathObjectParser extends AbstractObjectParser<NoPathBuilder> 
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof NoPathObject))
+		if (!(object instanceof NoPathObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NoPathObject.");
+		}
 
 		final NoPathObject nPObj = (NoPathObject) object;
 
 		final byte[] tlvs = serializeTlvs(((NoPath) nPObj).getTlvs());
 		int tlvsLength = 0;
-		if (tlvs != null)
+		if (tlvs != null) {
 			tlvsLength = tlvs.length;
+		}
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null)
+		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		}
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
 		retBytes[NI_F_OFFSET] = ByteArray.shortToBytes(nPObj.getNatureOfIssue())[1];

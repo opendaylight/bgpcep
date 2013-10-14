@@ -10,7 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKeyObject;
@@ -26,13 +27,13 @@ public class PCEPPathKeyObjectParser extends AbstractObjectParser<PathKeyBuilder
 
 	public static final int TYPE = 1;
 
-	public PCEPPathKeyObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPPathKeyObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public PathKeyObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	PCEPDocumentedException {
 		// FIXME : finish
 
 		final PathKeyBuilder builder = new PathKeyBuilder();
@@ -50,8 +51,9 @@ public class PCEPPathKeyObjectParser extends AbstractObjectParser<PathKeyBuilder
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof PathKeyObject))
+		if (!(object instanceof PathKeyObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PathKeyObject.");
+		}
 
 		final PathKeyObject pkey = (PathKeyObject) object;
 

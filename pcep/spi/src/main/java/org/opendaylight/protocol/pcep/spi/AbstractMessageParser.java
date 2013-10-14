@@ -12,6 +12,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
@@ -42,15 +43,16 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 	private final static int P_FLAG_OFFSET = 6;
 	private final static int I_FLAG_OFFSET = 7;
 
-	private final HandlerRegistry registry;
+	private final ObjectHandlerRegistry registry;
 
-	protected AbstractMessageParser(final HandlerRegistry registry) {
-		this.registry = registry;
+	protected AbstractMessageParser(final ObjectHandlerRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
 	}
 
 	protected byte[] serializeObject(final Object object) {
-		if (object == null)
+		if (object == null) {
 			throw new IllegalArgumentException("Null object passed.");
+		}
 
 		final ObjectSerializer serializer = this.registry.getObjectSerializer(object);
 
@@ -63,10 +65,12 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 		// objType_flags multi-field
 		retBytes[OT_FLAGS_MF_OFFSET] = (byte) (serializer.getObjectType() << (Byte.SIZE - OT_SF_LENGTH));
-		if (object.isProcessingRule())
+		if (object.isProcessingRule()) {
 			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (P_FLAG_OFFSET) - 1;
-		if (object.isIgnore())
+		}
+		if (object.isIgnore()) {
 			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (I_FLAG_OFFSET) - 1;
+		}
 
 		// objLength
 		System.arraycopy(ByteArray.intToBytes(valueBytes.length), Integer.SIZE / Byte.SIZE - OBJ_LENGTH_F_LENGTH, retBytes,
@@ -81,9 +85,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		int offset = 0;
 		final List<Object> objs = Lists.newArrayList();
 		while (bytes.length - offset > 0) {
-			if (bytes.length - offset < COMMON_OBJECT_HEADER_LENGTH)
+			if (bytes.length - offset < COMMON_OBJECT_HEADER_LENGTH) {
 				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
 						+ COMMON_OBJECT_HEADER_LENGTH + ".");
+			}
 
 			final int objClass = ByteArray.bytesToInt(Arrays.copyOfRange(bytes, OC_F_OFFSET, OC_F_OFFSET + OC_F_LENGTH));
 
@@ -96,9 +101,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 			final BitSet flags = ByteArray.bytesToBitSet(flagsBytes);
 
-			if (bytes.length - offset < objLength)
+			if (bytes.length - offset < objLength) {
 				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
 						+ objLength + ".");
+			}
 
 			// copy bytes for deeper parsing
 			final byte[] bytesToPass = ByteArray.subByte(bytes, offset + COMMON_OBJECT_HEADER_LENGTH, objLength
@@ -116,8 +122,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 				if (e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_CLASS | e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_TYPE
 						| e.getError() == PCEPErrors.NOT_SUPPORTED_OBJ_CLASS | e.getError() == PCEPErrors.NOT_SUPPORTED_OBJ_TYPE) {
 					objs.add(new UnknownObject(e.getError()));
-				} else
+				} else {
 					throw e;
+				}
 			}
 		}
 		return objs;

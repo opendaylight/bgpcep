@@ -11,7 +11,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClasstypeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -43,20 +44,23 @@ public class PCEPClassTypeObjectParser extends AbstractObjectParser<ClassTypeBui
 	 */
 	public static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
 
-	public PCEPClassTypeObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPClassTypeObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public ClasstypeObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null)
+	PCEPDocumentedException {
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
-		if (bytes.length != SIZE)
+		}
+		if (bytes.length != SIZE) {
 			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
 					+ bytes.length);
-		if (!header.isProcessingRule())
+		}
+		if (!header.isProcessingRule()) {
 			throw new PCEPDocumentedException("Processed bit not set", PCEPErrors.P_FLAG_NOT_SET);
+		}
 
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
 
@@ -79,8 +83,9 @@ public class PCEPClassTypeObjectParser extends AbstractObjectParser<ClassTypeBui
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ClasstypeObject))
+		if (!(object instanceof ClasstypeObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
+		}
 
 		final byte[] retBytes = new byte[SIZE];
 		retBytes[SIZE - 1] = ((ClasstypeObject) object).getClassType().getValue().byteValue();

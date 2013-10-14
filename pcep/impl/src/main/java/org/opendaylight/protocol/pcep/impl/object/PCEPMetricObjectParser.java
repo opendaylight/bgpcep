@@ -12,7 +12,8 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MetricObject;
@@ -53,17 +54,19 @@ public class PCEPMetricObjectParser extends AbstractObjectParser<MetricBuilder> 
 
 	public static final int SIZE = METRIC_VALUE_F_OFFSET + METRIC_VALUE_F_LENGTH;
 
-	public PCEPMetricObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPMetricObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public MetricObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (bytes.length != SIZE)
+		}
+		if (bytes.length != SIZE) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: " + SIZE + ".");
+		}
 		final byte[] flagBytes = { bytes[FLAGS_F_OFFSET] };
 		final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
 
@@ -87,8 +90,9 @@ public class PCEPMetricObjectParser extends AbstractObjectParser<MetricBuilder> 
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof MetricObject))
+		if (!(object instanceof MetricObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed MetricObject.");
+		}
 
 		final MetricObject mObj = (MetricObject) object;
 

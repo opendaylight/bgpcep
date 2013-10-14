@@ -12,7 +12,8 @@ import java.util.Map;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -32,15 +33,16 @@ public class PCEPExplicitRouteObjectParser extends AbstractObjectParser<Explicit
 
 	public static final int TYPE = 1;
 
-	public PCEPExplicitRouteObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPExplicitRouteObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public ExplicitRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+	PCEPDocumentedException {
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
+		}
 
 		final ExplicitRouteBuilder builder = new ExplicitRouteBuilder();
 
@@ -58,9 +60,10 @@ public class PCEPExplicitRouteObjectParser extends AbstractObjectParser<Explicit
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ExplicitRouteObject))
+		if (!(object instanceof ExplicitRouteObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed ExplicitRouteObject.");
+		}
 
 		final ExplicitRouteObject ero = ((ExplicitRouteObject) object);
 

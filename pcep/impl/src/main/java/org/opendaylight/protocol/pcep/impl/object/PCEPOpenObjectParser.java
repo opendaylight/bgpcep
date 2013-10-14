@@ -13,7 +13,8 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspDbVersionTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -77,19 +78,21 @@ public class PCEPOpenObjectParser extends AbstractObjectParser<OpenBuilder> {
 
 	private static final int PCEP_VERSION = 1;
 
-	public PCEPOpenObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPOpenObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public OpenObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final int versionValue = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
-		if (versionValue != PCEP_VERSION)
+		if (versionValue != PCEP_VERSION) {
 			throw new PCEPDocumentedException("Unsupported PCEP version " + versionValue, PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
+		}
 
 		final OpenBuilder builder = new OpenBuilder();
 
@@ -107,21 +110,23 @@ public class PCEPOpenObjectParser extends AbstractObjectParser<OpenBuilder> {
 	@Override
 	public void addTlv(final OpenBuilder builder, final Tlv tlv) {
 		final TlvsBuilder tbuilder = new TlvsBuilder();
-		if (tlv instanceof OfListTlv)
+		if (tlv instanceof OfListTlv) {
 			tbuilder.setOfList(new OfListBuilder().setCodes(((OfListTlv) tlv).getCodes()).build());
-		else if (tlv instanceof StatefulCapabilityTlv)
+		} else if (tlv instanceof StatefulCapabilityTlv) {
 			tbuilder.setStateful(new StatefulBuilder().setFlags(((StatefulCapabilityTlv) tlv).getFlags()).build());
-		else if (tlv instanceof PredundancyGroupIdTlv)
+		} else if (tlv instanceof PredundancyGroupIdTlv) {
 			tbuilder.setPredundancyGroupId(new PredundancyGroupIdBuilder().setIdentifier(((PredundancyGroupIdTlv) tlv).getIdentifier()).build());
-		else if (tlv instanceof LspDbVersionTlv)
+		} else if (tlv instanceof LspDbVersionTlv) {
 			tbuilder.setLspDbVersion(new LspDbVersionBuilder().build());
+		}
 		builder.setTlvs(tbuilder.build());
 	}
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof OpenObject))
+		if (!(object instanceof OpenObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
+		}
 		final OpenObject open = (OpenObject) object;
 
 		final byte versionFlagMF = (byte) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));

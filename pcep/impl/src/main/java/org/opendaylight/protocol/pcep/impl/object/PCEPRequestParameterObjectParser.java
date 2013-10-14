@@ -15,7 +15,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -94,14 +95,15 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectParser<RpBui
 
 	private static int E_FLAG_OFFSET = 20;
 
-	public PCEPRequestParameterObjectParser(final HandlerRegistry registry) {
-		super(registry);
+	public PCEPRequestParameterObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
+		super(subobjReg, tlvReg);
 	}
 
 	@Override
 	public RpObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (bytes == null || bytes.length == 0)
+		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(bytes, FLAGS_PRI_MF_OFFSET, FLAGS_PRI_MF_OFFSET
 				+ FLAGS_PRI_MF_LENGTH));
@@ -146,8 +148,9 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectParser<RpBui
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof RpObject))
+		if (!(object instanceof RpObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed RpObject.");
+		}
 
 		final RpObject rPObj = (RpObject) object;
 
@@ -169,12 +172,14 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectParser<RpBui
 
 		final byte[] tlvs = serializeTlvs(rPObj.getTlvs());
 		int tlvsLength = 0;
-		if (tlvs != null)
+		if (tlvs != null) {
 			tlvsLength = tlvs.length;
+		}
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null)
+		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		}
 
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags_priority, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);
 		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(rPObj.getRequestId().getValue()), (Long.SIZE / Byte.SIZE)

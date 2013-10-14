@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcinitiateMessage;
 
@@ -22,15 +22,16 @@ public class PCCreateMessageParser extends AbstractMessageParser {
 
 	private final int TYPE = 12;
 
-	public PCCreateMessageParser(final HandlerRegistry registry) {
+	public PCCreateMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof PcinitiateMessage))
+		if (!(message instanceof PcinitiateMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Needed PcinitiateMessage.");
+		}
 	}
 
 	@Override
