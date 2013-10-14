@@ -29,8 +29,6 @@ import org.opendaylight.protocol.pcep.subobject.EROExplicitExclusionRouteSubobje
 import org.opendaylight.protocol.pcep.subobject.EROGeneralizedLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith128PCEIDSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith32PCEIDSubobject;
-import org.opendaylight.protocol.pcep.subobject.EROProtectionType1Subobject;
-import org.opendaylight.protocol.pcep.subobject.EROProtectionType2Subobject;
 import org.opendaylight.protocol.pcep.subobject.EROType1LabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROWavebandSwitchingLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExcludeRouteSubobject;
@@ -40,8 +38,6 @@ import org.opendaylight.protocol.pcep.subobject.RROGeneralizedLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.RROIPAddressSubobject;
 import org.opendaylight.protocol.pcep.subobject.RROPathKeyWith128PCEIDSubobject;
 import org.opendaylight.protocol.pcep.subobject.RROPathKeyWith32PCEIDSubobject;
-import org.opendaylight.protocol.pcep.subobject.RROProtectionType1Subobject;
-import org.opendaylight.protocol.pcep.subobject.RROProtectionType2Subobject;
 import org.opendaylight.protocol.pcep.subobject.RROType1LabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.RROWavebandSwitchingLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.ReportedRouteSubobject;
@@ -112,8 +108,6 @@ public class PCEPSubobjectParserTest {
 		objsToTest.add(new EROType1LabelSubobject(0x12345648L, false, true));
 		objsToTest.add(new EROGeneralizedLabelSubobject(new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }, true, true));
 		objsToTest.add(new EROWavebandSwitchingLabelSubobject(0x12345678L, 0x87654321L, 0xFFFFFFFFL, false, false));
-		objsToTest.add(new EROProtectionType1Subobject(true, (byte) 0x05, true));
-		objsToTest.add(new EROProtectionType2Subobject(true, false, true, true, (byte) 0x06, (byte) 0x3f, true, false, (byte) 0x00, false));
 		objsToTest.add(new EROPathKeyWith32PCEIDSubobject(0x1235, new byte[] { (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1 }, true));
 		objsToTest.add(new EROPathKeyWith128PCEIDSubobject(0x5432, new byte[] { (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1,
 				(byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1, (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1, (byte) 0x00,
@@ -132,8 +126,6 @@ public class PCEPSubobjectParserTest {
 		objsToTest.add(new RROType1LabelSubobject(0x12345648L, false));
 		objsToTest.add(new RROGeneralizedLabelSubobject(new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }, true));
 		objsToTest.add(new RROWavebandSwitchingLabelSubobject(0x12345678L, 0x87654321L, 0xFFFFFFFFL, false));
-		objsToTest.add(new RROProtectionType1Subobject(true, (byte) 0x05));
-		objsToTest.add(new RROProtectionType2Subobject(true, false, true, true, (byte) 0x06, (byte) 0x3f, true, false, (byte) 0x00));
 		objsToTest.add(new RROPathKeyWith32PCEIDSubobject(0x1235, new byte[] { (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1 }));
 		objsToTest.add(new RROPathKeyWith128PCEIDSubobject(0x5432, new byte[] { (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1,
 				(byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1, (byte) 0x00, (byte) 0x55, (byte) 0xFF, (byte) 0xF1, (byte) 0x00,

@@ -17,7 +17,6 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSu
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeyWith128PCEIDSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeyWith32PCEIDSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROProtectionSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROExplicitExclusionRouteSubobject;
@@ -25,7 +24,6 @@ import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith128PCEIDSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith32PCEIDSubobject;
-import org.opendaylight.protocol.pcep.subobject.EROProtectionSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROUnnumberedInterfaceSubobject;
 import org.opendaylight.protocol.pcep.subobject.ExplicitRouteSubobject;
 import org.opendaylight.protocol.util.ByteArray;
@@ -168,9 +166,6 @@ public class PCEPEROSubobjectParser {
 		} else if (objToSerialize instanceof EROPathKeyWith128PCEIDSubobject) {
 			typeIndicator = PCEPSubobjectType.PK_128.getIndicator();
 			soContentsBytes = EROPathKeyWith128PCEIDSubobjectParser.put((EROPathKeyWith128PCEIDSubobject) objToSerialize);
-		} else if (objToSerialize instanceof EROProtectionSubobject) {
-			typeIndicator = PCEPSubobjectType.PROTECTION.getIndicator();
-			soContentsBytes = EROProtectionSubobjectParser.put((EROProtectionSubobject) objToSerialize);
 		} else
 			throw new IllegalArgumentException("Unknown instance of PCEPSubobject. Passed: " + objToSerialize.getClass() + ".");
 
@@ -206,8 +201,6 @@ public class PCEPEROSubobjectParser {
 			return EROPathKeyWith32PCEIDSubobjectParser.parse(soContentsBytes, loose_flag);
 		case PK_128:
 			return EROPathKeyWith128PCEIDSubobjectParser.parse(soContentsBytes, loose_flag);
-		case PROTECTION:
-			return EROProtectionSubobjectParser.parse(soContentsBytes, loose_flag);
 		default:
 			throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + ".");
 		}
