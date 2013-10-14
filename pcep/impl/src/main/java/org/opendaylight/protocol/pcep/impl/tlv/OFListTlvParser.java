@@ -7,66 +7,56 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvParser;
-import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.PCEPOFCodes;
+import org.opendaylight.protocol.pcep.impl.PCEPOFCodesMapping;
+import org.opendaylight.protocol.pcep.tlv.OFListTlv;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfListTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.OfListBuilder;
-
-import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link OfListTlv}
+ * Parser for {@link org.opendaylight.protocol.pcep.tlv.OFListTlv OFListTlv}
  */
-public class OFListTlvParser implements TlvParser, TlvSerializer {
-
-	public static final int TYPE = 4;
+public class OFListTlvParser {
 
 	private static final int OF_CODE_ELEMENT_LENGTH = 2;
 
-	@Override
-	public OfListTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
+	public static OFListTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		if (valueBytes.length % OF_CODE_ELEMENT_LENGTH != 0)
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + valueBytes.length + ".");
 
-		final List<OfId> ofCodes = Lists.newArrayList();
+		final List<PCEPOFCodes> ofCodes = new ArrayList<PCEPOFCodes>();
 		for (int i = 0; i < valueBytes.length; i += OF_CODE_ELEMENT_LENGTH) {
 			try {
-				ofCodes.add(new OfId(ByteArray.bytesToShort(Arrays.copyOfRange(valueBytes, i, i + OF_CODE_ELEMENT_LENGTH)) & 0xFFFF));
+				ofCodes.add(PCEPOFCodesMapping.getInstance().getFromCodeIdentifier(
+						ByteArray.bytesToShort(Arrays.copyOfRange(valueBytes, i, i + OF_CODE_ELEMENT_LENGTH)) & 0xFFFF));
 			} catch (final NoSuchElementException nsee) {
 				throw new PCEPDeserializerException(nsee, "Unknown OF Code inside OF Code list Tlv.");
 			}
 		}
-		return new OfListBuilder().setCodes(ofCodes).build();
+
+		return new OFListTlv(ofCodes);
 	}
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+	public static byte[] put(OFListTlv objToSerialize) {
+		if (objToSerialize == null)
 			throw new IllegalArgumentException("OFListTlv is mandatory.");
-		final OfListTlv oft = (OfListTlv) tlv;
 
-		final List<OfId> ofCodes = oft.getCodes();
+		final List<PCEPOFCodes> ofCodes = objToSerialize.getOfCodes();
 		final byte[] retBytes = new byte[ofCodes.size() * OF_CODE_ELEMENT_LENGTH];
 
 		final int size = ofCodes.size();
 		for (int i = 0; i < size; i++) {
-			ByteArray.copyWhole(ByteArray.shortToBytes(ofCodes.get(i).getValue().shortValue()), retBytes, i * OF_CODE_ELEMENT_LENGTH);
+			ByteArray.copyWhole(ByteArray.shortToBytes((short) PCEPOFCodesMapping.getInstance().getFromOFCodesEnum(ofCodes.get(i))), retBytes, i
+					* OF_CODE_ELEMENT_LENGTH);
 		}
-		return retBytes;
-	}
 
-	@Override
-	public int getType() {
-		return TYPE;
+		return retBytes;
 	}
 }

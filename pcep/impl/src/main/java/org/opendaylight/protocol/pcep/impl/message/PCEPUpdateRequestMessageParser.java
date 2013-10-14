@@ -7,41 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import io.netty.buffer.ByteBuf;
-
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
+import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
+import org.opendaylight.protocol.pcep.impl.PCEPObjectFactory;
+import org.opendaylight.protocol.pcep.message.PCEPUpdateRequestMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcupdMessage;
 
-/**
- * Parser for {@link PcupdMessage} 
- */
-public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
-	
-	private final int TYPE = 11;
-	
-	public PCEPUpdateRequestMessageParser(HandlerRegistry registry) {
-		super(registry);
-	}
-
+public class PCEPUpdateRequestMessageParser implements PCEPMessageParser {
 	@Override
-	public void serializeMessage(Message message, ByteBuf buffer) {
-		if (!(message instanceof PcupdMessage))
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
-					+ ". Nedded PcupdMessage.");
+	public byte[] put(final Message msg) {
+		if (!(msg instanceof PCEPUpdateRequestMessage))
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Nedded PCEPUpdateRequestMessage.");
 
+		return PCEPObjectFactory.put(((PCEPUpdateRequestMessage) msg).getAllObjects());
 	}
 
-	@Override
-	public PcupdMessage parseMessage(byte[] buffer) throws PCEPDeserializerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

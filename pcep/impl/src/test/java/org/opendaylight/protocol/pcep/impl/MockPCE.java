@@ -14,8 +14,10 @@ import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
+import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
+import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
+import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +40,11 @@ public class MockPCE implements PCEPSessionListener {
 		this.session.handleMessage(msg);
 	}
 
-	public void sendErrorMessage(final PCEPErrors value, final OpenObject open) {
-		this.sendMessage(Util.createErrorMessage(value, open));
+	public void sendErrorMessage(final PCEPErrors value, final PCEPOpenObject open) {
+		final PCEPErrorObject error = new PCEPErrorObject(value);
+		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
+		errors.add(error);
+		this.sendMessage(new PCEPErrorMessage(open, errors, null));
 	}
 
 	public List<Message> getListMsg() {

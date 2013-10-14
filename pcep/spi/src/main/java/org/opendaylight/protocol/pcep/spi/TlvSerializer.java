@@ -7,12 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 public interface TlvSerializer {
-
-	@Deprecated
-	public int getType();
-
-	public byte[] serializeTlv(Tlv tlv);
+	public void serializeTlv(Tlv tlv, ByteBuf buffer);
 }

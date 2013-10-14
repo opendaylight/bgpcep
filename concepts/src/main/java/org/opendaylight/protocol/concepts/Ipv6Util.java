@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.concepts;
 
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
@@ -32,16 +31,6 @@ public class Ipv6Util {
 		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
-	}
-
-	public static byte[] bytesForAddress(final Ipv6Address address) {
-		Inet6Address a;
-		try {
-			a = (Inet6Address) InetAddress.getByName(address.getValue());
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
-		return a.getAddress();
 	}
 
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {

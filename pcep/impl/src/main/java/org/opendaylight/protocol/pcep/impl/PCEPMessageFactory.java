@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RawMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
@@ -33,14 +34,14 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 			Preconditions.checkState(msg instanceof RawMessage);
 			final RawMessage raw = (RawMessage) msg;
 
-			// try {
-			// validated.addAll(PCEPMessageValidator.getValidator(raw.getMsgType()).validate(raw.getAllObjects()));
-			// } catch (final PCEPDeserializerException e) {
-			// // FIXME: at validation time we may want to terminate with:
-			// // logger.error("Malformed message, terminating. ", e);
-			// // this.terminate(Reason.MALFORMED_MSG);
-			// throw e;
-			// }
+			try {
+				validated.addAll(PCEPMessageValidator.getValidator(raw.getMsgType()).validate(raw.getAllObjects()));
+			} catch (final PCEPDeserializerException e) {
+				// FIXME: at validation time we may want to terminate with:
+				// logger.error("Malformed message, terminating. ", e);
+				// this.terminate(Reason.MALFORMED_MSG);
+				throw e;
+			}
 		}
 
 		return validated;

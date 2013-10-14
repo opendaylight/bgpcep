@@ -7,13 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
 import org.opendaylight.protocol.pcep.subobject.ExcludeRouteSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROUnnumberedInterfaceSubobject;
-import org.opendaylight.protocol.util.ByteArray;
+import com.google.common.primitives.UnsignedInts;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.subobject.XROUnnumberedInterfaceSubobject
+ * Parser for
+ * {@link org.opendaylight.protocol.pcep.subobject.XROUnnumberedInterfaceSubobject
  * XROUnnumberedInterfaceSubobject}
  */
 public class XROUnnumberedInterfaceSubobjectParser {
@@ -27,25 +31,19 @@ public class XROUnnumberedInterfaceSubobjectParser {
 
 	public static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
 
-	public static XROUnnumberedInterfaceSubobject parse(final byte[] soContentsBytes, final boolean mandatory)
-			throws PCEPDeserializerException {
+	public static XROUnnumberedInterfaceSubobject parse(byte[] soContentsBytes, boolean mandatory) throws PCEPDeserializerException {
 		if (soContentsBytes == null || soContentsBytes.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		if (soContentsBytes.length != CONTENT_LENGTH)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: "
-					+ CONTENT_LENGTH + ".");
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: " + CONTENT_LENGTH + ".");
 
-		// return new XROUnnumberedInterfaceSubobject(new IPv4Address(
-		// ByteArray.subByte(soContentsBytes, ROUTER_ID_NUMBER_OFFSET, ROUTER_ID_NUMBER_LENGTH)), new
-		// UnnumberedInterfaceIdentifier(
-		// UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(soContentsBytes, INTERFACE_ID_NUMBER_OFFSET,
-		// INTERFACE_ID_NUMBER_LENGTH)))),
-		// mandatory, XROSubobjectAttributeMapping.getInstance().getFromAttributeIdentifier((short)
-		// (soContentsBytes[ATTRIBUTE_OFFSET] & 0xFF)));
-		return null;
+		return new XROUnnumberedInterfaceSubobject(new IPv4Address(
+				ByteArray.subByte(soContentsBytes, ROUTER_ID_NUMBER_OFFSET, ROUTER_ID_NUMBER_LENGTH)), new UnnumberedInterfaceIdentifier(
+				UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(soContentsBytes, INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH)))),
+				mandatory, XROSubobjectAttributeMapping.getInstance().getFromAttributeIdentifier((short) (soContentsBytes[ATTRIBUTE_OFFSET] & 0xFF)));
 	}
 
-	public static byte[] put(final ExcludeRouteSubobject objToSerialize) {
+	public static byte[] put(ExcludeRouteSubobject objToSerialize) {
 		if (!(objToSerialize instanceof XROUnnumberedInterfaceSubobject))
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + objToSerialize.getClass()
 					+ ". Needed XROUnnumberedInterfaceSubobject.");
@@ -56,8 +54,8 @@ public class XROUnnumberedInterfaceSubobjectParser {
 
 		retBytes[ATTRIBUTE_OFFSET] = (byte) XROSubobjectAttributeMapping.getInstance().getFromAttributeEnum(specObj.getAttribute());
 		ByteArray.copyWhole(specObj.getRouterID().getAddress(), retBytes, ROUTER_ID_NUMBER_OFFSET);
-		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceID().getInterfaceId()), Long.SIZE / Byte.SIZE
-				- INTERFACE_ID_NUMBER_LENGTH, retBytes, INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceID().getInterfaceId()), Long.SIZE / Byte.SIZE - INTERFACE_ID_NUMBER_LENGTH, retBytes,
+				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 
 		return retBytes;
 	}

@@ -7,76 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
-import io.netty.buffer.ByteBuf;
-
-import java.util.List;
-
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.HandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
+import org.opendaylight.protocol.pcep.impl.PCEPMessageParser;
+import org.opendaylight.protocol.pcep.impl.PCEPObjectFactory;
+import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPCloseMessage PCEPCloseMessage}
  */
-public class PCEPCloseMessageParser extends AbstractMessageParser {
-
-	private final int TYPE = 7;
-
-	public PCEPCloseMessageParser(final HandlerRegistry registry) {
-		super(registry);
-	}
+public class PCEPCloseMessageParser implements PCEPMessageParser {
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof CloseMessage))
-			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-					+ ". Nedded CloseMessage.");
-		final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
+	public byte[] put(final Message msg) {
+		if (!(msg instanceof PCEPCloseMessage))
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + msg.getClass()
+					+ ". Nedded PCEPCloseMessage.");
 
-		if (close.getCClose() == null) {
-			throw new IllegalArgumentException("Close Object must be present in Close Message.");
-		}
-		buffer.writeBytes(serializeObject(close.getCClose()));
+		return PCEPObjectFactory.put(((PCEPCloseMessage) msg).getAllObjects());
 	}
 
-	@Override
-	public CloseMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-
-		return validate(objs);
-	}
-
-	private Close validate(final List<Object> objects) throws PCEPDeserializerException {
-		if (objects == null)
-			throw new IllegalArgumentException("Passed list can't be null.");
-
-		if (objects.isEmpty() || !(objects.get(0) instanceof CClose))
-			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
-
-		final Object o = objects.get(0);
-		final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
-		objects.remove(0);
-
-		if (!objects.isEmpty())
-			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-
-		return new CloseBuilder().setCCloseMessage(msg).build();
-	}
-
-	@Override
-	public int getMessageType() {
-		return this.TYPE;
-	}
 }

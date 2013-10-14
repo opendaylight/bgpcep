@@ -7,15 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 
 public interface ObjectSerializer {
-
-	@Deprecated
-	public int getObjectType();
-
-	@Deprecated
-	public int getObjectClass();
-
-	public byte[] serializeObject(Object object);
+	public ByteBuf serializeObject(Object object, ByteBuf buffer);
 }

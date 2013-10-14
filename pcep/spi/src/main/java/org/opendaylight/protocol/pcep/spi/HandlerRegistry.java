@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 
 public interface HandlerRegistry {
 	public AutoCloseable registerMessageParser(int messageType, MessageParser parser);
@@ -30,10 +29,4 @@ public interface HandlerRegistry {
 
 	public AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 	public TlvSerializer getTlvSerializer(Tlv tlv);
-	
-	public AutoCloseable registerSubobjectParser(int subobjectType, SubobjectParser parser);
-	public SubobjectParser getSubobjectParser(int subobjectType);
-	
-	public AutoCloseable registerSubobjectSerializer(Class<? extends CSubobject> subobjectClass, SubobjectSerializer serializer);
-	public SubobjectSerializer getSubobjectSerializer(CSubobject subobject);
 }

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -20,6 +21,7 @@ import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.concepts.SharedRiskLinkGroup;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.concepts.UnnumberedInterfaceIdentifier;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIPv4PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIPv6PrefixSubobjectParser;
@@ -29,6 +31,7 @@ import org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROSRLGSubobject;
 import org.opendaylight.protocol.pcep.subobject.XROSubobjectAttribute;
+import org.opendaylight.protocol.pcep.subobject.XROUnnumberedInterfaceSubobject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
@@ -46,13 +49,12 @@ public class PCEPXROSubobjectParserTest {
 		assertEquals(objsToTest.get(1), new XROIPPrefixSubobject<IPv6Prefix>(new IPv6Prefix(new IPv6Address(new byte[] { (byte) 0x12,
 				(byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x90, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x90,
 				(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0, (byte) 0 }), 112), true, XROSubobjectAttribute.INTERFACE));
-		// assertEquals(objsToTest.get(2), new XROUnnumberedInterfaceSubobject(new IPv4Address(new byte[] { (byte) 0,
-		// (byte) 0, (byte) 0,
-		// (byte) 0x20 }), new UnnumberedInterfaceIdentifier(0x1234L), false, XROSubobjectAttribute.SRLG));
+		assertEquals(objsToTest.get(2), new XROUnnumberedInterfaceSubobject(new IPv4Address(new byte[] { (byte) 0, (byte) 0, (byte) 0,
+				(byte) 0x20 }), new UnnumberedInterfaceIdentifier(0x1234L), false, XROSubobjectAttribute.SRLG));
 		assertEquals(objsToTest.get(3), new XROAsNumberSubobject(new AsNumber((long) 0x1234), false));
 		assertEquals(objsToTest.get(4), new XROSRLGSubobject(new SharedRiskLinkGroup(0x12345678L), false));
 
-		// assertArrayEquals(bytesFromFile, PCEPXROSubobjectParser.put(objsToTest));
+		assertArrayEquals(bytesFromFile, PCEPXROSubobjectParser.put(objsToTest));
 
 	}
 
