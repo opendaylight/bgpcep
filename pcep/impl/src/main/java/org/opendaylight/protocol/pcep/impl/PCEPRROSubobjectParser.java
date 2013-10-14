@@ -10,8 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.concepts.IPv4Prefix;
-import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.RROAttributesSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIPv4AddressSubobjectParser;
@@ -138,12 +136,11 @@ public class PCEPRROSubobjectParser {
 
 		final byte[] soContentsBytes;
 
-		if (objToSerialize instanceof RROIPAddressSubobject<?>
-				&& ((RROIPAddressSubobject<?>) objToSerialize).getPrefix() instanceof IPv4Prefix) {
+		if (objToSerialize instanceof RROIPAddressSubobject && ((RROIPAddressSubobject) objToSerialize).getPrefix().getIpv4Prefix() != null) {
 			typeIndicator = PCEPSubobjectType.IPv4_PREFIX.getIndicator();
 			soContentsBytes = RROIPv4AddressSubobjectParser.put(objToSerialize);
-		} else if (objToSerialize instanceof RROIPAddressSubobject<?>
-				&& ((RROIPAddressSubobject<?>) objToSerialize).getPrefix() instanceof IPv6Prefix) {
+		} else if (objToSerialize instanceof RROIPAddressSubobject
+				&& ((RROIPAddressSubobject) objToSerialize).getPrefix().getIpv6Prefix() != null) {
 			typeIndicator = PCEPSubobjectType.IPv6_PREFIX.getIndicator();
 			soContentsBytes = RROIPv6AddressSubobjectParser.put(objToSerialize);
 		} else if (objToSerialize instanceof RROUnnumberedInterfaceSubobject) {

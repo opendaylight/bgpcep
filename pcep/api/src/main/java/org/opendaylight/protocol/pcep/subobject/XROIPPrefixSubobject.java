@@ -8,33 +8,29 @@
 package org.opendaylight.protocol.pcep.subobject;
 
 import org.opendaylight.protocol.concepts.Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 
 /**
  * Parametrized structure of IP Prefix Subobject. Defined in RFC5521.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route
- *      Object definition</a>
- *
- * @param <T>
- *            subtype of Prefix
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5521#section-2.1.1">Exclude Route Object definition</a>
+ * 
+ * @param <T> subtype of Prefix
  */
-public class XROIPPrefixSubobject<T extends Prefix<?>> extends ExcludeRouteSubobject {
+public class XROIPPrefixSubobject extends ExcludeRouteSubobject {
 
 	private final XROSubobjectAttribute attribute;
 
-	private final T prefix;
+	private final IpPrefix prefix;
 
 	/**
 	 * Constructs IPPrefix Subobject.
-	 *
-	 * @param prefix
-	 *            T
-	 * @param mandatory
-	 *            boolean
-	 * @param attribute
-	 *            XROSubobjectAttribute
+	 * 
+	 * @param prefix T
+	 * @param mandatory boolean
+	 * @param attribute XROSubobjectAttribute
 	 */
-	public XROIPPrefixSubobject(T prefix, boolean mandatory, XROSubobjectAttribute attribute) {
+	public XROIPPrefixSubobject(final IpPrefix prefix, final boolean mandatory, final XROSubobjectAttribute attribute) {
 		super(mandatory);
 		this.attribute = attribute;
 		this.prefix = prefix;
@@ -42,16 +38,16 @@ public class XROIPPrefixSubobject<T extends Prefix<?>> extends ExcludeRouteSubob
 
 	/**
 	 * Gets specific {@link Prefix}.
-	 *
+	 * 
 	 * @return prefix T
 	 */
-	public T getPrefix() {
+	public IpPrefix getPrefix() {
 		return this.prefix;
 	}
 
 	/**
 	 * Gets the attribute of the subobject
-	 *
+	 * 
 	 * @return the attribute
 	 */
 	public XROSubobjectAttribute getAttribute() {
@@ -68,14 +64,14 @@ public class XROIPPrefixSubobject<T extends Prefix<?>> extends ExcludeRouteSubob
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
 			return false;
 		if (this.getClass() != obj.getClass())
 			return false;
-		final XROIPPrefixSubobject<?> other = (XROIPPrefixSubobject<?>) obj;
+		final XROIPPrefixSubobject other = (XROIPPrefixSubobject) obj;
 		if (this.attribute != other.attribute)
 			return false;
 		if (this.prefix == null) {

@@ -10,8 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.concepts.IPv4Prefix;
-import org.opendaylight.protocol.concepts.IPv6Prefix;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
@@ -20,7 +18,6 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeyWith32PCEIDSubobj
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.subobject.EROAsNumberSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROExplicitExclusionRouteSubobject;
-import org.opendaylight.protocol.pcep.subobject.EROIPPrefixSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROLabelSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith128PCEIDSubobject;
 import org.opendaylight.protocol.pcep.subobject.EROPathKeyWith32PCEIDSubobject;
@@ -140,15 +137,16 @@ public class PCEPEROSubobjectParser {
 
 		byte[] soContentsBytes = null;
 
-		if (objToSerialize instanceof EROIPPrefixSubobject<?>
-				&& ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv4Prefix) {
-			typeIndicator = PCEPSubobjectType.IPv4_PREFIX.getIndicator();
-			// soContentsBytes = EROIpPrefixSubobjectParser.put(objToSerialize);
-		} else if (objToSerialize instanceof EROIPPrefixSubobject<?>
-				&& ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv6Prefix) {
-			typeIndicator = PCEPSubobjectType.IPv6_PREFIX.getIndicator();
-			// soContentsBytes = EROIPv6PrefixSubobjectParser.put(objToSerialize);
-		} else if (objToSerialize instanceof EROAsNumberSubobject) {
+		// if (objToSerialize instanceof EROIPPrefixSubobject<?>
+		// && ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv4Prefix) {
+		// typeIndicator = PCEPSubobjectType.IPv4_PREFIX.getIndicator();
+		// // soContentsBytes = EROIpPrefixSubobjectParser.put(objToSerialize);
+		// } else if (objToSerialize instanceof EROIPPrefixSubobject<?>
+		// && ((EROIPPrefixSubobject<?>) objToSerialize).getPrefix() instanceof IPv6Prefix) {
+		// typeIndicator = PCEPSubobjectType.IPv6_PREFIX.getIndicator();
+		// // soContentsBytes = EROIPv6PrefixSubobjectParser.put(objToSerialize);
+		// } else
+		if (objToSerialize instanceof EROAsNumberSubobject) {
 			typeIndicator = PCEPSubobjectType.AS_NUMBER.getIndicator();
 			// soContentsBytes = EROAsNumberSubobjectParser.put(objToSerialize);
 		} else if (objToSerialize instanceof EROUnnumberedInterfaceSubobject) {
