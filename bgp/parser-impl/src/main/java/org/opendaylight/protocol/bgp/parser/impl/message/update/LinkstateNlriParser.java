@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.UnsignedBytes;
 
-final class LinkstateNlriParser implements NlriParser {
+public final class LinkstateNlriParser implements NlriParser {
 	private static final Logger logger = LoggerFactory.getLogger(LinkstateNlriParser.class);
 	private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
 	private static final int PROTOCOL_ID_LENGTH = 1;

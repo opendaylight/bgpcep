@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -11,12 +18,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 import com.google.common.base.Preconditions;
 
-final class MPReachAttributeParser implements AttributeParser {
-	static final int TYPE = 14;
+public final class MPReachAttributeParser implements AttributeParser {
+	public static final int TYPE = 14;
 
 	private final NlriRegistry reg;
 
-	MPReachAttributeParser(final NlriRegistry reg) {
+	public MPReachAttributeParser(final NlriRegistry reg) {
 		this.reg = Preconditions.checkNotNull(reg);
 	}
 
