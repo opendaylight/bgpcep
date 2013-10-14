@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.linkstate.LinkstateAttributeParser;
+import org.opendaylight.protocol.bgp.linkstate.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
@@ -28,7 +29,6 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesAttri
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4NlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv6NlriParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPUnreachAttributeParser;
