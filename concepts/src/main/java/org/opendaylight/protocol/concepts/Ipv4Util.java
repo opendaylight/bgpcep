@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 
@@ -63,5 +64,16 @@ public final class Ipv4Util {
 			byteOffset += byteCount;
 		}
 		return list;
+	}
+
+	public static int getPrefixLength(final IpPrefix prefix) {
+		String p = "";
+		if (prefix.getIpv4Prefix() != null) {
+			p = prefix.getIpv4Prefix().getValue();
+		} else {
+			p = prefix.getIpv6Prefix().getValue();
+		}
+		final int sep = p.indexOf("/");
+		return Integer.valueOf(p.substring(sep, p.length() - 1));
 	}
 }
