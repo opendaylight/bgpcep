@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-/**
- *
- */
-public interface PCEPProviderContext {
-	public LabelHandlerRegistry getHandlerRegistry();
-	public MessageHandlerRegistry getMessageHandlerRegistry();
-	public ObjectHandlerRegistry getObjectHandlerRegistry();
-	public SubobjectHandlerRegistry getSubobjectHandlerRegistry();
-	public TlvHandlerRegistry getTlvHandlerRegistry();
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+
+public interface LabelSerializer {
+
+	@Deprecated
+	public int getType();
+
+	public byte[] serializeSubobject(CLabel subobject);
 }

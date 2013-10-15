@@ -19,7 +19,7 @@ import com.google.common.base.Preconditions;
 /**
  *
  */
-public final class SimpleMessageHandlerFactory implements MessageHandlerRegistry {
+public final class SimpleMessageHandlerRegistry implements MessageHandlerRegistry {
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
 	@Override

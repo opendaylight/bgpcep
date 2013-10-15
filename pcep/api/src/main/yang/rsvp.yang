@@ -130,8 +130,13 @@ module rsvp {
 		}
 	}
 
+	// Marker
+	grouping c-label;
+
 	grouping type1-label {
 		reference "https://tools.ietf.org/html/rfc3209#section-4.1";
+
+		uses c-label;
 
 		leaf type1-label {
 			type uint32;
@@ -142,6 +147,8 @@ module rsvp {
 	grouping generalized-label {
 		reference "https://tools.ietf.org/html/rfc3473#section-2.3";
 
+		uses c-label;
+
 		leaf generalized-label {
 			type binary;
 			mandatory true;
@@ -150,6 +157,8 @@ module rsvp {
 
 	grouping waveband-switching-label {
 		reference "https://tools.ietf.org/html/rfc3473#section-2.4";
+
+		uses c-label;
 
 		leaf end-label {
 			type uint32;
@@ -196,6 +205,8 @@ module rsvp {
 
 	grouping generalized-channel-set-label {
 		reference "https://tools.ietf.org/html/rfc6002#section-3.2";
+
+		uses c-label;
 
 		list subobjects {
 			uses label-set;

@@ -7,13 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-/**
- *
- */
-public interface PCEPProviderContext {
-	public LabelHandlerRegistry getHandlerRegistry();
-	public MessageHandlerRegistry getMessageHandlerRegistry();
-	public ObjectHandlerRegistry getObjectHandlerRegistry();
-	public SubobjectHandlerRegistry getSubobjectHandlerRegistry();
-	public TlvHandlerRegistry getTlvHandlerRegistry();
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+
+public interface LabelParser {
+	public CLabel parseLabel(final byte[] buffer) throws PCEPDeserializerException;
 }
