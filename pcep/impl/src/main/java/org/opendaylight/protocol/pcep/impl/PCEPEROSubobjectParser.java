@@ -53,8 +53,9 @@ public class PCEPEROSubobjectParser {
 		public static PCEPSubobjectType getFromInt(final int type) throws PCEPDeserializerException {
 
 			for (final PCEPSubobjectType type_e : PCEPSubobjectType.values()) {
-				if (type_e.getIndicator() == type)
+				if (type_e.getIndicator() == type) {
 					return type_e;
+				}
 			}
 
 			throw new PCEPDeserializerException("Unknown Subobject type. Passed: " + type + "; Known: " + PCEPSubobjectType.values() + ".");
@@ -75,8 +76,9 @@ public class PCEPEROSubobjectParser {
 	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + LENGTH_F_LENGTH;
 
 	public static List<ExplicitRouteSubobject> parse(final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null)
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
+		}
 
 		final List<ExplicitRouteSubobject> subobjsList = new ArrayList<ExplicitRouteSubobject>();
 		boolean loose_flag;
@@ -92,9 +94,10 @@ public class PCEPEROSubobjectParser {
 
 			type = PCEPSubobjectType.getFromInt((bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7));
 
-			if (length > bytes.length - offset)
+			if (length > bytes.length - offset) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
 						+ (bytes.length - offset));
+			}
 
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
@@ -164,8 +167,9 @@ public class PCEPEROSubobjectParser {
 		} else if (objToSerialize instanceof EROPathKeyWith128PCEIDSubobject) {
 			typeIndicator = PCEPSubobjectType.PK_128.getIndicator();
 			soContentsBytes = EROPathKeyWith128PCEIDSubobjectParser.put((EROPathKeyWith128PCEIDSubobject) objToSerialize);
-		} else
+		} else {
 			throw new IllegalArgumentException("Unknown instance of PCEPSubobject. Passed: " + objToSerialize.getClass() + ".");
+		}
 
 		final byte[] bytes = new byte[SO_CONTENTS_OFFSET + soContentsBytes.length];
 
