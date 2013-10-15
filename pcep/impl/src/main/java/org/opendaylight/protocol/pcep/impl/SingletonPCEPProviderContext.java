@@ -22,7 +22,13 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 @ThreadSafe
 public final class SingletonPCEPProviderContext implements PCEPProviderContext {
 	private static final class Holder {
-		private static final PCEPProviderContext INSTANCE = new SingletonPCEPProviderContext();
+		private static final PCEPProviderContext INSTANCE;
+
+		static {
+			final PCEPProviderContext pc = new SingletonPCEPProviderContext();
+			new PCEPImplActivator().start(pc);
+			INSTANCE = pc;
+		}
 	}
 
 	private final LabelHandlerRegistry labelReg = new SimpleLabelHandlerRegistry();
