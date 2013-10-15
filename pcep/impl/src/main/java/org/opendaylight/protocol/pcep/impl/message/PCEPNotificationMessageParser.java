@@ -39,7 +39,7 @@ import com.google.common.collect.Lists;
  */
 public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 5;
+	public static final int TYPE = 5;
 
 	public PCEPNotificationMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
@@ -170,6 +170,6 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
 	@Override
 	public int getMessageType() {
-		return this.TYPE;
+		return TYPE;
 	}
 }
