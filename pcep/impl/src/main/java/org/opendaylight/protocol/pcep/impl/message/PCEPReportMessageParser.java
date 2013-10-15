@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 // FIXME : finish
 public class PCEPReportMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 10;
+	public static final int TYPE = 10;
 
 	public PCEPReportMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);

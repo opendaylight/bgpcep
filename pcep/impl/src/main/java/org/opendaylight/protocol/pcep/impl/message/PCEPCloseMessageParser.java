@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPCloseMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 7;
+	public static final int TYPE = 7;
 
 	public PCEPCloseMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
@@ -81,6 +81,6 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
 	@Override
 	public int getMessageType() {
-		return this.TYPE;
+		return TYPE;
 	}
 }

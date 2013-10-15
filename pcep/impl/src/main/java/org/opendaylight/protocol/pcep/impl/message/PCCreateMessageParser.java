@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCCreateMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 12;
+	public static final int TYPE = 12;
 
 	public PCCreateMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
@@ -41,6 +41,6 @@ public class PCCreateMessageParser extends AbstractMessageParser {
 
 	@Override
 	public int getMessageType() {
-		return this.TYPE;
+		return TYPE;
 	}
 }
