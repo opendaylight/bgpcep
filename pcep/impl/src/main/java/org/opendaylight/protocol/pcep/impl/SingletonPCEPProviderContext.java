@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPProviderContext;
@@ -24,7 +25,8 @@ public final class SingletonPCEPProviderContext implements PCEPProviderContext {
 		private static final PCEPProviderContext INSTANCE = new SingletonPCEPProviderContext();
 	}
 
-	private final MessageHandlerRegistry msgReg = new SimpleMessageHandlerFactory();
+	private final LabelHandlerRegistry labelReg = new SimpleLabelHandlerRegistry();
+	private final MessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
 	private final ObjectHandlerRegistry objReg = new SimpleObjectHandlerRegistry();
 	private final SubobjectHandlerRegistry subobjReg =  new SimpleSubobjectHandlerFactory();
 	private final TlvHandlerRegistry tlvReg = new SimpleTlvHandlerRegistry();
@@ -35,6 +37,11 @@ public final class SingletonPCEPProviderContext implements PCEPProviderContext {
 
 	public static PCEPProviderContext getInstance() {
 		return Holder.INSTANCE;
+	}
+
+	@Override
+	public LabelHandlerRegistry getHandlerRegistry() {
+		return labelReg;
 	}
 
 	@Override
