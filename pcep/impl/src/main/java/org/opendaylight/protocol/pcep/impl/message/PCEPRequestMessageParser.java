@@ -18,10 +18,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link PcrepMessage}
  */
-//FIXME finish
+// FIXME finish
 public class PCEPRequestMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 3;
+	public static final int TYPE = 3;
 
 	public PCEPRequestMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
