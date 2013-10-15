@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 
-	private final int TYPE = 11;
+	public static final int TYPE = 11;
 
 	public PCEPUpdateRequestMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);

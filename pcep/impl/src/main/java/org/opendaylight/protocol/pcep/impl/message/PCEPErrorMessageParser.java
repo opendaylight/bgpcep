@@ -43,7 +43,7 @@ import com.google.common.collect.Lists;
  */
 public class PCEPErrorMessageParser extends AbstractMessageParser {
 
-	public final int TYPE = 6;
+	public static final int TYPE = 6;
 
 	public PCEPErrorMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
@@ -190,6 +190,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
 	@Override
 	public int getMessageType() {
-		return this.TYPE;
+		return TYPE;
 	}
 }
