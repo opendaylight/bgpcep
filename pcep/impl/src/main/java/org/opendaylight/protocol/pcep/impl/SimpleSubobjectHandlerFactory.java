@@ -8,28 +8,15 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.SubobjectParser;
 import org.opendaylight.protocol.pcep.spi.SubobjectSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
 public final class SimpleSubobjectHandlerFactory implements SubobjectHandlerRegistry {
-	public static final SubobjectHandlerRegistry INSTANCE;
-
-	static {
-		final SubobjectHandlerRegistry reg = new SimpleSubobjectHandlerFactory();
-
-		reg.registerSubobjectParser(EROAsNumberSubobjectParser.TYPE, new EROAsNumberSubobjectParser());
-		reg.registerSubobjectSerializer(AsNumberSubobject.class, new EROAsNumberSubobjectParser());
-
-		INSTANCE = reg;
-	}
-
 	private final HandlerRegistry<DataContainer, SubobjectParser, SubobjectSerializer> handlers = new HandlerRegistry<>();
 
 	@Override
