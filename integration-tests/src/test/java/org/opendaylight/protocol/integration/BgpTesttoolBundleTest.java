@@ -17,7 +17,7 @@ public final class BgpTesttoolBundleTest extends AbstractBundleTest {
 		return Lists.newArrayList("bgp-parser-api", "bgp-concepts", "bgp-linkstate",
 				"bgp-parser-impl", "bgp-parser-spi", "bgp-util", "concepts",
 				"framework", "bgp-rib-api", "bgp-rib-impl", "bgp-rib-spi",
-				"util");
+				"rsvp-api", "util");
 	}
 
 	@Override

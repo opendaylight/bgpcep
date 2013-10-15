@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.RouteTag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.SharedRiskLinkGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.link.state.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.prefix.state.IgpBitsBuilder;
@@ -50,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.conc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IgpMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.TeMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,9 +224,9 @@ public class LinkstateAttributeParser implements AttributeParser {
 					break;
 				case 1096:
 					int i = 0;
-					final List<SharedRiskLinkGroup> sharedRiskLinkGroups = Lists.newArrayList();
+					final List<SrlgId> sharedRiskLinkGroups = Lists.newArrayList();
 					while (i != value.length) {
-						sharedRiskLinkGroups.add(new SharedRiskLinkGroup(ByteArray.bytesToLong(ByteArray.subByte(value, i, 4))));
+						sharedRiskLinkGroups.add(new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(value, i, 4))));
 						i += 4;
 					}
 					builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);

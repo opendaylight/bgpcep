@@ -11,16 +11,14 @@ import java.util.Collection;
 
 import com.google.common.collect.Lists;
 
-public final class BgpRibImplBundleTest extends AbstractBundleTest {
+public final class RsvpApiBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "bgp-concepts", "bgp-linkstate", "bgp-parser-api",
-				"bgp-parser-impl", "bgp-parser-spi", "bgp-rib-api", "bgp-rib-spi",
-				"bgp-util", "framework", "rsvp-api", "util");
+		return Lists.newArrayList("concepts", "util");
 	}
 
 	@Override
 	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("bgp-rib-impl");
+		return Lists.newArrayList("rsvp-api");
 	}
 }

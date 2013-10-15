@@ -11,6 +11,7 @@ module bgp-linkstate {
 	import bgp-multiprotocol { prefix bgp-mp;}
 	import bgp-types { prefix bgp-t;}
 	import nps-concepts { prefix nps-c;}
+	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -420,11 +421,6 @@ module bgp-linkstate {
 		}
 	}
 
-	typedef shared-risk-link-group {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.4";
-		type uint32;
-	}
-
 	typedef administrative-group {
 		type uint32;
 	}
@@ -464,7 +460,7 @@ module bgp-linkstate {
 			type nps-c:metric;
 		}
 		leaf-list shared-risk-link-groups {
-			type shared-risk-link-group;
+			type rsvp:srlg-id;
 		}
 		leaf link-name {
 			type string;
