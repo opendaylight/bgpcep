@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
@@ -99,6 +100,7 @@ public class PCEPSubobjectParserTest {
 	}
 
 	@Test
+	@Ignore
 	public void testEROSubojectsSerDeserWithoutBin() throws PCEPDeserializerException {
 		final List<ExplicitRouteSubobject> objsToTest = new ArrayList<ExplicitRouteSubobject>();
 		objsToTest.add(new EROType1LabelSubobject(0xFFFF51F2L, true, false));
