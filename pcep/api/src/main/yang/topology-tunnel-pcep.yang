@@ -96,7 +96,7 @@ module topology-tunnel-pcep {
 
 	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:explicit-hops" {
 		when "../../tunnel-types/pcep-tunnel";
-		uses rsvp:route-subobjects;
+		uses rsvp:explicit-route-subobjects;
 	}
 
 	augment "/nt:network-topology/nt:topology/nt:link/tt:paths/p2p:reported-hops" {

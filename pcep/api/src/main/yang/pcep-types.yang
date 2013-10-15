@@ -574,7 +574,7 @@ module pcep-types {
 				mandatory true;
 			}
 
-			uses rsvp:route-subobjects;
+			uses rsvp:explicit-route-subobjects;
 		}
 	}
 
@@ -586,13 +586,7 @@ module pcep-types {
 		uses object;
 
 		list subobjects {
-			uses rsvp:route-subobjects {
-				augment subobject-type {
-					case explicit-exclusion-route {
-						uses rsvp:exclude-route-subobjects;
-					}
-				}
-			}
+			uses rsvp:explicit-route-subobjects;
 		}
 	}
 

@@ -62,6 +62,12 @@
             <version>${yangtools.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools.thirdparty</groupId>
+            <artifactId>xtend-lib-osgi</artifactId>
+            <version>2.4.3</version>
+            <scope>test</scope>
+        </dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>

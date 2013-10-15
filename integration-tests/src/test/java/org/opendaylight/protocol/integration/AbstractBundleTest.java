@@ -65,6 +65,7 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api", "1.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl", "1.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common", "1.0-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "xtend-lib-osgi", "2.4.3"));
 
 		return ret;
 	}
