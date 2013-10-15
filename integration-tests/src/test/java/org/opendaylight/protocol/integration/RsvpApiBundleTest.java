@@ -11,14 +11,14 @@ import java.util.Collection;
 
 import com.google.common.collect.Lists;
 
-public final class PcepImplBundleTest extends AbstractBundleTest {
+public final class RsvpApiBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "framework", "pcep-api", "rsvp-api", "util");
+		return Lists.newArrayList("concepts", "util");
 	}
 
 	@Override
 	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("pcep-impl");
+		return Lists.newArrayList("rsvp-api");
 	}
 }

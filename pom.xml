@@ -44,6 +44,7 @@
 		<module>integration-tests</module>
 		<module>mockito-configuration</module>
 		<module>pcep</module>
+		<module>rsvp</module>
 		<module>util</module>
 	</modules>
 
