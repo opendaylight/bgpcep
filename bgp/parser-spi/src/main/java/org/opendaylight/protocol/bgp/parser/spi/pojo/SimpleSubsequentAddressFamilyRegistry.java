@@ -5,17 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleSubsequentAddressFamilyRegistry extends
-AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements SubsequentAddressFamilyRegistry {
-	@Override
-	public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
+final class SimpleSubsequentAddressFamilyRegistry extends AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements SubsequentAddressFamilyRegistry {
+	AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 255);
 		return super.registerFamily(clazz, number);
 	}

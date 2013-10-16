@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionConsumerContextImpl;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -84,7 +85,7 @@ public class BGPParserTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		updateParser = new BGPUpdateMessageParser(SingletonProviderContext.getInstance().getAttributeRegistry());
+		updateParser = new BGPUpdateMessageParser(BGPExtensionConsumerContextImpl.getSingletonInstance().getAttributeRegistry());
 
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";
@@ -160,7 +161,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(0), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(0), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 
@@ -290,7 +291,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(1), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(1), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
@@ -399,7 +400,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(2), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(2), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 		assertNull(message.getWithdrawnRoutes());
@@ -505,7 +506,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(3), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(3), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 
@@ -586,7 +587,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(4), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(4), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// attributes
 
@@ -615,7 +616,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(5), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(5), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		assertEquals(new UpdateBuilder().build(), message);
 	}
@@ -641,7 +642,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(6), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(6), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 
@@ -673,7 +674,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(7), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(7), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		final Class<? extends AddressFamily> afi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getAfi();
 		final SubsequentAddressFamily safi = message.getPathAttributes().getAugmentation(PathAttributes1.class).getMpReachNlri().getSafi().newInstance();
@@ -838,7 +839,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 
@@ -977,7 +978,7 @@ public class BGPParserTest {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
-		final Update message = this.updateParser.parseMessageBody(body, messageLength);
+		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
 		// check fields
 
@@ -1057,7 +1058,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final MessageRegistry msgReg = SingletonProviderContext.getInstance().getMessageRegistry();
+		final MessageRegistry msgReg = BGPExtensionConsumerContextImpl.getSingletonInstance().getMessageRegistry();
 		final Open open = (Open) msgReg.parseMessage(inputBytes.get(13));
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {

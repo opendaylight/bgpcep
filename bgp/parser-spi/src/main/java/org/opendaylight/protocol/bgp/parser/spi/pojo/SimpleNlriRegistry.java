@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
-public final class SimpleNlriRegistry implements NlriRegistry {
+final class SimpleNlriRegistry implements NlriRegistry {
 	private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
 	private final SubsequentAddressFamilyRegistry safiReg;
 	private final AddressFamilyRegistry afiReg;
@@ -46,8 +46,7 @@ public final class SimpleNlriRegistry implements NlriRegistry {
 		return new BgpTableTypeImpl(afi, safi);
 	}
 
-	@Override
-	public synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
+	synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
 			final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
 		final BgpTableType key = createKey(afi, safi);
 		final NlriParser prev = handlers.get(key);

@@ -31,11 +31,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>util</artifactId>
             <version>${project.version}</version>
 		</dependency>
@@ -79,6 +74,12 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>2010.09.24-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>mockito-configuration</artifactId>
@@ -89,6 +90,12 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-linkstate</artifactId>
+            <version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -103,20 +110,10 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Import-Package>
-							org.opendaylight.protocol.bgp.concepts,
-                            org.opendaylight.protocol.bgp.parser,
-                            org.opendaylight.protocol.bgp.util,
-							org.opendaylight.protocol.concepts,
-							org.opendaylight.protocol.framework,
-                            org.opendaylight.protocol.util,
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.*,
-							com.google.common.*,
-							org.slf4j,
-						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.bgp.parser.impl.*
 						</Export-Package>
+                        <Activator>org.opendaylight.protocol.bgp.parser.impl.OSGiActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

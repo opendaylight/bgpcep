@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-public interface ProviderActivator {
-	public void start(ProviderContext context);
-	public void stop();
+public interface BGPExtensionConsumerActivator {
+	public void start(BGPExtensionConsumerContext context) throws Exception;
+	public void stop() throws Exception;
 }
