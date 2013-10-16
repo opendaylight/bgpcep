@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 
 public interface CapabilityParser {
-	public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException;
+	public CParameters parseCapability(final ByteBuf bytes) throws BGPDocumentedException, BGPParsingException;
 }

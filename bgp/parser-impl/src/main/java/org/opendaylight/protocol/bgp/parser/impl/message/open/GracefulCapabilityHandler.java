@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
@@ -21,7 +23,7 @@ final class GracefulCapabilityHandler implements CapabilitySerializer {
 	private static final int AF_FLAGS_SIZE = 1; // bytes
 
 	@Override
-	public byte[] serializeCapability(final CParameters capability) {
+	public ByteBuf serializeCapability(final CParameters capability) {
 		final byte[] bytes = null;
 
 		// final GracefulCapability param = (GracefulCapability) capability;
