@@ -10,6 +10,9 @@ package org.opendaylight.protocol.pcep;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 
+import java.net.InetAddress;
+import java.util.List;
+
 /**
  * PCEP Session represents the finite state machine in PCEP, including timers and its purpose is to create a PCEP
  * connection between PCE/PCC. Session is automatically started, when TCP connection is created, but can be stopped
@@ -22,10 +25,14 @@ public interface PCEPSession extends ProtocolSession<PCEPMessage> {
 	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
 	 * is only allowed, when a PCEP handshake is in progress). Close message will close the session and free all the
 	 * resources.
-	 * 
+	 *
 	 * @param message message to be sent
 	 */
 	public void sendMessage(PCEPMessage message);
 
 	public void close(PCEPCloseObject.Reason reason);
+
+    public List<PCEPTlv> getRemoteTlvs();
+
+	public InetAddress getRemoteAddress();
 }

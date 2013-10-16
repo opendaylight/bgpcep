@@ -78,7 +78,6 @@
 						<Import-Package>
 							org.opendaylight.protocol.concepts,
 							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.concepts,
 							com.google.common.base,
 							com.google.common.collect,
 							com.google.common.primitives,
@@ -93,7 +92,10 @@
 							org.opendaylight.protocol.pcep.tlv,
                             org.opendaylight.protocol.util,
 							org.slf4j,
-							io.netty.channel, 
+							io.netty.channel,
+							io.netty.channel.socket,
+							io.netty.handler.codec,
+							io.netty.util,
 							io.netty.util.concurrent,
 						</Import-Package>
 						<Export-Package>
