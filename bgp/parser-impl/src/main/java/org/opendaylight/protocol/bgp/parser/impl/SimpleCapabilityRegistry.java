@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
@@ -33,7 +35,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	}
 
 	@Override
-	public CParameters parseCapability(final int type, final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	public CParameters parseCapability(final int type, final ByteBuf bytes) throws BGPDocumentedException, BGPParsingException {
 		final CapabilityParser parser = handlers.getParser(type);
 		if (parser == null) {
 			return null;
@@ -43,7 +45,7 @@ public final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	}
 
 	@Override
-	public byte[] serializeCapability(final CParameters capability) {
+	public ByteBuf serializeCapability(final CParameters capability) {
 		final CapabilitySerializer serializer = handlers.getSerializer(capability.getImplementedInterface());
 		if (serializer == null) {
 			return null;
