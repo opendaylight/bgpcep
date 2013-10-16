@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 public interface LabelParser {
-	public CLabel parseLabel(final byte[] buffer) throws PCEPDeserializerException;
+	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException;
 }

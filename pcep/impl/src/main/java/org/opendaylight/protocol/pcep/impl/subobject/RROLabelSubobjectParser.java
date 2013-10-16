@@ -11,83 +11,91 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.impl.Util.BiParsersMap;
-import org.opendaylight.protocol.pcep.subobject.RROGeneralizedLabelSubobject;
-import org.opendaylight.protocol.pcep.subobject.RROLabelSubobject;
-import org.opendaylight.protocol.pcep.subobject.RROType1LabelSubobject;
-import org.opendaylight.protocol.pcep.subobject.RROWavebandSwitchingLabelSubobject;
+import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.LabelParser;
+import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LabelSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelBuilder;
 
-public class RROLabelSubobjectParser {
+import com.google.common.base.Preconditions;
 
-    public static final int RES_F_LENGTH = 1;
+public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
-    public static final int C_TYPE_F_LENGTH = 1;
+	public static final int TYPE = 3;
 
-    public static final int RES_F_OFFSET = 0;
+	public static final int RES_F_LENGTH = 1;
 
-    public static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
+	public static final int C_TYPE_F_LENGTH = 1;
 
-    public static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
+	public static final int RES_F_OFFSET = 0;
 
-    public static final int U_FLAG_OFFSET = 0;
+	public static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
 
-    private static class MapOfParsers extends BiParsersMap<Class<? extends RROLabelSubobject>, Integer, RROLabelParser> {
-	private final static MapOfParsers instance = new MapOfParsers();
+	public static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
 
-	private MapOfParsers() {
-	    this.fillInMap();
+	public static final int U_FLAG_OFFSET = 0;
+
+	private final LabelHandlerRegistry registry;
+
+	public RROLabelSubobjectParser(final LabelHandlerRegistry labelReg) {
+		this.registry = Preconditions.checkNotNull(labelReg);
 	}
 
-	private void fillInMap() {
-	    this.put(RROType1LabelSubobject.class, 1, new RROType1LabelSubobjectParser());
-	    this.put(RROGeneralizedLabelSubobject.class, 2, new RROGeneralizedLabelSubobjectParser());
-	    this.put(RROWavebandSwitchingLabelSubobject.class, 3, new RROWavebandSwitchingLabelSubobjectParser());
+	@Override
+	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
+		if (buffer == null || buffer.length == 0)
+			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.length < HEADER_LENGTH)
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
+					+ HEADER_LENGTH + ".");
+
+		final BitSet reserved = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, RES_F_OFFSET, RES_F_LENGTH));
+
+		final short c_type = (short) (buffer[C_TYPE_F_OFFSET] & 0xFF);
+
+		final LabelParser parser = this.registry.getLabelParser(c_type);
+
+		if (parser == null) {
+			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + c_type);
+		}
+
+		final LabelBuilder builder = new LabelBuilder();
+		builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
+		builder.setLabelType(parser.parseLabel(ByteArray.cutBytes(buffer, HEADER_LENGTH)));
+		return new SubobjectsBuilder().setSubobjectType(builder.build()).build();
 	}
 
-	public static MapOfParsers getInstance() {
-	    return instance;
+	@Override
+	public byte[] serializeSubobject(final Subobjects subobject) {
+		final LabelSubobject label = (LabelSubobject) subobject.getSubobjectType();
+		final LabelSerializer parser = this.registry.getLabelSerializer((CLabel) label);
+
+		if (parser == null)
+			throw new IllegalArgumentException("Unknown RROLabelSubobject instance. Passed " + subobject.getSubobjectType().getClass());
+
+		final byte[] labelbytes = parser.serializeSubobject((CLabel) label);
+
+		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
+
+		System.arraycopy(labelbytes, 0, retBytes, HEADER_LENGTH, labelbytes.length);
+
+		final BitSet reserved = new BitSet();
+		reserved.set(U_FLAG_OFFSET, label.isUniDirectional());
+		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
+
+		retBytes[C_TYPE_F_OFFSET] = (byte) parser.getType();
+
+		return retBytes;
 	}
-    }
 
-    public static RROLabelSubobject parse(byte[] soContentsBytes) throws PCEPDeserializerException {
-	if (soContentsBytes == null || soContentsBytes.length == 0)
-	    throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-	if (soContentsBytes.length < HEADER_LENGTH)
-	    throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: >" + HEADER_LENGTH + ".");
-
-	final BitSet reserved = ByteArray.bytesToBitSet(Arrays.copyOfRange(soContentsBytes, RES_F_OFFSET, RES_F_LENGTH));
-
-	final int c_type = soContentsBytes[C_TYPE_F_OFFSET] & 0xFF;
-
-	final RROLabelParser parser = MapOfParsers.getInstance().getValueFromKeyValue(c_type);
-
-	if (parser == null) {
-	    throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + c_type);
+	@Override
+	public int getType() {
+		return TYPE;
 	}
-
-	return parser.parse(ByteArray.cutBytes(soContentsBytes, HEADER_LENGTH), reserved.get(U_FLAG_OFFSET));
-    }
-
-    public static byte[] put(RROLabelSubobject objToSerialize) {
-	final Integer c_type = MapOfParsers.getInstance().getKeyValueFromKey(objToSerialize.getClass());
-	final RROLabelParser parser = MapOfParsers.getInstance().getValueFromKeyValue(c_type);
-
-	if (c_type == null || parser == null)
-	    throw new IllegalArgumentException("Unknown RROLabelSubobject instance. Passed " + objToSerialize.getClass());
-
-	final byte[] labelbytes = parser.put(objToSerialize);
-
-	final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
-
-	System.arraycopy(labelbytes, 0, retBytes, HEADER_LENGTH, labelbytes.length);
-
-	final BitSet reserved = new BitSet();
-	reserved.set(U_FLAG_OFFSET, objToSerialize.isUpStream());
-	System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
-
-	retBytes[C_TYPE_F_OFFSET] = (byte) c_type.intValue();
-
-	return retBytes;
-    }
 }

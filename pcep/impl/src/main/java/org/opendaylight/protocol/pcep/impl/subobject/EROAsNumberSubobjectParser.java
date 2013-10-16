@@ -8,19 +8,20 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.SubobjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
 
 /**
  * Parser for {@link AsNumberSubobject}
  */
-
-public class EROAsNumberSubobjectParser implements SubobjectParser, SubobjectSerializer {
+public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
 	public static final int TYPE = 32;
 
@@ -31,7 +32,7 @@ public class EROAsNumberSubobjectParser implements SubobjectParser, SubobjectSer
 	public static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
 
 	@Override
-	public AsNumberSubobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
+	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -40,20 +41,23 @@ public class EROAsNumberSubobjectParser implements SubobjectParser, SubobjectSer
 					+ CONTENT_LENGTH + ".");
 		}
 
-		return new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build();
+		return new SubobjectsBuilder().setLoose(loose).setSubobjectType(
+				new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build();
 	}
 
 	@Override
-	public byte[] serializeSubobject(final CSubobject subobject) {
-		if (!(subobject instanceof AsNumberSubobject)) {
-			throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getClass()
+	public byte[] serializeSubobject(final Subobjects subobject) {
+		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject)) {
+			throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed AsNumberSubobject.");
 		}
 
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 
-		System.arraycopy(ByteArray.longToBytes(((AsNumberSubobject) subobject).getAsNumber().getValue()), Long.SIZE / Byte.SIZE
-				- AS_NUMBER_LENGTH, retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		final SubobjectType s = subobject.getSubobjectType();
+
+		System.arraycopy(ByteArray.longToBytes(((AsNumberSubobject) s).getAsNumber().getValue()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH,
+				retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
 
 		return retBytes;
 	}
