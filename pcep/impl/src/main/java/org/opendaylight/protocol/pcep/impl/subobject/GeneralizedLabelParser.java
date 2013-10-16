@@ -12,6 +12,7 @@ import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.GeneralizedLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
 
 public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
@@ -19,7 +20,7 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 	public static final int CTYPE = 2;
 
 	@Override
-	public GeneralizedLabel parseLabel(final byte[] buffer) throws PCEPDeserializerException {
+	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 

@@ -5,15 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.subobject;
+package org.opendaylight.protocol.pcep.spi;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.subobject.EROLabelSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Subobjects;
 
-public interface EROLabelParser {
-
-    EROLabelSubobject parse(byte[] cutBytes, boolean upStream, boolean loose) throws PCEPDeserializerException;
-
-    byte[] put(EROLabelSubobject objToSerialize);
-
+public interface RROSubobjectParser {
+	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException;
 }

@@ -7,9 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Subobjects;
 
-public interface SubobjectParser {
-	public CSubobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException;
+public interface RROSubobjectSerializer {
+
+	@Deprecated
+	public int getType();
+
+	public byte[] serializeSubobject(Subobjects subobject);
 }

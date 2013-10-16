@@ -13,6 +13,7 @@ import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.WavebandSwitchingLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelBuilder;
 
 public class WavebandSwitchingLabelParser implements LabelParser, LabelSerializer {
@@ -26,7 +27,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 	private static int CONTENT_LENGTH = WAVEB_F_LENGTH + START_F_LENGTH + END_F_LENGTH;
 
 	@Override
-	public WavebandSwitchingLabel parseLabel(final byte[] buffer) throws PCEPDeserializerException {
+	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 

@@ -9,8 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithSubobjectsParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
@@ -19,28 +18,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link ReportedRouteObject}
  */
-public class PCEPReportedRouteObjectParser extends AbstractObjectWithSubobjectsParser<ReportedRouteBuilder> {
+public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
 
 	public static final int CLASS = 8;
 
 	public static final int TYPE = 1;
 
-	public PCEPReportedRouteObjectParser(final SubobjectHandlerRegistry subobjReg) {
+	public PCEPReportedRouteObjectParser(final RROSubobjectHandlerRegistry subobjReg) {
 		super(subobjReg);
 	}
 
 	@Override
 	public ReportedRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
-
 		final ReportedRouteBuilder builder = new ReportedRouteBuilder();
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		// FIXME: add subobjects
+		builder.setSubobjects(parseSubobjects(bytes));
 		return builder.build();
 	}
 
@@ -51,10 +49,9 @@ public class PCEPReportedRouteObjectParser extends AbstractObjectWithSubobjectsP
 					+ ". Needed ReportedRouteObject.");
 		}
 
-		assert !(((ReportedRouteObject) object).getSubobjects().isEmpty()) : "Empty Reported Route Object.";
-		// FIXME add subobjects
-		// return PCEPRROSubobjectParser.put(((ReportedRouteObject) object).getSubobjects());
-		return null;
+		final ReportedRouteObject obj = (ReportedRouteObject) object;
+		assert !(obj.getSubobjects().isEmpty()) : "Empty Reported Route Object.";
+		return serializeSubobject(obj.getSubobjects());
 	}
 
 	@Override
