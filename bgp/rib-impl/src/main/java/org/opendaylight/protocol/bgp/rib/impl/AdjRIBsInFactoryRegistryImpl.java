@@ -57,7 +57,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final Ipv4Prefix key) {
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
-			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.Ipv4Routes.class);
+			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4Routes.class);
 			builder.node(Ipv4Routes.class, new Ipv4RoutesKey(key));
 
 			return builder.toInstance();
@@ -101,7 +101,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final Ipv6Prefix key) {
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
-			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.loc.rib.tables.routes.Ipv6Routes.class);
+			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv6Routes.class);
 			builder.node(Ipv6Routes.class, new Ipv6RoutesKey(key));
 
 			return builder.toInstance();
