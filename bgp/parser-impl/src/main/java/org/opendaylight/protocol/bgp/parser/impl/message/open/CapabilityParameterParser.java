@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -49,7 +53,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 		final int capLength = UnsignedBytes.toInt(bytes[byteOffset++]);
 		final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, capLength);
 
-		final CParameters ret = reg.parseCapability(capCode, paramBody);
+		final CParameters ret = reg.parseCapability(capCode, Unpooled.wrappedBuffer(paramBody));
 		if (ret == null) {
 			logger.debug("Ignoring unsupported capability {}", capCode);
 			return null;
@@ -64,12 +68,12 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
 		logger.trace("Started serializing BGP Capability: {}", cap);
 
-		byte[] bytes = reg.serializeCapability(cap);
+		final ByteBuf bytes = reg.serializeCapability(cap);
 		if (bytes == null) {
 			throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
 		}
 
-		logger.trace("BGP capability serialized to: {}", Arrays.toString(bytes));
+		logger.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
 
 		return ParameterUtil.formatParameter(TYPE, bytes);
 	}
