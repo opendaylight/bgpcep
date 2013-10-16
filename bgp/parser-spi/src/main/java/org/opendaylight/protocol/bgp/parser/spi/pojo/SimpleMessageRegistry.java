@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -14,7 +14,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class SimpleMessageRegistry extends AbstractMessageRegistry {
+final class SimpleMessageRegistry extends AbstractMessageRegistry {
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
 	@Override
@@ -37,13 +37,11 @@ public final class SimpleMessageRegistry extends AbstractMessageRegistry {
 		return serializer.serializeMessage(message);
 	}
 
-	@Override
-	public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+	AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
 		return handlers.registerParser(messageType, parser);
 	}
 
-	@Override
-	public AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
+	AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
 		return handlers.registerSerializer(messageClass, serializer);
 	}
 }
