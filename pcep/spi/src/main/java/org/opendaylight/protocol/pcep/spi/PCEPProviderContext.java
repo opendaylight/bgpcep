@@ -7,15 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-/**
- *
- */
 public interface PCEPProviderContext {
-	public LabelHandlerRegistry getHandlerRegistry();
+
+	public LabelHandlerRegistry getLabelHandlerRegistry();
+	
 	public MessageHandlerRegistry getMessageHandlerRegistry();
+
 	public ObjectHandlerRegistry getObjectHandlerRegistry();
-	public SubobjectHandlerRegistry getEROSubobjectHandlerRegistry();
-	public SubobjectHandlerRegistry getRROSubobjectHandlerRegistry();
-	public SubobjectHandlerRegistry getXROSubobjectHandlerRegistry();
+
+	public EROSubobjectHandlerRegistry getEROSubobjectHandlerRegistry();
+
+	public RROSubobjectHandlerRegistry getRROSubobjectHandlerRegistry();
+
+	public XROSubobjectHandlerRegistry getXROSubobjectHandlerRegistry();
+
 	public TlvHandlerRegistry getTlvHandlerRegistry();
 }

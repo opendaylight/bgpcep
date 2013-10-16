@@ -8,42 +8,59 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.subobject.ExcludeRouteSubobject;
-import org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.subobject.XROAsNumberSubobject XROAsNumberSubobject}
+ * Parser for {@link AsNumberSubobject}
  */
 
-public class XROAsNumberSubobjectParser {
+public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
+
+	public static final int TYPE = 32;
+
 	public static final int AS_NUMBER_LENGTH = 2;
 
 	public static final int AS_NUMBER_OFFSET = 0;
 
 	public static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
 
-	public static XROAsNumberSubobject parse(final byte[] soContentsBytes, final boolean mandatory) throws PCEPDeserializerException {
-		if (soContentsBytes == null || soContentsBytes.length == 0)
+	@Override
+	public Subobjects parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
+		if (buffer == null || buffer.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (soContentsBytes.length != CONTENT_LENGTH)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + soContentsBytes.length + "; Expected: "
+		if (buffer.length != CONTENT_LENGTH)
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
 					+ CONTENT_LENGTH + ".");
 
-		return new XROAsNumberSubobject(new AsNumber((long) (ByteArray.bytesToShort(soContentsBytes) & 0xFFFF)), mandatory);
+		return new SubobjectsBuilder().setMandatory(mandatory).setSubobjectType(
+				new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build();
 	}
 
-	public static byte[] put(final ExcludeRouteSubobject objToSerialize) {
-		if (!(objToSerialize instanceof XROAsNumberSubobject))
-			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + objToSerialize.getClass()
-					+ ". Needed XROAsNumberSubobject.");
+	@Override
+	public byte[] serializeSubobject(final Subobjects subobject) {
+		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject))
+			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
+					+ ". Needed AsNumberSubobject.");
 
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 
-		System.arraycopy(ByteArray.longToBytes(((XROAsNumberSubobject) objToSerialize).getASNumber().getValue()), Long.SIZE / Byte.SIZE
-				- AS_NUMBER_LENGTH, retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		final AsNumberSubobject obj = (AsNumberSubobject) subobject.getSubobjectType();
+
+		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH, retBytes,
+				AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
 
 		return retBytes;
+	}
+
+	@Override
+	public int getType() {
+		return TYPE;
 	}
 }
