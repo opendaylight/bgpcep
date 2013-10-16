@@ -238,10 +238,6 @@ module rsvp {
 
 	grouping label-subobject {
 		uses c-subobject;
-		leaf c-type {
-			type uint8;
-			mandatory true;
-		}
 
 		leaf uni-directional {
 			type boolean;
@@ -329,6 +325,9 @@ module rsvp {
 			}
 			case label {
 				uses label-subobject;
+			}
+			case srlg {
+				uses srlg-subobject;
 			}
 			case unnumbered {
 				uses unnumbered-subobject;

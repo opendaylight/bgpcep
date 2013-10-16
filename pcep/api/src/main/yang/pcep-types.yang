@@ -60,6 +60,10 @@ module pcep-types {
 		type uint16;
 	}
 
+	typedef path-key {
+		type uint16;
+	}
+
 	typedef pce-id {
 		type union {
 			type binary {
@@ -574,7 +578,16 @@ module pcep-types {
 				mandatory true;
 			}
 
-			uses rsvp:explicit-route-subobjects;
+			uses rsvp:explicit-route-subobjects {
+// FIXME: yangtools bug
+//				augment "subobject-type" {
+//					case path-key {
+//						container path-key {
+//							uses path-key-subobject;
+//						}
+//					}
+//				}
+			}
 		}
 	}
 
@@ -731,6 +744,22 @@ module pcep-types {
 		}
 		
 		container tlvs {
+
+		}
+	}
+
+	grouping path-key-subobject {
+		reference "https://tools.ietf.org/html/rfc5520#section-3.1";
+		uses rsvp:c-subobject;
+
+		leaf pce-id {
+			type pce-id;
+			mandatory true;
+		}
+
+		leaf path-key {
+			type path-key;
+			mandatory true;
 		}
 	}
 
@@ -748,10 +777,7 @@ module pcep-types {
 				default false;
 			}
 
-			leaf pce-id {
-				type pce-id;
-				mandatory true;
-			}
+			uses path-key-subobject;
 		}
 	}
 
@@ -970,6 +996,10 @@ module pcep-types {
 			uses metric-object;
 		}
 
+		container exclude-route {
+			uses exclude-route-object;
+		}
+
 		container include-route {
 			uses include-route-object;
 		}
@@ -1042,11 +1072,12 @@ module pcep-types {
 				container of {
 					uses of-object;
 				}
-
 				container gc {
 					uses gc-object;
 				}
-
+				container xro {
+					uses exclude-route-object;
+				}
 				list metric {
 					uses metric-object;
 				}
