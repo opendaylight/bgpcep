@@ -10,14 +10,8 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public interface NlriRegistry {
-	public AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi,
-			Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
-	//	public AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
-
 	public MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException;
 	public MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException;
 	//	public byte[] serializeNlri(DataObject attribute);

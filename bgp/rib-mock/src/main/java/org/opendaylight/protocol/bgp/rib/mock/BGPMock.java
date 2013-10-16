@@ -18,7 +18,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.impl.SingletonProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionConsumerContextImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -56,7 +56,8 @@ public final class BGPMock implements BGP, Closeable {
 
 	private List<Notification> parsePrevious(final List<byte[]> msgs) {
 		final List<Notification> messages = Lists.newArrayList();
-		final ProtocolMessageFactory<Notification> parser = new BGPMessageFactoryImpl(SingletonProviderContext.getInstance().getMessageRegistry());
+		final ProtocolMessageFactory<Notification> parser = new BGPMessageFactoryImpl(
+				BGPExtensionConsumerContextImpl.getSingletonInstance().getMessageRegistry());
 		try {
 			for (final byte[] b : msgs) {
 

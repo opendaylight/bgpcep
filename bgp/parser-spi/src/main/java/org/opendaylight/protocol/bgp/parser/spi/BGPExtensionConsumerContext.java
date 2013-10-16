@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-public interface ProviderContext {
+public interface BGPExtensionConsumerContext {
 	public AddressFamilyRegistry getAddressFamilyRegistry();
 	public AttributeRegistry getAttributeRegistry();
 	public CapabilityRegistry getCapabilityRegistry();

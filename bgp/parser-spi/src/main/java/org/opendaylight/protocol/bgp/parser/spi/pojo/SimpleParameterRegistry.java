@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -18,17 +18,15 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleParameterRegistry implements ParameterRegistry {
+final class SimpleParameterRegistry implements ParameterRegistry {
 	private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
-	public AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {
+	AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
 		return handlers.registerParser(messageType, parser);
 	}
 
-	@Override
-	public AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
+	AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
 		return handlers.registerSerializer(paramClass, serializer);
 	}
 

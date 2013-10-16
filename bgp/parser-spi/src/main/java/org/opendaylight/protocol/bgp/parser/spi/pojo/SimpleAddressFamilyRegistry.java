@@ -5,16 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
-	@Override
-	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
+final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
+	AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
 		Preconditions.checkArgument(number >= 0 && number <= 65535);
 		return super.registerFamily(clazz, number);
 	}
