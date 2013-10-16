@@ -12,9 +12,6 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageRegistry {
-	public AutoCloseable registerMessageParser(int messageType, MessageParser parser);
-	public AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
-
 	public Notification parseMessage(final byte[] bytes) throws BGPDocumentedException, DeserializerException;
 	public byte[] serializeMessage(Notification message);
 }

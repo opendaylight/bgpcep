@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -23,17 +23,15 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
-public final class SimpleAttributeRegistry implements AttributeRegistry {
+final class SimpleAttributeRegistry implements AttributeRegistry {
 	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
-	public AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
+	AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
 		Preconditions.checkArgument(attributeType >= 0 && attributeType <= 255);
 		return handlers.registerParser(attributeType, parser);
 	}
 
-	@Override
-	public AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
+	AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
 		return handlers.registerSerializer(paramClass, serializer);
 	}
 

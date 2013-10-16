@@ -28,6 +28,7 @@
 		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
 		<slf4j.version>1.7.2</slf4j.version>
 		<surefire.version>2.15</surefire.version>
+		<osgi.version>5.0.0</osgi.version>
 
 		<yangtools.version>0.5.9-SNAPSHOT</yangtools.version>
 		<yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>

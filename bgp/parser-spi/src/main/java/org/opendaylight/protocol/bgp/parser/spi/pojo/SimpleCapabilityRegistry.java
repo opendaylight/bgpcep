@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
 
@@ -20,17 +20,15 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleCapabilityRegistry implements CapabilityRegistry {
+final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
 
-	@Override
-	public AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
+	AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
 		return handlers.registerParser(messageType, parser);
 	}
 
-	@Override
-	public AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
+	AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
 		return handlers.registerSerializer(paramClass, serializer);
 	}
 
