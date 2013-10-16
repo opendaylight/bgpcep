@@ -11,8 +11,7 @@ import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspaObject;
@@ -25,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link LspaObject}
  */
-public class PCEPLspaObjectParser extends AbstractObjectParser<LspaBuilder> {
+public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuilder> {
 
 	public static final int CLASS = 9;
 
@@ -58,8 +57,8 @@ public class PCEPLspaObjectParser extends AbstractObjectParser<LspaBuilder> {
 	public static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
 	public static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; // added reserved field of length 1B
 
-	public PCEPLspaObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPLspaObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override

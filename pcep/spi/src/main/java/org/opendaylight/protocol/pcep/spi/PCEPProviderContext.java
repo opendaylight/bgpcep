@@ -14,6 +14,8 @@ public interface PCEPProviderContext {
 	public LabelHandlerRegistry getHandlerRegistry();
 	public MessageHandlerRegistry getMessageHandlerRegistry();
 	public ObjectHandlerRegistry getObjectHandlerRegistry();
-	public SubobjectHandlerRegistry getSubobjectHandlerRegistry();
+	public SubobjectHandlerRegistry getEROSubobjectHandlerRegistry();
+	public SubobjectHandlerRegistry getRROSubobjectHandlerRegistry();
+	public SubobjectHandlerRegistry getXROSubobjectHandlerRegistry();
 	public TlvHandlerRegistry getTlvHandlerRegistry();
 }

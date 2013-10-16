@@ -9,8 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObject;
@@ -22,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link BandwidthObject}
  */
-public class PCEPBandwidthObjectParser extends AbstractObjectParser<BandwidthBuilder> {
+public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<BandwidthBuilder> {
 
 	public static final int E_CLASS = 5;
 
@@ -34,8 +33,8 @@ public class PCEPBandwidthObjectParser extends AbstractObjectParser<BandwidthBui
 
 	private static final int BANDWIDTH_F_LENGTH = 4;
 
-	public PCEPBandwidthObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPBandwidthObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override

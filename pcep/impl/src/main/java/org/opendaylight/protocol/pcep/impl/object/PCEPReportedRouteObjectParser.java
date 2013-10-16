@@ -9,26 +9,24 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithSubobjectsParser;
 import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 
 /**
  * Parser for {@link ReportedRouteObject}
  */
-public class PCEPReportedRouteObjectParser extends AbstractObjectParser<ReportedRouteBuilder> {
+public class PCEPReportedRouteObjectParser extends AbstractObjectWithSubobjectsParser<ReportedRouteBuilder> {
 
 	public static final int CLASS = 8;
 
 	public static final int TYPE = 1;
 
-	public PCEPReportedRouteObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPReportedRouteObjectParser(final SubobjectHandlerRegistry subobjReg) {
+		super(subobjReg);
 	}
 
 	@Override
@@ -44,11 +42,6 @@ public class PCEPReportedRouteObjectParser extends AbstractObjectParser<Reported
 		builder.setProcessingRule(header.isProcessingRule());
 		// FIXME: add subobjects
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final ReportedRouteBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

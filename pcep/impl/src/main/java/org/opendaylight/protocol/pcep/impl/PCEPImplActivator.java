@@ -99,9 +99,9 @@ public final class PCEPImplActivator implements PCEPProviderActivator {
 		Preconditions.checkState(registrations == null);
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		final SubobjectHandlerRegistry subReg = context.getSubobjectHandlerRegistry();
-		subReg.registerSubobjectParser(EROAsNumberSubobjectParser.TYPE, new EROAsNumberSubobjectParser());
-		subReg.registerSubobjectSerializer(AsNumberSubobject.class, new EROAsNumberSubobjectParser());
+		final SubobjectHandlerRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
+		eroSubReg.registerSubobjectParser(EROAsNumberSubobjectParser.TYPE, new EROAsNumberSubobjectParser());
+		eroSubReg.registerSubobjectSerializer(AsNumberSubobject.class, new EROAsNumberSubobjectParser());
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
 		tlvReg.registerTlvParser(NoPathVectorTlvParser.TYPE, new NoPathVectorTlvParser());
@@ -132,61 +132,61 @@ public final class PCEPImplActivator implements PCEPProviderActivator {
 		tlvReg.registerTlvSerializer(PredundancyGroupIdTlv.class, new PredundancyGroupTlvParser());
 
 		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
-		objReg.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(subReg, tlvReg));
+		objReg.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE,
-				new PCEPRequestParameterObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, new PCEPNoPathObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPEndPointsObjectParser.CLASS, PCEPEndPointsObjectParser.TYPE, new PCEPEndPointsObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPEndPointsObjectParser.CLASS_6, PCEPEndPointsObjectParser.TYPE_6, new PCEPEndPointsObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, new PCEPBandwidthObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPBandwidthObjectParser.E_CLASS, PCEPBandwidthObjectParser.E_TYPE, new PCEPBandwidthObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, new PCEPMetricObjectParser(subReg, tlvReg));
+				new PCEPRequestParameterObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, new PCEPNoPathObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPEndPointsObjectParser.CLASS, PCEPEndPointsObjectParser.TYPE, new PCEPEndPointsObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPEndPointsObjectParser.CLASS_6, PCEPEndPointsObjectParser.TYPE_6, new PCEPEndPointsObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, new PCEPBandwidthObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPBandwidthObjectParser.E_CLASS, PCEPBandwidthObjectParser.E_TYPE, new PCEPBandwidthObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, new PCEPMetricObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE,
-				new PCEPExplicitRouteObjectParser(subReg, tlvReg));
+				new PCEPExplicitRouteObjectParser(context.getEROSubobjectHandlerRegistry()));
 		objReg.registerObjectParser(PCEPReportedRouteObjectParser.CLASS, PCEPReportedRouteObjectParser.TYPE,
-				new PCEPReportedRouteObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPLspaObjectParser.CLASS, PCEPLspaObjectParser.TYPE, new PCEPLspaObjectParser(subReg, tlvReg));
+				new PCEPReportedRouteObjectParser(context.getRROSubobjectHandlerRegistry()));
+		objReg.registerObjectParser(PCEPLspaObjectParser.CLASS, PCEPLspaObjectParser.TYPE, new PCEPLspaObjectParser( tlvReg));
 		objReg.registerObjectParser(PCEPIncludeRouteObjectParser.CLASS, PCEPIncludeRouteObjectParser.TYPE,
-				new PCEPIncludeRouteObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPSvecObjectParser.CLASS, PCEPSvecObjectParser.TYPE, new PCEPSvecObjectParser(subReg, tlvReg));
+				new PCEPIncludeRouteObjectParser(context.getEROSubobjectHandlerRegistry()));
+		objReg.registerObjectParser(PCEPSvecObjectParser.CLASS, PCEPSvecObjectParser.TYPE, new PCEPSvecObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPNotificationObjectParser.CLASS, PCEPNotificationObjectParser.TYPE,
-				new PCEPNotificationObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPErrorObjectParser.CLASS, PCEPErrorObjectParser.TYPE, new PCEPErrorObjectParser(subReg, tlvReg));
+				new PCEPNotificationObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPErrorObjectParser.CLASS, PCEPErrorObjectParser.TYPE, new PCEPErrorObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPLoadBalancingObjectParser.CLASS, PCEPLoadBalancingObjectParser.TYPE,
-				new PCEPLoadBalancingObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, new PCEPCloseObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, new PCEPPathKeyObjectParser(subReg, tlvReg));
+				new PCEPLoadBalancingObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, new PCEPCloseObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, new PCEPPathKeyObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPObjectiveFunctionObjectParser.CLASS, PCEPObjectiveFunctionObjectParser.TYPE,
-				new PCEPObjectiveFunctionObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, new PCEPClassTypeObjectParser(subReg, tlvReg));
+				new PCEPObjectiveFunctionObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, new PCEPClassTypeObjectParser(tlvReg));
 		objReg.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE,
-				new PCEPGlobalConstraintsObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(subReg, tlvReg));
-		objReg.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(subReg, tlvReg));
+				new PCEPGlobalConstraintsObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg));
+		objReg.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(tlvReg));
 		// objReg.registerObjectParser(PCEPExcludeRouteObjectParser.CLASS, PCEPExcludeRouteObjectParser.TYPE, new
-		// PCEPExcludeRouteObjectParser(reg));
+		// PCEPExcludeRouteObjectParser(context.getXROSubobjectHandlerRegistry()));
 
-		objReg.registerObjectSerializer(OpenObject.class, new PCEPOpenObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(RpObject.class, new PCEPRequestParameterObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(NoPathObject.class, new PCEPNoPathObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(EndpointsObject.class, new PCEPEndPointsObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(BandwidthObject.class, new PCEPBandwidthObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(MetricObject.class, new PCEPMetricObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(ExplicitRouteObject.class, new PCEPExplicitRouteObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(ReportedRouteObject.class, new PCEPReportedRouteObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(LspaObject.class, new PCEPLspaObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(IncludeRouteObject.class, new PCEPIncludeRouteObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(SvecObject.class, new PCEPSvecObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(NotificationObject.class, new PCEPNotificationObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(PcepErrorObject.class, new PCEPErrorObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(LoadBalancingObject.class, new PCEPLoadBalancingObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(CloseObject.class, new PCEPCloseObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(PathKeyObject.class, new PCEPPathKeyObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(OfObject.class, new PCEPObjectiveFunctionObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(ClasstypeObject.class, new PCEPClassTypeObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(GcObject.class, new PCEPGlobalConstraintsObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(LspObject.class, new PCEPLspObjectParser(subReg, tlvReg));
-		objReg.registerObjectSerializer(SrpObject.class, new PCEPSrpObjectParser(subReg, tlvReg));
+		objReg.registerObjectSerializer(OpenObject.class, new PCEPOpenObjectParser(tlvReg));
+		objReg.registerObjectSerializer(RpObject.class, new PCEPRequestParameterObjectParser(tlvReg));
+		objReg.registerObjectSerializer(NoPathObject.class, new PCEPNoPathObjectParser(tlvReg));
+		objReg.registerObjectSerializer(EndpointsObject.class, new PCEPEndPointsObjectParser(tlvReg));
+		objReg.registerObjectSerializer(BandwidthObject.class, new PCEPBandwidthObjectParser(tlvReg));
+		objReg.registerObjectSerializer(MetricObject.class, new PCEPMetricObjectParser(tlvReg));
+		objReg.registerObjectSerializer(ExplicitRouteObject.class, new PCEPExplicitRouteObjectParser(context.getEROSubobjectHandlerRegistry()));
+		objReg.registerObjectSerializer(ReportedRouteObject.class, new PCEPReportedRouteObjectParser(context.getRROSubobjectHandlerRegistry()));
+		objReg.registerObjectSerializer(LspaObject.class, new PCEPLspaObjectParser(tlvReg));
+		objReg.registerObjectSerializer(IncludeRouteObject.class, new PCEPIncludeRouteObjectParser(context.getEROSubobjectHandlerRegistry()));
+		objReg.registerObjectSerializer(SvecObject.class, new PCEPSvecObjectParser(tlvReg));
+		objReg.registerObjectSerializer(NotificationObject.class, new PCEPNotificationObjectParser(tlvReg));
+		objReg.registerObjectSerializer(PcepErrorObject.class, new PCEPErrorObjectParser(tlvReg));
+		objReg.registerObjectSerializer(LoadBalancingObject.class, new PCEPLoadBalancingObjectParser(tlvReg));
+		objReg.registerObjectSerializer(CloseObject.class, new PCEPCloseObjectParser(tlvReg));
+		objReg.registerObjectSerializer(PathKeyObject.class, new PCEPPathKeyObjectParser(tlvReg));
+		objReg.registerObjectSerializer(OfObject.class, new PCEPObjectiveFunctionObjectParser(tlvReg));
+		objReg.registerObjectSerializer(ClasstypeObject.class, new PCEPClassTypeObjectParser(tlvReg));
+		objReg.registerObjectSerializer(GcObject.class, new PCEPGlobalConstraintsObjectParser(tlvReg));
+		objReg.registerObjectSerializer(LspObject.class, new PCEPLspObjectParser(tlvReg));
+		objReg.registerObjectSerializer(SrpObject.class, new PCEPSrpObjectParser(tlvReg));
 		// reg.registerObjectSerializer(ExcludeRouteObject.class, new PCEPExcludeRouteObjectParser(reg));
 
 		final MessageHandlerRegistry msgReg = context.getMessageHandlerRegistry();

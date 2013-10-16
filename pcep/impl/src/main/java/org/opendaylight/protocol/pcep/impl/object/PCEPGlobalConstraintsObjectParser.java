@@ -9,8 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.GcObject;
@@ -22,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link GcObject}
  */
-public class PCEPGlobalConstraintsObjectParser extends AbstractObjectParser<GcBuilder> {
+public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsParser<GcBuilder> {
 
 	public static final int CLASS = 24;
 
@@ -40,8 +39,8 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectParser<GcBu
 
 	private final static int TLVS_OFFSET = OVER_BOOKING_FACTOR_F_OFFSET + OVER_BOOKING_FACTOR_F_LENGTH;
 
-	public PCEPGlobalConstraintsObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPGlobalConstraintsObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override

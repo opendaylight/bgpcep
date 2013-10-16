@@ -11,13 +11,11 @@ import java.util.Map;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithSubobjectsParser;
 import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.definition.ExplicitRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
@@ -27,14 +25,14 @@ import com.google.common.collect.Maps;
 /**
  * Parser for {@link ExplicitRouteObject}
  */
-public class PCEPExplicitRouteObjectParser extends AbstractObjectParser<ExplicitRouteBuilder> {
+public class PCEPExplicitRouteObjectParser extends AbstractObjectWithSubobjectsParser<ExplicitRouteBuilder> {
 
 	public static final int CLASS = 7;
 
 	public static final int TYPE = 1;
 
-	public PCEPExplicitRouteObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPExplicitRouteObjectParser(final SubobjectHandlerRegistry subobjReg) {
+		super(subobjReg);
 	}
 
 	@Override
@@ -51,11 +49,6 @@ public class PCEPExplicitRouteObjectParser extends AbstractObjectParser<Explicit
 
 		parseSubobjects(builder, bytes);
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final ExplicitRouteBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

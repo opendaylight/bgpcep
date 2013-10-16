@@ -9,26 +9,24 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithSubobjectsParser;
 import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.IncludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.IncludeRouteBuilder;
 
 /**
  * Parser for {@link IncludeRouteObject}
  */
-public class PCEPIncludeRouteObjectParser extends AbstractObjectParser<IncludeRouteBuilder> {
+public class PCEPIncludeRouteObjectParser extends AbstractObjectWithSubobjectsParser<IncludeRouteBuilder> {
 
 	public static final int CLASS = 10;
 
 	public static final int TYPE = 1;
 
-	public PCEPIncludeRouteObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPIncludeRouteObjectParser(final SubobjectHandlerRegistry subobjReg) {
+		super(subobjReg);
 	}
 
 	@Override
@@ -44,11 +42,6 @@ public class PCEPIncludeRouteObjectParser extends AbstractObjectParser<IncludeRo
 		builder.setProcessingRule(header.isProcessingRule());
 		// FIXME: add subobjects
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final IncludeRouteBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override
