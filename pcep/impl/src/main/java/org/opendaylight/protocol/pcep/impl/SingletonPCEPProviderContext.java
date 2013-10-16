@@ -34,7 +34,9 @@ public final class SingletonPCEPProviderContext implements PCEPProviderContext {
 	private final LabelHandlerRegistry labelReg = new SimpleLabelHandlerRegistry();
 	private final MessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
 	private final ObjectHandlerRegistry objReg = new SimpleObjectHandlerRegistry();
-	private final SubobjectHandlerRegistry subobjReg =  new SimpleSubobjectHandlerFactory();
+	private final SubobjectHandlerRegistry eroSubReg =  new SimpleSubobjectHandlerFactory();
+	private final SubobjectHandlerRegistry rroSubReg =  new SimpleSubobjectHandlerFactory();
+	private final SubobjectHandlerRegistry xroSubReg =  new SimpleSubobjectHandlerFactory();
 	private final TlvHandlerRegistry tlvReg = new SimpleTlvHandlerRegistry();
 
 	private SingletonPCEPProviderContext() {
@@ -61,8 +63,18 @@ public final class SingletonPCEPProviderContext implements PCEPProviderContext {
 	}
 
 	@Override
-	public SubobjectHandlerRegistry getSubobjectHandlerRegistry() {
-		return subobjReg;
+	public SubobjectHandlerRegistry getEROSubobjectHandlerRegistry() {
+		return eroSubReg;
+	}
+
+	@Override
+	public SubobjectHandlerRegistry getRROSubobjectHandlerRegistry() {
+		return rroSubReg;
+	}
+
+	@Override
+	public SubobjectHandlerRegistry getXROSubobjectHandlerRegistry() {
+		return xroSubReg;
 	}
 
 	@Override

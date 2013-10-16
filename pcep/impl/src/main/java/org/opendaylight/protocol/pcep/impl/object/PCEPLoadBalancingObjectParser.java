@@ -9,8 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
@@ -23,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPLoadBalancingObject PCEPLoadBalancingObject}
  */
-public class PCEPLoadBalancingObjectParser extends AbstractObjectParser<LoadBalancingBuilder> {
+public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<LoadBalancingBuilder> {
 
 	public static final int CLASS = 14;
 
@@ -39,8 +38,8 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectParser<LoadBala
 
 	public static final int SIZE = MIN_BAND_F_OFFSET + MIN_BAND_F_LENGTH;
 
-	public PCEPLoadBalancingObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPLoadBalancingObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override

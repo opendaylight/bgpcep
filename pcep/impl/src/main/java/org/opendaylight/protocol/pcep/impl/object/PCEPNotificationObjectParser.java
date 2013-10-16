@@ -10,8 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NotificationObject;
@@ -27,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link NotificationObject}
  */
-public class PCEPNotificationObjectParser extends AbstractObjectParser<NotificationsBuilder> {
+public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<NotificationsBuilder> {
 
 	public static final int CLASS = 12;
 
@@ -48,8 +47,8 @@ public class PCEPNotificationObjectParser extends AbstractObjectParser<Notificat
 	public static final int NV_F_OFFSET = NT_F_OFFSET + NT_F_LENGTH;
 	public static final int TLVS_OFFSET = NV_F_OFFSET + NV_F_LENGTH;
 
-	public PCEPNotificationObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPNotificationObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override
