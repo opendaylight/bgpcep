@@ -12,8 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.pcrep.pcrep.message.replies.result.failure.NoPath;
@@ -27,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link NoPathObject}
  */
-public class PCEPNoPathObjectParser extends AbstractObjectParser<NoPathBuilder> {
+public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathBuilder> {
 
 	public static final int CLASS = 3;
 
@@ -55,8 +54,8 @@ public class PCEPNoPathObjectParser extends AbstractObjectParser<NoPathBuilder> 
 
 	public static final int C_FLAG_OFFSET = 0;
 
-	public PCEPNoPathObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPNoPathObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override

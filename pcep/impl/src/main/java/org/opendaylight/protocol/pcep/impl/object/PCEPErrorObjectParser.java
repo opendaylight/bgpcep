@@ -10,8 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.Util;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectParser;
-import org.opendaylight.protocol.pcep.spi.SubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -28,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPErrorObject PCEPErrorObject}
  */
-public class PCEPErrorObjectParser extends AbstractObjectParser<ErrorsBuilder> {
+public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBuilder> {
 
 	public static final int CLASS = 13;
 
@@ -43,8 +42,8 @@ public class PCEPErrorObjectParser extends AbstractObjectParser<ErrorsBuilder> {
 	public static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
 	public static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
 
-	public PCEPErrorObjectParser(final SubobjectHandlerRegistry subobjReg, final TlvHandlerRegistry tlvReg) {
-		super(subobjReg, tlvReg);
+	public PCEPErrorObjectParser(final TlvHandlerRegistry tlvReg) {
+		super(tlvReg);
 	}
 
 	@Override
