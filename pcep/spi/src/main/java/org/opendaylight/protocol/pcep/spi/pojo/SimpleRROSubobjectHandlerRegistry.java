@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
@@ -17,10 +17,9 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleRROSubobjectHandlerFactory implements RROSubobjectHandlerRegistry {
+public final class SimpleRROSubobjectHandlerRegistry implements RROSubobjectHandlerRegistry {
 	private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
 	public AutoCloseable registerSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
 		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= 65535);
 		return this.handlers.registerParser(subobjectType, parser);
@@ -32,7 +31,6 @@ public final class SimpleRROSubobjectHandlerFactory implements RROSubobjectHandl
 		return this.handlers.getParser(subobjectType);
 	}
 
-	@Override
 	public AutoCloseable registerSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
 			final RROSubobjectSerializer serializer) {
 		return this.handlers.registerSerializer(subobjectClass, serializer);

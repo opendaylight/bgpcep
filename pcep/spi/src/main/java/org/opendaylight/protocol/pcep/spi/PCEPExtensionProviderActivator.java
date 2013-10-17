@@ -7,9 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-
-public interface ObjectHandlerRegistry {
-	public ObjectParser getObjectParser(int objectClass, int objectType);
-	public ObjectSerializer getObjectSerializer(Object object);
+public interface PCEPExtensionProviderActivator {
+	public void start(PCEPExtensionProviderContext context) throws Exception;
+	public void stop() throws Exception;
 }

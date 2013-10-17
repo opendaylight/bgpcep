@@ -16,6 +16,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
+import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 
 public class Main {
@@ -117,7 +118,9 @@ public class Main {
 
 		final OpenObject prefs = spf.getSessionProposal(address, 0);
 
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(
+				PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(),
+				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}

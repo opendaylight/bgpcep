@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
@@ -20,13 +20,11 @@ public final class SimpleMessageHandlerRegistry implements MessageHandlerRegistr
 
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
 	public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
 		return this.handlers.registerParser(messageType, parser);
 	}
 
-	@Override
 	public AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass, final MessageSerializer serializer) {
 		return this.handlers.registerSerializer(msgClass, serializer);
 	}

@@ -19,6 +19,7 @@ import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 import com.google.common.base.Preconditions;
@@ -29,17 +30,17 @@ import com.google.common.base.Preconditions;
 public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher {
 
 	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
-
-	private final PCEPHandlerFactory hf = new PCEPHandlerFactory(SingletonPCEPProviderContext.getInstance().getMessageHandlerRegistry());
+	private final PCEPHandlerFactory hf;
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
 	 * 
 	 * @throws IOException if some error occurred during opening the selector
 	 */
-	public PCEPDispatcherImpl(final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
+	public PCEPDispatcherImpl(final MessageHandlerRegistry registry, final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory) {
 		super();
 		this.snf = Preconditions.checkNotNull(negotiatorFactory);
+		this.hf = new PCEPHandlerFactory(registry);
 	}
 
 	@Override

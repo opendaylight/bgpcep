@@ -40,6 +40,12 @@
             <version>${project.version}</version>
 			<scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -54,7 +60,11 @@
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
                            org.opendaylight.protocol.pcep.spi,
+                           org.opendaylight.protocol.pcep.spi.osgi,
                        </Export-Package>
+                       <Private-Package>
+                           org.opendaylight.protocol.pcep.spi.pojo,
+                       </Private-Package>
                    </instructions>
                </configuration>
            </plugin>
