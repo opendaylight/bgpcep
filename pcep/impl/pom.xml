@@ -79,6 +79,12 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>2010.09.24-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
@@ -110,9 +116,10 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Export-Package>
+						<Private-Package>
 							org.opendaylight.protocol.pcep.impl.*,
-						</Export-Package>
+						</Private-Package>
+                        <Activator>org.opendaylight.protocol.pcep.parser.impl.BundleActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

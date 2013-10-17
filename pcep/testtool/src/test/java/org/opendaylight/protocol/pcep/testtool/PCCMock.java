@@ -28,7 +28,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
-import org.opendaylight.protocol.pcep.impl.SingletonPCEPProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.TlvsBuilder;
@@ -67,7 +67,7 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
 				(short) 30).setDeadTimer((short) 120).setSessionId((short) 0).setTlvs(builder.build()).build(), 0);
 
 		final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf,
-				new PCEPHandlerFactory(SingletonPCEPProviderContext.getInstance().getMessageHandlerRegistry()),
+				new PCEPHandlerFactory(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry()),
 				new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		pcc.createClient(new InetSocketAddress("127.0.0.3", 12345), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000),

@@ -10,9 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 public interface TlvHandlerRegistry {
-	public AutoCloseable registerTlvParser(int tlvType, TlvParser parser);
 	public TlvParser getTlvParser(int tlvType);
-
-	public AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 	public TlvSerializer getTlvSerializer(Tlv tlv);
 }

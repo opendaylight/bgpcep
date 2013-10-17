@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
@@ -19,21 +19,19 @@ import com.google.common.base.Preconditions;
 public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 	private final HandlerRegistry<DataContainer, LabelParser, LabelSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
 	public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
 		Preconditions.checkArgument(cType >= 0 && cType <= 255);
 		return handlers.registerParser(cType, parser);
+	}
+
+	public AutoCloseable registerLabelSerializer(final Class<? extends CLabel> labelClass, final LabelSerializer serializer) {
+		return handlers.registerSerializer(labelClass, serializer);
 	}
 
 	@Override
 	public LabelParser getLabelParser(final int cType) {
 		Preconditions.checkArgument(cType >= 0 && cType <= 255);
 		return handlers.getParser(cType);
-	}
-
-	@Override
-	public AutoCloseable registerLabelSerializer(final Class<? extends CLabel> labelClass, final LabelSerializer serializer) {
-		return handlers.registerSerializer(labelClass, serializer);
 	}
 
 	@Override

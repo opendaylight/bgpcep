@@ -11,7 +11,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.osgi.AbstractOSGiBGPExtensionProviderActivator;
 
-public final class OSGiActivator extends AbstractOSGiBGPExtensionProviderActivator {
+public final class BundleActivator extends AbstractOSGiBGPExtensionProviderActivator {
 	private final BGPExtensionProviderActivator activator = new Activator();
 
 	@Override

@@ -10,9 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
 
 public interface LabelHandlerRegistry {
-	public AutoCloseable registerLabelParser(int cType, LabelParser parser);
 	public LabelParser getLabelParser(int cType);
-
-	public AutoCloseable registerLabelSerializer(Class<? extends CLabel> labelClass, LabelSerializer serializer);
 	public LabelSerializer getLabelSerializer(CLabel label);
 }

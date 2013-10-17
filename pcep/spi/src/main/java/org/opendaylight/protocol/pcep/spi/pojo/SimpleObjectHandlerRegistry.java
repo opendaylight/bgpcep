@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
@@ -28,14 +28,12 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 		return (objectClass << 4) | objectType;
 	}
 
-	@Override
 	public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
 		Preconditions.checkArgument(objectClass >= 0 && objectClass <= 255);
 		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
 		return handlers.registerParser(createKey(objectClass, objectType), parser);
 	}
 
-	@Override
 	public AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
 		return handlers.registerSerializer(objClass, serializer);
 	}

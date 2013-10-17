@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-public interface PCEPProviderActivator {
-	public void start(PCEPProviderContext context);
+public interface PCEPExtensionConsumerActivator {
+	public void start(PCEPExtensionConsumerContext context);
 	public void stop();
 }
