@@ -112,15 +112,6 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Import-Package>
-							com.google.common.base,
-							com.google.common.collect,
-							com.google.common.primitives,
-							org.opendaylight.protocol.concepts,
-							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.util,
-							org.slf4j,
-						</Import-Package>
 						<Export-Package>
                             org.opendaylight.protocol.bgp.parser,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.*,

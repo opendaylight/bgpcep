@@ -80,15 +80,6 @@
 						<Export-Package>
 							org.opendaylight.protocol.bgp.util,
 						</Export-Package>
-						<Import-Package>
-							org.opendaylight.protocol.bgp.concepts,
-							org.opendaylight.protocol.bgp.parser,
-							org.opendaylight.protocol.concepts,
-                            org.opendaylight.protocol.util,
-							com.google.common.*, 
-							org.apache.commons.*,
-							org.slf4j
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

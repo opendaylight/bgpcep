@@ -104,12 +104,6 @@
                             org.opendaylight.protocol.bgp.concepts,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.*,
 						</Export-Package>
-						<Import-Package>
-							com.google.common.base,
-							org.opendaylight.protocol.concepts,
-                            org.opendaylight.yang.gen.v1.*,
-                            org.opendaylight.yangtools.yang.binding
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -41,10 +41,6 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Import-Package>
-                            com.google.common.*, 
-                            javax.net.ssl,
-						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.util
 						</Export-Package>
