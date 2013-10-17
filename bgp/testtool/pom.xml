@@ -12,7 +12,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bgp-testtool</artifactId>
 	<description>BGP Interop Testing Tool</description>
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
 	<prerequisites>
 		<maven>3.0.4</maven>
@@ -64,20 +64,18 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${maven.bundle.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Export-Package>
-							org.opendaylight.protocol.bgp.testtool
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jar.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.opendaylight.protocol.bgp.testtool.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
