@@ -26,7 +26,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionConsumerContextImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionProviderContextImpl;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -85,7 +85,7 @@ public class BGPParserTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		updateParser = new BGPUpdateMessageParser(BGPExtensionConsumerContextImpl.getSingletonInstance().getAttributeRegistry());
+		updateParser = new BGPUpdateMessageParser(BGPExtensionProviderContextImpl.getSingletonInstance().getAttributeRegistry());
 
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";
@@ -1058,7 +1058,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final MessageRegistry msgReg = BGPExtensionConsumerContextImpl.getSingletonInstance().getMessageRegistry();
+		final MessageRegistry msgReg = BGPExtensionProviderContextImpl.getSingletonInstance().getMessageRegistry();
 		final Open open = (Open) msgReg.parseMessage(inputBytes.get(13));
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {

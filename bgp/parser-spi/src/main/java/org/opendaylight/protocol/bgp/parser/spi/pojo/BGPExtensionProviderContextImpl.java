@@ -36,13 +36,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class BGPExtensionConsumerContextImpl implements BGPExtensionProviderContext {
+public final class BGPExtensionProviderContextImpl implements BGPExtensionProviderContext {
 	private static final class Holder {
 		private static final BGPExtensionConsumerContext INSTANCE;
 
 		static {
 			try {
-				INSTANCE = BGPExtensionConsumerContextImpl.create();
+				INSTANCE = BGPExtensionProviderContextImpl.create();
 			} catch (Exception e) {
 				throw new ExceptionInInitializerError(e);
 			}
@@ -57,7 +57,7 @@ public final class BGPExtensionConsumerContextImpl implements BGPExtensionProvid
 	private final SimpleParameterRegistry paramReg = new SimpleParameterRegistry();
 	private final SimpleNlriRegistry nlriReg = new SimpleNlriRegistry(afiReg, safiReg);
 
-	private BGPExtensionConsumerContextImpl() {
+	private BGPExtensionProviderContextImpl() {
 
 	}
 
@@ -66,7 +66,7 @@ public final class BGPExtensionConsumerContextImpl implements BGPExtensionProvid
 	}
 
 	public static BGPExtensionConsumerContext create() throws Exception {
-		final BGPExtensionConsumerContextImpl ctx = new BGPExtensionConsumerContextImpl();
+		final BGPExtensionProviderContextImpl ctx = new BGPExtensionProviderContextImpl();
 
 		final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(BGPExtensionProviderActivator.class);
 		for (BGPExtensionProviderActivator a : loader) {
