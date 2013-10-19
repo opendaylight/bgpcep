@@ -26,9 +26,11 @@ public class DocumentedException extends Exception  {
 	/**
 	 * Creates a documented exception
 	 * @param err string
-	 * @param e underlying exception
+	 * @param cause the cause (which is saved for later retrieval by the
+	 * Throwable.getCause() method). (A null value is permitted, and indicates
+	 * that the cause is nonexistent or unknown.)
 	 */
-	public DocumentedException(final String err, final Exception e) {
-		super(err, e);
+	public DocumentedException(final String err, final Exception cause) {
+		super(err, cause);
 	}
 }

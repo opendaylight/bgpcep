@@ -90,16 +90,16 @@ public class BGPUpdateMessageParser implements MessageParser {
 			return eventBuilder.build();
 		}
 
-		try {
-			if (totalPathAttrLength > 0) {
+		if (totalPathAttrLength > 0) {
+			try {
 				final PathAttributes pathAttributes = reg.parseAttributes(ByteArray.subByte(body, byteOffset,
 						totalPathAttrLength));
 				byteOffset += totalPathAttrLength;
 				eventBuilder.setPathAttributes(pathAttributes);
+			} catch (final BGPParsingException e) {
+				logger.warn("Could not parse BGP attributes", e);
+				throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
 			}
-		} catch (final BGPParsingException e) {
-			logger.warn("Could not parse BGP attributes: {}", e.getMessage(), e);
-			throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST);
 		}
 
 		final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.subByte(body, byteOffset, body.length - byteOffset));

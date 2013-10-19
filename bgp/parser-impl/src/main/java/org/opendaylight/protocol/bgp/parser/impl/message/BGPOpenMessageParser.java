@@ -199,7 +199,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			try {
 				param = reg.parseParameter(paramType, paramBody);
 			} catch (final BGPParsingException e) {
-				throw new BGPDocumentedException("Optional parameter not parsed: ." + e.getMessage(), BGPError.UNSPECIFIC_OPEN_ERROR);
+				throw new BGPDocumentedException("Optional parameter not parsed", BGPError.UNSPECIFIC_OPEN_ERROR, e);
 			}
 
 			if (param != null) {

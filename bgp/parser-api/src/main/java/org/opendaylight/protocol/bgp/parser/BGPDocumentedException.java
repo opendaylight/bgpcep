@@ -29,23 +29,46 @@ public final class BGPDocumentedException extends DocumentedException {
 	private final byte[] data;
 
 	/**
-	 * Used when an error occurred that is described in rfc or draft.
+	 * Used when an error occurred that is described in an RFC or a draft.
 	 * 
 	 * @param message message bound with this exception
 	 * @param error specific documented error
 	 */
 	public BGPDocumentedException(final String message, final BGPError error) {
-		this(message, error, null);
+		this(message, error, null, null);
 	}
 
 	/**
-	 * Used when an error occurred that is described in rfc or draft.
+	 * Used when an error occurred that is described in an RFC or a draft.
+	 * 
+	 * @param message message bound with this exception
+	 * @param error specific documented error
+	 * @param cause cause for the error
+	 */
+	public BGPDocumentedException(final String message, final BGPError error, final Throwable cause) {
+		this(message, error, null, cause);
+	}
+
+	/**
+	 * Used when an error occurred that is described in an RFC or a draft.
 	 * 
 	 * @param message message bound with this exception
 	 * @param error specific documented error
 	 * @param data data associated with the error
 	 */
 	public BGPDocumentedException(final String message, final BGPError error, final byte[] data) {
+		this(message, error, data, null);
+	}
+
+	/**
+	 * Used when an error occurred that is described in an RFC or a draft.
+	 * 
+	 * @param message message bound with this exception
+	 * @param error specific documented error
+	 * @param data data associated with the error
+	 * @param cause cause for the error
+	 */
+	public BGPDocumentedException(final String message, final BGPError error, final byte[] data, final Throwable cause) {
 		super(message);
 		this.error = error;
 		this.data = data;

@@ -33,7 +33,7 @@ public final class MPReachAttributeParser implements AttributeParser {
 			final PathAttributes1 a = new PathAttributes1Builder().setMpReachNlri(reg.parseMpReach(bytes)).build();
 			builder.addAugmentation(PathAttributes1.class, a);
 		} catch (final BGPParsingException e) {
-			throw new BGPDocumentedException("Could not parse MP_REACH_NLRI: " + e.getMessage(), BGPError.OPT_ATTR_ERROR);
+			throw new BGPDocumentedException("Could not parse MP_REACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
 		}
 	}
 }
