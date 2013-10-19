@@ -7,32 +7,15 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.base.Preconditions;
 
 @ThreadSafe
 public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
-	private final Map<Class<? extends CLASS>, SERIALIZER> serializers = new ConcurrentHashMap<>();
-	private final Map<Integer, PARSER> parsers = new ConcurrentHashMap<>();
+	private final MultiRegistry<Class<? extends CLASS>, SERIALIZER> serializers = new MultiRegistry<>();
+	private final MultiRegistry<Integer, PARSER> parsers = new MultiRegistry<>();
 
-	public AutoCloseable registerParser(final int type, final PARSER parser) {
-		synchronized (parsers) {
-			Preconditions.checkArgument(!parsers.containsKey(type), "Type %s already registered", type);
-			parsers.put(type, parser);
-
-			return new AbstractRegistration() {
-				@Override
-				protected void removeRegistration() {
-					synchronized (parsers) {
-						parsers.remove(type);
-					}
-				}
-			};
-		}
+	public AbstractRegistration registerParser(final int type, final PARSER parser) {
+		return parsers.register(type, parser);
 	}
 
 	public PARSER getParser(final int type) {
@@ -40,19 +23,7 @@ public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 	}
 
 	public AutoCloseable registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {
-		synchronized (serializers) {
-			Preconditions.checkArgument(!serializers.containsKey(clazz), "Message class %s already registered", clazz);
-			serializers.put(clazz, serializer);
-
-			return new AbstractRegistration() {
-				@Override
-				protected void removeRegistration() {
-					synchronized (serializers) {
-						serializers.remove(clazz);
-					}
-				}
-			};
-		}
+		return serializers.register(clazz, serializer);
 	}
 
 	public SERIALIZER getSerializer(final Class<? extends CLASS> clazz) {
