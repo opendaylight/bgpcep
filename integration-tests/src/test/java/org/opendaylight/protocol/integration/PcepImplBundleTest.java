@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 public final class PcepImplBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "framework", "pcep-api", "rsvp-api", "util");
+		return Lists.newArrayList("concepts", "framework", "pcep-api", "pcep-spi", "rsvp-api", "util");
 	}
 
 	@Override

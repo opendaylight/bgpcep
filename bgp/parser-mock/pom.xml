@@ -81,11 +81,6 @@
 						<Export-Package>
 							org.opendaylight.protocol.bgp.parser.mock
 						</Export-Package>
-						<Import-Package>
-							org.opendaylight.protocol.bgp.parser,
-							org.opendaylight.protocol.framework,
-							org.opendaylight.protocol.concepts
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

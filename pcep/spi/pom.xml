@@ -55,14 +55,6 @@
                        <Export-Package>
                            org.opendaylight.protocol.pcep.spi,
                        </Export-Package>
-                       <Import-Package>
-                           org.opendaylight.protocol.concepts,
-                           org.opendaylight.protocol.framework,
-                           org.opendaylight.protocol.util,
-                           com.google.common.*,
-                           javax.management,
-                           org.slf4j.*
-                       </Import-Package>
                    </instructions>
                </configuration>
            </plugin>

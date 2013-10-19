@@ -85,16 +85,6 @@
 						<Export-Package>
 							org.opendaylight.protocol.bgp.rib.mock,
 						</Export-Package>
-						<Import-Package>
-							com.google.common.*,
-							org.opendaylight.protocol.bgp.parser,
-                            org.opendaylight.protocol.bgp.parser.impl,
-                            org.opendaylight.protocol.bgp.rib.impl,
-							org.opendaylight.protocol.concepts,
-							org.opendaylight.protocol.framework,
-                            org.opendaylight.protocol.util,
-							org.slf4j,
-						</Import-Package>
 					</instructions>
 				</configuration>
 			</plugin>

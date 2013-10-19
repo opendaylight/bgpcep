@@ -110,26 +110,6 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Import-Package>
-							org.opendaylight.protocol.concepts,
-							org.opendaylight.protocol.framework,
-							com.google.common.base,
-							com.google.common.collect,
-							com.google.common.primitives,
-							javax.annotation,
-							javax.management,
-                            javax.net.ssl,
-							org.opendaylight.protocol.pcep,
-							org.opendaylight.protocol.pcep.concepts,
-							org.opendaylight.protocol.pcep.message,
-							org.opendaylight.protocol.pcep.object,
-							org.opendaylight.protocol.pcep.subobject,
-							org.opendaylight.protocol.pcep.tlv,
-                            org.opendaylight.protocol.util,
-							org.slf4j,
-							io.netty.channel, 
-							io.netty.util.concurrent,
-						</Import-Package>
 						<Export-Package>
 							org.opendaylight.protocol.pcep.impl.*,
 						</Export-Package>

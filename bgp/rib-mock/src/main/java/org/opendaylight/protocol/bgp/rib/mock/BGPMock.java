@@ -18,7 +18,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.impl.SingletonProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.DeserializerException;
@@ -45,18 +45,19 @@ public final class BGPMock implements BGP, Closeable {
 	private final List<byte[]> allPreviousByteMessages;
 	private final List<Notification> allPreviousBGPMessages;
 	private final EventBus eventBus;
+
 	@GuardedBy("this")
 	private final List<EventBusRegistration> openRegistrations = Lists.newLinkedList();
 
-	public BGPMock(final EventBus eventBus, final List<byte[]> bgpMessages) {
+	public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
 		this.allPreviousByteMessages = Lists.newLinkedList(bgpMessages);
 		this.eventBus = eventBus;
-		this.allPreviousBGPMessages = this.parsePrevious(this.allPreviousByteMessages);
+		this.allPreviousBGPMessages = this.parsePrevious(registry, this.allPreviousByteMessages);
 	}
 
-	private List<Notification> parsePrevious(final List<byte[]> msgs) {
+	private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
 		final List<Notification> messages = Lists.newArrayList();
-		final ProtocolMessageFactory<Notification> parser = new BGPMessageFactoryImpl(SingletonProviderContext.getInstance().getMessageRegistry());
+		final ProtocolMessageFactory<Notification> parser = new BGPMessageFactoryImpl(registry);
 		try {
 			for (final byte[] b : msgs) {
 
