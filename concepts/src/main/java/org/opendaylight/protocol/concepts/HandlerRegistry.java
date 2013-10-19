@@ -22,7 +22,7 @@ public class HandlerRegistry<CLASS, PARSER, SERIALIZER> {
 		return parsers.get(type);
 	}
 
-	public AutoCloseable registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {
+	public AbstractRegistration registerSerializer(final Class<? extends CLASS> clazz, final SERIALIZER serializer) {
 		return serializers.register(clazz, serializer);
 	}
 
