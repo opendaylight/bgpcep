@@ -70,6 +70,12 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>2010.09.24-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -118,7 +124,11 @@
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Export-Package>
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.*,
-						</Export-Package>
+                        </Export-Package>
+                        <Private-Package>
+                            org.opendaylight.protocol.bgp.linkstate
+                        </Private-Package>
+                        <Activator>org.opendaylight.protocol.bgp.linkstate.LinkstateOSGiActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

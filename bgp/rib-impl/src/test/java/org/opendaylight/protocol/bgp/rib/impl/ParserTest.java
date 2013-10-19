@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.impl.SingletonProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionConsumerContextImpl;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -81,7 +81,7 @@ public class ParserTest {
 		(byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
 	final MessageRegistry factory =
-			SingletonProviderContext.getInstance().getMessageRegistry();
+			BGPExtensionConsumerContextImpl.getSingletonInstance().getMessageRegistry();
 
 	@Test
 	public void testHeaderErrors() throws DeserializerException, DocumentedException {
