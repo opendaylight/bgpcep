@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,11 +19,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.ProtocolVersion;
@@ -31,12 +34,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.Segments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequenceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
@@ -65,8 +87,6 @@ public class BGPMessageParserMockTest {
 	 * @throws IOException
 	 */
 	@Test
-	@Ignore
-	// FIXME : BUG-94
 	public void testGetUpdateMessage() throws DeserializerException, DocumentedException, IOException {
 		final Map<byte[], Notification> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
@@ -78,7 +98,7 @@ public class BGPMessageParserMockTest {
 		for (int i = 0; i < this.inputBytes.length; i++) {
 			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i]));
 		}
-		// assertThat(this.messages.get(3), not(mockParser.parse(this.inputBytes[8]).get(0)));
+		assertNotSame(this.messages.get(3), mockParser.parse(this.inputBytes[8]));
 	}
 
 	/**
@@ -125,32 +145,34 @@ public class BGPMessageParserMockTest {
 	 */
 	private Update fillMessages(final long asn) throws UnknownHostException {
 
-		// FIXME: to be fixed in testing phase
-		/*final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(asn)).build());
-		final List<AsPathSegment> asPath = Lists.newArrayList();
+		final UpdateBuilder builder = new UpdateBuilder();
+
+		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(asn)).build());
+		final List<Segments> asPath = Lists.newArrayList();
 		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
-		final CNextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
+		final CNextHop nextHop = (CNextHop) new CIpv6NextHopBuilder().setIpv6NextHop(
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
-		final Prefix<IPv6Address> pref1 = new IPv6Prefix(new IPv6Address(InetAddress.getByName("2001:db8:1:2::")), 64);
-		final Prefix<IPv6Address> pref2 = new IPv6Prefix(new IPv6Address(InetAddress.getByName("2001:db8:1:1::")), 64);
-		final Prefix<IPv6Address> pref3 = new IPv6Prefix(new IPv6Address(InetAddress.getByName("2001:db8:1::")), 64);
+		final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
+		final Ipv6Prefix pref2 = new Ipv6Prefix("2001:db8:1:1::/64");
+		final Ipv6Prefix pref3 = new Ipv6Prefix("2001:db8:1::/64");
 
-		final Set<BGPObject> addedObjects = new HashSet<BGPObject>();
+		PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+		paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
 
-		final NetworkRouteState nstate = new NetworkRouteState(new NetworkObjectState(asPath, Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet()), nextHop);
-		final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		MpReachNlriBuilder mpReachBuilder = new MpReachNlriBuilder();
+		mpReachBuilder.setAfi(Ipv6AddressFamily.class);
+		mpReachBuilder.setSafi(UnicastSubsequentAddressFamily.class);
+		mpReachBuilder.setCNextHop(nextHop);
+		mpReachBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+				new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(pref1, pref2, pref3)).build()).build());
 
-		final BGPRoute route1 = new BGPIPv6RouteImpl(pref1, state, nstate);
-		final BGPRoute route2 = new BGPIPv6RouteImpl(pref2, state, nstate);
-		final BGPRoute route3 = new BGPIPv6RouteImpl(pref3, state, nstate);
-		addedObjects.add(route1);
-		addedObjects.add(route2);
-		addedObjects.add(route3);
+		paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
 
-		return new BGPUpdateMessageImpl(addedObjects, Collections.<Identifier> emptySet());*/
+		builder.setPathAttributes(paBuilder.build());
 
-		return new UpdateBuilder().build();
+		return builder.build();
 	}
 
 	@Test

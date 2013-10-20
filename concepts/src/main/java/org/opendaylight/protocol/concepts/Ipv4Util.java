@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -45,9 +46,26 @@ public final class Ipv4Util {
 		return a.getAddress();
 	}
 
+	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
+		String p = prefix.getValue();
+		final int sep = p.indexOf("/");
+		try {
+			byte[] bytes = Inet4Address.getByName(p.substring(0, sep)).getAddress();
+			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length() - 1)) });
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
 	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
-		return new Ipv4Prefix(addressForBytes(bytes).toString() + "/" + length);
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < 4; i++) {
+			buf.append((i < bytes.length) ? UnsignedBytes.toInt(bytes[i]) : ".0");
+			if (i < bytes.length - 1)
+				buf.append(".");
+		}
+		return new Ipv4Prefix(buf.toString() + "/" + length);
 	}
 
 	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {

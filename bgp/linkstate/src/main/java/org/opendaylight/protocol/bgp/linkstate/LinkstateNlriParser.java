@@ -205,7 +205,8 @@ public final class LinkstateNlriParser implements NlriParser {
 		return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
 	}
 
-	private static PrefixDescriptors parsePrefixDescriptors(final NodeIdentifier localDescriptor, final byte[] bytes) throws BGPParsingException {
+	private static PrefixDescriptors parsePrefixDescriptors(final NodeIdentifier localDescriptor, final byte[] bytes)
+			throws BGPParsingException {
 		int byteOffset = 0;
 		final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
 		while (byteOffset != bytes.length) {
@@ -309,8 +310,8 @@ public final class LinkstateNlriParser implements NlriParser {
 			}
 			byteOffset += locallength;
 			builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
-			final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0)
-					- PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH - LENGTH_SIZE - locallength;
+			final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH
+					- LENGTH_SIZE - locallength;
 			logger.debug("Restlength {}", restLength);
 			switch (type) {
 			case Link:
@@ -331,10 +332,12 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	@Override
 	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+		if (nlri.length == 0)
+			return;
 		final CLinkstateDestination dst = parseNlri(nlri);
 
 		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
+		final DestinationType s = (DestinationType) new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
 
 		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(s).build());
 	}
@@ -344,7 +347,7 @@ public final class LinkstateNlriParser implements NlriParser {
 		final CLinkstateDestination dst = parseNlri(nlri);
 
 		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
+		final DestinationType s = (DestinationType) new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
 
 		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(s).build());
 		NlriUtil.parseNextHop(nextHop, builder);
