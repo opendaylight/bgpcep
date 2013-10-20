@@ -315,8 +315,8 @@ public final class LinkstateNlriParser implements NlriParser {
 			}
 			byteOffset += locallength;
 			builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
-			final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
-					- TYPE_LENGTH - LENGTH_SIZE - locallength;
+			final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH
+					- LENGTH_SIZE - locallength;
 			logger.debug("Restlength {}", restLength);
 			switch (type) {
 			case Link:
@@ -336,7 +336,9 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	@Override
-	public void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+		if (nlri.length == 0)
+			return;
 		final CLinkstateDestination dst = parseNlri(nlri);
 
 		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)

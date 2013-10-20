@@ -80,6 +80,7 @@ public final class CommunitiesParser {
 	 * @throws BGPDocumentedException if the type is not recognized
 	 */
 	@VisibleForTesting
+	// FIXME: switch to return ExtendedCommunities with setType and subtype
 	public static ExtendedCommunity parseExtendedCommunity(final byte[] bytes) throws BGPDocumentedException {
 		final int type = UnsignedBytes.toInt(bytes[0]);
 		final int subType = UnsignedBytes.toInt(bytes[1]);

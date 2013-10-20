@@ -92,8 +92,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 
 		if (totalPathAttrLength > 0) {
 			try {
-				final PathAttributes pathAttributes = reg.parseAttributes(ByteArray.subByte(body, byteOffset,
-						totalPathAttrLength));
+				final PathAttributes pathAttributes = reg.parseAttributes(ByteArray.subByte(body, byteOffset, totalPathAttrLength));
 				byteOffset += totalPathAttrLength;
 				eventBuilder.setPathAttributes(pathAttributes);
 			} catch (final BGPParsingException e) {
@@ -103,8 +102,9 @@ public class BGPUpdateMessageParser implements MessageParser {
 		}
 
 		final List<Ipv4Prefix> nlri = Ipv4Util.prefixListForBytes(ByteArray.subByte(body, byteOffset, body.length - byteOffset));
-		eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
-
+		if (nlri != null && !nlri.isEmpty()) {
+			eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
+		}
 		logger.trace("Update message was parsed.");
 		return eventBuilder.build();
 	}

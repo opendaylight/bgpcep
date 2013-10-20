@@ -13,7 +13,9 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 
 import com.google.common.collect.Lists;
 
@@ -25,9 +27,10 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 		final List<ExtendedCommunities> set = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
-			set.add((ExtendedCommunities) CommunitiesParser.parseExtendedCommunity(ByteArray.subByte(bytes, i,
-					CommunitiesParser.EXTENDED_COMMUNITY_LENGTH)));
+			ExtendedCommunity comm = CommunitiesParser.parseExtendedCommunity(ByteArray.subByte(bytes, i,
+					CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
 			i += CommunitiesParser.EXTENDED_COMMUNITY_LENGTH;
+			set.add(new ExtendedCommunitiesBuilder().setExtendedCommunity(comm).build());
 		}
 
 		builder.setExtendedCommunities(set);

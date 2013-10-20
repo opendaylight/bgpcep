@@ -10,6 +10,7 @@ package org.opendaylight.protocol.concepts;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -28,7 +30,7 @@ public class Ipv6Util {
 
 	public static Ipv6Address addressForBytes(final byte[] bytes) {
 		try {
-			return new Ipv6Address(Inet6Address.getByAddress(bytes).toString());
+			return new Ipv6Address(InetAddresses.toAddrString(Inet6Address.getByAddress(bytes)));
 		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
@@ -46,7 +48,14 @@ public class Ipv6Util {
 
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
-		return new Ipv6Prefix(addressForBytes(bytes).toString() + "/" + length);
+		byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
+		InetAddress a = null;
+		try {
+			a = InetAddress.getByAddress(tmp);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+		return new Ipv6Prefix(InetAddresses.toAddrString(a) + "/" + length);
 	}
 
 	public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {

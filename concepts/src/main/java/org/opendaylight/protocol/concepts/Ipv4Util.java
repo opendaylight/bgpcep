@@ -10,6 +10,7 @@ package org.opendaylight.protocol.concepts;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -29,7 +32,7 @@ public final class Ipv4Util {
 
 	public static Ipv4Address addressForBytes(final byte[] bytes) {
 		try {
-			return new Ipv4Address(Inet4Address.getByAddress(bytes).getHostAddress());
+			return new Ipv4Address(InetAddresses.toAddrString(Inet4Address.getByAddress(bytes)));
 		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
@@ -45,9 +48,27 @@ public final class Ipv4Util {
 		return a.getAddress();
 	}
 
+	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
+		String p = prefix.getValue();
+		final int sep = p.indexOf("/");
+		try {
+			byte[] bytes = Inet4Address.getByName(p.substring(0, sep)).getAddress();
+			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length() - 1)) });
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
 	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
-		return new Ipv4Prefix(addressForBytes(bytes).toString() + "/" + length);
+		byte[] tmp = Arrays.copyOfRange(bytes, 0, 4);
+		InetAddress a = null;
+		try {
+			a = InetAddress.getByAddress(tmp);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+		return new Ipv4Prefix(InetAddresses.toAddrString(a) + "/" + length);
 	}
 
 	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {

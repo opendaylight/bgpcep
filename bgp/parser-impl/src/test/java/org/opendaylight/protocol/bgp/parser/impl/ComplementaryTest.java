@@ -100,9 +100,9 @@ public class ComplementaryTest {
 
 		assertEquals(40, ((CAs4Bytes) tlv4).getAs4BytesCapability().getAsNumber().getValue().longValue());
 
-		// FIXME: no generated toString
-		// assertEquals(new As4BytesBuilder().setCAs4Bytes(new CAs4BytesBuilder().setAsNumber(new AsNumber((long)
-		// 40)).build()).build().toString(), tlv4.toString());
+		assertEquals(
+				new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build(),
+				tlv4);
 	}
 
 	@Test
