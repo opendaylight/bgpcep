@@ -13,6 +13,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public interface NlriRegistry {
 	public MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException;
+
 	public MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException;
-	//	public byte[] serializeNlri(DataObject attribute);
+	// FIXME: PMD remove or put a comment what is this
+	// public byte[] serializeNlri(DataObject attribute);
 }

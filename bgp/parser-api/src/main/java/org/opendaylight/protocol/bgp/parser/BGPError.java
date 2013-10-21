@@ -122,52 +122,72 @@ public enum BGPError {
 
 	public static BGPError forValue(final int e, final int s) {
 		if (e == 1) {
-			if (s == 1)
+			if (s == 1) {
 				return BGPError.CONNECTION_NOT_SYNC;
-			if (s == 2)
+			}
+			if (s == 2) {
 				return BGPError.BAD_MSG_LENGTH;
-			if (s == 3)
+			}
+			if (s == 3) {
 				return BGPError.BAD_MSG_TYPE;
+			}
 		} else if (e == 2) {
-			if (s == 0)
+			if (s == 0) {
 				return BGPError.UNSPECIFIC_OPEN_ERROR;
-			if (s == 1)
+			}
+			if (s == 1) {
 				return BGPError.VERSION_NOT_SUPPORTED;
-			if (s == 2)
+			}
+			if (s == 2) {
 				return BGPError.BAD_PEER_AS;
-			if (s == 3)
+			}
+			if (s == 3) {
 				return BGPError.BAD_BGP_ID;
-			if (s == 4)
+			}
+			if (s == 4) {
 				return BGPError.OPT_PARAM_NOT_SUPPORTED;
-			if (s == 6)
+			}
+			if (s == 6) {
 				return BGPError.HOLD_TIME_NOT_ACC;
+			}
 		} else if (e == 3) {
-			if (s == 1)
+			if (s == 1) {
 				return BGPError.MALFORMED_ATTR_LIST;
-			if (s == 2)
+			}
+			if (s == 2) {
 				return BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED;
-			if (s == 3)
+			}
+			if (s == 3) {
 				return BGPError.WELL_KNOWN_ATTR_MISSING;
-			if (s == 4)
+			}
+			if (s == 4) {
 				return BGPError.ATTR_FLAGS_MISSING;
-			if (s == 5)
+			}
+			if (s == 5) {
 				return BGPError.ATTR_LENGTH_ERROR;
-			if (s == 6)
+			}
+			if (s == 6) {
 				return BGPError.ORIGIN_ATTR_NOT_VALID;
-			if (s == 8)
+			}
+			if (s == 8) {
 				return BGPError.NEXT_HOP_NOT_VALID;
-			if (s == 9)
+			}
+			if (s == 9) {
 				return BGPError.OPT_ATTR_ERROR;
-			if (s == 10)
+			}
+			if (s == 10) {
 				return BGPError.NETWORK_NOT_VALID;
-			if (s == 11)
+			}
+			if (s == 11) {
 				return BGPError.AS_PATH_MALFORMED;
-		} else if (e == 4)
+			}
+		} else if (e == 4) {
 			return BGPError.HOLD_TIMER_EXPIRED;
-		else if (e == 5)
+		} else if (e == 5) {
 			return BGPError.FSM_ERROR;
-		else if (e == 6)
+		} else if (e == 6) {
 			return BGPError.CEASE;
+		}
 		throw new IllegalArgumentException("BGP Error code " + e + " and subcode " + s + " not recognized.");
 	}
 }

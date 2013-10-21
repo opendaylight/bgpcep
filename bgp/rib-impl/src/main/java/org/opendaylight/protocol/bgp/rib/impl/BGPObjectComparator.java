@@ -11,7 +11,6 @@ import java.util.Comparator;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 
-
 /**
  * This comparator is intended to implement BGP Best Path Selection algorithm, as described at
  * 
@@ -27,14 +26,14 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 
 	@Override
 	public int compare(final PathAttributes o1, final PathAttributes o2) {
-		if (o1 == o2) {
-			return 0;
-		}
 		if (o1 == null) {
 			return 1;
 		}
 		if (o2 == null) {
 			return -1;
+		}
+		if (o1.equals(o2)) {
+			return 0;
 		}
 
 		// FIXME: look at ASPath

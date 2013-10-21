@@ -28,6 +28,8 @@ import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
@@ -39,6 +41,9 @@ import com.google.common.eventbus.EventBus;
  */
 @ThreadSafe
 public final class BGPMock implements BGP, Closeable {
+
+	private final static Logger logger = LoggerFactory.getLogger(BGPMock.class);
+
 	static final Notification connectionLostMagicMessage = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
 	@GuardedBy("this")
@@ -66,9 +71,9 @@ public final class BGPMock implements BGP, Closeable {
 				messages.add(parser.parse(body));
 			}
 		} catch (final DeserializerException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		} catch (final DocumentedException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 		return messages;
 	}

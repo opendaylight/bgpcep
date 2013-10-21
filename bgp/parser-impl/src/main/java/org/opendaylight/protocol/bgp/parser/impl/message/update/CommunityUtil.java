@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.impl;
+package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.path.attributes.CommunitiesBuilder;
@@ -33,6 +33,10 @@ public final class CommunityUtil {
 	 * confederation).
 	 */
 	public static final Community NO_EXPORT_SUBCONFED = CommunityUtil.create(0xFFFF, 0xFF03);
+
+	private CommunityUtil() {
+
+	}
 
 	/**
 	 * Creates a new Community given AS number value and semantics using generated CommunitiesBuilder.

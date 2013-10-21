@@ -16,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
@@ -44,16 +45,19 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 		this.bgpId = bgpId;
 
 		final List<BgpParameters> tlvs = Lists.newArrayList();
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()));
-		tlvs.add((BgpParameters) new CMultiprotocolBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(
-				LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).build()));
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CMultiprotocolBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
+								LinkstateSubsequentAddressFamily.class).build()).build()).build());
 		// final Map<BGPTableType, Boolean> tableTypes = Maps.newHashMap();
 		// tableTypes.put(ipv4, true);
 		// tableTypes.put(linkstate,true);
 		// tlvs.add(new GracefulCapability(true, 0, tableTypes));
-		tlvs.add((BgpParameters) new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(
-				new AsNumber((long) as)).build()));
+		tlvs.add(new BgpParametersBuilder().setCParameters(
+				new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) as)).build()).build()).build());
 		this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, tlvs);
 	}
 

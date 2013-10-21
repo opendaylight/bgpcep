@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 public class CommunityTest {

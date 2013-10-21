@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * the collection is a Set.
  * 
  */
-public class AsPathSegmentParser {
+public final class AsPathSegmentParser {
 
 	public static final int TYPE_LENGTH = 1; // bytes
 

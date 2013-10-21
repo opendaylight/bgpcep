@@ -25,7 +25,8 @@ final class GracefulCapabilityHandler implements CapabilitySerializer {
 		final byte[] bytes = null;
 
 		// final GracefulCapability param = (GracefulCapability) capability;
-		// final byte[] bytes = new byte[(RESTART_FLAGS_SIZE + TIMER_SIZE + (AFI_SIZE * Byte.SIZE + SAFI_SIZE * Byte.SIZE +
+		// final byte[] bytes = new byte[(RESTART_FLAGS_SIZE + TIMER_SIZE + (AFI_SIZE * Byte.SIZE + SAFI_SIZE *
+		// Byte.SIZE +
 		// AF_FLAGS_SIZE
 		// * Byte.SIZE)
 		// * param.getTableTypes().size())
