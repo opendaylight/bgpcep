@@ -47,7 +47,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
 
 	@Override
 	public boolean equals(final Object obj) {
-		if (obj != null && obj instanceof BgpTableTypeImpl) {
+		if (obj instanceof BgpTableTypeImpl) {
 			final BgpTableTypeImpl o = (BgpTableTypeImpl) obj;
 			return this.afi.equals(o.afi) && this.safi.equals(o.safi);
 		}

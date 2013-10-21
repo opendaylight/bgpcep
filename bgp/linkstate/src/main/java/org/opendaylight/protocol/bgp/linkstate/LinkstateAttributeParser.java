@@ -86,7 +86,6 @@ public class LinkstateAttributeParser implements AttributeParser {
 		builder.addAugmentation(PathAttributes1.class, a);
 	}
 
-
 	public static boolean verifyLink(final Set<Integer> keys) {
 		for (final Integer i : keys) {
 			if (!linkTlvs.contains(i)) {
@@ -126,7 +125,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			ByteList values = map.containsKey(type) ? values = map.get(type) : new ByteList();
+			final ByteList values = map.containsKey(type) ? map.get(type) : new ByteList();
 			values.add(value);
 			map.put(type, values);
 			byteOffset += length;

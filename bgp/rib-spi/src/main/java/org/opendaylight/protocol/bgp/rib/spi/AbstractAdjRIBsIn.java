@@ -28,19 +28,23 @@ import com.google.common.base.Preconditions;
 @ThreadSafe
 public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements AdjRIBsIn {
 	protected abstract class RIBEntryData {
-		final PathAttributes attributes;
+		private final PathAttributes attributes;
 
 		protected RIBEntryData(final PathAttributes attributes) {
 			this.attributes = Preconditions.checkNotNull(attributes);
+		}
+
+		public PathAttributes getPathAttributes() {
+			return this.attributes;
 		}
 
 		protected abstract DATA getDataObject(ID key);
 	}
 
 	/**
-	 * A single RIB table entry, which holds multiple versions of the entry's state and elects the authoritative based on
-	 * ordering specified by the supplied comparator.
-	 *
+	 * A single RIB table entry, which holds multiple versions of the entry's state and elects the authoritative based
+	 * on ordering specified by the supplied comparator.
+	 * 
 	 */
 	private final class RIBEntry {
 		/*
@@ -61,16 +65,16 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		private InstanceIdentifier<?> getName() {
-			if (name == null) {
-				name = identifierForKey(basePath, key);
+			if (this.name == null) {
+				this.name = identifierForKey(AbstractAdjRIBsIn.this.basePath, this.key);
 			}
-			return name;
+			return this.name;
 		}
 
 		private RIBEntryData findCandidate(final RIBEntryData initial) {
 			RIBEntryData newState = initial;
 			for (final RIBEntryData s : this.candidates.values()) {
-				if (newState == null || comparator.compare(newState.attributes, s.attributes) > 0) {
+				if (newState == null || AbstractAdjRIBsIn.this.comparator.compare(newState.attributes, s.attributes) > 0) {
 					newState = s;
 				}
 			}
@@ -80,7 +84,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData candidate) {
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
-				transaction.putRuntimeData(getName(), candidate.getDataObject(key));
+				transaction.putRuntimeData(getName(), candidate.getDataObject(this.key));
 				this.currentState = candidate;
 			}
 		}
@@ -93,12 +97,12 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 				electCandidate(transaction, candidate);
 				return true;
 			} else {
-				transaction.removeRuntimeData(name);
+				transaction.removeRuntimeData(this.name);
 				return false;
 			}
 		}
 
-		synchronized void setState(final DataModificationTransaction  transaction, final Peer peer, final RIBEntryData state) {
+		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData state) {
 			this.candidates.put(peer, state);
 			electCandidate(transaction, findCandidate(state));
 		}
@@ -111,7 +115,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 	protected AbstractAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 		this.comparator = Preconditions.checkNotNull(comparator);
-		basePath = InstanceIdentifier.builder().node(LocRib.class).node(Tables.class, key).toInstance();
+		this.basePath = InstanceIdentifier.builder().node(LocRib.class).node(Tables.class, key).toInstance();
 	}
 
 	@Override
@@ -128,7 +132,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final ID id);
 
-	protected synchronized void add(final DataModificationTransaction  trans, final Peer peer, final ID id, final RIBEntryData data) {
+	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final ID id, final RIBEntryData data) {
 		RIBEntry e = this.entries.get(id);
 		if (e == null) {
 			e = new RIBEntry(id);
@@ -138,7 +142,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		e.setState(trans, peer, data);
 	}
 
-	protected synchronized void remove(final DataModificationTransaction  trans, final Peer peer, final ID id) {
+	protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final ID id) {
 		final RIBEntry e = this.entries.get(id);
 		if (e != null && e.removeState(trans, peer)) {
 			this.entries.remove(id);

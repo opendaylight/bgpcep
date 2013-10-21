@@ -69,7 +69,7 @@ public final class BGPDocumentedException extends DocumentedException {
 	 * @param cause cause for the error
 	 */
 	public BGPDocumentedException(final String message, final BGPError error, final byte[] data, final Throwable cause) {
-		super(message);
+		super(message, (Exception) cause);
 		this.error = error;
 		this.data = data;
 		logger.error("Error = " + error, this);
@@ -96,8 +96,8 @@ public final class BGPDocumentedException extends DocumentedException {
 	public static BGPDocumentedException badMessageLength(final String message, final int length) {
 		Preconditions.checkArgument(length >= 0 && length <= 65535);
 
-		return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] {
-				UnsignedBytes.checkedCast(length / 256), UnsignedBytes.checkedCast(length % 256) });
+		return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] { UnsignedBytes.checkedCast(length / 256),
+				UnsignedBytes.checkedCast(length % 256) });
 
 	}
 }

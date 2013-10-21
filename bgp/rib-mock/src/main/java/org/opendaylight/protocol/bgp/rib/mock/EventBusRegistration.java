@@ -30,7 +30,7 @@ import com.google.common.eventbus.Subscribe;
  * This class has @Subscribe annotated methods which receive events from {@link EventBus} . Events are produced by
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
-class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
+final class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
 	private final EventBus eventBus;
 
 	public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,

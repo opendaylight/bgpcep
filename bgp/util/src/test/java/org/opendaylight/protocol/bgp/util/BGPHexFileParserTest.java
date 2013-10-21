@@ -27,7 +27,7 @@ public class BGPHexFileParserTest {
 	@Test
 	public void testCleanWhiteSpace() {
 		final String input = "abc def\r\nghi\nj";
-		assertEquals("ABCDEFGHIJ", HexDumpBGPFileParser.clearWhiteSpace_toUpper(input));
+		assertEquals("ABCDEFGHIJ", HexDumpBGPFileParser.clearWhiteSpaceToUpper(input));
 	}
 
 	@Test

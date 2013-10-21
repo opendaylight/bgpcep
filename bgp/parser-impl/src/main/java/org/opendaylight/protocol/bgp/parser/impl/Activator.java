@@ -63,7 +63,7 @@ public final class Activator implements BGPExtensionProviderActivator {
 
 	@Override
 	public synchronized void start(final BGPExtensionProviderContext context) {
-		Preconditions.checkState(registrations == null);
+		Preconditions.checkState(this.registrations == null);
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
@@ -75,17 +75,14 @@ public final class Activator implements BGPExtensionProviderActivator {
 		regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
 
 		final NlriRegistry nlriReg = context.getNlriRegistry();
-		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-				new Ipv4NlriParser()));
-		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
-				new Ipv6NlriParser()));
+		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
+		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
 		final AttributeRegistry attrReg = context.getAttributeRegistry();
 		regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser()));
 		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser()));
 		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser()));
-		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE,
-				new MultiExitDiscriminatorAttributeParser()));
+		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser()));
 		regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser()));
 		regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser()));
 		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser()));
@@ -119,7 +116,6 @@ public final class Activator implements BGPExtensionProviderActivator {
 		final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(attrReg);
 		regs.add(context.registerMessageParser(BGPUpdateMessageParser.TYPE, ump));
 		// Serialization of Update message is not supported
-		// regs.add(msgReg.registerMessageSerializer(Update.class, ump));
 
 		final BGPNotificationMessageParser nmp = new BGPNotificationMessageParser();
 		regs.add(context.registerMessageParser(BGPNotificationMessageParser.TYPE, nmp));
@@ -129,21 +125,21 @@ public final class Activator implements BGPExtensionProviderActivator {
 		regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
 		regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
 
-		registrations = regs;
+		this.registrations = regs;
 	}
 
 	@Override
 	public synchronized void stop() {
-		Preconditions.checkState(registrations != null);
+		Preconditions.checkState(this.registrations != null);
 
-		for (AutoCloseable r : registrations) {
+		for (final AutoCloseable r : this.registrations) {
 			try {
 				r.close();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				logger.warn("Failed to close registration", e);
 			}
 		}
 
-		registrations = null;
+		this.registrations = null;
 	}
 }

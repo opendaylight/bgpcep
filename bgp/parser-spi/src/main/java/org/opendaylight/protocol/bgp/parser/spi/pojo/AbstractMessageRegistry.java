@@ -25,6 +25,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractMessageRegistry.class);
 
 	protected abstract Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException;
+
 	protected abstract byte[] serializeMessageImpl(final Notification message);
 
 	@Override
@@ -36,13 +37,13 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + ". Expected: >= "
 					+ MessageUtil.COMMON_HEADER_LENGTH + ".");
 		}
-		/*
-		 * byte array starts with message length
-		 */
-		// final byte[] ones = new byte[MARKER_LENGTH];
-		// Arrays.fill(ones, (byte)0xff);
-		// if (Arrays.equals(bytes, ones))
+		final byte[] marker = ByteArray.subByte(bytes, 0, MessageUtil.MARKER_LENGTH);
+		final byte[] ones = new byte[MessageUtil.MARKER_LENGTH];
+		Arrays.fill(ones, (byte) 0xff);
+		// TODO: possible refactor
+		// if (Arrays.equals(marker, ones)) {
 		// throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
+		// }
 		final byte[] bs = ByteArray.cutBytes(bytes, MessageUtil.MARKER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bs, 0, MessageUtil.LENGTH_FIELD_LENGTH));
 		final int messageType = UnsignedBytes.toInt(bs[MessageUtil.LENGTH_FIELD_LENGTH]);

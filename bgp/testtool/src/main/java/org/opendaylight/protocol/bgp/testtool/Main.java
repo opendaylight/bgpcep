@@ -31,8 +31,9 @@ public class Main {
 
 	private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
-	public static String usage = "DESCRIPTION:\n" + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
-			+ "from PCCs.\n" + "USAGE:\n" + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
+	private static String usage = "DESCRIPTION:\n"
+			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
+			+ "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
 			+ "\t\tFormat: x.x.x.x:y where y is port number.\n\n"
 			+ "\t\tThis IP address will appear in BGP Open message as BGP Identifier of the server.\n" +
 
@@ -46,16 +47,15 @@ public class Main {
 
 			"With no parameters, this help is printed.";
 
-	BGPDispatcherImpl dispatcher;
+	private final BGPDispatcherImpl dispatcher;
 
 	public Main() throws Exception {
-		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(
-				ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()));
+		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()));
 	}
 
 	public static void main(final String[] args) throws Exception {
 		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
-			System.out.println(Main.usage);
+			logger.info(Main.usage);
 			return;
 		}
 
@@ -76,7 +76,7 @@ public class Main {
 				as = new AsNumber(Long.valueOf(args[i + 1]));
 				i++;
 			} else {
-				System.out.println("WARNING: Unrecognized argument: " + args[i]);
+				logger.error("WARNING: Unrecognized argument: " + args[i]);
 			}
 			i++;
 		}

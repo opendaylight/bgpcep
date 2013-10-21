@@ -119,9 +119,9 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		switch (this.state) {
 		case Finished:
 		case Idle:
-			final Notify fsm_error = new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
+			final Notify fsmError = new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
 					BGPError.FSM_ERROR.getSubcode()).build();
-			this.channel.writeAndFlush(fsm_error);
+			this.channel.writeAndFlush(fsmError);
 		case OpenConfirm:
 			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);

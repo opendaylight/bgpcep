@@ -30,14 +30,19 @@ import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 
 /**
- * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff marker.
- * New lines and spaces are ignored. Use {@link ByteArray#bytesToHexString(byte[])} for serializing bytes to this format.
+ * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff
+ * marker. New lines and spaces are ignored. Use {@link ByteArray#bytesToHexString(byte[])} for serializing bytes to
+ * this format.
  */
 @Immutable
 public class HexDumpBGPFileParser {
 	private static final int MINIMAL_LENGTH = 19;
 	private static final Logger LOG = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
 	private static final String ff_16 = Strings.repeat("FF", 16);
+
+	private HexDumpBGPFileParser() {
+
+	}
 
 	public static List<byte[]> parseMessages(final File file) throws FileNotFoundException, IOException {
 		Preconditions.checkArgument(file != null, "Filename cannot be null");
@@ -54,36 +59,35 @@ public class HexDumpBGPFileParser {
 	}
 
 	public static List<byte[]> parseMessages(String content) {
-		content = clearWhiteSpace_toUpper(content);
+		content = clearWhiteSpaceToUpper(content);
 		// search for 16 FFs
 
-		List<byte[]> messages = Lists.newLinkedList();
+		final List<byte[]> messages = Lists.newLinkedList();
 		int idx = 0;
 		while ((idx = content.indexOf(ff_16, idx)) > -1) {
 			// next 2 bytes are length
-			int lengthIdx = idx + 16 * 2;
-			int messageIdx = lengthIdx + 4;
-			String hexLength = content.substring(lengthIdx, messageIdx);
+			final int lengthIdx = idx + 16 * 2;
+			final int messageIdx = lengthIdx + 4;
+			final String hexLength = content.substring(lengthIdx, messageIdx);
 			byte[] byteLength = null;
 			try {
 				byteLength = Hex.decodeHex(hexLength.toCharArray());
-			} catch (DecoderException e) {
+			} catch (final DecoderException e) {
 				throw new RuntimeException(e);
 			}
-			int length = ByteArray.bytesToInt(byteLength);
-			int messageEndIdx = idx + length * 2;
+			final int length = ByteArray.bytesToInt(byteLength);
+			final int messageEndIdx = idx + length * 2;
 
 			// Assert that message is longer than minimum 19(header.length == 19)
 			// If length in BGP message would be 0, loop would never end
-			Preconditions.checkArgument(length >=  MINIMAL_LENGTH,
-					"Invalid message at index " + idx
-					+ ", length atribute is lower than " + MINIMAL_LENGTH);
+			Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
+					+ MINIMAL_LENGTH);
 
-			String hexMessage = content.substring(idx, messageEndIdx);
+			final String hexMessage = content.substring(idx, messageEndIdx);
 			byte[] message = null;
 			try {
 				message = Hex.decodeHex(hexMessage.toCharArray());
-			} catch (DecoderException e) {
+			} catch (final DecoderException e) {
 				new RuntimeException(e);
 			}
 			messages.add(message);
@@ -94,7 +98,7 @@ public class HexDumpBGPFileParser {
 	}
 
 	@VisibleForTesting
-	static String clearWhiteSpace_toUpper(final String line){
+	static String clearWhiteSpaceToUpper(final String line) {
 		return line.replaceAll("\\s", "").toUpperCase();
 	}
 

@@ -29,8 +29,12 @@ import com.google.common.primitives.UnsignedBytes;
 public final class BinaryBGPDumpFileParser {
 
 	private static final byte ff = (byte) 255;
-	private static final Logger LOG = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
+	private static final Logger logger = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
 	private static final int MINIMAL_LENGTH = 19;
+
+	private BinaryBGPDumpFileParser() {
+
+	}
 
 	/**
 	 * Extract BGP messages from binary file in MRT format.
@@ -75,7 +79,7 @@ public final class BinaryBGPDumpFileParser {
 			}
 
 		}
-		LOG.info("Succesfully extracted " + messages.size() + " messages");
+		logger.info("Succesfully extracted " + messages.size() + " messages");
 		return messages;
 	}
 }

@@ -53,7 +53,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private static final Notification keepalive = new KeepaliveBuilder().build();
 
-	public static int HOLD_TIMER_VALUE = DEFAULT_HOLD_TIMER_VALUE; // 240
+	private static int holdTimerValue = DEFAULT_HOLD_TIMER_VALUE; // 240
 
 	/**
 	 * Internal session state.
@@ -78,6 +78,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
+	@VisibleForTesting
 	protected long lastMessageSentAt;
 
 	/**
@@ -110,6 +111,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
 		this.keepAlive = remoteOpen.getHoldTimer() / 3;
+		holdTimerValue = remoteOpen.getHoldTimer();
 
 		final Set<BgpTableType> tts = Sets.newHashSet();
 		if (remoteOpen.getBgpParameters() != null) {
@@ -234,7 +236,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		}
 
 		final long ct = System.nanoTime();
-		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(HOLD_TIMER_VALUE);
+		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(holdTimerValue);
 
 		if (ct >= nextHold) {
 			logger.debug("HoldTimer expired. " + new Date());
