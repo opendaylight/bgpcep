@@ -54,6 +54,10 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>${ietf.types.version}</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>

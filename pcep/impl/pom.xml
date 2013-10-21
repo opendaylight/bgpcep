@@ -98,6 +98,10 @@
 			<scope>test</scope>
 			<type>test-jar</type>
 		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>
