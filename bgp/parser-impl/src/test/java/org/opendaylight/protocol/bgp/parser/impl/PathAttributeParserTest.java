@@ -14,16 +14,16 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionProviderContextImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 
 /*
  * To test incorrect values.
  */
 public class PathAttributeParserTest {
 	@Test
-	public void testOriginParser() {
+	public void testOriginParser() throws Exception {
 		try {
-			BGPExtensionProviderContextImpl.getSingletonInstance().getAttributeRegistry().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
+			ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getAttributeRegistry().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
 			fail("This needs to fail.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Unknown Origin type.", e.getMessage());

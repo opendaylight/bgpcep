@@ -13,7 +13,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Test;
@@ -21,7 +20,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionProviderContextImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteList;
@@ -220,8 +219,8 @@ public class ComplementaryTest {
 	}
 
 	@Test
-	public void testBGPHeaderParser() throws IOException {
-		final MessageRegistry msgReg = BGPExtensionProviderContextImpl.getSingletonInstance().getMessageRegistry();
+	public void testBGPHeaderParser() throws Exception {
+		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
 		try {
 			msgReg.parseMessage(new byte[] { (byte) 0, (byte) 0 });
 			fail("Exception should have occured.");
@@ -249,8 +248,8 @@ public class ComplementaryTest {
 	}
 
 	@Test
-	public void testMessageParser() throws IOException {
-		final MessageRegistry msgReg = BGPExtensionProviderContextImpl.getSingletonInstance().getMessageRegistry();
+	public void testMessageParser() throws Exception {
+		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
 		String ex = "";
 		try {
 			msgReg.serializeMessage(null);

@@ -9,13 +9,12 @@ package org.opendaylight.protocol.bgp.testtool;
 
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionProviderContextImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -49,11 +48,12 @@ public class Main {
 
 	BGPDispatcherImpl dispatcher;
 
-	public Main() throws IOException {
-		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(BGPExtensionProviderContextImpl.getSingletonInstance().getMessageRegistry()));
+	public Main() throws Exception {
+		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(
+				ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()));
 	}
 
-	public static void main(final String[] args) throws NumberFormatException, IOException {
+	public static void main(final String[] args) throws Exception {
 		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
 			System.out.println(Main.usage);
 			return;

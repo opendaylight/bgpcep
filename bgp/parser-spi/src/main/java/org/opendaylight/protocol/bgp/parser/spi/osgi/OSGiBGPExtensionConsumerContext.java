@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -22,13 +23,14 @@ import org.osgi.framework.ServiceRegistration;
 import com.google.common.base.Preconditions;
 
 class OSGiBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
+	protected final SimpleBGPExtensionProviderContext providerContext = new SimpleBGPExtensionProviderContext();
 	protected final BundleContext bundleContext;
 
 	OSGiBGPExtensionConsumerContext(final BundleContext context) {
 		this.bundleContext = Preconditions.checkNotNull(context);
 	}
 
-	protected <T> AutoCloseable register(final Class<T> clazz, final T object) {
+	protected final <T> AutoCloseable register(final Class<T> clazz, final T object) {
 		final ServiceRegistration<T> reg = bundleContext.registerService(clazz, object, null);
 
 		return new AbstractRegistration() {
@@ -39,50 +41,42 @@ class OSGiBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
 		};
 	}
 
-	public BundleContext getBundleContext() {
+	public final BundleContext getBundleContext() {
 		return bundleContext;
 	}
 
 	@Override
-	public AddressFamilyRegistry getAddressFamilyRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final AddressFamilyRegistry getAddressFamilyRegistry() {
+		return providerContext.getAddressFamilyRegistry();
 	}
 
 	@Override
-	public AttributeRegistry getAttributeRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final AttributeRegistry getAttributeRegistry() {
+		return providerContext.getAttributeRegistry();
 	}
 
 	@Override
-	public CapabilityRegistry getCapabilityRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final CapabilityRegistry getCapabilityRegistry() {
+		return providerContext.getCapabilityRegistry();
 	}
 
 	@Override
-	public MessageRegistry getMessageRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final MessageRegistry getMessageRegistry() {
+		return providerContext.getMessageRegistry();
 	}
 
 	@Override
-	public NlriRegistry getNlriRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final NlriRegistry getNlriRegistry() {
+		return providerContext.getNlriRegistry();
 	}
 
 	@Override
-	public ParameterRegistry getParameterRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final ParameterRegistry getParameterRegistry() {
+		return providerContext.getParameterRegistry();
 	}
 
 	@Override
-	public SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry() {
-		// TODO Auto-generated method stub
-		return null;
+	public final SubsequentAddressFamilyRegistry getSubsequentAddressFamilyRegistry() {
+		return providerContext.getSubsequentAddressFamilyRegistry();
 	}
-
 }

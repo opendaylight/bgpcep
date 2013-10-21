@@ -13,12 +13,11 @@ import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.BGPExtensionProviderContextImpl;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
@@ -59,7 +58,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 		});
 	}
 
-	public static void main(final String[] args) throws IOException {
+	public static void main(final String[] args) throws Exception {
 
 		final SessionListenerFactory<BGPSessionListener> f = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
@@ -73,7 +72,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 
 		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf,
-				new BGPHandlerFactory(new BGPMessageFactoryImpl(BGPExtensionProviderContextImpl.getSingletonInstance().getMessageRegistry())),
+				new BGPHandlerFactory(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry())),
 				new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);
