@@ -33,6 +33,24 @@
       "revId": "55b857f07ce7909a68b56dace9f94d10a15b4a70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_e8870f60",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/PCEPSessionImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 739
+      },
+      "writtenOn": "2013-10-21T09:18:41Z",
+      "side": 1,
+      "message": "are you asking me regarding my comment in the other file in this patch?",
+      "parentUuid": "da6255ed_88af73e3",
+      "revId": "55b857f07ce7909a68b56dace9f94d10a15b4a70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
