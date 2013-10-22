@@ -13,9 +13,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 public final class CapabilityUtil {
 
-	public static final int CODE_SIZE = 1; // bytes
-	public static final int LENGTH_SIZE = 1; // bytes
-	private static final int HEADER_SIZE = CODE_SIZE + LENGTH_SIZE;
+	private static final int HEADER_SIZE = 2;
 
 	private CapabilityUtil() {
 

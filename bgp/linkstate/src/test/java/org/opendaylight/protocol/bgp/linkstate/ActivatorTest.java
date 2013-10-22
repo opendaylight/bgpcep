@@ -23,17 +23,13 @@ public class ActivatorTest {
 	private final Activator act = new Activator();
 
 	@Test
-	public void testActivator() {
+	public void testActivator() throws Exception {
 		final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
 
 		assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
 		assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));
 
-		try {
-			this.act.start(context);
-		} catch (final Exception e) {
-			fail("This exception should not occurr.");
-		}
+		this.act.start(context);
 
 		assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
 		assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));

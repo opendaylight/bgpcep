@@ -28,6 +28,8 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public class Ipv6Util {
 
+	public static final int IPV6_LENGTH = 16;
+
 	public static Ipv6Address addressForBytes(final byte[] bytes) {
 		try {
 			return new Ipv6Address(InetAddresses.toAddrString(Inet6Address.getByAddress(bytes)));
@@ -59,8 +61,9 @@ public class Ipv6Util {
 	}
 
 	public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
-		if (bytes.length == 0)
+		if (bytes.length == 0) {
 			return Collections.emptyList();
+		}
 
 		final List<Ipv6Prefix> list = Lists.newArrayList();
 		int byteOffset = 0;

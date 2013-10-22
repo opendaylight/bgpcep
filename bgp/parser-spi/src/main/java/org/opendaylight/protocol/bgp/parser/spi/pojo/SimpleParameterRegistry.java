@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -22,17 +23,17 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 	private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
-		return handlers.registerParser(messageType, parser);
+		Preconditions.checkArgument(messageType >= 0 && messageType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		return this.handlers.registerParser(messageType, parser);
 	}
 
 	AutoCloseable registerParameterSerializer(final Class<? extends BgpParameters> paramClass, final ParameterSerializer serializer) {
-		return handlers.registerSerializer(paramClass, serializer);
+		return this.handlers.registerSerializer(paramClass, serializer);
 	}
 
 	@Override
 	public BgpParameters parseParameter(final int parameterType, final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
-		final ParameterParser parser = handlers.getParser(parameterType);
+		final ParameterParser parser = this.handlers.getParser(parameterType);
 		if (parser == null) {
 			return null;
 		}
@@ -42,7 +43,7 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 
 	@Override
 	public byte[] serializeParameter(final BgpParameters parameter) {
-		final ParameterSerializer serializer = handlers.getSerializer(parameter.getImplementedInterface());
+		final ParameterSerializer serializer = this.handlers.getSerializer(parameter.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}

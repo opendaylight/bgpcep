@@ -10,15 +10,18 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class ParameterUtil {
+
+	private static final int HEADER_SIZE = 2;
+
 	private ParameterUtil() {
 
 	}
 
 	public static byte[] formatParameter(final int type, final byte[] value) {
-		final byte[] bytes = new byte[2 + value.length];
+		final byte[] bytes = new byte[HEADER_SIZE + value.length];
 		bytes[0] = UnsignedBytes.checkedCast(type);
 		bytes[1] = UnsignedBytes.checkedCast(value.length);
-		System.arraycopy(value, 0, bytes, 2, value.length);
+		System.arraycopy(value, 0, bytes, HEADER_SIZE, value.length);
 		return bytes;
 	}
 }

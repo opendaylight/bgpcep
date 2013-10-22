@@ -30,6 +30,8 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class Ipv4Util {
 
+	public static final int IP4_LENGTH = 4;
+
 	public static Ipv4Address addressForBytes(final byte[] bytes) {
 		try {
 			return new Ipv4Address(InetAddresses.toAddrString(Inet4Address.getByAddress(bytes)));
@@ -72,8 +74,9 @@ public final class Ipv4Util {
 	}
 
 	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
-		if (bytes.length == 0)
+		if (bytes.length == 0) {
 			return Collections.emptyList();
+		}
 
 		final List<Ipv4Prefix> list = Lists.newArrayList();
 		int byteOffset = 0;

@@ -13,12 +13,11 @@ import org.opendaylight.protocol.util.ByteArray;
 
 import com.google.common.primitives.UnsignedBytes;
 
-
 public final class MessageUtil {
 
-	public static final int LENGTH_FIELD_LENGTH = 2; // bytes
-	public static final int MARKER_LENGTH = 16; // bytes
-	public static final int TYPE_FIELD_LENGTH = 1; // bytes
+	public static final int LENGTH_FIELD_LENGTH = 2;
+	public static final int MARKER_LENGTH = 16;
+	public static final int TYPE_FIELD_LENGTH = 1;
 	public static final int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
 
 	private MessageUtil() {
@@ -36,9 +35,8 @@ public final class MessageUtil {
 	public static byte[] formatMessage(final int type, final byte[] body) {
 		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
 
-		Arrays.fill(retBytes, 0, MARKER_LENGTH, (byte) 0xff);
-		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH),
-				Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH,
+		Arrays.fill(retBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
+		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH), Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH,
 				retBytes, MARKER_LENGTH, LENGTH_FIELD_LENGTH);
 
 		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(type);
