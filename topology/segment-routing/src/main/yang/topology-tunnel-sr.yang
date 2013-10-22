@@ -4,7 +4,7 @@ module topology-tunnel-sr {
 	prefix "tun-sr";
 
 	import network-topology-sr { prefix sr; revision-date 2013-08-19; }
-	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
 

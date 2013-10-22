@@ -3,7 +3,7 @@ module topology-tunnel-programming {
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:programming";
 	prefix "ttp";
 
-	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 	import programming { prefix pgm; revision-date 2013-09-30; }
 
