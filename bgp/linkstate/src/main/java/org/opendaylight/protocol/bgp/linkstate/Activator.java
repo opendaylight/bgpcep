@@ -13,19 +13,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 
-/**
- *
- */
 public final class Activator implements BGPExtensionProviderActivator {
 	@Override
 	public void start(final BGPExtensionProviderContext context) throws Exception {
 		context.registerAddressFamily(LinkstateAddressFamily.class, 16388);
 		context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, 71);
 
-		context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-				new LinkstateNlriParser(false));
-		context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-				new LinkstateNlriParser(true));
+		context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new LinkstateNlriParser(false));
+		context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class, new LinkstateNlriParser(true));
 
 		context.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser());
 	}
