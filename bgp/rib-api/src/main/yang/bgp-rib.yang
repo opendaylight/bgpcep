@@ -3,7 +3,6 @@ module bgp-rib {
         namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
         prefix "rib";
 
-	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
 	import bgp-message { prefix bgp-msg; revision-date 2013-09-18; }
 	import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-18; }
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
@@ -45,44 +44,26 @@ module bgp-rib {
 			}
 
 			choice routes {
-				list ipv4-routes {
-					when "../../afi = ipv4";
+				case ipv4-routes {
+					list ipv4-routes {
+						when "../../afi = ipv4";
 
-					leaf prefix {
-						type inet:ipv4-prefix;
+						leaf prefix {
+							type inet:ipv4-prefix;
+						}
+						key prefix;
+
+						uses route;
 					}
-					key prefix;
-
-					uses route;
 				}
-				list ipv6-routes {
-					when "../../afi = ipv6";
+				case ipv6-routes {
+					list ipv6-routes {
+						when "../../afi = ipv6";
 
-					leaf prefix {
-						type inet:ipv6-prefix;
-					}
-					key prefix;
-
-					uses route;
-				}
-				case linkstate-routes {
-					list linkstate-links {
-						// FIXME: fill this out
-
-						uses route;
-					}
-					list linkstate-nodes {
-						// FIXME: fill this out
-
-						uses route;
-					}
-					list linkstate-ipv4-prefixes {
-						// FIXME: fill this out
-
-						uses route;
-					}
-					list linkstate-ipv6-prefixes {
-						// FIXME: fill this out
+						leaf prefix {
+							type inet:ipv6-prefix;
+						}
+						key prefix;
 
 						uses route;
 					}
