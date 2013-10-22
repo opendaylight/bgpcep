@@ -36,15 +36,15 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class CommunitiesParser {
 
-	public static final int EXTENDED_COMMUNITY_LENGTH = 8; // bytes
+	public static final int EXTENDED_COMMUNITY_LENGTH = 8;
 
-	public static final int COMMUNITY_LENGTH = 4; // bytes
+	public static final int COMMUNITY_LENGTH = 4;
 
-	private static final int TYPE_LENGTH = 2; // bytes
+	private static final int TYPE_LENGTH = 2;
 
-	private static final int AS_NUMBER_LENGTH = 2; // bytes
+	private static final int AS_NUMBER_LENGTH = 2;
 
-	private static final int AS_LOCAL_ADMIN_LENGTH = 4; // bytes
+	private static final int AS_LOCAL_ADMIN_LENGTH = 4;
 
 	private CommunitiesParser() {
 
@@ -103,7 +103,7 @@ public final class CommunitiesParser {
 								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
 			}
-		case 40: // 01000000
+		case 40:
 			return new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
 					new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
 							new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
@@ -139,14 +139,14 @@ public final class CommunitiesParser {
 								Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
 								ByteArray.subByte(value, 4, 2)).build()).build();
 			}
-		case 41: // 01000001
+		case 41:
 			return new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
 					new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
 							Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(ByteArray.subByte(value, 4, 2)).build()).build();
 		case 3:
 			return new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
 					new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(value).build()).build();
-		case 43: // 01000011
+		case 43:
 			return new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
 					new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(value).build()).build();
 		default:

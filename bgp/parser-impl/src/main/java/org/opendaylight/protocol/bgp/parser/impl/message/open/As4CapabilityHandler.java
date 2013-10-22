@@ -22,11 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public final class As4CapabilityHandler implements CapabilityParser, CapabilitySerializer {
 	public static final int CODE = 65;
 
+	private static final int AS4_LENGTH = 4;
+
 	@Override
 	public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		return new CAs4BytesBuilder().setAs4BytesCapability(
 				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
-
 	}
 
 	@Override
@@ -35,6 +36,7 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
 	}
 
 	private static byte[] putAS4BytesParameterValue(final CAs4Bytes param) {
-		return ByteArray.subByte(ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue()), 4, 4);
+		return ByteArray.subByte(ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue()), Long.SIZE / Byte.SIZE
+				- AS4_LENGTH, AS4_LENGTH);
 	}
 }

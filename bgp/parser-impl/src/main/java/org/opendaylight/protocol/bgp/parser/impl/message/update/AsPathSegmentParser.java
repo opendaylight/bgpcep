@@ -25,11 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class AsPathSegmentParser {
 
-	public static final int TYPE_LENGTH = 1; // bytes
+	public static final int TYPE_LENGTH = 1;
 
-	public static final int LENGTH_SIZE = 1; // bytes
+	public static final int LENGTH_SIZE = 1;
 
-	public static final int AS_NUMBER_LENGTH = 4; // bytes
+	public static final int AS_NUMBER_LENGTH = 4;
 
 	/**
 	 * Possible types of AS Path segments.
