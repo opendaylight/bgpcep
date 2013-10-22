@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -22,17 +23,17 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= 255);
-		return handlers.registerParser(messageType, parser);
+		Preconditions.checkArgument(messageType >= 0 && messageType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		return this.handlers.registerParser(messageType, parser);
 	}
 
 	AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
-		return handlers.registerSerializer(paramClass, serializer);
+		return this.handlers.registerSerializer(paramClass, serializer);
 	}
 
 	@Override
 	public CParameters parseCapability(final int type, final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-		final CapabilityParser parser = handlers.getParser(type);
+		final CapabilityParser parser = this.handlers.getParser(type);
 		if (parser == null) {
 			return null;
 		}
@@ -42,7 +43,7 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
 
 	@Override
 	public byte[] serializeCapability(final CParameters capability) {
-		final CapabilitySerializer serializer = handlers.getSerializer(capability.getImplementedInterface());
+		final CapabilitySerializer serializer = this.handlers.getSerializer(capability.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}

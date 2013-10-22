@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.util;
 
+
 public class Util {
 
 	public static final int UNSIGNED_SHORT_MAX_VALUE = 65535;
 
+	public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 }

@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -26,9 +27,11 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public class Ipv6Util {
 
+	public static final int IPV6_LENGTH = 16;
+
 	public static Ipv6Address addressForBytes(final byte[] bytes) {
 		try {
-			return new Ipv6Address(Inet6Address.getByAddress(bytes).toString());
+			return new Ipv6Address(InetAddresses.toAddrString(Inet6Address.getByAddress(bytes)));
 		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
@@ -50,8 +53,9 @@ public class Ipv6Util {
 	}
 
 	public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
-		if (bytes.length == 0)
+		if (bytes.length == 0) {
 			return Collections.emptyList();
+		}
 
 		final List<Ipv6Prefix> list = Lists.newArrayList();
 		int byteOffset = 0;

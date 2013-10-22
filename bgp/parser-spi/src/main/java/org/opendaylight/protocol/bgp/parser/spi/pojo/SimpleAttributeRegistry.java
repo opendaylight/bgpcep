@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -27,16 +28,16 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
-		Preconditions.checkArgument(attributeType >= 0 && attributeType <= 255);
-		return handlers.registerParser(attributeType, parser);
+		Preconditions.checkArgument(attributeType >= 0 && attributeType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		return this.handlers.registerParser(attributeType, parser);
 	}
 
 	AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
-		return handlers.registerSerializer(paramClass, serializer);
+		return this.handlers.registerSerializer(paramClass, serializer);
 	}
 
-	private int parseAttribute( final byte[] bytes, final int offset, final PathAttributesBuilder builder)
-			throws BGPDocumentedException, BGPParsingException {
+	private int parseAttribute(final byte[] bytes, final int offset, final PathAttributesBuilder builder) throws BGPDocumentedException,
+			BGPParsingException {
 		// FIXME: validate minimum length
 		final boolean[] flags = ByteArray.parseBits(bytes[offset]);
 		final int type = UnsignedBytes.toInt(bytes[offset + 1]);
@@ -50,7 +51,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 			hdrlen = 3;
 		}
 
-		final AttributeParser parser = handlers.getParser(type);
+		final AttributeParser parser = this.handlers.getParser(type);
 		if (parser == null) {
 			if (!flags[0]) {
 				throw new BGPDocumentedException("Well known attribute not recognized.", BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED);
@@ -74,7 +75,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
 	@Override
 	public byte[] serializeAttribute(final DataObject attribute) {
-		final AttributeSerializer serializer = handlers.getSerializer(attribute.getImplementedInterface());
+		final AttributeSerializer serializer = this.handlers.getSerializer(attribute.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}

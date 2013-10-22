@@ -20,23 +20,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class NlriUtil {
 	private NlriUtil() {
-
 	}
 
 	public static void parseNextHop(final byte[] bytes, final MpReachNlriBuilder builder) throws BGPParsingException {
 		final CNextHop addr;
 
 		switch (bytes.length) {
-		case 4:
+		case Ipv4Util.IP4_LENGTH:
 			addr = new CIpv4NextHopBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForBytes(bytes)).build()).build();
 			break;
-		case 16:
+		case Ipv6Util.IPV6_LENGTH:
 			addr = new CIpv6NextHopBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForBytes(bytes)).build()).build();
 			break;
-		case 32:
+		case Ipv6Util.IPV6_LENGTH * 2:
 			addr = new CIpv6NextHopBuilder().setIpv6NextHop(
-					new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, 0, 16))).setLinkLocal(
-							Ipv6Util.addressForBytes(ByteArray.subByte(bytes, 16, 16))).build()).build();
+					new Ipv6NextHopBuilder().setGlobal(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, 0, Ipv6Util.IPV6_LENGTH))).setLinkLocal(
+							Ipv6Util.addressForBytes(ByteArray.subByte(bytes, Ipv6Util.IPV6_LENGTH, Ipv6Util.IPV6_LENGTH))).build()).build();
 			break;
 		default:
 			throw new BGPParsingException("Cannot parse NEXT_HOP attribute. Wrong bytes length: " + bytes.length);

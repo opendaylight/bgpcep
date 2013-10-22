@@ -15,6 +15,4 @@ public interface NlriRegistry {
 	public MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException;
 
 	public MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException;
-	// FIXME: PMD remove or put a comment what is this
-	// public byte[] serializeNlri(DataObject attribute);
 }
