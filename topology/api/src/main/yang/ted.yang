@@ -11,11 +11,11 @@ module ted {
   organization "TBD";
   contact
     "TBD";
-
   description
     "Helper module to hold TED attributes for OSPF/ISIS";
 
-  revision 2013-07-12 {
+  revision 2013-10-21 {
+
     description
       "Initial revision";
   }
@@ -60,11 +60,11 @@ module ted {
       enum "LSC" {
         description
           "Lambda-Switch Capable (LSC)";
-
         value 150;
       }
       enum "FSC" {
         description
+
           "Fiber-Switch Capable (FSC)";
         value 200;
       }
@@ -109,11 +109,11 @@ module ted {
   }
 
   grouping ted-node-attributes {
-
     description
       "Identifier to uniquely identify a node in TED";
     reference "RFC 5305, RFC 6119: IPv6 Traffic Engineering in IS-IS/OSPF";
     leaf te-router-id-ipv4 {
+
       description
         "Globally unique IPv4 Traffic Engineering Router ID.";
       type inet:ipv4-address;
@@ -158,11 +158,11 @@ module ted {
     }
   }
 
-
   grouping ted-link-attributes {
     description
       "TED Attributes associated with the link.";
     reference "RFC 3630, RFC 3784: IS-IS / OSPF Traffic Engineering (TE)";
+
     leaf color {
       description
         "Administrative group or color of the link";
@@ -207,7 +207,6 @@ module ted {
     }
     container srlg {
       description
-
         "Shared Risk Link Group Attributes";
       uses srlg-attributes;
     }
@@ -256,12 +255,12 @@ module ted {
         description
           "Interface has packet-switching capabilities";
         leaf minimum-lsp-bandwidth {
-
           description
             "Minimum LSP Bandwidth. Units in bytes per second";
           type decimal64 {
             fraction-digits 2;
           }
+
         }
         leaf interface-mtu {
           description

@@ -14,7 +14,7 @@ module l3-unicast-igp-topology {
     organization "TBD";
     contact "TBD";
 
-    revision "2013-07-12" {
+    revision "2013-10-21" {
         description "Initial revision";
         reference "TBD";
     }
@@ -44,8 +44,8 @@ module l3-unicast-igp-topology {
         base "flag-identity";
     }
 
-
     typedef flag-type {
+
         type identityref {
             base "flag-identity";
         }
@@ -93,8 +93,8 @@ module l3-unicast-igp-topology {
                 type flag-type;
             }
             leaf-list router-id {
-
                 description "Router-id for the node";
+
                 type inet:ip-address;
             }
             list prefix {
@@ -142,8 +142,8 @@ module l3-unicast-igp-topology {
                 case unnumbered {
                     leaf unnumbered-id {
                     description "Unnumbered interface identifier";
-
                     type uint32;
+
                     }
                 }
             }
@@ -156,20 +156,20 @@ module l3-unicast-igp-topology {
     }
 
     augment "/nt:network-topology/nt:topology" {
-        when "topology-types/l3-unicast-igp-topology";
+        when "nt:topology-types/l3-unicast-igp-topology";
         uses igp-topology-attributes;
     }
 
     augment "/nt:network-topology/nt:topology/nt:node" {
-        when "../../topology-types/l3-unicast-igp-topology";
+        when "../nt:topology-types/l3-unicast-igp-topology";
         uses igp-node-attributes;
     }
     augment "/nt:network-topology/nt:topology/nt:link" {
-        when "../../topology-types/l3-unicast-igp-topology";
+        when "../nt:topology-types/l3-unicast-igp-topology";
         uses igp-link-attributes;
     }
     augment "/nt:network-topology/nt:topology/nt:node/nt:termination-point" {
-        when "../../topology-types/l3-unicast-igp-topology";
+        when "../../nt:topology-types/l3-unicast-igp-topology";
         uses igp-termination-point-attributes;
     }
 
@@ -191,8 +191,8 @@ module l3-unicast-igp-topology {
         }
         leaf topology-ref {
             type nt:topology-ref;
-
         }
+
         uses l3-unicast-igp-topology-type;
         uses nt:link-attributes;
         uses igp-link-attributes;

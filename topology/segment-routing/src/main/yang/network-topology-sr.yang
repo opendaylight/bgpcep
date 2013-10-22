@@ -3,7 +3,7 @@ module network-topology-sr {
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:sr";
 	prefix "sr";
 
-	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import network-topology { prefix nt; revision-date 2013-10-21; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";

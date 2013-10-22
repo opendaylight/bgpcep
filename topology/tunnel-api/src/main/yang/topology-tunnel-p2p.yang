@@ -3,7 +3,7 @@ module topology-tunnel-p2p {
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:p2p";
 	prefix "p2p";
 
-	import network-topology { prefix nt; revision-date 2013-07-12; }
+	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 
 	organization "Cisco Systems, Inc.";

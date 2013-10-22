@@ -21,7 +21,7 @@ module network-topology  {
         through a hierarchy of nodes, then connecting nodes at
         upper layers of the hierarchy.";
 
-    revision 2013-07-12 {
+    revision 2013-10-21 {
         description
             "Initial revision.";
     }
@@ -44,6 +44,7 @@ module network-topology  {
             in the identifier, for example to indicate the type of node
             and/or the type of topology that the node is a part of.";
     }
+
 
     typedef link-id {
         type inet:uri;
@@ -80,7 +81,6 @@ module network-topology  {
             (This type should not be used for relative references.
             In such a case, a relative path should be used instead.)";
     }
-
     typedef topology-ref {
         type leafref {
             path "/network-topology/topology/topology-id";
@@ -94,6 +94,7 @@ module network-topology  {
             path "/network-topology/topology/node/node-id";
         }
         description
+
             "A type for an absolute reference to a node instance.
             (This type should not be used for relative references.
             In such a case, a relative path should be used instead.)";
@@ -129,7 +130,6 @@ module network-topology  {
                 in a supporting node.
                 This dependency information can be inferred from
                 the dependencies between links.  For this reason,
-
                 this item is not separately configurable.  Hence no
                 corresponding constraint needs to be articulated.
                 The corresponding information is simply provided by the
@@ -143,6 +143,7 @@ module network-topology  {
             The objects are provided in a grouping so that in addition to
             the datastore, the data can also be included in notifications
             as needed.";
+
         leaf node-id {
             type node-id;
             description
@@ -178,7 +179,6 @@ module network-topology  {
             type link-id;
             description
                 "The identifier of a link in the topology.
-
                 A link is specific to a topology to which it belongs.";
         }
         container source {
@@ -192,6 +192,7 @@ module network-topology  {
                 type tp-ref;
                 description
                     "Termination point within source node that terminates the link.";
+
             }
         }
         container destination {
@@ -220,19 +221,31 @@ module network-topology  {
         list topology {
             description "
                 This is the model of an abstract topology.
-                A topology contins nodes and links.
+                A topology contains nodes and links.
                 Each topology MUST be identified by
                 unique topology-id for reason that a network could contain many
                 topologies.
             ";
             key "topology-id";
             leaf topology-id {
-
                 type topology-id;
                 description "
                     It is presumed that a datastore will contain many topologies. To
                     distinguish between topologies it is vital to have UNIQUE
                     topology identifiers.
+                ";
+            }
+            leaf server-provided {
+                type boolean;
+                config false;
+                description "
+                    Indicates whether the topology is configurable by clients,
+                    or whether it is provided by the server.  This leaf is
+
+                    populated by the server implementing the model.
+                    It is set to false for topologies that are created by a client;
+                    it is set to true otherwise.  If it is set to true, any
+                    attempt to edit the topology MUST be rejected.
                 ";
             }
             container topology-types {
@@ -276,8 +289,8 @@ module network-topology  {
                     // This constraint is meant to ensure that a referenced node is in fact
                     // a node in an underlay topology.
                 list termination-point {
-
                     description
+
                         "A termination point can terminate a link.
                         Depending on the type of topology, a termination point could,
                         for example, refer to a port or an interface.";
