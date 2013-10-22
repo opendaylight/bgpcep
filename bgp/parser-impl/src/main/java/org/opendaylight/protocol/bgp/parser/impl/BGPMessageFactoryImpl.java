@@ -27,12 +27,12 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
 	 */
 	@Override
-	public final Notification parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+	public Notification parse(final byte[] bytes) throws DeserializerException, DocumentedException {
 		return this.registry.parseMessage(bytes);
 	}
 
 	@Override
-	public final byte[] put(final Notification msg) {
+	public byte[] put(final Notification msg) {
 		return this.registry.serializeMessage(msg);
 	}
 }

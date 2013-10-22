@@ -31,7 +31,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
 
-	private static final int ERROR_SIZE = 2; // bytes
+	private static final int ERROR_SIZE = 2;
 
 	/**
 	 * Serializes BGP Notification message.
@@ -45,7 +45,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 			throw new IllegalArgumentException("BGP Notification message cannot be null");
 		}
 
-		final Notify ntf = (Notify)msg;
+		final Notify ntf = (Notify) msg;
 		logger.trace("Started serializing Notification message: {}", ntf);
 
 		final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];

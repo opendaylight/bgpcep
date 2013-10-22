@@ -19,13 +19,15 @@ import com.google.common.collect.Lists;
 public final class ClusterIdAttributeParser implements AttributeParser {
 	public static final int TYPE = 10;
 
+	private static final int CLUSTER_LENGTH = 4;
+
 	@Override
 	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
 		final List<ClusterIdentifier> list = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
-			list.add(new ClusterIdentifier(ByteArray.subByte(bytes, i, 4)));
-			i += 4;
+			list.add(new ClusterIdentifier(ByteArray.subByte(bytes, i, CLUSTER_LENGTH)));
+			i += CLUSTER_LENGTH;
 		}
 
 		builder.setClusterId(list);

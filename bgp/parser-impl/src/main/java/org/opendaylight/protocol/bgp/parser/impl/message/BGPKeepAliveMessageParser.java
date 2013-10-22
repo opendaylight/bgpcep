@@ -13,21 +13,20 @@ import com.google.common.base.Preconditions;
 public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
 	public static final int TYPE = 4;
 
-	private static final Keepalive msg = new KeepaliveBuilder().build();
-	private static final byte[] bytes = MessageUtil.formatMessage(TYPE, new byte[0]);
+	private final Keepalive msg = new KeepaliveBuilder().build();
+	private final byte[] bytes = MessageUtil.formatMessage(TYPE, new byte[0]);
 
 	@Override
 	public Keepalive parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
 		if (body.length != 0) {
-			throw  BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
+			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
-
-		return msg;
+		return this.msg;
 	}
 
 	@Override
 	public byte[] serializeMessage(final Notification message) {
 		Preconditions.checkArgument(message instanceof Keepalive);
-		return bytes;
+		return this.bytes;
 	}
 }

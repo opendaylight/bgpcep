@@ -13,12 +13,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public final class OriginatorIdAttributeParser implements AttributeParser {
 	public static final int TYPE = 9;
 
+	private static final int ORIGINATOR_LENGTH = 4;
+
 	@Override
 	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-		if (bytes.length != 4) {
-			throw new IllegalArgumentException("Length of byte array for ORIGINATOR_ID should be 4, but is " + bytes.length);
+		if (bytes.length != ORIGINATOR_LENGTH) {
+			throw new IllegalArgumentException("Length of byte array for ORIGINATOR_ID should be " + ORIGINATOR_LENGTH + ", but is "
+					+ bytes.length);
 		}
-
 		builder.setOriginatorId(bytes);
 	}
 }

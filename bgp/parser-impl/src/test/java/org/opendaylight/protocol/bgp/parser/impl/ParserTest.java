@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -24,8 +24,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
@@ -55,37 +56,37 @@ import com.google.common.collect.Maps;
 public class ParserTest {
 
 	public static final byte[] openBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
-		(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
+			(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
 	public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
 	public static final byte[] notificationBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
 	public static final byte[] openWithCpblt1 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-		(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
-		(byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40,
-		(byte) 0x04, (byte) 0x00, (byte) 0x47 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+			(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+			(byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40,
+			(byte) 0x04, (byte) 0x00, (byte) 0x47 };
 
 	public static final byte[] openWithCpblt2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-		(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
-		(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
-		(byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
-		(byte) 0x01, (byte) 0x00, (byte) 0x01 };
+			(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+			(byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+			(byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+			(byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
+			(byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
-	static MessageRegistry factory;
+	static BGPMessageFactory factory;
 
 	@BeforeClass
 	public static void setupClass() throws Exception {
-		factory = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
+		factory = new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry());
 	}
 
 	@Test
@@ -94,7 +95,7 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00 };
 		wrong = ByteArray.cutBytes(wrong, 16);
 		try {
-			ParserTest.factory.parseMessage(wrong);
+			ParserTest.factory.parse(wrong);
 			fail("Exception should have occcured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= 19.", e.getMessage());
@@ -109,7 +110,7 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
 				(byte) 0x00, (byte) 0x13, (byte) 0x08 };
 		try {
-			ParserTest.factory.parseMessage(bytes);
+			ParserTest.factory.parse(bytes);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals(BGPError.BAD_MSG_TYPE, ((BGPDocumentedException) e).getError());
@@ -121,10 +122,10 @@ public class ParserTest {
 	@Test
 	public void testKeepAliveMsg() throws DeserializerException, DocumentedException {
 		final Notification keepAlive = new KeepaliveBuilder().build();
-		final byte[] bytes = ParserTest.factory.serializeMessage(keepAlive);
+		final byte[] bytes = ParserTest.factory.put(keepAlive);
 		assertArrayEquals(keepAliveBMsg, bytes);
 
-		final Notification m = ParserTest.factory.parseMessage(bytes);
+		final Notification m = ParserTest.factory.parse(bytes);
 
 		assertTrue(m instanceof Keepalive);
 	}
@@ -136,7 +137,7 @@ public class ParserTest {
 				(byte) 0x00, (byte) 0x14, (byte) 0x04, (byte) 0x05 };
 
 		try {
-			ParserTest.factory.parseMessage(bytes);
+			ParserTest.factory.parse(bytes);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertThat(e.getMessage(), containsString("Message length field not within valid range."));
@@ -150,10 +151,10 @@ public class ParserTest {
 	public void testOpenMessage() throws UnknownHostException, DeserializerException, DocumentedException {
 		final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
 				new ProtocolVersion((short) 4)).build();
-		final byte[] bytes = ParserTest.factory.serializeMessage(open);
+		final byte[] bytes = ParserTest.factory.put(open);
 		assertArrayEquals(openBMsg, bytes);
 
-		final Notification m = ParserTest.factory.parseMessage(bytes);
+		final Notification m = ParserTest.factory.parse(bytes);
 
 		assertTrue(m instanceof Open);
 		assertEquals(100, ((Open) m).getMyAsNumber().intValue());
@@ -170,7 +171,7 @@ public class ParserTest {
 				(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
 		try {
-			ParserTest.factory.parseMessage(bMsg);
+			ParserTest.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Hold time value not acceptable.", e.getMessage());
@@ -188,7 +189,7 @@ public class ParserTest {
 				(byte) 0xff, (byte) 0xff };
 
 		try {
-			ParserTest.factory.parseMessage(bMsg);
+			ParserTest.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Open message too small.", e.getMessage());
@@ -204,7 +205,7 @@ public class ParserTest {
 				(byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
 		try {
-			ParserTest.factory.parseMessage(bMsg);
+			ParserTest.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("BGP Protocol version 8 not supported.", e.getMessage());
@@ -218,10 +219,10 @@ public class ParserTest {
 	public void testNotificationMsg() throws DeserializerException, DocumentedException {
 		Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
 				BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
-		byte[] bytes = ParserTest.factory.serializeMessage(notMsg);
+		byte[] bytes = ParserTest.factory.put(notMsg);
 		assertArrayEquals(notificationBMsg, bytes);
 
-		Notification m = ParserTest.factory.parseMessage(bytes);
+		Notification m = ParserTest.factory.parse(bytes);
 
 		assertTrue(m instanceof Notify);
 		assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
@@ -229,9 +230,9 @@ public class ParserTest {
 
 		notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
 				BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
-		bytes = ParserTest.factory.serializeMessage(notMsg);
+		bytes = ParserTest.factory.put(notMsg);
 
-		m = ParserTest.factory.parseMessage(bytes);
+		m = ParserTest.factory.parse(bytes);
 
 		assertTrue(m instanceof Notify);
 		assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
@@ -245,7 +246,7 @@ public class ParserTest {
 				(byte) 0x00, (byte) 0x14, (byte) 0x03, (byte) 0x02 };
 
 		try {
-			ParserTest.factory.parseMessage(bMsg);
+			ParserTest.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final DocumentedException e) {
 			assertEquals("Notification message too small.", e.getMessage());
@@ -262,7 +263,7 @@ public class ParserTest {
 				(byte) 0x00, (byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa };
 
 		try {
-			ParserTest.factory.parseMessage(bMsg);
+			ParserTest.factory.parse(bMsg);
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("BGP Error code 2 and subcode 170 not recognized.", e.getMessage());
@@ -293,7 +294,7 @@ public class ParserTest {
 		final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
 				new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
 
-		final byte[] result = ParserTest.factory.serializeMessage(open);
+		final byte[] result = ParserTest.factory.put(open);
 
 		// the capabilities can be swapped.
 		assertTrue(Arrays.equals(openWithCpblt1, result) || Arrays.equals(openWithCpblt2, result));

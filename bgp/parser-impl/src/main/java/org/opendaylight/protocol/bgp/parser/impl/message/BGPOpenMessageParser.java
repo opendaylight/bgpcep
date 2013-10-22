@@ -21,6 +21,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
@@ -53,6 +54,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 	private static final int BGP_VERSION = 4;
 
+	private static final int AS_TRANS = 2345;
+
 	private final ParameterRegistry reg;
 
 	public BGPOpenMessageParser(final ParameterRegistry reg) {
@@ -79,7 +82,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		if (open.getBgpParameters() != null) {
 			for (final BgpParameters param : open.getBgpParameters()) {
-				final byte[] p = reg.serializeParameter(param);
+				final byte[] p = this.reg.serializeParameter(param);
 				if (p != null) {
 					optParams.put(p, p.length);
 					optParamsLength += p.length;
@@ -96,8 +99,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
 		int openAS = open.getMyAsNumber();
-		if (openAS > 65535) {
-			openAS = 2345;
+		if (openAS > Util.UNSIGNED_SHORT_MAX_VALUE) {
+			openAS = AS_TRANS;
 		}
 
 		System.arraycopy(ByteArray.longToBytes(openAS), 6, msgBody, offset, AS_SIZE);
@@ -162,13 +165,13 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		try {
 			bgpId = Ipv4Util.addressForBytes(ByteArray.subByte(body, offset, BGP_ID_SIZE));
 		} catch (final IllegalArgumentException e) {
-			throw new BGPDocumentedException("BGP Identifier is not a valid IPv4 Address", BGPError.BAD_BGP_ID);
+			throw new BGPDocumentedException("BGP Identifier is not a valid IPv4 Address", BGPError.BAD_BGP_ID, e);
 		}
 		offset += BGP_ID_SIZE;
 
 		final int optLength = UnsignedBytes.toInt(body[offset]);
 
-		List<BgpParameters> optParams = Lists.newArrayList();
+		final List<BgpParameters> optParams = Lists.newArrayList();
 		if (optLength > 0) {
 			fillParams(ByteArray.subByte(body, MIN_MSG_LENGTH, optLength), optParams);
 		}
@@ -197,7 +200,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 			final BgpParameters param;
 			try {
-				param = reg.parseParameter(paramType, paramBody);
+				param = this.reg.parseParameter(paramType, paramBody);
 			} catch (final BGPParsingException e) {
 				throw new BGPDocumentedException("Optional parameter not parsed", BGPError.UNSPECIFIC_OPEN_ERROR, e);
 			}

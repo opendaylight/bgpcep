@@ -28,8 +28,8 @@ import com.google.common.primitives.UnsignedBytes;
 public final class MultiProtocolCapabilityHandler implements CapabilityParser, CapabilitySerializer {
 	public static final int CODE = 1;
 
-	private static final int AFI_SIZE = 2; // bytes
-	private static final int SAFI_SIZE = 1; // bytes
+	private static final int AFI_SIZE = 2;
+	private static final int SAFI_SIZE = 1;
 
 	private final AddressFamilyRegistry afiReg;
 	private final SubsequentAddressFamilyRegistry safiReg;
@@ -42,13 +42,13 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 	@Override
 	public CMultiprotocol parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		final int afiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE));
-		final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
+		final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
 		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
 		}
 
 		final int safiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1, SAFI_SIZE));
-		final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
+		final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
 		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
 		}
@@ -62,18 +62,16 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 		final CMultiprotocol mp = (CMultiprotocol) capability;
 
 		final Class<? extends AddressFamily> afi = mp.getMultiprotocolCapability().getAfi();
-		final Integer afival = afiReg.numberForClass(afi);
+		final Integer afival = this.afiReg.numberForClass(afi);
 		Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
 
 		final Class<? extends SubsequentAddressFamily> safi = mp.getMultiprotocolCapability().getSafi();
-		final Integer safival = safiReg.numberForClass(safi);
+		final Integer safival = this.safiReg.numberForClass(safi);
 		Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
 
-		return CapabilityUtil.formatCapability(CODE, new byte[] {
-				UnsignedBytes.checkedCast(afival / 256),
-				UnsignedBytes.checkedCast(afival % 256),
-				0,
-				UnsignedBytes.checkedCast(safival)
-		});
+		return CapabilityUtil.formatCapability(
+				CODE,
+				new byte[] { UnsignedBytes.checkedCast(afival / 256), UnsignedBytes.checkedCast(afival % 256), 0,
+						UnsignedBytes.checkedCast(safival) });
 	}
 }
