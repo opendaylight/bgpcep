@@ -51,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.node.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.pseudonode.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -333,20 +332,16 @@ public final class LinkstateNlriParser implements NlriParser {
 	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
 		final CLinkstateDestination dst = parseNlri(nlri);
 
-		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
-
-		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(s).build());
+		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+				new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build());
 	}
 
 	@Override
 	public final void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
 		final CLinkstateDestination dst = parseNlri(nlri);
 
-		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
-
-		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(s).build());
+		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+				new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build());
 		NlriUtil.parseNextHop(nextHop, builder);
 	}
 }
