@@ -170,30 +170,7 @@ public final class LinkstateNlriParser implements NlriParser {
 				logger.trace("Parsed area identifier {}", ai);
 				break;
 			case 515:
-				if (value.length == 6) {
-					routerId = new CIsisNodeBuilder().setIsisNode(
-							new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
-				} else if (value.length == 7) {
-					if (value[6] == 0) {
-						logger.warn("PSN octet is 0. Ignoring System ID.");
-						routerId = new CIsisNodeBuilder().setIsisNode(
-								new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
-						break;
-					} else {
-						final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
-								new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build();
-						routerId = new CIsisPseudonodeBuilder().setIsisPseudonode(
-								new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn((short) UnsignedBytes.toInt(value[6])).build()).build();
-					}
-				} else if (value.length == 4) {
-					routerId = new COspfNodeBuilder().setOspfNode(
-							new OspfNodeBuilder().setOspfRouterId(ByteArray.subByte(value, 0, 4)).build()).build();
-				} else if (value.length == 8) {
-					final byte[] o = ByteArray.subByte(value, 0, 4); // FIXME: OSPFv3 vs OSPFv2
-					final OspfInterfaceIdentifier a = new OspfInterfaceIdentifier(ByteArray.subByte(value, 4, 4));
-					routerId = new COspfPseudonodeBuilder().setOspfPseudonode(
-							new OspfPseudonodeBuilder().setOspfRouterId(o).setLanInterface(a).build()).build();
-				}
+				routerId = parseRouterId(value);
 				logger.trace("Parsed Router Identifier {}", routerId);
 				break;
 			default:
@@ -205,7 +182,36 @@ public final class LinkstateNlriParser implements NlriParser {
 		return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
 	}
 
-	private static PrefixDescriptors parsePrefixDescriptors(final NodeIdentifier localDescriptor, final byte[] bytes) throws BGPParsingException {
+	private static CRouterIdentifier parseRouterId(final byte[] value) throws BGPParsingException {
+		if (value.length == 6) {
+			return new CIsisNodeBuilder().setIsisNode(
+					new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
+		}
+		if (value.length == 7) {
+			if (value[6] == 0) {
+				logger.warn("PSN octet is 0. Ignoring System ID.");
+				return new CIsisNodeBuilder().setIsisNode(
+						new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
+			} else {
+				final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
+						new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build();
+				return new CIsisPseudonodeBuilder().setIsisPseudonode(
+						new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn((short) UnsignedBytes.toInt(value[6])).build()).build();
+			}
+		}
+		if (value.length == 4) {
+			return new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteArray.subByte(value, 0, 4)).build()).build();
+		}
+		if (value.length == 8) {
+			final byte[] o = ByteArray.subByte(value, 0, 4); // FIXME: OSPFv3 vs OSPFv2
+			final OspfInterfaceIdentifier a = new OspfInterfaceIdentifier(ByteArray.subByte(value, 4, 4));
+			return new COspfPseudonodeBuilder().setOspfPseudonode(new OspfPseudonodeBuilder().setOspfRouterId(o).setLanInterface(a).build()).build();
+		}
+		throw new BGPParsingException("Router Id of invalid length " + value.length);
+	}
+
+	private static PrefixDescriptors parsePrefixDescriptors(final NodeIdentifier localDescriptor, final byte[] bytes)
+			throws BGPParsingException {
 		int byteOffset = 0;
 		final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
 		while (byteOffset != bytes.length) {
@@ -262,7 +268,7 @@ public final class LinkstateNlriParser implements NlriParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	private final CLinkstateDestination parseNlri(final byte[] nlri) throws BGPParsingException {
+	private CLinkstateDestination parseNlri(final byte[] nlri) throws BGPParsingException {
 		if (nlri.length == 0) {
 			return null;
 		}
@@ -279,7 +285,7 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(nlri, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			RouteDistinguisher distinguisher = null;
-			if (isVpn) {
+			if (this.isVpn) {
 				// this parses route distinguisher
 				distinguisher = new RouteDistinguisher(BigInteger.valueOf(ByteArray.bytesToLong(ByteArray.subByte(nlri, byteOffset,
 						ROUTE_DISTINGUISHER_LENGTH))));
@@ -309,8 +315,8 @@ public final class LinkstateNlriParser implements NlriParser {
 			}
 			byteOffset += locallength;
 			builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
-			final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0)
-					- PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH - LENGTH_SIZE - locallength;
+			final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
+					- TYPE_LENGTH - LENGTH_SIZE - locallength;
 			logger.debug("Restlength {}", restLength);
 			switch (type) {
 			case Link:
@@ -330,21 +336,21 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	@Override
-	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+	public void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
 		final CLinkstateDestination dst = parseNlri(nlri);
 
 		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
+		final DestinationType s = (DestinationType) new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
 
 		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(s).build());
 	}
 
 	@Override
-	public final void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
+	public void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
 		final CLinkstateDestination dst = parseNlri(nlri);
 
 		// FIXME: This cast is because of a bug in yangtools (augmented choice has no relationship with base choice)
-		final DestinationType s = (DestinationType)new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
+		final DestinationType s = (DestinationType) new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build();
 
 		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(s).build());
 		NlriUtil.parseNextHop(nextHop, builder);
