@@ -61,7 +61,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for Link State information.
  * 
- * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-01">BGP-LS draft</a>
+ * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03">BGP-LS draft</a>
  */
 public class LinkstateAttributeParser implements AttributeParser {
 	// FIXME: update to IANA number once it is known
@@ -73,12 +73,12 @@ public class LinkstateAttributeParser implements AttributeParser {
 
 	private static final int LENGTH_SIZE = 2;
 
-	private static final Set<Integer> nodeTlvs = Sets.newHashSet(263, 1024, 1025, 1026, 1027, 1028, 1029);
+	private static final Set<Integer> NODE_TLVS = Sets.newHashSet(263, 1024, 1025, 1026, 1027, 1028, 1029);
 
-	private static final Set<Integer> linkTlvs = Sets.newHashSet(1028, 1029, 1030, 1031, 1088, 1089, 1090, 1091, 1092, 1093, 1094, 1095,
+	private static final Set<Integer> LINK_TLVS = Sets.newHashSet(1028, 1029, 1030, 1031, 1088, 1089, 1090, 1091, 1092, 1093, 1094, 1095,
 			1096, 1097, 1098);
 
-	private static final Set<Integer> prefixTlvs = Sets.newHashSet(1152, 1153, 1154, 1155, 1156, 1157);
+	private static final Set<Integer> PREFIX_TLVS = Sets.newHashSet(1152, 1153, 1154, 1155, 1156, 1157);
 
 	@Override
 	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPParsingException {
@@ -86,10 +86,9 @@ public class LinkstateAttributeParser implements AttributeParser {
 		builder.addAugmentation(PathAttributes1.class, a);
 	}
 
-
-	public static boolean verifyLink(final Set<Integer> keys) {
+	private static boolean verifyLink(final Set<Integer> keys) {
 		for (final Integer i : keys) {
-			if (!linkTlvs.contains(i)) {
+			if (!LINK_TLVS.contains(i)) {
 				logger.warn("Invalid link attribute {}", i);
 				return false;
 			}
@@ -97,9 +96,9 @@ public class LinkstateAttributeParser implements AttributeParser {
 		return true;
 	}
 
-	public static boolean verifyNode(final Set<Integer> keys) {
+	private static boolean verifyNode(final Set<Integer> keys) {
 		for (final Integer i : keys) {
-			if (!nodeTlvs.contains(i)) {
+			if (!NODE_TLVS.contains(i)) {
 				logger.warn("Invalid node attribute {}", i);
 				return false;
 			}
@@ -107,9 +106,9 @@ public class LinkstateAttributeParser implements AttributeParser {
 		return true;
 	}
 
-	public static boolean verifyPrefix(final Set<Integer> keys) {
+	private static boolean verifyPrefix(final Set<Integer> keys) {
 		for (final Integer i : keys) {
-			if (!prefixTlvs.contains(i)) {
+			if (!PREFIX_TLVS.contains(i)) {
 				logger.warn("Invalid prefix attribute {}", i);
 				return false;
 			}
@@ -117,7 +116,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 		return true;
 	}
 
-	protected static LinkstatePathAttribute parseLinkState(final byte[] bytes) throws BGPParsingException {
+	private static LinkstatePathAttribute parseLinkState(final byte[] bytes) throws BGPParsingException {
 		final Map<Integer, ByteList> map = new HashMap<Integer, ByteList>();
 		int byteOffset = 0;
 		while (byteOffset != bytes.length) {
@@ -149,11 +148,11 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @return {@link LinkAttributes}
 	 * @throws BGPParsingException if a link attribute is not recognized
 	 */
-	public static LinkAttributes parseLinkAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static LinkAttributes parseLinkAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 
 		final LinkAttributesBuilder builder = new LinkAttributesBuilder();
 		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
-			logger.debug("Link attribute TLV {}", entry.getKey());
+			logger.trace("Link attribute TLV {}", entry.getKey());
 
 			for (final byte[] value : entry.getValue().getBytes()) {
 
@@ -161,34 +160,34 @@ public class LinkstateAttributeParser implements AttributeParser {
 				case 1028:
 					final Ipv4RouterIdentifier lipv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
 					builder.setLocalIpv4RouterId(lipv4);
-					logger.trace("Parsed IPv4 Router-ID of local node: {}", lipv4);
+					logger.debug("Parsed IPv4 Router-ID of local node: {}", lipv4);
 					break;
 				case 1029:
 					final Ipv6RouterIdentifier lipv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
 					builder.setLocalIpv6RouterId(lipv6);
-					logger.trace("Parsed IPv6 Router-ID of local node: {}", lipv6);
+					logger.debug("Parsed IPv6 Router-ID of local node: {}", lipv6);
 					break;
 				case 1030:
 					final Ipv4RouterIdentifier ripv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
 					builder.setRemoteIpv4RouterId(ripv4);
-					logger.trace("Parsed IPv4 Router-ID of remote node: {}", ripv4);
+					logger.debug("Parsed IPv4 Router-ID of remote node: {}", ripv4);
 					break;
 				case 1031:
 					final Ipv6RouterIdentifier ripv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
 					builder.setRemoteIpv6RouterId(ripv6);
-					logger.trace("Parsed IPv6 Router-ID of remote node: {}", ripv6);
+					logger.debug("Parsed IPv6 Router-ID of remote node: {}", ripv6);
 					break;
 				case 1088:
 					builder.setAdminGroup(new AdministrativeGroup(ByteArray.bytesToLong(value)));
-					logger.trace("Parsed Administrative Group {}", builder.getAdminGroup());
+					logger.debug("Parsed Administrative Group {}", builder.getAdminGroup());
 					break;
 				case 1089:
 					builder.setMaxLinkBandwidth(new Bandwidth(value));
-					logger.trace("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
+					logger.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
 					break;
 				case 1090:
 					builder.setMaxReservableBandwidth(new Bandwidth(value));
-					logger.trace("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
+					logger.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
 					break;
 				case 1091:
 					int index = 0;
@@ -199,11 +198,11 @@ public class LinkstateAttributeParser implements AttributeParser {
 						index += 4;
 					}
 					builder.setUnreservedBandwidth(unreservedBandwidth);
-					logger.trace("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
+					logger.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
 					break;
 				case 1092:
 					builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(value)));
-					logger.trace("Parsed Metric {}", builder.getTeMetric());
+					logger.debug("Parsed Metric {}", builder.getTeMetric());
 					break;
 				case 1093:
 					final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[0]));
@@ -211,16 +210,16 @@ public class LinkstateAttributeParser implements AttributeParser {
 						throw new BGPParsingException("Link Protection Type not recognized: " + UnsignedBytes.toInt(value[0]));
 					}
 					builder.setLinkProtection(lpt);
-					logger.trace("Parsed Link Protection Type {}", lpt);
+					logger.debug("Parsed Link Protection Type {}", lpt);
 					break;
 				case 1094:
 					final boolean[] bits = ByteArray.parseBits(value[0]);
 					builder.setMplsProtocol(new MplsProtocolMask(bits[0], bits[1]));
-					logger.trace("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
+					logger.debug("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
 					break;
 				case 1095:
 					builder.setMetric(new Metric(ByteArray.bytesToLong(value)));
-					logger.trace("Parsed Metric {}", builder.getMetric());
+					logger.debug("Parsed Metric {}", builder.getMetric());
 					break;
 				case 1096:
 					int i = 0;
@@ -230,23 +229,23 @@ public class LinkstateAttributeParser implements AttributeParser {
 						i += 4;
 					}
 					builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
-					logger.trace("Parsed Shared Risk Link Groups {}", Arrays.toString(sharedRiskLinkGroups.toArray()));
+					logger.debug("Parsed Shared Risk Link Groups {}", Arrays.toString(sharedRiskLinkGroups.toArray()));
 					break;
 				case 1097:
 					final byte[] opaque = value;
-					logger.trace("Parsed Opaque value : {}", Arrays.toString(opaque));
+					logger.debug("Parsed Opaque value : {}", Arrays.toString(opaque));
 					break;
 				case 1098:
 					final String name = new String(value, Charsets.US_ASCII);
 					builder.setLinkName(name);
-					logger.trace("Parsed Link Name : ", name);
+					logger.debug("Parsed Link Name : {}", name);
 					break;
 				default:
 					throw new BGPParsingException("Link Attribute not recognized, type: " + entry.getKey());
 				}
 			}
 		}
-		logger.debug("Finished parsing Link Attributes.");
+		logger.trace("Finished parsing Link Attributes.");
 		return builder.build();
 	}
 
@@ -257,12 +256,12 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @return {@link NodeAttributes}
 	 * @throws BGPParsingException if a node attribute is not recognized
 	 */
-	public static NodeAttributes parseNodeAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static NodeAttributes parseNodeAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 		final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
 		final List<IsisAreaIdentifier> areaMembership = Lists.newArrayList();
 		final NodeAttributesBuilder builder = new NodeAttributesBuilder();
 		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
-			logger.debug("Node attribute TLV {}", entry.getKey());
+			logger.trace("Node attribute TLV {}", entry.getKey());
 			for (final byte[] value : entry.getValue().getBytes()) {
 				switch (entry.getKey()) {
 				case 263:
@@ -270,36 +269,36 @@ public class LinkstateAttributeParser implements AttributeParser {
 					while (i != value.length) {
 						final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToInt(ByteArray.subByte(value, i, 2)) & 0x3fff);
 						topologyMembership.add(topId);
-						logger.trace("Parsed Topology Identifier: {}", topId);
+						logger.debug("Parsed Topology Identifier: {}", topId);
 						i += 2;
 					}
 					break;
 				case 1024:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
 					builder.setNodeFlags(new NodeFlagBits(flags[0], flags[1], flags[2], flags[3]));
-					logger.trace("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
+					logger.debug("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
 					break;
 				case 1025:
 					logger.debug("Ignoring opaque value: {}.", Arrays.toString(value));
 					break;
 				case 1026:
 					builder.setDynamicHostname(new String(value, Charsets.US_ASCII));
-					logger.trace("Parsed Node Name {}", builder.getDynamicHostname());
+					logger.debug("Parsed Node Name {}", builder.getDynamicHostname());
 					break;
 				case 1027:
 					final IsisAreaIdentifier ai = new IsisAreaIdentifier(value);
 					areaMembership.add(ai);
-					logger.trace("Parsed AreaIdentifier {}", ai);
+					logger.debug("Parsed AreaIdentifier {}", ai);
 					break;
 				case 1028:
 					final Ipv4RouterIdentifier ip4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
 					builder.setIpv4RouterId(ip4);
-					logger.trace("Parsed IPv4 Router Identifier {}", ip4);
+					logger.debug("Parsed IPv4 Router Identifier {}", ip4);
 					break;
 				case 1029:
 					final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
 					builder.setIpv6RouterId(ip6);
-					logger.trace("Parsed IPv6 Router Identifier {}", ip6);
+					logger.debug("Parsed IPv6 Router Identifier {}", ip6);
 					break;
 				default:
 					throw new BGPParsingException("Node Attribute not recognized, type: " + entry.getKey());
@@ -308,7 +307,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 		}
 		builder.setTopologyIdentifier(topologyMembership);
 		builder.setIsisAreaId(areaMembership);
-		logger.debug("Finished parsing Node Attributes.");
+		logger.trace("Finished parsing Node Attributes.");
 		return builder.build();
 	}
 
@@ -319,7 +318,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @return {@link PrefixAttributes}
 	 * @throws BGPParsingException if some prefix attributes is not recognized
 	 */
-	public static PrefixAttributes parsePrefixAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static PrefixAttributes parsePrefixAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 		final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
 		final List<RouteTag> routeTags = Lists.newArrayList();
 		final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
