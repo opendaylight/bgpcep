@@ -7,9 +7,10 @@ module bgp-linkstate {
 		prefix inet;
 		revision-date 2010-09-24;
 	}
-	import bgp-message { prefix bgp-msg;}
-	import bgp-multiprotocol { prefix bgp-mp;}
-	import bgp-types { prefix bgp-t;}
+	import bgp-message { prefix bgp-msg; }
+	import bgp-multiprotocol { prefix bgp-mp; }
+	import bgp-rib { prefix bgp-rib; }
+	import bgp-types { prefix bgp-t; }
 	import nps-concepts { prefix nps-c;}
 	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 
@@ -541,6 +542,70 @@ module bgp-linkstate {
 					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
 					uses prefix-state;
 				}
+			}
+		}
+	}
+
+	augment "/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+		case linkstate-routes {
+			container linkstate-routes {
+				leaf distinguisher {
+					type bgp-ls:route-distinguisher;
+				}
+				leaf protocol-id {
+					type bgp-ls:protocol-id;
+				}
+				leaf identifier {
+					type bgp-ls:identifier;
+				}
+
+				choice object-type {
+					case node {
+						container node-descriptors {
+							uses bgp-ls:node-identifier;
+						}
+					}
+					case link {
+						container local-node-descriptors {
+							uses bgp-ls:node-identifier;
+						}
+						container remote-node-descriptors {
+							uses bgp-ls:node-identifier;
+						}
+						container link-descriptors {
+							uses bgp-ls:link-identifiers;
+							leaf ipv4-interface-address {
+								type bgp-ls:ipv4-interface-identifier;
+							}
+							leaf ipv6-interface-address {
+								type bgp-ls:ipv6-interface-identifier;
+							}
+							leaf ipv4-neighbor-address {
+								type bgp-ls:ipv4-interface-identifier;
+							}
+							leaf ipv6-neighbor-address {
+								type bgp-ls:ipv6-interface-identifier;
+							}
+							leaf multi-topology-id {
+								type bgp-ls:topology-identifier;
+							}
+						}
+					}
+					case prefix {
+						leaf multi-topology-id {
+							type bgp-ls:topology-identifier;
+						}
+						leaf ospf-route-type {
+							when "../../protocol-id = 'ospf'";
+							type bgp-ls:ospf-route-type;
+						}
+						leaf ip-reachability-information {
+							type inet:ip-prefix;
+						}
+					}
+				}
+
+				uses bgp-rib:route;
 			}
 		}
 	}
