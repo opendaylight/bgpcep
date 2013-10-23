@@ -15,12 +15,12 @@ import static org.junit.Assert.assertNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
@@ -34,8 +34,28 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.AreaIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.DomainIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.Identifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.OspfInterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.ProtocolId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.CLinkstateDestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.LinkDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.node.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.pseudonode.OspfPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.LinkstatePathAttributeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.UpdateBuilder;
@@ -64,6 +84,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -85,6 +106,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Metric;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -203,12 +225,12 @@ public class BGPParserTest {
 
 		// check nlri
 
-		List<Ipv4Prefix> prefs = Lists.newArrayList();
+		final List<Ipv4Prefix> prefs = Lists.newArrayList();
 		prefs.add(new Ipv4Prefix("172.17.2.0/24"));
 		prefs.add(new Ipv4Prefix("172.17.1.0/24"));
 		prefs.add(new Ipv4Prefix("172.17.0.0/24"));
 
-		Nlri nlri = new NlriBuilder().setNlri(prefs).build();
+		final Nlri nlri = new NlriBuilder().setNlri(prefs).build();
 
 		assertEquals(nlri, message.getNlri());
 
@@ -216,9 +238,9 @@ public class BGPParserTest {
 
 		// check path attributes
 
-		PathAttributes attrs = message.getPathAttributes();
+		final PathAttributes attrs = message.getPathAttributes();
 
-		PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
 
 		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
 		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -304,7 +326,7 @@ public class BGPParserTest {
 
 		// check NLRI
 
-		List<Ipv6Prefix> prefs = Lists.newArrayList();
+		final List<Ipv6Prefix> prefs = Lists.newArrayList();
 		prefs.add(new Ipv6Prefix("2001:db8:1:2::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1:1::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1::/64"));
@@ -325,9 +347,9 @@ public class BGPParserTest {
 
 		// check path attributes
 
-		PathAttributes attrs = message.getPathAttributes();
+		final PathAttributes attrs = message.getPathAttributes();
 
-		PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
 
 		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
 		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -344,7 +366,7 @@ public class BGPParserTest {
 		paBuilder.setClusterId(clusters);
 		assertEquals(paBuilder.getClusterId(), attrs.getClusterId());
 
-		MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
+		final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
 		mpBuilder.setAfi(Ipv6AddressFamily.class);
 		mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
 		mpBuilder.setCNextHop(nextHop);
@@ -432,9 +454,9 @@ public class BGPParserTest {
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
 		// check path attributes
-		PathAttributes attrs = message.getPathAttributes();
+		final PathAttributes attrs = message.getPathAttributes();
 
-		PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
 
 		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Incomplete).build());
 		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -529,9 +551,9 @@ public class BGPParserTest {
 		final List<Segments> asPath = Lists.newArrayList();
 
 		// check path attributes
-		PathAttributes attrs = message.getPathAttributes();
+		final PathAttributes attrs = message.getPathAttributes();
 
-		PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
 
 		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
@@ -808,58 +830,123 @@ public class BGPParserTest {
 		00 00 01 <- value
 	 */
 	@Test
-	@Ignore
-	// FIXME: to be fixed in testing phase
 	public void testBGPLink() throws Exception {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(8), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(8), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
+		final UpdateBuilder builder = new UpdateBuilder();
+
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
 
-		// network object state
-		// final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(),
-		// Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-		// final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
+		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-		// network link state
-		// final DefaultingTypesafeContainer<Metric<?>> container = new DefaultingTypesafeContainer<Metric<?>>();
-		// container.setDefaultEntry(new IGPMetric(1));
-		// final NetworkLinkState linkState = new NetworkLinkState(objState, container, null,
-		// LinkProtectionType.UNPROTECTED, null, null, null);
+		final List<Segments> asPath = Lists.newArrayList();
 
-		// final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new
-		// DomainIdentifier(new byte[] { 25, 25,
-		// 25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
-		//
-		// final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new
-		// byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
-		// 0x0b, 0x0b, 0x0b, 0x03 })));
-		// final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
-		//
-		// final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
+		final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
+				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
 
+		final RemoteNodeDescriptorsBuilder rndBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
+				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+
+		final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
+		clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
+		clBuilder.setNlriType(NlriType.Link);
+		clBuilder.setProtocolId(ProtocolId.Ospf);
+
+		final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
+		final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
+		mpBuilder.setAfi(LinkstateAddressFamily.class);
+		mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
+		mpBuilder.setCNextHop(nextHop);
+
+		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfPseudonodeBuilder().setOspfPseudonode(
+						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
+								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
+				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
+		linkstates.add(clBuilder.build());
+
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfPseudonodeBuilder().setOspfPseudonode(
+						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
+								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
+				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
+		linkstates.add(clBuilder.build());
+
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
+				new COspfPseudonodeBuilder().setOspfPseudonode(
+						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
+								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
+		linkstates.add(clBuilder.build());
+
+		lsBuilder.setMpReachNlri(mpBuilder.build());
+
+		// check path attributes
+		final PathAttributes attrs = message.getPathAttributes();
+
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+
+		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
+
+		paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+		assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
+
+		paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
+		assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
+
+		final MpReachNlri mp = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
+		assertEquals(mpBuilder.getAfi(), mp.getAfi());
+		assertEquals(mpBuilder.getSafi(), mp.getSafi());
+		assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
+
+		final DestinationLinkstateBuilder dBuilder = new DestinationLinkstateBuilder();
+		dBuilder.setCLinkstateDestination(linkstates);
+
+		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(dBuilder.build()).build());
+		lsBuilder.setMpReachNlri(mpBuilder.build());
+
+		paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
+
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1Builder();
+
+		lsAttrBuilder.setLinkstatePathAttribute(new LinkstatePathAttributeBuilder().setLinkStateAttribute(
+				new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build());
+		paBuilder.addAugmentation(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1.class,
+				lsAttrBuilder.build());
+
+		assertEquals(
+				lsAttrBuilder.build().getLinkstatePathAttribute(),
+				attrs.getAugmentation(
+						org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.PathAttributes1.class).getLinkstatePathAttribute());
+
+		final List<CLinkstateDestination> dests = ((DestinationLinkstate) mp.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+
+		assertEquals(linkstates.size(), dests.size());
+
+		assertEquals(linkstates, dests);
 		// check API message
-
-		// final LinkIdentifier linkId1 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new
-		// IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.3"))), new LinkAnchor(nodeid2, null));
-		// final LinkIdentifier linkId2 = new LinkIdentifier(null, new LinkAnchor(nodeid1, new
-		// IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid3, null));
-		// final LinkIdentifier linkId3 = new LinkIdentifier(null, new LinkAnchor(nodeid3, new
-		// IPv4InterfaceIdentifier(IPv4.FAMILY.addressForString("11.11.11.1"))), new LinkAnchor(nodeid1, null));
-		//
-		// final BGPLink link1 = new BGPLinkImpl(state, linkId1, linkState);
-		// final BGPLink link2 = new BGPLinkImpl(state, linkId2, linkState);
-		// final BGPLink link3 = new BGPLinkImpl(state, linkId3, linkState);
-		//
-		// final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) link1,
-		// (BGPObject) link2,
-		// (BGPObject) link3), Collections.<Identifier> emptySet());
-		//
-		// assertEquals(expectedMessage, message);
+		builder.setPathAttributes(paBuilder.build());
+		assertEquals(builder.build(), message);
 	}
 
 	/*
@@ -875,11 +962,11 @@ public class BGPParserTest {
 		04 <- next hop length
 		19 19 19 01 - nexthop (25.25.25.1)
 		00 <- reserved
+		
 		00 01 <- NLRI type (1 - nodeNLRI)
 		00 31 <- NLRI length (49)
 		03 <- ProtocolID - OSPF
 		00 00 00 00 00 00 00 01 <- identifier
-
 		01 00 <- local node descriptor type (256)
 		00 24 <- length (36)
 		02 00 <- node descriptor type (member AS - 512)
@@ -899,7 +986,6 @@ public class BGPParserTest {
 		00 2d <- NLRI length (45)
 		03 <- ProtocolID - OSPF
 		00 00 00 00 00 00 00 01 <- identifier
-
 		01 00 <- local node descriptor type (256)
 		00 20 <- length (32)
 		02 00 <- node descriptor type (member AS - 512)
@@ -947,50 +1033,91 @@ public class BGPParserTest {
 		00 00 00 64 <- value
 	 */
 	@Test
-	@Ignore
-	// FIXME: to be fixed in testing phase
 	public void testBGPNode() throws Exception {
 		final byte[] body = ByteArray.cutBytes(inputBytes.get(9), MessageUtil.COMMON_HEADER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(inputBytes.get(9), MessageUtil.MARKER_LENGTH,
 				MessageUtil.LENGTH_FIELD_LENGTH));
 		final Update message = BGPParserTest.updateParser.parseMessageBody(body, messageLength);
 
+		final UpdateBuilder builder = new UpdateBuilder();
+
 		// check fields
 
 		assertNull(message.getWithdrawnRoutes());
 
-		// network object state
-		// final NetworkObjectState objState = new NetworkObjectState(Collections.<AsPathSegment> emptyList(),
-		// Collections.<Community> emptySet(), Collections.<ExtendedCommunity> emptySet());
-		// final BaseBGPObjectState state = new BaseBGPObjectState(BgpOrigin.Igp, null);
-		// final NetworkNodeState nstate = new NetworkNodeState(objState, Collections.<TopologyIdentifier> emptySet(),
-		// Collections.<ISISAreaIdentifier> emptySet(), false, false, false, false, Collections.<RouterIdentifier>
-		// emptySet(), null);
+		// attributes
 
-		// network link state
+		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
-		// final NodeIdentifierFactory f100 = new NodeIdentifierFactory(new AsNumber((long) 100), new
-		// DomainIdentifier(new byte[] { 25, 25,
-		// 25, 1 }), new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
-		//
-		// final NodeIdentifier nodeid1 = f100.identifierForRouter(new OSPFv3LANIdentifier(new OSPFRouterIdentifier(new
-		// byte[] { 3, 3, 3, 4 }), new OSPFInterfaceIdentifier(new byte[] {
-		// 0x0b, 0x0b, 0x0b, 0x03 })));
-		// final NodeIdentifier nodeid2 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 3, 3, 3, 4 }));
-		//
-		// final NodeIdentifier nodeid3 = f100.identifierForRouter(new OSPFRouterIdentifier(new byte[] { 1, 1, 1, 2 }));
+		final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
+				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
+				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+
+		final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
+		clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
+		clBuilder.setNlriType(NlriType.Node);
+		clBuilder.setProtocolId(ProtocolId.Ospf);
+
+		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfPseudonodeBuilder().setOspfPseudonode(
+						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
+								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+		linkstates.add(clBuilder.build());
+
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+		linkstates.add(clBuilder.build());
+
+		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
+				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+		linkstates.add(clBuilder.build());
+
+		final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
+		final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
+		mpBuilder.setAfi(LinkstateAddressFamily.class);
+		mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
+		mpBuilder.setCNextHop(nextHop);
+
+		final DestinationLinkstateBuilder dBuilder = new DestinationLinkstateBuilder();
+		dBuilder.setCLinkstateDestination(linkstates);
+
+		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(dBuilder.build()).build());
+		lsBuilder.setMpReachNlri(mpBuilder.build());
+
+		final List<Segments> asPath = Lists.newArrayList();
+
+		// check path attributes
+		final PathAttributes attrs = message.getPathAttributes();
+
+		final PathAttributesBuilder paBuilder = new PathAttributesBuilder();
+
+		paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
+		assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
+
+		paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+		assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
+
+		paBuilder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
+		assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
+
+		paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
+
+		final MpReachNlri mp = attrs.getAugmentation(PathAttributes1.class).getMpReachNlri();
+		assertEquals(mpBuilder.getAfi(), mp.getAfi());
+		assertEquals(mpBuilder.getSafi(), mp.getSafi());
+		assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
+
+		final List<CLinkstateDestination> dests = ((DestinationLinkstate) mp.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+
+		assertEquals(linkstates.size(), dests.size());
+
+		assertEquals(linkstates, dests);
 
 		// check API message
-
-		// final BGPNode node1 = new BGPNodeImpl(state, nodeid1, nstate);
-		// final BGPNode node2 = new BGPNodeImpl(state, nodeid2, nstate);
-		// final BGPNode node3 = new BGPNodeImpl(state, nodeid3, nstate);
-		//
-		// final BGPUpdateMessage expectedMessage = new BGPUpdateMessageImpl(Sets.newHashSet((BGPObject) node1,
-		// (BGPObject) node2,
-		// (BGPObject) node3), Collections.<Identifier> emptySet());
-		//
-		// assertEquals(expectedMessage, message);
+		builder.setPathAttributes(paBuilder.build());
+		assertEquals(builder.build(), message);
 	}
 
 	/*

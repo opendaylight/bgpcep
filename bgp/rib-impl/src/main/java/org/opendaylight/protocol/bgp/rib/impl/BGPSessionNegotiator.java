@@ -134,30 +134,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		case OpenSent:
 			if (msg instanceof Open) {
 				final Open openObj = (Open) msg;
-
-				final List<BgpParameters> prefs = openObj.getBgpParameters();
-				if (prefs != null && !prefs.isEmpty()) {
-					for (final BgpParameters param : openObj.getBgpParameters()) {
-						final CParameters cap = param.getCParameters();
-						if (cap instanceof CMultiprotocol) {
-							if (((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
-									&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
-								this.remotePref = openObj;
-								this.channel.writeAndFlush(new KeepaliveBuilder().build());
-								this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
-								this.state = State.OpenConfirm;
-								logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
-								return;
-							}
-						}
-					}
-				}
-				final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
-						BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
-				this.channel.writeAndFlush(ntf);
-				negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", BGPError.forValue(
-						ntf.getErrorCode(), ntf.getErrorSubcode())));
-				this.state = State.Finished;
+				handleOpen(openObj);
 				return;
 			}
 			break;
@@ -168,6 +145,31 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
 				BGPError.FSM_ERROR.getSubcode()).build());
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
+		this.state = State.Finished;
+	}
+
+	private void handleOpen(final Open openObj) {
+		final List<BgpParameters> prefs = openObj.getBgpParameters();
+		if (prefs != null && !prefs.isEmpty()) {
+			for (final BgpParameters param : openObj.getBgpParameters()) {
+				final CParameters cap = param.getCParameters();
+				if (cap instanceof CMultiprotocol
+						&& ((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
+						&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
+					this.remotePref = openObj;
+					this.channel.writeAndFlush(new KeepaliveBuilder().build());
+					this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+					this.state = State.OpenConfirm;
+					logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+					return;
+				}
+			}
+		}
+		final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
+				BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
+		this.channel.writeAndFlush(ntf);
+		negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", BGPError.forValue(
+				ntf.getErrorCode(), ntf.getErrorSubcode())));
 		this.state = State.Finished;
 	}
 

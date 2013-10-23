@@ -42,9 +42,9 @@ import com.google.common.eventbus.EventBus;
 @ThreadSafe
 public final class BGPMock implements BGP, Closeable {
 
-	private final static Logger logger = LoggerFactory.getLogger(BGPMock.class);
+	private static final Logger logger = LoggerFactory.getLogger(BGPMock.class);
 
-	static final Notification connectionLostMagicMessage = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
+	static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
 	@GuardedBy("this")
 	private final List<byte[]> allPreviousByteMessages;
@@ -89,7 +89,7 @@ public final class BGPMock implements BGP, Closeable {
 	}
 
 	public synchronized void insertConnectionLostEvent() {
-		this.insertMessage(connectionLostMagicMessage);
+		this.insertMessage(CONNECTION_LOST_MAGIC_MSG);
 	}
 
 	public synchronized void insertMessages(final List<Notification> messages) {

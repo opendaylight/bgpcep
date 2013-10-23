@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.util.concurrent.Future;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -27,7 +26,7 @@ public interface BGPDispatcher {
 	 * @param connection attributes required for connection
 	 * @param parser BGP message parser
 	 * @return client session
-	 * @throws IOException
 	 */
-	Future<BGPSessionImpl> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener, final ReconnectStrategy strategy);
+	Future<BGPSessionImpl> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
+			final ReconnectStrategy strategy);
 }

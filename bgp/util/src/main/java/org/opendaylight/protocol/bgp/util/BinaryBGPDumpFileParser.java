@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,9 +27,10 @@ import com.google.common.primitives.UnsignedBytes;
 @Immutable
 public final class BinaryBGPDumpFileParser {
 
-	private static final byte ff = (byte) 255;
 	private static final Logger logger = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
 	private static final int MINIMAL_LENGTH = 19;
+
+	private static final int MARKER_LENGTH = 16;
 
 	private BinaryBGPDumpFileParser() {
 
@@ -41,7 +41,6 @@ public final class BinaryBGPDumpFileParser {
 	 * 
 	 * @param file file with BGP messages in binary form.
 	 * @return list with byte arrays representing extracted messages.
-	 * @throws IOException
 	 */
 	public static List<byte[]> parseMessages(final byte[] byteArray) {
 
@@ -51,15 +50,15 @@ public final class BinaryBGPDumpFileParser {
 			final byte b = byteArray[i];
 
 			// Marker start
-			if (b == ff) {
+			if (b == UnsignedBytes.MAX_VALUE) {
 				final int start = i;
 				int ffCount = 0;
 				for (int j = i; j < i + (17); j++) {
 					// Check marker
-					if (byteArray[j] == ff) {
+					if (byteArray[j] == UnsignedBytes.MAX_VALUE) {
 						ffCount++;
-					} else if (ffCount == 16) {
-						if (j == (i + 16)) {
+					} else if (ffCount == MARKER_LENGTH) {
+						if (j == (i + MARKER_LENGTH)) {
 							// Parse length
 							final int length = UnsignedBytes.toInt(byteArray[j]) * 256 + UnsignedBytes.toInt(byteArray[j + 1]);
 
@@ -68,7 +67,7 @@ public final class BinaryBGPDumpFileParser {
 
 							final byte[] message = Arrays.copyOfRange(byteArray, start, start + length);
 							messages.add(message);
-							j += length - 16;
+							j += length - MARKER_LENGTH;
 						}
 						i = j;
 						break;

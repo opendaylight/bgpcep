@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 
-	private final static Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	private static String usage = "DESCRIPTION:\n"
 			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
@@ -49,7 +49,11 @@ public class Main {
 
 	private final BGPDispatcherImpl dispatcher;
 
-	public Main() throws Exception {
+	private static final int INITIAL_HOLD_TIME = 90;
+
+	private static final int RECONNECT_MILLIS = 5000;
+
+	Main() throws Exception {
 		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()));
 	}
 
@@ -60,7 +64,7 @@ public class Main {
 		}
 
 		InetSocketAddress address = null;
-		short holdTimerValue = 90;
+		short holdTimerValue = INITIAL_HOLD_TIME;
 		AsNumber as = null;
 
 		int i = 0;
@@ -92,6 +96,7 @@ public class Main {
 		logger.debug("{} {} {}", address, sessionListener, proposal);
 
 		final InetSocketAddress addr = address;
-		m.dispatcher.createClient(addr, proposal, sessionListener, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
+		m.dispatcher.createClient(addr, proposal, sessionListener,
+				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
 	}
 }

@@ -51,23 +51,23 @@ public final class Ipv4Util {
 	}
 
 	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
-		String p = prefix.getValue();
+		final String p = prefix.getValue();
 		final int sep = p.indexOf("/");
 		try {
-			byte[] bytes = Inet4Address.getByName(p.substring(0, sep)).getAddress();
+			final byte[] bytes = Inet4Address.getByName(p.substring(0, sep)).getAddress();
 			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length() - 1)) });
-		} catch (UnknownHostException e) {
+		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
 	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
-		byte[] tmp = Arrays.copyOfRange(bytes, 0, 4);
+		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 4);
 		InetAddress a = null;
 		try {
 			a = InetAddress.getByAddress(tmp);
-		} catch (UnknownHostException e) {
+		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 		return new Ipv4Prefix(InetAddresses.toAddrString(a) + "/" + length);

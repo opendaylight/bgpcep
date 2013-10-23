@@ -261,7 +261,7 @@ module bgp-linkstate {
 	}
 
 	grouping linkstate-destination {
-		container c-linkstate-destination {
+		list c-linkstate-destination {
 			leaf nlri-type {
 				type nlri-type;
 			}

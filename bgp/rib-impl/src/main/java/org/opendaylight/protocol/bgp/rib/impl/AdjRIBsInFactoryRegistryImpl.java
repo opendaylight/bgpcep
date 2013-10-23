@@ -21,6 +21,7 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
@@ -53,8 +54,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
-				final Ipv4Prefix key) {
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final Ipv4Prefix key) {
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4Routes.class);
@@ -65,7 +65,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModificationTransaction   trans,
+				final DataModificationTransaction trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
@@ -77,15 +77,14 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				}
 			};
 
-			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4)nlri.getAdvertizedRoutes().getDestinationType()).getIpv4Prefixes()) {
+			for (final Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4) nlri.getAdvertizedRoutes().getDestinationType()).getIpv4Prefixes()) {
 				super.add(trans, peer, id, data);
 			}
 		}
 
 		@Override
-		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
-				final MpUnreachNlri nlri) {
-			for (Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4)nlri.getWithdrawnRoutes().getDestinationType()).getIpv4Prefixes()) {
+		public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+			for (final Ipv4Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv4) nlri.getWithdrawnRoutes().getDestinationType()).getIpv4Prefixes()) {
 				super.remove(trans, peer, id);
 			}
 		}
@@ -97,8 +96,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
-				final Ipv6Prefix key) {
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final Ipv6Prefix key) {
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv6Routes.class);
@@ -109,7 +107,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModificationTransaction   trans,
+				final DataModificationTransaction trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
@@ -121,15 +119,14 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				}
 			};
 
-			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6)nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
+			for (final Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
 				super.add(trans, peer, id, data);
 			}
 		}
 
 		@Override
-		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
-				final MpUnreachNlri nlri) {
-			for (Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6)nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
+		public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+			for (final Ipv6Prefix id : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.destination.destination.type.DestinationIpv6) nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
 				super.remove(trans, peer, id);
 			}
 		}
@@ -141,8 +138,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath,
-				final CLinkstateDestination key) {
+		public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final CLinkstateDestination key) {
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			switch (key.getNlriType()) {
@@ -165,13 +161,11 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 		@Override
 		public void addRoutes(
-				final DataModificationTransaction   trans,
+				final DataModificationTransaction trans,
 				final Peer peer,
 				final MpReachNlri nlri,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
-			final CLinkstateDestination key =
-					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstate) nlri.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+			final CLinkstateDestination key = (CLinkstateDestination) ((LinkstateDestination) nlri.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
 
 			RIBEntryData data = null;
 			switch (key.getNlriType()) {
@@ -220,11 +214,8 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 
 		@Override
-		public void removeRoutes(final DataModificationTransaction   trans, final Peer peer,
-				final MpUnreachNlri nlri) {
-			final CLinkstateDestination key =
-					((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.
-							update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstate) nlri.getWithdrawnRoutes().getDestinationType()).getCLinkstateDestination();
+		public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+			final CLinkstateDestination key = (CLinkstateDestination) ((LinkstateDestination) nlri.getWithdrawnRoutes().getDestinationType()).getCLinkstateDestination();
 
 			super.remove(trans, peer, key);
 		}
@@ -233,22 +224,19 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 	static {
 		final AdjRIBsInFactoryRegistry reg = new AdjRIBsInFactoryRegistryImpl();
 
-		reg.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-				new AdjRIBsInFactory() {
+		reg.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
 			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 				return new Ipv4AdjRIBsIn(comparator, key);
 			}
 		});
-		reg.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
-				new AdjRIBsInFactory() {
+		reg.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
 			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 				return new Ipv6AdjRIBsIn(comparator, key);
 			}
 		});
-		reg.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-				new AdjRIBsInFactory() {
+		reg.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
 			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 				return new LinkstateAdjRIBsIn(comparator, key);
@@ -267,25 +255,26 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsInFactory factory) {
 		final TablesKey key = new TablesKey(afi, safi);
 
-		if (factories.containsKey(key)) {
+		if (this.factories.containsKey(key)) {
 			throw new RuntimeException("Specified AFI/SAFI combination is already registered");
 		}
 
-		factories.put(key, factory);
+		this.factories.put(key, factory);
 
 		final Object lock = this;
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
 				synchronized (lock) {
-					factories.remove(key);
+					AdjRIBsInFactoryRegistryImpl.this.factories.remove(key);
 				}
 			}
 		};
 	}
 
 	@Override
-	public synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-		return factories.get(new TablesKey(afi, safi));
+	public synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+			final Class<? extends SubsequentAddressFamily> safi) {
+		return this.factories.get(new TablesKey(afi, safi));
 	}
 }

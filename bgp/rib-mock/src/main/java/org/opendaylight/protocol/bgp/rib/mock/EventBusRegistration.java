@@ -59,7 +59,7 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 	}
 
 	private static void sendMessage(final BGPSessionListener listener, final Notification message) {
-		if (BGPMock.connectionLostMagicMessage.equals(message)) {
+		if (BGPMock.CONNECTION_LOST_MAGIC_MSG.equals(message)) {
 			listener.onSessionTerminated(null, null);
 		} else if (message instanceof Open) {
 			final Set<BgpTableType> tts = Sets.newHashSet();
@@ -84,9 +84,7 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 					return tts;
 				}
 			});
-		} else if (message instanceof Keepalive) {
-			// do nothing
-		} else {
+		} else if (!(message instanceof Keepalive)) {
 			listener.onMessage(null, message);
 		}
 	}

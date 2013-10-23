@@ -42,7 +42,7 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	@Override
 	public void onMessage(final BGPSession session, final Notification message) {
 		if (message instanceof Update) {
-			this.rib.updateTables(this, (Update)message);
+			this.rib.updateTables(this, (Update) message);
 		} else {
 			logger.info("Ignoring unhandled message class " + message.getClass());
 		}
@@ -52,8 +52,8 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	public void onSessionUp(final BGPSession session) {
 		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
-		for (BgpTableType t : session.getAdvertisedTableTypes()) {
-			tables.add(new TablesKey(t.getAfi(), t.getSafi()));
+		for (final BgpTableType t : session.getAdvertisedTableTypes()) {
+			this.tables.add(new TablesKey(t.getAfi(), t.getSafi()));
 		}
 	}
 
@@ -64,7 +64,7 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 			this.rib.clearTable(this, key);
 		}
 
-		tables.clear();
+		this.tables.clear();
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	}
 
 	@Override
-	public final String toString() {
+	public String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 

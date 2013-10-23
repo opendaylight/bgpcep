@@ -52,10 +52,6 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 				new CMultiprotocolBuilder().setMultiprotocolCapability(
 						new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
 								LinkstateSubsequentAddressFamily.class).build()).build()).build());
-		// final Map<BGPTableType, Boolean> tableTypes = Maps.newHashMap();
-		// tableTypes.put(ipv4, true);
-		// tableTypes.put(linkstate,true);
-		// tlvs.add(new GracefulCapability(true, 0, tableTypes));
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) as)).build()).build()).build());
 		this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, tlvs);

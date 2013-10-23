@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.PrefixDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisPseudonodeBuilder;
@@ -59,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.conc
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class LinkstateNlriParser implements NlriParser {
@@ -84,7 +87,8 @@ public final class LinkstateNlriParser implements NlriParser {
 		byteOffset += LENGTH_SIZE;
 		final NodeIdentifier remote = null;
 		if (type == 257) {
-			builder.setRemoteNodeDescriptors((RemoteNodeDescriptors) parseNodeDescriptors(ByteArray.subByte(bytes, byteOffset, length)));
+			builder.setRemoteNodeDescriptors((RemoteNodeDescriptors) parseNodeDescriptors(ByteArray.subByte(bytes, byteOffset, length),
+					false));
 			byteOffset += length;
 		}
 		builder.setLinkDescriptors(parseLinkDescriptors(ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset)));
@@ -100,49 +104,49 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			logger.debug("Parsing Link Descriptor: {}", Arrays.toString(value));
+			logger.trace("Parsing Link Descriptor: {}", Arrays.toString(value));
 			switch (type) {
 			case 258:
 				builder.setLinkLocalIdentifier(ByteArray.subByte(value, 0, 4));
 				builder.setLinkRemoteIdentifier(ByteArray.subByte(value, 4, 4));
-				logger.trace("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
+				logger.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
 						builder.getLinkRemoteIdentifier());
 				break;
 			case 259:
 				final Ipv4InterfaceIdentifier lipv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForBytes(value));
 				builder.setIpv4InterfaceAddress(lipv4);
-				logger.trace("Parsed IPv4 interface address {}.", lipv4);
+				logger.debug("Parsed IPv4 interface address {}.", lipv4);
 				break;
 			case 260:
 				final Ipv4InterfaceIdentifier ripv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForBytes(value));
 				builder.setIpv4NeighborAddress(ripv4);
-				logger.trace("Parsed IPv4 neighbor address {}.", ripv4);
+				logger.debug("Parsed IPv4 neighbor address {}.", ripv4);
 				break;
 			case 261:
 				final Ipv6InterfaceIdentifier lipv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForBytes(value));
 				builder.setIpv6InterfaceAddress(lipv6);
-				logger.trace("Parsed IPv6 interface address {}.", lipv6);
+				logger.debug("Parsed IPv6 interface address {}.", lipv6);
 				break;
 			case 262:
 				final Ipv6InterfaceIdentifier ripv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForBytes(value));
 				builder.setIpv6NeighborAddress(ripv6);
-				logger.trace("Parsed IPv6 neighbor address {}.", ripv6);
+				logger.debug("Parsed IPv6 neighbor address {}.", ripv6);
 				break;
 			case 263:
 				final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToInt(value) & 0x3fff);
 				builder.setMultiTopologyId(topId);
-				logger.trace("Parsed topology identifier {}.", topId);
+				logger.debug("Parsed topology identifier {}.", topId);
 				break;
 			default:
 				throw new BGPParsingException("Link Descriptor not recognized, type: " + type);
 			}
 			byteOffset += length;
 		}
-		logger.debug("Finished parsing Link descriptors.");
+		logger.trace("Finished parsing Link descriptors.");
 		return builder.build();
 	}
 
-	private static NodeIdentifier parseNodeDescriptors(final byte[] bytes) throws BGPParsingException {
+	private static NodeIdentifier parseNodeDescriptors(final byte[] bytes, final boolean local) throws BGPParsingException {
 		int byteOffset = 0;
 		AsNumber asnumber = null;
 		DomainIdentifier bgpId = null;
@@ -154,31 +158,33 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			logger.debug("Parsing Node Descriptor: {}", Arrays.toString(value));
+			logger.trace("Parsing Node Descriptor: {}", Arrays.toString(value));
 			switch (type) {
 			case 512:
 				asnumber = new AsNumber(ByteArray.bytesToLong(value));
-				logger.trace("Parsed AS number {}", asnumber);
+				logger.debug("Parsed {}", asnumber);
 				break;
 			case 513:
 				bgpId = new DomainIdentifier(value);
-				logger.trace("Parsed bgpId {}", bgpId);
+				logger.debug("Parsed {}", bgpId);
 				break;
 			case 514:
 				ai = new AreaIdentifier(value);
-				logger.trace("Parsed area identifier {}", ai);
+				logger.debug("Parsed area identifier {}", ai);
 				break;
 			case 515:
 				routerId = parseRouterId(value);
-				logger.trace("Parsed Router Identifier {}", routerId);
+				logger.debug("Parsed Router Identifier {}", routerId);
 				break;
 			default:
 				throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
 			}
 			byteOffset += length;
 		}
-		logger.debug("Finished parsing Node descriptors.");
-		return new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
+		logger.trace("Finished parsing Node descriptors.");
+		return (local) ? new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(
+				routerId).build()
+				: new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
 	}
 
 	private static CRouterIdentifier parseRouterId(final byte[] value) throws BGPParsingException {
@@ -267,15 +273,18 @@ public final class LinkstateNlriParser implements NlriParser {
 	 * @return BGPLinkMP or BGPNodeMP
 	 * @throws BGPParsingException
 	 */
-	private CLinkstateDestination parseNlri(final byte[] nlri) throws BGPParsingException {
+	private List<CLinkstateDestination> parseNlri(final byte[] nlri) throws BGPParsingException {
 		if (nlri.length == 0) {
 			return null;
 		}
 		int byteOffset = 0;
 
-		final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
+		final List<CLinkstateDestination> dests = Lists.newArrayList();
+
+		CLinkstateDestinationBuilder builder = null;
 
 		while (byteOffset != nlri.length) {
+			builder = new CLinkstateDestinationBuilder();
 			final NlriType type = NlriType.forValue(ByteArray.bytesToInt(ByteArray.subByte(nlri, byteOffset, TYPE_LENGTH)));
 			builder.setNlriType(type);
 
@@ -310,13 +319,13 @@ public final class LinkstateNlriParser implements NlriParser {
 			locallength = ByteArray.bytesToInt(ByteArray.subByte(nlri, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			if (localtype == 256) {
-				localDescriptor = parseNodeDescriptors(ByteArray.subByte(nlri, byteOffset, locallength));
+				localDescriptor = parseNodeDescriptors(ByteArray.subByte(nlri, byteOffset, locallength), true);
 			}
 			byteOffset += locallength;
 			builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
-			final int restLength = length - (isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH - TYPE_LENGTH
-					- LENGTH_SIZE - locallength;
-			logger.debug("Restlength {}", restLength);
+			final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
+					- TYPE_LENGTH - LENGTH_SIZE - locallength;
+			logger.trace("Restlength {}", restLength);
 			switch (type) {
 			case Link:
 				parseLink(builder, ByteArray.subByte(nlri, byteOffset, restLength));
@@ -330,15 +339,17 @@ public final class LinkstateNlriParser implements NlriParser {
 				break;
 			}
 			byteOffset += restLength;
+			dests.add(builder.build());
 		}
-		return builder.build();
+		return dests;
 	}
 
 	@Override
 	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-		if (nlri.length == 0)
+		if (nlri.length == 0) {
 			return;
-		final CLinkstateDestination dst = parseNlri(nlri);
+		}
+		final List<CLinkstateDestination> dst = parseNlri(nlri);
 
 		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
 				new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build());
@@ -346,7 +357,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	@Override
 	public void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
-		final CLinkstateDestination dst = parseNlri(nlri);
+		final List<CLinkstateDestination> dst = parseNlri(nlri);
 
 		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
 				new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build());

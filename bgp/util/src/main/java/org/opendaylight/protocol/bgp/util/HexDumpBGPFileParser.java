@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,16 +34,16 @@ import com.google.common.io.CharStreams;
  * this format.
  */
 @Immutable
-public class HexDumpBGPFileParser {
+public final class HexDumpBGPFileParser {
 	private static final int MINIMAL_LENGTH = 19;
 	private static final Logger logger = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
-	private static final String ff_16 = Strings.repeat("FF", 16);
+	private static final String FF_16 = Strings.repeat("FF", 16);
 
 	private HexDumpBGPFileParser() {
 
 	}
 
-	public static List<byte[]> parseMessages(final File file) throws FileNotFoundException, IOException {
+	public static List<byte[]> parseMessages(final File file) throws IOException {
 		Preconditions.checkArgument(file != null, "Filename cannot be null");
 		return parseMessages(new FileInputStream(file));
 	}
@@ -58,13 +57,13 @@ public class HexDumpBGPFileParser {
 		}
 	}
 
-	public static List<byte[]> parseMessages(String content) {
-		content = clearWhiteSpaceToUpper(content);
+	public static List<byte[]> parseMessages(final String c) {
+		final String content = clearWhiteSpaceToUpper(c);
 		// search for 16 FFs
 
 		final List<byte[]> messages = Lists.newLinkedList();
 		int idx = 0;
-		while ((idx = content.indexOf(ff_16, idx)) > -1) {
+		while ((idx = content.indexOf(FF_16, idx)) > -1) {
 			// next 2 bytes are length
 			final int lengthIdx = idx + 16 * 2;
 			final int messageIdx = lengthIdx + 4;

@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +50,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
 
+	/*
+	 * 240
+	 */
 	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
 
 	private static final Notification keepalive = new KeepaliveBuilder().build();
 
-	private static int holdTimerValue = DEFAULT_HOLD_TIMER_VALUE; // 240
+	private static int holdTimerValue = DEFAULT_HOLD_TIMER_VALUE;
 
 	/**
 	 * Internal session state.
@@ -113,19 +117,21 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.keepAlive = remoteOpen.getHoldTimer() / 3;
 		holdTimerValue = remoteOpen.getHoldTimer();
 
-		final Set<BgpTableType> tts = Sets.newHashSet();
+		final Set<TablesKey> tts = Sets.newHashSet();
+		final Set<BgpTableType> tats = Sets.newHashSet();
 		if (remoteOpen.getBgpParameters() != null) {
 			for (final BgpParameters param : remoteOpen.getBgpParameters()) {
 				if (param instanceof CParameters) {
 					final CParameters cp = (CParameters) param;
-					final BgpTableType tt = new BgpTableTypeImpl(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
+					final TablesKey tt = new TablesKey(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
 					tts.add(tt);
+					tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
 				}
 			}
 		}
 
 		this.sync = new BGPSynchronization(this, this.listener, tts);
-		this.tableTypes = tts;
+		this.tableTypes = tats;
 
 		if (remoteOpen.getHoldTimer() != 0) {
 			this.stateTimer.newTimeout(new TimerTask() {
@@ -278,7 +284,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	}
 
 	@Override
-	final public String toString() {
+	public final String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 

@@ -11,8 +11,6 @@ import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-
-
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -44,19 +42,19 @@ final class RIBImpl {
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
-		final DataModificationTransaction trans = dps.beginTransaction();
+		final DataModificationTransaction trans = this.dps.beginTransaction();
 
 		// FIXME: detect and handle end-of-RIB markers
 
-		//remove(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-		//		trans, peer, message.getWithdrawnRoutes().getWithdrawnRoutes().iterator());
+		// remove(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+		// trans, peer, message.getWithdrawnRoutes().getWithdrawnRoutes().iterator());
 
 		final PathAttributes attrs = message.getPathAttributes();
 		final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
 		if (mpu != null) {
 			final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
 
-			AdjRIBsIn ari = tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.removeRoutes(trans, peer, nlri);
 			} else {
@@ -64,14 +62,14 @@ final class RIBImpl {
 			}
 		}
 
-		//add(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-		//		trans, peer, message.getNlri().getNlri().iterator(), attrs);
+		// add(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+		// trans, peer, message.getNlri().getNlri().iterator(), attrs);
 
 		final PathAttributes1 mpr = message.getPathAttributes().getAugmentation(PathAttributes1.class);
 		if (mpr != null) {
 			final MpReachNlri nlri = mpr.getMpReachNlri();
 
-			final AdjRIBsIn ari = tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.addRoutes(trans, peer, nlri, attrs);
 			} else {
@@ -80,22 +78,22 @@ final class RIBImpl {
 		}
 
 		// FIXME: we need to attach to this future for failures
-		Future<RpcResult<TransactionStatus>> f = trans.commit();
+		final Future<RpcResult<TransactionStatus>> f = trans.commit();
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
-		final AdjRIBsIn ari = tables.get(key);
+		final AdjRIBsIn ari = this.tables.get(key);
 		if (ari != null) {
-			final DataModificationTransaction trans = dps.beginTransaction();
+			final DataModificationTransaction trans = this.dps.beginTransaction();
 			ari.clear(trans, peer);
 
 			// FIXME: we need to attach to this future for failures
-			Future<RpcResult<TransactionStatus>> f = trans.commit();
+			final Future<RpcResult<TransactionStatus>> f = trans.commit();
 		}
 	}
 
 	@Override
-	public final String toString() {
+	public String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
