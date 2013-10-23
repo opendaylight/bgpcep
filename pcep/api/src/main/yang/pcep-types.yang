@@ -138,7 +138,7 @@ module pcep-types {
 		}
 	}
 	
-    grouping p2mp-capable-tlv {
+	grouping p2mp-capable-tlv {
 		description "P2MP CAPABLE TLV";
 		reference "https://tools.ietf.org/html/rfc6006#section-3.1.2";
 
@@ -579,14 +579,13 @@ module pcep-types {
 			}
 
 			uses rsvp:explicit-route-subobjects {
-// FIXME: yangtools bug
-//				augment "subobject-type" {
-//					case path-key {
-//						container path-key {
-//							uses path-key-subobject;
-//						}
-//					}
-//				}
+				augment "subobject-type" {
+					case path-key {
+						container path-key {
+							uses path-key-subobject;
+						}
+					}
+				}
 			}
 		}
 	}
