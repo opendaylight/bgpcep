@@ -1,4 +1,5 @@
 module topology-tunnel-pcep {
+	// vi: set et smarttab sw=4 tabstop=4:
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep";
 	prefix "pceptun";
@@ -14,8 +15,8 @@ module topology-tunnel-pcep {
 	contact "Robert Varga <rovarga@cisco.com>";
 
 	description
-		"This module contains the Segment Routing extensions to
-		base tunnel topology model.
+		"This module contains the PCEP extensions to base tunnel
+		topology model.
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
 

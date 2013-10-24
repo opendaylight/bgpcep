@@ -1,0 +1,61 @@
+module inventory-pcep {
+	// vi: set et smarttab sw=4 tabstop=4:
+	yang-version 1;
+	namespace "urn:opendaylight:inventory:pcep";
+	prefix "inv-pcep";
+
+	import network-topology { prefix nt; revision-date 2013-10-21; }
+	import opendaylight-inventory { prefix inv; revision-date 2013-08-19; }
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the PCEP extensions to base inventory
+		model.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+	revision "2013-10-24" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	typedef pcc-sync-state {
+		type enumeration {
+			enum initial-resync {
+				description
+					"Initial state resynchronization is being performed.";
+			}
+			enum synchronized {
+				description
+					"State synchronization has been achieved.";
+			}
+		}
+	}
+
+	augment "/inv:nodes/inv:node" {
+		container path-computation-client {
+			description
+                "PCC-related run-time information. This container is only
+                present when the node is connected through PCEP in a PCC
+                role.";
+
+			container stateful-tlv {
+				uses pcep:stateful-capability-tlv;
+			}
+
+			leaf state-sync {
+				when "../stateful-tlv";
+				type pcc-sync-state;
+			}
+
+            leaf topology-node {
+                type nt:node-ref;
+            }
+		}
+	}
+}
+
