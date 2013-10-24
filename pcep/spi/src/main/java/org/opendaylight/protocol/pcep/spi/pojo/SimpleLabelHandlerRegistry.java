@@ -11,6 +11,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -20,22 +21,22 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 	private final HandlerRegistry<DataContainer, LabelParser, LabelSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
-		Preconditions.checkArgument(cType >= 0 && cType <= 255);
-		return handlers.registerParser(cType, parser);
+		Preconditions.checkArgument(cType >= 0 && cType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		return this.handlers.registerParser(cType, parser);
 	}
 
 	public AutoCloseable registerLabelSerializer(final Class<? extends CLabel> labelClass, final LabelSerializer serializer) {
-		return handlers.registerSerializer(labelClass, serializer);
+		return this.handlers.registerSerializer(labelClass, serializer);
 	}
 
 	@Override
 	public LabelParser getLabelParser(final int cType) {
-		Preconditions.checkArgument(cType >= 0 && cType <= 255);
-		return handlers.getParser(cType);
+		Preconditions.checkArgument(cType >= 0 && cType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		return this.handlers.getParser(cType);
 	}
 
 	@Override
 	public LabelSerializer getLabelSerializer(final CLabel label) {
-		return handlers.getSerializer(label.getImplementedInterface());
+		return this.handlers.getSerializer(label.getImplementedInterface());
 	}
 }

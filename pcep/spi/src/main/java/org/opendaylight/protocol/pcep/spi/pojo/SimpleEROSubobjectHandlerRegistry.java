@@ -11,6 +11,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -21,7 +22,7 @@ public final class SimpleEROSubobjectHandlerRegistry implements EROSubobjectHand
 	private final HandlerRegistry<DataContainer, EROSubobjectParser, EROSubobjectSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
-		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= 65535);
+		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Util.UNSIGNED_SHORT_MAX_VALUE);
 		return this.handlers.registerParser(subobjectType, parser);
 	}
 
@@ -32,7 +33,7 @@ public final class SimpleEROSubobjectHandlerRegistry implements EROSubobjectHand
 
 	@Override
 	public EROSubobjectParser getSubobjectParser(final int subobjectType) {
-		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= 65535);
+		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Util.UNSIGNED_SHORT_MAX_VALUE);
 		return this.handlers.getParser(subobjectType);
 	}
 

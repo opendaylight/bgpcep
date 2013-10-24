@@ -33,8 +33,9 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("LspDbVersionTlv is mandatory.");
+		}
 		final LspDbVersionTlv lsp = (LspDbVersionTlv) tlv;
 		return ByteArray.subByte(lsp.getVersion().toByteArray(), 0, DBV_F_LENGTH);
 	}

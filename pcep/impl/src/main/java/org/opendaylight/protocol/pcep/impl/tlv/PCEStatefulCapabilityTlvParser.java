@@ -24,25 +24,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 16;
-	/*
-	 * Flags field length in Bytes
-	 */
-	public static final int FLAGS_F_LENGTH = 4;
 
-	/*
-	 * Offsets inside flags field in bits;
-	 */
-	public static final int I_FLAG_OFFSET = 29;
-	public static final int S_FLAG_OFFSET = 30;
-	public static final int U_FLAG_OFFSET = 31;
+	private static final int FLAGS_F_LENGTH = 4;
+
+	private static final int I_FLAG_OFFSET = 29;
+	private static final int S_FLAG_OFFSET = 30;
+	private static final int U_FLAG_OFFSET = 31;
 
 	@Override
 	public StatefulCapabilityTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
-		if (buffer.length < FLAGS_F_LENGTH)
+		}
+		if (buffer.length < FLAGS_F_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >= "
 					+ FLAGS_F_LENGTH + ".");
+		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(buffer, 0, FLAGS_F_LENGTH));
 		return new StatefulBuilder().setFlags(new Flags(flags.get(S_FLAG_OFFSET), flags.get(I_FLAG_OFFSET), flags.get(U_FLAG_OFFSET))).build();
@@ -50,8 +47,9 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("StatefulCapabilityTlv is mandatory.");
+		}
 		final StatefulCapabilityTlv sct = (StatefulCapabilityTlv) tlv;
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);

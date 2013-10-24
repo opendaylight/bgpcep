@@ -33,11 +33,12 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public OfListTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		if (valueBytes == null || valueBytes.length == 0)
+		if (valueBytes == null || valueBytes.length == 0) {
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
-		if (valueBytes.length % OF_CODE_ELEMENT_LENGTH != 0)
+		}
+		if (valueBytes.length % OF_CODE_ELEMENT_LENGTH != 0) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + valueBytes.length + ".");
-
+		}
 		final List<OfId> ofCodes = Lists.newArrayList();
 		for (int i = 0; i < valueBytes.length; i += OF_CODE_ELEMENT_LENGTH) {
 			try {
@@ -51,8 +52,9 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("OFListTlv is mandatory.");
+		}
 		final OfListTlv oft = (OfListTlv) tlv;
 
 		final List<OfId> ofCodes = oft.getCodes();

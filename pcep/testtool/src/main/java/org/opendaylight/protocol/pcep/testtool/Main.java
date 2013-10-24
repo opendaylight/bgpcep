@@ -18,8 +18,12 @@ import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
+
+	private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
 	public static String usage = "DESCRIPTION:\n" + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
 			+ "from PCCs.\n" + "USAGE:\n" + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
@@ -57,6 +61,10 @@ public class Main {
 			"\t--help\n" + "\t\tdisplay this help and exits\n\n" +
 
 			"With no parameters, this help is printed.";
+
+	private Main() {
+
+	}
 
 	public static void main(final String[] args) throws Exception {
 		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
@@ -103,12 +111,12 @@ public class Main {
 					i++;
 				}
 			} else {
-				System.out.println("WARNING: Unrecognized argument: " + args[i]);
+				logger.warn("WARNING: Unrecognized argument: {}", args[i]);
 			}
 			i++;
 		}
 		if (deadTimerValue != 0 && deadTimerValue != keepAliveValue * 4) {
-			System.out.println("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
+			logger.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
 		}
 		if (deadTimerValue == 0) {
 			deadTimerValue = keepAliveValue * 4;
@@ -118,9 +126,7 @@ public class Main {
 
 		final OpenObject prefs = spf.getSessionProposal(address, 0);
 
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(
-				PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(),
-				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}

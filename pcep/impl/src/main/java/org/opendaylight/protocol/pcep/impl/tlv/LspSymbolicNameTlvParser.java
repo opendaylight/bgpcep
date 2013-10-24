@@ -28,8 +28,9 @@ public class LspSymbolicNameTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
+		}
 		final SymbolicPathNameTlv spn = (SymbolicPathNameTlv) tlv;
 		return spn.getPathName();
 	}

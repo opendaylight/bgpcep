@@ -229,6 +229,7 @@ module pcep-types {
 				}
 			}
 		}
+		// FIXME: add tunnel endpoint (from stateful-07) 
 	}
 
 	grouping symbolic-path-name-tlv {

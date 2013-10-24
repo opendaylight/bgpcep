@@ -39,14 +39,12 @@ public class TestingSessionListener implements PCEPSessionListener {
 	public void onSessionUp(final PCEPSession session) {
 		logger.debug("Session up.");
 		this.up = true;
-		// this.notifyAll();
 	}
 
 	@Override
 	public void onSessionDown(final PCEPSession session, final Exception e) {
 		logger.debug("Session down. Cause : {} or {}", e);
 		this.up = false;
-		// this.notifyAll();
 	}
 
 	@Override

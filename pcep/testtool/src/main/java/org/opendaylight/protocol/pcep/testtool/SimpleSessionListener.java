@@ -39,17 +39,6 @@ public class SimpleSessionListener implements PCEPSessionListener {
 	@Override
 	public void onSessionUp(final PCEPSession session) {
 		logger.debug("Session up.");
-		// final List<ExplicitRouteSubobject> subs = new ArrayList<ExplicitRouteSubobject>();
-		// subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 10, 1, 1, 2 }), 32),
-		// false));
-		// subs.add(new EROIPPrefixSubobject<Prefix<?>>(new IPv4Prefix(new IPv4Address(new byte[] { 2, 2, 2, 2 }), 32),
-		// false));
-		// final CompositeInstantiationObject cpo = new CompositeInstantiationObject(new
-		// PCEPEndPointsObject<IPv4Address>(IPv4.FAMILY.addressForBytes(new byte[] {
-		// 1, 1, 1, 1 }), IPv4.FAMILY.addressForBytes(new byte[] { 2, 2, 2, 2 })), new PCEPLspaObject(0, 0, 0, (short)
-		// 0, (short) 0, false, false, false, false), new PCEPExplicitRouteObject(subs, false), null, null);
-		//
-		// session.sendMessage(new PCCreateMessage(Lists.newArrayList(cpo)));
 	}
 
 	@Override

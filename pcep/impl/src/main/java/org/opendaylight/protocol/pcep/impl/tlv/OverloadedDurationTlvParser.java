@@ -1,5 +1,9 @@
-/**
- * 
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
@@ -28,10 +32,11 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("OverloadedTlv is mandatory.");
+		}
 		final OverloadDurationTlv odt = (OverloadDurationTlv) tlv;
-		return ByteArray.subByte(ByteArray.longToBytes(odt.getDuration()), 4, OVERLOADED_DURATION_LENGTH);
+		return ByteArray.subByte(ByteArray.longToBytes(odt.getDuration()), OVERLOADED_DURATION_LENGTH, OVERLOADED_DURATION_LENGTH);
 	}
 
 	@Override

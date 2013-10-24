@@ -21,9 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
-	private static final int REQ_ID_LENGTH = 4;
-
 	public static final int TYPE = 3;
+
+	private static final int REQ_ID_LENGTH = 4;
 
 	@Override
 	public ReqMissingTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
@@ -32,10 +32,11 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
+		}
 		final ReqMissingTlv req = (ReqMissingTlv) tlv;
-		return ByteArray.subByte(ByteArray.longToBytes(req.getRequestId().getValue()), 4, REQ_ID_LENGTH);
+		return ByteArray.subByte(ByteArray.longToBytes(req.getRequestId().getValue()), REQ_ID_LENGTH, REQ_ID_LENGTH);
 	}
 
 	@Override

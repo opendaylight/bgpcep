@@ -11,6 +11,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -23,21 +24,21 @@ public final class SimpleTlvHandlerRegistry implements TlvHandlerRegistry {
 	private final HandlerRegistry<DataContainer, TlvParser, TlvSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerTlvParser(final int tlvType, final TlvParser parser) {
-		Preconditions.checkArgument(tlvType >= 0 && tlvType < 65535);
-		return handlers.registerParser(tlvType, parser);
+		Preconditions.checkArgument(tlvType >= 0 && tlvType < Util.UNSIGNED_SHORT_MAX_VALUE);
+		return this.handlers.registerParser(tlvType, parser);
 	}
 
 	public AutoCloseable registerTlvSerializer(final Class<? extends Tlv> tlvClass, final TlvSerializer serializer) {
-		return handlers.registerSerializer(tlvClass, serializer);
+		return this.handlers.registerSerializer(tlvClass, serializer);
 	}
 
 	@Override
 	public TlvParser getTlvParser(final int tlvType) {
-		return handlers.getParser(tlvType);
+		return this.handlers.getParser(tlvType);
 	}
 
 	@Override
 	public TlvSerializer getTlvSerializer(final Tlv tlv) {
-		return handlers.getSerializer(tlv.getImplementedInterface());
+		return this.handlers.getSerializer(tlv.getImplementedInterface());
 	}
 }
