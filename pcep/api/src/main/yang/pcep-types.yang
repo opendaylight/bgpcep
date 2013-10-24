@@ -75,6 +75,10 @@ module pcep-types {
 		}
 	}
 
+	typedef symbolic-path-name {
+		type binary;
+	}
+
 	// TLVs
 	grouping tlv {
 		description "Marker grouping for TLV groupings.";
@@ -237,7 +241,7 @@ module pcep-types {
 
 		uses tlv;
 		leaf path-name {
-			type binary;
+			type symbolic-path-name;
 			mandatory true;
 		}
 	}
@@ -818,7 +822,7 @@ module pcep-types {
 				uses rsvp-error-spec-tlv;
 			}
 
-			container symblic-path-name {
+			container symbolic-path-name {
 				uses symbolic-path-name-tlv;
 			}
 		}

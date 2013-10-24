@@ -10,9 +10,10 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathNameTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymblicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymbolicPathNameBuilder;
 
 /**
  * Parser for {@link SymbolicPathNameTlv}
@@ -23,15 +24,16 @@ public class LspSymbolicNameTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public SymbolicPathNameTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new SymblicPathNameBuilder().setPathName(buffer).build();
+		return new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(buffer)).build();
 	}
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null)
+		if (tlv == null) {
 			throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
+		}
 		final SymbolicPathNameTlv spn = (SymbolicPathNameTlv) tlv;
-		return spn.getPathName();
+		return spn.getPathName().getValue();
 	}
 
 	@Override
