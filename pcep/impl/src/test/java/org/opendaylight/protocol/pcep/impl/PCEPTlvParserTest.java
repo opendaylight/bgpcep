@@ -45,13 +45,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RsvpErrorSpecTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathNameTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.RsvpErrorSpecBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymblicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.tlvs.OverloadDurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.OfListBuilder;
@@ -75,32 +76,32 @@ public class PCEPTlvParserTest {
 
 	private static final byte[] statefulBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02 };
 	private static final byte[] DbVersionBytes = { (byte) 0xff, (byte) 0x00, (byte) 0xff, (byte) 0xaa, (byte) 0xb2, (byte) 0xf5,
-			(byte) 0xf2, (byte) 0xcf };
+		(byte) 0xf2, (byte) 0xcf };
 	private static final byte[] noPathVectorBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xa7 };
 	private static final byte[] overloadedBytes = { (byte) 0x7f, (byte) 0xff, (byte) 0xff, (byte) 0xff };
 	private static final byte[] symbolicNameBytes = { (byte) 0x4d, (byte) 0x65, (byte) 0x64, (byte) 0x20, (byte) 0x74, (byte) 0x65,
-			(byte) 0x73, (byte) 0x74, (byte) 0x20, (byte) 0x6f, (byte) 0x66, (byte) 0x20, (byte) 0x73, (byte) 0x79, (byte) 0x6d,
-			(byte) 0x62, (byte) 0x6f, (byte) 0x6c, (byte) 0x69, (byte) 0x63, (byte) 0x20, (byte) 0x6e, (byte) 0x61, (byte) 0x6d,
-			(byte) 0x65 };
+		(byte) 0x73, (byte) 0x74, (byte) 0x20, (byte) 0x6f, (byte) 0x66, (byte) 0x20, (byte) 0x73, (byte) 0x79, (byte) 0x6d,
+		(byte) 0x62, (byte) 0x6f, (byte) 0x6c, (byte) 0x69, (byte) 0x63, (byte) 0x20, (byte) 0x6e, (byte) 0x61, (byte) 0x6d,
+		(byte) 0x65 };
 	private static final byte[] lspUpdateErrorBytes = { (byte) 0x25, (byte) 0x68, (byte) 0x95, (byte) 0x03 };
 	private static final byte[] lspIdentifiers4Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
+		(byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
 	private static final byte[] lspIdentifiers6Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC,
-			(byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
-			(byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0xFF, (byte) 0xFF, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-			(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x01,
-			(byte) 0x23, (byte) 0x45, (byte) 0x67 };
+		(byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
+		(byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0xFF, (byte) 0xFF, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+		(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x01,
+		(byte) 0x23, (byte) 0x45, (byte) 0x67 };
 	private static final byte[] rsvpErrorBytes = { (byte) 0x06, (byte) 0x01, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-			(byte) 0x02, (byte) 0x92, (byte) 0x16, (byte) 0x02 };
+		(byte) 0x02, (byte) 0x92, (byte) 0x16, (byte) 0x02 };
 	private static final byte[] rsvpError6Bytes = { (byte) 0x06, (byte) 0x02, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-			(byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a,
-			(byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x02, (byte) 0xd5, (byte) 0xc5, (byte) 0xd9 };
+		(byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a,
+		(byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x02, (byte) 0xd5, (byte) 0xc5, (byte) 0xd9 };
 	private static final byte[] userErrorBytes = { (byte) 0xc2, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x30, (byte) 0x39,
-			(byte) 0x05, (byte) 0x09, (byte) 0x00, (byte) 0x26, (byte) 0x75, (byte) 0x73, (byte) 0x65, (byte) 0x72, (byte) 0x20,
-			(byte) 0x64, (byte) 0x65, (byte) 0x73, (byte) 0x63 };
+		(byte) 0x05, (byte) 0x09, (byte) 0x00, (byte) 0x26, (byte) 0x75, (byte) 0x73, (byte) 0x65, (byte) 0x72, (byte) 0x20,
+		(byte) 0x64, (byte) 0x65, (byte) 0x73, (byte) 0x63 };
 	private static final byte[] reqMissingBytes = { (byte) 0xF7, (byte) 0x82, (byte) 0x35, (byte) 0x17 };
 	private static final byte[] orderBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-			(byte) 0x01 };
+		(byte) 0x01 };
 	private static final byte[] ofListBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
 	private static final byte[] predundancyBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
 
@@ -140,7 +141,7 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testSymbolicNameTlv() throws PCEPDeserializerException {
 		final LspSymbolicNameTlvParser parser = new LspSymbolicNameTlvParser();
-		final SymbolicPathNameTlv tlv = new SymblicPathNameBuilder().setPathName(new String("Med test of symbolic name").getBytes()).build();
+		final SymbolicPathNameTlv tlv = new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("Med test of symbolic name".getBytes())).build();
 		assertEquals(tlv, parser.parseTlv(symbolicNameBytes));
 		assertArrayEquals(symbolicNameBytes, parser.serializeTlv(tlv));
 	}
