@@ -49,7 +49,6 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelChannelSetParser;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKeySubobjectParser;
@@ -179,14 +178,12 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerRROSubobjectParser(RROIpPrefixSubobjectParser.TYPE, new RROIpPrefixSubobjectParser());
 		context.registerRROSubobjectParser(RROIpPrefixSubobjectParser.TYPE6, new RROIpPrefixSubobjectParser());
 		context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, new RROLabelSubobjectParser(labelReg));
-		context.registerRROSubobjectParser(RROAsNumberSubobjectParser.TYPE, new RROAsNumberSubobjectParser());
 		context.registerRROSubobjectParser(RROUnnumberedInterfaceSubobjectParser.TYPE, new RROUnnumberedInterfaceSubobjectParser());
 		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE, new RROPathKeySubobjectParser());
 		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE128, new RROPathKeySubobjectParser());
 
 		context.registerRROSubobjectSerializer(IpPrefixSubobject.class, new RROIpPrefixSubobjectParser());
 		context.registerRROSubobjectSerializer(LabelSubobject.class, new RROLabelSubobjectParser(labelReg));
-		context.registerRROSubobjectSerializer(AsNumberSubobject.class, new RROAsNumberSubobjectParser());
 		context.registerRROSubobjectSerializer(UnnumberedSubobject.class, new RROUnnumberedInterfaceSubobjectParser());
 		context.registerRROSubobjectSerializer(PathKeySubobject.class, new RROPathKeySubobjectParser());
 

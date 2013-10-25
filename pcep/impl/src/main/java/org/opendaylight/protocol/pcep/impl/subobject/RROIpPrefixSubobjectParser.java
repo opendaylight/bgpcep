@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -32,81 +33,84 @@ public class RROIpPrefixSubobjectParser implements RROSubobjectParser, RROSubobj
 
 	public static final int TYPE6 = 2;
 
-	public static final int IP4_F_LENGTH = 4;
-	public static final int PREFIX4_F_LENGTH = 1;
-	public static final int FLAGS4_F_LENGTH = 1;
+	private static final int IP4_F_LENGTH = 4;
+	private static final int IP_F_LENGTH = 16;
 
-	public static final int IP4_F_OFFSET = 0;
-	public static final int PREFIX4_F_OFFSET = IP4_F_OFFSET + IP4_F_LENGTH;
-	public static final int FLAGS4_F_OFFSET = PREFIX4_F_OFFSET + PREFIX4_F_LENGTH;
+	private static final int PREFIX_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 1;
 
-	public static final int CONTENT4_LENGTH = FLAGS4_F_OFFSET + FLAGS4_F_LENGTH;
+	private static final int IP_F_OFFSET = 0;
 
-	public static final int IP_F_LENGTH = 16;
-	public static final int PREFIX_F_LENGTH = 1;
-	public static final int FLAGS_F_LENGTH = 1;
+	private static final int PREFIX4_F_OFFSET = IP_F_OFFSET + IP4_F_LENGTH;
+	private static final int FLAGS4_F_OFFSET = PREFIX4_F_OFFSET + PREFIX_F_LENGTH;
 
-	public static final int IP_F_OFFSET = 0;
-	public static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
-	public static final int FLAGS_F_OFFSET = PREFIX_F_OFFSET + PREFIX_F_LENGTH;
+	private static final int CONTENT4_LENGTH = IP4_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
 
-	public static final int CONTENT_LENGTH = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = PREFIX_F_OFFSET + PREFIX_F_LENGTH;
 
-	/*
-	 * flags offset in bits
-	 */
-	public static final int LPA_F_OFFSET = 7;
-	public static final int LPIU_F_OFFSET = 6;
+	private static final int CONTENT_LENGTH = IP_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
+
+	private static final int LPA_F_OFFSET = 7;
+	private static final int LPIU_F_OFFSET = 6;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length != CONTENT4_LENGTH || buffer.length != CONTENT_LENGTH)
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
-
-		final int length = UnsignedBytes.toInt(buffer[PREFIX4_F_OFFSET]);
-
-		final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, FLAGS4_F_OFFSET, FLAGS4_F_OFFSET + FLAGS4_F_LENGTH));
-
+		}
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
-		builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
-		builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-		builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-				new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, IP4_F_OFFSET, IP4_F_LENGTH), length))).build());
-
+		if (buffer.length == CONTENT4_LENGTH) {
+			final int length = UnsignedBytes.toInt(buffer[PREFIX4_F_OFFSET]);
+			final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, FLAGS4_F_OFFSET, FLAGS4_F_OFFSET + FLAGS_F_LENGTH));
+			builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
+			builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
+			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
+					new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP4_F_LENGTH), length))).build());
+		} else if (buffer.length == CONTENT_LENGTH) {
+			final int length = UnsignedBytes.toInt(buffer[PREFIX_F_OFFSET]);
+			final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, FLAGS_F_OFFSET, FLAGS_F_OFFSET + FLAGS_F_LENGTH));
+			builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
+			builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
+			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
+					new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP_F_LENGTH), length))).build());
+		} else {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
+		}
 		return builder.build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject instanceof IpPrefixSubobject))
+		if (!(subobject.getSubobjectType() instanceof IpPrefixSubobject)) {
 			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
 					+ ". Needed RROIPAddressSubobject.");
+		}
 
-		final IpPrefixSubobject specObj = (IpPrefixSubobject) subobject;
+		final IpPrefixSubobject specObj = (IpPrefixSubobject) subobject.getSubobjectType();
 		final IpPrefix prefix = specObj.getIpPrefix();
 
-		if (prefix.getIpv4Prefix() == null && prefix.getIpv6Prefix() == null)
+		if (prefix.getIpv4Prefix() == null && prefix.getIpv6Prefix() == null) {
 			throw new IllegalArgumentException("Unknown AbstractPrefix instance. Passed " + prefix.getClass() + ".");
+		}
 
-		final BitSet flags = new BitSet(FLAGS4_F_LENGTH * Byte.SIZE);
-
+		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
 		flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
 
-		final byte[] retBytes = new byte[CONTENT4_LENGTH];
-
 		if (prefix.getIpv4Prefix() != null) {
-			ByteArray.copyWhole(prefix.getIpv4Prefix().getValue().getBytes(), retBytes, IP4_F_OFFSET);
-			retBytes[PREFIX4_F_OFFSET] = ByteArray.intToBytes(Ipv4Util.getPrefixLength(prefix))[Integer.SIZE / Byte.SIZE - 1];
-			ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS4_F_LENGTH), retBytes, FLAGS4_F_OFFSET);
+			final byte[] retBytes = new byte[CONTENT4_LENGTH];
+			ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, IP_F_OFFSET);
+			retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
+			ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS4_F_OFFSET);
+			return retBytes;
 		} else {
-			ByteArray.copyWhole(prefix.getIpv6Prefix().getValue().getBytes(), retBytes, IP_F_OFFSET);
-			retBytes[PREFIX_F_OFFSET] = ByteArray.intToBytes(Ipv4Util.getPrefixLength(prefix))[Integer.SIZE / Byte.SIZE - 1];
+			final byte[] retBytes = new byte[CONTENT_LENGTH];
+			ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, IP_F_OFFSET);
+			retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
 			ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
+			return retBytes;
 		}
-		return retBytes;
 	}
 
 	@Override

@@ -615,7 +615,15 @@ module pcep-types {
 		uses object;
 
 		list subobjects {
-			uses rsvp:record-route-subobjects;
+			uses rsvp:record-route-subobjects {
+				augment "subobject-type" {
+					case path-key {
+						container path-key {
+							uses path-key-subobject;
+						}
+					}
+				}
+			}
 		}
 	}
 
