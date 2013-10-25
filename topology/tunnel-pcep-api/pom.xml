@@ -10,7 +10,7 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>topology-tunnel-pcep</artifactId>
+	<artifactId>topology-tunnel-pcep-api</artifactId>
 	<description>Topology Tunnel PCEP binding</description>
 	<packaging>bundle</packaging>
 	<name>${project.artifactId}</name>
@@ -30,11 +30,6 @@
             <version>${project.version}</version>
 		</dependency>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
             <version>${yang.binding.version}</version>
@@ -43,12 +38,6 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
             <version>${yangtools.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.opendaylight.controller.model</groupId>
-            <artifactId>model-inventory</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
 	</dependencies>
 
@@ -99,9 +88,6 @@
                        <Export-Package>
                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820,
                        </Export-Package>
-                       <Private-Package>
-                           org.opendaylight.protocol.tunnel.pcep,
-                       </Private-Package>
                    </instructions>
                </configuration>
            </plugin>

@@ -22,7 +22,7 @@
         <module>provider-bgp</module>
         <module>provider-pcep</module>
 		<module>tunnel-api</module>
-        <module>tunnel-pcep</module>
+        <module>tunnel-pcep-api</module>
         <module>segment-routing</module>
     </modules>
 </project>
