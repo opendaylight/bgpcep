@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import java.net.InetAddress;
+import java.util.concurrent.Future;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -27,8 +28,9 @@ public interface PCEPSession extends ProtocolSession<Message> {
 	 * resources.
 	 *
 	 * @param message message to be sent
+	 * @return Future promise which will be succeed when the message is enqueued in the socket.
 	 */
-	public void sendMessage(Message message);
+	Future<Void> sendMessage(Message message);
 
 	public void close(TerminationReason reason);
 

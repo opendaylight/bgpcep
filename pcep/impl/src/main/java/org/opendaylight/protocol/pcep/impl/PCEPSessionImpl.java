@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
@@ -18,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
@@ -188,17 +191,26 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * @param msg to be sent
 	 */
 	@Override
-	public void sendMessage(final Message msg) {
-		try {
-			this.channel.writeAndFlush(msg);
-			this.lastMessageSentAt = System.nanoTime();
-			if (!(msg instanceof KeepaliveMessage)) {
-				logger.debug("Sent message: " + msg);
-			}
-			this.sentMsgCount++;
-		} catch (final Exception e) {
-			logger.warn("Message {} was not sent.", msg, e);
+	public Future<Void> sendMessage(final Message msg) {
+		final ChannelFuture f = this.channel.writeAndFlush(msg);
+		this.lastMessageSentAt = System.nanoTime();
+		if (!(msg instanceof KeepaliveMessage)) {
+			logger.debug("Message enqueued: {}", msg);
 		}
+		this.sentMsgCount++;
+
+		f.addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(final ChannelFuture arg) {
+				if (arg.isSuccess()) {
+					logger.debug("Message sent to socket: {}", msg);
+				} else {
+					logger.debug("Message not sent: {}", msg, arg.cause());
+				}
+			}
+		});
+
+		return f;
 	}
 
 	/**
