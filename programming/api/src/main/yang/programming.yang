@@ -268,9 +268,17 @@ module programming {
 		output {
 			choice result {
 				case failure {
-					leaf failure {
-						type identityref {
-							base submit-failure;
+					container failure {
+						leaf type {
+							type identityref {
+								base submit-failure;
+							}
+							mandatory true;
+						}
+
+						leaf-list failed-preconditions {
+							when "../type = dead-on-arrival";
+							type instruction-id;
 						}
 					}
 				}
@@ -280,13 +288,25 @@ module programming {
 
 	notification instruction-status-changed {
 		leaf id {
+			description "Instruction identifier.";
 			type instruction-id;
 			mandatory true;
 		}
 
 		leaf status {
+			description "New status of the instruction.";
 			type instruction-status;
 			mandatory true;
+		}
+
+		container details {
+			description
+				"More details about the instruction state.";
+
+			leaf-list unmet-dependencies {
+				when "../../status = cancelled";
+				type instruction-id;
+			}
 		}
 	}
 }
