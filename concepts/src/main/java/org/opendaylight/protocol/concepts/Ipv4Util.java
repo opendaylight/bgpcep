@@ -98,6 +98,6 @@ public final class Ipv4Util {
 			p = prefix.getIpv6Prefix().getValue();
 		}
 		final int sep = p.indexOf("/");
-		return Integer.valueOf(p.substring(sep, p.length() - 1));
+		return Integer.valueOf(p.substring(sep + 1, p.length()));
 	}
 }

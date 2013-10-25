@@ -45,26 +45,26 @@ public class IPAddressesAndPrefixesTest {
 
 	@Test
 	public void testPrefix4ForBytes() {
-		byte[] bytes = new byte[] { 123, 122, 4, 5 };
+		final byte[] bytes = new byte[] { 123, 122, 4, 5 };
 		assertEquals(new Ipv4Prefix("123.122.4.5/32"), Ipv4Util.prefixForBytes(bytes, 32));
 	}
 
 	@Test
 	public void testAddress4ForBytes() {
-		byte[] bytes = new byte[] { (byte) 123, (byte) 122, (byte) 4, (byte) 5 };
+		final byte[] bytes = new byte[] { (byte) 123, (byte) 122, (byte) 4, (byte) 5 };
 		assertEquals(new Ipv4Address("123.122.4.5"), Ipv4Util.addressForBytes(bytes));
 		try {
 			Ipv4Util.addressForBytes(new byte[] { 22, 44, 66, 18, 88, 33 });
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			assertEquals("addr is of illegal length", e.getMessage());
 		}
 	}
 
 	@Test
 	public void testPrefixList4ForBytes() {
-		byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
-		List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
+		final byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
+		final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
 		assertEquals(
 				Lists.newArrayList(new Ipv4Prefix("172.168.3.0/22"), new Ipv4Prefix("12.0.0.0/8"), new Ipv4Prefix("192.168.35.100/32")),
 				prefs);
@@ -72,16 +72,22 @@ public class IPAddressesAndPrefixesTest {
 
 	@Test
 	public void testPrefix6ForBytes() {
-		byte[] bytes = new byte[] { 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 };
+		final byte[] bytes = new byte[] { 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 };
 		assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
 	}
 
 	@Test
 	public void testPrefixList6ForBytes() {
-		List<Ipv6Prefix> prefs = Lists.newArrayList();
+		final List<Ipv6Prefix> prefs = Lists.newArrayList();
 		prefs.add(new Ipv6Prefix("2001:db8:1:2::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1:1::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1::/64"));
 
+	}
+
+	@Test
+	public void testPrefixLength() {
+		assertEquals(22, Ipv4Util.getPrefixLength(new IpPrefix(new Ipv4Prefix("172.168.3.0/22"))));
+		assertEquals(64, Ipv4Util.getPrefixLength(new IpPrefix(new Ipv6Prefix("2001:db8:1:2::/64"))));
 	}
 }

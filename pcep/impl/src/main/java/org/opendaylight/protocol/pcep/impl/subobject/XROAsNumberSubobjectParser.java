@@ -20,42 +20,39 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link AsNumberSubobject}
  */
-
 public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
 	public static final int TYPE = 32;
 
-	public static final int AS_NUMBER_LENGTH = 2;
+	private static final int AS_NUMBER_LENGTH = 2;
 
-	public static final int AS_NUMBER_OFFSET = 0;
+	private static final int AS_NUMBER_OFFSET = 0;
 
-	public static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
+	private static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length != CONTENT_LENGTH)
+		}
+		if (buffer.length != CONTENT_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
 					+ CONTENT_LENGTH + ".");
-
+		}
 		return new SubobjectsBuilder().setMandatory(mandatory).setSubobjectType(
 				new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject))
+		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject)) {
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed AsNumberSubobject.");
-
+		}
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
-
 		final AsNumberSubobject obj = (AsNumberSubobject) subobject.getSubobjectType();
-
 		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH, retBytes,
 				AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
-
 		return retBytes;
 	}
 

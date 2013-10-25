@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -48,13 +49,24 @@ public class Ipv6Util {
 		return a.getAddress();
 	}
 
+	public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
+		final String p = prefix.getValue();
+		final int sep = p.indexOf("/");
+		try {
+			final byte[] bytes = Inet6Address.getByName(p.substring(0, sep)).getAddress();
+			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length() - 1)) });
+		} catch (final UnknownHostException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
+	}
+
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
-		byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
+		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
 		InetAddress a = null;
 		try {
 			a = InetAddress.getByAddress(tmp);
-		} catch (UnknownHostException e) {
+		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
 		return new Ipv6Prefix(InetAddresses.toAddrString(a) + "/" + length);

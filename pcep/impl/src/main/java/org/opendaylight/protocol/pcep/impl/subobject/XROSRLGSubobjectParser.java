@@ -18,6 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgBuilder;
 
+import com.google.common.primitives.UnsignedBytes;
+
 /**
  * Parser for {@link SrlgSubobject}
  */
@@ -25,22 +27,23 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 
 	public static final int TYPE = 34;
 
-	public static final int SRLG_ID_NUMBER_LENGTH = 4;
-	public static final int ATTRIBUTE_LENGTH = 1;
+	private static final int SRLG_ID_NUMBER_LENGTH = 4;
+	private static final int ATTRIBUTE_LENGTH = 1;
 
-	public static final int SRLG_ID_NUMBER_OFFSET = 0;
-	public static final int ATTRIBUTE_OFFSET = SRLG_ID_NUMBER_OFFSET + SRLG_ID_NUMBER_LENGTH + 1; // added reserved
-																									// field of size 1
+	private static final int SRLG_ID_NUMBER_OFFSET = 0;
+	private static final int ATTRIBUTE_OFFSET = SRLG_ID_NUMBER_OFFSET + SRLG_ID_NUMBER_LENGTH;
 
-	public static final int CONTENT_LENGTH = ATTRIBUTE_OFFSET + ATTRIBUTE_LENGTH;
+	private static final int CONTENT_LENGTH = SRLG_ID_NUMBER_LENGTH + ATTRIBUTE_LENGTH;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length != CONTENT_LENGTH)
+		}
+		if (buffer.length != CONTENT_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
 					+ CONTENT_LENGTH + ".");
+		}
 
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
 		builder.setMandatory(mandatory);
@@ -52,16 +55,18 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof SrlgSubobject))
+		if (!(subobject.getSubobjectType() instanceof SrlgSubobject)) {
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed SrlgSubobject.");
+		}
 
 		byte[] retBytes;
 		retBytes = new byte[CONTENT_LENGTH];
 		final SrlgSubobject specObj = (SrlgSubobject) subobject.getSubobjectType();
 
-		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getSrlgId().getValue()), retBytes, SRLG_ID_NUMBER_OFFSET);
-		retBytes[ATTRIBUTE_OFFSET] = (byte) subobject.getAttribute().getIntValue();
+		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(specObj.getSrlgId().getValue()), 4, SRLG_ID_NUMBER_LENGTH), retBytes,
+				SRLG_ID_NUMBER_OFFSET);
+		retBytes[ATTRIBUTE_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
 
 		return retBytes;
 	}
