@@ -34,17 +34,6 @@ module topology-tunnel-pcep {
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 	}
 
-	typedef operational-status {
-		type enumeration {
-			enum down;
-			enum up;
-			enum active;
-			enum going-down;
-			enum going-up;
-		}
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
-	}
-
 	grouping tunnel-pcep-type {
 		container pcep-tunnel {
 			presence "indicates a link is a PCEP tunnel";
@@ -61,7 +50,7 @@ module topology-tunnel-pcep {
 		}
 
 		leaf operational-status {
-			type operational-status;
+			type pcep:operational-status;
 			config false;
 		}
 
@@ -80,7 +69,7 @@ module topology-tunnel-pcep {
 		}
 
 		leaf operational-status {
-			type operational-status;
+			type pcep:operational-status;
 			config false;
 		}
 	}

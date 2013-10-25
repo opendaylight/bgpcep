@@ -23,6 +23,7 @@
         <module>provider-pcep</module>
 		<module>tunnel-api</module>
         <module>tunnel-pcep-api</module>
+        <module>tunnel-provider-pcep</module>
         <module>segment-routing</module>
     </modules>
 </project>
