@@ -366,13 +366,13 @@ module rsvp {
 		description "Subobject of an Explicit Route Object";
 		reference "https://tools.ietf.org/html/rfc4874#section-4.1";
 		uses basic-explicit-route-subobjects {
-//			augment "subobject-type" {
-//				case exrs {
-//					container exrs {
-//						uses exclude-route-subobjects;
-//					}
-//				}
-//			}
+			augment "subobject-type" {
+				case exrs {
+					container exrs {
+						uses exclude-route-subobjects;
+					}
+				}
+			}
 		}
 	}
 }
