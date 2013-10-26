@@ -176,6 +176,7 @@ module programming {
 			"The specified instruction is in process of being
 			executed and cannot be cancelled. Wait for the
 			execution process to complete.";
+		base cancel-failure;
 	}
 
 	rpc cancel-instruction {
@@ -206,11 +207,20 @@ module programming {
 			"Instruction ID clashes with an instruction with an
 			already-queued instruction. Assign a new identifier
 			or wait for the enqueued instruction to complete.";
+		base submit-failure;
 	}
 
 	identity too-many-instructions {
 		description
 			"Instruction queue size exceeded.";
+		base submit-failure;
+	}
+
+	identity unknown-precondition-id {
+		description
+			"One of the instruction IDs specified in the
+			precondition list is unknown.";
+		base submit-failure;
 	}
 
 	identity instruction-type {
@@ -257,6 +267,18 @@ module programming {
 					}
 				}
 			}
+		}
+	}
+
+	notification instruction-status-changed {
+		leaf id {
+			type instruction-id;
+			mandatory true;
+		}
+
+		leaf status {
+			type instruction-status;
+			mandatory true;
 		}
 	}
 }
