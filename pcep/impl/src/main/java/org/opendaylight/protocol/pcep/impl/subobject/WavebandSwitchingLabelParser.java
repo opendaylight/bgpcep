@@ -48,7 +48,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 	}
 
 	@Override
-	public byte[] serializeSubobject(final CLabel subobject) {
+	public byte[] serializeLabel(final CLabel subobject) {
 		if (!(subobject instanceof WavebandSwitchingLabel))
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
 					+ ". Needed WavebandSwitchingLabel.");

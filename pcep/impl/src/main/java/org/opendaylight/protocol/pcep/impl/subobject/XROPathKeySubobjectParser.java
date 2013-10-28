@@ -14,11 +14,15 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKeySubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.PathKeyBuilder;
 
+/**
+ * Parser for {@link PathKeySubobject}
+ */
 public class XROPathKeySubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
 	public static final int TYPE = 64;

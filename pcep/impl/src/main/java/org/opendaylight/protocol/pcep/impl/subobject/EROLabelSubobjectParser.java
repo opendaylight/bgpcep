@@ -82,7 +82,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		if (serializer == null)
 			throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed " + label.getClass());
 
-		final byte[] labelbytes = serializer.serializeSubobject((CLabel) label);
+		final byte[] labelbytes = serializer.serializeLabel((CLabel) label);
 
 		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
 

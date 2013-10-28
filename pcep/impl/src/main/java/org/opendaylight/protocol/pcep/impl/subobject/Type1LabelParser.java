@@ -36,7 +36,7 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
 	}
 
 	@Override
-	public byte[] serializeSubobject(final CLabel subobject) {
+	public byte[] serializeLabel(final CLabel subobject) {
 		if (!(subobject instanceof Type1Label))
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass() + ". Needed Type1Label.");
 

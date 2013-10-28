@@ -79,7 +79,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		if (parser == null)
 			throw new IllegalArgumentException("Unknown RROLabelSubobject instance. Passed " + subobject.getSubobjectType().getClass());
 
-		final byte[] labelbytes = parser.serializeSubobject((CLabel) label);
+		final byte[] labelbytes = parser.serializeLabel((CLabel) label);
 
 		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
 

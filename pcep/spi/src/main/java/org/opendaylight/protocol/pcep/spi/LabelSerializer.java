@@ -14,5 +14,5 @@ public interface LabelSerializer {
 	@Deprecated
 	public int getType();
 
-	public byte[] serializeSubobject(CLabel subobject);
+	public byte[] serializeLabel(CLabel subobject);
 }

@@ -15,23 +15,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
 
+/**
+ * Parser for {@link GeneralizedLabel}
+ */
 public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 
 	public static final int CTYPE = 2;
 
 	@Override
 	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+		}
 
 		return new GeneralizedLabelBuilder().setGeneralizedLabel(buffer).build();
 	}
 
 	@Override
-	public byte[] serializeSubobject(final CLabel subobject) {
-		if (!(subobject instanceof GeneralizedLabel))
+	public byte[] serializeLabel(final CLabel subobject) {
+		if (!(subobject instanceof GeneralizedLabel)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
 					+ ". Needed GeneralizedLabel.");
+		}
 		return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel) subobject).getGeneralizedLabel();
 	}
 
