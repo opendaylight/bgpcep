@@ -223,6 +223,14 @@ module programming {
 		base submit-failure;
 	}
 
+	identity dead-on-arrival {
+		description
+			"The instruction was submitted after its deadline has
+			passed, or one of its dependencies resolved as
+			non-sunccessful.";
+		base submit-failure;
+	}
+
 	identity instruction-type {
 		description
 			"Base intruction type. This identity should be
