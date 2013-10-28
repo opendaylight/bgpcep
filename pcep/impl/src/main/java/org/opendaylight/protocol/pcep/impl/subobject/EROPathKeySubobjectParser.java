@@ -13,56 +13,65 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKeySubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.PathKeyBuilder;
 
+/**
+ * Parser for {@link PathKeySubobject}
+ */
 public class EROPathKeySubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
 	public static final int TYPE = 64;
 
 	public static final int TYPE128 = 65;
 
-	public static final int PK_F_LENGTH = 2;
-	public static final int PCE_ID_F_LENGTH = 4;
+	private static final int PK_F_LENGTH = 2;
+	private static final int PCE_ID_F_LENGTH = 4;
 
-	public static final int PCE128_ID_F_LENGTH = 16;
+	private static final int PCE128_ID_F_LENGTH = 16;
 
-	public static final int PK_F_OFFSET = 0;
-	public static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
+	private static final int PK_F_OFFSET = 0;
+	private static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
 
-	public static final int CONTENT_LENGTH = PCE_ID_F_OFFSET + PCE_ID_F_LENGTH;
+	private static final int CONTENT_LENGTH = PCE_ID_F_OFFSET + PCE_ID_F_LENGTH;
+	private static final int CONTENT128_LENGTH = PCE_ID_F_OFFSET + PCE128_ID_F_LENGTH;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length != CONTENT_LENGTH)
+		}
+		byte[] pceId = null;
+		if (buffer.length == CONTENT_LENGTH) {
+			pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT_LENGTH);
+		} else if (buffer.length == CONTENT128_LENGTH) {
+			pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT128_LENGTH);
+		} else {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
 					+ CONTENT_LENGTH + ".");
-
-		final int pathKey = ByteArray.bytesToShort(Arrays.copyOfRange(buffer, PK_F_OFFSET, PCE_ID_F_OFFSET)) & 0xFFFF;
-
-		final byte[] pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT_LENGTH);
-
+		}
+		final int pathKey = ByteArray.bytesToShort(Arrays.copyOfRange(buffer, PK_F_OFFSET, PCE_ID_F_OFFSET));
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
 		builder.setLoose(loose);
-		// builder.setSubobjectType(value);
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.path.key.PathKeyBuilder pBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.path.key.PathKeyBuilder();
+		pBuilder.setPceId(new PceId(pceId));
+		pBuilder.setPathKey(new PathKey(pathKey));
+		builder.setSubobjectType(new PathKeyBuilder().setPathKey(pBuilder.build()).build());
 		return builder.build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		final byte[] retBytes = new byte[CONTENT_LENGTH];
-
-		// System.arraycopy(ByteArray.shortToBytes((short) objToSerialize.getPathKey()), 0, retBytes, PK_F_OFFSET,
-		// PK_F_LENGTH);
-		//
-		// if (objToSerialize.getPceId().length != PCE_ID_F_LENGTH)
-		// throw new IllegalArgumentException("Wrong length of pce id. Passed: " + objToSerialize.getPceId().length +
-		// ". Expected: ="
-		// + PCE_ID_F_LENGTH);
-		// System.arraycopy(objToSerialize.getPceId(), 0, retBytes, PCE_ID_F_OFFSET, PCE_ID_F_LENGTH);
-
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.PathKey pk = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.PathKey) subobject.getSubobjectType();
+		final int pathKey = pk.getPathKey().getPathKey().getValue();
+		final byte[] pceId = pk.getPathKey().getPceId().getBinary();
+		final byte[] retBytes = new byte[PK_F_LENGTH + pceId.length];
+		System.arraycopy(ByteArray.shortToBytes((short) pathKey), 0, retBytes, PK_F_OFFSET, PK_F_LENGTH);
+		System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
 		return retBytes;
 	}
 

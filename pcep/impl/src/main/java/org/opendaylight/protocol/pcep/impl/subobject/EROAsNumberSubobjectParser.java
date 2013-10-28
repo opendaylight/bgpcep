@@ -25,7 +25,7 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
 	public static final int TYPE = 32;
 
-	public static final int AS_NUMBER_LENGTH = 4;
+	public static final int AS_NUMBER_LENGTH = 2;
 
 	public static final int AS_NUMBER_OFFSET = 0;
 

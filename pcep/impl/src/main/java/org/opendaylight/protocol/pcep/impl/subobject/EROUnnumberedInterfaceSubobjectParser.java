@@ -35,11 +35,13 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length != CONTENT_LENGTH)
+		}
+		if (buffer.length != CONTENT_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
 					+ CONTENT_LENGTH + ".");
+		}
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
 		builder.setLoose(loose);
 		final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
@@ -52,18 +54,17 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof UnnumberedSubobject))
+		if (!(subobject.getSubobjectType() instanceof UnnumberedSubobject)) {
 			throw new IllegalArgumentException("Unknown ExplicitRouteSubobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed UnnumberedSubobject.");
-
+		}
 		byte[] retBytes;
 		retBytes = new byte[CONTENT_LENGTH];
 		final UnnumberedSubobject specObj = (UnnumberedSubobject) subobject.getSubobjectType();
-
-		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId()), retBytes, ROUTER_ID_NUMBER_OFFSET);
+		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(specObj.getRouterId()), 4, ROUTER_ID_NUMBER_LENGTH), retBytes,
+				ROUTER_ID_NUMBER_OFFSET);
 		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId()), Long.SIZE / Byte.SIZE - INTERFACE_ID_NUMBER_LENGTH, retBytes,
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-
 		return retBytes;
 	}
 

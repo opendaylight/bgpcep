@@ -30,21 +30,20 @@ public class EROIpPrefixSubobjectParser implements EROSubobjectParser, EROSubobj
 
 	public static final int TYPE6 = 2;
 
-	public static final int IP4_F_LENGTH = 4;
-	public static final int PREFIX4_F_LENGTH = 1;
+	private static final int IP4_F_LENGTH = 4;
+	private static final int PREFIX4_F_LENGTH = 1;
 
-	public static final int PREFIX4_F_OFFSET = IP4_F_LENGTH;
+	private static final int PREFIX4_F_OFFSET = IP4_F_LENGTH;
 
-	public static final int CONTENT4_LENGTH = PREFIX4_F_OFFSET + PREFIX4_F_LENGTH + 1; // added reserved field of size 1
+	private static final int CONTENT4_LENGTH = PREFIX4_F_OFFSET + PREFIX4_F_LENGTH + 1;
 
-	public static final int IP_F_LENGTH = 16;
-	public static final int PREFIX_F_LENGTH = 1;
+	private static final int IP_F_LENGTH = 16;
+	private static final int PREFIX_F_LENGTH = 1;
 
-	public static final int IP_F_OFFSET = 0;
-	public static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
+	private static final int IP_F_OFFSET = 0;
+	private static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
 
-	public static final int CONTENT_LENGTH = PREFIX_F_OFFSET + PREFIX_F_LENGTH + 1; // added reserved field of size 1
-																					// byte
+	private static final int CONTENT_LENGTH = PREFIX_F_OFFSET + PREFIX_F_LENGTH + 1;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
@@ -81,13 +80,13 @@ public class EROIpPrefixSubobjectParser implements EROSubobjectParser, EROSubobj
 
 		if (prefix.getIpv4Prefix() != null) {
 			final byte[] retBytes = new byte[CONTENT4_LENGTH];
-			ByteArray.copyWhole(prefix.getIpv4Prefix().getValue().getBytes(), retBytes, 0);
-			retBytes[PREFIX_F_OFFSET] = ByteArray.intToBytes(Ipv4Util.getPrefixLength(prefix))[Integer.SIZE / Byte.SIZE - 1];
+			ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, 0);
+			retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
 			return retBytes;
 		} else if (prefix.getIpv6Prefix() != null) {
 			final byte[] retBytes = new byte[CONTENT_LENGTH];
-			ByteArray.copyWhole(prefix.getIpv6Prefix().getValue().getBytes(), retBytes, 0);
-			retBytes[PREFIX_F_OFFSET] = ByteArray.intToBytes(Ipv4Util.getPrefixLength(prefix))[Integer.SIZE / Byte.SIZE - 1];
+			ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, 0);
+			retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
 			return retBytes;
 		}
 		throw new IllegalArgumentException("No valid IpPrefix");
