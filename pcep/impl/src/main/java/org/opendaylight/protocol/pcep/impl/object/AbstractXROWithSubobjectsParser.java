@@ -59,7 +59,8 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset + LENGTH_F_OFFSET, SUB_LENGTH_F_LENGTH));
 
-			type = bytes[offset + TYPE_FLAG_F_OFFSET];
+			final boolean mandatory = ((bytes[offset + TYPE_FLAG_F_OFFSET] & (1 << 7)) != 0) ? true : false;
+			type = (bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7);
 
 			if (length > bytes.length - offset) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
@@ -70,7 +71,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
 
 			logger.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, false);
+			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, mandatory);
 			logger.debug("Subobject was parsed. {}", sub);
 
 			subs.add(sub);
@@ -94,7 +95,8 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
 
-			final byte typeBytes = (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0]);
+			final byte typeBytes = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0] | (subobject.isMandatory() ? 1 << 7
+					: 0));
 			final byte lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - 1)[0];
 
 			bytes[0] = typeBytes;

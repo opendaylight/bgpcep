@@ -355,7 +355,7 @@ module rsvp {
 		uses basic-explicit-route-subobjects {
 			augment "subobject-type" {
 				case exrs {
-					container exrs {
+					list exrs {
 						uses exclude-route-subobjects;
 					}
 				}

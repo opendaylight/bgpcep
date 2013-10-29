@@ -10,10 +10,13 @@ package org.opendaylight.protocol.pcep.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
@@ -30,7 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.LabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.ExrsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
+
+import com.google.common.collect.Lists;
 
 public class PCEPEROSubobjectParserTest {
 	private static final byte[] ip4PrefixBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00 };
@@ -45,6 +51,7 @@ public class PCEPEROSubobjectParserTest {
 			(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 			(byte) 0x00, (byte) 0x00, (byte) 0x00 };
 	private static final byte[] labelBytes = { (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF };
+	private static final byte[] exrsBytes = { (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 
 	@Test
 	public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
@@ -117,7 +124,7 @@ public class PCEPEROSubobjectParserTest {
 	}
 
 	@Test
-	public void testEroLabelSubobject() throws Exception {
+	public void testEROLabelSubobject() throws Exception {
 		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(PCEPExtensionProviderContextImpl.create().getLabelHandlerRegistry());
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
@@ -127,8 +134,18 @@ public class PCEPEROSubobjectParserTest {
 		assertArrayEquals(labelBytes, parser.serializeSubobject(subs.build()));
 	}
 
-	public void testEROSubojectsSerDeserWithoutBin() throws PCEPDeserializerException {
-		// objsToTest.add(new EROExplicitExclusionRouteSubobject(Arrays.asList((ExcludeRouteSubobject) new
-		// XROAsNumberSubobject(new AsNumber((long) 2588), true))));
+	@Test
+	public void testEROEXRSSubobject() throws Exception {
+		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(PCEPExtensionProviderContextImpl.create().getXROSubobjectHandlerRegistry());
+		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		subs.setLoose(true);
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs.Exrs> list = Lists.newArrayList();
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs.ExrsBuilder builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs.ExrsBuilder();
+		builder.setMandatory(true);
+		builder.setSubobjectType(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build());
+		list.add(builder.build());
+		subs.setSubobjectType(new ExrsBuilder().setExrs(list).build());
+		assertEquals(subs.build(), parser.parseSubobject(exrsBytes, true));
+		// assertArrayEquals(exrsBytes, parser.serializeSubobject(subs.build()));
 	}
 }
