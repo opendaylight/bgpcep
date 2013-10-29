@@ -12,7 +12,7 @@ import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.util.Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
@@ -25,7 +25,7 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 		return this.handlers.registerParser(cType, parser);
 	}
 
-	public AutoCloseable registerLabelSerializer(final Class<? extends CLabel> labelClass, final LabelSerializer serializer) {
+	public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass, final LabelSerializer serializer) {
 		return this.handlers.registerSerializer(labelClass, serializer);
 	}
 
@@ -36,7 +36,7 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 	}
 
 	@Override
-	public LabelSerializer getLabelSerializer(final CLabel label) {
+	public LabelSerializer getLabelSerializer(final LabelType label) {
 		return this.handlers.getSerializer(label.getImplementedInterface());
 	}
 }

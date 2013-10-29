@@ -14,15 +14,19 @@ import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKeySubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.subobjects.subobject.type.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder;
 
 public class PCEPRROSubobjectParserTest {
@@ -37,6 +41,7 @@ public class PCEPRROSubobjectParserTest {
 	private static final byte[] pathKey128Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 			(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 			(byte) 0x00, (byte) 0x00, (byte) 0x00 };
+	private static final byte[] labelBytes = { (byte) 0x81, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF };
 
 	@Test
 	public void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
@@ -97,5 +102,15 @@ public class PCEPRROSubobjectParserTest {
 		subs.setSubobjectType(new PathKeyBuilder().setPathKey(pBuilder.build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(pathKey128Bytes));
 		assertArrayEquals(pathKey128Bytes, parser.serializeSubobject(subs.build()));
+	}
+
+	@Test
+	public void testRROLabelSubobject() throws Exception {
+		final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(PCEPExtensionProviderContextImpl.create().getLabelHandlerRegistry());
+		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		subs.setSubobjectType(new LabelBuilder().setUniDirectional(true).setGlobal(true).setLabelType(
+				new GeneralizedLabelBuilder().setGeneralizedLabel(new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }).build()).build());
+		assertEquals(subs.build(), parser.parseSubobject(labelBytes));
+		assertArrayEquals(labelBytes, parser.serializeSubobject(subs.build()));
 	}
 }

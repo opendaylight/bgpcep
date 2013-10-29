@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 public interface LabelSerializer {
 
 	@Deprecated
 	public int getType();
 
-	public byte[] serializeLabel(CLabel subobject);
+	public byte[] serializeLabel(LabelType subobject);
 }

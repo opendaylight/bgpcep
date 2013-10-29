@@ -19,9 +19,9 @@ import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LabelSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.LabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 import com.google.common.base.Preconditions;
 
@@ -49,12 +49,13 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0)
+		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.length < HEADER_LENGTH)
+		}
+		if (buffer.length < HEADER_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
 					+ HEADER_LENGTH + ".");
-
+		}
 		final BitSet reserved = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, RES_F_OFFSET, RES_F_LENGTH));
 
 		final short c_type = (short) (buffer[C_TYPE_F_OFFSET] & 0xFF);
@@ -64,7 +65,6 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		if (parser == null) {
 			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + c_type);
 		}
-
 		final LabelBuilder builder = new LabelBuilder();
 		builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
 		builder.setLabelType(parser.parseLabel(ByteArray.cutBytes(buffer, HEADER_LENGTH)));
@@ -75,15 +75,16 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 	public byte[] serializeSubobject(final Subobjects subobject) {
 		Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
 
-		final LabelSubobject label = (LabelSubobject) subobject.getSubobjectType();
+		final Label label = (Label) subobject.getSubobjectType();
+		final LabelType l = label.getLabelType();
 
-		final LabelSerializer serializer = this.registry.getLabelSerializer((CLabel) label);
+		final LabelSerializer serializer = this.registry.getLabelSerializer(l);
 
-		if (serializer == null)
-			throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed " + label.getClass());
-
-		final byte[] labelbytes = serializer.serializeLabel((CLabel) label);
-
+		if (serializer == null) {
+			throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
+					+ label.getLabelType().getImplementedInterface());
+		}
+		final byte[] labelbytes = serializer.serializeLabel(l);
 		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
 
 		System.arraycopy(labelbytes, 0, retBytes, HEADER_LENGTH, labelbytes.length);
@@ -91,9 +92,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		final BitSet reserved = new BitSet();
 		reserved.set(U_FLAG_OFFSET, label.isUniDirectional());
 		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
-
 		retBytes[C_TYPE_F_OFFSET] = (byte) serializer.getType();
-
 		return retBytes;
 	}
 

@@ -203,16 +203,6 @@ module rsvp {
 		}
 	}
 
-	grouping generalized-channel-set-label {
-		reference "https://tools.ietf.org/html/rfc6002#section-3.2";
-
-		uses c-label;
-
-		list subobjects {
-			uses label-set;
-		}
-	}
-
 	//marker
 	grouping c-subobject {
 	
@@ -253,9 +243,6 @@ module rsvp {
 			}
 			case waveband-switching-label {
 				uses waveband-switching-label;
-			}
-			case generalized-channel-set-label {
-				uses generalized-channel-set-label;
 			}
 		}
 	}
