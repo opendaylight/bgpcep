@@ -17,7 +17,9 @@
 	<name>${project.artifactId}</name>
 	
 	<modules>
-		<module>api</module>
+        <module>api</module>
+        <module>impl</module>
+        <module>spi</module>
 		<module>tunnel-api</module>
     </modules>
 </project>
