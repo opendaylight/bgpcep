@@ -37,8 +37,8 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 /**
  *
@@ -51,7 +51,7 @@ public final class PCEPExtensionProviderContextImpl implements PCEPExtensionProv
 		static {
 			try {
 				INSTANCE = PCEPExtensionProviderContextImpl.create();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				throw new ExceptionInInitializerError(e);
 			}
 		}
@@ -73,7 +73,7 @@ public final class PCEPExtensionProviderContextImpl implements PCEPExtensionProv
 		final PCEPExtensionProviderContext ctx = new PCEPExtensionProviderContextImpl();
 
 		final ServiceLoader<PCEPExtensionProviderActivator> loader = ServiceLoader.load(PCEPExtensionProviderActivator.class);
-		for (PCEPExtensionProviderActivator a : loader) {
+		for (final PCEPExtensionProviderActivator a : loader) {
 			a.start(ctx);
 		}
 
@@ -87,7 +87,7 @@ public final class PCEPExtensionProviderContextImpl implements PCEPExtensionProv
 
 	@Override
 	public LabelHandlerRegistry getLabelHandlerRegistry() {
-		return labelReg;
+		return this.labelReg;
 	}
 
 	@Override
@@ -121,72 +121,75 @@ public final class PCEPExtensionProviderContextImpl implements PCEPExtensionProv
 	}
 
 	@Override
-	public AutoCloseable registerLabelSerializer(final Class<? extends CLabel> labelClass, final LabelSerializer serializer) {
-		return labelReg.registerLabelSerializer(labelClass, serializer);
+	public AutoCloseable registerLabelSerializer(final Class<? extends LabelType> labelClass, final LabelSerializer serializer) {
+		return this.labelReg.registerLabelSerializer(labelClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
-		return labelReg.registerLabelParser(cType, parser);
+		return this.labelReg.registerLabelParser(cType, parser);
 	}
 
 	@Override
 	public AutoCloseable registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
-		return eroSubReg.registerSubobjectParser(subobjectType, parser);
+		return this.eroSubReg.registerSubobjectParser(subobjectType, parser);
 	}
 
 	@Override
-	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass, final EROSubobjectSerializer serializer) {
-		return eroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
+	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+			final EROSubobjectSerializer serializer) {
+		return this.eroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
-		return msgReg.registerMessageParser(messageType, parser);
+		return this.msgReg.registerMessageParser(messageType, parser);
 	}
 
 	@Override
 	public AutoCloseable registerMessageSerializer(final Class<? extends Message> msgClass, final MessageSerializer serializer) {
-		return msgReg.registerMessageSerializer(msgClass, serializer);
+		return this.msgReg.registerMessageSerializer(msgClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
-		return objReg.registerObjectParser(objectClass, objectType, parser);
+		return this.objReg.registerObjectParser(objectClass, objectType, parser);
 	}
 
 	@Override
 	public AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
-		return objReg.registerObjectSerializer(objClass, serializer);
+		return this.objReg.registerObjectSerializer(objClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
-		return rroSubReg.registerSubobjectParser(subobjectType, parser);
+		return this.rroSubReg.registerSubobjectParser(subobjectType, parser);
 	}
 
 	@Override
-	public AutoCloseable registerRROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass, final RROSubobjectSerializer serializer) {
-		return rroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
+	public AutoCloseable registerRROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+			final RROSubobjectSerializer serializer) {
+		return this.rroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerTlvParser(final int tlvType, final TlvParser parser) {
-		return tlvReg.registerTlvParser(tlvType, parser);
+		return this.tlvReg.registerTlvParser(tlvType, parser);
 	}
 
 	@Override
 	public AutoCloseable registerTlvSerializer(final Class<? extends Tlv> tlvClass, final TlvSerializer serializer) {
-		return tlvReg.registerTlvSerializer(tlvClass, serializer);
+		return this.tlvReg.registerTlvSerializer(tlvClass, serializer);
 	}
 
 	@Override
 	public AutoCloseable registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
-		return xroSubReg.registerSubobjectParser(subobjectType, parser);
+		return this.xroSubReg.registerSubobjectParser(subobjectType, parser);
 	}
 
 	@Override
-	public AutoCloseable registerXROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass, final XROSubobjectSerializer serializer) {
-		return xroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
+	public AutoCloseable registerXROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+			final XROSubobjectSerializer serializer) {
+		return this.xroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
 	}
 }

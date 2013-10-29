@@ -10,9 +10,8 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.GeneralizedLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
 
 /**
@@ -32,12 +31,12 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 	}
 
 	@Override
-	public byte[] serializeLabel(final CLabel subobject) {
+	public byte[] serializeLabel(final LabelType subobject) {
 		if (!(subobject instanceof GeneralizedLabel)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
 					+ ". Needed GeneralizedLabel.");
 		}
-		return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel) subobject).getGeneralizedLabel();
+		return ((GeneralizedLabel) subobject).getGeneralizedLabel();
 	}
 
 	@Override

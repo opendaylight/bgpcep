@@ -47,7 +47,6 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelChannelSetParser;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
@@ -126,14 +125,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SvecObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathNameTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.GeneralizedChannelSetLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.GeneralizedLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LabelSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Type1Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.WavebandSwitchingLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1Label;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,12 +150,10 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerLabelParser(Type1LabelParser.CTYPE, new Type1LabelParser());
 		context.registerLabelParser(GeneralizedLabelParser.CTYPE, new GeneralizedLabelParser());
 		context.registerLabelParser(WavebandSwitchingLabelParser.CTYPE, new WavebandSwitchingLabelParser());
-		context.registerLabelParser(GeneralizedLabelChannelSetParser.CTYPE, new GeneralizedLabelChannelSetParser());
 
 		context.registerLabelSerializer(Type1Label.class, new Type1LabelParser());
 		context.registerLabelSerializer(GeneralizedLabel.class, new GeneralizedLabelParser());
 		context.registerLabelSerializer(WavebandSwitchingLabel.class, new WavebandSwitchingLabelParser());
-		context.registerLabelSerializer(GeneralizedChannelSetLabel.class, new GeneralizedLabelChannelSetParser());
 
 		final EROSubobjectHandlerRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
 		context.registerEROSubobjectParser(EROIpPrefixSubobjectParser.TYPE, new EROIpPrefixSubobjectParser());
