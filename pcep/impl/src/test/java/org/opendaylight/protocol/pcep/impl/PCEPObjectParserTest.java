@@ -7,8 +7,41 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-/**
+import java.io.IOException;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.concepts.Ipv6Util;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
+import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.LoadBalancingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
+
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
+
+/*
  * Used resources<br/>
  * <br/>
  * PCEPOpenObject3.bin<br/>
@@ -322,26 +355,19 @@ package org.opendaylight.protocol.pcep.impl;
  */
 public class PCEPObjectParserTest {
 
-	// @Mock
-	// private HandlerRegistry registry;
-	//
+	private TlvHandlerRegistry tlvRegistry;
+
+	@Before
+	public void setUp() throws Exception {
+		this.tlvRegistry = PCEPExtensionProviderContextImpl.create().getTlvHandlerRegistry();
+	}
+
 	// IPv4Address ipv4addr = new IPv4Address(new byte[] { (byte) 192, (byte) 168, 1, 8 });
 	//
 	// IPv6Address ipv6addr = new IPv6Address(new byte[] { (byte) 192, (byte) 168, 2, 1, (byte) 192, (byte) 168, 2, 1,
 	// (byte) 192, (byte) 168,
 	// 2, 1, (byte) 192, (byte) 168, 2, 1 });
 	//
-	// @SuppressWarnings("unchecked")
-	// private static <T extends PCEPObject> void serDeserTest(final String srcFile, final T specObject) throws
-	// IOException,
-	// PCEPDeserializerException, PCEPDocumentedException {
-	// final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
-	// final T deserSpecObj = (T) PCEPObjectFactory.parseObjects(bytesFromFile).get(0);
-	// final byte[] serSpecObj = PCEPObjectFactory.put(Arrays.asList((PCEPObject) specObject));
-	//
-	// assertEquals(specObject, deserSpecObj);
-	// assertArrayEquals(bytesFromFile, serSpecObj);
-	// }
 	//
 	// /**
 	// * Standard serialization test<br/>
@@ -384,15 +410,21 @@ public class PCEPObjectParserTest {
 	// // serDeserTest("src/test/resources/PCEPCloseObject1.bin", new PCEPCloseObject(Reason.TOO_MANY_UNKNOWN_MSG));
 	// // }
 	//
-	// @Test
-	// @Ignore
-	// // FIXME BUG-89
-	// public void testLoadBalancingObjSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException
-	// {
-	// serDeserTest("src/test/resources/PCEPLoadBalancingObject1.bin", new PCEPLoadBalancingObject(0xF1, new
-	// Bandwidth(new byte[] {
-	// (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }), true));
-	// }
+	@Test
+	public void testLoadBalancingObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPLoadBalancingObjectParser parser = new PCEPLoadBalancingObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLoadBalancingObject1.bin");
+
+		final LoadBalancingBuilder builder = new LoadBalancingBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setMaxLsp((short) UnsignedBytes.toInt((byte) 0xf1));
+		builder.setMinBandwidth(new Float32(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// @Test
 	// public void testLspObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
@@ -467,65 +499,66 @@ public class PCEPObjectParserTest {
 	// assertArrayEquals(bytesFromFile, bytesActual);
 	// }
 	//
-	// /**
-	// * Test for upper/lower bounds (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPBandwidthObject2UpperBounds.bin<br/>
-	// * - PCEPBandwidthObject1LowerBounds.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// @Ignore
-	// // FIXME BUG-89
-	// public void testBandwidthObjectBounds() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// serDeserTest("src/test/resources/PCEPBandwidthObject1LowerBounds.bin",
-	// new PCEPRequestedPathBandwidthObject(new Bandwidth(new byte[] { 0, 0, 0, 0 }), true, true));
-	// }
-	//
-	// /**
-	// * Test for upper/lower bounds of IPv4 EndPoints (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPEndPointsObject1IPv4.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testEndPointsObjectSerDeserIPv4() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
-	// final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
-	// serDeserTest("src/test/resources/PCEPEndPointsObject1IPv4.bin",
-	// new PCEPEndPointsObject<IPv4Address>(new IPv4Address(srcIPBytes), new IPv4Address(destIPBytes)));
-	// }
-	//
-	// /**
-	// * Test for upper/lower bounds of IPv6 EndPoints (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPEndPointsObject2IPv6.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testEndPointsObjectSerDeserIPv6() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// final byte[] destIPBytes = { (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte)
-	// 0xA1,
-	// (byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte)
-	// 0x00, };
-	// final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte)
-	// 0xFF, (byte) 0xFF,
-	// (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
-	//
-	// serDeserTest("src/test/resources/PCEPEndPointsObject2IPv6.bin",
-	// new PCEPEndPointsObject<IPv6Address>(new IPv6Address(srcIPBytes), new IPv6Address(destIPBytes)));
-	// }
+
+	@Test
+	public void testBandwidthObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser(this.tlvRegistry);
+		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin");
+
+		final BandwidthBuilder builder = new BandwidthBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(true);
+		builder.setBandwidth(new Float32(result));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+
+		result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin");
+
+		builder.setBandwidth(new Float32(result));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testEndPointsObjectIPv4() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
+		final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+
+		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin");
+
+		final EndpointsBuilder builder = new EndpointsBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setAddressFamily(new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForBytes(srcIPBytes)).setDestinationIpv4Address(
+				Ipv4Util.addressForBytes(destIPBytes)).build());
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testEndPointsObjectSerDeserIPv6() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final byte[] destIPBytes = { (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte) 0xA1,
+				(byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
+		final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+
+		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin");
+
+		final EndpointsBuilder builder = new EndpointsBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setAddressFamily(new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForBytes(srcIPBytes)).setDestinationIpv6Address(
+				Ipv6Util.addressForBytes(destIPBytes)).build());
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// /**
 	// * Test of Serialization/Deserialization of PCEPErrorObjectParser.<br/>
@@ -582,25 +615,34 @@ public class PCEPObjectParserTest {
 	// new PCEPLspaObject(0x20A1FEE3L, 0x1A025CC7L, 0x2BB66532L, (short) 0x03, (short) 0x02, false, true, true, true));
 	// }
 	//
-	// @Test
-	// public void testMetricObjectSerDeserBounds() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// final byte[] bytesFromFileUB = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject2UpperBounds.bin");
-	// final byte[] bytesFromFileLB = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject1LowerBounds.bin");
-	//
-	// final PCEPMetricObject metricObjectLB = (PCEPMetricObject)
-	// PCEPObjectFactory.parseObjects(bytesFromFileLB).get(0);
-	// final PCEPMetricObject metricObjectUB = (PCEPMetricObject)
-	// PCEPObjectFactory.parseObjects(bytesFromFileUB).get(0);
-	//
-	// assertEquals(new PCEPMetricObject(false, false, new IGPMetric(0), true, true), metricObjectLB);
-	// assertEquals(new PCEPMetricObject(false, true, new TEMetric(4026531840L), true, true), metricObjectUB);
-	//
-	// final byte[] bytesActualLB = PCEPObjectFactory.put(Arrays.asList((PCEPObject) metricObjectLB));
-	// final byte[] bytesActualUB = PCEPObjectFactory.put(Arrays.asList((PCEPObject) metricObjectUB));
-	// assertArrayEquals(bytesFromFileLB, bytesActualLB);
-	// assertArrayEquals(bytesFromFileUB, bytesActualUB);
-	// }
+
+	@Test
+	public void testMetricObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPMetricObjectParser parser = new PCEPMetricObjectParser(this.tlvRegistry);
+		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject1LowerBounds.bin");
+
+		final MetricBuilder builder = new MetricBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(true);
+		builder.setComputed(false);
+		builder.setBound(false);
+		builder.setMetricType((short) 1);
+		builder.setValue(new Float32(new byte[] { 0, 0, 0, 0 }));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+
+		result = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject2UpperBounds.bin");
+
+		builder.setComputed(true);
+		builder.setBound(false);
+		builder.setMetricType((short) 2);
+		builder.setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// /**
 	// * Standard deserialization test + specific test without tlv<br/>
@@ -736,50 +778,47 @@ public class PCEPObjectParserTest {
 	// // }, false, false));
 	// }
 	//
-	// /**
-	// * Test for upper/lower bounds of PCEPSvecObject (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPSvecObject1_10ReqIDs.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testSvecObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// final List<Long> requestIDs = new ArrayList<Long>(10);
-	// requestIDs.add(0xFFFFFFFFL);
-	// requestIDs.add(0x00000000L);
-	// requestIDs.add(0x01234567L);
-	// requestIDs.add(0x89ABCDEFL);
-	// requestIDs.add(0xFEDCBA98L);
-	// requestIDs.add(0x76543210L);
-	// requestIDs.add(0x15825266L);
-	// requestIDs.add(0x48120BBEL);
-	// requestIDs.add(0x25FB7E52L);
-	// requestIDs.add(0xB2F2546BL);
-	//
-	// serDeserTest("src/test/resources/PCEPSvecObject1_10ReqIDs.bin",
-	// new PCEPSvecObject(true, false, true, false, true, requestIDs, true));
-	// }
-	//
-	// /**
-	// * Test for lowest bounds of PCEPSvecObject (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPSvecObject2.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testSvecObjectSerDeserNoReqIDs() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// final List<Long> requestIDs = new ArrayList<Long>();
-	// requestIDs.add(0xFFL);
-	// serDeserTest("src/test/resources/PCEPSvecObject2.bin", new PCEPSvecObject(false, false, false, false, false,
-	// requestIDs, false));
-	// }
+
+	@Test
+	public void testSvecObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPSvecObjectParser parser = new PCEPSvecObjectParser(this.tlvRegistry);
+		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPSvecObject2.bin");
+
+		final SvecBuilder builder = new SvecBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		builder.setLinkDiverse(false);
+		builder.setNodeDiverse(false);
+		builder.setSrlgDiverse(false);
+		builder.setRequestsIds(Lists.newArrayList(new RequestId(0xFFL)));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+
+		result = ByteArray.fileToBytes("src/test/resources/PCEPSvecObject1_10ReqIDs.bin");
+
+		builder.setProcessingRule(true);
+		builder.setLinkDiverse(true);
+		builder.setSrlgDiverse(true);
+
+		final List<RequestId> requestIDs = Lists.newArrayList();
+		requestIDs.add(new RequestId(0xFFFFFFFFL));
+		requestIDs.add(new RequestId(0x00000000L));
+		requestIDs.add(new RequestId(0x01234567L));
+		requestIDs.add(new RequestId(0x89ABCDEFL));
+		requestIDs.add(new RequestId(0xFEDCBA98L));
+		requestIDs.add(new RequestId(0x76543210L));
+		requestIDs.add(new RequestId(0x15825266L));
+		requestIDs.add(new RequestId(0x48120BBEL));
+		requestIDs.add(new RequestId(0x25FB7E52L));
+		requestIDs.add(new RequestId(0xB2F2546BL));
+
+		builder.setRequestsIds(requestIDs);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// @Test
 	// public void testClassTypeObject() throws PCEPDeserializerException, PCEPDocumentedException {

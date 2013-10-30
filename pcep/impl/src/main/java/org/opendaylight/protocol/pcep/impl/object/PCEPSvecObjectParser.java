@@ -12,7 +12,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.impl.message.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -36,26 +35,26 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 	/*
 	 * field lengths in bytes
 	 */
-	public static final int FLAGS_F_LENGTH = 3;
-	public static final int REQ_LIST_ITEM_LENGTH = 4;
+	private static final int FLAGS_F_LENGTH = 3;
+	private static final int REQ_LIST_ITEM_LENGTH = 4;
 
 	/*
 	 * fields offsets in bytes
 	 */
-	public static final int FLAGS_F_OFFSET = 1; // aded reserved field of size 1
-	public static final int REQ_ID_LIST_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = 1;
+	private static final int REQ_ID_LIST_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
 
 	/*
 	 * flags offsets inside flags field in bits
 	 */
-	public static final int S_FLAG_OFFSET = 21;
-	public static final int N_FLAG_OFFSET = 22;
-	public static final int L_FLAG_OFFSET = 23;
+	private static final int S_FLAG_OFFSET = 21;
+	private static final int N_FLAG_OFFSET = 22;
+	private static final int L_FLAG_OFFSET = 23;
 
 	/*
 	 * min size in bytes
 	 */
-	public static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
+	private static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
 
 	public PCEPSvecObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -66,23 +65,19 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-
 		if (bytes.length < MIN_SIZE) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + MIN_SIZE
 					+ ".");
 		}
-
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 		final List<RequestId> requestIDs = Lists.newArrayList();
 
 		for (int i = REQ_ID_LIST_OFFSET; i < bytes.length; i += REQ_LIST_ITEM_LENGTH) {
 			requestIDs.add(new RequestId(ByteArray.bytesToLong(ByteArray.subByte(bytes, i, REQ_LIST_ITEM_LENGTH))));
 		}
-
 		if (requestIDs.isEmpty()) {
 			throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
 		}
-
 		final SvecBuilder builder = new SvecBuilder();
 
 		builder.setIgnore(header.isIgnore());
@@ -120,9 +115,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 			System.arraycopy(ByteArray.longToBytes(requestIDs.get(i).getValue()), 4, retBytes, REQ_LIST_ITEM_LENGTH * i
 					+ REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
 		}
-
 		assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-
 		return retBytes;
 	}
 

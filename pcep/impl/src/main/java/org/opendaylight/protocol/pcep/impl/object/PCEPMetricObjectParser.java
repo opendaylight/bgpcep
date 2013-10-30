@@ -11,7 +11,6 @@ import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.impl.message.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
@@ -22,8 +21,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
 
+import com.google.common.primitives.UnsignedBytes;
+
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPMetricObject PCEPMetricObject}
+ * Parser for {@link MetricObject}
  */
 public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricBuilder> {
 
@@ -41,9 +42,9 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 	/*
 	 * offsets of fields in bytes
 	 */
-	public static final int FLAGS_F_OFFSET = 2;
-	public static final int TYPE_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-	public static final int METRIC_VALUE_F_OFFSET = TYPE_F_OFFSET + TYPE_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = 2;
+	private static final int TYPE_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int METRIC_VALUE_F_OFFSET = TYPE_F_OFFSET + TYPE_F_LENGTH;
 
 	/*
 	 * flags offsets inside flags field in bits
@@ -51,7 +52,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 	private static final int C_FLAG_OFFSET = 6;
 	private static final int B_FLAG_OFFSET = 7;
 
-	public static final int SIZE = METRIC_VALUE_F_OFFSET + METRIC_VALUE_F_LENGTH;
+	private static final int SIZE = METRIC_VALUE_F_OFFSET + METRIC_VALUE_F_LENGTH;
 
 	public PCEPMetricObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -59,7 +60,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 
 	@Override
 	public MetricObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -68,17 +69,13 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 		}
 		final byte[] flagBytes = { bytes[FLAGS_F_OFFSET] };
 		final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
-
 		final MetricBuilder builder = new MetricBuilder();
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
 		builder.setBound(flags.get(B_FLAG_OFFSET));
 		builder.setComputed(flags.get(C_FLAG_OFFSET));
-		builder.setMetricType((short) (bytes[TYPE_F_OFFSET] & 0xFF));
+		builder.setMetricType((short) UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]));
 		builder.setValue(new Float32(ByteArray.subByte(bytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH)));
-
 		return builder.build();
 	}
 
@@ -92,18 +89,14 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 		if (!(object instanceof MetricObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed MetricObject.");
 		}
-
 		final MetricObject mObj = (MetricObject) object;
-
 		final byte[] retBytes = new byte[SIZE];
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(C_FLAG_OFFSET, ((Metric) mObj).isComputed());
 		flags.set(B_FLAG_OFFSET, mObj.isBound());
-
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-
+		retBytes[TYPE_F_OFFSET] = UnsignedBytes.checkedCast(mObj.getMetricType());
 		System.arraycopy(mObj.getValue().getValue(), 0, retBytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH);
-
 		return retBytes;
 	}
 

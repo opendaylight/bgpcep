@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.impl.message.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObject;
@@ -39,7 +38,7 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 
 	@Override
 	public BandwidthObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -47,14 +46,10 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: "
 					+ BANDWIDTH_F_LENGTH + ".");
 		}
-
 		final BandwidthBuilder builder = new BandwidthBuilder();
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
 		builder.setBandwidth(new Float32(bytes));
-
 		return builder.build();
 	}
 
@@ -68,7 +63,6 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 		if (!(object instanceof BandwidthObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
 		}
-
 		return ((BandwidthObject) object).getBandwidth().getValue();
 	}
 

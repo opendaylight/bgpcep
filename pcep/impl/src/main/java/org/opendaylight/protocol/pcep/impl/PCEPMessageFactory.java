@@ -121,7 +121,7 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];
 
 		ByteArray.copyWhole(headerBytes, retBytes, 0);
-		ByteArray.copyWhole(msgBody, retBytes, PCEPMessageHeader.COMMON_HEADER_LENGTH);
+		ByteArray.copyWhole(msgBody, retBytes, COMMON_HEADER_LENGTH);
 
 		return retBytes;
 	}

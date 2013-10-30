@@ -12,7 +12,6 @@ import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.impl.message.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.EndpointsObject;
@@ -32,27 +31,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<EndpointsBuilder> {
 
 	public static final int CLASS = 4;
-
 	public static final int TYPE = 1;
+
+	public static final int CLASS_6 = 4;
+	public static final int TYPE_6 = 2;
 
 	/*
 	 * fields lengths and offsets for IPv4 in bytes
 	 */
-	public static final int SRC4_F_LENGTH = 4;
-	public static final int DEST4_F_LENGTH = 4;
+	private static final int SRC4_F_LENGTH = 4;
+	private static final int DEST4_F_LENGTH = 4;
 
-	public static final int SRC4_F_OFFSET = 0;
-	public static final int DEST4_F_OFFSET = SRC4_F_OFFSET + SRC4_F_LENGTH;
+	private static final int SRC4_F_OFFSET = 0;
+	private static final int DEST4_F_OFFSET = SRC4_F_OFFSET + SRC4_F_LENGTH;
 
-	public static final int CLASS_6 = 4;
+	private static final int SRC6_F_LENGTH = 16;
+	private static final int DEST6_F_LENGTH = 16;
 
-	public static final int TYPE_6 = 2;
-
-	public static final int SRC6_F_LENGTH = 16;
-	public static final int DEST6_F_LENGTH = 16;
-
-	public static final int SRC6_F_OFFSET = 0;
-	public static final int DEST6_F_OFFSET = SRC6_F_OFFSET + SRC6_F_LENGTH;
+	private static final int SRC6_F_OFFSET = 0;
+	private static final int DEST6_F_OFFSET = SRC6_F_OFFSET + SRC6_F_LENGTH;
 
 	public PCEPEndPointsObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -60,7 +57,7 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 
 	@Override
 	public EndpointsObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
 		}
