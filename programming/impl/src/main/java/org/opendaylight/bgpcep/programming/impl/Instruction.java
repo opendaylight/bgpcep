@@ -8,34 +8,43 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import io.netty.util.Timeout;
+import io.netty.util.concurrent.Future;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
+import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
 
 import com.google.common.base.Preconditions;
 
 final class Instruction {
 	private final List<Instruction> dependants = new ArrayList<>();
+	private final InstructionExecutor executor;
 	private final List<Instruction> dependencies;
-	private final SubmitInstructionInput input;
+	private final InstructionId id;
 	private volatile InstructionStatus status = InstructionStatus.Queued;
 	private Timeout timeout;
 
-	Instruction(final SubmitInstructionInput input, final List<Instruction> dependencies, final Timeout timeout) {
-		this.input = Preconditions.checkNotNull(input);
+	Instruction(final InstructionId id, final InstructionExecutor executor, final List<Instruction> dependencies, final Timeout timeout) {
+		this.id = Preconditions.checkNotNull(id);
+		this.executor = Preconditions.checkNotNull(executor);
 		this.dependencies = Preconditions.checkNotNull(dependencies);
 		this.timeout = Preconditions.checkNotNull(timeout);
 	}
 
-	SubmitInstructionInput getInput() {
-		return input;
+	InstructionId getId() {
+		return id;
 	}
 
 	InstructionStatus getStatus() {
 		return status;
+	}
+
+	Future<ExecutionResult<?>> execute() {
+		return executor.execute();
 	}
 
 	void setStatus(final InstructionStatus status) {

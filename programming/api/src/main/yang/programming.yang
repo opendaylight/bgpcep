@@ -231,55 +231,36 @@ module programming {
 		base submit-failure;
 	}
 
-	identity instruction-type {
-		description
-			"Base intruction type. This identity should be
-			extended for each individual instruction defined.";
-	}
-
-	rpc submit-instruction {
-		input {
-			leaf id {
-				type instruction-id;
-				mandatory true;
-			}
-
-			leaf type {
-				type identityref {
-					base instruction-type;
-				}
-				mandatory true;
-			}
-
-			leaf deadline {
-				type nanotime;
-				mandatory true;
-			}
-
-			leaf-list preconditions {
-				type instruction-id;
-			}
-
-			choice arguments {
-
-			}
+	grouping submit-instruction-input {
+		leaf id {
+			type instruction-id;
+			mandatory true;
 		}
 
-		output {
-			choice result {
-				case failure {
-					container failure {
-						leaf type {
-							type identityref {
-								base submit-failure;
-							}
-							mandatory true;
-						}
+		leaf deadline {
+			type nanotime;
+			mandatory true;
+		}
 
-						leaf-list failed-preconditions {
-							when "../type = dead-on-arrival";
-							type instruction-id;
+		leaf-list preconditions {
+			type instruction-id;
+		}
+	}
+
+	grouping submit-instruction-output {
+		choice result {
+			case failure {
+				container failure {
+					leaf type {
+						type identityref {
+							base submit-failure;
 						}
+						mandatory true;
+					}
+
+					leaf-list failed-preconditions {
+						when "../type = dead-on-arrival";
+						type instruction-id;
 					}
 				}
 			}

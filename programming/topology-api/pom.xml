@@ -10,8 +10,8 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>programming-tunnel-api</artifactId>
-	<description>Tunnel Programming API</description>
+	<artifactId>programming-topology-api</artifactId>
+	<description>Topology Programming API</description>
 	<packaging>bundle</packaging>
 	<name>${project.artifactId}</name>
 	<prerequisites>
@@ -21,17 +21,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>programming-topology-api</artifactId>
+			<artifactId>programming-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>topology-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>topology-tunnel-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
         <dependency>
@@ -102,7 +97,7 @@
 	<distributionManagement>
 		<site>
 			<id>${project.artifactId}</id>
-			<name>PROGRAMMING-TUNNEL-API Module site</name>
+			<name>PROGRAMMING-TOPOLOGY-API Module site</name>
 			<url>${basedir}/target/site/${project.artifactId}</url>
 		</site>
 	</distributionManagement>

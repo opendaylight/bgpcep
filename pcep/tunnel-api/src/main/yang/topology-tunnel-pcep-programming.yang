@@ -1,0 +1,94 @@
+module topology-tunnel-pcep-programming {
+        yang-version 1;
+        namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:programming";
+        prefix "ttpp";
+
+        import network-topology { prefix nt; revision-date 2013-10-21; }
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+        import programming { prefix pgm; revision-date 2013-09-30; }
+        import topology-tunnel { prefix tt; revision-date 2013-08-19; }
+        import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
+
+        organization "Cisco Systems, Inc.";
+        contact "Robert Varga <rovarga@cisco.com>";
+
+        description
+                "This module contains the programming extensions for tunnel
+                topologies.
+
+                Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+                This program and the accompanying materials are made available
+                under the terms of the Eclipse Public License v1.0 which
+                accompanies this distribution, and is available at
+                http://www.eclipse.org/legal/epl-v10.html";
+
+        revision "2013-10-30" {
+                description
+                        "Initial revision.";
+                reference "";
+        }
+
+	rpc pcep-create-tunnel {
+		input {
+			uses ttp:create-tunnel-input;
+
+			leaf symbolic-path-name {
+				type pcep:symbolic-path-name;
+				mandatory true;
+			}
+
+			container endpoints {
+				uses pcep:endpoints;
+			}
+
+			leaf signaling-type {
+				// FIXME: dedicated type in PCEP
+				type uint8;
+				default 0;
+			}
+
+			leaf administrative {
+				type boolean;
+				default true;
+			}
+
+			// FIXME: ERO
+			// FIXME: attribute-list
+		}
+		output {
+			uses ttp:create-tunnel-output;
+		}
+	}
+
+	rpc pcep-destroy-tunnel {
+		input {
+			uses ttp:destroy-tunnel-input;
+		}
+		output {
+			uses ttp:destroy-tunnel-output;
+		}
+	}
+
+	rpc pcep-update-tunnel {
+		input {
+			container update-tunnel {
+                                leaf topology-id {
+                                        type nt:topology-id;
+                                        mandatory true;
+                                }
+                                leaf link-id {
+                                        type nt:link-id;
+                                        mandatory true;
+                                }
+
+				// FIXME: all that PCUpd jazz
+			}
+		}
+
+		output {
+			uses pgm:submit-instruction-output;
+		}
+	}
+}
+
