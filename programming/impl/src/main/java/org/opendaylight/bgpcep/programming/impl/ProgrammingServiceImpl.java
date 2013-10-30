@@ -16,10 +16,8 @@ import io.netty.util.concurrent.FutureListener;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -32,7 +30,8 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
-import org.opendaylight.bgpcep.programming.spi.InstructionExecutorRegistry;
+import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
+import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionOutput;
@@ -42,11 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatusChangedBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.UncancellableInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.UnknownInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.UnknownPreconditionId;
@@ -54,17 +50,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.DetailsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure.Failure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure.FailureBuilder;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 
-final class ProgrammingServiceImpl implements InstructionExecutorRegistry, ProgrammingService {
+final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
 	private static final BigInteger MILLION = BigInteger.valueOf(1000000);
 
@@ -73,12 +66,6 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 	@GuardedBy("this")
 	private final Deque<Instruction> readyQueue = new ArrayDeque<>();
 
-	@GuardedBy("this")
-	private final Deque<Instruction> deferredQueue = new ArrayDeque<>();
-
-	@GuardedBy("this")
-	private final Multimap<Class<? extends InstructionType>, InstructionExecutor> executors = ArrayListMultimap.create();
-
 	private final NotificationProviderService notifs;
 	private final ExecutorService executor;
 	private final Timer timer;
@@ -86,7 +73,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 	private ExecutorService exec;
 
 	ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor,
-			final Timer timer, final InstructionExecutorRegistry registry) {
+			final Timer timer, final InstructionScheduler registry) {
 		this.notifs = Preconditions.checkNotNull(notifs);
 		this.executor = Preconditions.checkNotNull(executor);
 		this.timer = Preconditions.checkNotNull(timer);
@@ -100,63 +87,6 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 				return realCancelInstruction(input);
 			}
 		});
-	}
-
-	@Override
-	public java.util.concurrent.Future<RpcResult<SubmitInstructionOutput>> submitInstruction(final SubmitInstructionInput input) {
-		return executor.submit(new Callable<RpcResult<SubmitInstructionOutput>>() {
-			@Override
-			public RpcResult<SubmitInstructionOutput> call() {
-				return realSubmitInstruction(input);
-			}
-		});
-	}
-
-	@Override
-	public synchronized Registration<InstructionExecutor> registerInstructionExecutor(final Class<? extends InstructionType> type, final InstructionExecutor executor) {
-		Preconditions.checkNotNull(type);
-		Preconditions.checkNotNull(executor);
-
-		executors.put(type, executor);
-
-		/*
-		 * Walk the deferred instructions back to front, check if they have
-		 * the same type as the executor we have just registered. If they do,
-		 * we move them to the head of readyQueue. This approach should retain
-		 * submission order of the instructions.
-		 */
-		final Iterator<Instruction> it = deferredQueue.descendingIterator();
-		while (it.hasNext()) {
-			final Instruction i = it.next();
-			if (type.equals(i.getInput().getType())) {
-				it.remove();
-				readyQueue.addFirst(i);
-			}
-		}
-
-		notify();
-
-		final Object lock = this;
-		return new Registration<InstructionExecutor>() {
-			@Override
-			public void close() throws Exception {
-				synchronized (lock) {
-					executors.remove(type, executor);
-				}
-			}
-
-			@Override
-			public InstructionExecutor getInstance() {
-				return executor;
-			}
-		};
-	}
-
-	private static final RpcResult<SubmitInstructionOutput> failedSubmit(final Failure f) {
-		return SuccessfulRpcResult.create(
-				new SubmitInstructionOutputBuilder().setResult(
-						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.FailureBuilder()
-						.setFailure(f).build()).build());
 	}
 
 	private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input)  {
@@ -186,11 +116,12 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder().build());
 	}
 
-	private synchronized RpcResult<SubmitInstructionOutput> realSubmitInstruction(final SubmitInstructionInput input) {
+	@Override
+	public Failure submitInstruction(final SubmitInstructionInput input, final InstructionExecutor executor) {
 		final InstructionId id = input.getId();
 		if (insns.get(id) != null) {
 			LOG.info("Instruction ID {} already present", id);
-			return failedSubmit(new FailureBuilder().setType(DuplicateInstructionId.class).build());
+			return new FailureBuilder().setType(DuplicateInstructionId.class).build();
 		}
 
 		// First things first: check the deadline
@@ -199,7 +130,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 
 		if (left.compareTo(BigInteger.ZERO) <= 0) {
 			LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
-			return failedSubmit(new FailureBuilder().setType(DeadOnArrival.class).build());
+			return new FailureBuilder().setType(DeadOnArrival.class).build();
 		}
 
 		// Resolve dependencies
@@ -208,7 +139,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 			final Instruction i = insns.get(pid);
 			if (i == null) {
 				LOG.info("Instruction {} depends on {}, which is not a known instruction", id, pid);
-				return failedSubmit(new FailureBuilder().setType(UnknownPreconditionId.class).build());
+				return new FailureBuilder().setType(UnknownPreconditionId.class).build();
 			}
 
 			dependencies.add(i);
@@ -221,7 +152,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 			case Cancelled:
 			case Failed:
 			case Unknown:
-				unmet.add(d.getInput().getId());
+				unmet.add(d.getId());
 				break;
 			case Executing:
 			case Queued:
@@ -236,7 +167,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		 *  and fail the operation.
 		 */
 		if (!unmet.isEmpty()) {
-			return failedSubmit(new FailureBuilder().setType(DeadOnArrival.class).setFailedPreconditions(unmet).build());
+			return new FailureBuilder().setType(DeadOnArrival.class).setFailedPreconditions(unmet).build();
 		}
 
 		/*
@@ -254,7 +185,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		}, left.longValue(), TimeUnit.NANOSECONDS);
 
 		// Put it into the instruction list
-		final Instruction i = new Instruction(input, dependencies, t);
+		final Instruction i = new Instruction(input.getId(), executor, dependencies, t);
 		insns.put(id, i);
 
 		// Attach it into its dependencies
@@ -268,14 +199,14 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		 * This task should be ingress-weighed, so we reinsert it into the
 		 * same execution service.
 		 */
-		executor.submit(new Runnable() {
+		this.executor.submit(new Runnable() {
 			@Override
 			public void run() {
 				tryScheduleInstruction(i);
 			}
 		});
 
-		return SuccessfulRpcResult.create(new SubmitInstructionOutputBuilder().build());
+		return null;
 	}
 
 	@GuardedBy("this")
@@ -283,11 +214,11 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		// Set the status
 		v.setStatus(status);
 
-		LOG.debug("Instruction {} transitioned to status {}", v.getInput().getId(), status);
+		LOG.debug("Instruction {} transitioned to status {}", v.getId(), status);
 
 		// Send out a notification
 		notifs.publish(new InstructionStatusChangedBuilder().
-				setId(v.getInput().getId()).setStatus(status).setDetails(details).build());
+				setId(v.getId()).setStatus(status).setDetails(details).build());
 	}
 
 	@GuardedBy("this")
@@ -301,7 +232,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 
 	@GuardedBy("this")
 	private void cancelDependants(final Instruction v) {
-		final Details details = new DetailsBuilder().setUnmetDependencies(ImmutableList.of(v.getInput().getId())).build();
+		final Details details = new DetailsBuilder().setUnmetDependencies(ImmutableList.of(v.getId())).build();
 		for (final Instruction d : v.getDependants()) {
 			switch (d.getStatus()) {
 			case Cancelled:
@@ -320,7 +251,6 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 	}
 
 	private synchronized void cancelInstruction(final Instruction i, final Details details) {
-		deferredQueue.remove(i);
 		readyQueue.remove(i);
 		cancelSingle(i, details);
 		cancelDependants(i);
@@ -353,14 +283,14 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 			final List<InstructionId> ids = new ArrayList<>();
 			for (final Instruction d : i.getDependencies()) {
 				if (d.getStatus() != InstructionStatus.Successful) {
-					ids.add(d.getInput().getId());
+					ids.add(d.getId());
 				}
 			}
 
 			cancelInstruction(i, new DetailsBuilder().setUnmetDependencies(ids).build());
 			break;
 		case Scheduled:
-			LOG.debug("Instruction {} timed out while Scheduled, cancelling it", i.getInput().getId());
+			LOG.debug("Instruction {} timed out while Scheduled, cancelling it", i.getId());
 			// FIXME: we should provide details why it timed out while scheduled
 			cancelInstruction(i, null);
 			break;
@@ -386,7 +316,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 			case Cancelled:
 			case Failed:
 			case Unknown:
-				unmet.add(d.getInput().getId());
+				unmet.add(d.getId());
 				break;
 			case Executing:
 			case Queued:
@@ -400,14 +330,14 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 		}
 
 		if (!unmet.isEmpty()) {
-			LOG.debug("Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it", i.getInput().getId());
+			LOG.debug("Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it", i.getId());
 			cancelSingle(i, new DetailsBuilder().setUnmetDependencies(unmet).build());
 			cancelDependants(i);
 			return;
 		}
 
 		if (ready) {
-			LOG.debug("Instruction {} is ready for execution", i.getInput().getId());
+			LOG.debug("Instruction {} is ready for execution", i.getId());
 			transitionInstruction(i, InstructionStatus.Scheduled, null);
 
 			readyQueue.add(i);
@@ -416,7 +346,7 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 	}
 
 	private synchronized void executionFailed(final Instruction i, final Throwable cause) {
-		LOG.error("Instruction {} failed to execute", i.getInput().getId(), cause);
+		LOG.error("Instruction {} failed to execute", i.getId(), cause);
 		transitionInstruction(i, InstructionStatus.Failed, null);
 		cancelDependants(i);
 	}
@@ -441,30 +371,9 @@ final class ProgrammingServiceImpl implements InstructionExecutorRegistry, Progr
 				final Instruction i = readyQueue.poll();
 
 				Preconditions.checkState(i.getStatus().equals(InstructionStatus.Scheduled));
-				final SubmitInstructionInput input = i.getInput();
-
-				/*
-				 *  Walk all the registered executors for a particular type and
-				 *  offer them the chance to execute the instruction. The first
-				 *  one to accept it wins.
-				 */
-				Future<ExecutionResult<?>> f = null;
-				final Collection<InstructionExecutor> el = executors.get(input.getType());
-
-				for (final InstructionExecutor e : el) {
-					f = e.offerInstruction(input.getArguments());
-					if (f != null) {
-						break;
-					}
-				}
-
-				// We did not find an executor -- defer the instruction
-				if (f == null) {
-					deferredQueue.add(i);
-					continue;
-				}
 
 				transitionInstruction(i, InstructionStatus.Executing, null);
+				final Future<ExecutionResult<?>> f = i.execute();
 				f.addListener(new FutureListener<ExecutionResult<?>>() {
 					@Override
 					public void operationComplete(final Future<ExecutionResult<?>> future) {

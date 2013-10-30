@@ -5,13 +5,13 @@
 
 	<parent>
 		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>programming-parent</artifactId>
+		<artifactId>pcep-parent</artifactId>
 		<version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>programming-tunnel-api</artifactId>
-	<description>Tunnel Programming API</description>
+	<artifactId>pcep-topology-api</artifactId>
+	<description>PCEP Topology API</description>
 	<packaging>bundle</packaging>
 	<name>${project.artifactId}</name>
 	<prerequisites>
@@ -21,7 +21,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>programming-topology-api</artifactId>
+			<artifactId>pcep-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -31,7 +31,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>topology-tunnel-api</artifactId>
+			<artifactId>programming-topology-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
         <dependency>
@@ -91,7 +91,7 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.*,
+                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.*,
                        </Export-Package>
                    </instructions>
                </configuration>
@@ -102,7 +102,7 @@
 	<distributionManagement>
 		<site>
 			<id>${project.artifactId}</id>
-			<name>PROGRAMMING-TUNNEL-API Module site</name>
+			<name>PCEP-TOPOLOGY-API Module site</name>
 			<url>${basedir}/target/site/${project.artifactId}</url>
 		</site>
 	</distributionManagement>

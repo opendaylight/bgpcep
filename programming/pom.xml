@@ -20,6 +20,7 @@
         <module>api</module>
         <module>impl</module>
         <module>spi</module>
+        <module>topology-api</module>
 		<module>tunnel-api</module>
     </modules>
 </project>

@@ -21,5 +21,9 @@
 		<module>impl</module>
 		<module>spi</module>
         <module>testtool</module>
+        <module>topology-api</module>
+        <module>topology-provider</module>
+        <module>tunnel-api</module>
+        <module>tunnel-provider</module>
     </modules>
 </project>

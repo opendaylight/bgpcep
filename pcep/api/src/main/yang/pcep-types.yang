@@ -489,13 +489,10 @@ module pcep-types {
 		}
 	}
 
-	grouping endpoints-object {
-		description "END-POINTS Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.6";
-
-		uses object;
-
+	grouping endpoints {
 		choice address-family {
+			mandatory true;
+
 			case ipv4 {
 				leaf source-ipv4-address {
 					type inet:ipv4-address;
@@ -519,6 +516,14 @@ module pcep-types {
 				}
 			}
 		}
+	}
+
+	grouping endpoints-object {
+		description "END-POINTS Object";
+		reference "https://tools.ietf.org/html/rfc5440#section-7.6";
+
+		uses object;
+		uses endpoints;
 	}
 
 	grouping bandwidth-object {

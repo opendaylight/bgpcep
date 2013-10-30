@@ -1,0 +1,165 @@
+module network-topology-pcep {
+	// vi: set et smarttab sw=4 tabstop=4:
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep";
+	prefix "pn";
+
+	import network-topology { prefix nt; revision-date 2013-10-21; }
+	import network-topology-programming { prefix ntp; revision-date 2013-11-02; }
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the PCEP extensions to base topology model. It
+        exposes the LSPs for which a particular node is the head end.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+	revision "2013-10-24" {
+		description
+			"Initial revision.";
+		reference "";
+	}
+
+	typedef pcc-sync-state {
+		type enumeration {
+			enum initial-resync {
+				description
+					"Initial state resynchronization is being performed.";
+			}
+			enum synchronized {
+				description
+					"State synchronization has been achieved.";
+			}
+		}
+	}
+
+	grouping topology-pcep-type {
+		container topology-pcep {
+			presence "indicates a PCEP-aware topology";
+		}
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:topology-types" {
+		uses topology-pcep-type;
+	}
+
+	grouping pcep-client-attributes {
+        description "Data present in a node which is a PCEP client (PCC).";
+
+		container path-computation-client {
+			description
+                "PCC-related run-time information. This container is only
+                present when the node is connected through PCEP in a PCC
+                role.";
+            config false;
+
+			container stateful-tlv {
+				uses pcep:stateful-capability-tlv;
+			}
+
+			leaf state-sync {
+				when "../stateful-tlv";
+				type pcc-sync-state;
+			}
+
+            list reported-lsps {
+                leaf name {
+                    type pcep:symbolic-path-name;
+                }
+                key name;
+
+                // FIXME: hide protocol-specific?
+                uses pcep:lsp-object;
+            }
+
+            list requested-lsps {
+                leaf name {
+                    type pcep:symbolic-path-name;
+                }
+                key name;
+
+                // FIXME: hide protocol-specific?
+                uses pcep:lsp-object;
+            }
+        }
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:node" {
+        when "../../nt:topology-types/topology-pcep";
+
+		uses pcep-client-attributes;
+	}
+
+    rpc add-lsp {
+        input {
+            uses ntp:topology-instruction-input {
+                augment arguments {
+                    leaf node {
+                        type nt:node-ref;
+                        mandatory true;
+                    }
+
+                    leaf name {
+                        type pcep:symbolic-path-name;
+                        mandatory true;
+                    }
+
+                    // FIXME: hide protocol-specific?
+                    uses pcep:lsp-object;
+                }
+            }
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
+
+    rpc remove-lsp {
+        input {
+            uses ntp:topology-instruction-input {
+//                augment arguments {
+//                    leaf node {
+//                        type nt:node-ref;
+//                        mandatory true;
+//                    }
+//
+//                    leaf name {
+//                        type pcep:symbolic-path-name;
+//                        mandatory true;
+//                    }
+//                }
+            }
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
+
+    rpc update-lsp {
+        input {
+            uses ntp:topology-instruction-input {
+//                augment arguments {
+//                    leaf node {
+//                        type nt:node-ref;
+//                        mandatory true;
+//                    }
+//
+//                    leaf name {
+//                        type pcep:symbolic-path-name;
+//                        mandatory true;
+//                    }
+//
+//                    // FIXME: hide protocol-specific?
+//                    uses pcep:lsp-object;
+//                }
+            }
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
+}
+

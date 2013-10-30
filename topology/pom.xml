@@ -18,12 +18,8 @@
 	
 	<modules>
         <module>api</module>
-        <module>pcep-api</module>
         <module>provider-bgp</module>
-        <module>provider-pcep</module>
 		<module>tunnel-api</module>
-        <module>tunnel-pcep-api</module>
-        <module>tunnel-provider-pcep</module>
         <module>segment-routing</module>
     </modules>
 </project>
