@@ -19,18 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessage;
-import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
-import org.opendaylight.protocol.bgp.parser.message.BGPKeepAliveMessage;
-import org.opendaylight.protocol.bgp.parser.message.BGPNotificationMessage;
-import org.opendaylight.protocol.bgp.parser.message.BGPOpenMessage;
-import org.opendaylight.protocol.bgp.parser.parameter.MultiprotocolCapability;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +48,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 	 */
 	public enum State {
 		/**
-		 * The session object is created by the negotiator in OpenConfirm state.
-		 * While in this state, the session object is half-alive, e.g. the timers
-		 * are running, but the session is not completely up, e.g. it has not been
-		 * announced to the listener. If the session is torn down in this state,
-		 * we do not inform the listener.
+		 * The session object is created by the negotiator in OpenConfirm state. While in this state, the session object
+		 * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
+		 * announced to the listener. If the session is torn down in this state, we do not inform the listener.
 		 */
 		OpenConfirm,
 		/**
@@ -106,6 +98,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
 		this.keepAlive = remoteOpen.getHoldTime() / 3;
+		HOLD_TIMER_VALUE = remoteOpen.getHoldTimer();
 
 		final Set<BGPTableType> tts = Sets.newHashSet();
 		if (remoteOpen.getOptParams() != null) {
