@@ -1,0 +1,33 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module bgp-rib {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
+    prefix "bgprib";
+
+    import config { prefix config; revision-date 2013-04-05; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         BGP listener service.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+
+    revision "2013-07-01" {
+        description
+            "Initial revision";
+    }
+
+    identity rib {
+        description
+            "Service representing a BGP RIB service. Each instance allows
+             registration of listeners.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.RIB";
+    }
+}
+
