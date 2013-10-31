@@ -63,10 +63,11 @@ public final class Util {
 		final List<IpAddress> addresses = Lists.newArrayList();
 
 		while (bytes.length > offset) {
-			if (family instanceof Ipv4)
+			if (family instanceof Ipv4) {
 				addresses.add(new IpAddress(Ipv4Util.addressForBytes(ByteArray.subByte(bytes, offset, addrLen))));
-			else
+			} else {
 				addresses.add(new IpAddress(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, offset, addrLen))));
+			}
 			offset += addrLen;
 		}
 
@@ -75,16 +76,13 @@ public final class Util {
 
 	public static void putAddresses(final byte[] destBytes, int offset, final List<IpAddress> addresses, final int addrLen) {
 		for (final IpAddress address : addresses) {
-			if (address.getIpv4Address() != null)
+			if (address.getIpv4Address() != null) {
 				System.arraycopy(address.getIpv4Address().getValue().getBytes(), 0, destBytes, offset, addrLen);
-			else
+			} else {
 				System.arraycopy(address.getIpv6Address().getValue().getBytes(), 0, destBytes, offset, addrLen);
+			}
 			offset += addrLen;
 		}
-	}
-
-	public static int getPadding(final int length, final int padding) {
-		return (padding - (length % padding)) % padding;
 	}
 
 	public static Message createErrorMessage(final PCEPErrors e, final OpenObject t) {
@@ -92,9 +90,9 @@ public final class Util {
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
 		final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
 		final Errors err = new ErrorsBuilder().setType(id.type).setValue(id.value).build();
-		if (t == null)
+		if (t == null) {
 			return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Arrays.asList(err)).build()).build();
-		else {
+		} else {
 			final ErrorType type = new SessionBuilder().setOpen((Open) t).build();
 			return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Arrays.asList(err)).setErrorType(type).build()).build();
 		}

@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -47,7 +46,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 
 	@Override
 	public PcepErrorObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
 		}
@@ -86,7 +85,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 		if (tlvs != null) {
 			tlvsLength = tlvs.length;
 		}
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

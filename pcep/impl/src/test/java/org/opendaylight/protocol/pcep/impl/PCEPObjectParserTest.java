@@ -20,339 +20,43 @@ import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.LoadBalancingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
-/*
- * Used resources<br/>
- * <br/>
- * PCEPOpenObject3.bin<br/>
- * objClass: 1<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * keepAlive: 30<br/>
- * deadTimer: 120<br/>
- * sessionId: 1<br/>
- * tlvs:NO<br/>
- * <br/>
- * PCEPBandwidthObject1LowerBounds.bin<br/>
- * objClass: 5 <br/>
- * objType: 1<br/>
- * objLength: 16<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * Bandwidth: 0<br/>
- * <br/>
- * PCEPBandwidthObject2UpperBounds.bin<br/>
- * objClass: 5 <br/>
- * objType: 1<br/>
- * objLength: 16<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * Bandwidth: 0xFFFFFFFF<br/>
- * <br/>
- * PCEPEndPointsObject1IPv4.bin<br/>
- * objClass: 4 <br/>
- * objType: 1<br/>
- * objLength: 12<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * src IP: 0xA2F5110E <br/>
- * dest IP: 0xFFFFFFFF <br/>
- * <br/>
- * PCEPEndPointsObject2IPv6.bin<br/>
- * objClass: 4 <br/>
- * objType: 2<br/>
- * objLength: 36<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * src IP: 0xFFFFFFFFF FFFFFFFFF FFFFFFFFF FFFFFFFFF<br/>
- * dest IP: 0x00025DD2 FFECA1B6 581E9F50 00000000 <br/>
- * <br/>
- * PCEPErrorObject1.bin<br/>
- * objClass: 13 (RP)<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * Error-type: 1<br/>
- * Error-value: 1<br/>
- * Tlvs: NO<br/>
- * <br/>
- * PCEPErrorObject2Invalid.bin<br/>
- * objClass: 13 (RP)<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * Error-type: 3<br/>
- * Error-value: 0<br/>
- * Tlvs: NO<br/>
- * <br/>
- * PCEPErrorObject3.bin<br/>
- * objClass: 13 (RP)<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * Error-type: 2<br/>
- * Error-value: 0<br/>
- * Tlvs: NO<br/>
- * <br/>
- * PCEPLspaObject1LowerBounds.bin<br/>
- * objClass: 9<br/>
- * objType: 1<br/>
- * objLength: 20<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * Exclude-any: 0x00000000L<br/>
- * Include-any: 0x00000000L<br/>
- * Include-all: 0x00000000L<br/>
- * Setup Prio: 0x00<br/>
- * Holding Prio: 0x00<br/>
- * Flags: - L : false<br/>
- * <br/>
- * PCEPLspaObject2UpperBounds.bin<br/>
- * objClass: 9<br/>
- * objType: 1<br/>
- * objLength: 20<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * Exclude-any: 0xFFFFFFFFL<br/>
- * Include-any: 0xFFFFFFFFL<br/>
- * Include-all: 0xFFFFFFFFL<br/>
- * Setup Prio: 0xFF<br/>
- * Holding Prio: 0xFF<br/>
- * Flags: - L : true<br/>
- * <br/>
- * PCEPLspaObject3RandVals.bin<br/>
- * objClass: 9<br/>
- * objType: 1<br/>
- * objLength: 20<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: true<br/>
- * <br/>
- * Exclude-any: 0x20A1FEE3L<br/>
- * Include-any: 0x1A025CC7L<br/>
- * Include-all: 0x2BB66532L<br/>
- * Setup Prio: 0x03<br/>
- * Holding Prio: 0x02<br/>
- * Flags: - L : true<br/>
- * <br/>
- * NoPathObject1WithTLV.bin<br/>
- * objClass: 3 (RP)<br/>
- * objType: 1<br/>
- * objLength: 16<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * Nature of Issue: 2<br/>
- * No-Path flags:<br/>
- * - C: true<br/>
- * <br/>
- * tlvs:<br/>
- * -- NO-PATH-VECTOR<br/>
- * - flags (0x4000):<br/>
- * - PCE currently unavailable: false<br/>
- * - unknown destination: true<br/>
- * - unknown source: false<br/>
- * 
- * <br/>
- * NoPathObject2WithoutTLV.bin<br/>
- * objClass: 3 (RP)<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: true<br/>
- * <br/>
- * Nature of Issue: 16<br/>
- * No-Path flags:<br/>
- * - C: false<br/>
- * <br/>
- * tlvs:NO<br/>
- * <br/>
- * PCEPNotificationObject1WithTlv.bin <br/>
- * objClass: 12<br/>
- * objType: 1<br/>
- * objLength: 16<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * NT: 1<br/>
- * NV: 1<br/>
- * Tlvs:<br/>
- * - OverloaderDuration(0xFF0000A2L)<br/>
- * <br/>
- * PCEPNotificationObject2WithoutTlv.bin <br/>
- * objClass: 12<br/>
- * objType: 1<br/>
- * objLength: 8<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * NT: 0xFF<br/>
- * NV: 0xFF<br/>
- * Tlvs: NO<br/>
- * <br/>
- * PCEPOpenObject1.bin<br/>
- * objClass: 1<br/>
- * objType: 1<br/>
- * objLength: 28<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * keepAlive: 30<br/>
- * deadTimer: 120<br/>
- * sessionId: 1<br/>
- * tlvs:<br/>
- * - PCEPStatefulCapability<br/>
- * - LSPStateDBVersionTlv<br/>
- * - NodeIdentifierTlv<br/>
- * <br/>
- * PCEPOpenObject2UpperBoundsNoTlv.bin<br/>
- * objClass: 1<br/>
- * objType: 1<br/>
- * objLength: 34<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * keepAlive: 0xFF<br/>
- * deadTimer: 0xFF<br/>
- * sessionId: 0xFF<br/>
- * tlvs: NO<br/>
- * <br/>
- * PCEPRPObject1.bin<br/>
- * objClass: 2 (RP)<br/>
- * objType: 1<br/>
- * objLength: 12<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * RP flags:<br/>
- * - loose/strict: true<br/>
- * - Bi-directional: false<br/>
- * - Reoptimization: false<br/>
- * - Priority: 5<br/>
- * Request ID: 0xDEADBEEF<br/>
- * tlvs: NO<br/>
- * <br/>
- * PCEPSvecObject1_10ReqIDs.bin <br/>
- * objClass: 11<br/>
- * objType: 1<br/>
- * objLength: 48<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: true<br/>
- * - ignored: false<br/>
- * <br/>
- * Flags:<br/>
- * - Link diverse: true<br/>
- * - Node diverse: false<br/>
- * - SRLG diverse: true<br/>
- * Reques-ID-numbers:<br/>
- * #1 - 0xFFFFFFFFL<br/>
- * #2 - 0x00000000L<br/>
- * #3 - 0x01234567L<br/>
- * #4 - 0x89ABCDEFL<br/>
- * #5 - 0xFEDCBA98L<br/>
- * #6 - 0x76543210L<br/>
- * #7 - 0x15825266L<br/>
- * #8 - 0x48120BBEL<br/>
- * #9 - 0x25FB7E52L<br/>
- * #10 - 0xB2F2546BL<br/>
- * <br/>
- * PCEPSvecObject2.bin <br/>
- * objClass: 11<br/>
- * objType: 1<br/>
- * objLength: 08<br/>
- * version: 1<br/>
- * Flags:<br/>
- * - processing: false<br/>
- * - ignored: false<br/>
- * <br/>
- * Flags:<br/>
- * - Link diverse: false<br/>
- * - Node diverse: false<br/>
- * - SRLG diverse: false<br/>
- * Reques-ID-numbers:<br/>
- * #1 - 0x000000FFL<br/>
- * PCEPExcludeRouteObject.1.bin <br/>
- * objClass: 17 <br/>
- * objType: 1 <br/>
- * objLength: 20 <br/>
- * version: 1 <br/>
- * Flags: <br/>
- * - fail: true <br/>
- * Subobjects: <br/>
- * - XROIPv4PreffixSubobject(192.168.0.0/16, exclude, node) <br/>
- * - XROASnumber(0x1234) <br/>
- */
 public class PCEPObjectParserTest {
 
 	private TlvHandlerRegistry tlvRegistry;
@@ -362,22 +66,6 @@ public class PCEPObjectParserTest {
 		this.tlvRegistry = PCEPExtensionProviderContextImpl.create().getTlvHandlerRegistry();
 	}
 
-	// IPv4Address ipv4addr = new IPv4Address(new byte[] { (byte) 192, (byte) 168, 1, 8 });
-	//
-	// IPv6Address ipv6addr = new IPv6Address(new byte[] { (byte) 192, (byte) 168, 2, 1, (byte) 192, (byte) 168, 2, 1,
-	// (byte) 192, (byte) 168,
-	// 2, 1, (byte) 192, (byte) 168, 2, 1 });
-	//
-	//
-	// /**
-	// * Standard serialization test<br/>
-	// * Used resources:<br/>
-	// * - PCEPOpenObject1.bin<br/>
-	// *
-	// * @throws PCEPDeserializerException
-	// * @throws IOException
-	// * @throws PCEPDocumentedException
-	// */
 	// @Test
 	// @Ignore
 	// // FIXME: temporary
@@ -405,11 +93,21 @@ public class PCEPObjectParserTest {
 	// // assertEquals(((UnknownObject) obj).getError(), PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
 	// // }
 	// //
-	// // @Test
-	// // public void testCloseObjSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// // serDeserTest("src/test/resources/PCEPCloseObject1.bin", new PCEPCloseObject(Reason.TOO_MANY_UNKNOWN_MSG));
-	// // }
-	//
+
+	@Test
+	public void testCloseObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPCloseObject1.bin");
+
+		final CCloseBuilder builder = new CCloseBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		builder.setReason((short) 5);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	@Test
 	public void testLoadBalancingObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final PCEPLoadBalancingObjectParser parser = new PCEPLoadBalancingObjectParser(this.tlvRegistry);
@@ -540,7 +238,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testEndPointsObjectSerDeserIPv6() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testEndPointsObjectIPv6() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final byte[] destIPBytes = { (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte) 0xA1,
 				(byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
 		final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -594,27 +292,49 @@ public class PCEPObjectParserTest {
 	// PCEPObjectFactory.parseObjects(ByteArray.fileToBytes("src/test/resources/PCEPErrorObject2Invalid.bin")).get(0);
 	// }
 	//
-	// /**
-	// * Test for upper/lower bounds of PCEPLspaObject (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPLspaObject1LowerBounds.bin<br/>
-	// * - PCEPLspaObject2UpperBounds.bin<br/>
-	// * - PCEPLspaObject3RandVals.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testLspaObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// serDeserTest("src/test/resources/PCEPLspaObject2UpperBounds.bin",
-	// new PCEPLspaObject(0xFFFFFFFFL, 0xFFFFFFFFL, 0xFFFFFFFFL, (short) 0xFF, (short) 0xFF, false, true, true, true));
-	// serDeserTest("src/test/resources/PCEPLspaObject1LowerBounds.bin",
-	// new PCEPLspaObject(0x00000000L, 0x00000000L, 0x00000000L, (short) 0x00, (short) 0x00, false, false, true, true));
-	// serDeserTest("src/test/resources/PCEPLspaObject3RandVals.bin",
-	// new PCEPLspaObject(0x20A1FEE3L, 0x1A025CC7L, 0x2BB66532L, (short) 0x03, (short) 0x02, false, true, true, true));
-	// }
-	//
+
+	@Test
+	public void testLspaObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin");
+
+		final LspaBuilder builder = new LspaBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(true);
+		builder.setExcludeAny(new AttributeFilter(0L));
+		builder.setIncludeAny(new AttributeFilter(0L));
+		builder.setIncludeAll(new AttributeFilter(0L));
+		builder.setHoldPriority((short) 0);
+		builder.setSetupPriority((short) 0);
+		builder.setLocalProtectionDesired(false);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+
+		result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject2UpperBounds.bin");
+
+		builder.setExcludeAny(new AttributeFilter(0xFFFFFFFFL));
+		builder.setIncludeAny(new AttributeFilter(0xFFFFFFFFL));
+		builder.setIncludeAll(new AttributeFilter(0xFFFFFFFFL));
+		builder.setHoldPriority((short) 0xFF);
+		builder.setSetupPriority((short) 0xFF);
+		builder.setLocalProtectionDesired(true);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+
+		result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin");
+
+		builder.setExcludeAny(new AttributeFilter(0x20A1FEE3L));
+		builder.setIncludeAny(new AttributeFilter(0x1A025CC7L));
+		builder.setIncludeAll(new AttributeFilter(0x2BB66532L));
+		builder.setHoldPriority((short) 0x02);
+		builder.setSetupPriority((short) 0x03);
+		builder.setLocalProtectionDesired(true);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
 
 	@Test
 	public void testMetricObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
@@ -643,41 +363,13 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// /**
-	// * Standard deserialization test + specific test without tlv<br/>
-	// * Used resources:<br/>
-	// * - NoPathObject1WithTLV.bin<br/>
-	// * - NoPathObject2WithoutTLV.bin<br/>
-	// *
-	// * @throws PCEPDeserializerException
-	// * @throws IOException
-	// * @throws PCEPDocumentedException
-	// */
 	// @Test
-	// public void testNoPathObjectDeserialization() throws PCEPDeserializerException, IOException,
-	// PCEPDocumentedException {
-	// // final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>(1);
-	// // tlvs.add(new NoPathVectorTlv(false, false, true, false, false, false));
-	// // serDeserTest("src/test/resources/NoPathObject1WithTLV.bin", new PCEPNoPathObject((short) 2, true, tlvs,
-	// false));
+	// public void testNoPathObject() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	// final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>(1);
+	// tlvs.add(new NoPathVectorTlv(false, false, true, false, false, false));
+	// serDeserTest("src/test/resources/NoPathObject1WithTLV.bin", new PCEPNoPathObject((short) 2, true, tlvs, false));
 	// serDeserTest("src/test/resources/NoPathObject2WithoutTLV.bin", new PCEPNoPathObject((short) 0x10, false, true));
 	//
-	// }
-	//
-	// /**
-	// * Standard serialization test + without tlv<br/>
-	// * Used resources:<br/>
-	// * - NoPathObject1WithTLV.bin<br/>
-	// * - NoPathObject2WithoutTLV.bin<br/>
-	// *
-	// * @throws PCEPDeserializerException
-	// * @throws IOException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testNoPathObjectSerialization() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
 	// byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/NoPathObject2WithoutTLV.bin");
 	// PCEPNoPathObject noPathObject = (PCEPNoPathObject) PCEPObjectFactory.parseObjects(bytesFromFile).get(0);
 	// byte[] bytesActual = PCEPObjectFactory.put(Arrays.asList((PCEPObject) noPathObject));
@@ -688,6 +380,7 @@ public class PCEPObjectParserTest {
 	// bytesActual = PCEPObjectFactory.put(Arrays.asList((PCEPObject) noPathObject));
 	// assertArrayEquals(bytesFromFile, bytesActual);
 	// }
+
 	//
 	// /**
 	// * Specific test with/without tlvs (Ser/Deser)<br/>
@@ -819,14 +512,20 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// @Test
-	// public void testClassTypeObject() throws PCEPDeserializerException, PCEPDocumentedException {
-	// final PCEPClassTypeObject ct = new PCEPClassTypeObject((short) 4);
-	// // final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser();
-	// // final byte[] bytes = parser.put(ct);
-	// // assertEquals(ct, parser.parse(bytes, true, false));
-	// }
+	@Test
+	public void testClassTypeObject() throws PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser(this.tlvRegistry);
+		final byte[] result = new byte[] { 0, 0, 0, (byte) 0x04 };
+
+		final ClassTypeBuilder builder = new ClassTypeBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setClassType(new ClassType((short) 4));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// /**
 	// * Test PCEPExcludeRouteObjectObject (Serialization/Deserialization)<br/>
@@ -847,18 +546,52 @@ public class PCEPObjectParserTest {
 	//
 	// }
 	//
-	// @Test
-	// public void tesObjectiveFunctionObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// serDeserTest("src/test/resources/PCEPObjectiveFunctionObject.1.bin", new
-	// PCEPObjectiveFunctionObject(PCEPOFCodes.MBC, true, false));
-	// }
-	//
-	// @Test
-	// public void tesGlobalConstraintsObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// serDeserTest("src/test/resources/PCEPGlobalConstraintsObject.1.bin",
-	// new PCEPGlobalConstraintsObject((short) 1, (short) 0, (short) 100, (short) 0xFF, true, false));
-	// }
-	//
+
+	@Test
+	public void testSrpObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
+		final byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
+
+		final SrpBuilder builder = new SrpBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		builder.setOperationId(new SrpIdNumber(1L));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testObjectiveFunctionObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPObjectiveFunctionObjectParser parser = new PCEPObjectiveFunctionObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPObjectiveFunctionObject.1.bin");
+
+		final OfBuilder builder = new OfBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setCode(new OfId(4));
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testGlobalConstraintsObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final PCEPGlobalConstraintsObjectParser parser = new PCEPGlobalConstraintsObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPGlobalConstraintsObject.1.bin");
+
+		final GcBuilder builder = new GcBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		builder.setMaxHop((short) 1);
+		builder.setMaxUtilization((short) 0);
+		builder.setMinUtilization((short) 100);
+		builder.setOverBookingFactor((short) 0xFF);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	// // FIXME: add at least one test with true value
 	// @Test
 	// public void openObjectWithTlv() throws PCEPDeserializerException, PCEPDocumentedException {

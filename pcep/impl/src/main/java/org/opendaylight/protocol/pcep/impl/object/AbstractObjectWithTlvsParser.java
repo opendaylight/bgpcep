@@ -88,7 +88,7 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 
 	public abstract void addTlv(final BUILDER builder, final Tlv tlv);
 
-	private static int getPadding(final int length, final int padding) {
+	protected static int getPadding(final int length, final int padding) {
 		return (padding - (length % padding)) % padding;
 	}
 }

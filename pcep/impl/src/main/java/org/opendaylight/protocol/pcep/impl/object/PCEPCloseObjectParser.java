@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseObject;
@@ -19,6 +18,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.Tlvs;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPCloseObject PCEPCloseObject}
@@ -32,19 +33,19 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 	/*
 	 * lengths of fields in bytes
 	 */
-	public static final int FLAGS_F_LENGTH = 1;
-	public static final int REASON_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 1;
+	private static final int REASON_F_LENGTH = 1;
 
 	/*
 	 * offsets of fields in bytes
 	 */
-	public static final int FLAGS_F_OFFSET = 2; // added reserved field of size 2 bytes
-	public static final int REASON_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = 2;
+	private static final int REASON_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
 
 	/*
 	 * total size of object in bytes
 	 */
-	public static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
+	private static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
 	public PCEPCloseObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -55,16 +56,11 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
-
 		final CCloseBuilder builder = new CCloseBuilder();
-
 		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
-		builder.setReason((short) (bytes[REASON_F_OFFSET] & 0xFF));
-
+		builder.setReason((short) UnsignedBytes.toInt(bytes[REASON_F_OFFSET]));
 		return builder.build();
 	}
 
@@ -78,7 +74,6 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		if (!(object instanceof CloseObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
 		}
-
 		final CloseObject obj = (CloseObject) object;
 
 		final byte[] tlvs = serializeTlvs(obj.getTlvs());
@@ -86,16 +81,12 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		if (tlvs != null) {
 			tlvsLength = tlvs.length;
 		}
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
-
-		final int reason = ((CClose) obj).getReason().intValue();
-
-		retBytes[REASON_F_OFFSET] = (byte) reason;
-
+		retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(((CClose) obj).getReason());
 		return retBytes;
 	}
 

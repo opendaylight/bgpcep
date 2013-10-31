@@ -18,8 +18,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
 
+import com.google.common.primitives.UnsignedBytes;
+
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPClassTypeObject PCEPClassTypeObject}
+ * Parser for {@link ClasstypeObject}
  */
 public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<ClassTypeBuilder> {
 
@@ -30,17 +32,17 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 	/**
 	 * Length of Class Type field in bits.
 	 */
-	public static final int CT_F_LENGTH = 3;
+	private static final int CT_F_LENGTH = 3;
 
 	/**
 	 * Reserved field bit length.
 	 */
-	public static final int RESERVED = 29;
+	private static final int RESERVED = 29;
 
 	/**
 	 * Size of the object in bytes.
 	 */
-	public static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
+	private static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
 
 	public PCEPClassTypeObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -48,7 +50,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 
 	@Override
 	public ClasstypeObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-	PCEPDocumentedException {
+			PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -59,13 +61,12 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		if (!header.isProcessingRule()) {
 			throw new PCEPDocumentedException("Processed bit not set", PCEPErrors.P_FLAG_NOT_SET);
 		}
-
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		final short ct = (short) (bytes[SIZE - 1] & 0xFF);
+		final short ct = (short) UnsignedBytes.toInt(bytes[SIZE - 1]);
 		builder.setClassType(new ClassType(ct));
 
 		if (ct < 0 || ct > 8) {
@@ -84,9 +85,8 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		if (!(object instanceof ClasstypeObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
 		}
-
 		final byte[] retBytes = new byte[SIZE];
-		retBytes[SIZE - 1] = ((ClasstypeObject) object).getClassType().getValue().byteValue();
+		retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClasstypeObject) object).getClassType().getValue());
 		return retBytes;
 	}
 

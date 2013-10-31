@@ -20,6 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
+import com.google.common.primitives.UnsignedBytes;
+
 /**
  * Parser for {@link LspaObject}
  */
@@ -32,29 +34,29 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 	/*
 	 * lengths of fields in bytes
 	 */
-	public static final int EXC_ANY_F_LENGTH = 4;
-	public static final int INC_ANY_F_LENGTH = 4;
-	public static final int INC_ALL_F_LENGTH = 4;
-	public static final int SET_PRIO_F_LENGTH = 1;
-	public static final int HOLD_PRIO_F_LENGTH = 1;
-	public static final int FLAGS_F_LENGTH = 1;
+	private static final int EXC_ANY_F_LENGTH = 4;
+	private static final int INC_ANY_F_LENGTH = 4;
+	private static final int INC_ALL_F_LENGTH = 4;
+	private static final int SET_PRIO_F_LENGTH = 1;
+	private static final int HOLD_PRIO_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 1;
 
 	/*
 	 * offsets of flags inside flags field in bits
 	 */
-	public static final int S_FLAG_OFFSET = 6;
-	public static final int L_FLAG_OFFSET = 7;
+	private static final int S_FLAG_OFFSET = 6;
+	private static final int L_FLAG_OFFSET = 7;
 
 	/*
 	 * offsets of fields in bytes
 	 */
-	public static final int EXC_ANY_F_OFFSET = 0;
-	public static final int INC_ANY_F_OFFSET = EXC_ANY_F_OFFSET + EXC_ANY_F_LENGTH;
-	public static final int INC_ALL_F_OFFSET = INC_ANY_F_OFFSET + INC_ANY_F_LENGTH;
-	public static final int SET_PRIO_F_OFFSET = INC_ALL_F_OFFSET + INC_ALL_F_LENGTH;
-	public static final int HOLD_PRIO_F_OFFSET = SET_PRIO_F_OFFSET + SET_PRIO_F_LENGTH;
-	public static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
-	public static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; // added reserved field of length 1B
+	private static final int EXC_ANY_F_OFFSET = 0;
+	private static final int INC_ANY_F_OFFSET = EXC_ANY_F_OFFSET + EXC_ANY_F_LENGTH;
+	private static final int INC_ALL_F_OFFSET = INC_ANY_F_OFFSET + INC_ANY_F_LENGTH;
+	private static final int SET_PRIO_F_OFFSET = INC_ALL_F_OFFSET + INC_ALL_F_LENGTH;
+	private static final int HOLD_PRIO_F_OFFSET = SET_PRIO_F_OFFSET + SET_PRIO_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
+	private static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1; // added reserved field of length 1B
 
 	public PCEPLspaObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -65,23 +67,20 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 		if (bytes == null) {
 			throw new IllegalArgumentException("Bytes array is mandatory.");
 		}
-
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
 		final LspaBuilder builder = new LspaBuilder();
-
 		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_F_OFFSET));
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setHoldPriority((short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF));
-		builder.setSetupPriority((short) (bytes[SET_PRIO_F_OFFSET] & 0xFF));
+		builder.setHoldPriority((short) UnsignedBytes.toInt(bytes[HOLD_PRIO_F_OFFSET]));
+		builder.setSetupPriority((short) UnsignedBytes.toInt(bytes[SET_PRIO_F_OFFSET]));
 		builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
 		builder.setExcludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))));
 		builder.setIncludeAll(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))));
 		builder.setIncludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))));
-
 		return builder.build();
 	}
 
@@ -95,26 +94,19 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 		if (!(object instanceof LspaObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspaObject.");
 		}
-
 		final LspaObject lspaObj = (LspaObject) object;
-
-		// FIXME, but no Tlvs defined
-		// final byte[] tlvs = PCEPTlvParser.put(lspaObj.getTlvs());
-		// final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length];
-		// ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
 
 		final byte[] retBytes = new byte[TLVS_F_OFFSET];
 
 		System.arraycopy(ByteArray.longToBytes(lspaObj.getExcludeAny().getValue()), 4, retBytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH);
 		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAny().getValue()), 4, retBytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH);
 		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAll().getValue()), 4, retBytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH);
-		retBytes[SET_PRIO_F_OFFSET] = ByteArray.shortToBytes(lspaObj.getSetupPriority())[Short.SIZE / Byte.SIZE - 1];
-		retBytes[HOLD_PRIO_F_OFFSET] = ByteArray.shortToBytes(lspaObj.getHoldPriority())[Short.SIZE / Byte.SIZE - 1];
+		retBytes[SET_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getSetupPriority());
+		retBytes[HOLD_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getHoldPriority());
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-
 		return retBytes;
 	}
 

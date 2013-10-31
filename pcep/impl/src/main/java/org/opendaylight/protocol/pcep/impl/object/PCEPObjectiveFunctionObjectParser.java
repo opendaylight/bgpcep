@@ -29,13 +29,13 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 	/*
 	 * lengths of fields
 	 */
-	public static final int OF_CODE_F_LENGTH = 2;
+	private static final int OF_CODE_F_LENGTH = 2;
 
 	/*
 	 * offsets of fields
 	 */
-	public static final int OF_CODE_F_OFFSET = 0;
-	public static final int TLVS_OFFSET = OF_CODE_F_OFFSET + OF_CODE_F_LENGTH + 2; // added reserved field of size 2
+	private static final int OF_CODE_F_OFFSET = 0;
+	private static final int TLVS_OFFSET = OF_CODE_F_OFFSET + OF_CODE_F_LENGTH + 2;
 
 	public PCEPObjectiveFunctionObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -46,15 +46,10 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-
 		final OfBuilder builder = new OfBuilder();
-
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setCode(new OfId(ByteArray.bytesToInt(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH)) & 0xFFFF));
-
+		builder.setCode(new OfId(ByteArray.bytesToInt(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH))));
 		return builder.build();
 	}
 
@@ -69,16 +64,9 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed PCEPObjectiveFunction.");
 		}
-
 		final OfObject specObj = (OfObject) object;
-		// FIXME
-		// final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + 0];
-
-		// ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-
 		ByteArray.copyWhole(ByteArray.shortToBytes(specObj.getCode().getValue().shortValue()), retBytes, OF_CODE_F_OFFSET);
-
 		return retBytes;
 	}
 

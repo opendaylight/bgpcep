@@ -702,7 +702,6 @@ module pcep-types {
 		description "NOTIFICATION Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
 
-		// No possibility of TLVs
 		uses object;
 		container "tlvs" {
 			container overload-duration {
@@ -727,7 +726,6 @@ module pcep-types {
 		description "PCEP-ERROR Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
 
-		// No possibility of TLVs
 		uses object;
 		container "tlvs" {
 			container req-missing {
@@ -834,7 +832,7 @@ module pcep-types {
 	}
 
 	grouping lsp-object {
-		description "SRP Object";
+		description "LSP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 
 		uses object;
