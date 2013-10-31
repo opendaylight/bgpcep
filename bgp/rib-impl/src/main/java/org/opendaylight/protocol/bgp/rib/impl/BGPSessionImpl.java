@@ -106,6 +106,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<BGPMessage> implemen
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
 		this.keepAlive = remoteOpen.getHoldTime() / 3;
+		HOLD_TIMER_VALUE = remoteOpen.getHoldTime();
 
 		final Set<BGPTableType> tts = Sets.newHashSet();
 		if (remoteOpen.getOptParams() != null) {
