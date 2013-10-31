@@ -27,5 +27,8 @@
         <module>testtool</module>
         <module>rib-mock</module>
         <module>util</module>
-    </modules>
+        <module>rib-api-config</module>
+        <module>rib-impl-config</module>
+        <module>update-api-config</module>
+	</modules>
 </project>

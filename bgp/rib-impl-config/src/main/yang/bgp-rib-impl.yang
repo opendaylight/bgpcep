@@ -1,0 +1,198 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module bgp-rib-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib-impl";
+    prefix "bgprib-impl";
+
+    import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
+    import bgp-rib { prefix bgprib; revision-date 2013-07-01; }
+    import config { prefix config; revision-date 2013-04-05; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         BGP listener implementation.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+        
+        This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2013-04-09" {
+        description
+            "Initial revision";
+    }
+
+    identity bgp-message-factory {
+        description
+            "Service representing a BGP proposal.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.parser.BGPMessageFactory";
+    }
+
+    identity bgp-message-factory-impl {
+        base config:module-type;
+        config:provided-service bgp-message-factory;
+        config:java-name-prefix BGPMessageFactoryImpl;
+
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-message-factory-impl {
+            when "/config:modules/config:module/config:type = 'bgp-message-factory-impl'";
+        }
+    }
+
+    identity bgp-proposal {
+        description
+            "Service representing a BGP proposal.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal";
+    }
+
+    identity bgp-proposal-impl {
+        base config:module-type;
+        config:provided-service bgp-proposal;
+        config:java-name-prefix BGPSessionProposalImpl;
+
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-proposal-impl {
+            when "/config:modules/config:module/config:type = 'bgp-proposal-impl'";
+
+            leaf holdtimer {
+                type int16;
+                default 180;
+            }
+
+            leaf bgp-id {
+                mandatory true;
+                type string;
+            }
+
+            leaf as-number {
+                mandatory true;
+                type int32;
+            }
+        }
+    }
+
+    identity bgp-dispatcher {
+        description
+            "Service representing a BGP Dispatcher.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher";
+    }
+
+    identity bgp-dispatcher-impl {
+        base config:module-type;
+        config:provided-service bgp-dispatcher;
+        config:java-name-prefix BGPDispatcherImpl;
+
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-dispatcher-impl {
+            when "/config:modules/config:module/config:type = 'bgp-dispatcher-impl'";
+
+            container message-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-message-factory;
+                    }
+                }
+            }
+        }
+    }
+
+    identity bgp-impl {
+        base config:module-type;
+            config:provided-service bgpl:listener;
+        config:java-name-prefix BGPImpl;
+
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-impl {
+            when "/config:modules/config:module/config:type = 'bgp-impl'";
+
+            container bgp-dispatcher {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-dispatcher;
+                    }
+                }
+            }
+
+            container bgp-proposal {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-proposal;
+                    }
+                }
+            }
+
+            leaf host {
+                 mandatory true;
+                 type string;
+            }
+
+            leaf port {
+                 mandatory true;
+                 type uint16;
+            }
+        }
+    }
+
+     identity rib-impl {
+        base config:module-type;
+        config:provided-service bgprib:rib;
+        config:java-name-prefix RIBImpl;
+     }
+
+
+    augment "/config:modules/config:module/config:configuration" {
+        case rib-impl {
+            when "/config:modules/config:module/config:type = 'rib-impl'";
+
+            container bgp {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgpl:listener;
+                    }
+                }
+            }
+
+            leaf rib-name {
+                 mandatory true;
+                 type string;
+            }
+
+            leaf connection-timeout {
+                 mandatory true;
+                 type int32;
+            }
+
+            leaf reconnect-attempts {
+                 mandatory true;
+                 type int64;
+            }
+        }
+    }
+
+
+}
+
