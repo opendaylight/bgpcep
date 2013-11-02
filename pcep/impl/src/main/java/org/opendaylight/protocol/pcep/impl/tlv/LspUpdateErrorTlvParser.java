@@ -11,12 +11,12 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspErrorCodeTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspErrorCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCodeBuilder;
 
 /**
- * Parser for {@link LspErrorCodeTlv}
+ * Parser for {@link LspErrorCode}
  */
 public class LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 
@@ -25,7 +25,7 @@ public class LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 	private static final int UPDATE_ERR_CODE_LENGTH = 4;
 
 	@Override
-	public LspErrorCodeTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+	public LspErrorCode parseTlv(final byte[] buffer) throws PCEPDeserializerException {
 		return new LspErrorCodeBuilder().setErrorCode(ByteArray.bytesToLong(buffer)).build();
 	}
 
@@ -34,7 +34,7 @@ public class LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("LspErrorCodeTlv is mandatory.");
 		}
-		final LspErrorCodeTlv lsp = (LspErrorCodeTlv) tlv;
+		final LspErrorCode lsp = (LspErrorCode) tlv;
 		return ByteArray.subByte(ByteArray.longToBytes(lsp.getErrorCode()), UPDATE_ERR_CODE_LENGTH, UPDATE_ERR_CODE_LENGTH);
 	}
 

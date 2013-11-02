@@ -30,12 +30,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.reports.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PccBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.pcc.Lsps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.pcc.LspsKey;
@@ -56,11 +56,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	}
 
 	private final class SessionListener implements PCEPSessionListener {
-		private org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node inventoryNode(final DataModificationTransaction trans, final InetAddress address) {
+		private org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node inventoryNode(
+				final DataModificationTransaction trans, final InetAddress address) {
 			final String pccId = createNodeId(address);
 
 			// FIXME: after 0.6 yangtools, this cast should not be needed
-			final Nodes nodes = (Nodes)trans.readOperationalData(inventory);
+			final Nodes nodes = (Nodes) trans.readOperationalData(ServerSessionManager.this.inventory);
 
 			for (final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node n : nodes.getNode()) {
 				LOG.debug("Matching inventory node {} to peer {}", n, address);
@@ -78,18 +79,17 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			 */
 			LOG.debug("Failed to find inventory node for peer {}, creating a new one at {}", address, pccId);
 
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId id =
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId(pccId);
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey nk =
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey(id);
-			final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> nii =
-					InstanceIdentifier.builder(inventory).node(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class, nk).toInstance();
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node ret =
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder().setId(id).setKey(nk).build();
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId id = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId(pccId);
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey nk = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey(id);
+			final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node> nii = InstanceIdentifier.builder(
+					ServerSessionManager.this.inventory).node(
+					org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class, nk).toInstance();
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node ret = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder().setId(
+					id).setKey(nk).build();
 
 			trans.putRuntimeData(nii, ret);
-			ownsInventory = true;
-			inventoryNodeId = nii;
+			ServerSessionManager.this.ownsInventory = true;
+			ServerSessionManager.this.inventoryNodeId = nii;
 			return ret;
 		}
 
@@ -97,7 +97,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				final DataModificationTransaction trans,
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node invNode) {
 			// FIXME: after 0.6 yangtools, this cast should not be needed
-			final Topology topo = (Topology)trans.readOperationalData(topology);
+			final Topology topo = (Topology) trans.readOperationalData(ServerSessionManager.this.topology);
 
 			for (final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node n : topo.getNode()) {
 				LOG.debug("Matching topology node {} to inventory node {}", n, invNode);
@@ -110,21 +110,19 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			 * We failed to find a matching node. Let's create a dynamic one
 			 * and note that we are the owner (so we clean it up afterwards).
 			 */
-			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId id =
-					new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId(invNode.getId().getValue());
-			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey nk =
-					new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey(id);
-			final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nti =
-					InstanceIdentifier.builder(topology).node(
-							org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class, nk).toInstance();
+			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId id = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId(invNode.getId().getValue());
+			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey nk = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey(id);
+			final InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nti = InstanceIdentifier.builder(
+					ServerSessionManager.this.topology).node(
+					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
+					nk).toInstance();
 
-			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node ret =
-					new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder().
-					setKey(nk).setNodeId(id).build();
+			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node ret = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder().setKey(
+					nk).setNodeId(id).build();
 
 			trans.putRuntimeData(nti, ret);
-			ownsTopology = true;
-			topologyNodeId = nti;
+			ServerSessionManager.this.ownsTopology = true;
+			ServerSessionManager.this.topologyNodeId = nti;
 			return ret;
 		}
 
@@ -137,39 +135,41 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			 * the topology model, with empty LSP list.
 			 */
 			final InetAddress peerAddress = session.getRemoteAddress();
-			final DataModificationTransaction trans = dataProvider.beginTransaction();
+			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node invNode = inventoryNode(trans, peerAddress);
 			LOG.debug("Peer {} resolved to inventory node {}", peerAddress, invNode);
 
-			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node topoNode = topologyNode(trans, invNode);
+			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node topoNode = topologyNode(
+					trans, invNode);
 			LOG.debug("Peer {} resolved to topology node {}", peerAddress, topoNode);
 
 			// Our augmentation in the topology node
 			final PccBuilder pb = new PccBuilder();
 
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1 topoAugment =
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder().setPcc(pb.build()).build();
-			topologyAugmentId = InstanceIdentifier.builder(topologyNodeId).node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1.class).toInstance();
-			trans.putRuntimeData(topologyAugmentId, topoAugment);
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1 topoAugment = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder().setPcc(
+					pb.build()).build();
+			ServerSessionManager.this.topologyAugmentId = InstanceIdentifier.builder(ServerSessionManager.this.topologyNodeId).node(
+					org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1.class).toInstance();
+			trans.putRuntimeData(ServerSessionManager.this.topologyAugmentId, topoAugment);
 
 			// Our augmentation in the inventory node
-			pccBuilder = new PathComputationClientBuilder();
+			ServerSessionManager.this.pccBuilder = new PathComputationClientBuilder();
 
 			final Tlvs tlvs = session.getRemoteTlvs();
 			final Stateful stateful = tlvs.getStateful();
 			if (stateful != null) {
 				// FIXME: rework once groupings can be used in builders
-				pccBuilder.setStatefulTlv(new StatefulTlvBuilder().setFlags(tlvs.getStateful().getFlags()).build());
-				pccBuilder.setStateSync(PccSyncState.InitialResync);
+				ServerSessionManager.this.pccBuilder.setStatefulTlv(new StatefulTlvBuilder().setFlags(tlvs.getStateful().getFlags()).build());
+				ServerSessionManager.this.pccBuilder.setStateSync(PccSyncState.InitialResync);
 			}
 
-			pccBuilder.setTopologyNode(topoNode.getNodeId());
+			ServerSessionManager.this.pccBuilder.setTopologyNode(topoNode.getNodeId());
 
-			inventoryAugmentBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.pcep.rev131024.Node1Builder()
-			.setPathComputationClient(pccBuilder.build());
-			inventoryAugmentId = InstanceIdentifier.builder(inventoryNodeId).node(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.pcep.rev131024.Node1.class).toInstance();
-			trans.putRuntimeData(inventoryAugmentId, inventoryAugmentBuilder.build());
+			ServerSessionManager.this.inventoryAugmentBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.pcep.rev131024.Node1Builder().setPathComputationClient(ServerSessionManager.this.pccBuilder.build());
+			ServerSessionManager.this.inventoryAugmentId = InstanceIdentifier.builder(ServerSessionManager.this.inventoryNodeId).node(
+					org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.pcep.rev131024.Node1.class).toInstance();
+			trans.putRuntimeData(ServerSessionManager.this.inventoryAugmentId, ServerSessionManager.this.inventoryAugmentBuilder.build());
 
 			// All set, commit the modifications
 			final Future<RpcResult<TransactionStatus>> s = trans.commit();
@@ -185,23 +185,24 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				session.close(TerminationReason.Unknown);
 			}
 
-			LOG.info("Session with {} attached to inventory node {} and topology node {}", session.getRemoteAddress(), invNode.getId(), topoNode.getNodeId());
+			LOG.info("Session with {} attached to inventory node {} and topology node {}", session.getRemoteAddress(), invNode.getId(),
+					topoNode.getNodeId());
 		}
 
 		private void tearDown(final PCEPSession session) {
-			final DataModificationTransaction trans = dataProvider.beginTransaction();
+			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			/*
 			 * The session went down. Undo all the Inventory and Topology
 			 * changes we have done.
 			 */
-			trans.removeRuntimeData(inventoryAugmentId);
-			if (ownsInventory) {
-				trans.removeRuntimeData(inventoryNodeId);
+			trans.removeRuntimeData(ServerSessionManager.this.inventoryAugmentId);
+			if (ServerSessionManager.this.ownsInventory) {
+				trans.removeRuntimeData(ServerSessionManager.this.inventoryNodeId);
 			}
-			trans.removeRuntimeData(topologyAugmentId);
-			if (ownsTopology) {
-				trans.removeRuntimeData(topologyNodeId);
+			trans.removeRuntimeData(ServerSessionManager.this.topologyAugmentId);
+			if (ServerSessionManager.this.ownsTopology) {
+				trans.removeRuntimeData(ServerSessionManager.this.topologyNodeId);
 			}
 
 			/*
@@ -229,8 +230,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifier<Lsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(topologyAugmentId).
-					node(Lsps.class, new LspsKey(name.getPathName())).toInstance();
+			return InstanceIdentifier.builder(ServerSessionManager.this.topologyAugmentId).node(Lsps.class, new LspsKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -240,36 +240,36 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				session.sendMessage(unhandledMessageError);
 			}
 
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.PcrptMessage rpt =
-					((PcrptMessage)message).getPcrptMessage();
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
 
-			final DataModificationTransaction trans = dataProvider.beginTransaction();
+			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			for (final Reports r : rpt.getReports()) {
 				final Lsp lsp = r.getLsp();
 
-				if (lsp.isSync() && !synced) {
+				if (lsp.isSync() && !ServerSessionManager.this.synced) {
 					// Update synchronization flag
-					synced = true;
-					inventoryAugmentBuilder.setPathComputationClient(pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-					trans.putRuntimeData(inventoryAugmentId, inventoryAugmentBuilder.build());
+					ServerSessionManager.this.synced = true;
+					ServerSessionManager.this.inventoryAugmentBuilder.setPathComputationClient(ServerSessionManager.this.pccBuilder.setStateSync(
+							PccSyncState.Synchronized).build());
+					trans.putRuntimeData(ServerSessionManager.this.inventoryAugmentId,
+							ServerSessionManager.this.inventoryAugmentBuilder.build());
 					LOG.debug("Session {} achieved synchronized state", session);
 				}
 
 				final PlspId id = lsp.getPlspId();
 				if (lsp.isRemove()) {
-					final SymbolicPathName name = lsps.remove(id);
+					final SymbolicPathName name = ServerSessionManager.this.lsps.remove(id);
 					if (name != null) {
 						trans.removeRuntimeData(lspIdentifier(name));
 					}
 
 					LOG.debug("LSP {} removed", lsp);
 				} else {
-					if (!lsps.containsKey(id)) {
+					if (!ServerSessionManager.this.lsps.containsKey(id)) {
 						LOG.debug("PLSPID {} not known yet, looking for a symbolic name", id);
 
-						final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Tlvs tlvs =
-								r.getLsp().getTlvs();
+						final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Tlvs tlvs = r.getLsp().getTlvs();
 						final SymbolicPathName name = tlvs.getSymbolicPathName();
 						if (name == null) {
 							LOG.error("PLSPID {} seen for the first time, not reporting the LSP");
@@ -278,7 +278,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						}
 					}
 
-					final SymbolicPathName name = lsps.get(id);
+					final SymbolicPathName name = ServerSessionManager.this.lsps.get(id);
 					trans.putRuntimeData(lspIdentifier(name), lsp);
 
 					LOG.debug("LSP {} updated");
@@ -318,8 +318,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> topologyNodeId;
 	private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1> topologyAugmentId;
 
-	public ServerSessionManager(final DataProviderService dataProvider,
-			final InstanceIdentifier<Nodes> inventory, final InstanceIdentifier<Topology> topology) {
+	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Nodes> inventory,
+			final InstanceIdentifier<Topology> topology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.inventory = Preconditions.checkNotNull(inventory);
 		this.topology = Preconditions.checkNotNull(topology);

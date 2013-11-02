@@ -163,17 +163,6 @@ module pcep-types {
 			}
 		}
 	}
-	
-	grouping p2mp-capable-tlv {
-		description "P2MP CAPABLE TLV";
-		reference "https://tools.ietf.org/html/rfc6006#section-3.1.2";
-
-		leaf value {
-			type uint16;
-			mandatory true;
-		}
-	}
-	
 
 	grouping stateful-capability-tlv {
 		description "Stateful PCE Capability TLV";
@@ -221,79 +210,83 @@ module pcep-types {
 	grouping lsp-identifiers-tlv {
 		description "LSP Identifiers TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
-
-		uses tlv;
-		leaf lsp-id {
-			type rsvp:lsp-id;
-			mandatory true;
-		}
-
-		leaf tunnel-id {
-			type rsvp:tunnel-id;
-			mandatory true;
-		}
-
-		choice address-family {
-			case ipv4 {
-				leaf ipv4-tunnel-sender-address {
-					type inet:ipv4-address;
-					mandatory true;
+		container lsp-identifiers {
+			uses tlv;
+			leaf lsp-id {
+				type rsvp:lsp-id;
+				mandatory true;
+			}
+	
+			leaf tunnel-id {
+				type rsvp:tunnel-id;
+				mandatory true;
+			}
+	
+			choice address-family {
+				case ipv4 {
+					leaf ipv4-tunnel-sender-address {
+						type inet:ipv4-address;
+						mandatory true;
+					}
+					leaf ipv4-extended-tunnel-id {
+						type rsvp:ipv4-extended-tunnel-id;
+						mandatory true;
+					}
 				}
-				leaf ipv4-extended-tunnel-id {
-					type rsvp:ipv4-extended-tunnel-id;
-					mandatory true;
+				case ipv6 {
+					leaf ipv6-tunnel-sender-address {
+						type inet:ipv6-address;
+						mandatory true;
+					}
+					leaf ipv6-extended-tunnel-id {
+						type rsvp:ipv6-extended-tunnel-id;
+						mandatory true;
+					}
 				}
 			}
-			case ipv6 {
-				leaf ipv6-tunnel-sender-address {
-					type inet:ipv6-address;
-					mandatory true;
-				}
-				leaf ipv6-extended-tunnel-id {
-					type rsvp:ipv6-extended-tunnel-id;
-					mandatory true;
-				}
-			}
+			// FIXME: add tunnel endpoint (from stateful-07) 
 		}
-		// FIXME: add tunnel endpoint (from stateful-07) 
 	}
 
 	grouping symbolic-path-name-tlv {
 		description "Symbolic Path Name TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
-
-		uses tlv;
-		leaf path-name {
-			type symbolic-path-name;
-			mandatory true;
+		container symbolic-path-name {
+			uses tlv;
+			leaf path-name {
+				type symbolic-path-name;
+				mandatory true;
+			}
 		}
 	}
 
 	grouping lsp-error-code-tlv {
 		description "LSP Error Code TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.3";
-
-		uses tlv;
-		leaf error-code {
-			type uint32;
-			mandatory true;
+		container lsp-error-code {
+			uses tlv;
+			leaf error-code {
+				type uint32;
+				mandatory true;
+			}
 		}
 	}
 
 	grouping rsvp-error-spec-tlv {
 		description "RSVP Error Spec TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.4";
-
-		uses tlv;
-		choice error-type {
-			case rsvp {
-				container rsvp-error {
-					uses rsvp:error-spec;
+		container rsvp-error-spec {
+			uses tlv;
+			choice error-type {
+				case rsvp {
+					container rsvp-error {
+						uses rsvp:error-spec;
+					}
 				}
-			}
-			case user {
-				container user-error {
-					uses rsvp:user-error-spec;
+				case user {
+					container user-error {
+						uses rsvp:user-error-spec;
+					}
 				}
 			}
 		}
@@ -312,16 +305,17 @@ module pcep-types {
 	grouping order-tlv {
 		description "Order TLV";
 		reference "https://tools.ietf.org/html/rfc5557#section-5.4";
-
-		uses tlv;
-		leaf delete {
-			type uint32;
-			mandatory true;
-		}
-
-		leaf setup {
-			type uint32;
-			mandatory true;
+		container order {
+			uses tlv;
+			leaf delete {
+				type uint32;
+				mandatory true;
+			}
+	
+			leaf setup {
+				type uint32;
+				mandatory true;
+			}
 		}
 	}
 
@@ -355,11 +349,6 @@ module pcep-types {
 			container of-list {
 				uses of-list-tlv;
 			}
-
-			container p2mp {
-				uses p2mp-capable-tlv;
-			}
-
 			container stateful {
 				uses stateful-capability-tlv;
 			}
@@ -405,9 +394,7 @@ module pcep-types {
 
 		uses object;
 		container "tlvs" {
-			container order {
-				uses order-tlv;
-			}
+			uses order-tlv;
 		}
 
 		leaf priority {
@@ -835,21 +822,13 @@ module pcep-types {
 
 		uses object;
 		container "tlvs" {
-			container lsp-error-code {
-				uses lsp-error-code-tlv;
-			}
+			uses lsp-error-code-tlv;
 
-			container lsp-identifiers {
-				uses lsp-identifiers-tlv;
-			}
+			uses lsp-identifiers-tlv;
 
-			container rsvp-error-spec {
-				uses rsvp-error-spec-tlv;
-			}
+			uses rsvp-error-spec-tlv;
 
-			container symbolic-path-name {
-				uses symbolic-path-name-tlv;
-			}
+			uses symbolic-path-name-tlv;
 		}
 
 		leaf plsp-id {
@@ -879,11 +858,6 @@ module pcep-types {
 
 		leaf operational {
 			type operational-status;
-			mandatory true;
-		}
-
-		leaf signaling-type {
-			type uint8;
 			mandatory true;
 		}
 	}

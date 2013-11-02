@@ -39,6 +39,9 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
+		if (bytes.length == 0) {
+			return;
+		}
 
 		int length;
 		int byteOffset = 0;
@@ -59,7 +62,7 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 
 			logger.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
 			final Tlv tlv = this.tlvReg.getTlvParser(type).parseTlv(tlvBytes);
-			logger.debug("Tlv was parsed. {}", tlv);
+			logger.trace("Tlv was parsed. {}", tlv);
 
 			addTlv(builder, tlv);
 

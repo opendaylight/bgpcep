@@ -32,39 +32,38 @@ import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspDbVersionTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspErrorCodeTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspIdentifiersTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfListTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OrderTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PredundancyGroupIdTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RsvpErrorSpecTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathNameTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspErrorCodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspIdentifiersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.RsvpErrorSpecBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.PredundancyGroupIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.tlvs.OrderBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.error.type.RsvpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.error.type.UserBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.error.type.rsvp.RsvpErrorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.error.type.user.UserErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.UserBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp.RsvpErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user.UserErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv6ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
@@ -141,8 +140,8 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testSymbolicNameTlv() throws PCEPDeserializerException {
 		final LspSymbolicNameTlvParser parser = new LspSymbolicNameTlvParser();
-		final SymbolicPathNameTlv tlv = new SymbolicPathNameBuilder().setPathName(
-				new SymbolicPathName("Med test of symbolic name".getBytes())).build();
+		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName("Med test of symbolic name".getBytes())).build();
 		assertEquals(tlv, parser.parseTlv(symbolicNameBytes));
 		assertArrayEquals(symbolicNameBytes, parser.serializeTlv(tlv));
 	}
@@ -150,7 +149,7 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testLspErrorCodeTlv() throws PCEPDeserializerException {
 		final LspUpdateErrorTlvParser parser = new LspUpdateErrorTlvParser();
-		final LspErrorCodeTlv tlv = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
+		final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
 		assertEquals(tlv, parser.parseTlv(lspUpdateErrorBytes));
 		assertArrayEquals(lspUpdateErrorBytes, parser.serializeTlv(tlv));
 	}
@@ -162,7 +161,7 @@ public class PCEPTlvParserTest {
 		afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
 				(byte) 0x78 })));
-		final LspIdentifiersTlv tlv = new LspIdentifiersBuilder().setAddressFamily(afi.build()).setLspId(new LspId(65535L)).setTunnelId(
+		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(afi.build()).setLspId(new LspId(65535L)).setTunnelId(
 				new TunnelId(4660)).build();
 		assertEquals(tlv, parser.parseTlv(lspIdentifiers4Bytes));
 		assertArrayEquals(lspIdentifiers4Bytes, parser.serializeTlv(tlv));
@@ -178,7 +177,7 @@ public class PCEPTlvParserTest {
 		afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
 				(byte) 0x78, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67,
 				(byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67 })));
-		final LspIdentifiersTlv tlv = new LspIdentifiersBuilder().setAddressFamily(afi.build()).setLspId(new LspId(4660L)).setTunnelId(
+		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(afi.build()).setLspId(new LspId(4660L)).setTunnelId(
 				new TunnelId(65535)).build();
 		assertEquals(tlv, parser.parseTlv(lspIdentifiers6Bytes));
 		assertArrayEquals(lspIdentifiers6Bytes, parser.serializeTlv(tlv));
@@ -192,7 +191,7 @@ public class PCEPTlvParserTest {
 		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
 		builder.setCode((short) 146);
 		builder.setValue(5634);
-		final RsvpErrorSpecTlv tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpBuilder().setRsvpError(builder.build()).build()).build();
+		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpBuilder().setRsvpError(builder.build()).build()).build();
 		assertEquals(tlv, parser.parseTlv(rsvpErrorBytes));
 		assertArrayEquals(rsvpErrorBytes, parser.serializeTlv(tlv));
 	}
@@ -207,7 +206,7 @@ public class PCEPTlvParserTest {
 		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
 		builder.setCode((short) 213);
 		builder.setValue(50649);
-		final RsvpErrorSpecTlv tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpBuilder().setRsvpError(builder.build()).build()).build();
+		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpBuilder().setRsvpError(builder.build()).build()).build();
 		assertEquals(tlv, parser.parseTlv(rsvpError6Bytes));
 		assertArrayEquals(rsvpError6Bytes, parser.serializeTlv(tlv));
 	}
@@ -220,7 +219,7 @@ public class PCEPTlvParserTest {
 		builder.setSubOrg((short) 5);
 		builder.setValue(38);
 		builder.setDescription("user desc");
-		final RsvpErrorSpecTlv tlv = new RsvpErrorSpecBuilder().setErrorType(new UserBuilder().setUserError(builder.build()).build()).build();
+		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new UserBuilder().setUserError(builder.build()).build()).build();
 		assertEquals(tlv, parser.parseTlv(userErrorBytes));
 		assertArrayEquals(userErrorBytes, parser.serializeTlv(tlv));
 	}
@@ -236,7 +235,7 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testOrderTlv() throws PCEPDeserializerException {
 		final OrderTlvParser parser = new OrderTlvParser();
-		final OrderTlv tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
+		final Order tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
 		assertEquals(tlv, parser.parseTlv(orderBytes));
 		assertArrayEquals(orderBytes, parser.serializeTlv(tlv));
 	}

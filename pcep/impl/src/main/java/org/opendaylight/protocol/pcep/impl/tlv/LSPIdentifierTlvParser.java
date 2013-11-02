@@ -15,12 +15,13 @@ import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspIdentifiersTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.address.family.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.tlvs.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv6ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
@@ -47,7 +48,7 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 	private static final int V6_LENGTH = 36;
 
 	@Override
-	public LspIdentifiersTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
+	public LspIdentifiers parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
 		int position = 0;
 		if (valueBytes == null || valueBytes.length == 0) {
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
@@ -91,7 +92,7 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("LspIdentifiersTlv is mandatory.");
 		}
-		final LspIdentifiersTlv lsp = (LspIdentifiersTlv) tlv;
+		final LspIdentifiers lsp = (LspIdentifiers) tlv;
 		final AddressFamily afi = lsp.getAddressFamily();
 		int offset = 0;
 		if (afi.getImplementedInterface().equals(Ipv4.class)) {
