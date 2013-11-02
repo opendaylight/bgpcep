@@ -20,6 +20,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.NoPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.NoPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVector;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Parser for {@link NoPathObject}
@@ -33,24 +37,22 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 	/*
 	 * lengths of fields in bytes
 	 */
-	public static final int NI_F_LENGTH = 1; // multi-field
-	public static final int FLAGS_F_LENGTH = 2;
-	public static final int RESERVED_F_LENGTH = 1;
+	private static final int NI_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 2;
+	private static final int RESERVED_F_LENGTH = 1;
 
 	/*
 	 * offsets of field in bytes
 	 */
-
-	public static final int NI_F_OFFSET = 0;
-	public static final int FLAGS_F_OFFSET = NI_F_OFFSET + NI_F_LENGTH;
-	public static final int RESERVED_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-	public static final int TLVS_OFFSET = RESERVED_F_OFFSET + RESERVED_F_LENGTH;
+	private static final int NI_F_OFFSET = 0;
+	private static final int FLAGS_F_OFFSET = NI_F_OFFSET + NI_F_LENGTH;
+	private static final int RESERVED_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int TLVS_OFFSET = RESERVED_F_OFFSET + RESERVED_F_LENGTH;
 
 	/*
 	 * defined flags
 	 */
-
-	public static final int C_FLAG_OFFSET = 0;
+	private static final int C_FLAG_OFFSET = 0;
 
 	public PCEPNoPathObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -62,25 +64,23 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
 
 		final NoPathBuilder builder = new NoPathBuilder();
-
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setNatureOfIssue((short) (bytes[NI_F_OFFSET] & 0xFF));
+		builder.setNatureOfIssue((short) UnsignedBytes.toInt(bytes[NI_F_OFFSET]));
 		builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
-
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		return builder.build();
 	}
 
 	@Override
 	public void addTlv(final NoPathBuilder builder, final Tlv tlv) {
-		// FIXME : add no-path-vector-tlv
+		if (tlv instanceof NoPathVector) {
+			builder.setTlvs(new TlvsBuilder().setNoPathVector((NoPathVector) tlv).build());
+		}
 	}
 
 	@Override
@@ -88,34 +88,28 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 		if (!(object instanceof NoPathObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NoPathObject.");
 		}
-
 		final NoPathObject nPObj = (NoPathObject) object;
 
 		final byte[] tlvs = serializeTlvs(((NoPath) nPObj).getTlvs());
-		int tlvsLength = 0;
-		if (tlvs != null) {
-			tlvsLength = tlvs.length;
-		}
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
-		retBytes[NI_F_OFFSET] = ByteArray.shortToBytes(nPObj.getNatureOfIssue())[1];
+		retBytes[NI_F_OFFSET] = UnsignedBytes.checkedCast(nPObj.getNatureOfIssue());
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-
 		return retBytes;
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs.getNoPathVector() != null) {
-			// FIXME : add NoPath
-			// return serializeTlv(new NoPathVectorBuilder().setFlags(tlvs.getNoPathVector()).build());
+		if (tlvs == null) {
+			return new byte[0];
+		} else if (tlvs.getNoPathVector() != null) {
+			return serializeTlv(tlvs.getNoPathVector());
 		}
-		return null;
+		return new byte[0];
 	}
 
 	@Override

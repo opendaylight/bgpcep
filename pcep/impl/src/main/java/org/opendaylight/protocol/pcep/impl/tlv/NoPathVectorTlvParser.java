@@ -13,13 +13,13 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVectorBuilder;
 
 /**
- * Parser for {@link NoPathVectorTlv}
+ * Parser for {@link NoPathVector}
  */
 public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 
@@ -37,7 +37,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 	private static final int PCE_UNAVAILABLE = 31;
 
 	@Override
-	public NoPathVectorTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
+	public NoPathVector parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -55,7 +55,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 		if (tlvs == null) {
 			throw new IllegalArgumentException("NoPathVectorTlv is mandatory.");
 		}
-		final NoPathVectorTlv tlv = (NoPathVectorTlv) tlvs;
+		final NoPathVector tlv = (NoPathVector) tlvs;
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(REACHABLITY_PROBLEM, tlv.getFlags().isP2mpUnreachable());

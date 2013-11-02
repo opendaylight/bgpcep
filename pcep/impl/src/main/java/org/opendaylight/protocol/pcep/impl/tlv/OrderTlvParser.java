@@ -11,12 +11,12 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OrderTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.tlvs.OrderBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 
 /**
- * Parser for {@link OrderTlv}
+ * Parser for {@link Order}
  */
 public class OrderTlvParser implements TlvParser, TlvSerializer {
 
@@ -27,7 +27,7 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 	private static final int ORDR_SETUP_LENGTH = 4;
 
 	@Override
-	public OrderTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+	public Order parseTlv(final byte[] buffer) throws PCEPDeserializerException {
 		return new OrderBuilder().setDelete(Long.valueOf(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, ORDR_DEL_LENGTH)))).setSetup(
 				ByteArray.bytesToLong(ByteArray.subByte(buffer, ORDR_DEL_LENGTH, ORDR_SETUP_LENGTH))).build();
 	}
@@ -37,7 +37,7 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("OrderTlv is mandatory.");
 		}
-		final OrderTlv otlv = (OrderTlv) tlv;
+		final Order otlv = (Order) tlv;
 		final byte[] bytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
 		int offset = 0;
 		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(otlv.getDelete()), 4, ORDR_DEL_LENGTH), bytes, offset);

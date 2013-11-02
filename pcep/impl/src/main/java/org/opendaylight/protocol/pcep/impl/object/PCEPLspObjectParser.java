@@ -16,13 +16,21 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPLspObject PCEPLspObject}
+ * Parser for {@link LspObject}
  */
-public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<LspBuilder> {
+public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
 	public static final int CLASS = 32;
 
@@ -32,15 +40,16 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<LspBuilder
 	 * offset of TLVs offset of other fields are not defined as constants
 	 * because of non-standard mapping of bits
 	 */
-	public static final int TLVS_OFFSET = 4;
+	private static final int TLVS_OFFSET = 4;
 
 	/*
 	 * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
 	 */
 	private static final int DELEGATE_FLAG_OFFSET = 15;
-	private static final int OPERATIONAL_FLAG_OFFSET = 13;
 	private static final int SYNC_FLAG_OFFSET = 14;
-	private static final int REMOVE_FLAG_OFFSET = 12;
+	private static final int REMOVE_FLAG_OFFSET = 13;
+	private static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
+	private static final int OPERATIONAL_OFFSET = 9;
 
 	public PCEPLspObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -51,29 +60,39 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<LspBuilder
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, 2, 2));
 
 		final LspBuilder builder = new LspBuilder();
-
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		// builder.setPlspId(new PlspId(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2]
-		// & 0xFF) >> 4));
+		builder.setPlspId(new PlspId((ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2] & 0xFF) >> 4));
 		builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
 		builder.setSync(flags.get(SYNC_FLAG_OFFSET));
-		// builder.setOperational(Operational.flags.get(OPERATIONAL_FLAG_OFFSET));
 		builder.setRemove(flags.get(REMOVE_FLAG_OFFSET));
-
+		builder.setAdministrative(flags.get(ADMINISTRATIVE_FLAG_OFFSET));
+		short s = 0;
+		s |= flags.get(OPERATIONAL_OFFSET + 2) ? 1 : 0;
+		s |= (flags.get(OPERATIONAL_OFFSET + 1) ? 1 : 0) << 1;
+		s |= (flags.get(OPERATIONAL_OFFSET) ? 1 : 0) << 2;
+		builder.setOperational(OperationalStatus.forValue(s));
+		final TlvsBuilder b = new TlvsBuilder();
+		parseTlvs(b, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		builder.setTlvs(b.build());
 		return builder.build();
 	}
 
 	@Override
-	public void addTlv(final LspBuilder builder, final Tlv tlv) {
-		// FIXME : finish
+	public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
+		if (tlv instanceof LspErrorCode) {
+			builder.setLspErrorCode((LspErrorCode) tlv);
+		} else if (tlv instanceof LspIdentifiers) {
+			builder.setLspIdentifiers((LspIdentifiers) tlv);
+		} else if (tlv instanceof RsvpErrorSpec) {
+			builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
+		} else if (tlv instanceof SymbolicPathName) {
+			builder.setSymbolicPathName((SymbolicPathName) tlv);
+		}
 	}
 
 	@Override
@@ -81,12 +100,10 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<LspBuilder
 		if (!(object instanceof LspObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
 		}
-
 		final LspObject specObj = (LspObject) object;
 
-		// final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
-
-		final byte[] retBytes = new byte[0 + TLVS_OFFSET];
+		final byte[] tlvs = serializeTlvs(specObj.getTlvs());
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
 		final int lspID = specObj.getPlspId().getValue().intValue();
 		retBytes[0] = (byte) (lspID >> 12);
@@ -95,19 +112,65 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<LspBuilder
 		if (specObj.isDelegate()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		// FIXME: !!
-		// if (specObj.isOperational())
-		// retBytes[3] |= 1 << (Byte.SIZE - (OPERATIONAL_FLAG_OFFSET - Byte.SIZE) - 1);
 		if (specObj.isRemove()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
 		if (specObj.isSync()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-
-		// ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-
+		if (specObj.isAdministrative()) {
+			retBytes[3] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
+		}
+		final int op = specObj.getOperational().getIntValue();
+		retBytes[3] |= (op & 7) << 4;
+		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		return retBytes;
+	}
+
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		if (tlvs == null) {
+			return new byte[0];
+		}
+		int finalLength = 0;
+		byte[] lspErrBytes = null;
+		byte[] lspIdBytes = null;
+		byte[] rsvpErrBytes = null;
+		byte[] symbBytes = null;
+		if (tlvs.getLspErrorCode() != null) {
+			lspErrBytes = serializeTlv(tlvs.getLspErrorCode());
+			finalLength += lspErrBytes.length;
+		}
+		if (tlvs.getLspIdentifiers() != null) {
+			lspIdBytes = serializeTlv(tlvs.getLspIdentifiers());
+			finalLength += lspIdBytes.length;
+		}
+		if (tlvs.getRsvpErrorSpec() != null) {
+			rsvpErrBytes = serializeTlv(tlvs.getRsvpErrorSpec());
+			finalLength += rsvpErrBytes.length;
+		}
+		if (tlvs.getSymbolicPathName() != null) {
+			symbBytes = serializeTlv(tlvs.getSymbolicPathName());
+			finalLength += symbBytes.length;
+		}
+		int offset = 0;
+		final byte[] result = new byte[finalLength];
+		if (lspErrBytes != null) {
+			ByteArray.copyWhole(lspErrBytes, result, offset);
+			offset += lspErrBytes.length;
+		}
+		if (lspIdBytes != null) {
+			ByteArray.copyWhole(lspIdBytes, result, offset);
+			offset += lspIdBytes.length;
+		}
+		if (rsvpErrBytes != null) {
+			ByteArray.copyWhole(rsvpErrBytes, result, offset);
+			offset += rsvpErrBytes.length;
+		}
+		if (symbBytes != null) {
+			ByteArray.copyWhole(symbBytes, result, offset);
+			offset += symbBytes.length;
+		}
+		return result;
 	}
 
 	@Override
