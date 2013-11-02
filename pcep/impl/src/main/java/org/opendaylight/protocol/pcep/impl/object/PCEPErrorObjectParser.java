@@ -14,13 +14,14 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcepErrorObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReqMissingTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.tlvs.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPErrorObject PCEPErrorObject}
@@ -31,14 +32,14 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 
 	public static final int TYPE = 1;
 
-	public static final int FLAGS_F_LENGTH = 1;
-	public static final int ET_F_LENGTH = 1;
-	public static final int EV_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 1;
+	private static final int ET_F_LENGTH = 1;
+	private static final int EV_F_LENGTH = 1;
 
-	public static final int FLAGS_F_OFFSET = 1; // added reserved field of size 1 byte
-	public static final int ET_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-	public static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
-	public static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = 1;
+	private static final int ET_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
+	private static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
 
 	public PCEPErrorObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -52,23 +53,18 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 		}
 
 		final ErrorsBuilder builder = new ErrorsBuilder();
-
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
-		builder.setType((short) (bytes[ET_F_OFFSET] & 0xFF));
-		builder.setValue((short) (bytes[EV_F_OFFSET] & 0xFF));
-
+		builder.setType((short) UnsignedBytes.toInt(bytes[ET_F_OFFSET]));
+		builder.setValue((short) UnsignedBytes.toInt(bytes[EV_F_OFFSET]));
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		return builder.build();
 	}
 
 	@Override
 	public void addTlv(final ErrorsBuilder builder, final Tlv tlv) {
-		if (tlv instanceof ReqMissingTlv && builder.getType() == 7) {
-			builder.setTlvs(new TlvsBuilder().setReqMissing(
-					new ReqMissingBuilder().setRequestId(((ReqMissingTlv) tlv).getRequestId()).build()).build());
+		if (tlv instanceof ReqMissing && builder.getType() == 7) {
+			builder.setTlvs(new TlvsBuilder().setReqMissing((ReqMissing) tlv).build());
 		}
 	}
 
@@ -77,31 +73,26 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 		if (!(object instanceof PcepErrorObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PcepErrorObject.");
 		}
-
 		final PcepErrorObject errObj = (PcepErrorObject) object;
 
 		final byte[] tlvs = serializeTlvs(((Errors) errObj).getTlvs());
-		int tlvsLength = 0;
-		if (tlvs != null) {
-			tlvsLength = tlvs.length;
-		}
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null) {
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+		if (tlvs.length != 0) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
-
-		retBytes[ET_F_OFFSET] = ByteArray.shortToBytes(errObj.getType())[1];
-		retBytes[EV_F_OFFSET] = ByteArray.shortToBytes(errObj.getValue())[1];
-
+		retBytes[ET_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getType());
+		retBytes[EV_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getValue());
 		return retBytes;
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs.getReqMissing() != null) {
-			return serializeTlv(new ReqMissingBuilder().setRequestId(tlvs.getReqMissing().getRequestId()).build());
+		if (tlvs == null) {
+			return new byte[0];
+		} else if (tlvs.getReqMissing() != null) {
+			return serializeTlv(tlvs.getReqMissing());
 		}
-		return null;
+		return new byte[0];
 	}
 
 	@Override

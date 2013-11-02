@@ -11,12 +11,12 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OverloadDurationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.tlvs.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
 
 /**
- * Parser for {@link OverloadDurationTlv}
+ * Parser for {@link OverloadDuration}
  */
 public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 
@@ -25,9 +25,8 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 	private static final int OVERLOADED_DURATION_LENGTH = 4;
 
 	@Override
-	public OverloadDurationTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		final long l = ByteArray.bytesToInt(ByteArray.subByte(buffer, 0, OVERLOADED_DURATION_LENGTH));
-		return new OverloadDurationBuilder().setDuration(l).build();
+	public OverloadDuration parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+		return new OverloadDurationBuilder().setDuration(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, OVERLOADED_DURATION_LENGTH))).build();
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("OverloadedTlv is mandatory.");
 		}
-		final OverloadDurationTlv odt = (OverloadDurationTlv) tlv;
+		final OverloadDuration odt = (OverloadDuration) tlv;
 		return ByteArray.subByte(ByteArray.longToBytes(odt.getDuration()), OVERLOADED_DURATION_LENGTH, OVERLOADED_DURATION_LENGTH);
 	}
 

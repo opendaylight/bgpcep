@@ -14,12 +14,13 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NotificationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OverloadDurationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.tlvs.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder;
+
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Parser for {@link NotificationObject}
@@ -33,17 +34,17 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 	/*
 	 * lengths of fields
 	 */
-	public static final int FLAGS_F_LENGTH = 1;
-	public static final int NT_F_LENGTH = 1;
-	public static final int NV_F_LENGTH = 1;
+	private static final int FLAGS_F_LENGTH = 1;
+	private static final int NT_F_LENGTH = 1;
+	private static final int NV_F_LENGTH = 1;
 
 	/*
 	 * offsets of fields
 	 */
-	public static final int FLAGS_F_OFFSET = 1; // added reserved filed of size 1
-	public static final int NT_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-	public static final int NV_F_OFFSET = NT_F_OFFSET + NT_F_LENGTH;
-	public static final int TLVS_OFFSET = NV_F_OFFSET + NV_F_LENGTH;
+	private static final int FLAGS_F_OFFSET = 1;
+	private static final int NT_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
+	private static final int NV_F_OFFSET = NT_F_OFFSET + NT_F_LENGTH;
+	private static final int TLVS_OFFSET = NV_F_OFFSET + NV_F_LENGTH;
 
 	public PCEPNotificationObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -55,25 +56,19 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-
 		final NotificationsBuilder builder = new NotificationsBuilder();
-
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
-		builder.setType((short) (bytes[NT_F_OFFSET] & 0xFF));
-		builder.setValue((short) (bytes[NV_F_OFFSET] & 0xFF));
-
+		builder.setType((short) UnsignedBytes.toInt(bytes[NT_F_OFFSET]));
+		builder.setValue((short) UnsignedBytes.toInt(bytes[NV_F_OFFSET]));
+		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		return builder.build();
 	}
 
 	@Override
 	public void addTlv(final NotificationsBuilder builder, final Tlv tlv) {
-		if (tlv instanceof OverloadDurationTlv && builder.getType() == 2 && builder.getValue() == 1) {
-			builder.setTlvs(new TlvsBuilder().setOverloadDuration(
-					new OverloadDurationBuilder().setDuration(((OverloadDurationTlv) tlv).getDuration()).build()).build());
+		if (tlv instanceof OverloadDuration && builder.getType() == 2 && builder.getValue() == 1) {
+			builder.setTlvs(new TlvsBuilder().setOverloadDuration((OverloadDuration) tlv).build());
 		}
 	}
 
@@ -82,32 +77,26 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 		if (!(object instanceof NotificationObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NotificationObject.");
 		}
-
 		final NotificationObject notObj = (NotificationObject) object;
 
 		final byte[] tlvs = serializeTlvs(notObj.getTlvs());
-		int tlvsLength = 0;
-		if (tlvs != null) {
-			tlvsLength = tlvs.length;
-		}
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		if (tlvs != null) {
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+		if (tlvs.length != 0) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
-
-		retBytes[NT_F_OFFSET] = ByteArray.shortToBytes(notObj.getType())[1];
-		retBytes[NV_F_OFFSET] = ByteArray.shortToBytes(notObj.getValue())[1];
-
+		retBytes[NT_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getType());
+		retBytes[NV_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getValue());
 		return retBytes;
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs.getOverloadDuration() != null) {
-			// FIXME : add
-			// return serializeTlv(new NoPathVectorBuilder().setFlags(tlvs.getNoPathVector()).build());
+		if (tlvs == null) {
+			return new byte[0];
+		} else if (tlvs.getOverloadDuration() != null) {
+			return serializeTlv(tlvs.getOverloadDuration());
 		}
-		return null;
+		return new byte[0];
 	}
 
 	@Override

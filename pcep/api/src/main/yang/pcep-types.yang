@@ -144,21 +144,23 @@ module pcep-types {
 	grouping overload-duration-tlv {
 		description "OVERLOAD-DURATION TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
-
-		uses tlv;
-		leaf duration {
-			type uint32;
-			units seconds;
+		container overload-duration {
+			uses tlv;
+			leaf duration {
+				type uint32;
+				units seconds;
+			}
 		}
 	}
 
 	grouping req-missing-tlv {
 		description "REQ-MISSING TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
-
-		uses tlv;
-		leaf request-id {
-			type request-id;
+		container req-missing {
+			uses tlv;
+			leaf request-id {
+				type request-id;
+			}
 		}
 	}
 	
@@ -704,11 +706,9 @@ module pcep-types {
 
 		uses object;
 		container "tlvs" {
-			container overload-duration {
-				when "../type = 2 and ../value = 1";
+			when "../type = 2 and ../value = 1";
 
-				uses overload-duration-tlv;
-			}
+			uses overload-duration-tlv;
 		}
 
 		leaf type {
@@ -728,10 +728,8 @@ module pcep-types {
 
 		uses object;
 		container "tlvs" {
-			container req-missing {
-				when "../type = 7";
-				uses req-missing-tlv;
-			}
+			when "../type = 7";
+			uses req-missing-tlv;
 		}
 
 		leaf type {
