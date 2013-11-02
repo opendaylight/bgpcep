@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "da6255ed_dd040217",
+        "filename": "bgp/rib-api-config/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Remove import-package section, please.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_bd094e2e",
+        "filename": "bgp/rib-api-config/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "update name here to match artifact",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_1d1a9a6e",
+        "filename": "bgp/rib-api-config/src/main/yang/bgp-rib.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Update with the copyright notice:\n\n                This program and the accompanying materials are made available\n                under the terms of the Eclipse Public License v1.0 which\n                accompanies this distribution, and is available at\n                http://www.eclipse.org/legal/epl-v10.html\n\njust as it appears in other yang files.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_9d0e8a33",
+        "filename": "bgp/rib-impl-config/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Remove import-package section, please.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_7d13d65c",
+        "filename": "bgp/rib-impl-config/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Update name",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da6255ed_27e54da8",
         "filename": "bgp/rib-impl-config/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/bgp/rib/impl/rev130409/BGPDispatcherImplModule.java",
         "patchSetId": 2
@@ -31,6 +116,74 @@
       "side": 1,
       "message": "This class is generated only once and then it has to be customized by implementing createInstance() at the very least, which ties the auto-generated JMX code with hand-written the implementation. The code generator does not overwrite these classes if they are present.\n\nThe other classes do the same -- note that all of them subclass an abstract class -- which is completely auto-generated.\n\nIf the underlying module changes, the abstract class and the final one will stop being consistent, at which point the programmer has two options:\n1) update the final class to match the changes\n2) delete the final class, re-generate it, and re-add the customizations",
       "parentUuid": "da6255ed_27e54da8",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_3d1d5e67",
+        "filename": "bgp/rib-impl-config/src/main/yang/bgp-rib-impl.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Add the copyright notice present in the other yang files of the project.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_2203fb10",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Remove this import.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_fdffc6ff",
+        "filename": "bgp/update-api-config/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "Remove import-package section, please.",
+      "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_fd26a6b9",
+        "filename": "bgp/update-api-config/src/main/yang/bgp-listener.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-02T07:12:08Z",
+      "side": 1,
+      "message": "License section missing.",
       "revId": "ddcedaf5cc7998ee56506b0c0775f28877d0ee09",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
