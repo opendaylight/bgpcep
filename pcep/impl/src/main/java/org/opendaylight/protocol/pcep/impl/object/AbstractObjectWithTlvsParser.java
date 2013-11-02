@@ -50,7 +50,7 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TLV_LENGTH_F_LENGTH));
 			byteOffset += TLV_LENGTH_F_LENGTH;
 
-			if (TLV_HEADER_LENGTH + length > bytes.length - byteOffset) {
+			if (TLV_HEADER_LENGTH + length > bytes.length) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + (TLV_HEADER_LENGTH + length) + "; Expected: <= "
 						+ (bytes.length - byteOffset) + ".");
 			}
@@ -59,7 +59,7 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 
 			logger.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
 			final Tlv tlv = this.tlvReg.getTlvParser(type).parseTlv(tlvBytes);
-			logger.trace("Tlv was parsed. {}", tlv);
+			logger.debug("Tlv was parsed. {}", tlv);
 
 			addTlv(builder, tlv);
 
