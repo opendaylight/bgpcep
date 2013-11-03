@@ -13,13 +13,13 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.StatefulCapabilityTlv.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
 /**
- * Parser for {@link StatefulCapabilityTlv}
+ * Parser for {@link Stateful}
  */
 public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
@@ -32,7 +32,7 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 	private static final int U_FLAG_OFFSET = 31;
 
 	@Override
-	public StatefulCapabilityTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+	public Stateful parseTlv(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		}
@@ -50,7 +50,7 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 		if (tlv == null) {
 			throw new IllegalArgumentException("StatefulCapabilityTlv is mandatory.");
 		}
-		final StatefulCapabilityTlv sct = (StatefulCapabilityTlv) tlv;
+		final Stateful sct = (Stateful) tlv;
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(I_FLAG_OFFSET, sct.getFlags().isInitiation());

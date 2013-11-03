@@ -11,6 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Before;
@@ -32,6 +33,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -44,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
@@ -52,8 +55,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.OfBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
@@ -70,7 +76,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
@@ -87,12 +98,31 @@ public class PCEPObjectParserTest {
 		this.tlvRegistry = PCEPExtensionProviderContextImpl.create().getTlvHandlerRegistry();
 	}
 
-	// @Test
-	// @Ignore
-	// // FIXME: temporary
-	// public void testObjectDeserialization() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
-	// PCEPObjectFactory.parseObjects(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
-	// }
+	@Test
+	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
+
+		final OpenBuilder builder = new OpenBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		builder.setVersion(new ProtocolVersion((short) 1));
+		builder.setKeepalive((short) 30);
+		builder.setDeadTimer((short) 120);
+		builder.setSessionId((short) 1);
+
+		final Stateful tlv1 = new StatefulBuilder().setFlags(new Flags(true, false, true)).build();
+		final LspDbVersion tlv2 = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(0x80L)).build();
+		final byte[] predundancyBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a, (byte) 0xbc, (byte) 0xde,
+				(byte) 0xf0 };
+		final PredundancyGroupId tlv3 = new PredundancyGroupIdBuilder().setIdentifier(predundancyBytes).build();
+
+		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.TlvsBuilder().setStateful(
+				tlv1).setPredundancyGroupId(tlv3).setLspDbVersion(tlv2).build());
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
 
 	@Test
 	public void testCloseObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
@@ -422,51 +452,6 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// /**
-	// * Standard ser deser test<br/>
-	// * used resources:<br/>
-	// * - PCEPOpenObject1.bin
-	// *
-	// * @throws PCEPDeserializerException
-	// * @throws IOException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// @Ignore
-	// // FIXME: temporary
-	// public void testOpenObjectSerDeser() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
-	// // final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>();
-	// // tlvs.add(new PCEStatefulCapabilityTlv(false, true, true));
-	// // tlvs.add(new LSPStateDBVersionTlv(0x80));
-	// // final byte[] valueBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC,
-	// (byte) 0xDE, (byte) 0xF0 };
-	// // tlvs.add(new NodeIdentifierTlv(valueBytes));
-	// // final PCEPOpenObject specObject = new PCEPOpenObject(30, 120, 1, tlvs);
-	// //
-	// // serDeserTest("src/test/resources/PCEPOpenObject1.bin", specObject);
-	// }
-	//
-	// /**
-	// * Specific test for upper bounds and without tlvs<br/>
-	// * Used resources:<br/>
-	// * - PCEPOpenObject2UpperBoundsNoTlv.bin
-	// *
-	// * @throws PCEPDeserializerException
-	// * @throws IOException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testOpenObjectBoundsWithoutTlvs() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// // final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>();
-	// // serDeserTest("src/test/resources/PCEPOpenObject2UpperBoundsNoTlv.bin", new PCEPOpenObject(0xFF, 0xFF, 0xFF,
-	// tlvs));
-	// serDeserTest("src/test/resources/PCEPOpenObject2UpperBoundsNoTlv.bin", new PCEPOpenObject(0xFF, 0xFF, 0xFF,
-	// null));
-	// }
-	//
-
 	@Test
 	public void testRPObjectWithTlv() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
 		final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry);
@@ -627,55 +612,4 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	// // FIXME: add at least one test with true value
-	// @Test
-	// public void openObjectWithTlv() throws PCEPDeserializerException, PCEPDocumentedException {
-	// // this.testOpenObjectWithSpecTlv(new PCEStatefulCapabilityTlv(false, false, false));
-	// // this.testOpenObjectWithSpecTlv(new PCEStatefulCapabilityTlv(false, false, true));
-	// // this.testOpenObjectWithSpecTlv(new PCEStatefulCapabilityTlv(false, true, false));
-	// // this.testOpenObjectWithSpecTlv(new PCEStatefulCapabilityTlv(false, true, true));
-	// }
-	//
-	// // private void testOpenObjectWithSpecTlv(final PCEPTlv tlv) throws PCEPDeserializerException,
-	// PCEPDocumentedException {
-	// // final List<PCEPObject> objs = new ArrayList<PCEPObject>();
-	// // final List<PCEPTlv> tlvs = new ArrayList<PCEPTlv>();
-	// // tlvs.add(tlv);
-	// // final PCEPOpenObject oo = new PCEPOpenObject(30, 120, 0, tlvs);
-	// // objs.add(oo);
-	// // final byte[] bytes = PCEPObjectFactory.put(objs);
-	// // final PCEPObject obj = PCEPObjectFactory.parseObjects(bytes).get(0);
-	// // assertEquals(oo, obj);
-	// // }
-	//
-	// @Test
-	// public void testErrorsMapping() {
-	// final PCEPErrorObjectParser.PCEPErrorsMaping mapper = PCEPErrorObjectParser.PCEPErrorsMaping.getInstance();
-	//
-	// for (final PCEPErrors error : PCEPErrors.values()) {
-	// final PCEPErrorIdentifier errorId = mapper.getFromErrorsEnum(error);
-	// assertEquals(error, mapper.getFromErrorIdentifier(errorId));
-	// }
-	// }
-	//
-	// @Test
-	// public void testSERObjects() throws PCEPDocumentedException, PCEPDeserializerException {
-	// final List<ExplicitRouteSubobject> eroSubobjects = new ArrayList<ExplicitRouteSubobject>();
-	// eroSubobjects.add(new EROIPPrefixSubobject<IPv4Prefix>(new IPv4Prefix(new IPv4Address(new byte[] { (byte) 192,
-	// (byte) 168, 1, 8 }), 16), false));
-	// eroSubobjects.add(new EROIPPrefixSubobject<IPv6Prefix>(new IPv6Prefix(new IPv6Address(new byte[] { (byte) 192,
-	// (byte) 168, 2, 1,
-	// (byte) 192, (byte) 168, 2, 1, (byte) 192, (byte) 168, 2, 1, (byte) 192, (byte) 168, 2, 1 }), 64), false));
-	//
-	// serDeserTestWithoutBin(new PCEPSecondaryExplicitRouteObject(eroSubobjects, true, false));
-	// }
-	//
-	// @Test
-	// public void testSRRObject() throws PCEPDocumentedException, PCEPDeserializerException {
-	// final List<ReportedRouteSubobject> rroSubobjects = new ArrayList<ReportedRouteSubobject>();
-	// rroSubobjects.add(new RROIPAddressSubobject<IPv4Prefix>(new IPv4Prefix(this.ipv4addr, 16), true, false));
-	// rroSubobjects.add(new RROIPAddressSubobject<IPv6Prefix>(new IPv6Prefix(this.ipv6addr, 64), false, true));
-	//
-	// serDeserTestWithoutBin(new PCEPSecondaryRecordRouteObject(rroSubobjects, true, false));
-	// }
 }

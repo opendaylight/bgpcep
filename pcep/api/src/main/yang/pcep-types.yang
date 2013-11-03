@@ -168,20 +168,22 @@ module pcep-types {
 		description "Stateful PCE Capability TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
 
-		uses tlv;
-		leaf flags {
-			type bits {
-				bit lsp-update-capability {
-					position 31;
+		container stateful {
+			uses tlv;
+			leaf flags {
+				type bits {
+					bit lsp-update-capability {
+						position 31;
+					}
+					bit include-db-version {
+						position 30;
+					}
+					bit initiation {
+						position 29;
+					}
 				}
-				bit include-db-version {
-					position 30;
-				}
-				bit initiation {
-					position 29;
-				}
+				mandatory true;
 			}
-			mandatory true;
 		}
 	}
 
@@ -189,10 +191,12 @@ module pcep-types {
 		description "LSP State Database Version TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
 
-		uses tlv;
-		leaf version {
-			type uint64;
-			mandatory true;
+		container lsp-db-version {
+			uses tlv;
+			leaf version {
+				type uint64;
+				mandatory true;
+			}
 		}
 	}
 
@@ -200,10 +204,12 @@ module pcep-types {
 		description "PCE Redundancy Group Identifier TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
 
-		uses tlv;
-		leaf identifier {
-			type binary;
-			mandatory true;
+		container predundancy-group-id {
+			uses tlv;
+			leaf identifier {
+				type binary;
+				mandatory true;
+			}
 		}
 	}
 
@@ -295,10 +301,11 @@ module pcep-types {
 	grouping of-list-tlv {
 		description "OF-List TLV";
 		reference "https://tools.ietf.org/html/rfc5541#section-2.1";
-
-		uses tlv;
-		leaf-list codes {
-			type of-id;
+		container of-list {
+			uses tlv;
+			leaf-list codes {
+				type of-id;
+			}
 		}
 	}
 
@@ -346,20 +353,13 @@ module pcep-types {
 
 		uses object;
 		container "tlvs" {
-			container of-list {
-				uses of-list-tlv;
-			}
-			container stateful {
-				uses stateful-capability-tlv;
-			}
+			uses of-list-tlv;
+			
+			uses stateful-capability-tlv;
 
-			container predundancy-group-id {
-				uses predundancy-group-id-tlv;
-			}
+			uses predundancy-group-id-tlv;
 
-			container lsp-db-version {
-				uses lsp-db-version-tlv;
-			}
+			uses lsp-db-version-tlv;
 		}
 
 		leaf version {

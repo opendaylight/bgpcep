@@ -16,14 +16,14 @@ import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfListTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.OfListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfListBuilder;
 
 import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link OfListTlv}
+ * Parser for {@link OfList}
  */
 public class OFListTlvParser implements TlvParser, TlvSerializer {
 
@@ -32,7 +32,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 	private static final int OF_CODE_ELEMENT_LENGTH = 2;
 
 	@Override
-	public OfListTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
+	public OfList parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0) {
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		}
@@ -55,7 +55,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("OFListTlv is mandatory.");
 		}
-		final OfListTlv oft = (OfListTlv) tlv;
+		final OfList oft = (OfList) tlv;
 
 		final List<OfId> ofCodes = oft.getCodes();
 		final byte[] retBytes = new byte[ofCodes.size() * OF_CODE_ELEMENT_LENGTH];

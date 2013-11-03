@@ -8,17 +8,18 @@
 package org.opendaylight.protocol.pcep.impl.tlv;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LspDbVersionTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.tlvs.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
 
 /**
- * Parser for {@link LspDbVersionTlv}
+ * Parser for {@link LspDbVersion}
  */
 public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
@@ -27,7 +28,7 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 	private static final int DBV_F_LENGTH = 8;
 
 	@Override
-	public LspDbVersionTlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+	public LspDbVersion parseTlv(final byte[] buffer) throws PCEPDeserializerException {
 		return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH)))).build();
 	}
 
@@ -36,8 +37,19 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 		if (tlv == null) {
 			throw new IllegalArgumentException("LspDbVersionTlv is mandatory.");
 		}
-		final LspDbVersionTlv lsp = (LspDbVersionTlv) tlv;
-		return ByteArray.subByte(lsp.getVersion().toByteArray(), 0, DBV_F_LENGTH);
+		final LspDbVersion lsp = (LspDbVersion) tlv;
+		final byte[] array = lsp.getVersion().toByteArray();
+		if (array.length > DBV_F_LENGTH) {
+			throw new IllegalArgumentException("LspDBVersion too big.");
+		}
+		final byte[] result = new byte[DBV_F_LENGTH];
+		Arrays.fill(result, (byte) 0);
+		int j = 7;
+		for (int i = array.length - 1; i >= 0; i--) {
+			result[j] |= array[i];
+			j--;
+		}
+		return result;
 	}
 
 	@Override
