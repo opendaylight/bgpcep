@@ -25,7 +25,6 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.osgi.framework.BundleContext;
@@ -91,7 +90,8 @@ class OSGiPCEPExtensionProviderContext extends OSGiPCEPExtensionConsumerContext 
 	}
 
 	@Override
-	public AutoCloseable registerRROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+	public AutoCloseable registerRROSubobjectSerializer(
+			final Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType> subobjectClass,
 			final RROSubobjectSerializer serializer) {
 		// TODO Auto-generated method stub
 		return null;

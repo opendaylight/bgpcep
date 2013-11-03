@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -29,6 +28,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
@@ -37,6 +37,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
@@ -53,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
@@ -61,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.IncludeRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
@@ -82,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.LoadBalancingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
@@ -192,7 +196,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testEROObject() throws Exception {
+	public void testERObject() throws Exception {
 		final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(PCEPExtensionProviderContextImpl.create().getEROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPExplicitRouteObject1PackOfSubobjects.bin");
 
@@ -209,39 +213,63 @@ public class PCEPObjectParserTest {
 		builder.setSubobjects(subs);
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
-		System.out.println(new String(Hex.encodeHex(parser.serializeObject(builder.build()))));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// @Test
-	// public void testIRObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// final byte[] bytesFromFile =
-	// ByteArray.fileToBytes("src/test/resources/PCEPIncludeRouteObject1PackOfSubobjects.bin");
-	//
-	// final PCEPIncludeRouteObject specObj = (PCEPIncludeRouteObject)
-	// PCEPObjectFactory.parseObjects(bytesFromFile).get(0);
-	//
-	// assertEquals(8, specObj.getSubobjects().size());
-	//
-	// final byte[] bytesActual = PCEPObjectFactory.put(Arrays.asList((PCEPObject) specObj));
-	// assertArrayEquals(bytesFromFile, bytesActual);
-	// }
-	//
-	// @Test
-	// public void tesRRObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// final byte[] bytesFromFile =
-	// ByteArray.fileToBytes("src/test/resources/PCEPReportedRouteObject1PackOfSubobjects.bin");
-	//
-	// final PCEPReportedRouteObject specObj = (PCEPReportedRouteObject)
-	// PCEPObjectFactory.parseObjects(bytesFromFile).get(0);
-	//
-	// assertEquals(6, specObj.getSubobjects().size());
-	//
-	// final byte[] bytesActual = PCEPObjectFactory.put(Arrays.asList((PCEPObject) specObj));
-	// assertArrayEquals(bytesFromFile, bytesActual);
-	// }
-	//
+	@Test
+	public void testIRObject() throws Exception {
+		final PCEPIncludeRouteObjectParser parser = new PCEPIncludeRouteObjectParser(PCEPExtensionProviderContextImpl.create().getEROSubobjectHandlerRegistry());
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPIncludeRouteObject1PackOfSubobjects.bin");
+		final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+
+		final IncludeRouteBuilder builder = new IncludeRouteBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Subobjects> subs = Lists.newArrayList();
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.SubobjectsBuilder().setSubobjectType(
+				new AsNumberBuilder().setAsNumber(new AsNumber(0x10L)).build()).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.SubobjectsBuilder().setSubobjectType(
+				new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("18.52.80.0/21"))).build()).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.SubobjectsBuilder().setSubobjectType(
+				new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.SubobjectsBuilder().setSubobjectType(
+				new UnnumberedBuilder().setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L).build()).build());
+		builder.setSubobjects(subs);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		// FIXME: fix Ipv6Serializers (getType)
+		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testRRObject() throws Exception {
+		final PCEPReportedRouteObjectParser parser = new PCEPReportedRouteObjectParser(PCEPExtensionProviderContextImpl.create().getRROSubobjectHandlerRegistry());
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPReportedRouteObject1PackOfSubobjects.bin");
+		final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+
+		final ReportedRouteBuilder builder = new ReportedRouteBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Subobjects> subs = Lists.newArrayList();
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.SubobjectsBuilder().setSubobjectType(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder().setIpPrefix(
+						new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.SubobjectsBuilder().setSubobjectType(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder().setIpPrefix(
+						new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).setProtectionAvailable(false).setProtectionInUse(
+				false).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.SubobjectsBuilder().setSubobjectType(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder().setRouterId(
+						0x1245678L).setInterfaceId(0x9abcdef0L).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
+		builder.setSubobjects(subs);
+
+		final ReportedRouteObject t = parser.parseObject(new ObjectHeaderImpl(false, false), result);
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		// FIXME: fix Ipv6Serializers (getType)
+		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
 
 	@Test
 	public void testBandwidthObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {

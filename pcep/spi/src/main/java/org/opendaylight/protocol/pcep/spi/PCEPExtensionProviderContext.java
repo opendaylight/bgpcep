@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
@@ -33,7 +32,9 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
 	public AutoCloseable registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
 
-	public AutoCloseable registerRROSubobjectSerializer(Class<? extends CSubobject> subobjectClass, RROSubobjectSerializer serializer);
+	public AutoCloseable registerRROSubobjectSerializer(
+			Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType> subobjectClass,
+			RROSubobjectSerializer serializer);
 
 	public AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 

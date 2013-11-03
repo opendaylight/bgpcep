@@ -99,7 +99,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKeyObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKeySubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcepErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcinitiateMessage;
@@ -125,9 +124,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LabelSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.Label;
@@ -184,10 +180,18 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE, new RROPathKeySubobjectParser());
 		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE128, new RROPathKeySubobjectParser());
 
-		context.registerRROSubobjectSerializer(IpPrefixSubobject.class, new RROIpPrefixSubobjectParser());
-		context.registerRROSubobjectSerializer(LabelSubobject.class, new RROLabelSubobjectParser(labelReg));
-		context.registerRROSubobjectSerializer(UnnumberedSubobject.class, new RROUnnumberedInterfaceSubobjectParser());
-		context.registerRROSubobjectSerializer(PathKeySubobject.class, new RROPathKeySubobjectParser());
+		context.registerRROSubobjectSerializer(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefix.class,
+				new RROIpPrefixSubobjectParser());
+		context.registerRROSubobjectSerializer(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Label.class,
+				new RROLabelSubobjectParser(labelReg));
+		context.registerRROSubobjectSerializer(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Unnumbered.class,
+				new RROUnnumberedInterfaceSubobjectParser());
+		context.registerRROSubobjectSerializer(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.subobjects.subobject.type.PathKey.class,
+				new RROPathKeySubobjectParser());
 
 		final XROSubobjectHandlerRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
 		context.registerXROSubobjectParser(XROIpPrefixSubobjectParser.TYPE, new XROIpPrefixSubobjectParser());

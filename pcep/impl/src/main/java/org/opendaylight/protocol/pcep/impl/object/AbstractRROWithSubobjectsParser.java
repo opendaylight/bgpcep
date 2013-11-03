@@ -30,11 +30,9 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 	private static final int SUB_LENGTH_F_LENGTH = 1;
 	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
 
-	public static final int TYPE_FLAG_F_OFFSET = 0;
-	public static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
-	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
-
-	protected static final int PADDED_TO = 4;
+	private static final int TYPE_FLAG_F_OFFSET = 0;
+	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
+	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
 
 	private final RROSubobjectHandlerRegistry subobjReg;
 
@@ -88,7 +86,7 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 
 		for (final Subobjects subobject : subobjects) {
 
-			final RROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject);
+			final RROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
 			final byte[] valueBytes = serializer.serializeSubobject(subobject);
 
