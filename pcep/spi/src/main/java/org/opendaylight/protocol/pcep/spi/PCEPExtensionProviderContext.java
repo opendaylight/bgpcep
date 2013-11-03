@@ -21,7 +21,7 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
 	public AutoCloseable registerEROSubobjectParser(int subobjectType, EROSubobjectParser parser);
 
-	public AutoCloseable registerEROSubobjectSerializer(Class<? extends CSubobject> subobjectClass, EROSubobjectSerializer serializer);
+	public AutoCloseable registerEROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, EROSubobjectSerializer serializer);
 
 	public AutoCloseable registerMessageParser(int messageType, MessageParser parser);
 

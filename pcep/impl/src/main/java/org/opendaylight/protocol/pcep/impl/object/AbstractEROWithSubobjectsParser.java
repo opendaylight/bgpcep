@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
@@ -33,8 +34,6 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 	public static final int TYPE_FLAG_F_OFFSET = 0;
 	public static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
 	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
-
-	protected static final int PADDED_TO = 4;
 
 	private final EROSubobjectHandlerRegistry subobjReg;
 
@@ -49,7 +48,6 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
 		boolean loose_flag = false;
 		int type;
-
 		byte[] soContentsBytes;
 		int length;
 		int offset = 0;
@@ -90,15 +88,14 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
 		for (final Subobjects subobject : subobjects) {
 
-			final EROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject);
+			final EROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
 			final byte[] valueBytes = serializer.serializeSubobject(subobject);
 
 			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
 
-			final byte typeBytes = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0] | (subobject.isLoose() ? 1 << 7
-					: 0));
-			final byte lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - 1)[0];
+			final byte typeBytes = (byte) (UnsignedBytes.checkedCast(serializer.getType()) | (subobject.isLoose() ? 1 << 7 : 0));
+			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
 
 			bytes[0] = typeBytes;
 			bytes[1] = lengthBytes;

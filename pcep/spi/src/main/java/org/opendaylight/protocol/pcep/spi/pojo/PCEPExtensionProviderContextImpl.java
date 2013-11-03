@@ -137,7 +137,7 @@ public final class PCEPExtensionProviderContextImpl implements PCEPExtensionProv
 	}
 
 	@Override
-	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
 			final EROSubobjectSerializer serializer) {
 		return this.eroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
 	}

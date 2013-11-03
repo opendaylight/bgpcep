@@ -54,7 +54,7 @@ class OSGiPCEPExtensionProviderContext extends OSGiPCEPExtensionConsumerContext 
 	}
 
 	@Override
-	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+	public AutoCloseable registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
 			final EROSubobjectSerializer serializer) {
 		// TODO Auto-generated method stub
 		return null;

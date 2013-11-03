@@ -25,13 +25,13 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 
 	public static final int TYPE = 4;
 
-	public static final int ROUTER_ID_NUMBER_LENGTH = 4;
-	public static final int INTERFACE_ID_NUMBER_LENGTH = 4;
+	private static final int ROUTER_ID_NUMBER_LENGTH = 4;
+	private static final int INTERFACE_ID_NUMBER_LENGTH = 4;
 
-	public static final int ROUTER_ID_NUMBER_OFFSET = 2; // added reserved field of size 2
-	public static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
+	private static final int ROUTER_ID_NUMBER_OFFSET = 2;
+	private static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
 
-	public static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
+	private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
 
 	@Override
 	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {

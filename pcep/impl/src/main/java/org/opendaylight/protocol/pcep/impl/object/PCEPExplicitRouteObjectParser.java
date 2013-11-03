@@ -47,7 +47,6 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed ExplicitRouteObject.");
 		}
-
 		final ExplicitRouteObject ero = ((ExplicitRouteObject) object);
 
 		assert !(ero.getSubobjects().isEmpty()) : "Empty Explicit Route Object.";

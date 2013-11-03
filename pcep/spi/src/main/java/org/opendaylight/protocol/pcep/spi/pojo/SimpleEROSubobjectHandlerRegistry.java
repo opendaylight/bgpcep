@@ -12,8 +12,7 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.util.Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
@@ -26,7 +25,7 @@ public final class SimpleEROSubobjectHandlerRegistry implements EROSubobjectHand
 		return this.handlers.registerParser(subobjectType, parser);
 	}
 
-	public AutoCloseable registerSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+	public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
 			final EROSubobjectSerializer serializer) {
 		return this.handlers.registerSerializer(subobjectClass, serializer);
 	}
@@ -38,7 +37,7 @@ public final class SimpleEROSubobjectHandlerRegistry implements EROSubobjectHand
 	}
 
 	@Override
-	public EROSubobjectSerializer getSubobjectSerializer(final Subobjects subobject) {
+	public EROSubobjectSerializer getSubobjectSerializer(final SubobjectType subobject) {
 		return this.handlers.getSerializer(subobject.getImplementedInterface());
 	}
 }

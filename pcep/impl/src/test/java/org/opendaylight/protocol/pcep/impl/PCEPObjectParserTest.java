@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Hex;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -26,6 +27,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspObjectParser;
@@ -68,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.definition.ExplicitRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
@@ -95,6 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
@@ -187,45 +191,28 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// @Test
-	// public void testERObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// final byte[] bytesFromFile =
-	// ByteArray.fileToBytes("src/test/resources/PCEPExplicitRouteObject1PackOfSubobjects.bin");
-	//
-	// MockitoAnnotations.initMocks(this);
-	// PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(registry);
-	// doReturn(parser).when(registry).getObjectParser(PCEPExplicitRouteObjectParser.TYPE,
-	// PCEPExplicitRouteObjectParser.CLASS);
-	// doReturn(new EROAsNumberSubobjectParser()).when(registry).getSubobjectParser(EROAsNumberSubobjectParser.TYPE);
-	// ObjectHeader h = new ObjectHeader() {
-	//
-	// @Override
-	// public Class<? extends DataContainer> getImplementedInterface() {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
-	//
-	// @Override
-	// public Boolean isProcessingRule() {
-	// return false;
-	// }
-	//
-	// @Override
-	// public Boolean isIgnore() {
-	// return false;
-	// }
-	// };
-	//
-	// final ExplicitRouteSubobject specObj = (ExplicitRouteSubobject)
-	// registry.getObjectParser(PCEPExplicitRouteObjectParser.TYPE, PCEPExplicitRouteObjectParser.CLASS).parseObject(h,
-	// bytesFromFile);
-	//
-	// System.out.println(specObj.toString());
-	//
-	// //final byte[] bytesActual = PCEPObjectFactory.put(Arrays.asList((PCEPObject) specObj));
-	// //assertArrayEquals(bytesFromFile, bytesActual);
-	// }
+	@Test
+	public void testEROObject() throws Exception {
+		final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(PCEPExtensionProviderContextImpl.create().getEROSubobjectHandlerRegistry());
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPExplicitRouteObject1PackOfSubobjects.bin");
+
+		final ExplicitRouteBuilder builder = new ExplicitRouteBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects> subs = Lists.newArrayList();
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder().setLoose(
+				true).setSubobjectType(new AsNumberBuilder().setAsNumber(new AsNumber(0xffffL)).build()).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder().setLoose(
+				true).setSubobjectType(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build());
+		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder().setLoose(
+				true).setSubobjectType(new UnnumberedBuilder().setRouterId(0xffffffffL).setInterfaceId(0xffffffffL).build()).build());
+		builder.setSubobjects(subs);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		System.out.println(new String(Hex.encodeHex(parser.serializeObject(builder.build()))));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
 	//
 	// @Test
 	// public void testIRObjectSerDeser() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
