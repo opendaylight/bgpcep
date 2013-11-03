@@ -37,6 +37,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPPathKeyObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
@@ -52,9 +53,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
@@ -74,6 +76,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.definition.ExplicitRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKeys;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKeysBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
@@ -84,6 +88,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.RpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.path.key.expansion.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.LoadBalancingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
@@ -265,7 +270,6 @@ public class PCEPObjectParserTest {
 						0x1245678L).setInterfaceId(0x9abcdef0L).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
 		builder.setSubobjects(subs);
 
-		final ReportedRouteObject t = parser.parseObject(new ObjectHeaderImpl(false, false), result);
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
 		// FIXME: fix Ipv6Serializers (getType)
 		// assertArrayEquals(result, parser.serializeObject(builder.build()));
@@ -592,6 +596,23 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
+	public void testPathKeyObject() throws Exception {
+		final PCEPPathKeyObjectParser parser = new PCEPPathKeyObjectParser(PCEPExtensionProviderContextImpl.create().getEROSubobjectHandlerRegistry());
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPPathKeyObject.bin");
+
+		final PathKeyBuilder builder = new PathKeyBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(false);
+		final List<PathKeys> list = Lists.newArrayList();
+		list.add(new PathKeysBuilder().setLoose(true).setPathKey(new PathKey(0x1234)).setPceId(
+				new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
+		builder.setPathKeys(list);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
 		final byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
@@ -635,5 +656,4 @@ public class PCEPObjectParserTest {
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
-
 }

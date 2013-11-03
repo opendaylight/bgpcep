@@ -31,9 +31,9 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 	private static final int SUB_LENGTH_F_LENGTH = 1;
 	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
 
-	public static final int TYPE_FLAG_F_OFFSET = 0;
-	public static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
-	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
+	private static final int TYPE_FLAG_F_OFFSET = 0;
+	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
+	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
 
 	private final EROSubobjectHandlerRegistry subobjReg;
 

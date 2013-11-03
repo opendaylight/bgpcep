@@ -263,7 +263,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectParser(PCEPLoadBalancingObjectParser.CLASS, PCEPLoadBalancingObjectParser.TYPE,
 				new PCEPLoadBalancingObjectParser(tlvReg));
 		context.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, new PCEPCloseObjectParser(tlvReg));
-		context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, new PCEPPathKeyObjectParser(tlvReg));
+		context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, new PCEPPathKeyObjectParser(eroSubReg));
 		context.registerObjectParser(PCEPObjectiveFunctionObjectParser.CLASS, PCEPObjectiveFunctionObjectParser.TYPE,
 				new PCEPObjectiveFunctionObjectParser(tlvReg));
 		context.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, new PCEPClassTypeObjectParser(tlvReg));
@@ -290,7 +290,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectSerializer(PcepErrorObject.class, new PCEPErrorObjectParser(tlvReg));
 		context.registerObjectSerializer(LoadBalancingObject.class, new PCEPLoadBalancingObjectParser(tlvReg));
 		context.registerObjectSerializer(CloseObject.class, new PCEPCloseObjectParser(tlvReg));
-		context.registerObjectSerializer(PathKeyObject.class, new PCEPPathKeyObjectParser(tlvReg));
+		context.registerObjectSerializer(PathKeyObject.class, new PCEPPathKeyObjectParser(eroSubReg));
 		context.registerObjectSerializer(OfObject.class, new PCEPObjectiveFunctionObjectParser(tlvReg));
 		context.registerObjectSerializer(ClasstypeObject.class, new PCEPClassTypeObjectParser(tlvReg));
 		context.registerObjectSerializer(GcObject.class, new PCEPGlobalConstraintsObjectParser(tlvReg));
