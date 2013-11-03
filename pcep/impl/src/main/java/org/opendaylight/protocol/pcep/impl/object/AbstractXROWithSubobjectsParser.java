@@ -21,20 +21,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractXROWithSubobjectsParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractXROWithSubobjectsParser.class);
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
 	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
 
-	public static final int TYPE_FLAG_F_OFFSET = 0;
-	public static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
-	public static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
-
-	protected static final int PADDED_TO = 4;
+	private static final int TYPE_FLAG_F_OFFSET = 0;
+	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
+	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
 
 	private final XROSubobjectHandlerRegistry subobjReg;
 
@@ -46,9 +45,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
-
 		int type;
-
 		byte[] soContentsBytes;
 		int length;
 		int offset = 0;
@@ -57,26 +54,28 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 		while (offset < bytes.length) {
 
-			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset + LENGTH_F_OFFSET, SUB_LENGTH_F_LENGTH));
+			final boolean mandatory = ((bytes[offset] & (1 << 7)) != 0) ? true : false;
+			type = UnsignedBytes.checkedCast((bytes[offset] & 0xff) & ~(1 << 7));
 
-			final boolean mandatory = ((bytes[offset + TYPE_FLAG_F_OFFSET] & (1 << 7)) != 0) ? true : false;
-			type = (bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7);
+			offset += SUB_TYPE_FLAG_F_LENGTH;
 
-			if (length > bytes.length - offset) {
+			length = UnsignedBytes.toInt(bytes[offset]);
+
+			offset += SUB_LENGTH_F_LENGTH;
+
+			if (length - SUB_HEADER_LENGTH > bytes.length - offset) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
 						+ (bytes.length - offset));
 			}
+			soContentsBytes = ByteArray.subByte(bytes, offset, length - SO_CONTENTS_OFFSET);
 
-			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
-			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
-
-			logger.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
+			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
 			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, mandatory);
-			logger.debug("Subobject was parsed. {}", sub);
+			LOG.debug("Subobject was parsed. {}", sub);
 
 			subs.add(sub);
 
-			offset += length;
+			offset += soContentsBytes.length;
 		}
 		return subs;
 	}
@@ -89,19 +88,20 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 		for (final Subobjects subobject : subobjects) {
 
-			final XROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject);
-
-			final byte[] valueBytes = serializer.serializeSubobject(subobject);
-
-			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
+			final XROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
 			final byte typeBytes = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0] | (subobject.isMandatory() ? 1 << 7
 					: 0));
-			final byte lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - 1)[0];
+
+			final byte[] valueBytes = serializer.serializeSubobject(subobject);
+
+			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
+
+			final byte[] bytes = new byte[valueBytes.length + SUB_HEADER_LENGTH];
 
 			bytes[0] = typeBytes;
 			bytes[1] = lengthBytes;
-			System.arraycopy(valueBytes, 0, bytes, SUB_HEADER_LENGTH, valueBytes.length);
+			ByteArray.copyWhole(valueBytes, bytes, SUB_HEADER_LENGTH);
 
 			finalLength += bytes.length;
 			result.add(bytes);

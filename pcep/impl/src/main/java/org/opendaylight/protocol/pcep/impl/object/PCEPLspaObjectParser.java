@@ -44,7 +44,6 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 	/*
 	 * offsets of flags inside flags field in bits
 	 */
-	private static final int S_FLAG_OFFSET = 6;
 	private static final int L_FLAG_OFFSET = 7;
 
 	/*

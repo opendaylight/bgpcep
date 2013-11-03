@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.CSubobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.osgi.framework.BundleContext;
 
@@ -109,7 +110,7 @@ class OSGiPCEPExtensionProviderContext extends OSGiPCEPExtensionConsumerContext 
 	}
 
 	@Override
-	public AutoCloseable registerXROSubobjectSerializer(final Class<? extends CSubobject> subobjectClass,
+	public AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
 			final XROSubobjectSerializer serializer) {
 		// TODO Auto-generated method stub
 		return null;

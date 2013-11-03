@@ -128,7 +128,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects subobject : subobjects) {
 
-			final XROSubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject);
+			final XROSubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject.getSubobjectType());
 
 			System.out.println(serializer);
 

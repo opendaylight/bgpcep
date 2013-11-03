@@ -25,6 +25,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspObjectParser;
@@ -41,6 +42,9 @@ import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
@@ -52,6 +56,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.OfBuilder;
@@ -76,6 +82,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.XroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
@@ -85,6 +92,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
@@ -546,26 +556,25 @@ public class PCEPObjectParserTest {
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
-	//
-	// /**
-	// * Test PCEPExcludeRouteObjectObject (Serialization/Deserialization)<br/>
-	// * Used resources:<br/>
-	// * - PCEPExcludeRouteObject.1.bin<br/>
-	// *
-	// * @throws IOException
-	// * @throws PCEPDeserializerException
-	// * @throws PCEPDocumentedException
-	// */
-	// @Test
-	// public void testExcludeRouteObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-	// final List<ExcludeRouteSubobject> xroSubobjects = new ArrayList<ExcludeRouteSubobject>();
-	// xroSubobjects.add(new XROIPPrefixSubobject<IPv4Prefix>(new IPv4Prefix(new IPv4Address(new byte[] { (byte) 192,
-	// (byte) 168,
-	// (byte) 100, (byte) 100 }), 16), true, XROSubobjectAttribute.NODE));
-	// xroSubobjects.add(new XROAsNumberSubobject(new AsNumber(0x1234L), false));
-	//
-	// }
-	//
+	@Test
+	public void testExcludeRouteObject() throws Exception {
+		final PCEPExcludeRouteObjectParser parser = new PCEPExcludeRouteObjectParser(PCEPExtensionProviderContextImpl.create().getXROSubobjectHandlerRegistry());
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPExcludeRouteObject.1.bin");
+
+		final XroBuilder builder = new XroBuilder();
+		builder.setProcessingRule(false);
+		builder.setIgnore(false);
+		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExcludeRouteObject.Flags(true));
+		final List<Subobjects> subs = Lists.newArrayList();
+		subs.add(new SubobjectsBuilder().setMandatory(true).setSubobjectType(
+				new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("192.168.0.0/16"))).build()).setAttribute(Attribute.Node).build());
+		subs.add(new SubobjectsBuilder().setMandatory(false).setSubobjectType(
+				new AsNumberBuilder().setAsNumber(new AsNumber(0x1234L)).build()).build());
+		builder.setSubobjects(subs);
+
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
 
 	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
