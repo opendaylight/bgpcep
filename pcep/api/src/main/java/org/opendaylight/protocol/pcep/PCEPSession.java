@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 
 /**
  * PCEP Session represents the finite state machine in PCEP, including timers and its purpose is to create a PCEP
@@ -26,7 +26,7 @@ public interface PCEPSession extends ProtocolSession<Message> {
 	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
 	 * is only allowed, when a PCEP handshake is in progress). Close message will close the session and free all the
 	 * resources.
-	 *
+	 * 
 	 * @param message message to be sent
 	 * @return Future promise which will be succeed when the message is enqueued in the socket.
 	 */

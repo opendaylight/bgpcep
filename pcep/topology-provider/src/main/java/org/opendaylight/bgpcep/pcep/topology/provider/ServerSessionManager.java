@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.reports.Lsp;
@@ -92,7 +92,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final String pccId = createNodeId(address);
 
 			// FIXME: after 0.6 yangtools, this cast should not be needed
-			final Topology topo = (Topology)trans.readOperationalData(topology);
+			final Topology topo = (Topology) trans.readOperationalData(ServerSessionManager.this.topology);
 
 			for (final Node n : topo.getNode()) {
 				LOG.debug("Matching topology node {} to id {}", n, pccId);
@@ -107,7 +107,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			 */
 			final NodeId id = new NodeId(pccId);
 			final NodeKey nk = new NodeKey(id);
-			final InstanceIdentifier<Node> nti = InstanceIdentifier.builder(topology).node(Node.class, nk).toInstance();
+			final InstanceIdentifier<Node> nti = InstanceIdentifier.builder(ServerSessionManager.this.topology).node(Node.class, nk).toInstance();
 
 			final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
@@ -132,7 +132,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			LOG.debug("Peer {} resolved to topology node {}", peerAddress, topoNode);
 
 			// Our augmentation in the topology node
-			pccBuilder = new PathComputationClientBuilder();
+			this.pccBuilder = new PathComputationClientBuilder();
 
 			final Tlvs tlvs = session.getRemoteTlvs();
 			final Stateful stateful = tlvs.getStateful();
@@ -142,9 +142,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				this.pccBuilder.setStateSync(PccSyncState.InitialResync);
 			}
 
-			topologyAugmentBuilder = new Node1Builder().setPathComputationClient(pccBuilder.build());
-			topologyAugmentId = InstanceIdentifier.builder(topologyNodeId).node(Node1.class).toInstance();
-			trans.putRuntimeData(topologyAugmentId, topologyAugmentBuilder.build());
+			this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
+			this.topologyAugmentId = InstanceIdentifier.builder(this.topologyNodeId).node(Node1.class).toInstance();
+			trans.putRuntimeData(this.topologyAugmentId, this.topologyAugmentBuilder.build());
 
 			// All set, commit the modifications
 			final Future<RpcResult<TransactionStatus>> s = trans.commit();
@@ -167,9 +167,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			// The session went down. Undo all the Topology changes we have done.
-			trans.removeRuntimeData(topologyAugmentId);
-			if (ownsTopology) {
-				trans.removeRuntimeData(topologyNodeId);
+			trans.removeRuntimeData(this.topologyAugmentId);
+			if (this.ownsTopology) {
+				trans.removeRuntimeData(this.topologyNodeId);
 			}
 
 			/*
@@ -197,8 +197,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifier<ReportedLsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(topologyAugmentId).
-					node(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
+			return InstanceIdentifier.builder(this.topologyAugmentId).node(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -217,9 +216,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 				if (lsp.isSync() && !this.synced) {
 					// Update synchronization flag
-					synced = true;
-					topologyAugmentBuilder.setPathComputationClient(pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-					trans.putRuntimeData(topologyAugmentId, topologyAugmentBuilder.build());
+					this.synced = true;
+					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
+					trans.putRuntimeData(this.topologyAugmentId, this.topologyAugmentBuilder.build());
 					LOG.debug("Session {} achieved synchronized state", session);
 				}
 
@@ -273,8 +272,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private final DataProviderService dataProvider;
 	private final InstructionScheduler scheduler;
 
-	public ServerSessionManager(final InstructionScheduler scheduler,
-			final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology) {
+	public ServerSessionManager(final InstructionScheduler scheduler, final DataProviderService dataProvider,
+			final InstanceIdentifier<Topology> topology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.topology = Preconditions.checkNotNull(topology);
 		this.scheduler = Preconditions.checkNotNull(scheduler);
@@ -309,7 +308,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 		};
 
-		final Failure f = scheduler.submitInstruction(input, e);
+		final Failure f = this.scheduler.submitInstruction(input, e);
 		final AddLspOutputBuilder b = new AddLspOutputBuilder();
 		if (f != null) {
 			b.setResult(new FailureBuilder().setFailure(f).build());
@@ -328,7 +327,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 		};
 
-		final Failure f = scheduler.submitInstruction(input, e);
+		final Failure f = this.scheduler.submitInstruction(input, e);
 		final RemoveLspOutputBuilder b = new RemoveLspOutputBuilder();
 		if (f != null) {
 			b.setResult(new FailureBuilder().setFailure(f).build());
@@ -347,7 +346,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 		};
 
-		final Failure f = scheduler.submitInstruction(input, e);
+		final Failure f = this.scheduler.submitInstruction(input, e);
 		final UpdateLspOutputBuilder b = new UpdateLspOutputBuilder();
 		if (f != null) {
 			b.setResult(new FailureBuilder().setFailure(f).build());

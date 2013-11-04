@@ -12,16 +12,16 @@ import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 import com.google.common.base.Preconditions;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
-	private final OpenObject localPrefs;
+	private final Open localPrefs;
 	private final int maxUnknownMessages;
 	private final Timer timer;
 
-	public DefaultPCEPSessionNegotiatorFactory(final Timer timer, final OpenObject localPrefs, final int maxUnknownMessages) {
+	public DefaultPCEPSessionNegotiatorFactory(final Timer timer, final Open localPrefs, final int maxUnknownMessages) {
 		this.timer = Preconditions.checkNotNull(timer);
 		this.localPrefs = Preconditions.checkNotNull(localPrefs);
 		this.maxUnknownMessages = maxUnknownMessages;

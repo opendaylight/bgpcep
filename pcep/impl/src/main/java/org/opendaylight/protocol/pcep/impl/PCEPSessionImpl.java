@@ -34,11 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,12 +74,12 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	/**
 	 * Open Object with session characteristics that were accepted by another PCE (sent from this session).
 	 */
-	private final OpenObject localOpen;
+	private final Open localOpen;
 
 	/**
 	 * Open Object with session characteristics for this session (sent from another PCE).
 	 */
-	private final OpenObject remoteOpen;
+	private final Open remoteOpen;
 
 	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
@@ -100,7 +100,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	private final KeepaliveMessage kaMessage = (KeepaliveMessage) new KeepaliveMessageBuilder().build();
 
 	PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
-			final OpenObject localOpen, final OpenObject remoteOpen) {
+			final Open localOpen, final Open remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
@@ -272,7 +272,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * @param value
 	 * @param open
 	 */
-	private void sendErrorMessage(final PCEPErrors value, final OpenObject open) {
+	private void sendErrorMessage(final PCEPErrors value, final Open open) {
 		this.sendMessage(Util.createErrorMessage(value, open));
 	}
 

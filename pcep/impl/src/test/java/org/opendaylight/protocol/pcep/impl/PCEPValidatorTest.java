@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,14 +23,23 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
 public class PCEPValidatorTest {
 
@@ -68,26 +78,32 @@ public class PCEPValidatorTest {
 	// private final PCEPEndPointsObject<IPv4Address> endPoints = new PCEPEndPointsObject<IPv4Address>(this.ip4addr,
 	// this.ip4addr);
 	//
-	//
-	// @Test
-	// public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
-	// PCEPDeserializerException {
-	// assertEquals(
-	// deserMsg("src/test/resources/PCEPOpenMessage1.bin").toString(),
-	// asList(
-	// new PCEPOpenMessage(new PCEPOpenObject(30, 120, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
-	// new LSPStateDBVersionTlv(0x80))))).toString());
-	//
-	// assertEquals(deserMsg("src/test/resources/Open.1.bin").toString(),
-	// asList(new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1))).toString());
-	//
-	// assertEquals(
-	// deserMsg("src/test/resources/Open.3.bin").toString(),
-	// asList(
-	// new PCEPOpenMessage(new PCEPOpenObject(1, 4, 1, asList(new PCEStatefulCapabilityTlv(false, true, true),
-	// new LSPStateDBVersionTlv(53))))).toString());
-	// }
-	//
+
+	@Test
+	public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
+			PCEPDeserializerException {
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenMessage1.bin");
+		final PCEPOpenMessageParser parser = new PCEPOpenMessageParser(this.objectRegistry);
+		final OpenMessageBuilder builder = new OpenMessageBuilder();
+
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder();
+		b.setProcessingRule(false);
+		b.setIgnore(false);
+		b.setVersion(new ProtocolVersion((short) 1));
+		b.setKeepalive((short) 30);
+		b.setDeadTimer((short) 120);
+		b.setSessionId((short) 1);
+		final Stateful tlv1 = new StatefulBuilder().setFlags(new Flags(true, false, true)).build();
+		final LspDbVersion tlv2 = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(0x80L)).build();
+		b.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().setStateful(
+				tlv1).setLspDbVersion(tlv2).build());
+		builder.setOpen(b.build());
+
+		assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(), parser.parseMessage(result));
+		final ByteBuf buf = Unpooled.buffer(result.length);
+		parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
+		assertArrayEquals(result, buf.array());
+	}
 
 	@Test
 	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,

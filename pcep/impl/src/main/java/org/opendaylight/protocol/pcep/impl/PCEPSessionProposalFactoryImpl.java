@@ -10,10 +10,10 @@ package org.opendaylight.protocol.pcep.impl;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.open.message.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
@@ -35,7 +35,7 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 	}
 
 	@Override
-	public OpenObject getSessionProposal(final InetSocketAddress address, final int sessionId) {
+	public Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
 		final Tlvs tlvs = null;
 		final TlvsBuilder builder = new TlvsBuilder();
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {

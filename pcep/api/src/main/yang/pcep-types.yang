@@ -351,40 +351,42 @@ module pcep-types {
 		description "OPEN Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.3";
 
-		uses object;
-		container "tlvs" {
-			uses of-list-tlv;
-			
-			uses stateful-capability-tlv;
-
-			uses predundancy-group-id-tlv;
-
-			uses lsp-db-version-tlv;
-		}
-
-		leaf version {
-			type protocol-version;
-			default 1;
-		}
-
-		leaf keepalive {
-			// Note: non-presence is equal to '0'
-			type uint8 {
-				range 1..255;
+		container open {
+			uses object;
+			container "tlvs" {
+				uses of-list-tlv;
+				
+				uses stateful-capability-tlv;
+	
+				uses predundancy-group-id-tlv;
+	
+				uses lsp-db-version-tlv;
 			}
-			mandatory true;
-		}
-
-		leaf dead-timer {
-			// Note: non-presence is equal to '0'
-			type uint8 {
-				range 1..255;
+	
+			leaf version {
+				type protocol-version;
+				default 1;
 			}
-			mandatory true;
-		}
-
-		leaf session-id {
-			type uint8;
+	
+			leaf keepalive {
+				// Note: non-presence is equal to '0'
+				type uint8 {
+					range 1..255;
+				}
+				mandatory true;
+			}
+	
+			leaf dead-timer {
+				// Note: non-presence is equal to '0'
+				type uint8 {
+					range 1..255;
+				}
+				mandatory true;
+			}
+	
+			leaf session-id {
+				type uint8;
+			}
 		}
 	}
 
@@ -959,9 +961,7 @@ module pcep-types {
 
 			uses message-header;
 
-			container open {
-				uses open-object;
-			}
+			uses open-object;
 		}
 	}
 
@@ -1170,9 +1170,7 @@ module pcep-types {
 				}
 
 				case session {
-					container open {
-						uses open-object;
-					}
+					uses open-object;
 				}
 
 				case stateful {

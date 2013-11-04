@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 /**
  * Factory for generating PCEP Session proposals. Used by a server.
@@ -24,5 +24,5 @@ public interface PCEPSessionProposalFactory {
 	 * @param sessionId is used for creation of PCEPOpenObject
 	 * @return specific session proposal
 	 */
-	public OpenObject getSessionProposal(InetSocketAddress address, int sessionId);
+	public Open getSessionProposal(InetSocketAddress address, int sessionId);
 }

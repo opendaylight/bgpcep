@@ -22,7 +22,7 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -40,9 +40,8 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		// FIXME: integration with config subsystem should allow this to be injected as a service
 		final InetSocketAddress address = new InetSocketAddress("0.0.0.0", 4189);
 		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(30, 10, true, true, true, true, 0);
-		final OpenObject prefs = spf.getSessionProposal(address, 0);
-		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(),
-				new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final Open prefs = spf.getSessionProposal(address, 0);
+		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder().node(Topology.class).toInstance();
 
 		final PCEPTopologyProvider exp = new PCEPTopologyProvider(dispatcher, null, dps, topology);

@@ -20,15 +20,14 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session.Open;
 
 import com.google.common.collect.Lists;
 
@@ -85,7 +84,7 @@ public final class Util {
 		}
 	}
 
-	public static Message createErrorMessage(final PCEPErrors e, final OpenObject t) {
+	public static Message createErrorMessage(final PCEPErrors e, final Open t) {
 		final PcerrBuilder errMessageBuilder = new PcerrBuilder();
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
 		final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
@@ -93,7 +92,7 @@ public final class Util {
 		if (t == null) {
 			return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Arrays.asList(err)).build()).build();
 		} else {
-			final ErrorType type = new SessionBuilder().setOpen((Open) t).build();
+			final ErrorType type = new SessionBuilder().setOpen(t).build();
 			return errMessageBuilder.setPcerrMessage(new PcerrMessageBuilder().setErrors(Arrays.asList(err)).setErrorType(type).build()).build();
 		}
 	}
