@@ -9,6 +9,8 @@ package org.opendaylight.bgpcep.programming.spi;
 
 import io.netty.util.concurrent.Future;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
+
 public interface InstructionExecutor {
-	Future<ExecutionResult<?>> execute();
+	Future<ExecutionResult<Details>> execute();
 }
