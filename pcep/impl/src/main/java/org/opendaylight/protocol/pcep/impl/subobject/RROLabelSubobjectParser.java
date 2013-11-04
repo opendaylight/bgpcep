@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelBuilder;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 
 public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -59,12 +60,12 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		}
 		final BitSet reserved = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, RES_F_OFFSET, RES_F_LENGTH));
 
-		final short c_type = (short) (buffer[C_TYPE_F_OFFSET] & 0xFF);
+		final short cType = (short) UnsignedBytes.toInt(buffer[C_TYPE_F_OFFSET]);
 
-		final LabelParser parser = this.registry.getLabelParser(c_type);
+		final LabelParser parser = this.registry.getLabelParser(cType);
 
 		if (parser == null) {
-			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + c_type);
+			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
 		}
 		final LabelBuilder builder = new LabelBuilder();
 		builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
@@ -89,7 +90,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		reserved.set(U_FLAG_OFFSET, label.isUniDirectional());
 		reserved.set(G_FLAG_OFFSET, label.isGlobal());
 		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
-		retBytes[C_TYPE_F_OFFSET] = (byte) parser.getType();
+		retBytes[C_TYPE_F_OFFSET] = UnsignedBytes.checkedCast(parser.getType());
 		return retBytes;
 	}
 

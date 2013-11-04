@@ -22,12 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs.ExrsBuilder;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
 	public static final int TYPE = 33;
-
-	private static final int RESERVED = 2;
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
@@ -119,7 +118,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 		return subs;
 	}
 
-	private final byte[] serializeSubobject(
+	private byte[] serializeSubobject(
 			final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects> subobjects) {
 
 		final List<byte[]> result = Lists.newArrayList();
@@ -130,15 +129,13 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 			final XROSubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject.getSubobjectType());
 
-			System.out.println(serializer);
-
 			final byte[] valueBytes = serializer.serializeSubobject(subobject);
 
 			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
 
 			final byte typeBytes = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0] | (subobject.isMandatory() ? 1 << 7
 					: 0));
-			final byte lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - 1)[0];
+			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length);
 
 			bytes[0] = typeBytes;
 			bytes[1] = lengthBytes;

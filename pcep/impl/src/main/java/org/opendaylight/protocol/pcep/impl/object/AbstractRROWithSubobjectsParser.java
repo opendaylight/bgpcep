@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 
 public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractRROWithSubobjectsParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractRROWithSubobjectsParser.class);
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
@@ -67,9 +67,9 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
 
-			logger.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
+			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
 			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes);
-			logger.debug("Subobject was parsed. {}", sub);
+			LOG.debug("Subobject was parsed. {}", sub);
 
 			subs.add(sub);
 

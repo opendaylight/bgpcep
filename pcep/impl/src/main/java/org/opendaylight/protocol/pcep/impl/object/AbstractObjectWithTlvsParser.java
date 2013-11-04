@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectParser, ObjectSerializer {
+public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, ObjectSerializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
 
 	private static final int TLV_TYPE_F_LENGTH = 2;
 	private static final int TLV_LENGTH_F_LENGTH = 2;
@@ -35,7 +35,7 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 		this.tlvReg = Preconditions.checkNotNull(tlvReg);
 	}
 
-	protected final void parseTlvs(final BUILDER builder, final byte[] bytes) throws PCEPDeserializerException {
+	protected final void parseTlvs(final T builder, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -60,9 +60,9 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 
 			final byte[] tlvBytes = ByteArray.subByte(bytes, byteOffset, length);
 
-			logger.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
+			LOG.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
 			final Tlv tlv = this.tlvReg.getTlvParser(type).parseTlv(tlvBytes);
-			logger.trace("Tlv was parsed. {}", tlv);
+			LOG.trace("Tlv was parsed. {}", tlv);
 
 			addTlv(builder, tlv);
 
@@ -84,12 +84,14 @@ public abstract class AbstractObjectWithTlvsParser<BUILDER> implements ObjectPar
 
 		int byteOffset = 0;
 		System.arraycopy(typeBytes, 0, bytes, byteOffset, TLV_TYPE_F_LENGTH);
-		System.arraycopy(lengthBytes, 0, bytes, byteOffset += TLV_TYPE_F_LENGTH, TLV_LENGTH_F_LENGTH);
-		System.arraycopy(valueBytes, 0, bytes, byteOffset += TLV_LENGTH_F_LENGTH, valueBytes.length);
+		byteOffset += TLV_TYPE_F_LENGTH;
+		System.arraycopy(lengthBytes, 0, bytes, byteOffset, TLV_LENGTH_F_LENGTH);
+		byteOffset += TLV_LENGTH_F_LENGTH;
+		System.arraycopy(valueBytes, 0, bytes, byteOffset, valueBytes.length);
 		return bytes;
 	}
 
-	public abstract void addTlv(final BUILDER builder, final Tlv tlv);
+	public abstract void addTlv(final T builder, final Tlv tlv);
 
 	protected static int getPadding(final int length, final int padding) {
 		return (padding - (length % padding)) % padding;

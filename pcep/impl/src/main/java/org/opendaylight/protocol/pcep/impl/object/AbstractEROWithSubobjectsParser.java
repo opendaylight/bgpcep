@@ -25,7 +25,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
@@ -46,7 +46,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
 
-		boolean loose_flag = false;
+		boolean loose = false;
 		int type;
 		byte[] soContentsBytes;
 		int length;
@@ -56,7 +56,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
 		while (offset < bytes.length) {
 
-			loose_flag = ((bytes[offset + TYPE_FLAG_F_OFFSET] & (1 << 7)) != 0) ? true : false;
+			loose = ((bytes[offset + TYPE_FLAG_F_OFFSET] & (1 << 7)) != 0) ? true : false;
 			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset + LENGTH_F_OFFSET, SUB_LENGTH_F_LENGTH));
 
 			type = (bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7);
@@ -69,9 +69,9 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
 
-			logger.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, loose_flag);
-			logger.debug("Subobject was parsed. {}", sub);
+			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
+			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, loose);
+			LOG.debug("Subobject was parsed. {}", sub);
 
 			subs.add(sub);
 
