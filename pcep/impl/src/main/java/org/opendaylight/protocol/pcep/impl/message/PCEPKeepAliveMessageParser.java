@@ -33,7 +33,6 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded KeepaliveMessage.");
 		}
-
 		buffer.writeBytes(new byte[0]);
 	}
 

@@ -756,15 +756,17 @@ module pcep-types {
 		description "CLOSE Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.17";
 
-		uses object;
-
-		leaf reason {
-			type uint8;
-			mandatory true;
-		}
-		
-		container tlvs {
-
+		container c-close {
+			uses object;
+	
+			leaf reason {
+				type uint8;
+				mandatory true;
+			}
+			
+			container tlvs {
+	
+			}
 		}
 	}
 
@@ -1192,9 +1194,7 @@ module pcep-types {
 
 			uses message-header;
 
-			container c-close {
-				uses close-object;
-			}
+			uses close-object;
 		}
 	}
 

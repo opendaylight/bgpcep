@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Tlvs;
 import org.slf4j.Logger;
@@ -187,7 +187,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	/**
 	 * Sends message to serialization.
-	 *
+	 * 
 	 * @param msg to be sent
 	 */
 	@Override
@@ -238,7 +238,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	@Override
 	public Tlvs getRemoteTlvs() {
-		return remoteOpen.getTlvs();
+		return this.remoteOpen.getTlvs();
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError and Open Object.
-	 *
+	 * 
 	 * @param value
 	 * @param open
 	 */
@@ -281,7 +281,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * sent (CAPABILITY_NOT_SUPPORTED) and the method checks if the MAX_UNKNOWN_MSG per minute wasn't overstepped.
 	 * Second, any other error occurred that is specified by rfc. In this case, the an error message is generated and
 	 * sent.
-	 *
+	 * 
 	 * @param error documented error in RFC5440 or draft
 	 */
 	@VisibleForTesting
@@ -302,7 +302,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	/**
 	 * Handles incoming message. If the session is up, it notifies the user. The user is notified about every message
 	 * except KeepAlive.
-	 *
+	 * 
 	 * @param msg incoming message
 	 */
 	@Override

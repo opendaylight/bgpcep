@@ -22,10 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.message.PCEPCloseMessage PCEPCloseMessage}
+ * Parser for {@link CloseMessage}
  */
 public class PCEPCloseMessageParser extends AbstractMessageParser {
 
@@ -55,7 +55,6 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
 		}
 		final List<Object> objs = parseObjects(buffer);
-
 		return validate(objs);
 	}
 
@@ -63,19 +62,15 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
-
 		if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
 			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
 		}
-
 		final Object o = objects.get(0);
 		final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
 		objects.remove(0);
-
 		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
-
 		return new CloseBuilder().setCCloseMessage(msg).build();
 	}
 

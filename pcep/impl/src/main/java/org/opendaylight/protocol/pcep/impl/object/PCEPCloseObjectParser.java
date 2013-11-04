@@ -11,13 +11,12 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CClose;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.c.close.message.CCloseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.Tlvs;
 
 import com.google.common.primitives.UnsignedBytes;
 
@@ -52,7 +51,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 	}
 
 	@Override
-	public CloseObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public CClose parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -71,10 +70,10 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof CloseObject)) {
+		if (!(object instanceof CClose)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
 		}
-		final CloseObject obj = (CloseObject) object;
+		final CClose obj = (CClose) object;
 
 		final byte[] tlvs = serializeTlvs(obj.getTlvs());
 		int tlvsLength = 0;
@@ -86,7 +85,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
-		retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(((CClose) obj).getReason());
+		retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(obj.getReason());
 		return retBytes;
 	}
 

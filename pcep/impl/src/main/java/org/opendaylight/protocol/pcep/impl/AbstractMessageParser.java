@@ -27,7 +27,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 	private final static int COMMON_OBJECT_HEADER_LENGTH = 4;
 
 	private final static int OC_F_LENGTH = 1;
-	private final static int OT_FLAGS_MF_LENGTH = 1; // multi-field
+	private final static int OT_FLAGS_MF_LENGTH = 1;
 	private final static int OBJ_LENGTH_F_LENGTH = 2;
 
 	private final static int OC_F_OFFSET = 0;
@@ -67,10 +67,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		final byte[] retBytes = new byte[COMMON_OBJECT_HEADER_LENGTH + valueBytes.length];
 
 		// objClass
-		retBytes[OC_F_OFFSET] = (byte) serializer.getObjectClass();
+		retBytes[OC_F_OFFSET] = UnsignedBytes.checkedCast(serializer.getObjectClass());
 
 		// objType_flags multi-field
-		retBytes[OT_FLAGS_MF_OFFSET] = (byte) (serializer.getObjectType() << (Byte.SIZE - OT_SF_LENGTH));
+		retBytes[OT_FLAGS_MF_OFFSET] = UnsignedBytes.checkedCast(serializer.getObjectType() << (Byte.SIZE - OT_SF_LENGTH));
 		if (object.isProcessingRule()) {
 			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (P_FLAG_OFFSET) - 1;
 		}
@@ -79,11 +79,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		}
 
 		// objLength
-		System.arraycopy(ByteArray.intToBytes(valueBytes.length), Integer.SIZE / Byte.SIZE - OBJ_LENGTH_F_LENGTH, retBytes,
-				OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(valueBytes.length + COMMON_OBJECT_HEADER_LENGTH), Integer.SIZE / Byte.SIZE
+				- OBJ_LENGTH_F_LENGTH, retBytes, OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_LENGTH);
 
-		System.arraycopy(valueBytes, 0, retBytes, COMMON_OBJECT_HEADER_LENGTH, valueBytes.length);
-
+		ByteArray.copyWhole(valueBytes, retBytes, COMMON_OBJECT_HEADER_LENGTH);
 		return retBytes;
 	}
 
@@ -96,7 +95,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 						+ COMMON_OBJECT_HEADER_LENGTH + ".");
 			}
 
-			final int objClass = ByteArray.bytesToInt(Arrays.copyOfRange(bytes, OC_F_OFFSET, OC_F_OFFSET + OC_F_LENGTH));
+			final int objClass = UnsignedBytes.toInt(bytes[OC_F_OFFSET]);
 
 			final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(bytes[OT_FLAGS_MF_OFFSET], OT_SF_OFFSET, OT_SF_LENGTH));
 

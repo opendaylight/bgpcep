@@ -7,8 +7,38 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.io.IOException;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.framework.DocumentedException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 
 public class PCEPValidatorTest {
+
+	private ObjectHandlerRegistry objectRegistry;
+
+	@Before
+	public void setUp() throws Exception {
+		this.objectRegistry = PCEPExtensionProviderContextImpl.create().getObjectHandlerRegistry();
+	}
 
 	// private static final LspaObject lspa = new PCEPLspaObject(0L, 0L, 0L, (short) 0, (short) 0, false, false, false,
 	// false);
@@ -38,21 +68,6 @@ public class PCEPValidatorTest {
 	// private final PCEPEndPointsObject<IPv4Address> endPoints = new PCEPEndPointsObject<IPv4Address>(this.ip4addr,
 	// this.ip4addr);
 	//
-	// private static final RawPCEPMessageFactory msgFactory = new RawPCEPMessageFactory();
-	//
-	// // private final PCEPClassTypeObject classType = new
-	// // PCEPClassTypeObject((short) 7);
-	// // private final PCEPClassTypeObjectProvider classTypeProvider = new
-	// // PCEPClassTypeObjectProvider((short) 7, true);
-	//
-	// private static List<Message> deserMsg(final String srcFile) throws IOException, DeserializerException,
-	// DocumentedException,
-	// PCEPDeserializerException {
-	// final byte[] bytesFromFile = ByteArray.fileToBytes(srcFile);
-	// final RawMessage rawMessage = (RawMessage) msgFactory.parse(bytesFromFile).get(0);
-	//
-	// return PCEPMessageValidator.getValidator(rawMessage.getMsgType()).validate(rawMessage.getAllObjects());
-	// }
 	//
 	// @Test
 	// public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
@@ -73,34 +88,34 @@ public class PCEPValidatorTest {
 	// new LSPStateDBVersionTlv(53))))).toString());
 	// }
 	//
-	// @Test
-	// public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException,
-	// DeserializerException, DocumentedException {
-	// assertEquals(deserMsg("src/test/resources/PCEPKeepAliveMessage1.bin").toString(),
-	// asList(new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build()).toString());
-	// assertEquals(deserMsg("src/test/resources/Keepalive.1.bin").toString(),
-	// asList(new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build()).toString());
-	// }
-	//
-	// @Test
-	// @Ignore
-	// // FIXME: should be fixed when we remove PCEPObject
-	// public void testCloseMsg() throws PCEPDeserializerException, IOException, PCEPDocumentedException,
-	// DeserializerException,
-	// DocumentedException {
-	// assertEquals(
-	// deserMsg("src/test/resources/PCEPCloseMessage1.bin"),
-	// asList(new CloseBuilder().setCCloseMessage(
-	// new CCloseMessageBuilder().setCClose(
-	// new CCloseBuilder().setReason(TerminationReason.TooManyUnknownMsg.getShortValue()).build()).build()).build()));
-	// assertEquals(
-	// deserMsg("src/test/resources/Close.1.bin").toString(),
-	// asList(new CloseBuilder().setCCloseMessage(
-	// new CCloseMessageBuilder().setCClose(
-	// new CCloseBuilder().setReason(TerminationReason.Unknown.getShortValue()).build()).build()).build()));
-	// }
-	//
+
+	@Test
+	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
+			DeserializerException, DocumentedException {
+		final byte[] result = new byte[] { 0, 0, 0, 0 };
+		final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
+		final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());
+
+		assertEquals(builder.build(), parser.parseMessage(result));
+		final ByteBuf buf = Unpooled.buffer(result.length);
+		parser.serializeMessage(builder.build(), buf);
+		assertArrayEquals(result, buf.array());
+	}
+
+	@Test
+	public void testCloseMsg() throws PCEPDeserializerException, IOException, PCEPDocumentedException, DeserializerException,
+			DocumentedException {
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPCloseMessage1.bin");
+
+		final PCEPCloseMessageParser parser = new PCEPCloseMessageParser(this.objectRegistry);
+		final CloseBuilder builder = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder().setCClose(
+				new CCloseBuilder().setIgnore(false).setProcessingRule(false).setReason((short) 5).build()).build());
+
+		assertEquals(builder.build(), parser.parseMessage(result));
+		final ByteBuf buf = Unpooled.buffer(result.length);
+		parser.serializeMessage(builder.build(), buf);
+		assertArrayEquals(result, buf.array());
+	}
 	// @Test
 	// public void testRequestMessageValidationFromBin() throws IOException, PCEPDeserializerException,
 	// PCEPDocumentedException,

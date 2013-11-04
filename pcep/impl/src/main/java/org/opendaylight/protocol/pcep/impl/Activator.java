@@ -82,7 +82,6 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClasstypeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.EndpointsObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExcludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExplicitRouteObject;
@@ -111,6 +110,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RpObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SvecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.subobjects.subobject.type.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.error.code.tlv.LspErrorCode;
@@ -289,7 +289,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectSerializer(NotificationObject.class, new PCEPNotificationObjectParser(tlvReg));
 		context.registerObjectSerializer(PcepErrorObject.class, new PCEPErrorObjectParser(tlvReg));
 		context.registerObjectSerializer(LoadBalancingObject.class, new PCEPLoadBalancingObjectParser(tlvReg));
-		context.registerObjectSerializer(CloseObject.class, new PCEPCloseObjectParser(tlvReg));
+		context.registerObjectSerializer(CClose.class, new PCEPCloseObjectParser(tlvReg));
 		context.registerObjectSerializer(PathKeyObject.class, new PCEPPathKeyObjectParser(eroSubReg));
 		context.registerObjectSerializer(OfObject.class, new PCEPObjectiveFunctionObjectParser(tlvReg));
 		context.registerObjectSerializer(ClasstypeObject.class, new PCEPClassTypeObjectParser(tlvReg));
