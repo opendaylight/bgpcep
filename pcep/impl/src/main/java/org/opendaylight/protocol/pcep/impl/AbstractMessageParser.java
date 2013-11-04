@@ -1,6 +1,5 @@
 package org.opendaylight.protocol.pcep.impl;
 
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
@@ -95,27 +94,31 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 						+ COMMON_OBJECT_HEADER_LENGTH + ".");
 			}
 
-			final int objClass = UnsignedBytes.toInt(bytes[OC_F_OFFSET]);
+			final int objClass = UnsignedBytes.toInt(bytes[offset]);
 
-			final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(bytes[OT_FLAGS_MF_OFFSET], OT_SF_OFFSET, OT_SF_LENGTH));
+			offset += OC_F_LENGTH;
 
-			final int objLength = ByteArray.bytesToInt(Arrays.copyOfRange(bytes, OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_OFFSET
-					+ OBJ_LENGTH_F_LENGTH));
+			final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(bytes[offset], OT_SF_OFFSET, OT_SF_LENGTH));
 
-			final byte[] flagsBytes = { ByteArray.copyBitsRange(bytes[OT_FLAGS_MF_OFFSET], FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
+			final byte[] flagsBytes = { ByteArray.copyBitsRange(bytes[offset], FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
 
 			final BitSet flags = ByteArray.bytesToBitSet(flagsBytes);
 
-			if (bytes.length - offset < objLength) {
+			offset += OT_FLAGS_MF_LENGTH;
+
+			final int objLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset, OBJ_LENGTH_F_LENGTH));
+
+			if (bytes.length - offset < objLength - COMMON_OBJECT_HEADER_LENGTH) {
 				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
 						+ objLength + ".");
 			}
 
-			// copy bytes for deeper parsing
-			final byte[] bytesToPass = ByteArray.subByte(bytes, offset + COMMON_OBJECT_HEADER_LENGTH, objLength
-					- COMMON_OBJECT_HEADER_LENGTH);
+			offset += OBJ_LENGTH_F_LENGTH;
 
-			offset += objLength;
+			// copy bytes for deeper parsing
+			final byte[] bytesToPass = ByteArray.subByte(bytes, offset, objLength - COMMON_OBJECT_HEADER_LENGTH);
+
+			offset += objLength - COMMON_OBJECT_HEADER_LENGTH;
 
 			final ObjectParser parser = this.registry.getObjectParser(objClass, objType);
 

@@ -22,15 +22,17 @@ import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NotificationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcntfMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RpObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Rps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 import com.google.common.collect.Lists;
 
@@ -56,14 +58,14 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications n : msg.getNotifications()) {
 			if (n.getRps() != null && !n.getRps().isEmpty()) {
 				for (final Rps rps : n.getRps()) {
-					buffer.writeBytes(serializeObject(rps));
+					buffer.writeBytes(serializeObject(rps.getRp()));
 				}
 			}
 			if (n.getNotifications() == null || n.getNotifications().isEmpty()) {
 				throw new IllegalArgumentException("Message must contain at least one notification object");
 			} else {
 				for (final Notifications not : n.getNotifications()) {
-					buffer.writeBytes(serializeObject(not));
+					buffer.writeBytes(serializeObject(not.getCNotification()));
 				}
 			}
 		}
@@ -107,7 +109,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		}
 
 		if (compositeNotifications.isEmpty()) {
-			throw new PCEPDeserializerException("Atleast one CompositeNotifiObject is mandatory.");
+			throw new PCEPDeserializerException("Atleast one Notifications is mandatory.");
 		}
 
 		if (!objects.isEmpty()) {
@@ -134,19 +136,19 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 			switch (state) {
 			case 1:
 				state = 2;
-				if (obj instanceof RpObject) {
-					final RpObject rp = (RpObject) obj;
+				if (obj instanceof Rp) {
+					final Rp rp = (Rp) obj;
 					if (rp.isProcessingRule()) {
 						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
 					}
-					requestParameters.add((Rps) rp);
+					requestParameters.add(new RpsBuilder().setRp(rp).build());
 					state = 1;
 					break;
 				}
 			case 2:
-				if (obj instanceof NotificationObject) {
-					final NotificationObject n = (NotificationObject) obj;
-					notifications.add((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications) n);
+				if (obj instanceof CNotification) {
+					final CNotification n = (CNotification) obj;
+					notifications.add(new NotificationsBuilder().setCNotification(n).build());
 					state = 2;
 					break;
 				}

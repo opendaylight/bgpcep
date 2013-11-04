@@ -11,21 +11,21 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NotificationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotificationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.c.notification.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.c.notification.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link NotificationObject}
+ * Parser for {@link CNotification}
  */
-public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<NotificationsBuilder> {
+public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<CNotificationBuilder> {
 
 	public static final int CLASS = 12;
 
@@ -51,12 +51,12 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 	}
 
 	@Override
-	public NotificationObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+	public CNotification parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
 			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-		final NotificationsBuilder builder = new NotificationsBuilder();
+		final CNotificationBuilder builder = new CNotificationBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setType((short) UnsignedBytes.toInt(bytes[NT_F_OFFSET]));
@@ -66,7 +66,7 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 	}
 
 	@Override
-	public void addTlv(final NotificationsBuilder builder, final Tlv tlv) {
+	public void addTlv(final CNotificationBuilder builder, final Tlv tlv) {
 		if (tlv instanceof OverloadDuration && builder.getType() == 2 && builder.getValue() == 1) {
 			builder.setTlvs(new TlvsBuilder().setOverloadDuration((OverloadDuration) tlv).build());
 		}
@@ -74,10 +74,10 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<N
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof NotificationObject)) {
+		if (!(object instanceof CNotification)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NotificationObject.");
 		}
-		final NotificationObject notObj = (NotificationObject) object;
+		final CNotification notObj = (CNotification) object;
 
 		final byte[] tlvs = serializeTlvs(notObj.getTlvs());
 

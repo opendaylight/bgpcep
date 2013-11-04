@@ -14,15 +14,15 @@ import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
@@ -30,24 +30,54 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotificationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.NotificationsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Rps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
+
+import com.google.common.collect.Lists;
 
 public class PCEPValidatorTest {
 
 	private ObjectHandlerRegistry objectRegistry;
 
+	private Rp rp;
+
 	@Before
 	public void setUp() throws Exception {
 		this.objectRegistry = PCEPExtensionProviderContextImpl.create().getObjectHandlerRegistry();
+		final RpBuilder rpBuilder = new RpBuilder();
+		rpBuilder.setProcessingRule(false);
+		rpBuilder.setIgnore(false);
+		rpBuilder.setReoptimization(false);
+		rpBuilder.setBiDirectional(false);
+		rpBuilder.setLoose(true);
+		rpBuilder.setMakeBeforeBreak(false);
+		rpBuilder.setOrder(false);
+		rpBuilder.setSupplyOf(false);
+		rpBuilder.setFragmentation(false);
+		rpBuilder.setP2mp(false);
+		rpBuilder.setEroCompression(false);
+		rpBuilder.setPriority((short) 1);
+		rpBuilder.setRequestId(new RequestId(10L));
+		this.rp = rpBuilder.build();
 	}
 
 	// private static final LspaObject lspa = new PCEPLspaObject(0L, 0L, 0L, (short) 0, (short) 0, false, false, false,
@@ -80,8 +110,7 @@ public class PCEPValidatorTest {
 	//
 
 	@Test
-	public void testOpenMessageValidationFromBin() throws IOException, DeserializerException, DocumentedException,
-			PCEPDeserializerException {
+	public void testOpenMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenMessage1.bin");
 		final PCEPOpenMessageParser parser = new PCEPOpenMessageParser(this.objectRegistry);
 		final OpenMessageBuilder builder = new OpenMessageBuilder();
@@ -106,8 +135,7 @@ public class PCEPValidatorTest {
 	}
 
 	@Test
-	public void testKeepAliveMessageValidationFromBin() throws IOException, PCEPDeserializerException, PCEPDocumentedException,
-			DeserializerException, DocumentedException {
+	public void testKeepAliveMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final byte[] result = new byte[] { 0, 0, 0, 0 };
 		final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
 		final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());
@@ -119,8 +147,7 @@ public class PCEPValidatorTest {
 	}
 
 	@Test
-	public void testCloseMsg() throws PCEPDeserializerException, IOException, PCEPDocumentedException, DeserializerException,
-			DocumentedException {
+	public void testCloseMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPCloseMessage1.bin");
 
 		final PCEPCloseMessageParser parser = new PCEPCloseMessageParser(this.objectRegistry);
@@ -132,6 +159,7 @@ public class PCEPValidatorTest {
 		parser.serializeMessage(builder.build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
+
 	// @Test
 	// public void testRequestMessageValidationFromBin() throws IOException, PCEPDeserializerException,
 	// PCEPDocumentedException,
@@ -706,66 +734,47 @@ public class PCEPValidatorTest {
 	// asList((Message) msg).toString());
 	// }
 	//
-	// @Test
-	// public void testNotificationValidatorFromBin() throws IOException, PCEPDeserializerException,
-	// PCEPDocumentedException,
-	// DeserializerException, DocumentedException {
-	// List<CompositeNotifyObject> notifications = new ArrayList<CompositeNotifyObject>();
-	// List<PCEPNotificationObject> notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// notifications.add(new CompositeNotifyObject(notificationsList));
-	// PCEPNotificationMessage specMessage = new PCEPNotificationMessage(notifications);
-	// assertEquals(deserMsg("src/test/resources/PCNtf.1.bin").toString(), asList((Message) specMessage).toString());
-	//
-	// notifications = new ArrayList<CompositeNotifyObject>();
-	// notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// List<PCEPRequestParameterObject> requestsList = new ArrayList<PCEPRequestParameterObject>();
-	// requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 3,
-	// 1, false, false));
-	// notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
-	// specMessage = new PCEPNotificationMessage(notifications);
-	// assertEquals(deserMsg("src/test/resources/PCNtf.2.bin").toString(), asList((Message) specMessage).toString());
-	//
-	// notifications = new ArrayList<CompositeNotifyObject>();
-	// notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// requestsList = new ArrayList<PCEPRequestParameterObject>();
-	// requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1,
-	// 10, false, false));
-	// notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
-	// specMessage = new PCEPNotificationMessage(notifications);
-	// assertEquals(deserMsg("src/test/resources/PCNtf.3.bin").toString(), asList((Message) specMessage).toString());
-	//
-	// notifications = new ArrayList<CompositeNotifyObject>();
-	// notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 2));
-	// notificationsList.add(new PCEPNotificationObject((short) 2, (short) 1));
-	// notificationsList.add(new PCEPNotificationObject((short) 2, (short) 2));
-	// notifications.add(new CompositeNotifyObject(notificationsList));
-	// specMessage = new PCEPNotificationMessage(notifications);
-	// assertEquals(deserMsg("src/test/resources/PCNtf.4.bin").toString(), asList((Message) specMessage).toString());
-	//
-	// notifications = new ArrayList<CompositeNotifyObject>();
-	// notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// requestsList = new ArrayList<PCEPRequestParameterObject>();
-	// requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1,
-	// 10, false, false));
-	// notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
-	// notificationsList = new ArrayList<PCEPNotificationObject>();
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// notificationsList.add(new PCEPNotificationObject((short) 1, (short) 1));
-	// requestsList = new ArrayList<PCEPRequestParameterObject>();
-	// requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1,
-	// 10, false, false));
-	// requestsList.add(new PCEPRequestParameterObject(true, false, false, false, false, false, false, false, (short) 1,
-	// 10, false, false));
-	// notifications.add(new CompositeNotifyObject(requestsList, notificationsList));
-	// specMessage = new PCEPNotificationMessage(notifications);
-	// assertEquals(deserMsg("src/test/resources/PCNtf.5.bin").toString(), asList((Message) specMessage).toString());
-	// }
+	@Test
+	public void testNotificationMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+		final CNotification cn1 = new CNotificationBuilder().setIgnore(false).setProcessingRule(false).setType((short) 1).setValue(
+				(short) 1).build();
+
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> innerNot = Lists.newArrayList();
+		innerNot.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder().setCNotification(
+				cn1).build());
+		final List<Rps> rps = Lists.newArrayList();
+		rps.add(new RpsBuilder().setRp(this.rp).build());
+
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCNtf.5.bin");
+
+		final PCEPNotificationMessageParser parser = new PCEPNotificationMessageParser(this.objectRegistry);
+		final PcntfMessageBuilder builder = new PcntfMessageBuilder();
+
+		final List<Notifications> nots = Lists.newArrayList();
+		final NotificationsBuilder b = new NotificationsBuilder();
+		b.setNotifications(innerNot);
+		b.setRps(rps);
+		nots.add(b.build());
+
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> innerNot1 = Lists.newArrayList();
+		innerNot1.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder().setCNotification(
+				cn1).build());
+		innerNot1.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder().setCNotification(
+				cn1).build());
+		final List<Rps> rps1 = Lists.newArrayList();
+		rps1.add(new RpsBuilder().setRp(this.rp).build());
+		rps1.add(new RpsBuilder().setRp(this.rp).build());
+
+		b.setNotifications(innerNot1);
+		b.setRps(rps1);
+		nots.add(b.build());
+		builder.setNotifications(nots);
+
+		assertEquals(new PcntfBuilder().setPcntfMessage(builder.build()).build(), parser.parseMessage(result));
+		final ByteBuf buf = Unpooled.buffer(result.length);
+		parser.serializeMessage(new PcntfBuilder().setPcntfMessage(builder.build()).build(), buf);
+		assertArrayEquals(result, buf.array());
+	}
 	//
 	// @Test
 	// public void testErrorMessageValidatoinFromBin() throws IOException, PCEPDeserializerException,
