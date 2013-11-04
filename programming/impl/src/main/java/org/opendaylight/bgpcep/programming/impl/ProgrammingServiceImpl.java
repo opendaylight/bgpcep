@@ -373,7 +373,7 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 				Preconditions.checkState(i.getStatus().equals(InstructionStatus.Scheduled));
 
 				transitionInstruction(i, InstructionStatus.Executing, null);
-				final Future<ExecutionResult<?>> f = i.execute();
+				final Future<ExecutionResult<Details>> f = i.execute();
 				f.addListener(new FutureListener<ExecutionResult<?>>() {
 					@Override
 					public void operationComplete(final Future<ExecutionResult<?>> future) {

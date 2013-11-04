@@ -71,18 +71,13 @@ module network-topology-pcep {
                 }
                 key name;
 
-                // FIXME: hide protocol-specific?
-                uses pcep:lsp-object;
-            }
-
-            list requested-lsps {
-                leaf name {
-                    type pcep:symbolic-path-name;
+                container lsp {
+                    uses pcep:lsp-object;
                 }
-                key name;
 
-                // FIXME: hide protocol-specific?
-                uses pcep:lsp-object;
+                container path {
+                    uses pcep:path-definition;
+                }
             }
         }
 	}
@@ -107,8 +102,18 @@ module network-topology-pcep {
                 mandatory true;
             }
 
-            // FIXME: hide protocol-specific?
-            uses pcep:lsp-object;
+            container arguments {
+                leaf administrative {
+                    type boolean;
+                    default true;
+                }
+
+				container endpoints {
+					uses pcep:endpoints-object;
+				}
+
+                uses pcep:path-definition;
+            }
         }
         output {
             uses ntp:topology-instruction-output;
@@ -148,8 +153,14 @@ module network-topology-pcep {
                 mandatory true;
             }
 
-            // FIXME: hide protocol-specific?
-            uses pcep:lsp-object;
+            container arguments {
+                leaf administrative {
+                    type boolean;
+                    default true;
+                }
+
+                uses pcep:path-definition;
+            }
         }
         output {
             uses ntp:topology-instruction-output;

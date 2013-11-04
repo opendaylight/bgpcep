@@ -10,16 +10,14 @@ package org.opendaylight.protocol.pcep.impl;
 import static org.mockito.Mockito.mock;
 import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
-
-import java.util.concurrent.Future;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
-
-import com.google.common.util.concurrent.Futures;
 
 public class ServerSessionMock extends PCEPSessionImpl {
 
@@ -35,7 +33,7 @@ public class ServerSessionMock extends PCEPSessionImpl {
 	public Future<Void> sendMessage(final Message msg) {
 		this.lastMessageSentAt = System.nanoTime();
 		this.client.onMessage(this, msg);
-		return Futures.immediateFuture(null);
+		return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
 	}
 
 	@Override

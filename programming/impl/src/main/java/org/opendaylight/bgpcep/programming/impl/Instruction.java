@@ -17,6 +17,7 @@ import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
 
 import com.google.common.base.Preconditions;
 
@@ -43,7 +44,7 @@ final class Instruction {
 		return status;
 	}
 
-	Future<ExecutionResult<?>> execute() {
+	Future<ExecutionResult<Details>> execute() {
 		return executor.execute();
 	}
 

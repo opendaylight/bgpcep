@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep;
 
+import io.netty.util.concurrent.Future;
+
 import java.net.InetAddress;
-import java.util.concurrent.Future;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;

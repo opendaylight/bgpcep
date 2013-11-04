@@ -13,6 +13,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
