@@ -20,5 +20,7 @@
 		<module>api</module>
 		<module>impl</module>
         <module>testtool</module>
-    </modules>
+        <module>api-config</module>
+        <module>impl-config</module>
+	</modules>
 </project>
