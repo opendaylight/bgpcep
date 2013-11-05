@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatusChangedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.UncancellableInstruction;
@@ -59,7 +61,6 @@ import com.google.common.collect.ImmutableList;
 
 final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
-	private static final BigInteger MILLION = BigInteger.valueOf(1000000);
 
 	private final Map<InstructionId, Instruction> insns = new HashMap<>();
 
@@ -125,8 +126,8 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 		}
 
 		// First things first: check the deadline
-		final BigInteger now = BigInteger.valueOf(System.currentTimeMillis()).multiply(MILLION);
-		final BigInteger left = input.getDeadline().getValue().subtract(now);
+		final Nanotime now = NanotimeUtil.currentTime();
+		final BigInteger left = input.getDeadline().getValue().subtract(now.getValue());
 
 		if (left.compareTo(BigInteger.ZERO) <= 0) {
 			LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
