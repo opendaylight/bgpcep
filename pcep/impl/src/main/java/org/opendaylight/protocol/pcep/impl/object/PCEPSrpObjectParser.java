@@ -16,12 +16,12 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.SrpBuilder;
 
 /**
- * Parser for {@link SrpObject}
+ * Parser for {@link Srp}
  */
 public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
 
@@ -40,7 +40,7 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 	}
 
 	@Override
-	public SrpObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Srp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -69,10 +69,10 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof SrpObject)) {
+		if (!(object instanceof Srp)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
 		}
-		final SrpObject srp = (SrpObject) object;
+		final Srp srp = (Srp) object;
 		final Long id = srp.getOperationId().getValue();
 		if (id == 0 || id == 0xFFFFFFFFL) {
 			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");

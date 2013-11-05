@@ -812,17 +812,19 @@ module pcep-types {
 		description "SRP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.2";
 
-		uses object;
-
-		leaf operation-id {
-			type srp-id-number;
-			mandatory true;
-		}
-
-		leaf flags {
-			type bits {
-				bit lsp-remove {
-					position 31;
+		container srp {
+			uses object;
+	
+			leaf operation-id {
+				type srp-id-number;
+				mandatory true;
+			}
+	
+			leaf flags {
+				type bits {
+					bit lsp-remove {
+						position 31;
+					}
 				}
 			}
 		}
@@ -1173,10 +1175,8 @@ module pcep-types {
 				}
 
 				case stateful {
-					container srp {
-						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
-						uses srp-object;
-					}
+					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
+					uses srp-object;
 				}
 			}
 		}
@@ -1205,9 +1205,7 @@ module pcep-types {
 			uses message-header;
 
 			list updates {
-				container srp {
-					uses srp-object;
-				}
+				uses srp-object;
 
 				container lsp {
 					uses lsp-object;
@@ -1230,9 +1228,7 @@ module pcep-types {
 			uses message-header;
 
 			list reports {
-				container srp {
-					uses srp-object;
-				}
+				uses srp-object;
 
 				container lsp {
 					uses lsp-object;
@@ -1255,9 +1251,7 @@ module pcep-types {
 			uses message-header;
 
 			list requests {
-				container srp {
-					uses srp-object;
-				}
+				uses srp-object;
 
 				container lsp {
 					uses lsp-object;
