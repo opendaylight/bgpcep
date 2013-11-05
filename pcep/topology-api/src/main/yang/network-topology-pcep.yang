@@ -71,9 +71,7 @@ module network-topology-pcep {
                 }
                 key name;
 
-                container lsp {
-                    uses pcep:lsp-object;
-                }
+                uses pcep:lsp-object;
 
                 container path {
                     uses pcep:path-definition;

@@ -834,45 +834,47 @@ module pcep-types {
 		description "LSP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 
-		uses object;
-		container "tlvs" {
-			uses lsp-error-code-tlv;
-
-			uses lsp-identifiers-tlv;
-
-			uses rsvp-error-spec-tlv;
-
-			uses symbolic-path-name-tlv;
-		}
-
-		leaf plsp-id {
-			type plsp-id;
-			mandatory true;
-		}
-
-		leaf delegate {
-			type boolean;
-			default false;
-		}
-
-		leaf sync {
-			type boolean;
-			default false;
-		}
-
-		leaf remove {
-			type boolean;
-			default false;
-		}
-
-		leaf administrative {
-			type boolean;
-			default false;
-		}
-
-		leaf operational {
-			type operational-status;
-			mandatory true;
+		container lsp {
+			uses object;
+			container "tlvs" {
+				uses lsp-error-code-tlv;
+	
+				uses lsp-identifiers-tlv;
+	
+				uses rsvp-error-spec-tlv;
+	
+				uses symbolic-path-name-tlv;
+			}
+	
+			leaf plsp-id {
+				type plsp-id;
+				mandatory true;
+			}
+	
+			leaf delegate {
+				type boolean;
+				default false;
+			}
+	
+			leaf sync {
+				type boolean;
+				default false;
+			}
+	
+			leaf remove {
+				type boolean;
+				default false;
+			}
+	
+			leaf administrative {
+				type boolean;
+				default false;
+			}
+	
+			leaf operational {
+				type operational-status;
+				mandatory true;
+			}
 		}
 	}
 
@@ -1054,10 +1056,7 @@ module pcep-types {
 
 						uses lsp-attributes;
 
-						container lsp {
-							reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.4";
-							uses lsp-object;
-						}
+						uses lsp-object;
 					}
 				}
 			}
@@ -1101,10 +1100,7 @@ module pcep-types {
 			list replies {
 				uses rp-object;
 
-				container lsp {
-					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.5";
-					uses lsp-object;
-				}
+				uses lsp-object;
 
 				choice result {
 					case success {
@@ -1207,9 +1203,7 @@ module pcep-types {
 			list updates {
 				uses srp-object;
 
-				container lsp {
-					uses lsp-object;
-				}
+				uses lsp-object;
 
 				container path {
 					uses path-definition;
@@ -1230,9 +1224,7 @@ module pcep-types {
 			list reports {
 				uses srp-object;
 
-				container lsp {
-					uses lsp-object;
-				}
+				uses lsp-object;
 
 				container path {
 					uses path-definition;
@@ -1253,9 +1245,7 @@ module pcep-types {
 			list requests {
 				uses srp-object;
 
-				container lsp {
-					uses lsp-object;
-				}
+				uses lsp-object;
 
 				container endpoints {
 					uses endpoints-object;
