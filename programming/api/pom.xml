@@ -81,6 +81,7 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
+                           org.opendaylight.bgpcep.programming,
                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.*,
                        </Export-Package>
                    </instructions>
