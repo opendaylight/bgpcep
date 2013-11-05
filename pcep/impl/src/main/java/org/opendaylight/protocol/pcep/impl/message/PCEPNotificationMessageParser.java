@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcntfMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessageBuilder;
@@ -96,8 +97,9 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 				comObj = getValidNotificationComposite(objects);
 			} catch (final PCEPDocumentedException e) {
 				final PcerrMessageBuilder b = new PcerrMessageBuilder();
-				b.setErrors(Arrays.asList(new ErrorsBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-						maping.getFromErrorsEnum(e.getError()).value).build()));
+				b.setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(
+						new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
+								maping.getFromErrorsEnum(e.getError()).value).build()).build()));
 				return new PcerrBuilder().setPcerrMessage(b.build()).build();
 			}
 

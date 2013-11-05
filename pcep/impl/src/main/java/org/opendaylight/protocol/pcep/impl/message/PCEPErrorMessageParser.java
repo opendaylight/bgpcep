@@ -22,10 +22,10 @@ import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcepErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
@@ -70,7 +70,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		}
 
 		for (final Errors e : err.getErrors()) {
-			buffer.writeBytes(serializeObject(e));
+			buffer.writeBytes(serializeObject(e.getErrorObject()));
 		}
 
 		if (err.getErrorType() instanceof Session) {
@@ -79,7 +79,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public PcerrMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (buffer == null || buffer.length == 0) {
 			throw new PCEPDeserializerException("Error message is empty.");
 		}
@@ -91,8 +91,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 			return new PcerrBuilder().setPcerrMessage(
 					new PcerrMessageBuilder().setErrors(
-							Arrays.asList(new ErrorsBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-									maping.getFromErrorsEnum(e.getError()).value).build())).build()).build();
+							Arrays.asList(new ErrorsBuilder().setErrorObject(
+									new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
+											maping.getFromErrorsEnum(e.getError()).value).build()).build())).build()).build();
 		}
 		return m;
 	}
@@ -108,7 +109,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
 		Object obj;
-		int state = 1;
+		int state = 0;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
 
@@ -116,57 +117,63 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 				return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
 			}
 
-			switch (state) {
-			case 1:
-				if (obj instanceof PcepErrorObject) {
-					final PcepErrorObject o = (PcepErrorObject) obj;
-					errorObjects.add((Errors) o);
-					break;
-				}
-				state = 2;
-			case 2:
-				state = 3;
-				if (obj instanceof OpenObject) {
-					openObj = (Open) obj;
-					break;
-				}
-			case 3:
-				while (!objects.isEmpty()) {
-					switch (state) {
-					case 1:
-						state = 2;
-						if (obj instanceof Rp) {
-							final Rp o = ((Rp) obj);
-							if (o.isProcessingRule()) {
-								throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-							}
-							requestParameters.add(new RpsBuilder().setRp(o).build());
-							state = 1;
-							break;
-						}
-					case 2:
-						if (obj instanceof PcepErrorObject) {
-							final PcepErrorObject o = (PcepErrorObject) obj;
-							errorObjects.add((Errors) o);
-							state = 2;
-							break;
-						}
-						state = 3;
-					}
-
-					if (state == 3) {
-						break;
-					}
-
+			if (state == 0) {
+				if (obj instanceof ErrorObject) {
+					final ErrorObject o = (ErrorObject) obj;
+					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+					state = 1;
 					objects.remove(0);
+					continue;
+				} else if (obj instanceof Rp) {
+					final Rp o = ((Rp) obj);
+					if (o.isProcessingRule()) {
+						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+					}
+					requestParameters.add(new RpsBuilder().setRp(o).build());
+					state = 2;
+					objects.remove(0);
+					continue;
 				}
-
-				state = 4;
-				break;
 			}
 
-			if (state == 4) {
-				break;
+			switch (state) {
+			case 1:
+				if (obj instanceof ErrorObject) {
+					final ErrorObject o = (ErrorObject) obj;
+					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+					state = 1;
+					break;
+				}
+				state = 3;
+			case 2:
+				if (obj instanceof Rp) {
+					final Rp o = ((Rp) obj);
+					if (o.isProcessingRule()) {
+						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+					}
+					requestParameters.add(new RpsBuilder().setRp(o).build());
+					state = 2;
+					break;
+				}
+				state = 4;
+			case 3:
+				if (obj instanceof Open) {
+					openObj = (Open) obj;
+					state = 5;
+					break;
+				}
+			case 4:
+				if (obj instanceof ErrorObject) {
+					final ErrorObject o = (ErrorObject) obj;
+					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+					state = 4;
+					break;
+				}
+				state = 5;
+
+				if (state == 5) {
+					break;
+				}
 			}
 
 			objects.remove(0);
