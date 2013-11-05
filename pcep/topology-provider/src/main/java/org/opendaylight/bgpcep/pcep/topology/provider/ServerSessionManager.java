@@ -43,20 +43,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SrpObject.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.reports.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.pcrpt.message.reports.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.PcupdMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.UpdatesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.Srp.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathNameBuilder;
@@ -119,7 +119,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 		final Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
 			final String pccId = createNodeId(address);
-			final Topology topo = (Topology)trans.readOperationalData(topology);
+			final Topology topo = (Topology) trans.readOperationalData(ServerSessionManager.this.topology);
 
 			for (final Node n : topo.getNode()) {
 				LOG.debug("Matching topology node {} to id {}", n, pccId);
@@ -169,9 +169,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				this.pccBuilder.setStateSync(PccSyncState.InitialResync);
 			}
 
-			topologyAugmentBuilder = new Node1Builder().setPathComputationClient(pccBuilder.build());
-			topologyAugment = InstanceIdentifier.builder(topologyNode).node(Node1.class).toInstance();
-			trans.putRuntimeData(topologyAugment, topologyAugmentBuilder.build());
+			this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
+			this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).node(Node1.class).toInstance();
+			trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
 
 			// All set, commit the modifications
 			final Future<RpcResult<TransactionStatus>> s = trans.commit();
@@ -188,7 +188,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				return;
 			}
 
-			nodes.put(nodeId, this);
+			ServerSessionManager.this.nodes.put(this.nodeId, this);
 			this.session = session;
 			LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), topoNode.getNodeId());
 		}
@@ -196,14 +196,14 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		@GuardedBy("this")
 		private void tearDown(final PCEPSession session) {
 			this.session = null;
-			nodes.remove(nodeId);
+			ServerSessionManager.this.nodes.remove(this.nodeId);
 
 			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			// The session went down. Undo all the Topology changes we have done.
-			trans.removeRuntimeData(topologyAugment);
-			if (ownsTopology) {
-				trans.removeRuntimeData(topologyNode);
+			trans.removeRuntimeData(this.topologyAugment);
+			if (this.ownsTopology) {
+				trans.removeRuntimeData(this.topologyNode);
 			}
 
 			/*
@@ -218,18 +218,18 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 
 			// Clear all requests which have not been sent to the peer: they result in cancellation
-			for (Entry<SrpIdNumber, Promise<ExecutionResult<Details>>> e : sendingRequests.entrySet()) {
+			for (final Entry<SrpIdNumber, Promise<ExecutionResult<Details>>> e : this.sendingRequests.entrySet()) {
 				LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
 				e.getValue().setSuccess(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 			}
-			sendingRequests.clear();
+			this.sendingRequests.clear();
 
 			// CLear all requests which have not been acked by the peer: they result in failure
-			for (Entry<SrpIdNumber, Promise<ExecutionResult<Details>>> e : waitingRequests.entrySet()) {
+			for (final Entry<SrpIdNumber, Promise<ExecutionResult<Details>>> e : this.waitingRequests.entrySet()) {
 				LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
 				e.getValue().setSuccess(new ExecutionResult<Details>(InstructionStatus.Failed, null));
 			}
-			waitingRequests.clear();
+			this.waitingRequests.clear();
 		}
 
 		@Override
@@ -245,8 +245,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifier<ReportedLsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(topologyAugment).
-					node(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
+			return InstanceIdentifier.builder(this.topologyAugment).node(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -265,9 +264,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 				if (lsp.isSync() && !this.synced) {
 					// Update synchronization flag
-					synced = true;
-					topologyAugmentBuilder.setPathComputationClient(pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-					trans.putRuntimeData(topologyAugment, topologyAugmentBuilder.build());
+					this.synced = true;
+					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
+					trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
 					LOG.debug("Session {} achieved synchronized state", session);
 				}
 
@@ -279,7 +278,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						case Active:
 						case Down:
 						case Up:
-							final Promise<ExecutionResult<Details>> p = waitingRequests.remove(id);
+							final Promise<ExecutionResult<Details>> p = this.waitingRequests.remove(id);
 							if (p != null) {
 								LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
 								p.setSuccess(new ExecutionResult<Details>(InstructionStatus.Successful, null));
@@ -337,25 +336,26 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private synchronized SrpIdNumber nextRequest() {
-			return new SrpIdNumber(requestId++);
+			return new SrpIdNumber(this.requestId++);
 		}
 
 		private synchronized void messageSendingComplete(final SrpIdNumber requestId, final io.netty.util.concurrent.Future<Void> future) {
-			final Promise<ExecutionResult<Details>> promise = sendingRequests.remove(requestId);
+			final Promise<ExecutionResult<Details>> promise = this.sendingRequests.remove(requestId);
 
 			if (future.isSuccess()) {
-				waitingRequests.put(requestId, promise);
+				this.waitingRequests.put(requestId, promise);
 			} else {
 				LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
 				promise.setSuccess(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 			}
 		}
 
-		private synchronized io.netty.util.concurrent.Future<ExecutionResult<Details>> sendMessage(final Message message, final SrpIdNumber requestId) {
-			final io.netty.util.concurrent.Future<Void> f = session.sendMessage(message);
+		private synchronized io.netty.util.concurrent.Future<ExecutionResult<Details>> sendMessage(final Message message,
+				final SrpIdNumber requestId) {
+			final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 			final Promise<ExecutionResult<Details>> ret = exec.newPromise();
 
-			sendingRequests.put(requestId, ret);
+			this.sendingRequests.put(requestId, ret);
 
 			f.addListener(new FutureListener<Void>() {
 				@Override
@@ -372,7 +372,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private static final Pcerr unhandledMessageError = new PcerrBuilder().setPcerrMessage(
 			new PcerrMessageBuilder().setErrorType(null).build()).build();
 	private static final MessageHeader messageHeader = new MessageHeader() {
-		private final ProtocolVersion version = new ProtocolVersion((short)1);
+		private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
 		@Override
 		public Class<? extends DataContainer> getImplementedInterface() {
@@ -381,7 +381,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 		@Override
 		public ProtocolVersion getVersion() {
-			return version;
+			return this.version;
 		}
 	};
 	private static final EventExecutor exec = GlobalEventExecutor.INSTANCE;
@@ -404,24 +404,23 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	private synchronized io.netty.util.concurrent.Future<ExecutionResult<Details>> realAddLsp(final AddLspInput input) {
 		// Get the listener corresponding to the node
-		final SessionListener l = nodes.get(input.getNode());
+		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
-		if (dataProvider.readOperationalData(lsp) != null) {
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
+				new ReportedLspsKey(input.getName())).toInstance();
+		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
 		final RequestsBuilder rb = new RequestsBuilder(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(
-				new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setTlvs(
-						new TlvsBuilder().setSymbolicPathName(
-								new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
+		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setTlvs(
+				new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(messageHeader);
 		ib.setRequests(ImmutableList.of(rb.build()));
@@ -431,14 +430,15 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	private synchronized io.netty.util.concurrent.Future<ExecutionResult<Details>> realRemoveLsp(final RemoveLspInput input) {
 		// Get the listener corresponding to the node
-		final SessionListener l = nodes.get(input.getNode());
+		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
-		final ReportedLsps rep = (ReportedLsps) dataProvider.readOperationalData(lsp);
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
+				new ReportedLspsKey(input.getName())).toInstance();
+		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
@@ -455,23 +455,24 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	private synchronized io.netty.util.concurrent.Future<ExecutionResult<Details>> realUpdateLsp(final UpdateLspInput input) {
 		// Get the listener corresponding to the node
-		final SessionListener l = nodes.get(input.getNode());
+		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
-		final ReportedLsps rep = (ReportedLsps) dataProvider.readOperationalData(lsp);
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
+				new ReportedLspsKey(input.getName())).toInstance();
+		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setSrp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.LspBuilder().
-				setPlspId(rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
+		rb.setLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.LspBuilder().setPlspId(
+				rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
 		rb.setPath(new PathBuilder(input.getArguments()).build());
 
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(messageHeader);
