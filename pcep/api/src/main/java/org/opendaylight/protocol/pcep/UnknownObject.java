@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -24,7 +25,8 @@ public class UnknownObject implements Object {
 	public UnknownObject(final PCEPErrors error) {
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
 		this.e = error;
-		this.error = new ErrorsBuilder().setType(mapping.getFromErrorsEnum(error).type).setValue(mapping.getFromErrorsEnum(error).value).build();
+		this.error = new ErrorsBuilder().setErrorObject(
+				new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).type).setValue(mapping.getFromErrorsEnum(error).value).build()).build();
 	}
 
 	public List<Errors> getErrors() {

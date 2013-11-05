@@ -721,21 +721,22 @@ module pcep-types {
 	grouping pcep-error-object {
 		description "PCEP-ERROR Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
-
-		uses object;
-		container "tlvs" {
-			when "../type = 7";
-			uses req-missing-tlv;
-		}
-
-		leaf type {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf value {
-			type uint8;
-			mandatory true;
+		container error-object {
+			uses object;
+			container "tlvs" {
+				when "../type = 7";
+				uses req-missing-tlv;
+			}
+	
+			leaf type {
+				type uint8;
+				mandatory true;
+			}
+	
+			leaf value {
+				type uint8;
+				mandatory true;
+			}
 		}
 	}
 

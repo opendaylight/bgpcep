@@ -13,20 +13,19 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcepErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPErrorObject PCEPErrorObject}
+ * Parser for {@link ErrorObject}
  */
-public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBuilder> {
+public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObjectBuilder> {
 
 	public static final int CLASS = 13;
 
@@ -46,13 +45,12 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 	}
 
 	@Override
-	public PcepErrorObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public ErrorObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
 		}
 
-		final ErrorsBuilder builder = new ErrorsBuilder();
+		final ErrorObjectBuilder builder = new ErrorObjectBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setType((short) UnsignedBytes.toInt(bytes[ET_F_OFFSET]));
@@ -62,7 +60,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 	}
 
 	@Override
-	public void addTlv(final ErrorsBuilder builder, final Tlv tlv) {
+	public void addTlv(final ErrorObjectBuilder builder, final Tlv tlv) {
 		if (tlv instanceof ReqMissing && builder.getType() == 7) {
 			builder.setTlvs(new TlvsBuilder().setReqMissing((ReqMissing) tlv).build());
 		}
@@ -70,12 +68,12 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorsBu
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof PcepErrorObject)) {
+		if (!(object instanceof ErrorObject)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PcepErrorObject.");
 		}
-		final PcepErrorObject errObj = (PcepErrorObject) object;
+		final ErrorObject errObj = (ErrorObject) object;
 
-		final byte[] tlvs = serializeTlvs(((Errors) errObj).getTlvs());
+		final byte[] tlvs = serializeTlvs(errObj.getTlvs());
 
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 		if (tlvs.length != 0) {
