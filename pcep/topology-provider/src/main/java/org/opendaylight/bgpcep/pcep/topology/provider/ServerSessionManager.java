@@ -410,6 +410,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Make sure there is no such LSP
 		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
 				new ReportedLspsKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
@@ -417,14 +418,18 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Build the request
 		final RequestsBuilder rb = new RequestsBuilder(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setTlvs(
-				new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
+		rb.setLsp(
+				new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setTlvs(
+						new TlvsBuilder().setSymbolicPathName(
+								new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(messageHeader);
 		ib.setRequests(ImmutableList.of(rb.build()));
 
+		// Send the message
 		return l.sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId());
 	}
 
@@ -436,6 +441,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Make sure the LSP exists, we need it for PLSP-ID
 		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
 				new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
@@ -444,6 +450,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Build the request and send it
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).setFlags(new Flags(Boolean.TRUE)).build());
 		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
@@ -461,6 +468,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Make sure the LSP exists
 		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
 				new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
@@ -469,6 +477,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			return exec.newSucceededFuture(new ExecutionResult<Details>(InstructionStatus.Cancelled, null));
 		}
 
+		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
 		rb.setLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.LspBuilder().setPlspId(
