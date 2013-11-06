@@ -182,7 +182,6 @@ module pcep-types {
 						position 29;
 					}
 				}
-				mandatory true;
 			}
 		}
 	}
