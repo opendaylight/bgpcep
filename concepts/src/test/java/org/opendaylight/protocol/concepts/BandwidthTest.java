@@ -28,15 +28,15 @@ public class BandwidthTest {
 
 	@Before
 	public void setUp() {
-		this.b1 = new Bandwidth(ByteArray.intToBytes(1000));
-		this.b2 = new Bandwidth(ByteArray.intToBytes(2000));
-		this.b3 = new Bandwidth(ByteArray.intToBytes(2000));
-		this.b4 = new Bandwidth(ByteArray.intToBytes(100));
+		this.b1 = new Bandwidth(ByteArray.longToBytes(1000));
+		this.b2 = new Bandwidth(ByteArray.longToBytes(2000));
+		this.b3 = new Bandwidth(ByteArray.longToBytes(2000));
+		this.b4 = new Bandwidth(ByteArray.longToBytes(100));
 	}
 
 	@Test
 	public void testBitsBytes() {
-		assertEquals(1000.0, ByteArray.bytesToInt(this.b1.getValue()), 0.1);
+		assertEquals(1000.0, ByteArray.bytesToLong(this.b1.getValue()), 0.1);
 	}
 
 	@Test
@@ -45,18 +45,8 @@ public class BandwidthTest {
 		assertThat(this.b1, not(equalTo(new Object())));
 		assertThat(this.b1, equalTo(this.b1));
 		assertThat(this.b1, not(equalTo(this.b2)));
-		// FIXME BUG-98
-		// assertEquals(this.b2, this.b3);
+		assertEquals(this.b2, this.b3);
 		assertFalse(this.b1.equals(new Object()));
-	}
-
-	@Test
-	@Ignore
-	// FIXME: BUG-89
-	public void testToString() {
-		final String s1 = "Bandwidth [_value=" + ByteArray.bytesToInt(this.b1.getValue()) + "]";
-		assertEquals(s1, this.b1.toString());
-
 	}
 
 	@Test
@@ -68,9 +58,9 @@ public class BandwidthTest {
 
 		set.add(this.b2);
 		assertEquals(2, set.size());
-		// FIXME BUG-98
-		// set.add(this.b3);
-		// assertEquals(2, set.size());
+
+		set.add(this.b3);
+		assertEquals(2, set.size());
 
 		set.add(this.b4);
 		assertEquals(3, set.size());
