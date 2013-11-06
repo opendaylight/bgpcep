@@ -524,8 +524,10 @@ module pcep-types {
 		description "END-POINTS Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.6";
 
-		uses object;
-		uses endpoints;
+		container endpoints-obj {
+			uses object;
+			uses endpoints;
+		}
 	}
 
 	grouping bandwidth-object {
@@ -1037,9 +1039,7 @@ module pcep-types {
 					container p2p {
 						when "../rp/p2mp = false";
 
-						container endpoints {
-							uses endpoints-object;
-						}
+						uses endpoints-object;
 
 						container reported-route {
 							uses reported-route-object;
@@ -1246,9 +1246,7 @@ module pcep-types {
 
 				uses lsp-object;
 
-				container endpoints {
-					uses endpoints-object;
-				}
+				uses endpoints-object;
 
 				container ero {
 					uses explicit-route-object;
