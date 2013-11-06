@@ -116,9 +116,7 @@ module network-topology-pcep {
                     default true;
                 }
 
-				container endpoints {
-					uses pcep:endpoints-object;
-				}
+				uses pcep:endpoints-object;
 
                 uses pcep:path-definition;
             }
