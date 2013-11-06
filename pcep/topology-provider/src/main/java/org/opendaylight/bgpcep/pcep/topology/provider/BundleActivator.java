@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +45,7 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
 		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder().node(Topology.class).toInstance();
 
-		final PCEPTopologyProvider exp = new PCEPTopologyProvider(dispatcher, null, dps, topology);
+		final PCEPTopologyProvider exp = new PCEPTopologyProvider(dispatcher, GlobalEventExecutor.INSTANCE, null, dps, topology);
 		final ChannelFuture s = exp.startServer(address);
 		try {
 			s.get();

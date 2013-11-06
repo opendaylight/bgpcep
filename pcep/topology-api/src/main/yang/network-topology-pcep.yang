@@ -5,7 +5,6 @@ module network-topology-pcep {
 	prefix "pn";
 
 	import network-topology { prefix nt; revision-date 2013-10-21; }
-	import network-topology-programming { prefix ntp; revision-date 2013-11-02; }
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 
 	organization "Cisco Systems, Inc.";
@@ -96,82 +95,90 @@ module network-topology-pcep {
 		uses pcep-client-attributes;
 	}
 
+    typedef failure-type {
+        type enumeration {
+            enum unsent;
+            enum no-ack;
+            enum failed;
+        }
+    }
+
+    grouping lsp-id {
+        leaf node {
+            type nt:node-ref;
+            mandatory true;
+        }
+
+        leaf name {
+            type pcep:symbolic-path-name;
+            mandatory true;
+        }
+    }
+
+    grouping operation-result {
+        leaf failure {
+            type failure-type;
+        }
+    }
+
+    grouping add-lsp-args {
+        uses lsp-id;
+
+        container arguments {
+            leaf administrative {
+                type boolean;
+                default true;
+            }
+
+            container endpoints {
+                uses pcep:endpoints-object;
+            }
+
+            uses pcep:path-definition;
+        }
+    }
+
     rpc add-lsp {
         input {
-            uses ntp:topology-instruction-input;
-
-            leaf node {
-                type nt:node-ref;
-                mandatory true;
-            }
-
-            leaf name {
-                type pcep:symbolic-path-name;
-                mandatory true;
-            }
-
-            container arguments {
-                leaf administrative {
-                    type boolean;
-                    default true;
-                }
-
-				container endpoints {
-					uses pcep:endpoints-object;
-				}
-
-                uses pcep:path-definition;
-            }
+            uses add-lsp-args;
         }
         output {
-            uses ntp:topology-instruction-output;
+            uses operation-result;
         }
+    }
+
+    grouping remove-lsp-args {
+        uses lsp-id;
     }
 
     rpc remove-lsp {
         input {
-            uses ntp:topology-instruction-input;
-
-            leaf node {
-                type nt:node-ref;
-                mandatory true;
-            }
-
-            leaf name {
-                type pcep:symbolic-path-name;
-                mandatory true;
-            }
+            uses remove-lsp-args;
         }
         output {
-            uses ntp:topology-instruction-output;
+            uses operation-result;
+        }
+    }
+
+    grouping update-lsp-args {
+        uses lsp-id;
+
+        container arguments {
+            leaf administrative {
+                type boolean;
+                default true;
+            }
+
+            uses pcep:path-definition;
         }
     }
 
     rpc update-lsp {
         input {
-            uses ntp:topology-instruction-input;
-
-            leaf node {
-                type nt:node-ref;
-                mandatory true;
-            }
-
-            leaf name {
-                type pcep:symbolic-path-name;
-                mandatory true;
-            }
-
-            container arguments {
-                leaf administrative {
-                    type boolean;
-                    default true;
-                }
-
-                uses pcep:path-definition;
-            }
+            uses update-lsp-args;
         }
         output {
-            uses ntp:topology-instruction-output;
+            uses operation-result;
         }
     }
 }

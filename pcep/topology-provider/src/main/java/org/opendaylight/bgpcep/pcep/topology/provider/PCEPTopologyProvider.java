@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.util.concurrent.EventExecutor;
 
 import java.net.InetSocketAddress;
 
@@ -21,21 +22,24 @@ import com.google.common.base.Preconditions;
 
 public final class PCEPTopologyProvider {
 	private final PCEPDispatcher dispatcher;
-	private final DataProviderService dataProvider;
-	private final InstanceIdentifier<Topology> topology;
-	private final InstructionScheduler scheduler;
+	private final TopologyProgramming topology;
+	private final ServerSessionManager manager;
+	private final TopologyRPCs element;
 
 	public PCEPTopologyProvider(final PCEPDispatcher dispatcher,
+			final EventExecutor executor,
 			final InstructionScheduler scheduler,
 			final DataProviderService dataService,
 			final InstanceIdentifier<Topology> topology) {
 		this.dispatcher = Preconditions.checkNotNull(dispatcher);
-		this.dataProvider = Preconditions.checkNotNull(dataService);
-		this.topology = Preconditions.checkNotNull(topology);
-		this.scheduler = Preconditions.checkNotNull(scheduler);
+
+
+		this.manager = new ServerSessionManager(executor, dataService, topology);
+		this.element = new TopologyRPCs(executor, manager);
+		this.topology = new TopologyProgramming(executor, scheduler, manager);
 	}
 
 	public ChannelFuture startServer(final InetSocketAddress address) {
-		return dispatcher.createServer(address, new ServerSessionManager(scheduler, dataProvider, topology));
+		return dispatcher.createServer(address, manager);
 	}
 }
