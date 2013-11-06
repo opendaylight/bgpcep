@@ -1,4 +1,4 @@
-module network-topology-pcep-progrogramming {
+module network-topology-pcep-programming {
 	// vi: set et smarttab sw=4 tabstop=4:
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep:programming";
