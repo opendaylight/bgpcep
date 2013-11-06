@@ -14,7 +14,6 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.EndpointsObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -23,12 +22,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
 
 /**
- * Parser for IPv4 {@link EndpointsObject}
+ * Parser for IPv4 {@link EndpointsObj}
  */
-public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<EndpointsBuilder> {
+public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<EndpointsObjBuilder> {
 
 	public static final int CLASS = 4;
 	public static final int TYPE = 1;
@@ -56,7 +56,7 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 	}
 
 	@Override
-	public EndpointsObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+	public EndpointsObj parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
 			PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
@@ -66,7 +66,7 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 			throw new PCEPDocumentedException("Processed flag not set", PCEPErrors.P_FLAG_NOT_SET);
 		}
 
-		final EndpointsBuilder builder = new EndpointsBuilder();
+		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
@@ -87,17 +87,17 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 	}
 
 	@Override
-	public void addTlv(final EndpointsBuilder builder, final Tlv tlv) {
+	public void addTlv(final EndpointsObjBuilder builder, final Tlv tlv) {
 		// No tlvs defined
 	}
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof EndpointsObject)) {
+		if (!(object instanceof EndpointsObj)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
 		}
 
-		final EndpointsObject ePObj = (EndpointsObject) object;
+		final EndpointsObj ePObj = (EndpointsObj) object;
 
 		final AddressFamily afi = ePObj.getAddressFamily();
 

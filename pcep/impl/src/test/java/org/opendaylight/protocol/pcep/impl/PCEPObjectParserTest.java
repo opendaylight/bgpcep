@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
@@ -82,7 +83,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKeysBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.requests.EndpointsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.NoPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
@@ -304,7 +304,7 @@ public class PCEPObjectParserTest {
 		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin");
 
-		final EndpointsBuilder builder = new EndpointsBuilder();
+		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
 		builder.setProcessingRule(true);
 		builder.setIgnore(false);
 		builder.setAddressFamily(new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForBytes(srcIPBytes)).setDestinationIpv4Address(
@@ -324,7 +324,7 @@ public class PCEPObjectParserTest {
 		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin");
 
-		final EndpointsBuilder builder = new EndpointsBuilder();
+		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
 		builder.setProcessingRule(true);
 		builder.setIgnore(false);
 		builder.setAddressFamily(new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForBytes(srcIPBytes)).setDestinationIpv6Address(
