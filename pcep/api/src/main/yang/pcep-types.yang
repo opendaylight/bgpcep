@@ -533,12 +533,13 @@ module pcep-types {
 	grouping bandwidth-object {
 		description "BANDWIDTH Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.7";
-		
-		uses object;
-
-		// No possibility to carry TLVs
-		leaf bandwidth {
-			type ieee754:float32;
+		container bandwidth {
+			uses object;
+	
+			// No possibility to carry TLVs
+			leaf bandwidth {
+				type ieee754:float32;
+			}
 		}
 	}
 
@@ -572,19 +573,21 @@ module pcep-types {
 		description "Exclude Route Object";
 		reference "https://tools.ietf.org/html/rfc5521#section-2.1.1";
 
-		uses object;
-
-		leaf flags {
-			type bits {
-				bit fail {
-					position 31;
+		container xro {
+			uses object;
+	
+			leaf flags {
+				type bits {
+					bit fail {
+						position 31;
+					}
 				}
+				mandatory true;
 			}
-			mandatory true;
-		}
-
-		list subobjects {
-			uses rsvp:exclude-route-subobjects;
+	
+			list subobjects {
+				uses rsvp:exclude-route-subobjects;
+			}
 		}
 	}
 
@@ -991,17 +994,13 @@ module pcep-types {
 	grouping lsp-attributes {
 		uses lspa-object;
 
-		container bandwidth {
-			uses bandwidth-object;
-		}
+		uses bandwidth-object;
 
 		list metrics {
 			uses metric-object;
 		}
 
-		container exclude-route {
-			uses exclude-route-object;
-		}
+		uses exclude-route-object;
 
 		container include-route {
 			uses include-route-object;
@@ -1046,9 +1045,7 @@ module pcep-types {
 						container reported-route {
 							uses reported-route-object;
 
-							container bandwidth {
-								uses bandwidth-object;
-							}
+							uses bandwidth-object;
 						}
 
 						container load-balancing {
@@ -1071,9 +1068,9 @@ module pcep-types {
 				container gc {
 					uses gc-object;
 				}
-				container xro {
-					uses exclude-route-object;
-				}
+				
+				uses exclude-route-object;
+
 				list metric {
 					uses metric-object;
 				}

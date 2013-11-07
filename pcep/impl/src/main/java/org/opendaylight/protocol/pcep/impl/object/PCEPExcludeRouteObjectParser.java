@@ -11,16 +11,16 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExcludeRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExcludeRouteObject.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.XroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.XroBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link ExcludeRouteObject}
+ * Parser for {@link Xro}
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
 
@@ -35,8 +35,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 	}
 
 	@Override
-	public ExcludeRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Xro parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
@@ -50,10 +49,10 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ExcludeRouteObject)) {
+		if (!(object instanceof Xro)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ExcludeRouteObject.");
 		}
-		final ExcludeRouteObject obj = (ExcludeRouteObject) object;
+		final Xro obj = (Xro) object;
 		assert !(obj.getSubobjects().isEmpty()) : "Empty Excluded Route Object.";
 		final byte[] bytes = serializeSubobject(obj.getSubobjects());
 		final byte[] result = new byte[FLAGS_OFFSET + 1 + bytes.length];

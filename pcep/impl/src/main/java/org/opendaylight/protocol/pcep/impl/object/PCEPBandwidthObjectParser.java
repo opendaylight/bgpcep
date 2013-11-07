@@ -11,14 +11,14 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.reported.route.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 
 /**
- * Parser for {@link BandwidthObject}
+ * Parser for {@link Bandwidth}
  */
 public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<BandwidthBuilder> {
 
@@ -37,8 +37,7 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 	}
 
 	@Override
-	public BandwidthObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Bandwidth parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -60,10 +59,10 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof BandwidthObject)) {
+		if (!(object instanceof Bandwidth)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
 		}
-		return ((BandwidthObject) object).getBandwidth().getValue();
+		return ((Bandwidth) object).getBandwidth().getValue();
 	}
 
 	@Override

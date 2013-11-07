@@ -15,7 +15,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -79,10 +79,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.BandwidthObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClasstypeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExcludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.GcObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.IncludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
@@ -101,8 +99,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcupdMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SvecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
@@ -279,7 +279,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectSerializer(Rp.class, new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectSerializer(NoPathObject.class, new PCEPNoPathObjectParser(tlvReg));
 		context.registerObjectSerializer(EndpointsObj.class, new PCEPEndPointsObjectParser(tlvReg));
-		context.registerObjectSerializer(BandwidthObject.class, new PCEPBandwidthObjectParser(tlvReg));
+		context.registerObjectSerializer(Bandwidth.class, new PCEPBandwidthObjectParser(tlvReg));
 		context.registerObjectSerializer(MetricObject.class, new PCEPMetricObjectParser(tlvReg));
 		context.registerObjectSerializer(Ero.class, new PCEPExplicitRouteObjectParser(eroSubReg));
 		context.registerObjectSerializer(ReportedRouteObject.class, new PCEPReportedRouteObjectParser(rroSubReg));
@@ -296,7 +296,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectSerializer(GcObject.class, new PCEPGlobalConstraintsObjectParser(tlvReg));
 		context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(tlvReg));
 		context.registerObjectSerializer(Srp.class, new PCEPSrpObjectParser(tlvReg));
-		context.registerObjectSerializer(ExcludeRouteObject.class, new PCEPExcludeRouteObjectParser(xroSubReg));
+		context.registerObjectSerializer(Xro.class, new PCEPExcludeRouteObjectParser(xroSubReg));
 
 		context.registerMessageParser(PCEPOpenMessageParser.TYPE, new PCEPOpenMessageParser(objReg));
 		context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, new PCEPKeepAliveMessageParser(objReg));
