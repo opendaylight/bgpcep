@@ -14,7 +14,7 @@ util:
 	Common utility classes
 
 framework:
-	Legacy NIO-based protocol framework, to be replaced by Netty
+	Common framework for integrating protocol parsers with Netty
 
 bgp:
 	BGP-related artifacts
@@ -27,6 +27,9 @@ pcep/pcepy:
 
 pcep/pcepdump:
 	Python-based PCEP listener and debug tool
+
+rsvp:
+	RSVP modeling concepts (needed by pcep)
 
 
 HOW TO BUILD
