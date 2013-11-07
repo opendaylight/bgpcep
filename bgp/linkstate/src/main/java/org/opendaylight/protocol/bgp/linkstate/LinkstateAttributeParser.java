@@ -182,19 +182,25 @@ public class LinkstateAttributeParser implements AttributeParser {
 					logger.debug("Parsed Administrative Group {}", builder.getAdminGroup());
 					break;
 				case 1089:
-					builder.setMaxLinkBandwidth(new Bandwidth(value));
+					final byte[] b = new byte[8];
+					System.arraycopy(value, 0, b, 8 - value.length, value.length);
+					builder.setMaxLinkBandwidth(new Bandwidth(b));
 					logger.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
 					break;
 				case 1090:
-					builder.setMaxReservableBandwidth(new Bandwidth(value));
+					final byte[] mrb = new byte[8];
+					System.arraycopy(value, 0, mrb, 8 - value.length, value.length);
+					builder.setMaxReservableBandwidth(new Bandwidth(mrb));
 					logger.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
 					break;
 				case 1091:
 					int index = 0;
 					final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.link.state.UnreservedBandwidth> unreservedBandwidth = Lists.newArrayList();
 					for (int i = 0; i < 8; i++) {
-						unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(
-								new Bandwidth(ByteArray.subByte(value, index, 4))).setPriority((short) i).build());
+						final byte[] dest = new byte[8];
+						final byte[] v = ByteArray.subByte(value, index, 4);
+						System.arraycopy(v, 0, dest, 8 - v.length, v.length);
+						unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(dest)).setPriority((short) i).build());
 						index += 4;
 					}
 					builder.setUnreservedBandwidth(unreservedBandwidth);
@@ -286,7 +292,9 @@ public class LinkstateAttributeParser implements AttributeParser {
 					logger.debug("Parsed Node Name {}", builder.getDynamicHostname());
 					break;
 				case 1027:
-					final IsisAreaIdentifier ai = new IsisAreaIdentifier(value);
+					final byte[] dest = new byte[20];
+					System.arraycopy(value, 0, dest, 20 - value.length, value.length);
+					final IsisAreaIdentifier ai = new IsisAreaIdentifier(dest);
 					areaMembership.add(ai);
 					logger.debug("Parsed AreaIdentifier {}", ai);
 					break;

@@ -55,8 +55,10 @@ public class LinkstateAttributeParserTest {
 		assertEquals(new Long(10), ls.getMetric().getValue());
 		assertEquals(new Long(0), ls.getAdminGroup().getValue());
 		assertEquals("43.43.43.43", ls.getRemoteIpv4RouterId().getValue());
-		assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 }, ls.getMaxLinkBandwidth().getValue());
-		assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 }, ls.getMaxReservableBandwidth().getValue());
+		assertArrayEquals(new byte[] { 0, 0, 0, 0, (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 },
+				ls.getMaxLinkBandwidth().getValue());
+		assertArrayEquals(new byte[] { 0, 0, 0, 0, (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
+				ls.getMaxReservableBandwidth().getValue());
 		assertNotNull(ls.getUnreservedBandwidth());
 		assertEquals(8, ls.getUnreservedBandwidth().size());
 	}
@@ -75,7 +77,7 @@ public class LinkstateAttributeParserTest {
 
 		assertEquals("12K-2", ls.getDynamicHostname());
 		assertEquals(1, ls.getIsisAreaId().size());
-		assertArrayEquals(new byte[] { 114 }, ls.getIsisAreaId().get(0).getValue());
+		assertArrayEquals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 114 }, ls.getIsisAreaId().get(0).getValue());
 		assertEquals("41.41.41.41", ls.getIpv4RouterId().getValue());
 	}
 }
