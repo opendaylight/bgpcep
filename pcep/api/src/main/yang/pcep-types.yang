@@ -927,36 +927,37 @@ module pcep-types {
 	grouping gc-object {
 		description "GLOBAL CONSTRAINTS (GC) Object";
 		reference "https://tools.ietf.org/html/rfc5557#section-5.5";
-
-		uses object;
-
-		leaf max-hop {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf max-utilization {
-			type uint8 {
-				range 0..100;
+		container gc {
+			uses object;
+	
+			leaf max-hop {
+				type uint8;
+				mandatory true;
 			}
-			units percent;
-			mandatory true;
-		}
-
-		leaf min-utilization {
-			type uint8 {
-				range 0..100;
+	
+			leaf max-utilization {
+				type uint8 {
+					range 0..100;
+				}
+				units percent;
+				mandatory true;
 			}
-			units percent;
-			mandatory true;
-		}
-
-		leaf over-booking-factor {
-			type uint8 {
-				range 0..100;
+	
+			leaf min-utilization {
+				type uint8 {
+					range 0..100;
+				}
+				units percent;
+				mandatory true;
 			}
-			units percent;
-			mandatory true;
+	
+			leaf over-booking-factor {
+				type uint8 {
+					range 0..100;
+				}
+				units percent;
+				mandatory true;
+			}
 		}
 	}
 
@@ -1062,9 +1063,7 @@ module pcep-types {
 
 				uses of-object;
 
-				container gc {
-					uses gc-object;
-				}
+				uses gc-object;
 				
 				uses exclude-route-object;
 

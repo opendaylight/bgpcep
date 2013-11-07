@@ -10,16 +10,16 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.GcObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.GcBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.Gc;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.GcBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link GcObject}
+ * Parser for {@link Gc}
  */
 public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsParser<GcBuilder> {
 
@@ -44,7 +44,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 	}
 
 	@Override
-	public GcObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Gc parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -67,10 +67,10 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof GcObject)) {
+		if (!(object instanceof Gc)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed GcObject.");
 		}
-		final GcObject specObj = (GcObject) object;
+		final Gc specObj = (Gc) object;
 		final byte[] retBytes = new byte[TLVS_OFFSET + 0];
 		retBytes[MAX_HOP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxHop());
 		retBytes[MAX_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxUtilization());
