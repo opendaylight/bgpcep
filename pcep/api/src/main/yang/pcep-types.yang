@@ -108,7 +108,7 @@ module pcep-types {
 	grouping no-path-vector-tlv {
 		description "NO-PATH-VECTOR TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
-		
+
 		uses tlv;
 		leaf flags {
 			type bits {
@@ -222,12 +222,12 @@ module pcep-types {
 				type rsvp:lsp-id;
 				mandatory true;
 			}
-	
+
 			leaf tunnel-id {
 				type rsvp:tunnel-id;
 				mandatory true;
 			}
-	
+
 			choice address-family {
 				case ipv4 {
 					leaf ipv4-tunnel-sender-address {
@@ -250,7 +250,7 @@ module pcep-types {
 					}
 				}
 			}
-			// FIXME: add tunnel endpoint (from stateful-07) 
+			// FIXME: add tunnel endpoint (from stateful-07)
 		}
 	}
 
@@ -318,7 +318,7 @@ module pcep-types {
 				type uint32;
 				mandatory true;
 			}
-	
+
 			leaf setup {
 				type uint32;
 				mandatory true;
@@ -355,19 +355,19 @@ module pcep-types {
 			uses object;
 			container "tlvs" {
 				uses of-list-tlv;
-				
+
 				uses stateful-capability-tlv;
-	
+
 				uses predundancy-group-id-tlv;
-	
+
 				uses lsp-db-version-tlv;
 			}
-	
+
 			leaf version {
 				type protocol-version;
 				default 1;
 			}
-	
+
 			leaf keepalive {
 				// Note: non-presence is equal to '0'
 				type uint8 {
@@ -375,7 +375,7 @@ module pcep-types {
 				}
 				mandatory true;
 			}
-	
+
 			leaf dead-timer {
 				// Note: non-presence is equal to '0'
 				type uint8 {
@@ -383,7 +383,7 @@ module pcep-types {
 				}
 				mandatory true;
 			}
-	
+
 			leaf session-id {
 				type uint8;
 			}
@@ -398,69 +398,69 @@ module pcep-types {
 			container "tlvs" {
 				uses order-tlv;
 			}
-	
+
 			leaf priority {
 				type uint8 {
 					range 1..7;
 				}
 			}
-	
+
 			leaf request-id {
 				type request-id;
 				mandatory true;
 			}
-	
+
 			leaf reoptimization {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf bi-directional {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf loose {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf path-key {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
 			}
-	
+
 			leaf fragmentation {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			}
-	
+
 			leaf p2mp {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			}
-	
+
 			leaf ero-compression {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
 			}
-	
+
 			leaf supply-of {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc5541#section-3.3";
 			}
-	
+
 			leaf order {
 				type boolean;
 				default false;
 				reference "https://tools.ietf.org/html/rfc5557#section-5.3";
 			}
-	
+
 			leaf make-before-break {
 				type boolean;
 				default false;
@@ -536,7 +536,7 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.7";
 		container bandwidth {
 			uses object;
-	
+
 			// No possibility to carry TLVs
 			leaf bandwidth {
 				type nps-c:bandwidth;
@@ -549,22 +549,22 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5440#section-7.8";
 		container metric {
 			uses object;
-	
+
 			leaf metric-type {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf bound {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf computed {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf value {
 				type ieee754:float32;
 			}
@@ -577,7 +577,7 @@ module pcep-types {
 
 		container xro {
 			uses object;
-	
+
 			leaf flags {
 				type bits {
 					bit fail {
@@ -586,7 +586,7 @@ module pcep-types {
 				}
 				mandatory true;
 			}
-	
+
 			list subobjects {
 				uses rsvp:exclude-route-subobjects;
 			}
@@ -600,13 +600,13 @@ module pcep-types {
 		container ero {
 			// No possibility of TLVs
 			uses object;
-	
+
 			list subobjects {
 				leaf loose {
 					type boolean;
 					mandatory true;
 				}
-	
+
 				uses rsvp:explicit-route-subobjects {
 					augment "subobject-type" {
 						case path-key {
@@ -627,7 +627,7 @@ module pcep-types {
 		container iro {
 			// No possibility of TLVs
 			uses object;
-	
+
 			list subobjects {
 				uses rsvp:explicit-route-subobjects;
 			}
@@ -637,11 +637,11 @@ module pcep-types {
 	grouping reported-route-object {
 		description "Reported Route Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.10";
-		
+
 		container rro {
 			// No possibility of TLVs
 			uses object;
-	
+
 			list subobjects {
 				uses rsvp:record-route-subobjects {
 					augment "subobject-type" {
@@ -662,22 +662,22 @@ module pcep-types {
 
 		container lspa {
 			uses object;
-	
+
 			leaf hold-priority {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf setup-priority {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf local-protection-desired {
 				type boolean;
 				default false;
 			}
-	
+
 			uses rsvp:attribute-filters;
 		}
 	}
@@ -685,30 +685,30 @@ module pcep-types {
 	grouping svec-object {
 		description "Synchronization Vector Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.13";
-		
+
 		container svec {
 			// No possibility of TLVs
 			uses object;
-	
+
 			leaf link-diverse {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf node-diverse {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf srlg-diverse {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf-list requests-ids {
 				type request-id;
 			}
-		}	
+		}
 	}
 
 	grouping notification-object {
@@ -718,15 +718,15 @@ module pcep-types {
 			uses object;
 			container "tlvs" {
 				when "../type = 2 and ../value = 1";
-	
+
 				uses overload-duration-tlv;
 			}
-	
+
 			leaf type {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf value {
 				type uint8;
 				mandatory true;
@@ -743,12 +743,12 @@ module pcep-types {
 				when "../type = 7";
 				uses req-missing-tlv;
 			}
-	
+
 			leaf type {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf value {
 				type uint8;
 				mandatory true;
@@ -759,16 +759,16 @@ module pcep-types {
 	grouping load-balancing-object {
 		description "LOAD-BALANCING Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.16";
-		
+
 		container load-balancing {
 			// No possibility of TLVs
 			uses object;
-	
+
 			leaf max-lsp {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf min-bandwidth {
 				type nps-c:bandwidth;
 			}
@@ -781,14 +781,14 @@ module pcep-types {
 
 		container c-close {
 			uses object;
-	
+
 			leaf reason {
 				type uint8;
 				mandatory true;
 			}
-			
+
 			container tlvs {
-	
+
 			}
 		}
 	}
@@ -813,15 +813,15 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
 		container path-key {
 			uses object;
-	
+
 			list path-keys {
 				min-elements 1;
-	
+
 				leaf loose {
 					type boolean;
 					default false;
 				}
-	
+
 				uses path-key-subobject;
 			}
 		}
@@ -833,12 +833,12 @@ module pcep-types {
 
 		container srp {
 			uses object;
-	
+
 			leaf operation-id {
 				type srp-id-number;
 				mandatory true;
 			}
-	
+
 			leaf flags {
 				type bits {
 					bit lsp-remove {
@@ -857,39 +857,39 @@ module pcep-types {
 			uses object;
 			container "tlvs" {
 				uses lsp-error-code-tlv;
-	
+
 				uses lsp-identifiers-tlv;
-	
+
 				uses rsvp-error-spec-tlv;
-	
+
 				uses symbolic-path-name-tlv;
 			}
-	
+
 			leaf plsp-id {
 				type plsp-id;
 				mandatory true;
 			}
-	
+
 			leaf delegate {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf sync {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf remove {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf administrative {
 				type boolean;
 				default false;
 			}
-	
+
 			leaf operational {
 				type operational-status;
 				mandatory true;
@@ -902,7 +902,7 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5541#section-3.1";
 		container of {
 			uses object;
-	
+
 			leaf code {
 				type of-id;
 				mandatory true;
@@ -922,7 +922,7 @@ module pcep-types {
 
 		container class-type {
 			uses object;
-	
+
 			leaf class-type {
 				type class-type;
 				mandatory true;
@@ -935,12 +935,12 @@ module pcep-types {
 		reference "https://tools.ietf.org/html/rfc5557#section-5.5";
 		container gc {
 			uses object;
-	
+
 			leaf max-hop {
 				type uint8;
 				mandatory true;
 			}
-	
+
 			leaf max-utilization {
 				type uint8 {
 					range 0..100;
@@ -948,7 +948,7 @@ module pcep-types {
 				units percent;
 				mandatory true;
 			}
-	
+
 			leaf min-utilization {
 				type uint8 {
 					range 0..100;
@@ -956,7 +956,7 @@ module pcep-types {
 				units percent;
 				mandatory true;
 			}
-	
+
 			leaf over-booking-factor {
 				type uint8 {
 					range 0..100;
@@ -1070,7 +1070,7 @@ module pcep-types {
 				uses of-object;
 
 				uses gc-object;
-				
+
 				uses exclude-route-object;
 
 				list metric {
@@ -1254,4 +1254,3 @@ module pcep-types {
 		}
 	}
 }
-
