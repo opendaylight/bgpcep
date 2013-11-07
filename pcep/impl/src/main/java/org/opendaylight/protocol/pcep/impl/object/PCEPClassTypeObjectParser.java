@@ -11,17 +11,16 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClasstypeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.ClassTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link ClasstypeObject}
+ * Parser for {@link ClassType}
  */
 public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<ClassTypeBuilder> {
 
@@ -49,8 +48,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 	}
 
 	@Override
-	public ClasstypeObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public ClassType parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -67,7 +65,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		builder.setProcessingRule(header.isProcessingRule());
 
 		final short ct = (short) UnsignedBytes.toInt(bytes[SIZE - 1]);
-		builder.setClassType(new ClassType(ct));
+		builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
 		if (ct < 0 || ct > 8) {
 			throw new PCEPDocumentedException("Invalid class type " + ct, PCEPErrors.INVALID_CT);
@@ -82,11 +80,11 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ClasstypeObject)) {
+		if (!(object instanceof ClassType)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
 		}
 		final byte[] retBytes = new byte[SIZE];
-		retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClasstypeObject) object).getClassType().getValue());
+		retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
 		return retBytes;
 	}
 

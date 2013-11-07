@@ -911,11 +911,13 @@ module pcep-types {
 		description "CLASSTYPE Object";
 		reference "https://tools.ietf.org/html/rfc5455#section-3";
 
-		uses object;
-
-		leaf class-type {
-			type class-type;
-			mandatory true;
+		container class-type {
+			uses object;
+	
+			leaf class-type {
+				type class-type;
+				mandatory true;
+			}
 		}
 	}
 
@@ -1009,9 +1011,7 @@ module pcep-types {
 
 		uses of-object;
 
-		container class-type {
-			uses classtype-object;
-		}
+		uses classtype-object;
 	}
 
 	grouping pcreq-message {
