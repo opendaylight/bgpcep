@@ -11,7 +11,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -45,7 +45,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 
 	@Override
 	public LoadBalancing parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
@@ -56,7 +56,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setMaxLsp((short) UnsignedBytes.toInt(bytes[MAX_LSP_F_OFFSET]));
-		builder.setMinBandwidth(new Float32(ByteArray.subByte(bytes, MIN_BAND_F_OFFSET, MIN_BAND_F_LENGTH)));
+		builder.setMinBandwidth(new Bandwidth(ByteArray.subByte(bytes, MIN_BAND_F_OFFSET, MIN_BAND_F_LENGTH)));
 		return builder.build();
 	}
 

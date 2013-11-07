@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OperationalStatus;
@@ -170,7 +171,7 @@ public class PCEPObjectParserTest {
 		builder.setProcessingRule(true);
 		builder.setIgnore(false);
 		builder.setMaxLsp((short) UnsignedBytes.toInt((byte) 0xf1));
-		builder.setMinBandwidth(new Float32(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
+		builder.setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
@@ -264,7 +265,7 @@ public class PCEPObjectParserTest {
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder().setIpPrefix(
 						new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).setProtectionAvailable(false).setProtectionInUse(
-				false).build());
+								false).build());
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder().setRouterId(
 						0x1245678L).setInterfaceId(0x9abcdef0L).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
@@ -283,14 +284,14 @@ public class PCEPObjectParserTest {
 		final BandwidthBuilder builder = new BandwidthBuilder();
 		builder.setProcessingRule(true);
 		builder.setIgnore(true);
-		builder.setBandwidth(new Float32(result));
+		builder.setBandwidth(new Bandwidth(result));
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin");
 
-		builder.setBandwidth(new Float32(result));
+		builder.setBandwidth(new Bandwidth(result));
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
