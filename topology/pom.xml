@@ -20,6 +20,6 @@
         <module>api</module>
         <module>provider-bgp</module>
 		<module>tunnel-api</module>
-        <module>segment-routing</module>
+        <!--module>segment-routing</module-->
     </modules>
 </project>
