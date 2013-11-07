@@ -1,8 +1,10 @@
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,5 +20,8 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		// FIXME: migrate to config subsystem
 		final TunnelTopologyExporter tte = new TunnelTopologyExporter(dps, null);
 		tte.addTargetTopology(null);
+
+		final InstructionScheduler scheduler = null;
+		final TunnelProgramming tp = new TunnelProgramming(scheduler, session.getRpcService(NetworkTopologyPcepService.class));
 	}
 }

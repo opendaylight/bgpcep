@@ -7,9 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.FutureListener;
-import io.netty.util.concurrent.Promise;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -81,6 +79,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 
 /**
  *
@@ -91,8 +92,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	}
 
 	private final class SessionListener implements PCEPSessionListener {
-		private final Map<SrpIdNumber, Promise<OperationResult>> waitingRequests = new HashMap<>();
-		private final Map<SrpIdNumber, Promise<OperationResult>> sendingRequests = new HashMap<>();
+		private final Map<SrpIdNumber, SettableFuture<OperationResult>> waitingRequests = new HashMap<>();
+		private final Map<SrpIdNumber, SettableFuture<OperationResult>> sendingRequests = new HashMap<>();
 		private final Map<PlspId, SymbolicPathName> lsps = new HashMap<>();
 		private PathComputationClientBuilder pccBuilder;
 		private InstanceIdentifier<Node1> topologyAugment;
@@ -205,16 +206,16 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 
 			// Clear all requests which have not been sent to the peer: they result in cancellation
-			for (final Entry<SrpIdNumber, Promise<OperationResult>> e : this.sendingRequests.entrySet()) {
+			for (final Entry<SrpIdNumber, SettableFuture<OperationResult>> e : this.sendingRequests.entrySet()) {
 				LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
-				e.getValue().setSuccess(OPERATION_UNSENT);
+				e.getValue().set(OPERATION_UNSENT);
 			}
 			this.sendingRequests.clear();
 
 			// CLear all requests which have not been acked by the peer: they result in failure
-			for (final Entry<SrpIdNumber, Promise<OperationResult>> e : this.waitingRequests.entrySet()) {
+			for (final Entry<SrpIdNumber, SettableFuture<OperationResult>> e : this.waitingRequests.entrySet()) {
 				LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
-				e.getValue().setSuccess(OPERATION_NOACK);
+				e.getValue().set(OPERATION_NOACK);
 			}
 			this.waitingRequests.clear();
 		}
@@ -265,10 +266,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						case Active:
 						case Down:
 						case Up:
-							final Promise<OperationResult> p = this.waitingRequests.remove(id);
+							final SettableFuture<OperationResult> p = this.waitingRequests.remove(id);
 							if (p != null) {
 								LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
-								p.setSuccess(OPERATION_SUCCESS);
+								p.set(OPERATION_SUCCESS);
 							} else {
 								LOG.warn("Request ID {} not found in outstanding DB", id);
 							}
@@ -327,19 +328,19 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private synchronized void messageSendingComplete(final SrpIdNumber requestId, final io.netty.util.concurrent.Future<Void> future) {
-			final Promise<OperationResult> promise = this.sendingRequests.remove(requestId);
+			final SettableFuture<OperationResult> promise = this.sendingRequests.remove(requestId);
 
 			if (future.isSuccess()) {
 				this.waitingRequests.put(requestId, promise);
 			} else {
 				LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-				promise.setSuccess(OPERATION_UNSENT);
+				promise.set(OPERATION_UNSENT);
 			}
 		}
 
-		private synchronized io.netty.util.concurrent.Future<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId) {
+		private synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId) {
 			final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
-			final Promise<OperationResult> ret = ServerSessionManager.this.exec.newPromise();
+			final SettableFuture<OperationResult> ret = SettableFuture.create();
 
 			this.sendingRequests.put(requestId, ret);
 
@@ -378,13 +379,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private final Map<NodeId, SessionListener> nodes = new HashMap<>();
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
-	private final EventExecutor exec;
 
-	public ServerSessionManager(final EventExecutor exec, final DataProviderService dataProvider,
-			final InstanceIdentifier<Topology> topology) {
+	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.topology = Preconditions.checkNotNull(topology);
-		this.exec = Preconditions.checkNotNull(exec);
 	}
 
 	@Override
@@ -392,12 +390,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		return new SessionListener();
 	}
 
-	synchronized io.netty.util.concurrent.Future<OperationResult> realAddLsp(final AddLspArgs input) {
+	synchronized ListenableFuture<OperationResult> realAddLsp(final AddLspArgs input) {
 		// Get the listener corresponding to the node
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure there is no such LSP
@@ -405,7 +403,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new ReportedLspsKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Build the request
@@ -435,12 +433,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		};
 	}
 
-	synchronized io.netty.util.concurrent.Future<OperationResult> realRemoveLsp(final RemoveLspArgs input) {
+	synchronized ListenableFuture<OperationResult> realRemoveLsp(final RemoveLspArgs input) {
 		// Get the listener corresponding to the node
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure the LSP exists, we need it for PLSP-ID
@@ -449,7 +447,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Build the request and send it
@@ -462,12 +460,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		return l.sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId());
 	}
 
-	synchronized io.netty.util.concurrent.Future<OperationResult> realUpdateLsp(final UpdateLspArgs input) {
+	synchronized ListenableFuture<OperationResult> realUpdateLsp(final UpdateLspArgs input) {
 		// Get the listener corresponding to the node
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure the LSP exists
@@ -476,7 +474,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-			return this.exec.newSucceededFuture(OPERATION_UNSENT);
+			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
 
 		// Build the PCUpd request and send it

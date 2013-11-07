@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import io.netty.util.Timeout;
-import io.netty.util.concurrent.Future;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 
 final class Instruction {
 	private final List<Instruction> dependants = new ArrayList<>();
@@ -44,7 +44,7 @@ final class Instruction {
 		return status;
 	}
 
-	Future<ExecutionResult<Details>> execute() {
+	ListenableFuture<ExecutionResult<Details>> execute() {
 		return executor.execute();
 	}
 

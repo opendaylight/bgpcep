@@ -44,6 +44,11 @@
 			<artifactId>pcep-topology-api</artifactId>
             <version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>pcep-topology-spi</artifactId>
+            <version>${project.version}</version>
+		</dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
