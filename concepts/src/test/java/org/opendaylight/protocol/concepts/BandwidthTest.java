@@ -28,10 +28,10 @@ public class BandwidthTest {
 
 	@Before
 	public void setUp() {
-		this.b1 = new Bandwidth(ByteArray.longToBytes(1000));
-		this.b2 = new Bandwidth(ByteArray.longToBytes(2000));
-		this.b3 = new Bandwidth(ByteArray.longToBytes(2000));
-		this.b4 = new Bandwidth(ByteArray.longToBytes(100));
+		this.b1 = new Bandwidth(ByteArray.intToBytes(1000));
+		this.b2 = new Bandwidth(ByteArray.intToBytes(2000));
+		this.b3 = new Bandwidth(ByteArray.intToBytes(2000));
+		this.b4 = new Bandwidth(ByteArray.intToBytes(100));
 	}
 
 	@Test

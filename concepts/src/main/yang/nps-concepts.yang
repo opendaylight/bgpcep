@@ -43,9 +43,8 @@ module nps-concepts {
 		type uint32;
 	}
 	
-	// FIXME: to double
 	typedef bandwidth {
-		type ieee754:float64;
+		type ieee754:float32;
 	}
 
 	typedef metric {
@@ -53,3 +52,4 @@ module nps-concepts {
 		type uint32;
 	}
 }
+

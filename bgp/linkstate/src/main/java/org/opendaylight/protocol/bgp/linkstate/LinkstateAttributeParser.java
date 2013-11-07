@@ -182,25 +182,19 @@ public class LinkstateAttributeParser implements AttributeParser {
 					logger.debug("Parsed Administrative Group {}", builder.getAdminGroup());
 					break;
 				case 1089:
-					final byte[] b = new byte[8];
-					System.arraycopy(value, 0, b, 8 - value.length, value.length);
-					builder.setMaxLinkBandwidth(new Bandwidth(b));
+					builder.setMaxLinkBandwidth(new Bandwidth(value));
 					logger.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
 					break;
 				case 1090:
-					final byte[] mrb = new byte[8];
-					System.arraycopy(value, 0, mrb, 8 - value.length, value.length);
-					builder.setMaxReservableBandwidth(new Bandwidth(mrb));
+					builder.setMaxReservableBandwidth(new Bandwidth(value));
 					logger.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
 					break;
 				case 1091:
 					int index = 0;
 					final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.link.state.UnreservedBandwidth> unreservedBandwidth = Lists.newArrayList();
 					for (int i = 0; i < 8; i++) {
-						final byte[] dest = new byte[8];
 						final byte[] v = ByteArray.subByte(value, index, 4);
-						System.arraycopy(v, 0, dest, 8 - v.length, v.length);
-						unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(dest)).setPriority((short) i).build());
+						unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(v)).setPriority((short) i).build());
 						index += 4;
 					}
 					builder.setUnreservedBandwidth(unreservedBandwidth);
