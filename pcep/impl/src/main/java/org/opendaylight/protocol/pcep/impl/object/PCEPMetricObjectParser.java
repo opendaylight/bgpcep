@@ -14,17 +14,16 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.MetricObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.MetricBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link MetricObject}
+ * Parser for {@link Metric}
  */
 public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricBuilder> {
 
@@ -59,8 +58,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 	}
 
 	@Override
-	public MetricObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Metric parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -86,13 +84,13 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof MetricObject)) {
+		if (!(object instanceof Metric)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed MetricObject.");
 		}
-		final MetricObject mObj = (MetricObject) object;
+		final Metric mObj = (Metric) object;
 		final byte[] retBytes = new byte[SIZE];
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(C_FLAG_OFFSET, ((Metric) mObj).isComputed());
+		flags.set(C_FLAG_OFFSET, mObj.isComputed());
 		flags.set(B_FLAG_OFFSET, mObj.isBound());
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 		retBytes[TYPE_F_OFFSET] = UnsignedBytes.checkedCast(mObj.getMetricType());

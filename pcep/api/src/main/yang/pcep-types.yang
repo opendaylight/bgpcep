@@ -546,26 +546,27 @@ module pcep-types {
 	grouping metric-object {
 		description "METRIC Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.8";
-
-		uses object;
-
-		leaf metric-type {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf bound {
-			type boolean;
-			default false;
-		}
-
-		leaf computed {
-			type boolean;
-			default false;
-		}
-
-		leaf value {
-			type ieee754:float32;
+		container metric {
+			uses object;
+	
+			leaf metric-type {
+				type uint8;
+				mandatory true;
+			}
+	
+			leaf bound {
+				type boolean;
+				default false;
+			}
+	
+			leaf computed {
+				type boolean;
+				default false;
+			}
+	
+			leaf value {
+				type ieee754:float32;
+			}
 		}
 	}
 
