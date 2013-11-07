@@ -651,24 +651,26 @@ module pcep-types {
 		description "LSPA Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.11";
 
-		uses object;
-
-		leaf hold-priority {
-			type uint8;
-			mandatory true;
+		container lspa {
+			uses object;
+	
+			leaf hold-priority {
+				type uint8;
+				mandatory true;
+			}
+	
+			leaf setup-priority {
+				type uint8;
+				mandatory true;
+			}
+	
+			leaf local-protection-desired {
+				type boolean;
+				default false;
+			}
+	
+			uses rsvp:attribute-filters;
 		}
-
-		leaf setup-priority {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf local-protection-desired {
-			type boolean;
-			default false;
-		}
-
-		uses rsvp:attribute-filters;
 	}
 
 	grouping svec-object {
@@ -987,9 +989,7 @@ module pcep-types {
 	}
 
 	grouping lsp-attributes {
-		container lspa {
-			uses lspa-object;
-		}
+		uses lspa-object;
 
 		container bandwidth {
 			uses bandwidth-object;
