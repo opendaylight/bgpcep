@@ -1019,9 +1019,9 @@ module pcep-types {
 
 		uses include-route-object;
 
-		uses of-object;
+		//uses of-object;
 
-		uses classtype-object;
+		//uses classtype-object;
 	}
 
 	grouping pcreq-message {
