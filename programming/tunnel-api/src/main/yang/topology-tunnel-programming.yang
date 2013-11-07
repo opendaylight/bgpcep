@@ -27,30 +27,58 @@ module topology-tunnel-programming {
 		reference "";
 	}
 
-	grouping create-tunnel-input {
+	grouping base-tunnel-input {
 		uses tp:topology-instruction-input;
 
 		leaf link-id {
 			type nt:link-id;
 			mandatory true;
 		}
+	}
+
+	grouping base-tunnel-output {
+		uses tp:topology-instruction-output;
+	}
+
+	grouping create-tunnel-input {
+		uses base-tunnel-input;
 	}
 
 	grouping create-tunnel-output {
-		uses tp:topology-instruction-output;
+		uses base-tunnel-output;
 	}
 
 	grouping destroy-tunnel-input {
-		uses tp:topology-instruction-input;
+		uses base-tunnel-input;
+	}
 
-		leaf link-id {
-			type nt:link-id;
+	grouping destroy-tunnel-output {
+		uses base-tunnel-output;
+	}
+
+	grouping p2p-tunnel-input {
+		uses base-tunnel-input;
+
+		leaf source-tp {
+			type nt:tp-ref;
+			mandatory true;
+		}
+		leaf destination-tp {
+			type nt:tp-ref;
 			mandatory true;
 		}
 	}
 
-	grouping destroy-tunnel-output {
-		uses tp:topology-instruction-output;
+	grouping p2p-tunnel-output {
+		uses base-tunnel-output;
+	}
+
+	grouping create-p2p-tunnel-input {
+		uses p2p-tunnel-input;
+	}
+
+	grouping create-p2p-tunnel-output {
+		uses p2p-tunnel-output;
 	}
 }
 

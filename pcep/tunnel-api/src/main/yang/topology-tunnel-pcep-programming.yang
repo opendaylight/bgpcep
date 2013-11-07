@@ -3,11 +3,9 @@ module topology-tunnel-pcep-programming {
         namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:programming";
         prefix "ttpp";
 
-        import network-topology { prefix nt; revision-date 2013-10-21; }
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
-        import programming { prefix pgm; revision-date 2013-09-30; }
-        import topology-tunnel { prefix tt; revision-date 2013-08-19; }
         import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
+	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
 
         organization "Cisco Systems, Inc.";
         contact "Robert Varga <rovarga@cisco.com>";
@@ -29,35 +27,14 @@ module topology-tunnel-pcep-programming {
                 reference "";
         }
 
-	rpc pcep-create-tunnel {
+	rpc pcep-create-p2p-tunnel {
 		input {
-			uses ttp:create-tunnel-input;
+			uses ttp:create-p2p-tunnel-input;
 
-			leaf symbolic-path-name {
-				type pcep:symbolic-path-name;
-				mandatory true;
-			}
-
-			container endpoints {
-				uses pcep:endpoints;
-			}
-
-			leaf signaling-type {
-				// FIXME: dedicated type in PCEP
-				type uint8;
-				default 0;
-			}
-
-			leaf administrative {
-				type boolean;
-				default true;
-			}
-
-			// FIXME: ERO
-			// FIXME: attribute-list
+			uses p2p:tunnel-p2p-path-cfg-attributes;
 		}
 		output {
-			uses ttp:create-tunnel-output;
+			uses ttp:create-p2p-tunnel-output;
 		}
 	}
 
@@ -72,22 +49,13 @@ module topology-tunnel-pcep-programming {
 
 	rpc pcep-update-tunnel {
 		input {
-			container update-tunnel {
-                                leaf topology-id {
-                                        type nt:topology-id;
-                                        mandatory true;
-                                }
-                                leaf link-id {
-                                        type nt:link-id;
-                                        mandatory true;
-                                }
+			uses ttp:base-tunnel-input;
 
-				// FIXME: all that PCUpd jazz
-			}
+			uses p2p:tunnel-p2p-path-cfg-attributes;
 		}
 
 		output {
-			uses pgm:submit-instruction-output;
+			uses ttp:base-tunnel-output;
 		}
 	}
 }
