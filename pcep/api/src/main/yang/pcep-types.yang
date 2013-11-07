@@ -753,17 +753,19 @@ module pcep-types {
 	grouping load-balancing-object {
 		description "LOAD-BALANCING Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.16";
-
-		// No possibility of TLVs
-		uses object;
-
-		leaf max-lsp {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf min-bandwidth {
-			type ieee754:float32;
+		
+		container load-balancing {
+			// No possibility of TLVs
+			uses object;
+	
+			leaf max-lsp {
+				type uint8;
+				mandatory true;
+			}
+	
+			leaf min-bandwidth {
+				type ieee754:float32;
+			}
 		}
 	}
 
@@ -1046,9 +1048,7 @@ module pcep-types {
 							uses bandwidth-object;
 						}
 
-						container load-balancing {
-							uses load-balancing-object;
-						}
+						uses load-balancing-object;
 
 						uses lsp-attributes;
 

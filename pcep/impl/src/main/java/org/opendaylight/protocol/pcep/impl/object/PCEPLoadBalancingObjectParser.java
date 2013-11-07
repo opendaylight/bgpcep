@@ -12,16 +12,16 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.LoadBalancingObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.LoadBalancingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancingBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link LoadBalancingObject}
+ * Parser for {@link LoadBalancing}
  */
 public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<LoadBalancingBuilder> {
 
@@ -44,7 +44,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 	}
 
 	@Override
-	public LoadBalancingObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
+	public LoadBalancing parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
 			PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
@@ -67,11 +67,11 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof LoadBalancingObject)) {
+		if (!(object instanceof LoadBalancing)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed LoadBalancingObject.");
 		}
-		final LoadBalancingObject specObj = (LoadBalancingObject) object;
+		final LoadBalancing specObj = (LoadBalancing) object;
 		final byte[] retBytes = new byte[SIZE];
 		retBytes[MAX_LSP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxLsp());
 		ByteArray.copyWhole(specObj.getMinBandwidth().getValue(), retBytes, MIN_BAND_F_OFFSET);
