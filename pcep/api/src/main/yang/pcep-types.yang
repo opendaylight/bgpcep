@@ -107,7 +107,7 @@ module pcep-types {
 	grouping no-path-vector-tlv {
 		description "NO-PATH-VECTOR TLV";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
-
+		
 		uses tlv;
 		leaf flags {
 			type bits {
@@ -636,16 +636,18 @@ module pcep-types {
 	grouping reported-route-object {
 		description "Reported Route Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.10";
-
-		// No possibility of TLVs
-		uses object;
-
-		list subobjects {
-			uses rsvp:record-route-subobjects {
-				augment "subobject-type" {
-					case path-key {
-						container path-key {
-							uses path-key-subobject;
+		
+		container rro {
+			// No possibility of TLVs
+			uses object;
+	
+			list subobjects {
+				uses rsvp:record-route-subobjects {
+					augment "subobject-type" {
+						case path-key {
+							container path-key {
+								uses path-key-subobject;
+							}
 						}
 					}
 				}
@@ -682,28 +684,30 @@ module pcep-types {
 	grouping svec-object {
 		description "Synchronization Vector Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.13";
-
-		// No possibility of TLVs
-		uses object;
-
-		leaf link-diverse {
-			type boolean;
-			default false;
-		}
-
-		leaf node-diverse {
-			type boolean;
-			default false;
-		}
-
-		leaf srlg-diverse {
-			type boolean;
-			default false;
-		}
-
-		leaf-list requests-ids {
-			type request-id;
-		}
+		
+		container svec {
+			// No possibility of TLVs
+			uses object;
+	
+			leaf link-diverse {
+				type boolean;
+				default false;
+			}
+	
+			leaf node-diverse {
+				type boolean;
+				default false;
+			}
+	
+			leaf srlg-diverse {
+				type boolean;
+				default false;
+			}
+	
+			leaf-list requests-ids {
+				type request-id;
+			}
+		}	
 	}
 
 	grouping notification-object {

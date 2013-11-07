@@ -90,8 +90,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcreqMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcupdMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SvecObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
@@ -117,11 +115,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.no.path.tlvs.NoPathVector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefix;
@@ -189,7 +189,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Unnumbered.class,
 				new RROUnnumberedInterfaceSubobjectParser());
 		context.registerRROSubobjectSerializer(
-				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.subobjects.subobject.type.PathKey.class,
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobjects.subobject.type.PathKey.class,
 				new RROPathKeySubobjectParser());
 
 		final XROSubobjectHandlerRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
@@ -281,10 +281,10 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerObjectSerializer(Bandwidth.class, new PCEPBandwidthObjectParser(tlvReg));
 		context.registerObjectSerializer(Metric.class, new PCEPMetricObjectParser(tlvReg));
 		context.registerObjectSerializer(Ero.class, new PCEPExplicitRouteObjectParser(eroSubReg));
-		context.registerObjectSerializer(ReportedRouteObject.class, new PCEPReportedRouteObjectParser(rroSubReg));
+		context.registerObjectSerializer(Rro.class, new PCEPReportedRouteObjectParser(rroSubReg));
 		context.registerObjectSerializer(Lspa.class, new PCEPLspaObjectParser(tlvReg));
 		context.registerObjectSerializer(Iro.class, new PCEPIncludeRouteObjectParser(eroSubReg));
-		context.registerObjectSerializer(SvecObject.class, new PCEPSvecObjectParser(tlvReg));
+		context.registerObjectSerializer(Svec.class, new PCEPSvecObjectParser(tlvReg));
 		context.registerObjectSerializer(CNotification.class, new PCEPNotificationObjectParser(tlvReg));
 		context.registerObjectSerializer(ErrorObject.class, new PCEPErrorObjectParser(tlvReg));
 		context.registerObjectSerializer(LoadBalancing.class, new PCEPLoadBalancingObjectParser(tlvReg));

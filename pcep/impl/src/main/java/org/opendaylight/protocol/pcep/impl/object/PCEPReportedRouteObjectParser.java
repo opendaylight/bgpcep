@@ -12,11 +12,11 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ReportedRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.RroBuilder;
 
 /**
- * Parser for {@link ReportedRouteObject}
+ * Parser for {@link Rro}
  */
 public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsParser {
 
@@ -29,12 +29,11 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 	}
 
 	@Override
-	public ReportedRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Rro parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
-		final ReportedRouteBuilder builder = new ReportedRouteBuilder();
+		final RroBuilder builder = new RroBuilder();
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
@@ -44,12 +43,12 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ReportedRouteObject)) {
+		if (!(object instanceof Rro)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed ReportedRouteObject.");
 		}
 
-		final ReportedRouteObject obj = (ReportedRouteObject) object;
+		final Rro obj = (Rro) object;
 		assert !(obj.getSubobjects().isEmpty()) : "Empty Reported Route Object.";
 		return serializeSubobject(obj.getSubobjects());
 	}

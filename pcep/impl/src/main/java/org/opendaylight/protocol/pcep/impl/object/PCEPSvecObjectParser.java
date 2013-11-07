@@ -17,14 +17,14 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SvecObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
 
 import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link SvecObject}
+ * Parser for {@link Svec}
  */
 public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuilder> {
 
@@ -61,7 +61,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 	}
 
 	@Override
-	public SvecObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Svec parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -97,11 +97,11 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof SvecObject)) {
+		if (!(object instanceof Svec)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SvecObject.");
 		}
 
-		final SvecObject svecObj = (SvecObject) object;
+		final Svec svecObj = (Svec) object;
 		final byte[] retBytes = new byte[svecObj.getRequestsIds().size() * REQ_LIST_ITEM_LENGTH + REQ_ID_LIST_OFFSET];
 		final List<RequestId> requestIDs = svecObj.getRequestsIds();
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
