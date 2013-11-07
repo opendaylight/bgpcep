@@ -14,12 +14,12 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.OfBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.OfBuilder;
 
 /**
- * Parser for {@link OfObject}
+ * Parser for {@link Of}
  */
 public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsParser<OfBuilder> {
 
@@ -42,7 +42,7 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 	}
 
 	@Override
-	public OfObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Of parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -60,11 +60,11 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof OfObject)) {
+		if (!(object instanceof Of)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed PCEPObjectiveFunction.");
 		}
-		final OfObject specObj = (OfObject) object;
+		final Of specObj = (Of) object;
 		final byte[] retBytes = new byte[TLVS_OFFSET + 0];
 		ByteArray.copyWhole(ByteArray.shortToBytes(specObj.getCode().getValue().shortValue()), retBytes, OF_CODE_F_OFFSET);
 		return retBytes;

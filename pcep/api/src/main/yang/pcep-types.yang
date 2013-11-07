@@ -891,12 +891,13 @@ module pcep-types {
 	grouping of-object {
 		description "OF Object";
 		reference "https://tools.ietf.org/html/rfc5541#section-3.1";
-
-		uses object;
-
-		leaf code {
-			type of-id;
-			mandatory true;
+		container of {
+			uses object;
+	
+			leaf code {
+				type of-id;
+				mandatory true;
+			}
 		}
 	}
 
@@ -1006,9 +1007,7 @@ module pcep-types {
 
 		uses include-route-object;
 
-		container of {
-			uses of-object;
-		}
+		uses of-object;
 
 		container class-type {
 			uses classtype-object;
@@ -1062,9 +1061,8 @@ module pcep-types {
 			list svec {
 				uses svec-object;
 
-				container of {
-					uses of-object;
-				}
+				uses of-object;
+
 				container gc {
 					uses gc-object;
 				}
