@@ -27,13 +27,17 @@ module topology-tunnel-programming {
 		reference "";
 	}
 
-	grouping create-tunnel-input {
+	grouping base-tunnel-input {
 		uses tp:topology-instruction-input;
 
 		leaf link-id {
 			type nt:link-id;
 			mandatory true;
 		}
+	}
+
+	grouping create-tunnel-input {
+		uses base-tunnel-input;
 	}
 
 	grouping create-tunnel-output {
@@ -41,12 +45,7 @@ module topology-tunnel-programming {
 	}
 
 	grouping destroy-tunnel-input {
-		uses tp:topology-instruction-input;
-
-		leaf link-id {
-			type nt:link-id;
-			mandatory true;
-		}
+		uses base-tunnel-input;
 	}
 
 	grouping destroy-tunnel-output {

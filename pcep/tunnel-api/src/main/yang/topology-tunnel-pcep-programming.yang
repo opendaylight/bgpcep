@@ -32,29 +32,6 @@ module topology-tunnel-pcep-programming {
 	rpc pcep-create-tunnel {
 		input {
 			uses ttp:create-tunnel-input;
-
-			leaf symbolic-path-name {
-				type pcep:symbolic-path-name;
-				mandatory true;
-			}
-
-			container endpoints {
-				uses pcep:endpoints;
-			}
-
-			leaf signaling-type {
-				// FIXME: dedicated type in PCEP
-				type uint8;
-				default 0;
-			}
-
-			leaf administrative {
-				type boolean;
-				default true;
-			}
-
-			// FIXME: ERO
-			// FIXME: attribute-list
 		}
 		output {
 			uses ttp:create-tunnel-output;
@@ -72,18 +49,7 @@ module topology-tunnel-pcep-programming {
 
 	rpc pcep-update-tunnel {
 		input {
-			container update-tunnel {
-                                leaf topology-id {
-                                        type nt:topology-id;
-                                        mandatory true;
-                                }
-                                leaf link-id {
-                                        type nt:link-id;
-                                        mandatory true;
-                                }
-
-				// FIXME: all that PCUpd jazz
-			}
+			uses ttp:base-tunnel-input;
 		}
 
 		output {
