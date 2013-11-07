@@ -30,7 +30,9 @@ import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule
 {
 
-    public RIBImplModule(org.opendaylight.controller.config.api.ModuleIdentifier name, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+	public static final long RECONNECT_FOREVER = -1L;
+    
+	public RIBImplModule(org.opendaylight.controller.config.api.ModuleIdentifier name, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(name, dependencyResolver);
     }
 
@@ -51,9 +53,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
 		try {
-			final long reconnects = getReconnectAttempts();
-			ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer,
-					new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, getConnectionTimeout(), 5000, 1.0, null, reconnects, null));
+			final Long reconnects = getReconnectAttempts() == RECONNECT_FOREVER ? null : getReconnectAttempts();
+
+			ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer, new TimedReconnectStrategy(
+					GlobalEventExecutor.INSTANCE, getConnectionTimeout(), getConnectionTimeout(), 1.0, null,
+					reconnects, null));
 			return new RibImpl(reg, rib);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to register with BGP", e);
@@ -76,7 +80,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
 		@Override
 		public InitialListenerEvents<RIBEventListener, RIBEvent> registerListener(RIBEventListener ribEventListener) {
-		    return innerRib.registerListener(ribEventListener);
+			return innerRib.registerListener(ribEventListener);
 		}
 	}
 }

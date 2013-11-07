@@ -184,15 +184,21 @@ module bgp-rib-impl {
             leaf connection-timeout {
                  mandatory true;
                  type int32;
+
+                 description
+                              "Time to wait for every connection attempt to be successful";
             }
 
             leaf reconnect-attempts {
                  mandatory true;
                  type int64;
+
+                 description
+                             "Number of reconnect attempts before (Too many reconnects) exception is thrown.
+                             To perform unlimited number of attempts provide -1 for this attribute";
             }
         }
     }
-
 
 }
 
