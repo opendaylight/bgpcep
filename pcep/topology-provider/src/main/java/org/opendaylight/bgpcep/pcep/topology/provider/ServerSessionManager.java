@@ -337,10 +337,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 		}
 
-		private synchronized io.netty.util.concurrent.Future<OperationResult> sendMessage(final Message message,
-				final SrpIdNumber requestId) {
+		private synchronized io.netty.util.concurrent.Future<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId) {
 			final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
-			final Promise<OperationResult> ret = exec.newPromise();
+			final Promise<OperationResult> ret = ServerSessionManager.this.exec.newPromise();
 
 			this.sendingRequests.put(requestId, ret);
 
@@ -381,9 +380,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private final DataProviderService dataProvider;
 	private final EventExecutor exec;
 
-	public ServerSessionManager(
-			final EventExecutor exec,
-			final DataProviderService dataProvider,
+	public ServerSessionManager(final EventExecutor exec, final DataProviderService dataProvider,
 			final InstanceIdentifier<Topology> topology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.topology = Preconditions.checkNotNull(topology);
@@ -400,7 +397,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure there is no such LSP
@@ -408,16 +405,14 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new ReportedLspsKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Build the request
-		final RequestsBuilder rb = new RequestsBuilder((EndpointsObject)input.getArguments());
+		final RequestsBuilder rb = new RequestsBuilder((EndpointsObject) input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(
-				new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setTlvs(
-						new TlvsBuilder().setSymbolicPathName(
-								new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
+		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setTlvs(
+				new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(messageHeader);
 		ib.setRequests(ImmutableList.of(rb.build()));
@@ -445,7 +440,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure the LSP exists, we need it for PLSP-ID
@@ -454,7 +449,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Build the request and send it
@@ -472,7 +467,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final SessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
 			LOG.debug("Session for node {} not found", input.getNode());
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Make sure the LSP exists
@@ -481,14 +476,15 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-			return exec.newSucceededFuture(OPERATION_UNSENT);
+			return this.exec.newSucceededFuture(OPERATION_UNSENT);
 		}
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
 		rb.setLsp(new LspBuilder().setPlspId(rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
-		rb.setPath(new PathBuilder(input.getArguments()).build());
+		final PathBuilder pb = new PathBuilder();
+		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(messageHeader);
 		ub.setUpdates(ImmutableList.of(rb.build()));

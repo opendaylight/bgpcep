@@ -47,7 +47,7 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 		builder.setProcessingRule(header.isProcessingRule());
 
 		final List<Subobjects> subs = Lists.newArrayList();
-		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects s : parseSubobjects(bytes)) {
+		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects s : parseSubobjects(bytes)) {
 			subs.add(new SubobjectsBuilder().setSubobjectType(s.getSubobjectType()).build());
 		}
 		builder.setSubobjects(subs);
@@ -63,10 +63,10 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 
 		assert !(iro.getSubobjects().isEmpty()) : "Empty Include Route Object.";
 
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Subobjects> subs = Lists.newArrayList();
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects> subs = Lists.newArrayList();
 
 		for (final Subobjects s : iro.getSubobjects()) {
-			subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.SubobjectsBuilder().setLoose(
+			subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder().setLoose(
 					false).setSubobjectType(s.getSubobjectType()).build());
 		}
 

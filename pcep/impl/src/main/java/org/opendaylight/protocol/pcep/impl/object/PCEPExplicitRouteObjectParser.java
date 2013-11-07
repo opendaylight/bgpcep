@@ -10,13 +10,13 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.definition.ExplicitRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 
 /**
- * Parser for {@link ExplicitRouteObject}
+ * Parser for {@link Ero}
  */
 public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
@@ -29,12 +29,11 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 	}
 
 	@Override
-	public ExplicitRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Ero parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
-		final ExplicitRouteBuilder builder = new ExplicitRouteBuilder();
+		final EroBuilder builder = new EroBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setSubobjects(parseSubobjects(bytes));
@@ -43,11 +42,11 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ExplicitRouteObject)) {
+		if (!(object instanceof Ero)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
 					+ ". Needed ExplicitRouteObject.");
 		}
-		final ExplicitRouteObject ero = ((ExplicitRouteObject) object);
+		final Ero ero = ((Ero) object);
 
 		assert !(ero.getSubobjects().isEmpty()) : "Empty Explicit Route Object.";
 

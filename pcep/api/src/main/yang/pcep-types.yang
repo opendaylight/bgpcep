@@ -592,20 +592,22 @@ module pcep-types {
 		description "Explicit Route Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.9";
 
-		// No possibility of TLVs
-		uses object;
-
-		list subobjects {
-			leaf loose {
-				type boolean;
-				mandatory true;
-			}
-
-			uses rsvp:explicit-route-subobjects {
-				augment "subobject-type" {
-					case path-key {
-						container path-key {
-							uses path-key-subobject;
+		container ero {
+			// No possibility of TLVs
+			uses object;
+	
+			list subobjects {
+				leaf loose {
+					type boolean;
+					mandatory true;
+				}
+	
+				uses rsvp:explicit-route-subobjects {
+					augment "subobject-type" {
+						case path-key {
+							container path-key {
+								uses path-key-subobject;
+							}
 						}
 					}
 				}
@@ -1080,9 +1082,7 @@ module pcep-types {
 	}
 
 	grouping path-definition {
-		container explicit-route {
-			uses explicit-route-object;
-		}
+		uses explicit-route-object;
 
 		uses lsp-attributes;
 	}
@@ -1248,9 +1248,7 @@ module pcep-types {
 
 				uses endpoints-object;
 
-				container ero {
-					uses explicit-route-object;
-				}
+				uses explicit-route-object;
 
 				uses lsp-attributes;
 			}
