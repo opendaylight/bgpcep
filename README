@@ -22,6 +22,12 @@ bgp:
 pcep:
 	PCEP-related artifacts
 
+pcep/pcepy:
+	Python PCEP library
+
+pcep/pcepdump:
+	Python-based PCEP listener and debug tool
+
 
 HOW TO BUILD
 ============
