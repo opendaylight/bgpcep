@@ -803,18 +803,19 @@ module pcep-types {
 	grouping path-key-object {
 		description "PATH-KEY Object";
 		reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
-
-		uses object;
-
-		list path-keys {
-			min-elements 1;
-
-			leaf loose {
-				type boolean;
-				default false;
+		container path-key {
+			uses object;
+	
+			list path-keys {
+				min-elements 1;
+	
+				leaf loose {
+					type boolean;
+					default false;
+				}
+	
+				uses path-key-subobject;
 			}
-
-			uses path-key-subobject;
 		}
 	}
 
@@ -1028,9 +1029,7 @@ module pcep-types {
 
 				container path-key-expansion {
 					when "rp/path-key = true";
-					container path-key {
-						uses path-key-object;
-					}
+					uses path-key-object;
 				}
 
 				container segment-computation {
