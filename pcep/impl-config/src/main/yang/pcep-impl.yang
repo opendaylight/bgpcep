@@ -1,7 +1,7 @@
 // vi: set smarttab et sw=4 tabstop=4:
 module pcep-impl {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:pcep-impl";
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:impl";
     prefix "pcep-impl";
 
     import config { prefix config; revision-date 2013-04-05; }

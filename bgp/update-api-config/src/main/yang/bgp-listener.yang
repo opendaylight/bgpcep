@@ -1,7 +1,7 @@
 // vi: set smarttab et sw=4 tabstop=4:
 module bgp-listener {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:bgp-listener";
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:listener";
     prefix "bgpl";
 
     import config { prefix config; revision-date 2013-04-05; }

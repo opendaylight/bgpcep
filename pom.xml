@@ -134,6 +134,7 @@
                         <configuration>
                             <sources>
                                 <source>target/generated-sources/sal</source>
+                                <source>target/generated-sources/config</source>
                             </sources>
                         </configuration>
                     </execution>

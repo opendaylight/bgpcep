@@ -1,7 +1,7 @@
 // vi: set smarttab et sw=4 tabstop=4:
 module bgp-rib {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:rib";
     prefix "bgprib";
 
     import config { prefix config; revision-date 2013-04-05; }
