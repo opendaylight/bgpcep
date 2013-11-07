@@ -12,17 +12,17 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.IncludeRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.IncludeRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectsBuilder;
 
 import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link IncludeRouteObject}
+ * Parser for {@link Iro}
  */
 public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
@@ -35,13 +35,12 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 	}
 
 	@Override
-	public IncludeRouteObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public Iro parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
 
-		final IncludeRouteBuilder builder = new IncludeRouteBuilder();
+		final IroBuilder builder = new IroBuilder();
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
@@ -56,10 +55,10 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof IncludeRouteObject)) {
+		if (!(object instanceof Iro)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed IncludeRouteObject.");
 		}
-		final IncludeRouteObject iro = ((IncludeRouteObject) object);
+		final Iro iro = ((Iro) object);
 
 		assert !(iro.getSubobjects().isEmpty()) : "Empty Include Route Object.";
 

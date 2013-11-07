@@ -622,11 +622,13 @@ module pcep-types {
 		description "Include Route Object";
 		reference "https://tools.ietf.org/html/rfc5440#section-7.12";
 
-		// No possibility of TLVs
-		uses object;
-
-		list subobjects {
-			uses rsvp:explicit-route-subobjects;
+		container iro {
+			// No possibility of TLVs
+			uses object;
+	
+			list subobjects {
+				uses rsvp:explicit-route-subobjects;
+			}
 		}
 	}
 
@@ -1002,9 +1004,7 @@ module pcep-types {
 
 		uses exclude-route-object;
 
-		container include-route {
-			uses include-route-object;
-		}
+		uses include-route-object;
 
 		container of {
 			uses of-object;
