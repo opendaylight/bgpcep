@@ -10,8 +10,6 @@ package org.opendaylight.bgpcep.programming.impl;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.FutureListener;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;
@@ -58,6 +56,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 
 final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
@@ -374,15 +374,16 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 				Preconditions.checkState(i.getStatus().equals(InstructionStatus.Scheduled));
 
 				transitionInstruction(i, InstructionStatus.Executing, null);
-				final Future<ExecutionResult<Details>> f = i.execute();
-				f.addListener(new FutureListener<ExecutionResult<?>>() {
+				Futures.addCallback(i.execute(), new FutureCallback<ExecutionResult<Details>>() {
+
 					@Override
-					public void operationComplete(final Future<ExecutionResult<?>> future) {
-						if (future.isSuccess()) {
-							executionSuccessful(i, future.getNow());
-						} else {
-							executionFailed(i, future.cause());
-						}
+					public void onSuccess(final ExecutionResult<Details> result) {
+						executionSuccessful(i, result);
+					}
+
+					@Override
+					public void onFailure(final Throwable t) {
+						executionFailed(i, t);
 					}
 				});
 			}

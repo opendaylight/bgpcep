@@ -43,7 +43,7 @@ module topology-tunnel-p2p {
 		}
 	}
 
-	grouping tunnel-p2p-path-attributes {
+	grouping tunnel-p2p-path-cfg-attributes {
 		list explicit-hops {
 			uses tunnel-p2p-path-hops;
 			key order;
@@ -53,8 +53,11 @@ module topology-tunnel-p2p {
 				mandatory true;
 			}
 		}
+	}
 
+	grouping tunnel-p2p-path-oper-attributes {
 		list reported-hops {
+			config false;
 			uses tunnel-p2p-path-hops;
 			key order;
 		}
@@ -62,7 +65,8 @@ module topology-tunnel-p2p {
 
 	augment "/nt:network-topology/nt:topology/tt:paths" {
 		when "../path-types/p2p-tunnel";
-		uses tunnel-p2p-path-attributes;
+		uses tunnel-p2p-path-cfg-attributes;
+		uses tunnel-p2p-path-oper-attributes;
 	}
 }
 
