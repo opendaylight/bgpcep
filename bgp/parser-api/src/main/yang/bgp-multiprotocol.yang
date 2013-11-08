@@ -68,6 +68,42 @@ module bgp-multiprotocol {
 				uses bgp-table-type;
 			}
 		}
+		case c-graceful-restart {
+			container graceful-restart-capability {
+				reference "http://tools.ietf.org/html/rfc4724#section-3";
+
+				leaf restart-flags {
+					type bits {
+						bit restart-state {
+							position 0;
+						}
+					}
+					mandatory true;
+				}
+
+				leaf restart-time {
+					type uint16 {
+						range 0..4095;
+					}
+					units seconds;
+					mandatory true;
+				}
+
+				list tables {
+					uses bgp-table-type;
+					key "afi safi";
+
+					leaf afi-flags {
+						type bits {
+							bit forwarding-state {
+								position 0;
+							}
+						}
+						mandatory true;
+					}
+				}
+			}
+		}
 	}
 
 	augment "/bgp-msg:update/bgp-msg:path-attributes" {
