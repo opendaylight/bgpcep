@@ -662,23 +662,7 @@ module pcep-types {
 
 		container lspa {
 			uses object;
-
-			leaf hold-priority {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf setup-priority {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf local-protection-desired {
-				type boolean;
-				default false;
-			}
-
-			uses rsvp:attribute-filters;
+			uses rsvp:tunnel-attributes;
 		}
 	}
 

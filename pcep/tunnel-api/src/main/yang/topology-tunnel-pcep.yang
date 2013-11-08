@@ -4,8 +4,8 @@ module topology-tunnel-pcep {
 	namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep";
 	prefix "pceptun";
 
-	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 	import network-topology { prefix nt; revision-date 2013-10-21; }
+    import nps-concepts { prefix nps-c; }
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
@@ -34,6 +34,31 @@ module topology-tunnel-pcep {
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 	}
 
+	grouping topology-tunnel-pcep-type {
+		container topology-tunnel-pcep {
+			presence "indicates a PCEP tunnel-aware topology";
+		}
+	}
+
+	augment "/nt:network-topology/nt:topology/nt:topology-types" {
+		uses topology-tunnel-pcep-type;
+	}
+
+    grouping tunnel-pcep-supporting-node-attributes {
+        container path-computation-client {
+            leaf controlling {
+                type boolean;
+                default false;
+            }
+        }
+    }
+
+	augment "/nt:network-topology/nt:topology/nt:node/nt:supporting-node" {
+        when "../../../nt:topology-types/topology-tunnel-pcep";
+
+        uses tunnel-pcep-supporting-node-attributes;
+    }
+
 	grouping tunnel-pcep-type {
 		container pcep-tunnel {
 			presence "indicates a link is a PCEP tunnel";
@@ -44,14 +69,9 @@ module topology-tunnel-pcep {
 		uses tunnel-pcep-type;
 	}
 
-	grouping tunnel-pcep-link-attributes {
+	grouping tunnel-pcep-link-cfg-attributes {
 		leaf administrative-status {
 			type administrative-status;
-		}
-
-		leaf operational-status {
-			type pcep:operational-status;
-			config false;
 		}
 
 		leaf class-type {
@@ -59,7 +79,20 @@ module topology-tunnel-pcep {
 		}
 
 		leaf bandwidth {
-			type ieee754:float32;
+			type nps-c:bandwidth;
+		}
+
+        leaf symbolic-path-name {
+            type pcep:symbolic-path-name;
+        }
+
+        uses rsvp:tunnel-attributes;
+	}
+
+	grouping tunnel-pcep-link-oper-attributes {
+		leaf operational-status {
+			type pcep:operational-status;
+			config false;
 		}
 	}
 
@@ -76,7 +109,8 @@ module topology-tunnel-pcep {
 
 	augment "/nt:network-topology/nt:topology/nt:link" {
 		when "../../tunnel-types/pcep-tunnel";
-		uses tunnel-pcep-link-attributes;
+		uses tunnel-pcep-link-cfg-attributes;
+		uses tunnel-pcep-link-oper-attributes;
 	}
 
 	augment "/nt:network-topology/nt:topology/tt:paths" {

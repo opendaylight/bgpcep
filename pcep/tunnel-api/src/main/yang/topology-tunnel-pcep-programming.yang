@@ -6,6 +6,7 @@ module topology-tunnel-pcep-programming {
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
         import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
 	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
+	import topology-tunnel-pcep { prefix ptp; }
 
         organization "Cisco Systems, Inc.";
         contact "Robert Varga <rovarga@cisco.com>";
@@ -32,6 +33,7 @@ module topology-tunnel-pcep-programming {
 			uses ttp:create-p2p-tunnel-input;
 
 			uses p2p:tunnel-p2p-path-cfg-attributes;
+			uses ptp:tunnel-pcep-link-cfg-attributes;
 		}
 		output {
 			uses ttp:create-p2p-tunnel-output;
@@ -52,6 +54,7 @@ module topology-tunnel-pcep-programming {
 			uses ttp:base-tunnel-input;
 
 			uses p2p:tunnel-p2p-path-cfg-attributes;
+			uses ptp:tunnel-pcep-link-cfg-attributes;
 		}
 
 		output {

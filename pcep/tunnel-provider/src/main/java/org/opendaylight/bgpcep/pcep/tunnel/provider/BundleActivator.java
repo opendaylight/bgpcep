@@ -22,6 +22,6 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		tte.addTargetTopology(null);
 
 		final InstructionScheduler scheduler = null;
-		final TunnelProgramming tp = new TunnelProgramming(scheduler, session.getRpcService(NetworkTopologyPcepService.class));
+		final TunnelProgramming tp = new TunnelProgramming(scheduler, dps, session.getRpcService(NetworkTopologyPcepService.class));
 	}
 }

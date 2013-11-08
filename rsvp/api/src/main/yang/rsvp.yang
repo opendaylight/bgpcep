@@ -47,6 +47,25 @@ module rsvp {
 		}
 	}
 
+	grouping tunnel-attributes {
+		leaf hold-priority {
+			type uint8;
+			mandatory true;
+		}
+
+		leaf setup-priority {
+			type uint8;
+			mandatory true;
+		}
+
+		leaf local-protection-desired {
+			type boolean;
+			default false;
+		}
+
+		uses attribute-filters;
+	}
+
 	typedef lsp-id {
 		type uint32;
 		reference "https://tools.ietf.org/html/rfc3209#section-4.6.2.1";

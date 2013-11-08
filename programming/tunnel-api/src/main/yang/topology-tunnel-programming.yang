@@ -41,11 +41,16 @@ module topology-tunnel-programming {
 	}
 
 	grouping create-tunnel-input {
-		uses base-tunnel-input;
+		uses tp:topology-instruction-input;
 	}
 
 	grouping create-tunnel-output {
 		uses base-tunnel-output;
+
+		leaf link-id {
+			type nt:link-id;
+			mandatory true;
+		}
 	}
 
 	grouping destroy-tunnel-input {
@@ -56,29 +61,30 @@ module topology-tunnel-programming {
 		uses base-tunnel-output;
 	}
 
-	grouping p2p-tunnel-input {
-		uses base-tunnel-input;
-
-		leaf source-tp {
+	grouping tp-reference {
+		leaf node {
+			type nt:node-ref;
+			mandatory true;
+		}
+		leaf tp {
 			type nt:tp-ref;
 			mandatory true;
 		}
-		leaf destination-tp {
-			type nt:tp-ref;
-			mandatory true;
-		}
-	}
-
-	grouping p2p-tunnel-output {
-		uses base-tunnel-output;
 	}
 
 	grouping create-p2p-tunnel-input {
-		uses p2p-tunnel-input;
+		uses create-tunnel-input;
+
+		container destination {
+			uses tp-reference;
+		}
+		container source {
+			uses tp-reference;
+		}
 	}
 
 	grouping create-p2p-tunnel-output {
-		uses p2p-tunnel-output;
+		uses create-tunnel-output;
 	}
 }
 
