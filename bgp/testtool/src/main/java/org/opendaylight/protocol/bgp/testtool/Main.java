@@ -7,11 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -23,6 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 /**
  * Starter class for testing.
@@ -54,7 +54,8 @@ public class Main {
 	private static final int RECONNECT_MILLIS = 5000;
 
 	Main() throws Exception {
-		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()));
+        this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext
+                .createConsumerContext().getMessageRegistry()), new NioEventLoopGroup(), new NioEventLoopGroup());
 	}
 
 	public static void main(final String[] args) throws Exception {

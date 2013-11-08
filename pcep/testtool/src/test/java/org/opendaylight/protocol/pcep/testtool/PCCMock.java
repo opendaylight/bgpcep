@@ -7,15 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import com.google.common.base.Preconditions;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-
-import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
@@ -34,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 
-import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
 
 public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
@@ -43,6 +42,7 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
 
 	public PCCMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final ProtocolHandlerFactory<?> factory,
 			final DefaultPromise<PCEPSessionImpl> defaultPromise) {
+		super(new NioEventLoopGroup(), new NioEventLoopGroup());
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
 		this.factory = Preconditions.checkNotNull(factory);
 	}

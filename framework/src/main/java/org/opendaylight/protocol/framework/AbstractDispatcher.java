@@ -21,12 +21,11 @@ import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
@@ -38,7 +37,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 		/**
 		 * Initializes channel by specifying the handlers in its pipeline. Handlers are protocol specific, therefore this
 		 * method needs to be implemented in protocol specific Dispatchers.
-		 * 
+		 *
 		 * @param channel whose pipeline should be defined, also to be passed to {@link SessionNegotiatorFactory}
 		 * @param promise to be passed to {@link SessionNegotiatorFactory}
 		 */
@@ -52,18 +51,28 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 	private final EventLoopGroup workerGroup;
 
+
+	/**
+	 * Internally creates new instances of NioEventLoopGroup, might deplete system resources and result in Too many open files exception.
+	 *
+	 * @deprecated use {@link AbstractDispatcher#AbstractDispatcher(io.netty.channel.EventLoopGroup, io.netty.channel.EventLoopGroup)} instead.
+	 */
+	@Deprecated
 	protected AbstractDispatcher() {
-		// FIXME: we should get these as arguments
-		this.bossGroup = new NioEventLoopGroup();
-		this.workerGroup = new NioEventLoopGroup();
+		this(new NioEventLoopGroup(),new NioEventLoopGroup());
+	}
+
+	protected AbstractDispatcher(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+		this.bossGroup = bossGroup;
+		this.workerGroup = workerGroup;
 	}
 
 	/**
 	 * Creates server. Each server needs factories to pass their instances to client sessions.
-	 * 
+	 *
 	 * @param address address to which the server should be bound
 	 * @param initializer instance of PipelineInitializer used to initialize the channel pipeline
-	 * 
+	 *
 	 * @return ChannelFuture representing the binding process
 	 */
 	protected ChannelFuture createServer(final InetSocketAddress address, final PipelineInitializer<S> initializer) {
@@ -89,12 +98,12 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 	/**
 	 * Creates a client.
-	 * 
+	 *
 	 * @param address remote address
 	 * @param connectStrategy Reconnection strategy to be used when initial connection fails
-	 * 
+	 *
 	 * @return Future representing the connection process. Its result represents the combined success of TCP connection
-	 *         as well as session negotiation.
+	 *		 as well as session negotiation.
 	 */
 	protected Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final PipelineInitializer<S> initializer) {
 		final Bootstrap b = new Bootstrap();
@@ -114,13 +123,13 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 	/**
 	 * Creates a client.
-	 * 
+	 *
 	 * @param address remote address
 	 * @param connectStrategyFactory Factory for creating reconnection strategy to be used when initial connection fails
 	 * @param reestablishStrategy Reconnection strategy to be used when the already-established session fails
-	 * 
+	 *
 	 * @return Future representing the reconnection task. It will report completion based on reestablishStrategy, e.g.
-	 *         success if it indicates no further attempts should be made and failure if it reports an error
+	 *		 success if it indicates no further attempts should be made and failure if it reports an error
 	 */
 	protected Future<Void> createReconnectingClient(final InetSocketAddress address, final ReconnectStrategyFactory connectStrategyFactory,
 			final ReconnectStrategy reestablishStrategy, final PipelineInitializer<S> initializer) {

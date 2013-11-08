@@ -7,14 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-
-import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -22,6 +20,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
+
+import java.net.InetSocketAddress;
 
 /**
  * Implementation of BGPDispatcher.
@@ -31,8 +31,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
 	private final BGPHandlerFactory hf;
 
-	public BGPDispatcherImpl(final BGPMessageFactory parser) {
-		super();
+	public BGPDispatcherImpl(final BGPMessageFactory parser, EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+		super(bossGroup, workerGroup);
 		this.hf = new BGPHandlerFactory(parser);
 	}
 

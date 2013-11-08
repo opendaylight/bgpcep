@@ -7,13 +7,11 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.GlobalEventExecutor;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -29,7 +27,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
 
 public final class BundleActivator extends AbstractBindingAwareProvider {
 	private static final Logger LOG = LoggerFactory.getLogger(BundleActivator.class);
@@ -42,7 +41,10 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		final InetSocketAddress address = new InetSocketAddress("0.0.0.0", 4189);
 		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(30, 10, true, true, true, true, 0);
 		final Open prefs = spf.getSessionProposal(address, 0);
-		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl
+				.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(
+				new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
+
 		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder().node(Topology.class).toInstance();
 
 		final PCEPTopologyProvider exp = new PCEPTopologyProvider(dispatcher, GlobalEventExecutor.INSTANCE, null, dps, topology);
