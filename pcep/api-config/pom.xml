@@ -18,7 +18,7 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>0.2.1-SNAPSHOT</version>
+         <version>${controller.config.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
@@ -60,7 +60,7 @@
                <dependency>
                   <groupId>org.opendaylight.controller</groupId>
                   <artifactId>yang-jmx-generator-plugin</artifactId>
-                  <version>0.2.1-SNAPSHOT</version>
+                  <version>${controller.config.version}</version>
                </dependency>
             </dependencies>
          </plugin>
