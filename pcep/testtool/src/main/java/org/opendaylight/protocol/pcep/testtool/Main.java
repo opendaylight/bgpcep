@@ -7,11 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
-
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -20,6 +17,9 @@ import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public class Main {
 
@@ -126,7 +126,9 @@ public class Main {
 
 		final Open prefs = spf.getSessionProposal(address, 0);
 
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5));
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl
+				.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(
+				new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}

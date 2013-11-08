@@ -7,14 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.base.Preconditions;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-
-import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -32,7 +31,7 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import com.google.common.base.Preconditions;
+import java.net.InetSocketAddress;
 
 public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
@@ -41,6 +40,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 
 	public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final ProtocolHandlerFactory<?> factory,
 			final DefaultPromise<BGPSessionImpl> defaultPromise) {
+		super(new NioEventLoopGroup(), new NioEventLoopGroup());
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
 		this.factory = Preconditions.checkNotNull(factory);
 	}
