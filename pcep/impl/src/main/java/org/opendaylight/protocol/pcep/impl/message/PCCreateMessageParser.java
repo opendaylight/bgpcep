@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.impl.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
@@ -103,7 +102,7 @@ public class PCCreateMessageParser extends AbstractMessageParser {
 			throw new PCEPDocumentedException("Unknown object", ((UnknownObject) objects.get(0)).getError());
 		}
 		if (!(objects.get(0) instanceof LspaObject)) {
-			throw new PCEPDocumentedException("LSPA Object must be second.", PCEPErrors.LSPA_MISSING);
+			// throw new PCEPDocumentedException("LSPA Object must be second.", PCEPErrors.LSPA_MISSING);
 		}
 		final LspaObject lspa = (LspaObject) objects.get(0);
 		objects.remove(0);

@@ -1,10 +1,12 @@
 package org.opendaylight.protocol.pcep.impl;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
@@ -14,8 +16,13 @@ import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -136,5 +143,14 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 			}
 		}
 		return objs;
+	}
+
+	protected PcerrMessage createErrorMsg(PCEPErrors e) {
+		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
+		return new PcerrBuilder().setPcerrMessage(
+				new PcerrMessageBuilder().setErrors(
+						Arrays.asList(new ErrorsBuilder().setErrorObject(
+								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
+										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 }

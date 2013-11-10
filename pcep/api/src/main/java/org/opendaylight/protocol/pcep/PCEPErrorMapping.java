@@ -45,17 +45,22 @@ public final class PCEPErrorMapping {
 
 		@Override
 		public boolean equals(final java.lang.Object obj) {
-			if (this == obj)
+			if (this == obj) {
 				return true;
-			if (obj == null)
+			}
+			if (obj == null) {
 				return false;
-			if (this.getClass() != obj.getClass())
+			}
+			if (this.getClass() != obj.getClass()) {
 				return false;
+			}
 			final PCEPErrorIdentifier other = (PCEPErrorIdentifier) obj;
-			if (this.type != other.type)
+			if (this.type != other.type) {
 				return false;
-			if (this.value != other.value)
+			}
+			if (this.value != other.value) {
 				return false;
+			}
 			return true;
 		}
 
@@ -104,8 +109,8 @@ public final class PCEPErrorMapping {
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 3), PCEPErrors.END_POINTS_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 8), PCEPErrors.LSP_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 9), PCEPErrors.ERO_MISSING);
-		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 10), PCEPErrors.BANDWIDTH_MISSING);
-		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 11), PCEPErrors.LSPA_MISSING);
+		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 10), PCEPErrors.SRP_MISSING);
+		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 11), PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 12), PCEPErrors.DB_VERSION_TLV_MISSING);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 13), PCEPErrors.LSP_CLEANUP_TLV_MISSING);
@@ -139,12 +144,13 @@ public final class PCEPErrorMapping {
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 1), PCEPErrors.UPDATE_REQ_FOR_NON_LSP);
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 2), PCEPErrors.UPDATE_REQ_FOR_NO_STATEFUL);
 		// TODO: value TBD
-		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.LSP_LIMIT_REACHED);
-		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.DELEGATION_NOT_REVOKED);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.UNKNOWN_PLSP_ID);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.LSP_LIMIT_EXCEEDED);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 1), PCEPErrors.CANNOT_PROCESS_STATE_REPORT);
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 2), PCEPErrors.LSP_DB_VERSION_MISMATCH);
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 3), PCEPErrors.DB_VERSION_TLV_MISSING_WHEN_SYNC_ALLOWED);
+		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 5), PCEPErrors.CANNOT_COMPLETE_STATE_SYNC);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 23, (short) 1), PCEPErrors.USED_SYMBOLIC_PATH_NAME);
 	}
