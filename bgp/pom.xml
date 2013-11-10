@@ -28,6 +28,7 @@
         <module>rib-impl</module>
         <module>testtool</module>
         <module>rib-mock</module>
+        <module>topology-provider</module>
         <module>util</module>
     </modules>
 </project>

@@ -11,6 +11,8 @@ import java.util.EventListener;
 
 import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public interface LocRIBListener extends EventListener {
 	/**
@@ -19,7 +21,9 @@ public interface LocRIBListener extends EventListener {
 	 *              is not shared with any other entity and will be cleaned up by the
 	 *              caller if it is not committed before this method returns.
 	 * @param event Data change event
+	 * @param depth Subscription path depth.
 	 * @throws Exception throw it if you must. If you can handle it, please do so.
 	 */
-	public void onLocRIBChange(DataModification<?, ?> trans, DataChangeEvent<?, ?> event) throws Exception;
+	public void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans,
+			DataChangeEvent<InstanceIdentifier<?>, DataObject> event, int depth) throws Exception;
 }

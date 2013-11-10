@@ -10,8 +10,8 @@ package org.opendaylight.bgpcep.topology.provider.bgp.impl;
 import org.opendaylight.bgpcep.topology.provider.bgp.LocRIBListener;
 import org.opendaylight.bgpcep.topology.provider.bgp.LocRIBListeners;
 import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
-import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -48,15 +48,16 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 		final InstanceIdentifier<Tables> path = InstanceIdentifier.builder(locRIBPath).
 				node(Tables.class, new TablesKey(service.getAfi(), service.getSafi())).toInstance();
 		final LocRIBListener listener = service.getLocRIBListener();
+		final int depth = path.getPath().size();
 
 		final DataChangeListener dcl = new DataChangeListener() {
 
 			@Override
 			public void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-				final DataModification<?, ?> trans = dps.beginTransaction();
+				final DataModificationTransaction trans = dps.beginTransaction();
 
 				try {
-					listener.onLocRIBChange(trans, change);
+					listener.onLocRIBChange(trans, change, depth);
 				} catch (Exception e) {
 					LOG.info("Data change {} was not completely propagated to listener {}", change, listener, e);
 				}

@@ -22,7 +22,7 @@ import org.osgi.framework.ServiceRegistration;
 import com.google.common.base.Preconditions;
 
 public class Activator extends AbstractBindingAwareProvider {
-//	private ServiceRegistration<LocRIBListeners.Subscribtion> ipv4, ipv6, linkstate;
+	private ServiceRegistration<LocRIBListeners.Subscribtion> ipv4, ipv6, linkstate;
 	private BundleContext context;
 
 	@Override
@@ -30,9 +30,12 @@ public class Activator extends AbstractBindingAwareProvider {
 		final LocRIBListenerSubscriptionTracker reg = new LocRIBListenerSubscriptionTracker(context, session.getSALService(DataProviderService.class));
 		reg.open();
 
-//		ipv4 = LocRIBListeners.subscribe(context, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4ReachabilityTopologyBuilder());
-//		ipv6 = LocRIBListeners.subscribe(context, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6ReachabilityTopologyBuilder());
-//		linkstate = LocRIBListeners.subscribe(context, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new LinkstateTopologyBuilder());
+		ipv4 = LocRIBListeners.subscribe(context, Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+				new Ipv4ReachabilityTopologyBuilder(null));
+		ipv6 = LocRIBListeners.subscribe(context, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
+				new Ipv6ReachabilityTopologyBuilder(null));
+//		linkstate = LocRIBListeners.subscribe(context, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+//				new LinkstateTopologyBuilder(null));
 	}
 
 	@Override
