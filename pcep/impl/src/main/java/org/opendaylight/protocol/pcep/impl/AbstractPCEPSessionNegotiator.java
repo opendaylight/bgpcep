@@ -20,10 +20,12 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
@@ -31,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 /**
@@ -49,7 +52,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * action is to terminate negotiation. This timer is restarted between state transitions and runs in all states
 	 * except Idle and Finished.
 	 */
-	private enum State {
+	@VisibleForTesting
+	public enum State {
 		/**
 		 * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal, at which
 		 * point we move into OpenWait state.
@@ -87,6 +91,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	private volatile boolean localOK, openRetry, remoteOK;
 
+	private final Keepalive keepalive = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+
 	protected AbstractPCEPSessionNegotiator(final Timer timer, final Promise<PCEPSessionImpl> promise, final Channel channel) {
 		super(promise, channel);
 		this.timer = Preconditions.checkNotNull(timer);
@@ -103,7 +109,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 * Get the revised session parameters proposal based on the feedback the peer has provided to us.
 	 * 
 	 * @param suggestion Peer-provided suggested session parameters
-	 * @return Session parameters proposal.
+	 * @return Session parameters proposal, or null if peers session parameters preclude us from suggesting anything
 	 */
 	protected abstract Open getRevisedProposal(Open suggestion);
 
@@ -201,7 +207,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		case Idle:
 			throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
 		case KeepWait:
-			if (msg instanceof KeepaliveMessage) {
+			if (msg instanceof Keepalive) {
 				this.localOK = true;
 				if (this.remoteOK) {
 					negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
@@ -213,8 +219,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				}
 
 				return;
-			} else if (msg instanceof PcerrMessage) {
-				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) msg).getPcerrMessage();
+			} else if (msg instanceof Pcerr) {
+				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
 				this.localPrefs = getRevisedProposal(((Session) err.getErrorType()).getOpen());
 				if (this.localPrefs == null) {
 					sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
@@ -222,7 +228,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					this.state = State.Finished;
 					return;
 				}
-
+				this.channel.writeAndFlush(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
 				if (!this.remoteOK) {
 					this.state = State.OpenWait;
 				}
@@ -232,11 +238,11 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 			break;
 		case OpenWait:
-			if (msg instanceof OpenMessage) {
-				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((OpenMessage) msg).getOpenMessage();
+			if (msg instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) {
+				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
 				final Open open = o.getOpen();
 				if (isProposalAcceptable(open)) {
-					this.channel.writeAndFlush(new KeepaliveMessageBuilder().build());
+					this.channel.writeAndFlush(this.keepalive);
 					this.remotePrefs = open;
 					this.remoteOK = true;
 					if (this.localOK) {
@@ -280,5 +286,9 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
 		negotiationFailed(new Exception("Illegal message encountered"));
 		this.state = State.Finished;
+	}
+
+	public synchronized State getState() {
+		return this.state;
 	}
 }

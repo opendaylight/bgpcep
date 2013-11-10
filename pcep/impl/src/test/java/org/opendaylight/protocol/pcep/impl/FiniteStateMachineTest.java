@@ -9,58 +9,106 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.GlobalEventExecutor;
+
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionBuilder;
+import org.opendaylight.yangtools.yang.binding.Notification;
+
+import com.google.common.collect.Lists;
 
 public class FiniteStateMachineTest {
 
-	private ServerSessionMock serverSession;
+	private DefaultPCEPSessionNegotiator serverSession;
 
-	private final SimpleSessionListener serverListener = new SimpleSessionListener();
+	@Mock
+	private Channel clientListener;
 
-	private MockPCE client;
+	@Mock
+	private ChannelPipeline pipeline;
+
+	private final List<Notification> receivedMsgs = Lists.newArrayList();
+
+	private Open openmsg;
+
+	private Keepalive kamsg;
 
 	@Before
 	public void setUp() {
-		this.client = new MockPCE();
-		this.serverSession = new ServerSessionMock(this.serverListener, this.client);
-		this.client.addSession(this.serverSession);
+		MockitoAnnotations.initMocks(this);
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
+				(short) 1).build();
+		this.serverSession = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.clientListener, new SimpleSessionListener(), (short) 1, 20, localPrefs);
+		doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) {
+				final Object[] args = invocation.getArguments();
+				FiniteStateMachineTest.this.receivedMsgs.add((Notification) args[0]);
+				return null;
+			}
+		}).when(this.clientListener).writeAndFlush(any(Notification.class));
+		doReturn("TestingChannel").when(this.clientListener).toString();
+		doReturn(this.pipeline).when(this.clientListener).pipeline();
+		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+		doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
+		this.openmsg = new OpenBuilder().setOpenMessage(
+				new OpenMessageBuilder().setOpen(
+						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
+								(short) 3).build()).build()).build();
+		this.kamsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 	}
 
 	/**
 	 * Both PCEs accept session characteristics. Also tests KeepAliveTimer and error message and when pce attempts to
 	 * establish pce session for the 2nd time.
 	 * 
-	 * @throws InterruptedException
+	 * @throws Exception
 	 */
 	@Test
-	@Ignore
-	public void testSessionCharsAccBoth() throws InterruptedException {
-		// this.serverSession.startSession();
-		assertEquals(1, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(0) instanceof OpenMessage);
-		// this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(3, 9, 2)));
-		assertEquals(2, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(1) instanceof KeepaliveMessage);
-		this.client.sendMessage((Message) new KeepaliveMessageBuilder().build());
-		synchronized (this.serverListener) {
-			while (!this.serverListener.up) {
-				try {
-					this.serverListener.wait();
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		assertTrue(this.serverListener.up);
+	public void testSessionCharsAccBoth() throws Exception {
+		this.serverSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof Open);
+		this.serverSession.handleMessage(this.openmsg);
+		assertEquals(2, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+		this.serverSession.handleMessage(this.kamsg);
+		assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
 		// Thread.sleep(PCEPSessionImpl.KEEP_ALIVE_TIMER_VALUE * 1000);
 		// assertEquals(3, this.client.getListMsg().size());
 		// assertTrue(this.client.getListMsg().get(2) instanceof PCEPKeepAliveMessage); // test of keepalive timer
@@ -78,62 +126,53 @@ public class FiniteStateMachineTest {
 	/**
 	 * Mock PCE does not accept session characteristics the first time.
 	 * 
-	 * @throws InterruptedException
+	 * @throws Exception
 	 */
 	@Test
-	@Ignore
-	public void testSessionCharsAccMe() throws InterruptedException {
-		// this.serverSession.startSession();
-		// this.client.sendMessage(new PCEPOpenMessage(new PCEPOpenObject(4, 9, 2)));
-		assertEquals(2, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(0) instanceof OpenMessage);
-		assertTrue(this.client.getListMsg().get(1) instanceof KeepaliveMessage);
-		// this.client.sendErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, new PCEPOpenObject(3, 7, 2, null));
-		assertEquals(3, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(2) instanceof OpenMessage);
-		this.client.sendMessage((Message) new KeepaliveMessageBuilder().build());
-		synchronized (this.serverListener) {
-			while (!this.serverListener.up) {
-				try {
-					this.serverListener.wait();
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		assertTrue(this.serverListener.up);
+	public void testSessionCharsAccMe() throws Exception {
+		this.serverSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof Open);
+		this.serverSession.handleMessage(this.openmsg);
+		assertEquals(2, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+		this.serverSession.handleMessage(createErrorMessageWOpen(PCEPErrors.NON_ACC_NEG_SESSION_CHAR));
+		assertEquals(3, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(2) instanceof Open);
+		this.serverSession.handleMessage(this.kamsg);
+		assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
+	}
+
+	private Pcerr createErrorMessageWOpen(PCEPErrors e) {
+		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
+		return new PcerrBuilder().setPcerrMessage(
+				new PcerrMessageBuilder().setErrorType(
+						new SessionBuilder().setOpen(
+								new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
+										(short) 1).build()).build()).setErrors(
+						Arrays.asList(new ErrorsBuilder().setErrorObject(
+								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
+										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 
 	/**
 	 * Sending different PCEP Message than Open in session establishment phase.
 	 * 
-	 * @throws InterruptedException
+	 * @throws Exception
 	 */
 	@Test
-	@Ignore
-	public void testErrorOneOne() throws InterruptedException {
-		// this.serverSession.startSession();
-		assertEquals(1, this.client.getListMsg().size());
-		// assertTrue(this.client.getListMsg().get(0) instanceof OpenMessage);
-		// this.client.sendMessage(new PCEPNotificationMessage(new ArrayList<CompositeNotifyObject>() {
-		// private static final long serialVersionUID = 1L;
-		//
-		// {
-		// this.add(new CompositeNotifyObject(new ArrayList<PCEPNotificationObject>() {
-		// private static final long serialVersionUID = 1L;
-		//
-		// {
-		// this.add(new PCEPNotificationObject((short) 1, (short) 1));
-		// }
-		// }));
-		// }
-		// }));
-		// for (final Message m : this.client.getListMsg()) {
-		// if (m instanceof PCEPErrorMessage) {
-		// final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
-		// assertEquals(PCEPErrors.NON_OR_INVALID_OPEN_MSG, obj.getError());
-		// }
-		// }
+	public void testErrorOneOne() throws Exception {
+		this.serverSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof Open);
+		this.serverSession.handleMessage(this.kamsg);
+		for (final Notification m : this.receivedMsgs) {
+			if (m instanceof Pcerr) {
+				final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+				assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+				assertEquals(new Short((short) 1), obj.getErrorObject().getValue());
+			}
+		}
 	}
 
 	/************* Tests commented because of their long duration (tested timers) **************/
@@ -147,8 +186,8 @@ public class FiniteStateMachineTest {
 	@Ignore
 	public void testErrorOneTwo() throws InterruptedException {
 		// this.serverSession.startSession();
-		assertEquals(1, this.client.getListMsg().size());
-		assertTrue(this.client.getListMsg().get(0) instanceof OpenMessage);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof OpenMessage);
 		// Thread.sleep(60 * 1000);
 		// for (final Message m : this.client.getListMsg()) {
 		// if (m instanceof PcerrMessage) {
@@ -182,45 +221,44 @@ public class FiniteStateMachineTest {
 	@Test
 	@Ignore
 	public void testUnknownMessage() throws InterruptedException {
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(1, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(10000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(2, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(10000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(20000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(4, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(30000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(10000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(5000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(4, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(1000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		assertEquals(5, this.serverSession.unknownMessagesTimes.size());
-		Thread.sleep(1000);
-		this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		synchronized (this.client) {
-			while (!this.client.down) {
-				try {
-					this.client.wait();
-				} catch (final InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		assertTrue(this.client.down);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(1, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(10000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(2, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(10000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(20000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(4, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(30000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(10000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(5000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(4, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(1000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// assertEquals(5, this.serverSession.unknownMessagesTimes.size());
+		// Thread.sleep(1000);
+		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		// synchronized (this.client) {
+		// while (!this.client.down) {
+		// try {
+		// this.client.wait();
+		// } catch (final InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// assertTrue(this.client.down);
 	}
 
 	@After
 	public void tearDown() {
-		this.serverSession.close();
 	}
 }
