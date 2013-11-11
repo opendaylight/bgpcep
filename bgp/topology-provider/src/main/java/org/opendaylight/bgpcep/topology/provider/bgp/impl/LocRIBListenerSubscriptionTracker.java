@@ -48,7 +48,6 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 		final InstanceIdentifier<Tables> path = InstanceIdentifier.builder(locRIBPath).
 				node(Tables.class, new TablesKey(service.getAfi(), service.getSafi())).toInstance();
 		final LocRIBListener listener = service.getLocRIBListener();
-		final int depth = path.getPath().size();
 
 		final DataChangeListener dcl = new DataChangeListener() {
 
@@ -57,7 +56,7 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 				final DataModificationTransaction trans = dps.beginTransaction();
 
 				try {
-					listener.onLocRIBChange(trans, change, depth);
+					listener.onLocRIBChange(trans, change);
 				} catch (Exception e) {
 					LOG.info("Data change {} was not completely propagated to listener {}", change, listener, e);
 				}
