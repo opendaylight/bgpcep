@@ -1,0 +1,122 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module pcep-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:impl";
+    prefix "pcep-impl";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import pcep { prefix pcep; revision-date 2013-04-09; }
+    import threadpool { prefix th; revision-date 2013-04-09; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         PCEP implementation.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+        
+        This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-06-27" {
+        description
+            "Updated revision dates for imports.";
+    }
+
+    revision "2013-04-09" {
+        description
+            "Initial revision";
+    }
+
+    identity pcep-dispatcher-impl {
+        base config:module-type;
+        config:provided-service pcep:pcep-dispatcher;
+        config:java-name-prefix PCEPDispatcherImpl;
+    }
+
+	augment "/config:modules/config:module/config:configuration" {
+		case pcep-dispatcher-impl {
+			when "/config:modules/config:module/config:type = 'pcep-dispatcher-impl'";
+
+			leaf max-unknown-messages {
+				type uint16;
+			}
+
+			container pcep-session-proposal-factory {
+				uses config:service-ref {
+					refine type {
+						mandatory true;
+						config:required-identity pcep:pcep-session-proposal-factory;
+					}
+				}
+			}
+			
+			container boss-group {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity th:netty-threadgroup;
+                    }
+                }
+            }
+            
+            container worker-group {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity th:netty-threadgroup;
+                    }
+                }
+            }
+        }
+    }
+
+   	identity pcep-session-proposal-factory-impl {
+        base config:module-type;
+        config:java-name-prefix "PCEPSessionProposalFactoryImpl";
+        config:provided-service pcep:pcep-session-proposal-factory;
+    }
+
+	augment "/config:modules/config:module/config:configuration" {
+		case pcep-session-proposal-factory-impl {
+			when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
+
+
+			leaf dead-timer-value {
+				type uint16;
+			}
+
+			leaf keep-alive-timer-value {
+				type uint16;
+			}
+
+			leaf instantiated {
+				type boolean;
+			}
+
+			leaf timeout {
+				type uint16;
+			}
+
+			leaf stateful {
+				type boolean;
+			}
+
+			leaf active {
+				type boolean;
+			}
+
+			leaf versioned {
+				type boolean;
+			}
+		}
+	}
+
+
+}
+
