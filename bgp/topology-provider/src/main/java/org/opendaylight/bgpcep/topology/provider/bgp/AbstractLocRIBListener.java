@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.Item;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,43 +28,44 @@ import com.google.common.base.Preconditions;
 public abstract class AbstractLocRIBListener<T extends Route> implements LocRIBListener {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractLocRIBListener.class);
 	protected final InstanceIdentifier<Topology> topology;
-	private final Class<T> idClass;
+	private final Item<T> item;
 
 	protected AbstractLocRIBListener(final InstanceIdentifier<Topology> topology, final Class<T> idClass) {
 		this.topology = Preconditions.checkNotNull(topology);
-		this.idClass = Preconditions.checkNotNull(idClass);
+		this.item = new Item<T>(Preconditions.checkNotNull(idClass));
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
 	protected abstract void removeObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
 
-	private InstanceIdentifier<T> changedObject(final InstanceIdentifier<?> id, final int depth) {
+	private InstanceIdentifier<T> changedObject(final InstanceIdentifier<?> id) {
 		final List<PathArgument> p = id.getPath();
-		final int i =  p.indexOf(idClass);
-		Preconditions.checkState(i > -1, "Class %s not found in identifier %s", idClass, id);
-		return new InstanceIdentifier<>(p.subList(depth, i), idClass);
+
+		final int i = p.indexOf(item);
+		Preconditions.checkArgument(i > -1, "Class %s not found in identifier %s", item.getType(), id);
+		return new InstanceIdentifier<>(p.subList(0, i + 1), item.getType());
 	}
 
 	@Override
 	public final void onLocRIBChange(final DataModification<InstanceIdentifier<?>, DataObject> trans,
-			final DataChangeEvent<InstanceIdentifier<?>, DataObject> event, final int depth) {
+			final DataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
 
 		final Set<InstanceIdentifier<T>> ids = new HashSet<>();
 		for (final InstanceIdentifier<?> i : event.getRemovedOperationalData()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i, depth)));
+			ids.add(Preconditions.checkNotNull(changedObject(i)));
 		}
 		for (final InstanceIdentifier<?> i : event.getUpdatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i, depth)));
+			ids.add(Preconditions.checkNotNull(changedObject(i)));
 		}
 		for (final InstanceIdentifier<?> i : event.getCreatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i, depth)));
+			ids.add(Preconditions.checkNotNull(changedObject(i)));
 		}
 
 		final Map<InstanceIdentifier<?>, DataObject> o = event.getOriginalOperationalData();
 		final Map<InstanceIdentifier<?>, DataObject> n = event.getUpdatedOperationalData();
 		for (final InstanceIdentifier<T> i : ids) {
-			final T oldValue = idClass.cast(o.get(i));
-			final T newValue = idClass.cast(n.get(i));
+			final T oldValue = item.getType().cast(o.get(i));
+			final T newValue = item.getType().cast(n.get(i));
 
 			LOG.debug("Updating object {} value {} -> {}", i, oldValue, newValue);
 			if (oldValue != null) {
