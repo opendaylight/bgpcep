@@ -30,5 +30,9 @@
         <module>rib-mock</module>
         <module>topology-provider</module>
         <module>util</module>
-    </modules>
+        <module>rib-api-config</module>
+        <module>update-api-config</module>
+        <module>update-mock-config</module>
+        <module>rib-impl-config</module>
+	</modules>
 </project>

@@ -31,12 +31,12 @@ import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-final class RIBImpl {
+public class RIBImpl {
 	private static final Logger logger = LoggerFactory.getLogger(RIBImpl.class);
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
-	RIBImpl(final DataProviderService dps) {
+	public RIBImpl(final DataProviderService dps) {
 		this.dps = Preconditions.checkNotNull(dps);
 		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, AdjRIBsInFactoryRegistryImpl.INSTANCE);
 	}
