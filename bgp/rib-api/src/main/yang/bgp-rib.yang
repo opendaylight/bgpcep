@@ -45,7 +45,7 @@ module bgp-rib {
 
 			choice routes {
 				case ipv4-routes {
-					list ipv4-routes {
+					list ipv4-route {
 						when "../../afi = ipv4";
 
 						leaf prefix {
@@ -57,7 +57,7 @@ module bgp-rib {
 					}
 				}
 				case ipv6-routes {
-					list ipv6-routes {
+					list ipv6-route {
 						when "../../afi = ipv6";
 
 						leaf prefix {
