@@ -28,12 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4RoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4RoutesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6RoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6RoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6RouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -48,7 +49,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 
 	private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
 
-	private static final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Routes> {
+	private static final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
 		private Ipv4AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 			super(comparator, key);
 		}
@@ -58,7 +59,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4Routes.class);
-			builder.node(Ipv4Routes.class, new Ipv4RoutesKey(key));
+			builder.node(Ipv4Route.class, new Ipv4RouteKey(key));
 
 			return builder.toInstance();
 		}
@@ -71,9 +72,10 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
 			final RIBEntryData data = new RIBEntryData(attributes) {
 				@Override
-				protected Ipv4Routes getDataObject(final Ipv4Prefix key) {
-					// FIXME: we have PathAttributes, how can we copy?
-					return new Ipv4RoutesBuilder().setKey(new Ipv4RoutesKey(key)).setAttributes(null).build();
+				protected Ipv4Route getDataObject(final Ipv4Prefix key) {
+					return new Ipv4RouteBuilder().setKey(
+							new Ipv4RouteKey(key)).setAttributes(
+									new AttributesBuilder(attributes).build()).build();
 				}
 			};
 
@@ -90,7 +92,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 		}
 	}
 
-	private static final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Routes> {
+	private static final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
 		Ipv6AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 			super(comparator, key);
 		}
@@ -100,7 +102,7 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 			final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 			builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv6Routes.class);
-			builder.node(Ipv6Routes.class, new Ipv6RoutesKey(key));
+			builder.node(Ipv6Route.class, new Ipv6RouteKey(key));
 
 			return builder.toInstance();
 		}
@@ -113,9 +115,10 @@ public final class AdjRIBsInFactoryRegistryImpl implements AdjRIBsInFactoryRegis
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
 			final RIBEntryData data = new RIBEntryData(attributes) {
 				@Override
-				protected Ipv6Routes getDataObject(final Ipv6Prefix key) {
-					// FIXME: we have PathAttributes, how can we copy?
-					return new Ipv6RoutesBuilder().setKey(new Ipv6RoutesKey(key)).setAttributes(null).build();
+				protected Ipv6Route getDataObject(final Ipv6Prefix key) {
+					return new Ipv6RouteBuilder().setKey(
+							new Ipv6RouteKey(key)).setAttributes(
+									new AttributesBuilder(attributes).build()).build();
 				}
 			};
 
