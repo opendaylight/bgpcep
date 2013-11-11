@@ -1005,7 +1005,7 @@ module pcep-types {
 
 		//uses of-object;
 
-		//uses classtype-object;
+		uses classtype-object;
 	}
 
 	grouping pcreq-message {
