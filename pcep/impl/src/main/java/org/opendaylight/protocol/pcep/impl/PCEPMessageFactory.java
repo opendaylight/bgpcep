@@ -104,7 +104,9 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 
 		serializer.serializeMessage(msg, buf);
 
-		final byte[] msgBody = buf.array();
+		final byte[] msgBody = new byte[buf.readableBytes()];
+
+		buf.getBytes(0, msgBody);
 
 		final byte[] headerBytes = new byte[COMMON_HEADER_LENGTH];
 
@@ -115,8 +117,8 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 		headerBytes[TYPE_F_OFFSET] = (byte) serializer.getMessageType();
 
 		// msgLength
-		System.arraycopy(ByteArray.intToBytes(msgBody.length), Integer.SIZE / Byte.SIZE - LENGTH_F_LENGTH, headerBytes, LENGTH_F_OFFSET,
-				LENGTH_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(msgBody.length + COMMON_HEADER_LENGTH), Integer.SIZE / Byte.SIZE - LENGTH_F_LENGTH,
+				headerBytes, LENGTH_F_OFFSET, LENGTH_F_LENGTH);
 
 		final byte[] retBytes = new byte[headerBytes.length + msgBody.length];
 

@@ -70,10 +70,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 		// objType_flags multi-field
 		retBytes[OT_FLAGS_MF_OFFSET] = UnsignedBytes.checkedCast(serializer.getObjectType() << (Byte.SIZE - OT_SF_LENGTH));
-		if (object.isProcessingRule()) {
+		if (object.isProcessingRule() != null && object.isProcessingRule()) {
 			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (P_FLAG_OFFSET) - 1;
 		}
-		if (object.isIgnore()) {
+		if (object.isIgnore() != null && object.isIgnore()) {
 			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (I_FLAG_OFFSET) - 1;
 		}
 

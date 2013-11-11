@@ -79,17 +79,16 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.CloseMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcntf;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcinitiateMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcntfMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrepMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcreqMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrptMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcupdMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
@@ -309,16 +308,18 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg));
 		context.registerMessageParser(PCCreateMessageParser.TYPE, new PCCreateMessageParser(objReg));
 
-		context.registerMessageSerializer(OpenMessage.class, new PCEPOpenMessageParser(objReg));
-		context.registerMessageSerializer(PcntfMessage.class, new PCEPNotificationMessageParser(objReg));
-		context.registerMessageSerializer(KeepaliveMessage.class, new PCEPKeepAliveMessageParser(objReg));
-		context.registerMessageSerializer(PcrepMessage.class, new PCEPReplyMessageParser(objReg));
-		context.registerMessageSerializer(PcreqMessage.class, new PCEPRequestMessageParser(objReg));
-		context.registerMessageSerializer(PcerrMessage.class, new PCEPErrorMessageParser(objReg));
-		context.registerMessageSerializer(CloseMessage.class, new PCEPCloseMessageParser(objReg));
-		context.registerMessageSerializer(PcupdMessage.class, new PCEPUpdateRequestMessageParser(objReg));
-		context.registerMessageSerializer(PcrptMessage.class, new PCEPReportMessageParser(objReg));
-		context.registerMessageSerializer(PcinitiateMessage.class, new PCCreateMessageParser(objReg));
+		context.registerMessageSerializer(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open.class,
+				new PCEPOpenMessageParser(objReg));
+		context.registerMessageSerializer(Pcntf.class, new PCEPNotificationMessageParser(objReg));
+		context.registerMessageSerializer(Keepalive.class, new PCEPKeepAliveMessageParser(objReg));
+		context.registerMessageSerializer(Pcrep.class, new PCEPReplyMessageParser(objReg));
+		context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(objReg));
+		context.registerMessageSerializer(Pcerr.class, new PCEPErrorMessageParser(objReg));
+		context.registerMessageSerializer(Close.class, new PCEPCloseMessageParser(objReg));
+		context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg));
+		context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg));
+		context.registerMessageSerializer(Pcinitiate.class, new PCCreateMessageParser(objReg));
 
 		this.registrations = regs;
 	}
