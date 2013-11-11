@@ -143,7 +143,7 @@ public class FiniteStateMachineTest {
 		assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
 	}
 
-	private Pcerr createErrorMessageWOpen(PCEPErrors e) {
+	private Pcerr createErrorMessageWOpen(final PCEPErrors e) {
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrorType(
@@ -175,6 +175,27 @@ public class FiniteStateMachineTest {
 		}
 	}
 
+	/**
+	 * KeepWaitTimer expired.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testErrorOneSeven() throws Exception {
+		this.serverSession.channelActive(null);
+		assertEquals(1, this.receivedMsgs.size());
+		assertTrue(this.receivedMsgs.get(0) instanceof Open);
+		this.serverSession.handleMessage(this.openmsg);
+		Thread.sleep(1000);
+		for (final Notification m : this.receivedMsgs) {
+			if (m instanceof Pcerr) {
+				final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+				assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+				assertEquals(new Short((short) 7), obj.getErrorObject().getValue());
+			}
+		}
+	}
+
 	/************* Tests commented because of their long duration (tested timers) **************/
 
 	/**
@@ -185,37 +206,17 @@ public class FiniteStateMachineTest {
 	@Test
 	@Ignore
 	public void testErrorOneTwo() throws InterruptedException {
-		// this.serverSession.startSession();
+		this.serverSession.channelActive(null);
 		assertEquals(1, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(0) instanceof OpenMessage);
-		// Thread.sleep(60 * 1000);
-		// for (final Message m : this.client.getListMsg()) {
-		// if (m instanceof PcerrMessage) {
-		// final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
-		// assertEquals(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT, obj.getError());
-		// }
-		// }
-	}
-
-	/**
-	 * KeepWaitTimer expired.
-	 * 
-	 * @throws InterruptedException
-	 */
-	@Test
-	@Ignore
-	public void testErrorOneSeven() throws InterruptedException {
-		// // this.serverSession.startSession();
-		// assertEquals(1, this.client.getListMsg().size());
-		// assertTrue(this.client.getListMsg().get(0) instanceof OpenMessage);
-		// this.client.sendMessage(new PCEPOpenMessage(new OpenObject(3, 9, 2)));
-		// Thread.sleep(this.serverSession.getKeepAliveTimerValue() * 1000);
-		// for (final Message m : this.client.getListMsg()) {
-		// if (m instanceof PcerrMessage) {
-		// final PCEPErrorObject obj = ((PCEPErrorMessage) m).getErrorObjects().get(0);
-		// assertEquals(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT, obj.getError());
-		// }
-		// }
+		Thread.sleep(60 * 1000);
+		for (final Notification m : this.receivedMsgs) {
+			if (m instanceof Pcerr) {
+				final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+				assertEquals(new Short((short) 1), obj.getErrorObject().getType());
+				assertEquals(new Short((short) 2), obj.getErrorObject().getValue());
+			}
+		}
 	}
 
 	@Test
