@@ -9,15 +9,11 @@ package org.opendaylight.protocol.pcep;
 
 /**
  * Possible errors listed in RFC5440, RFC 5455 and stateful draft.
- *
- * @see <a href="http://tools.ietf.org/html/rfc5440#section-9.12">PCEP-ERROR
- *      Object(RFC5440)</a>, <a href=
- *      "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-01#section-8.4"
- *      >PCEP-ERROR Object(stateful draft)</a>, <a
- *      href="http://tools.ietf.org/html/rfc5455#section-3.6">Error Codes for
- *      CLASSTYPE Object(RFC5455)</a>, <a href=
- *      "http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-7.1"
- *      >PCEP-Error Object</a>
+ * 
+ * @see <a href="http://tools.ietf.org/html/rfc5440#section-9.12">PCEP-ERROR Object(RFC5440)</a>, <a href=
+ *      "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-8.4" >PCEP-ERROR Object(stateful draft)</a>,
+ *      <a href="http://tools.ietf.org/html/rfc5455#section-3.6">Error Codes for CLASSTYPE Object(RFC5455)</a>, <a href=
+ *      "http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-7.1" >PCEP-Error Object</a>
  */
 public enum PCEPErrors {
 	/**
@@ -37,18 +33,15 @@ public enum PCEPErrors {
 	 */
 	NON_ACC_NEG_SESSION_CHAR,
 	/**
-	 * Reception of a second Open message with still unacceptable session
-	 * characteristics.
+	 * Reception of a second Open message with still unacceptable session characteristics.
 	 */
 	SECOND_OPEN_MSG,
 	/**
-	 * Reception of a PCErr message proposing unacceptable session
-	 * characteristics.
+	 * Reception of a PCErr message proposing unacceptable session characteristics.
 	 */
 	PCERR_NON_ACC_SESSION_CHAR,
 	/**
-	 * No Keepalive or PCErr message received before the expiration of the
-	 * KeepWait timer.
+	 * No Keepalive or PCErr message received before the expiration of the KeepWait timer.
 	 */
 	NO_MSG_BEFORE_EXP_KEEPWAIT,
 	/**
@@ -136,27 +129,23 @@ public enum PCEPErrors {
 	 */
 	LSP_MISSING,
 	/**
-	 * ERO Object missing for a path in an LSP Update Request where TE-LSP setup
-	 * is requested.
+	 * ERO Object missing for a path in an LSP Update Request where TE-LSP setup is requested.
 	 */
 	ERO_MISSING,
 	/**
-	 * BANDWIDTH Object missing for a path in an LSP Update Request where TE-LSP
-	 * setup is requested.
+	 * Srp Object missing for a path in an LSP Update Request where TE-LSP setup is requested.
 	 */
-	BANDWIDTH_MISSING,
+	SRP_MISSING,
 	/**
-	 * LSPA Object missing for a path in an LSP Update Request where TE-LSP
-	 * setup is requested.
+	 * LSP-IDENTIFIERS TLV missing for a path in an LSP Update Request where TE-LSP setup is requested.
 	 */
-	LSPA_MISSING,
+	LSP_IDENTIFIERS_TLV_MISSING,
 	/**
 	 * LSP-DB-VERSION TLV missing.
 	 */
 	DB_VERSION_TLV_MISSING,
 	/**
-	 * Reception of an object with P flag not set although the P flag must be
-	 * set according to this specification.
+	 * Reception of an object with P flag not set although the P flag must be set according to this specification.
 	 */
 	P_FLAG_NOT_SET,
 	/**
@@ -176,8 +165,7 @@ public enum PCEPErrors {
 	 */
 	INVALID_CT,
 	/**
-	 * Diffserv-aware TE error: Class-Type and setup priority do not form a
-	 * configured TE-class.
+	 * Diffserv-aware TE error: Class-Type and setup priority do not form a configured TE-class.
 	 */
 	CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS,
 
@@ -190,23 +178,19 @@ public enum PCEPErrors {
 	 */
 	NOT_CAPPABLE_P2MP_COMPUTATION,
 	/**
-	 * The PCE is not capable to satisfy the request due to no END-POINTS with
-	 * leaf type 2
+	 * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 2
 	 */
 	P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT2,
 	/**
-	 * The PCE is not capable to satisfy the request due to no END-POINTS with
-	 * leaf type 3
+	 * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 3
 	 */
 	P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT3,
 	/**
-	 * The PCE is not capable to satisfy the request due to no END-POINTS with
-	 * leaf type 4
+	 * The PCE is not capable to satisfy the request due to no END-POINTS with leaf type 4
 	 */
 	P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_LT4,
 	/**
-	 * The PCE is not capable to satisfy the request due to inconsistent
-	 * END-POINTS
+	 * The PCE is not capable to satisfy the request due to inconsistent END-POINTS
 	 */
 	P2MP_NOT_CAPPABLE_SATISFY_REQ_DUE_INCONSISTENT_EP,
 	/**
@@ -214,27 +198,26 @@ public enum PCEPErrors {
 	 */
 	P2MP_FRAGMENTATION_FAILRUE,
 	/**
-	 * Attempted LSP Update Request for a non- delegated LSP. The PCEP-ERROR
-	 * Object is followed by the LSP Object that identifies the LSP.
+	 * Attempted LSP Update Request for a non- delegated LSP. The PCEP-ERROR Object is followed by the LSP Object that
+	 * identifies the LSP.
 	 */
 	UPDATE_REQ_FOR_NON_LSP,
 	/**
-	 * Attempted LSP Update Request if active stateful PCE capability was not
-	 * negotiated active PCE.
+	 * Attempted LSP Update Request if active stateful PCE capability was not negotiated active PCE.
 	 */
 	UPDATE_REQ_FOR_NO_STATEFUL,
 	/**
-	 * PCE-initiated LSP limit reached.
+	 * Attempted LSP Update Request for an LSP identified by an unknown PLSP-ID.
 	 */
-	LSP_LIMIT_REACHED,
+	UNKNOWN_PLSP_ID,
 	/**
-	 * Delegation for PCE-initiated LSP cannot be revoked
+	 * A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot
+	 * accept and process its LSP State Report message.
 	 */
-	DELEGATION_NOT_REVOKED,
+	LSP_LIMIT_EXCEEDED,
 	/**
-	 * A PCE indicates to a PCC that it can not process (an otherwise valid) LSP
-	 * State Report. The PCEP-ERROR Object is followed by the LSP Object that
-	 * identifies the LSP.
+	 * A PCE indicates to a PCC that it can not process (an otherwise valid) LSP State Report. The PCEP-ERROR Object is
+	 * followed by the LSP Object that identifies the LSP.
 	 */
 	CANNOT_PROCESS_STATE_REPORT,
 	/**
@@ -242,10 +225,13 @@ public enum PCEPErrors {
 	 */
 	LSP_DB_VERSION_MISMATCH,
 	/**
-	 * The LSP-DB-VERSION TLV Missing when State Synchronization Avoidance
-	 * enabled.
+	 * The LSP-DB-VERSION TLV Missing when State Synchronization Avoidance enabled.
 	 */
 	DB_VERSION_TLV_MISSING_WHEN_SYNC_ALLOWED,
+	/**
+	 * A PCC indicates to a PCE that it can not complete the state synchronization,
+	 */
+	CANNOT_COMPLETE_STATE_SYNC,
 	/**
 	 * SYMBOLIC-PATH-NAME in use
 	 */

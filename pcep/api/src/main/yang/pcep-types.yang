@@ -998,12 +998,13 @@ module pcep-types {
 		list metrics {
 			uses metric-object;
 		}
+		uses include-route-object;
+		
+		uses reported-route-object;
 
 		uses exclude-route-object;
 
-		uses include-route-object;
-
-		//uses of-object;
+		uses of-object;
 
 		uses classtype-object;
 	}
@@ -1082,12 +1083,8 @@ module pcep-types {
 			list replies {
 				uses rp-object;
 
-				uses lsp-object;
-
 				choice result {
 					case success {
-						uses lsp-attributes;
-
 						list paths {
 							uses path-definition;
 						}
@@ -1103,6 +1100,7 @@ module pcep-types {
 						}
 					}
 				}
+				uses lsp-attributes;
 			}
 		}
 	}
