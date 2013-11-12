@@ -547,54 +547,54 @@ module bgp-linkstate {
 		case linkstate-routes {
 			container linkstate-routes {
 				leaf distinguisher {
-					type bgp-ls:route-distinguisher;
+					type route-distinguisher;
 				}
 				leaf protocol-id {
-					type bgp-ls:protocol-id;
+					type protocol-id;
 				}
 				leaf identifier {
-					type bgp-ls:identifier;
+					type identifier;
 				}
 
 				choice object-type {
 					case node {
 						container node-descriptors {
-							uses bgp-ls:node-identifier;
+							uses node-identifier;
 						}
 					}
 					case link {
 						container local-node-descriptors {
-							uses bgp-ls:node-identifier;
+							uses node-identifier;
 						}
 						container remote-node-descriptors {
-							uses bgp-ls:node-identifier;
+							uses node-identifier;
 						}
 						container link-descriptors {
-							uses bgp-ls:link-identifiers;
+							uses link-identifiers;
 							leaf ipv4-interface-address {
-								type bgp-ls:ipv4-interface-identifier;
+								type ipv4-interface-identifier;
 							}
 							leaf ipv6-interface-address {
-								type bgp-ls:ipv6-interface-identifier;
+								type ipv6-interface-identifier;
 							}
 							leaf ipv4-neighbor-address {
-								type bgp-ls:ipv4-interface-identifier;
+								type ipv4-interface-identifier;
 							}
 							leaf ipv6-neighbor-address {
-								type bgp-ls:ipv6-interface-identifier;
+								type ipv6-interface-identifier;
 							}
 							leaf multi-topology-id {
-								type bgp-ls:topology-identifier;
+								type topology-identifier;
 							}
 						}
 					}
 					case prefix {
 						leaf multi-topology-id {
-							type bgp-ls:topology-identifier;
+							type topology-identifier;
 						}
 						leaf ospf-route-type {
 							when "../../protocol-id = 'ospf'";
-							type bgp-ls:ospf-route-type;
+							type ospf-route-type;
 						}
 						leaf ip-reachability-information {
 							type inet:ip-prefix;
