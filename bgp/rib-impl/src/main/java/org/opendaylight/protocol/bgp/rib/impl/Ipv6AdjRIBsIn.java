@@ -16,6 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv6.routes.Ipv6RouteBuilder;
@@ -30,7 +31,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
 	}
 
 	@Override
-	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final Ipv6Prefix key) {
+	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
 		final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
 
 		builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv6Routes.class);
@@ -45,7 +46,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
 			final Peer peer,
 			final MpReachNlri nlri,
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes attributes) {
-		final RIBEntryData data = new RIBEntryData(attributes) {
+		final RIBEntryData<Ipv6Prefix, Ipv6Route> data = new RIBEntryData<Ipv6Prefix, Ipv6Route>(attributes) {
 			@Override
 			protected Ipv6Route getDataObject(final Ipv6Prefix key) {
 				return new Ipv6RouteBuilder().setKey(

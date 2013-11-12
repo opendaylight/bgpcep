@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 
 @ThreadSafe
 public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements AdjRIBsIn {
-	protected abstract class RIBEntryData {
+	protected static abstract class RIBEntryData<ID, DATA extends DataObject> {
 		private final PathAttributes attributes;
 
 		protected RIBEntryData(final PathAttributes attributes) {
@@ -52,13 +52,13 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		 *       to retain the candidate states ordered -- thus selection would occur
 		 *       automatically through insertion, without the need of a second walk.
 		 */
-		private final Map<Peer, RIBEntryData> candidates = new HashMap<>();
+		private final Map<Peer, RIBEntryData<ID, DATA>> candidates = new HashMap<>();
 		private final ID key;
 
 		@GuardedBy("this")
 		private InstanceIdentifier<?> name;
 		@GuardedBy("this")
-		private RIBEntryData currentState;
+		private RIBEntryData<ID, DATA> currentState;
 
 		RIBEntry(final ID key) {
 			this.key = Preconditions.checkNotNull(key);
@@ -71,9 +71,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return this.name;
 		}
 
-		private RIBEntryData findCandidate(final RIBEntryData initial) {
-			RIBEntryData newState = initial;
-			for (final RIBEntryData s : this.candidates.values()) {
+		private RIBEntryData<ID, DATA> findCandidate(final RIBEntryData<ID, DATA> initial) {
+			RIBEntryData<ID, DATA> newState = initial;
+			for (final RIBEntryData<ID, DATA> s : this.candidates.values()) {
 				if (newState == null || AbstractAdjRIBsIn.this.comparator.compare(newState.attributes, s.attributes) > 0) {
 					newState = s;
 				}
@@ -82,7 +82,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return newState;
 		}
 
-		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData candidate) {
+		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData<ID, DATA> candidate) {
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
 				transaction.putRuntimeData(getName(), candidate.getDataObject(this.key));
 				this.currentState = candidate;
@@ -92,7 +92,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		synchronized boolean removeState(final DataModificationTransaction transaction, final Peer peer) {
 			this.candidates.remove(peer);
 
-			final RIBEntryData candidate = findCandidate(null);
+			final RIBEntryData<ID, DATA> candidate = findCandidate(null);
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
 				return true;
@@ -102,20 +102,20 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			}
 		}
 
-		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData state) {
+		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<ID, DATA> state) {
 			this.candidates.put(peer, state);
 			electCandidate(transaction, findCandidate(state));
 		}
 	}
 
 	private final Comparator<PathAttributes> comparator;
-	private final InstanceIdentifier<?> basePath;
+	private final InstanceIdentifier<Tables> basePath;
 	@GuardedBy("this")
 	private final Map<ID, RIBEntry> entries = new HashMap<>();
 
 	protected AbstractAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 		this.comparator = Preconditions.checkNotNull(comparator);
-		this.basePath = InstanceIdentifier.builder().node(LocRib.class).node(Tables.class, key).toInstance();
+		this.basePath = InstanceIdentifier.builder().node(LocRib.class).child(Tables.class, key).toInstance();
 	}
 
 	@Override
@@ -130,9 +130,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 	}
 
-	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<?> basePath, final ID id);
+	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final ID id);
 
-	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final ID id, final RIBEntryData data) {
+	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final ID id, final RIBEntryData<ID, DATA> data) {
 		RIBEntry e = this.entries.get(id);
 		if (e == null) {
 			e = new RIBEntry(id);
