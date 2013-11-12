@@ -9,6 +9,10 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
@@ -38,7 +42,14 @@ public final class BGPSessionProposalImplModule
 	@Override
 	public void validate() {
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getBgpId(),
+				"value is not set.", bgpIdJmxAttribute);
+		JmxAttributeValidationException.checkCondition(
+				isValidIPv4Address(getBgpId()), "value " + getBgpId()
+						+ " is not valid IPv4 address", bgpIdJmxAttribute);
+
+		JmxAttributeValidationException.checkNotNull(getAsNumber(),
+				"value is not set.", asNumberJmxAttribute);
 	}
 
 	@Override
@@ -68,5 +79,11 @@ public final class BGPSessionProposalImplModule
 		public BGPSessionPreferences getProposal() {
 			return inner.getProposal();
 		}
+	}
+
+	private boolean isValidIPv4Address(final String address) {
+		Pattern pattern = Pattern.compile(Ipv4Address.PATTERN_CONSTANTS.get(0));
+		Matcher matcher = pattern.matcher(address);
+		return matcher.matches();
 	}
 }

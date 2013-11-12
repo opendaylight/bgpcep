@@ -13,6 +13,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.io.IOException;
 
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
@@ -50,7 +51,10 @@ public final class RIBImplModule
 	@Override
 	public void validate() {
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getRibName(),
+				"value is not set.", ribNameJmxAttribute);
+		JmxAttributeValidationException.checkCondition(!getRibName().isEmpty(),
+				"should not be empty string.", ribNameJmxAttribute);
 	}
 
 	@Override
