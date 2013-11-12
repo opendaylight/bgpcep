@@ -27,12 +27,16 @@ import com.google.common.base.Preconditions;
 
 public abstract class AbstractLocRIBListener<T extends Route> implements LocRIBListener {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractLocRIBListener.class);
-	protected final InstanceIdentifier<Topology> topology;
+	private final InstanceIdentifier<Topology> topology;
 	private final Item<T> item;
 
 	protected AbstractLocRIBListener(final InstanceIdentifier<Topology> topology, final Class<T> idClass) {
 		this.topology = Preconditions.checkNotNull(topology);
 		this.item = new Item<T>(Preconditions.checkNotNull(idClass));
+	}
+
+	public final InstanceIdentifier<Topology> getTopology() {
+		return topology;
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);

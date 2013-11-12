@@ -34,8 +34,8 @@ public class Activator extends AbstractBindingAwareProvider {
 				new Ipv4ReachabilityTopologyBuilder(null));
 		ipv6 = LocRIBListeners.subscribe(context, Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
 				new Ipv6ReachabilityTopologyBuilder(null));
-//		linkstate = LocRIBListeners.subscribe(context, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-//				new LinkstateTopologyBuilder(null));
+		linkstate = LocRIBListeners.subscribe(context, LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+				new LinkstateTopologyBuilder(null));
 	}
 
 	@Override
