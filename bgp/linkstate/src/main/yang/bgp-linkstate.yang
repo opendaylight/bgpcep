@@ -609,11 +609,35 @@ module bgp-linkstate {
 						}
 					}
 					case prefix {
+						container advertising-node-descriptors {
+							uses node-identifier;
+						}
+
 						uses prefix-identifiers;
 					}
 				}
 
-				uses bgp-rib:route;
+				uses bgp-rib:route {
+					augment attributes {
+						choice attribute-type {
+							case node {
+								container node-attributes {
+									uses node-state;
+								}
+							}
+							case link {
+								container link-attributes {
+									uses link-state;
+								}
+							}
+							case prefix {
+								container prefix-attributes {
+									uses prefix-state;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
