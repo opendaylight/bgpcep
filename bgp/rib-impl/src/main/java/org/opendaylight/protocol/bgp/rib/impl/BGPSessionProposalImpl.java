@@ -44,6 +44,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 		this.as = as;
 		this.bgpId = bgpId;
 
+		// FIXME: the reference to linkstate should be moved to config subsystem!
 		final List<BgpParameters> tlvs = Lists.newArrayList();
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new CMultiprotocolBuilder().setMultiprotocolCapability(

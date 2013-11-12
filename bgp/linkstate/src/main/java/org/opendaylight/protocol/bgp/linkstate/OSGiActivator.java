@@ -12,7 +12,7 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.osgi.AbstractOSGiBGPExtensionProviderActivator;
 
 public final class OSGiActivator extends AbstractOSGiBGPExtensionProviderActivator {
-	private final BGPExtensionProviderActivator activator = new Activator();
+	private final BGPExtensionProviderActivator activator = new BGPActivator();
 
 	@Override
 	public void start(final BGPExtensionProviderContext context) throws Exception {

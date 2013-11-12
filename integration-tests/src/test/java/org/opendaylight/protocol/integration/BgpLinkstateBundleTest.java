@@ -14,7 +14,9 @@ import com.google.common.collect.Lists;
 public final class BgpLinkstateBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("bgp-concepts", "bgp-parser-api", "bgp-parser-spi", "bgp-rib-api", "concepts", "framework", "rsvp-api", "util");
+		return Lists.newArrayList("bgp-concepts", "bgp-parser-api",
+				"bgp-parser-spi", "bgp-rib-api", "bgp-rib-spi",
+				"concepts", "framework", "rsvp-api", "util");
 	}
 
 	@Override

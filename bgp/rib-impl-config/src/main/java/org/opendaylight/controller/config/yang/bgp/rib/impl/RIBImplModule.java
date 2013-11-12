@@ -28,22 +28,22 @@ import org.osgi.framework.BundleContext;
 import com.google.common.base.Preconditions;
 
 /**
-*
-*/
+ *
+ */
 public final class RIBImplModule
-		extends
-		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
+extends
+org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
 	public RIBImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
 	public RIBImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			RIBImplModule oldModule, java.lang.AutoCloseable oldInstance) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final RIBImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -61,7 +61,9 @@ public final class RIBImplModule
 				.registerProvider(provider, provider.ctx);
 		DataProviderService dataProviderService = providerContext
 				.getSALService(DataProviderService.class);
-		RIBImpl rib = new RIBImpl(dataProviderService);
+
+		// FIXME: deal with Extensions
+		RIBImpl rib = new RIBImpl(null, dataProviderService);
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
@@ -82,8 +84,8 @@ public final class RIBImplModule
 		private final ListenerRegistration<BGPSessionListener> reg;
 		private final RIBImpl innerRib;
 
-		private RibImplCloseable(ListenerRegistration<BGPSessionListener> reg,
-				RIBImpl innerRib) {
+		private RibImplCloseable(final ListenerRegistration<BGPSessionListener> reg,
+				final RIBImpl innerRib) {
 			this.reg = reg;
 			this.innerRib = innerRib;
 		}
@@ -99,7 +101,7 @@ public final class RIBImplModule
 		BundleContext ctx;
 
 		@Override
-		public void onSessionInitiated(ProviderContext session) {
+		public void onSessionInitiated(final ProviderContext session) {
 
 		}
 

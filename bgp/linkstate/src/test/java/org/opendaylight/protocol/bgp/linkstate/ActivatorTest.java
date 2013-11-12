@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 
 public class ActivatorTest {
 
-	private final Activator act = new Activator();
+	private final BGPActivator act = new BGPActivator();
 
 	@Test
 	public void testActivator() throws Exception {

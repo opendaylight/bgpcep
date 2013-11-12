@@ -5,18 +5,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactoryRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+
+import com.google.common.base.Preconditions;
 
 final class RIBTables {
 	private final Map<TablesKey, AdjRIBsIn> tables = new HashMap<>();
 	private final Comparator<PathAttributes> comparator;
-	private final AdjRIBsInFactoryRegistry registry;
+	private final RIBExtensionConsumerContext registry;
 
-	RIBTables(final Comparator<PathAttributes> comparator, final AdjRIBsInFactoryRegistry registry) {
-		this.comparator = comparator;
-		this.registry = registry;
+	RIBTables(final Comparator<PathAttributes> comparator, final RIBExtensionConsumerContext extensions) {
+		this.comparator = Preconditions.checkNotNull(comparator);
+		this.registry = Preconditions.checkNotNull(extensions);
 	}
 
 	public synchronized AdjRIBsIn get(final TablesKey key) {

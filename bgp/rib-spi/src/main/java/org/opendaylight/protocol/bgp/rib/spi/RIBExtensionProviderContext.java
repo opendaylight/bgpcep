@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * interface exposes an interface for registration of factories for creating
  * AdjRIBsIn instances, which handle the specifics.
  */
-public interface AdjRIBsInFactoryRegistry {
+public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext {
 	/**
 	 * Register a AdjRIBsInFactory for a particular AFI/SAFI combination.
 	 * 
@@ -28,8 +28,4 @@ public interface AdjRIBsInFactoryRegistry {
 	 */
 	public AutoCloseable registerAdjRIBsInFactory(Class<? extends AddressFamily> afi,
 			Class<? extends SubsequentAddressFamily> safi, AdjRIBsInFactory factory);
-
-	public AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi,
-			Class<? extends SubsequentAddressFamily> safi);
-
 }

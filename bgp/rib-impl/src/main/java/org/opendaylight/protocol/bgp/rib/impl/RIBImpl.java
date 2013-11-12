@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -15,6 +16,7 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.PathAttributes1;
@@ -32,13 +34,13 @@ import com.google.common.base.Preconditions;
 
 @ThreadSafe
 public class RIBImpl {
-	private static final Logger logger = LoggerFactory.getLogger(RIBImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
-	public RIBImpl(final DataProviderService dps) {
+	public RIBImpl(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
 		this.dps = Preconditions.checkNotNull(dps);
-		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, AdjRIBsInFactoryRegistryImpl.INSTANCE);
+		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, extensions);
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
@@ -58,7 +60,7 @@ public class RIBImpl {
 			if (ari != null) {
 				ari.removeRoutes(trans, peer, nlri);
 			} else {
-				logger.debug("Not removing objects from unhandled NLRI {}", nlri);
+				LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
 			}
 		}
 
@@ -73,12 +75,17 @@ public class RIBImpl {
 			if (ari != null) {
 				ari.addRoutes(trans, peer, nlri, attrs);
 			} else {
-				logger.debug("Not adding objects from unhandled NLRI {}", nlri);
+				LOG.debug("Not adding objects from unhandled NLRI {}", nlri);
 			}
 		}
 
 		// FIXME: we need to attach to this future for failures
 		final Future<RpcResult<TransactionStatus>> f = trans.commit();
+		try {
+			f.get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOG.error("Failed to commit RIB modification", e);
+		}
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
@@ -89,6 +96,11 @@ public class RIBImpl {
 
 			// FIXME: we need to attach to this future for failures
 			final Future<RpcResult<TransactionStatus>> f = trans.commit();
+			try {
+				f.get();
+			} catch (InterruptedException | ExecutionException e) {
+				LOG.error("Failed to commit RIB modification", e);
+			}
 		}
 	}
 
