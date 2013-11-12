@@ -9,9 +9,11 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.concepts.IPv6ExtendedTunnelIdentifier;
 import org.opendaylight.protocol.pcep.concepts.LSPIdentifier;
 import org.opendaylight.protocol.pcep.concepts.TunnelIdentifier;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.tlv.IPv6LSPIdentifiersTlv;
 import org.opendaylight.protocol.pcep.tlv.LSPIdentifiersTlv;
 import org.opendaylight.protocol.util.ByteArray;
@@ -20,7 +22,9 @@ import org.opendaylight.protocol.util.ByteArray;
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.LSPIdentifiersTlv LSPIdentifiersTlv}
  * parameterized as IPv6Address
  */
-public class LSPIdentifierIPv6TlvParser {
+public class LSPIdentifierIPv6TlvParser implements PCEPTlvParser {
+	
+	public static final int TYPE = 19;
 
 	private static final int IP_F_LENGTH = 16;
 	private static final int LSP_ID_F_LENGTH = 2;
@@ -34,7 +38,7 @@ public class LSPIdentifierIPv6TlvParser {
 
 	private static final int SIZE = EX_TUNNEL_ID_F_OFFSET + EX_TUNNEL_ID_F_LENGTH;
 
-	public static LSPIdentifiersTlv<IPv6Address> parse(byte[] valueBytes) throws PCEPDeserializerException {
+	public LSPIdentifiersTlv<IPv6Address> parse(byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		if (valueBytes.length != SIZE)
@@ -46,16 +50,18 @@ public class LSPIdentifierIPv6TlvParser {
 				new IPv6ExtendedTunnelIdentifier(new IPv6Address(ByteArray.subByte(valueBytes, EX_TUNNEL_ID_F_OFFSET, EX_TUNNEL_ID_F_LENGTH))));
 	}
 
-	public static byte[] put(IPv6LSPIdentifiersTlv objToSerialize) {
+	public byte[] put(PCEPTlv objToSerialize) {
 		if (objToSerialize == null)
 			throw new IllegalArgumentException("IPv6LSPIdentifiersTlv is mandatory.");
+		
+		IPv6LSPIdentifiersTlv tlv = (IPv6LSPIdentifiersTlv) objToSerialize;
 
 		final byte[] retBytes = new byte[SIZE];
 
-		ByteArray.copyWhole(objToSerialize.getSenderAddress().getAddress(), retBytes, IP_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getLspID().getLspId(), retBytes, LSP_ID_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getTunnelID().getBytes(), retBytes, TUNNLE_ID_F_OFFSET);
-		ByteArray.copyWhole(objToSerialize.getExtendedTunnelID().getIdentifier().getAddress(), retBytes, EX_TUNNEL_ID_F_OFFSET);
+		ByteArray.copyWhole(tlv.getSenderAddress().getAddress(), retBytes, IP_F_OFFSET);
+		ByteArray.copyWhole(tlv.getLspID().getLspId(), retBytes, LSP_ID_F_OFFSET);
+		ByteArray.copyWhole(tlv.getTunnelID().getBytes(), retBytes, TUNNLE_ID_F_OFFSET);
+		ByteArray.copyWhole(tlv.getExtendedTunnelID().getIdentifier().getAddress(), retBytes, EX_TUNNEL_ID_F_OFFSET);
 
 		return retBytes;
 	}

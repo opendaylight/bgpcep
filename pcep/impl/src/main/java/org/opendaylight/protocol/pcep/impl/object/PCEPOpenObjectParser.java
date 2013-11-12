@@ -16,7 +16,7 @@ import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.impl.Util;
 import org.opendaylight.protocol.pcep.object.PCEPOpenObject;
 import org.opendaylight.protocol.pcep.tlv.OFListTlv;
@@ -76,7 +76,7 @@ public class PCEPOpenObjectParser implements PCEPObjectParser {
 		if (versionValue != PCEPOpenObject.PCEP_VERSION)
 			throw new PCEPDocumentedException("Unsupported PCEP version " + versionValue, PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
 
-		final List<PCEPTlv> tlvs = PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		final List<PCEPTlv> tlvs = PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		boolean ofListOccure = false;
 
 		for (final PCEPTlv tlv : tlvs) {
@@ -101,7 +101,7 @@ public class PCEPOpenObjectParser implements PCEPObjectParser {
 
 		final byte versionFlagMF = (byte) (PCEPOpenObject.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
 
-		final byte[] tlvs = PCEPTlvParser.put(openObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(openObj.getTlvs());
 		final byte[] bytes = new byte[TLVS_OFFSET + tlvs.length + Util.getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
 		// serialize version_flags multi-field

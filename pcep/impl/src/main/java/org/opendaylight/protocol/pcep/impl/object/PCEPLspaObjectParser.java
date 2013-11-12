@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPLspaObject;
 import org.opendaylight.protocol.util.ByteArray;
 import com.google.common.primitives.UnsignedInts;
@@ -59,7 +59,7 @@ public class PCEPLspaObjectParser implements PCEPObjectParser {
 		return new PCEPLspaObject(UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))),
 				UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))), UnsignedInts.toLong(ByteArray
 						.bytesToInt(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))), (short) (bytes[SET_PRIO_F_OFFSET] & 0xFF),
-				(short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF), flags.get(S_FLAG_OFFSET), flags.get(L_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)), processed,
+				(short) (bytes[HOLD_PRIO_F_OFFSET] & 0xFF), flags.get(S_FLAG_OFFSET), flags.get(L_FLAG_OFFSET), PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)), processed,
 				ignored);
 	}
 
@@ -70,7 +70,7 @@ public class PCEPLspaObjectParser implements PCEPObjectParser {
 
 		final PCEPLspaObject lspaObj = (PCEPLspaObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(lspaObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(lspaObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length];
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
 

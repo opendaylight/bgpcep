@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPNoPathObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -54,7 +54,7 @@ public class PCEPNoPathObjectParser implements PCEPObjectParser {
 		if (bytes.length < TLVS_OFFSET)
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
-		return new PCEPNoPathObject((short) (bytes[NI_F_OFFSET] & 0xFF), flags.get(C_FLAG_OFFSET), PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)),
+		return new PCEPNoPathObject((short) (bytes[NI_F_OFFSET] & 0xFF), flags.get(C_FLAG_OFFSET), PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)),
 				ignored);
 	}
 
@@ -65,7 +65,7 @@ public class PCEPNoPathObjectParser implements PCEPObjectParser {
 
 		final PCEPNoPathObject nPObj = (PCEPNoPathObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(nPObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(nPObj.getTlvs());
 		final byte[] retBytes = new byte[tlvs.length + TLVS_OFFSET];
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(C_FLAG_OFFSET, nPObj.isConstrained());
