@@ -9,10 +9,9 @@
 */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import io.netty.util.concurrent.GlobalEventExecutor;
-
 import java.io.IOException;
 
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.RIB;
 import org.opendaylight.protocol.bgp.rib.RIBEvent;
@@ -22,7 +21,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.concepts.InitialListenerEvents;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 
 /**
 *
@@ -41,7 +39,10 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
     @Override
     public void validate(){
         super.validate();
-        // Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getRibName(),
+				"value is not set.", ribNameJmxAttribute);
+		JmxAttributeValidationException.checkCondition(!getRibName().isEmpty(),
+				"should not be empty string.", ribNameJmxAttribute);
     }
 
     @Override
@@ -51,9 +52,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
 		try {
-			final long reconnects = getReconnectAttempts();
-			ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer,
-					new TimedReconnectStrategy(GlobalEventExecutor.INSTANCE, getConnectionTimeout(), 5000, 1.0, null, reconnects, null));
+			ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer, getReconnectStrategyDependency());
 			return new RibImpl(reg, rib);
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to register with BGP", e);

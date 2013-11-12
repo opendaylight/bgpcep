@@ -12,6 +12,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
@@ -35,7 +36,13 @@ public final class BGPSessionProposalImplModule extends org.opendaylight.control
     @Override
     public void validate(){
         super.validate();
-        // Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getBgpId(),
+				"value is not set.", bgpIdJmxAttribute);
+		JmxAttributeValidationException.checkCondition(isValidIPv4Address(getBgpId()),
+				"value " + getBgpId() + " is not valid IPv4 address", bgpIdJmxAttribute);
+		
+		JmxAttributeValidationException.checkNotNull(getAsNumber(),
+				"value is not set.", asNumberJmxAttribute);
     }
 
     @Override
@@ -47,7 +54,6 @@ public final class BGPSessionProposalImplModule extends org.opendaylight.control
 			final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(getHoldtimer(), as, bgpId);
 			return new BgpSessionProposalCloseable(bgpSessionProposal);
 		} catch (UnknownHostException e) {
-			// Should not happen, this should be validated in advance
 			throw new RuntimeException("Unable to parse ip address " + getBgpId(), e);
 		}
 	}
@@ -69,5 +75,14 @@ public final class BGPSessionProposalImplModule extends org.opendaylight.control
 		public BGPSessionPreferences getProposal() {
 			return inner.getProposal();
 		}
+	}
+	
+	private boolean isValidIPv4Address(String address) {
+		try {
+			new IPv4Address(InetAddress.getByName(address));	
+		} catch(UnknownHostException | IllegalArgumentException e) {
+			return false;	
+		}
+		return true;
 	}
 }

@@ -6,6 +6,7 @@ module bgp-rib-impl {
 
     import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
     import bgp-rib { prefix bgprib; revision-date 2013-07-01; }
+    import reconnect-strategy { prefix rs; revision-date 2013-11-09; }
     import config { prefix config; revision-date 2013-04-05; }
 
     organization "Cisco Systems, Inc.";
@@ -180,16 +181,16 @@ module bgp-rib-impl {
                  mandatory true;
                  type string;
             }
-
-            leaf connection-timeout {
-                 mandatory true;
-                 type int32;
+			
+			container reconnect-strategy {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rs:reconnect-strategy;
+                    }
+                }
             }
-
-            leaf reconnect-attempts {
-                 mandatory true;
-                 type int64;
-            }
+			
         }
     }
 

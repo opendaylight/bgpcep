@@ -29,7 +29,6 @@ public final class BGPDispatcherImplModule extends org.opendaylight.controller.c
     @Override
     public void validate(){
         super.validate();
-        // Add custom validation for module attributes here.
     }
 
     @Override

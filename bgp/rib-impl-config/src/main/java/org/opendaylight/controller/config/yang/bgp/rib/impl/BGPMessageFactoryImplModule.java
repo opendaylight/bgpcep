@@ -34,7 +34,6 @@ public final class BGPMessageFactoryImplModule extends org.opendaylight.controll
     @Override
     public void validate(){
         super.validate();
-        // Add custom validation for module attributes here.
     }
 
     @Override
