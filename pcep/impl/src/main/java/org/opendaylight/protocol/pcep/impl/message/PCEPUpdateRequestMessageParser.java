@@ -12,10 +12,32 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.PCEPErrors;
+import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.impl.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcupdMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.PcupdMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.Updates;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.UpdatesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcupd.message.pcupd.message.updates.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.srp.object.Srp;
+
+import com.google.common.collect.Lists;
 
 /**
  * Parser for {@link PcupdMessage}
@@ -30,126 +52,135 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof PcupdMessage)) {
+		if (!(message instanceof Pcupd)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
 					+ ". Nedded PcupdMessage.");
 		}
-
+		final Pcupd msg = (Pcupd) message;
+		final List<Updates> updates = msg.getPcupdMessage().getUpdates();
+		for (final Updates update : updates) {
+			buffer.writeBytes(serializeObject(update.getSrp()));
+			buffer.writeBytes(serializeObject(update.getLsp()));
+			final Path p = update.getPath();
+			buffer.writeBytes(serializeObject(p.getEro()));
+			if (p.getBandwidth() != null) {
+				buffer.writeBytes(serializeObject(p.getBandwidth()));
+			}
+			if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+				for (final Metrics m : p.getMetrics()) {
+					buffer.writeBytes(serializeObject(m.getMetric()));
+				}
+			}
+			if (p.getIro() != null) {
+				buffer.writeBytes(serializeObject(p.getIro()));
+			}
+		}
 	}
 
 	@Override
-	public PcupdMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException {
-		// TODO Auto-generated method stub
-		return null;
+	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException {
+		if (buffer == null || buffer.length == 0) {
+			throw new PCEPDeserializerException("Pcup message cannot be empty.");
+		}
+		try {
+			final List<Object> objs = parseObjects(buffer);
+			return validate(objs);
+		} catch (final PCEPDocumentedException e) {
+			return createErrorMsg(e.getError());
+		}
 	}
 
-	public List<Message> validate(final List<Object> objects) throws PCEPDeserializerException {
+	public Message validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
+		final List<Updates> updateRequests = Lists.newArrayList();
 
-		// final List<CompositeUpdateRequestObject> updateRequests = new ArrayList<CompositeUpdateRequestObject>();
-		//
-		// while (!objects.isEmpty()) {
-		// if (objects.get(0) instanceof UnknownObject) {
-		// logger.warn("Unknown object found (should be Lsp) - {}.", objects.get(0));
-		// return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(((UnknownObject)
-		// objects.get(0)).getError())));
-		// }
-		// if (!(objects.get(0) instanceof PCEPLspObject)) {
-		// return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
-		// }
-		//
-		// final PCEPLspObject lsp = (PCEPLspObject) objects.get(0);
-		// objects.remove(0);
-		//
-		// final List<CompositeUpdPathObject> paths = new ArrayList<CompositeUpdPathObject>();
-		//
-		// if (!objects.isEmpty()) {
-		// try {
-		// CompositeUpdPathObject path;
-		// path = this.getValidCompositePath(objects);
-		// while (path != null) {
-		// paths.add(path);
-		// if (objects.isEmpty()) {
-		// break;
-		// }
-		// path = this.getValidCompositePath(objects);
-		// }
-		// } catch (final PCEPDocumentedException e) {
-		// logger.warn("Serializing failed: {}.", e);
-		// return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
-		// }
-		// }
-		//
-		// updateRequests.add(new CompositeUpdateRequestObject(lsp, paths));
-		// }
-		//
-		// if (updateRequests.isEmpty()) {
-		// return Arrays.asList((Message) new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.LSP_MISSING)));
-		// }
-		//
-		// if (!objects.isEmpty()) {
-		// throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-		// }
-		//
-		// return Arrays.asList((Message) new PCEPUpdateRequestMessage(updateRequests));
-		return null;
+		while (!objects.isEmpty()) {
+			final Updates update = this.getValidUpdates(objects);
+			if (update != null) {
+				updateRequests.add(update);
+			}
+			if (objects.isEmpty()) {
+				break;
+			}
+		}
+		return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
 	}
 
-	// private CompositeUpdPathObject getValidCompositePath(final List<Object> objects) throws PCEPDocumentedException {
-	// if (!(objects.get(0) instanceof PCEPExplicitRouteObject)) {
-	// return null;
-	// }
-	//
-	// if (objects.get(0) instanceof UnknownObject) {
-	// }
-	// final PCEPExplicitRouteObject explicitRoute = (PCEPExplicitRouteObject) objects.get(0);
-	// objects.remove(0);
-	//
-	// PCEPLspaObject pathLspa = null;
-	// PCEPRequestedPathBandwidthObject pathBandwidth = null;
-	// final List<PCEPMetricObject> pathMetrics = new ArrayList<PCEPMetricObject>();
-	//
-	// Object obj;
-	// int state = 1;
-	// while (!objects.isEmpty()) {
-	// obj = objects.get(0);
-	// if (obj instanceof UnknownObject) {
-	// throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
-	// }
-	//
-	// switch (state) {
-	// case 1:
-	// state = 2;
-	// if (obj instanceof PCEPLspaObject) {
-	// pathLspa = (PCEPLspaObject) obj;
-	// break;
-	// }
-	// case 2:
-	// state = 3;
-	// if (obj instanceof PCEPRequestedPathBandwidthObject) {
-	// pathBandwidth = (PCEPRequestedPathBandwidthObject) obj;
-	// break;
-	// }
-	// case 3:
-	// state = 4;
-	// if (obj instanceof PCEPMetricObject) {
-	// pathMetrics.add((PCEPMetricObject) obj);
-	// state = 3;
-	// break;
-	// }
-	// }
-	//
-	// if (state == 4) {
-	// break;
-	// }
-	//
-	// objects.remove(0);
-	// }
-	//
-	// return new CompositeUpdPathObject(explicitRoute, pathLspa, pathBandwidth, pathMetrics);
-	// }
+	private Updates getValidUpdates(final List<Object> objects) throws PCEPDocumentedException {
+		if (!(objects.get(0) instanceof Srp)) {
+			throw new PCEPDocumentedException("Srp object missing.", PCEPErrors.SRP_MISSING);
+		}
+		final Srp srp = (Srp) objects.get(0);
+		objects.remove(0);
+		if (!(objects.get(0) instanceof Lsp)) {
+			throw new PCEPDocumentedException("Lsp object missing.", PCEPErrors.LSP_MISSING);
+		}
+		final Lsp lsp = (Lsp) objects.get(0);
+		objects.remove(0);
+		if (!(objects.get(0) instanceof Ero)) {
+			throw new PCEPDocumentedException("Ero object missing.", PCEPErrors.ERO_MISSING);
+		}
+		final Ero ero = (Ero) objects.get(0);
+		objects.remove(0);
+
+		Lspa pathLspa = null;
+		Bandwidth pathBandwidth = null;
+		Iro pathIro = null;
+		final List<Metrics> pathMetrics = Lists.newArrayList();
+
+		Object obj;
+		State state = State.Init;
+		while (!objects.isEmpty()) {
+			obj = objects.get(0);
+			switch (state) {
+			case LspaIn:
+				state = State.BandwidthIn;
+				if (obj instanceof Lspa) {
+					pathLspa = (Lspa) obj;
+					break;
+				}
+			case BandwidthIn:
+				state = State.MetricIn;
+				if (obj instanceof Bandwidth) {
+					pathBandwidth = (Bandwidth) obj;
+					break;
+				}
+			case MetricIn:
+				state = State.IroIn;
+				if (obj instanceof Metric) {
+					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+					state = State.MetricIn;
+					break;
+				}
+			case IroIn:
+				state = State.End;
+				if (obj instanceof Iro) {
+					pathIro = (Iro) obj;
+					break;
+				}
+			case End:
+				break;
+			default:
+				if (obj instanceof UnknownObject) {
+					throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
+				}
+			}
+			objects.remove(0);
+		}
+		final PathBuilder builder = new PathBuilder();
+		builder.setEro(ero);
+		builder.setLspa(pathLspa);
+		builder.setBandwidth(pathBandwidth);
+		builder.setMetrics(pathMetrics);
+		builder.setIro(pathIro);
+		return new UpdatesBuilder().setSrp(srp).setLsp(lsp).setPath(builder.build()).build();
+	}
+
+	private enum State {
+		Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
+	}
 
 	@Override
 	public int getMessageType() {
