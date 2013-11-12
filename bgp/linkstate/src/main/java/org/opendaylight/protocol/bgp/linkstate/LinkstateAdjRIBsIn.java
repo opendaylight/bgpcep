@@ -110,9 +110,6 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 			break;
 		}
 
-		if (data == null) {
-			throw new IllegalStateException("Unhandled link-state NLRI type " + key.getNlriType());
-		}
 		super.add(trans, peer, key, data);
 	}
 
