@@ -7,14 +7,16 @@
  */
 package org.opendaylight.protocol.framework;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,9 +24,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class ServerTest {
 	SimpleDispatcher clientDispatcher, dispatcher;
@@ -36,11 +37,14 @@ public class ServerTest {
 	ChannelFuture server = null;
 
 	InetSocketAddress serverAddress;
+	private NioEventLoopGroup eventLoopGroup;
+
 
 	@Before
 	public void setUp() {
 		final int port = 10000 + (int)(10000 * Math.random());
 		serverAddress = new InetSocketAddress("127.0.0.5", port);
+		eventLoopGroup = new NioEventLoopGroup();
 	}
 
 	@Test
@@ -55,7 +59,7 @@ public class ServerTest {
 				p.setSuccess(true);
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE), eventLoopGroup);
 
 		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
 			@Override
@@ -72,7 +76,7 @@ public class ServerTest {
 					final Channel channel, final Promise<SimpleSession> promise) {
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE), eventLoopGroup);
 
 		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
@@ -97,7 +101,7 @@ public class ServerTest {
 				p.setSuccess(true);
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE), eventLoopGroup);
 
 		this.server = this.dispatcher.createServer(this.serverAddress, new SessionListenerFactory<SimpleSessionListener>() {
 			@Override
@@ -114,7 +118,7 @@ public class ServerTest {
 					final Channel channel, final Promise<SimpleSession> promise) {
 				return new SimpleSessionNegotiator(promise, channel);
 			}
-		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE));
+		}, new ProtocolHandlerFactory<>(new MessageFactory()), new DefaultPromise<SimpleSession>(GlobalEventExecutor.INSTANCE), eventLoopGroup);
 
 		this.session = (SimpleSession) this.clientDispatcher.createClient(this.serverAddress,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000), new SessionListenerFactory<SimpleSessionListener>() {
@@ -135,12 +139,11 @@ public class ServerTest {
 	}
 
 	@After
-	public void tearDown() throws IOException {
+	public void tearDown() throws IOException, InterruptedException {
 		this.server.channel().close();
-		this.dispatcher.close();
-		this.clientDispatcher.close();
+		this.eventLoopGroup.shutdownGracefully();
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (final InterruptedException e) {
 			throw new RuntimeException(e);
 		}

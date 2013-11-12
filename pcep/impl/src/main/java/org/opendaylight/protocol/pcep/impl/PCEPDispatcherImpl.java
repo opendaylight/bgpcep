@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher {
+public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher, AutoCloseable {
 
 	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
 	private final PCEPHandlerFactory hf;
@@ -54,5 +54,9 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 				ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getEncoders());
 			}
 		});
+	}
+
+	@Override
+		public void close() throws Exception {
 	}
 }

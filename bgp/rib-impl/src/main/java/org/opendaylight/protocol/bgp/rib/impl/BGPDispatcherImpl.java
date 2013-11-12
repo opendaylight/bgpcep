@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher {
+public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, AutoCloseable {
 	private final Timer timer = new HashedWheelTimer();
 
 	private final BGPHandlerFactory hf;
@@ -54,5 +54,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 				ch.pipeline().addLast(hf.getEncoders());
 			}
 		});
+	}
+
+	@Override
+		public void close() throws Exception {
 	}
 }

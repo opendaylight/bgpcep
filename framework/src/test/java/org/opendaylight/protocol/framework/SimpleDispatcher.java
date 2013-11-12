@@ -2,7 +2,7 @@ package org.opendaylight.protocol.framework;
 
 import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -17,6 +17,7 @@ public class SimpleDispatcher extends AbstractDispatcher<SimpleSession, SimpleSe
 
 	private final SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener> negotiatorFactory;
 	private final ProtocolHandlerFactory<?> factory;
+
 
 	private final class SimplePipelineInitializer implements PipelineInitializer<SimpleSession> {
 		final SessionListenerFactory<SimpleSessionListener> listenerFactory;
@@ -36,8 +37,8 @@ public class SimpleDispatcher extends AbstractDispatcher<SimpleSession, SimpleSe
 	}
 
 	public SimpleDispatcher(final SessionNegotiatorFactory<SimpleMessage, SimpleSession, SimpleSessionListener> negotiatorFactory, final ProtocolHandlerFactory<?> factory,
-			final Promise<SimpleSession> promise) {
-		super(new NioEventLoopGroup(), new NioEventLoopGroup());
+			final Promise<SimpleSession> promise, EventLoopGroup eventLoopGroup) {
+		super(eventLoopGroup, eventLoopGroup);
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
 		this.factory = Preconditions.checkNotNull(factory);
 	}
@@ -49,4 +50,5 @@ public class SimpleDispatcher extends AbstractDispatcher<SimpleSession, SimpleSe
 	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<SimpleSessionListener> listenerFactory) {
 		return super.createServer(address, new SimplePipelineInitializer(listenerFactory));
 	}
+
 }
