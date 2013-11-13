@@ -94,7 +94,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		synchronized boolean removeState(final DataModificationTransaction transaction, final Peer peer) {
-			final RIBEntryData data = this.candidates.remove(peer);
+			final RIBEntryData<ID, DATA> data = this.candidates.remove(peer);
 			LOG.trace("Removed data {}", data);
 
 			final RIBEntryData<ID, DATA> candidate = findCandidate(null);
