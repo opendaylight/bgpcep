@@ -22,6 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
@@ -83,6 +85,8 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData candidate) {
+			LOG.trace("Electing state {} to supersede {}", candidate, currentState);
+
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
 				transaction.putRuntimeData(getName(), candidate.getDataObject(this.key));
 				this.currentState = candidate;
@@ -90,16 +94,18 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		synchronized boolean removeState(final DataModificationTransaction transaction, final Peer peer) {
-			this.candidates.remove(peer);
+			final RIBEntryData data = this.candidates.remove(peer);
+			LOG.trace("Removed data {}", data);
 
 			final RIBEntryData candidate = findCandidate(null);
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
-				return true;
 			} else {
+				LOG.trace("Final candidate disappeared, removing entry {}", name);
 				transaction.removeRuntimeData(this.name);
-				return false;
 			}
+
+			return candidates.isEmpty();
 		}
 
 		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData state) {
@@ -108,6 +114,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 	}
 
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBsIn.class);
 	private final Comparator<PathAttributes> comparator;
 	private final InstanceIdentifier<?> basePath;
 	@GuardedBy("this")
@@ -145,6 +152,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 	protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final ID id) {
 		final RIBEntry e = this.entries.get(id);
 		if (e != null && e.removeState(trans, peer)) {
+			LOG.debug("Removed last state, removing entry for {}", id);
 			this.entries.remove(id);
 		}
 	}
