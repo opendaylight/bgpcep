@@ -8,15 +8,12 @@
 package org.opendaylight.protocol.concepts;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.IsoSystemIdentifier;
 
 public class ISOSystemIdentifierTest {
 
 	@Test(expected = IllegalArgumentException.class)
-	@Ignore
-	// FIXME BUG-93
 	public void testISOSystemIdentifier() {
 		final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1, 1 };
 		new IsoSystemIdentifier(b);
