@@ -272,7 +272,7 @@ final class TunnelProgramming implements TopologyTunnelPcepProgrammingService {
 	// FIXME: topology programming utility class
 	private InstanceIdentifier<Topology> topologyIdentifier(final TopologyInstructionInput input) {
 		return InstanceIdentifier.builder().
-				node(NetworkTopology.class).node(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
+				node(NetworkTopology.class).child(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
 	}
 
 	// FIXME: tunnel programming utility class

@@ -21,7 +21,7 @@ final class TunnelTopologyExporter {
 
 	TunnelTopologyExporter(final DataProviderService dataProvider, final InstanceIdentifier<Topology> sourceTopology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
-		srcTree = Preconditions.checkNotNull(InstanceIdentifier.builder(sourceTopology).node(Node.class).toInstance());
+		srcTree = Preconditions.checkNotNull(InstanceIdentifier.builder(sourceTopology).child(Node.class).toInstance());
 	}
 
 	ListenerRegistration<?> addTargetTopology(final InstanceIdentifier<Topology> tunnelTopology) {

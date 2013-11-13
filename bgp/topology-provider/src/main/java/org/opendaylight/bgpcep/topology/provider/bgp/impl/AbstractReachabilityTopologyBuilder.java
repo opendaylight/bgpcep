@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.IgpNodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributesBuilder;
@@ -62,7 +61,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 	}
 
 	private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
-		return InstanceIdentifier.builder(getTopology()).node(Node.class, new NodeKey(ni)).node(Node1.class).toInstance();
+		return InstanceIdentifier.builder(getTopology()).child(Node.class, new NodeKey(ni)).node(Node1.class).toInstance();
 	}
 
 	private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans,
@@ -97,7 +96,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 		final IpPrefix prefix = getPrefix(value);
 		final PrefixKey pk = new PrefixKey(prefix);
 
-		trans.putOperationalData(InstanceIdentifier.builder(nii).node(IgpNodeAttributes.class).node(Prefix.class, pk).toInstance(),
+		trans.putOperationalData(InstanceIdentifier.builder(nii).
+				child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).
+				child(Prefix.class, pk).toInstance(),
 				new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
 	}
 
@@ -111,7 +112,9 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 		final IpPrefix prefix = getPrefix(value);
 		final PrefixKey pk = new PrefixKey(prefix);
 
-		trans.removeOperationalData(InstanceIdentifier.builder(nii).node(IgpNodeAttributes.class).node(Prefix.class, pk).toInstance());
+		trans.removeOperationalData(InstanceIdentifier.builder(nii).
+				child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).
+				child(Prefix.class, pk).toInstance());
 
 		removeEmptyNode(trans, nii);
 	}

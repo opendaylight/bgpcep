@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
 final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
 	Ipv4AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
@@ -31,13 +30,8 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
 	}
 
 	@Override
-	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
-		final InstanceIdentifierBuilder<?> builder = InstanceIdentifier.builder(basePath);
-
-		builder.node(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.Ipv4Routes.class);
-		builder.node(Ipv4Route.class, new Ipv4RouteKey(key));
-
-		return builder.toInstance();
+	public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
+		return InstanceIdentifier.builder(basePath).child(Ipv4Route.class, new Ipv4RouteKey(key)).toInstance();
 	}
 
 	@Override
