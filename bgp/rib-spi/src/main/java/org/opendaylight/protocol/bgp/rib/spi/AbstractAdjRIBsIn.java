@@ -103,7 +103,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<ID, DATA> state) {
-			this.candidates.put(peer, state);
+			this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
 			electCandidate(transaction, findCandidate(state));
 		}
 	}
@@ -133,7 +133,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final ID id);
 
 	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final ID id, final RIBEntryData<ID, DATA> data) {
-		RIBEntry e = this.entries.get(id);
+		RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
 		if (e == null) {
 			e = new RIBEntry(id);
 			this.entries.put(id, e);
