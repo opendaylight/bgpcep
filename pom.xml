@@ -32,7 +32,7 @@
 		<osgi.version>5.0.0</osgi.version>
 
 		<yangtools.version>0.5.9-SNAPSHOT</yangtools.version>
-        <controller.config.version>0.2.2-SNAPSHOT</controller.config.version>
+        <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
 		<yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
 		<ietf.types.version>2010.09.24.1</ietf.types.version>
 	</properties>

@@ -42,6 +42,7 @@ public final class BGPDispatcherImplModule
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		final BGPMessageFactory messageFactoryDependency = getMessageFactoryDependency();
-		return new BGPDispatcherImpl(messageFactoryDependency, getBossGroupDependency(), getWorkerGroupDependency());
+		return new BGPDispatcherImpl(messageFactoryDependency,
+				getBossGroupDependency(), getWorkerGroupDependency());
 	}
 }

@@ -11,6 +11,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import java.net.InetSocketAddress;
 
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPImpl;
 
 /**
@@ -36,7 +37,14 @@ public final class BGPImplModule
 	@Override
 	public void validate() {
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getHost(),
+				"value is not set.", hostJmxAttribute);
+
+		JmxAttributeValidationException.checkNotNull(getPort(),
+				"value is not set.", portJmxAttribute);
+		JmxAttributeValidationException.checkCondition((getPort() >= 0)
+				&& (getPort() <= 65535), "value" + getPort()
+				+ " is out of range (0-65535).", portJmxAttribute);
 	}
 
 	@Override
