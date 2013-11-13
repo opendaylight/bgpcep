@@ -363,4 +363,9 @@ public final class LinkstateNlriParser implements NlriParser {
 				new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build());
 		NlriUtil.parseNextHop(nextHop, builder);
 	}
+
+	public static byte[] serializeNlri(final CLinkstateDestination destination) {
+		// FIXME: BUG-108: finish this
+		throw new UnsupportedOperationException("BUG-108: not implemented");
+	}
 }
