@@ -57,6 +57,6 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 	}
 
 	@Override
-		public void close() throws Exception {
+	public void close() {
 	}
 }

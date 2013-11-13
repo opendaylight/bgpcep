@@ -31,7 +31,7 @@ import java.net.InetSocketAddress;
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
  * start method that will handle sockets in different thread.
  */
-public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends SessionListener<?, ?, ?>> {
+public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends SessionListener<?, ?, ?>> implements Closeable {
 
 	protected interface PipelineInitializer<S extends ProtocolSession<?>> {
 		/**
@@ -50,6 +50,16 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 	private final EventLoopGroup bossGroup;
 
 	private final EventLoopGroup workerGroup;
+
+	/**
+	 * Internally creates new instances of NioEventLoopGroup, might deplete system resources and result in Too many open files exception.
+	 *
+	 * @deprecated use {@link AbstractDispatcher#AbstractDispatcher(io.netty.channel.EventLoopGroup, io.netty.channel.EventLoopGroup)} instead.
+	 */
+	@Deprecated
+	protected AbstractDispatcher() {
+		this(new NioEventLoopGroup(),new NioEventLoopGroup());
+	}
 
 	protected AbstractDispatcher(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
 		this.bossGroup = bossGroup;
@@ -129,5 +139,18 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 		return p;
 
 	}
+
+    /**
+     * @deprecated Should only be used with {@link AbstractDispatcher#AbstractDispatcher()}
+     */
+    @Deprecated
+    @Override
+    public void close() {
+        try {
+            this.workerGroup.shutdownGracefully();
+        } finally {
+            this.bossGroup.shutdownGracefully();
+        }
+    }
 
 }

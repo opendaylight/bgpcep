@@ -56,7 +56,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 		});
 	}
 
-	@Override
-		public void close() throws Exception {
-	}
+    @Override
+    public void close() {
+    }
 }

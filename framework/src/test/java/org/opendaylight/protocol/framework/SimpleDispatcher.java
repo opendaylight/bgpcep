@@ -51,4 +51,7 @@ public class SimpleDispatcher extends AbstractDispatcher<SimpleSession, SimpleSe
 		return super.createServer(address, new SimplePipelineInitializer(listenerFactory));
 	}
 
+    @Override
+    public void close() {
+    }
 }
