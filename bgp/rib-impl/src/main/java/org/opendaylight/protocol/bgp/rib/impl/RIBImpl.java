@@ -29,13 +29,15 @@ import org.opendaylight.protocol.bgp.rib.RIB;
 import org.opendaylight.protocol.bgp.rib.RIBChangedEvent;
 import org.opendaylight.protocol.bgp.rib.RIBEvent;
 import org.opendaylight.protocol.bgp.rib.RIBEventListener;
-
 import org.opendaylight.protocol.concepts.InitialListenerEvents;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.concepts.Prefix;
 import org.opendaylight.protocol.bgp.linkstate.LinkIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.NodeIdentifier;
 import org.opendaylight.protocol.bgp.linkstate.PrefixIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -44,6 +46,7 @@ import com.google.common.eventbus.Subscribe;
 
 @ThreadSafe
 public final class RIBImpl implements RIB {
+	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private final RIBTable<LinkIdentifier, BGPLinkState> links = new RIBTable<>();
 	private final RIBTable<NodeIdentifier, BGPNodeState> nodes = new RIBTable<>();
 	private final RIBTable<PrefixIdentifier<?>, BGPPrefixState> prefixes = new RIBTable<>();
@@ -62,7 +65,9 @@ public final class RIBImpl implements RIB {
 		final Map<PrefixIdentifier<?>, BGPPrefixState> p = new HashMap<>();
 		final Map<Prefix<?>, BGPRouteState<?>> r = new HashMap<>();
 
-		for (final Object id : removedObjects)
+		for (final Object id : removedObjects) {
+			LOG.debug("Removing object {}", id);
+
 			if (id instanceof Prefix<?>)
 				routes.remove(r, peer, (Prefix<?>)id);
 			else if (id instanceof LinkIdentifier)
@@ -73,8 +78,11 @@ public final class RIBImpl implements RIB {
 				prefixes.remove(p, peer, (PrefixIdentifier<?>) id);
 			else
 				throw new IllegalArgumentException("Unsupported identifier " + id.getClass());
+		}
 
-		for (final BGPObject o : addedObjects)
+		for (final BGPObject o : addedObjects) {
+			LOG.debug("Adding object {}", o);
+
 			if (o instanceof BGPLink) {
 				final BGPLink link = (BGPLink)o;
 				links.add(l, peer, link.getLinkIdentifier(), link.currentState());
@@ -89,9 +97,13 @@ public final class RIBImpl implements RIB {
 				routes.add(r, peer, route.getName(), route.currentState());
 			} else
 				throw new IllegalArgumentException("Unsupported identifier " + o.getClass());
+		}
 
-		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty())
-			bus.post(new RIBChangedEvent(l, n, p, r));
+		if (!l.isEmpty() || !n.isEmpty() || !p.isEmpty() || !r.isEmpty()) {
+			final RIBChangedEvent event = new RIBChangedEvent(l, n, p, r);
+			LOG.debug("Firing RIBChangedEvent {}", event);
+			bus.post(event);
+		}
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final BGPTableType t) {

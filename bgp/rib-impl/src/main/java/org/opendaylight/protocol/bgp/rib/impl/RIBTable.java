@@ -16,11 +16,13 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.protocol.bgp.parser.AbstractBGPObjectState;
-
 import org.opendaylight.protocol.concepts.Identifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ThreadSafe
 class RIBTable<ID extends Identifier, STATE extends AbstractBGPObjectState<?>> {
+	private static final Logger LOG = LoggerFactory.getLogger(RIBTable.class);
 	private final Comparator<STATE> comparator = new BGPObjectComparator<>();
 	private final Map<ID, RIBEntry<ID, STATE>> entries = new HashMap<>();
 
@@ -53,8 +55,11 @@ class RIBTable<ID extends Identifier, STATE extends AbstractBGPObjectState<?>> {
 
 	synchronized void remove(final Map<ID, STATE> transaction, final BGPPeer peer, final ID id) {
 		final RIBEntry<ID, STATE> e = this.entries.get(id);
-		if (e != null && e.removeState(transaction, peer))
+		LOG.debug("Looked up ID {} to entry{}", id, e);
+		if (e != null && e.removeState(transaction, peer)) {
+			LOG.debug("Removed last state, removing entry for {}", id);
 			this.entries.remove(id);
+		}
 	}
 
 	synchronized Map<ID, STATE> currentState() {

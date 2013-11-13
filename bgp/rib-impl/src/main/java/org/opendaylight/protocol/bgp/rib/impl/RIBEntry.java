@@ -14,9 +14,11 @@ import java.util.Map;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.protocol.bgp.parser.AbstractBGPObjectState;
-
 import org.opendaylight.protocol.concepts.Identifier;
 import org.opendaylight.protocol.concepts.NamedObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -28,6 +30,8 @@ import com.google.common.base.Preconditions;
  */
 @ThreadSafe
 final class RIBEntry<ID extends Identifier, STATE extends AbstractBGPObjectState<?>> implements NamedObject<ID> {
+	private static final Logger LOG = LoggerFactory.getLogger(RIBEntry.class);
+
 	/*
 	 * TODO: we could dramatically optimize performance by using the comparator
 	 *       to retain the candidate states ordered -- thus selection would occur
@@ -58,6 +62,8 @@ final class RIBEntry<ID extends Identifier, STATE extends AbstractBGPObjectState
 	}
 
 	private void electCandidate(final Map<ID, STATE> transaction, final STATE candidate) {
+		LOG.trace("Electing state {} to supersede {}", candidate, currentState);
+
 		if (this.currentState == null || !this.currentState.equals(candidate)) {
 			transaction.put(this.name, candidate);
 			this.currentState = candidate;
@@ -65,14 +71,16 @@ final class RIBEntry<ID extends Identifier, STATE extends AbstractBGPObjectState
 	}
 
 	synchronized boolean removeState(final Map<ID, STATE> transaction, final BGPPeer peer) {
-		this.candidates.remove(peer);
+		LOG.trace("Removing candidate {}", peer);
+
+		final STATE s = this.candidates.remove(peer);
+		LOG.trace("Removed state {}", s);
 
 		final STATE candidate = findCandidate(null);
-		if (candidate != null) {
-			electCandidate(transaction, candidate);
-			return true;
-		} else
-			return false;
+		LOG.trace("New candidate state {}", candidate);
+
+		electCandidate(transaction, candidate);
+		return candidates.isEmpty();
 	}
 
 	synchronized void setState(final Map<ID, STATE> transaction, final BGPPeer peer, final STATE state) {
