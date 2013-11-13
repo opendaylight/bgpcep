@@ -19,7 +19,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPErrorObject;
 
 /**
@@ -217,7 +217,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException(e, "Error object has unknown identifier.");
 		}
 
-		return new PCEPErrorObject(error, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+		return new PCEPErrorObject(error, PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class PCEPErrorObjectParser implements PCEPObjectParser {
 
 		final PCEPErrorObject errObj = (PCEPErrorObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(errObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(errObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
 
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

@@ -57,7 +57,7 @@ public class PCEPTlvParserTest {
     @Test
     public void testDeserialization() throws PCEPDeserializerException, IOException {
 	final byte[] bytesFromFile = ByteArray.fileToBytes("src/test/resources/PackOfTlvs.bin");
-	final List<PCEPTlv> tlvsToTest = PCEPTlvParser.parse(bytesFromFile);
+	final List<PCEPTlv> tlvsToTest = PCEPTlvFactory.parse(bytesFromFile);
 
 	assertEquals(17, tlvsToTest.size());
 	assertEquals(tlvsToTest.get(0), new PCEStatefulCapabilityTlv(false, false, true));
@@ -100,7 +100,7 @@ public class PCEPTlvParserTest {
 	}));
 	assertEquals(tlvsToTest.get(16), new P2MPCapabilityTlv(2));
 
-	assertArrayEquals(bytesFromFile, PCEPTlvParser.put(tlvsToTest));
+	assertArrayEquals(bytesFromFile, PCEPTlvFactory.put(tlvsToTest));
     }
 
     @Test
@@ -109,37 +109,37 @@ public class PCEPTlvParserTest {
 					      // for parsing subobjects
 
 	try {
-	    LSPIdentifierIPv4TlvParser.parse(bytes);
+	    new LSPIdentifierIPv4TlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
 
 	try {
-	    LSPIdentifierIPv6TlvParser.parse(bytes);
+	    new LSPIdentifierIPv6TlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
 
 	try {
-	    PCEStatefulCapabilityTlvParser.deserializeValueField(bytes);
+	    new PCEStatefulCapabilityTlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.parse(bytes);
+	    new RSVPErrorSpecIPv4TlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv6TlvParser.parse(bytes);
+	    new RSVPErrorSpecIPv6TlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
 
 	try {
-	    OFListTlvParser.parse(bytes);
+	    new OFListTlvParser().parse(bytes);
 	    fail("");
 	} catch (final PCEPDeserializerException e) {
 	}
@@ -148,37 +148,37 @@ public class PCEPTlvParserTest {
     @Test
     public void testUnknownInstanceExceptions() {
 	try {
-	    LSPIdentifierIPv4TlvParser.put(null);
+	    new LSPIdentifierIPv4TlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    LSPIdentifierIPv6TlvParser.put(null);
+	    new LSPIdentifierIPv6TlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    PCEStatefulCapabilityTlvParser.serializeValueField(null);
+	    new PCEStatefulCapabilityTlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.put(null);
+	    new RSVPErrorSpecIPv4TlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv6TlvParser.put(null);
+	    new RSVPErrorSpecIPv6TlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    OFListTlvParser.put(null);
+	    new OFListTlvParser().put(null);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
@@ -190,37 +190,37 @@ public class PCEPTlvParserTest {
 	final byte[] bytes = {}; // empty
 
 	try {
-	    LSPIdentifierIPv4TlvParser.parse(bytes);
+	    new LSPIdentifierIPv4TlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    LSPIdentifierIPv6TlvParser.parse(bytes);
+	    new LSPIdentifierIPv6TlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    PCEStatefulCapabilityTlvParser.deserializeValueField(bytes);
+	    new PCEStatefulCapabilityTlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv4TlvParser.parse(bytes);
+	    new RSVPErrorSpecIPv4TlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    RSVPErrorSpecIPv6TlvParser.parse(bytes);
+	    new RSVPErrorSpecIPv6TlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}
 
 	try {
-	    OFListTlvParser.parse(bytes);
+	    new OFListTlvParser().parse(bytes);
 	    fail("");
 	} catch (final IllegalArgumentException e) {
 	}

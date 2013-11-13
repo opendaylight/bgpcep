@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPLspObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -47,7 +47,7 @@ public class PCEPLspObjectParser implements PCEPObjectParser {
 
 		return new PCEPLspObject((ByteArray.bytesToShort(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2] & 0xFF) >> 4,
 				flags.get(DELEGATE_FLAG_OFFSET), flags.get(SYNC_FLAG_OFFSET), flags.get(OPERATIONAL_FLAG_OFFSET), flags.get(REMOVE_FLAG_OFFSET),
-				PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
+				PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_OFFSET)));
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class PCEPLspObjectParser implements PCEPObjectParser {
 
 		final PCEPLspObject specObj = (PCEPLspObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(specObj.getTlvs());
 
 		final byte[] retBytes = new byte[tlvs.length + TLVS_OFFSET];
 

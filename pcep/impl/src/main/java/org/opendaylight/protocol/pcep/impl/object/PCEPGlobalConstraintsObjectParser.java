@@ -11,7 +11,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPGlobalConstraintsObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -42,7 +42,7 @@ public class PCEPGlobalConstraintsObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
 		return new PCEPGlobalConstraintsObject((short) (bytes[MAX_HOP_F_OFFSET] & 0xFF), (short) (bytes[MAX_UTIL_F_OFFSET] & 0xFF),
-				(short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF), (short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF), PCEPTlvParser.parse(ByteArray.cutBytes(bytes,
+				(short) (bytes[MIN_UTIL_F_OFFSET] & 0xFF), (short) (bytes[OVER_BOOKING_FACTOR_F_OFFSET] & 0xFF), PCEPTlvFactory.parse(ByteArray.cutBytes(bytes,
 						TLVS_OFFSET)), processed, ignored);
 	}
 
@@ -53,7 +53,7 @@ public class PCEPGlobalConstraintsObjectParser implements PCEPObjectParser {
 
 		final PCEPGlobalConstraintsObject specObj = (PCEPGlobalConstraintsObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(specObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
 
 		retBytes[MAX_HOP_F_OFFSET] = (byte) specObj.getMaxHop();

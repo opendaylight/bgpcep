@@ -14,18 +14,22 @@ import java.util.NoSuchElementException;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPOFCodes;
+import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.impl.PCEPOFCodesMapping;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.tlv.OFListTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.OFListTlv OFListTlv}
  */
-public class OFListTlvParser {
+public class OFListTlvParser implements PCEPTlvParser {
 
 	private static final int OF_CODE_ELEMENT_LENGTH = 2;
+	
+	public static final int TYPE = 4;
 
-	public static OFListTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
+	public OFListTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		if (valueBytes.length % OF_CODE_ELEMENT_LENGTH != 0)
@@ -44,11 +48,13 @@ public class OFListTlvParser {
 		return new OFListTlv(ofCodes);
 	}
 
-	public static byte[] put(OFListTlv objToSerialize) {
+	public byte[] put(PCEPTlv objToSerialize) {
 		if (objToSerialize == null)
 			throw new IllegalArgumentException("OFListTlv is mandatory.");
 
-		final List<PCEPOFCodes> ofCodes = objToSerialize.getOfCodes();
+		OFListTlv tlv = (OFListTlv) objToSerialize;
+		
+		final List<PCEPOFCodes> ofCodes = tlv.getOfCodes();
 		final byte[] retBytes = new byte[ofCodes.size() * OF_CODE_ELEMENT_LENGTH];
 
 		final int size = ofCodes.size();

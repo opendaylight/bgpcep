@@ -14,7 +14,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPRequestParameterObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -97,7 +97,7 @@ public class PCEPRequestParameterObjectParser implements PCEPObjectParser {
 
 		return new PCEPRequestParameterObject(flags.get(O_FLAG_OFFSET), flags.get(B_FLAG_OFFSET), flags.get(R_FLAG_OFFSET), flags.get(M_FLAG_OFFSET),
 				flags.get(D_FLAG_OFFSET), flags.get(S_FLAG_OFFSET), flags.get(F_FLAG_OFFSET), flags.get(N_FLAG_OFFSET), flags.get(E_FLAG_OFFSET), priority,
-				ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH)), PCEPTlvParser.parse(ByteArray.cutBytes(bytes,
+				ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH)), PCEPTlvFactory.parse(ByteArray.cutBytes(bytes,
 						TLVS_OFFSET)), processed, ignored);
 	}
 
@@ -124,7 +124,7 @@ public class PCEPRequestParameterObjectParser implements PCEPObjectParser {
 		flags_priority.set(PRI_SF_OFFSET + 1, (rPObj.getPriority() & 1 << 1) != 0);
 		flags_priority.set(PRI_SF_OFFSET + 2, (rPObj.getPriority() & 1) != 0);
 
-		final byte[] tlvs = PCEPTlvParser.put(rPObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(rPObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags_priority, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);

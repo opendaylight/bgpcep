@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPNotificationObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -43,7 +43,7 @@ public class PCEPNotificationObjectParser implements PCEPObjectParser {
 		if (bytes.length < TLVS_OFFSET)
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 
-		return new PCEPNotificationObject((short) (bytes[NT_F_OFFSET] & 0xFF), (short) (bytes[NV_F_OFFSET] & 0xFF), PCEPTlvParser.parse(ByteArray.cutBytes(
+		return new PCEPNotificationObject((short) (bytes[NT_F_OFFSET] & 0xFF), (short) (bytes[NV_F_OFFSET] & 0xFF), PCEPTlvFactory.parse(ByteArray.cutBytes(
 				bytes, TLVS_OFFSET)));
 	}
 
@@ -54,7 +54,7 @@ public class PCEPNotificationObjectParser implements PCEPObjectParser {
 
 		final PCEPNotificationObject notObj = (PCEPNotificationObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(notObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(notObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
 
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

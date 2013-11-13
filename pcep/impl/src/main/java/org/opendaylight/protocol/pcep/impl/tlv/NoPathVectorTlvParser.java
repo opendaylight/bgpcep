@@ -10,13 +10,17 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.tlv.NoPathVectorTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.NoPathVectorTlv NoPathVectorTlv}
  */
-public class NoPathVectorTlvParser {
+public class NoPathVectorTlvParser implements PCEPTlvParser {
+	
+	public static final int TYPE = 1;
 
 	public static final int FLAGS_F_LENGTH = 4;
 
@@ -38,7 +42,7 @@ public class NoPathVectorTlvParser {
 	 */
 	public static final int REACHABLITY_PROBLEM = 24;
 
-	public static NoPathVectorTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
+	public NoPathVectorTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 
@@ -50,11 +54,13 @@ public class NoPathVectorTlvParser {
 				flags.get(NO_GCO_MIGRATION_PATH), flags.get(REACHABLITY_PROBLEM));
 	}
 
-	public static byte[] put(NoPathVectorTlv obj) {
-		if (obj == null)
+	public byte[] put(PCEPTlv tlv) {
+		if (tlv == null)
 			throw new IllegalArgumentException("NoPathVectorTlv is mandatory.");
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+		
+		NoPathVectorTlv obj = (NoPathVectorTlv) tlv;
 
 		flags.set(PCE_UNAVAILABLE, obj.isPceUnavailable());
 		flags.set(UNKNOWN_DEST, obj.isUnknownDest());

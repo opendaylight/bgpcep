@@ -13,7 +13,7 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPOFCodesMapping;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPObjectiveFunctionObject;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -43,7 +43,7 @@ public class PCEPObjectiveFunctionObjectParser implements PCEPObjectParser {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + TLVS_OFFSET + ".");
 		try {
 			return new PCEPObjectiveFunctionObject(PCEPOFCodesMapping.getInstance().getFromCodeIdentifier(
-					ByteArray.bytesToShort(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH)) & 0xFFFF), PCEPTlvParser.parse(ByteArray.cutBytes(
+					ByteArray.bytesToShort(ByteArray.subByte(bytes, OF_CODE_F_OFFSET, OF_CODE_F_LENGTH)) & 0xFFFF), PCEPTlvFactory.parse(ByteArray.cutBytes(
 					bytes, TLVS_OFFSET)), processed, ignored);
 		} catch (final NoSuchElementException e) {
 			throw new PCEPDeserializerException(e, "Objective function object has unknown identifier.");
@@ -57,7 +57,7 @@ public class PCEPObjectiveFunctionObjectParser implements PCEPObjectParser {
 
 		final PCEPObjectiveFunctionObject specObj = (PCEPObjectiveFunctionObject) obj;
 
-		final byte[] tlvs = PCEPTlvParser.put(specObj.getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(specObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length];
 
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

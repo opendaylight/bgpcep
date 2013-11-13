@@ -10,6 +10,8 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.tlv.PCEStatefulCapabilityTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -21,7 +23,9 @@ import org.opendaylight.protocol.util.ByteArray;
  *      href="http://www.ietf.org/id/draft-crabbe-pce-pce-initiated-lsp-00.txt#section-4.1">
  *      Stateful PCE Capability TLV</a>
  */
-public final class PCEStatefulCapabilityTlvParser {
+public final class PCEStatefulCapabilityTlvParser implements PCEPTlvParser {
+	
+	public static final int TYPE = 16;
     /*
      * Flags field length in Bytes
      */
@@ -34,7 +38,7 @@ public final class PCEStatefulCapabilityTlvParser {
     public static final int S_FLAG_OFFSET = 30;
     public static final int U_FLAG_OFFSET = 31;
 
-    public static PCEStatefulCapabilityTlv deserializeValueField(byte[] valueBytes) throws PCEPDeserializerException {
+    public PCEStatefulCapabilityTlv parse(byte[] valueBytes) throws PCEPDeserializerException {
 	if (valueBytes == null || valueBytes.length == 0)
 	    throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 	if (valueBytes.length < FLAGS_F_LENGTH)
@@ -44,14 +48,16 @@ public final class PCEStatefulCapabilityTlvParser {
 	return new PCEStatefulCapabilityTlv(flags.get(I_FLAG_OFFSET), flags.get(U_FLAG_OFFSET), flags.get(S_FLAG_OFFSET));
     }
 
-    public static byte[] serializeValueField(PCEStatefulCapabilityTlv objToSerialize) {
+    public byte[] put(PCEPTlv objToSerialize) {
 	if (objToSerialize == null)
 	    throw new IllegalArgumentException("PCEStatefulCapabilityTlv is mandatory.");
+	
+	PCEStatefulCapabilityTlv tlv = (PCEStatefulCapabilityTlv) objToSerialize;
 
 	final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-	flags.set(I_FLAG_OFFSET, objToSerialize.isInstantiated());
-	flags.set(U_FLAG_OFFSET, objToSerialize.isUpdate());
-	flags.set(S_FLAG_OFFSET, objToSerialize.isVersioned());
+	flags.set(I_FLAG_OFFSET, tlv.isInstantiated());
+	flags.set(U_FLAG_OFFSET, tlv.isUpdate());
+	flags.set(S_FLAG_OFFSET, tlv.isVersioned());
 
 	return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
     }

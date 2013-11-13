@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPObject;
 import org.opendaylight.protocol.pcep.impl.PCEPObjectParser;
-import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvFactory;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject;
 import org.opendaylight.protocol.pcep.object.PCEPCloseObject.Reason;
 import org.opendaylight.protocol.util.ByteArray;
@@ -67,7 +67,7 @@ public class PCEPCloseObjectParser implements PCEPObjectParser {
 				break;
 		}
 
-		return new PCEPCloseObject(reason, PCEPTlvParser.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
+		return new PCEPCloseObject(reason, PCEPTlvFactory.parse(ByteArray.cutBytes(bytes, TLVS_F_OFFSET)));
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class PCEPCloseObjectParser implements PCEPObjectParser {
 		if (!(obj instanceof PCEPCloseObject))
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + obj.getClass() + ". Needed PCEPCloseObject.");
 
-		final byte[] tlvs = PCEPTlvParser.put(((PCEPCloseObject) obj).getTlvs());
+		final byte[] tlvs = PCEPTlvFactory.put(((PCEPCloseObject) obj).getTlvs());
 		final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length];
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
 

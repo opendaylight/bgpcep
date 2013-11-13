@@ -11,6 +11,8 @@ import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.IPv6Address;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPTlv;
+import org.opendaylight.protocol.pcep.impl.PCEPTlvParser;
 import org.opendaylight.protocol.pcep.tlv.RSVPErrorSpecTlv;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -18,7 +20,9 @@ import org.opendaylight.protocol.util.ByteArray;
  * Parser for {@link org.opendaylight.protocol.pcep.tlv.RSVPErrorSpecTlv RSVPErrorSpecTlv}
  * parameterized as IPv6Address
  */
-public class RSVPErrorSpecIPv6TlvParser {
+public class RSVPErrorSpecIPv6TlvParser implements PCEPTlvParser {
+	
+	public static final int TYPE = 22;
 
 	private static final int IP_F_LENGTH = 16;
 	private static final int FLAGS_F_LENGTH = 1;
@@ -38,7 +42,7 @@ public class RSVPErrorSpecIPv6TlvParser {
 	private static final int IN_PLACE_FLAG_OFFSET = 7;
 	private static final int NOT_GUILTY_FLAGS_OFFSET = 6;
 
-	public static RSVPErrorSpecTlv<IPv6Address> parse(byte[] valueBytes) throws PCEPDeserializerException {
+	public RSVPErrorSpecTlv<IPv6Address> parse(byte[] valueBytes) throws PCEPDeserializerException {
 		if (valueBytes == null || valueBytes.length == 0)
 			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
 		if (valueBytes.length != SIZE) {
@@ -53,23 +57,25 @@ public class RSVPErrorSpecIPv6TlvParser {
 				ByteArray.bytesToShort(ByteArray.subByte(valueBytes, ERROR_VALUE_F_OFFSET, ERROR_VALUE_F_LENGTH)) & 0xFFFF);
 	}
 
-	public static byte[] put(RSVPErrorSpecTlv<?> objToSerialize) {
+	public byte[] put(PCEPTlv objToSerialize) {
 		if (objToSerialize == null)
 			throw new IllegalArgumentException("RSVPErrorSpecTlv is mandatory.");
+		
+		RSVPErrorSpecTlv<?> tlv = (RSVPErrorSpecTlv<?>) objToSerialize;
 
 		if (!(((RSVPErrorSpecTlv<?>) objToSerialize).getErrorNodeAddress() instanceof IPv6Address))
 			throw new IllegalArgumentException("Unknown parametrized type of RSVPErrorSpecTlv. Passed "
 					+ ((RSVPErrorSpecTlv<?>) objToSerialize).getErrorNodeAddress().getClass() + ". Needed IPv6Address.");
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(IN_PLACE_FLAG_OFFSET, objToSerialize.isInPlace());
-		flags.set(NOT_GUILTY_FLAGS_OFFSET, objToSerialize.isGuilty());
+		flags.set(IN_PLACE_FLAG_OFFSET, tlv.isInPlace());
+		flags.set(NOT_GUILTY_FLAGS_OFFSET, tlv.isGuilty());
 
 		final byte[] retBytes = new byte[SIZE];
 
-		ByteArray.copyWhole(((IPv6Address) objToSerialize.getErrorNodeAddress()).getAddress(), retBytes, IP_F_OFFSET);
-		retBytes[ERROR_CODE_F_OFFSET] = ByteArray.intToBytes(objToSerialize.getErrorCode())[Integer.SIZE / Byte.SIZE - 1];
-		System.arraycopy(ByteArray.intToBytes(objToSerialize.getErrorValue()), Integer.SIZE / Byte.SIZE - ERROR_VALUE_F_LENGTH, retBytes, ERROR_VALUE_F_OFFSET,
+		ByteArray.copyWhole(((IPv6Address) tlv.getErrorNodeAddress()).getAddress(), retBytes, IP_F_OFFSET);
+		retBytes[ERROR_CODE_F_OFFSET] = ByteArray.intToBytes(tlv.getErrorCode())[Integer.SIZE / Byte.SIZE - 1];
+		System.arraycopy(ByteArray.intToBytes(tlv.getErrorValue()), Integer.SIZE / Byte.SIZE - ERROR_VALUE_F_LENGTH, retBytes, ERROR_VALUE_F_OFFSET,
 				ERROR_VALUE_F_LENGTH);
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 
