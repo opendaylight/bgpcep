@@ -18,12 +18,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class ASNumberTest {
-	private AsNumber asn1, asn2, asn3, asn4;
+	private AsNumber asn1, asn3, asn4;
 
 	@Before
 	public void setUp() {
@@ -57,8 +56,6 @@ public class ASNumberTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME BUG-89
 	public void testToString() {
 		assertEquals("AsNumber [_value=429496729800]", this.asn1.toString());
 		assertEquals("AsNumber [_value=200]", this.asn3.toString());
