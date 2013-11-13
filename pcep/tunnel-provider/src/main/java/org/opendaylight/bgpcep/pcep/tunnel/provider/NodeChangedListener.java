@@ -7,7 +7,10 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import java.util.Map.Entry;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -16,21 +19,57 @@ import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.AdministrativeStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.SupportingNode1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.SupportingNode1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.tunnel.pcep.supporting.node.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.TerminationPointType;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.IdentifiableItem;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 final class NodeChangedListener implements DataChangeListener {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
@@ -42,35 +81,263 @@ final class NodeChangedListener implements DataChangeListener {
 		this.target = Preconditions.checkNotNull(target);
 	}
 
-	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<?> id) {
-		if (Node.class.equals(id.getTargetType())) {
-			// FIXME: implement this
-		} else if (ReportedLsps.class.equals(id.getTargetType())) {
-			// FIXME: implement this
+	private static <T extends DataObject> InstanceIdentifier<T> firstIdentifierOf(final InstanceIdentifier<?> id, final Class<T> type) {
+		final List<PathArgument> p = id.getPath();
+
+		int i = 1;
+		for (final PathArgument a : p) {
+			if (type.equals(a.getType())) {
+				new InstanceIdentifier<>(p.subList(0, i), type);
+			}
+
+			++i;
+		}
+
+		LOG.debug("Identifier {} does not contain type {}", id, type);
+		return null;
+	}
+
+	private static <N extends Identifiable<K> & DataObject, K extends Identifier<N>> K firstKeyOf(final InstanceIdentifier<?> id,  final Class<N> listItem, final Class<K> listKey) {
+		for (PathArgument i : id.getPath()) {
+			if (i.getType().equals(listItem)) {
+				@SuppressWarnings("unchecked")
+				final K ret = ((IdentifiableItem<N, K>)i).getKey();
+				return ret;
+			}
+		}
+
+		LOG.debug("Identifier {} does not contain type {}", id, listItem);
+		return null;
+	}
+
+	private static <N extends Identifiable<K> & DataObject, K extends Identifier<N>> K keyOf(final InstanceIdentifier<N> id) {
+		@SuppressWarnings("unchecked")
+		final K ret = ((IdentifiableItem<N, K>)Iterables.getLast(id.getPath())).getKey();
+		return ret;
+	}
+
+	private static void categorizeIdentifier(final InstanceIdentifier<?> i,
+			final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
+			final Set<InstanceIdentifier<Node>> changedNodes) {
+		final InstanceIdentifier<ReportedLsps> li = firstIdentifierOf(i, ReportedLsps.class);
+		if (li == null) {
+			final InstanceIdentifier<Node> ni = firstIdentifierOf(i, Node.class);
+			if (ni == null) {
+				LOG.warn("Ignoring uncategorized identifier {}", i);
+			} else {
+				changedNodes.add(ni);
+			}
 		} else {
-			LOG.debug("Ignoring changed instance {}", id);
+			changedLsps.add(li);
 		}
 	}
 
-	private void create(final DataModificationTransaction trans, final InstanceIdentifier<?> id, final DataObject obj) {
-		// FIXME: implement this
+	private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node, final Set<InstanceIdentifier<ReportedLsps>> lsps) {
+		if (node == null) {
+			LOG.trace("Skipping null node", id);
+			return;
+		}
+		final Node1 pccnode = node.getAugmentation(Node1.class);
+		if (pccnode == null) {
+			LOG.trace("Skipping non-PCEP-enabled node {}", id);
+			return;
+		}
+
+		for (final ReportedLsps l : pccnode.getPathComputationClient().getReportedLsps()) {
+			lsps.add(InstanceIdentifier.builder(id).
+					augmentation(Node1.class).
+					child(PathComputationClient.class).
+					child(ReportedLsps.class, l.getKey()).toInstance());
+		}
+	}
+
+	private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsps> i, final ReportedLsps lsp) {
+		return new LinkId(firstKeyOf(i, Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
+	}
+
+	private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
+		return InstanceIdentifier.builder(target).child(Link.class, new LinkKey(linkId)).toInstance();
+	}
+
+	private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
+		final SupportingNodeKey sk = new SupportingNodeKey(sni);
+		final SupportingNodeBuilder snb = new SupportingNodeBuilder();
+		snb.setNodeRef(sni);
+		snb.setKey(sk);
+		snb.addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(
+				new PathComputationClientBuilder().setControlling(inControl).build()).build());
+
+		return snb.build();
+	}
+
+	private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final DataModificationTransaction trans, final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl) {
+		for (final Node n : ((Topology) trans.readOperationalData(target)).getNode()) {
+			for (final TerminationPoint tp : n.getTerminationPoint()) {
+				final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
+
+				if (tpa != null) {
+					final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes().getTerminationPointType();
+
+					if (tpt instanceof Ip) {
+						for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
+							if (addr.equals(a.getIpv6Address())) {
+								if (sni != null) {
+									final NodeKey k = keyOf(sni);
+									boolean have = false;
+
+									/*
+									 * We may have found a termination point which has been created as a destination,
+									 * so it does not have a supporting node pointer. Since we now know what it is,
+									 * fill it in.
+									 */
+									for (SupportingNode sn : n.getSupportingNode()) {
+										if (sn.getNodeRef().equals(k.getNodeId())) {
+											have = true;
+											break;
+										}
+									}
+
+									if (!have) {
+										final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
+
+										trans.putOperationalData(InstanceIdentifier.builder(target).
+												child(Node.class, n.getKey()).
+												child(SupportingNode.class, sn.getKey()).toInstance(), sn);
+									}
+								}
+								return InstanceIdentifier.builder(target).child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
+							}
+						}
+					} else {
+						LOG.debug("Ignoring termination point type {}", tpt);
+					}
+				}
+			}
+		}
+
+		LOG.debug("Termination point for {} not found, creating a new one", addr);
+
+		final String url = "ip://" + addr.toString();
+		final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
+		final TerminationPointBuilder tpb = new TerminationPointBuilder();
+		tpb.setKey(tpk).setTpId(tpk.getTpId());
+		tpb.addAugmentation(TerminationPoint1.class,
+				new TerminationPoint1Builder().
+				setIgpTerminationPointAttributes(
+						new IgpTerminationPointAttributesBuilder().
+						setTerminationPointType(new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build()).build()).build());
+
+		final NodeKey nk = new NodeKey(new NodeId(url));
+		final NodeBuilder nb = new NodeBuilder();
+		nb.setKey(nk).setNodeId(nk.getNodeId());
+		nb.setTerminationPoint(Lists.newArrayList(tpb.build()));
+		if (sni != null) {
+			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(keyOf(sni).getNodeId(), inControl)));
+		}
+
+		trans.putOperationalData(InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).toInstance(), nb.build());
+		return InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).child(TerminationPoint.class, tpb.getKey()).toInstance();
+	}
+
+	private void create(final DataModificationTransaction trans,
+			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+
+		final InstanceIdentifier<Node> ni = firstIdentifierOf(i, Node.class);
+		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
+
+		/*
+		 * We are trying to ensure we have source and destination nodes.
+		 */
+		final IpAddress srcIp, dstIp;
+		if (af instanceof Ipv4) {
+			final Ipv4 ipv4 = (Ipv4) af;
+			srcIp = new IpAddress(ipv4.getSourceIpv4Address());
+			dstIp = new IpAddress(ipv4.getDestinationIpv4Address());
+		} else if (af instanceof Ipv6) {
+			final Ipv6 ipv6 = (Ipv6) af;
+			srcIp = new IpAddress(ipv6.getSourceIpv6Address());
+			dstIp = new IpAddress(ipv6.getDestinationIpv6Address());
+		} else {
+			throw new IllegalArgumentException("Unsupported address family: " + af.getImplementedInterface());
+		}
+
+		final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni, value.getLsp().isDelegate());
+		final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
+
+		final Link1Builder lab = new Link1Builder(value.getPath().getLspa());
+		lab.setAdministrativeStatus(value.getLsp().isAdministrative() ? AdministrativeStatus.Active : AdministrativeStatus.Inactive);
+		lab.setBandwidth(value.getPath().getBandwidth().getBandwidth());
+		lab.setClassType(value.getPath().getClassType().getClassType());
+		lab.setSymbolicPathName(value.getName());
+		lab.setOperationalStatus(value.getLsp().getOperational());
+
+		final LinkId id = linkIdForLsp(i, value);
+		final LinkBuilder lb = new LinkBuilder();
+		lb.setLinkId(id);
+
+		lb.setSource(new SourceBuilder().
+				setSourceNode(firstKeyOf(src, Node.class, NodeKey.class).getNodeId()).
+				setSourceTp(firstKeyOf(src, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+		lb.setDestination(new DestinationBuilder().
+				setDestNode(firstKeyOf(dst, Node.class, NodeKey.class).getNodeId()).
+				setDestTp(firstKeyOf(dst, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+		lb.addAugmentation(Link1.class, lab.build());
+
+		trans.putOperationalData(linkForLsp(id), lb.build());
+	}
+
+	private void remove(final DataModificationTransaction trans,
+			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+		final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
+
+		final Link l = (Link)trans.readOperationalData(li);
+		if (l != null) {
+			trans.removeOperationalData(li);
+
+			// FIXME: clean up/garbage collect nodes/termination types
+		}
 	}
 
 	@Override
 	public void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
 		final DataModificationTransaction trans = dataProvider.beginTransaction();
 
+		final Set<InstanceIdentifier<ReportedLsps>> lsps = new HashSet<>();
+		final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
+
+		// Categorize reported identifiers
 		for (final InstanceIdentifier<?> i : change.getRemovedOperationalData()) {
-			remove(trans, i);
+			categorizeIdentifier(i, lsps, nodes);
+		}
+		for (final InstanceIdentifier<?> i : change.getUpdatedOperationalData().keySet()) {
+			categorizeIdentifier(i, lsps, nodes);
+		}
+		for (final InstanceIdentifier<?> i : change.getCreatedOperationalData().keySet()) {
+			categorizeIdentifier(i, lsps, nodes);
 		}
 
-		for (final Entry<InstanceIdentifier<?>, DataObject> e : change.getUpdatedOperationalData().entrySet()) {
-			remove(trans, e.getKey());
-			create(trans, e.getKey(), e.getValue());
+		// Get the subtrees
+		final Map<InstanceIdentifier<?>, DataObject> o = change.getOriginalOperationalData();
+		final Map<InstanceIdentifier<?>, DataObject> n = change.getUpdatedOperationalData();
+
+		// Now walk all nodes, check for removals/additions and cascade them to LSPs
+		for (final InstanceIdentifier<Node> i : nodes) {
+			enumerateLsps(i, (Node) o.get(i), lsps);
+			enumerateLsps(i, (Node) n.get(i), lsps);
 		}
 
-		for (final Entry<InstanceIdentifier<?>, DataObject> e : change.getCreatedOperationalData().entrySet()) {
-			create(trans, e.getKey(), e.getValue());
+		// We now have list of all affected LSPs. Walk them create/remove them
+		for (final InstanceIdentifier<ReportedLsps> i : lsps) {
+			final ReportedLsps oldValue = (ReportedLsps) o.get(i);
+			final ReportedLsps newValue = (ReportedLsps) n.get(i);
+
+			LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
+			if (oldValue != null) {
+				remove(trans, i, oldValue);
+			}
+			if (newValue != null) {
+				create(trans, i, newValue);
+			}
 		}
 
 		final Future<RpcResult<TransactionStatus>> f = trans.commit();

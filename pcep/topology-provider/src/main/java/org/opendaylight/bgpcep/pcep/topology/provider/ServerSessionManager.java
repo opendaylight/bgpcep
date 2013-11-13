@@ -158,7 +158,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 
 			this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
-			this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).node(Node1.class).toInstance();
+			this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).augmentation(Node1.class).toInstance();
 			trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
 
 			// All set, commit the modifications

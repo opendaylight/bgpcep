@@ -278,7 +278,7 @@ final class LinkstateTopologyBuilder extends AbstractLocRIBListener<LinkstateRou
 	private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix>
 	prefixIdentifier(final String pfx, final Prefix p) {
 		return nodeIdentifierBuilder(pfx, p.getAdvertisingNodeDescriptors()).
-				node(Node1.class).
+				augmentation(Node1.class).
 				child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).
 				child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
 						new PrefixKey(p.getIpReachabilityInformation())).toInstance();

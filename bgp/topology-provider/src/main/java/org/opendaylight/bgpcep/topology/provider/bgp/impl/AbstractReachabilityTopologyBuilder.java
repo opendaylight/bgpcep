@@ -61,7 +61,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 	}
 
 	private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
-		return InstanceIdentifier.builder(getTopology()).child(Node.class, new NodeKey(ni)).node(Node1.class).toInstance();
+		return InstanceIdentifier.builder(getTopology()).child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
 	}
 
 	private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans,
