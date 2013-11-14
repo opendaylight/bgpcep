@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.protocol.pcep.impl.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;

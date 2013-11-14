@@ -17,7 +17,6 @@ import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
-import org.opendaylight.protocol.pcep.impl.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;

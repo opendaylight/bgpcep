@@ -1,4 +1,4 @@
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.impl.message;
 
 import java.util.Arrays;
 import java.util.BitSet;

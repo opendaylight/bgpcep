@@ -13,7 +13,6 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -26,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link NoPathObject}
+ * Parser for {@link NoPath}
  */
 public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathBuilder> {
 
@@ -59,8 +58,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 	}
 
 	@Override
-	public NoPathObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public NoPath parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -85,12 +83,12 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 
 	@Override
 	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof NoPathObject)) {
+		if (!(object instanceof NoPath)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NoPathObject.");
 		}
-		final NoPathObject nPObj = (NoPathObject) object;
+		final NoPath nPObj = (NoPath) object;
 
-		final byte[] tlvs = serializeTlvs(((NoPath) nPObj).getTlvs());
+		final byte[] tlvs = serializeTlvs(nPObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

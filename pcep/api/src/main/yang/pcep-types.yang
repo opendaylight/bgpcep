@@ -1098,9 +1098,9 @@ module pcep-types {
 								}
 							}
 						}
+						uses lsp-attributes;
 					}
 				}
-				uses lsp-attributes;
 			}
 		}
 	}
