@@ -89,10 +89,12 @@ module pcep-impl {
 
 			leaf dead-timer-value {
 				type uint16;
+				default 120;
 			}
 
 			leaf keep-alive-timer-value {
 				type uint16;
+				default 30;
 			}
 
 			leaf instantiated {

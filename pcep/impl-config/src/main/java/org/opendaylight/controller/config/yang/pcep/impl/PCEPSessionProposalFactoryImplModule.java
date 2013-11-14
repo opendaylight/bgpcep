@@ -15,6 +15,8 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 *
@@ -22,6 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public final class PCEPSessionProposalFactoryImplModule
 		extends
 		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
 
 	public PCEPSessionProposalFactoryImplModule(
 			org.opendaylight.controller.config.api.ModuleIdentifier name,
@@ -40,14 +44,31 @@ public final class PCEPSessionProposalFactoryImplModule
 	@Override
 	public void validate() {
 		super.validate();
-		JmxAttributeValidationException
-				.checkCondition(
-						getDeadTimerValue() % getKeepAliveTimerValue() != 4,
-						"Parameter 'dead timer value' should be 4 times greater than keepAlive timer value.",
-						deadTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getActive(),
+				"value is not set.", activeJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getVersioned(),
+				"value is not set.", versionedJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getTimeout(),
+				"value is not set.", timeoutJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getInstantiated(),
+				"value is not set.", instantiatedJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(),
+				"value is not set.", deadTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(),
+				"value is not set.", keepAliveTimerValueJmxAttribute);
+		if (getKeepAliveTimerValue() != 0) {
+			JmxAttributeValidationException.checkCondition(
+					getKeepAliveTimerValue() >= 1, "minimum value is 1.",
+					keepAliveTimerValueJmxAttribute);
+			if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() == 4)) {
+				logger.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
+			}
+		}
 		if ((getActive() || getVersioned() || getTimeout() > 0)
 				&& !getStateful())
 			setStateful(true);
+		JmxAttributeValidationException.checkNotNull(getStateful(),
+				"value is not set.", statefulJmxAttribute);
 	}
 
 	@Override
@@ -73,8 +94,8 @@ public final class PCEPSessionProposalFactoryImplModule
 		}
 
 		@Override
-		public Open getSessionProposal(
-				InetSocketAddress inetSocketAddress, int i) {
+		public Open getSessionProposal(InetSocketAddress inetSocketAddress,
+				int i) {
 			return inner.getSessionProposal(inetSocketAddress, i);
 		}
 	}

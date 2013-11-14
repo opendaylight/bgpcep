@@ -42,6 +42,8 @@ public final class PCEPDispatcherImplModule
 	@Override
 	public void validate() {
 		super.validate();
+		JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(),
+				"value is not set.", this.maxUnknownMessagesJmxAttribute);
 		JmxAttributeValidationException.checkCondition(
 				getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
 						+ "must be greater than 0",
@@ -58,7 +60,8 @@ public final class PCEPDispatcherImplModule
 
 		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
 				PCEPExtensionProviderContextImpl.getSingletonInstance()
-						.getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency());
+						.getMessageHandlerRegistry(), negFactory,
+				getBossGroupDependency(), getWorkerGroupDependency());
 		return instance;
 	}
 }
