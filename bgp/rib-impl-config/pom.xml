@@ -103,7 +103,18 @@
          <version>${controller.config.version}</version>
          <scope>test</scope>
       </dependency>
-      
+      <dependency>
+         <groupId>org.opendaylight.controller</groupId>
+         <artifactId>netty-threadgroup-config</artifactId>
+         <version>${controller.config.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.controller</groupId>
+         <artifactId>sal-binding-broker-impl</artifactId>
+         <version>1.0-SNAPSHOT</version>
+         <scope>test</scope>
+      </dependency>     
    </dependencies>
 
    <build>

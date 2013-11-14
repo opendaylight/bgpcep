@@ -10,6 +10,7 @@ module bgp-rib-impl {
     import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
     import threadpool { prefix th; revision-date 2013-04-09; }
+    import reconnect-strategy { prefix rs; revision-date 2013-11-09; }
     import config { prefix config; revision-date 2013-04-05; }
 
     organization "Cisco Systems, Inc.";
@@ -244,20 +245,23 @@ module bgp-rib-impl {
                     }
                 }
             }
-
-            leaf rib-name {
-                 mandatory true;
-                 type string;
-            }
-
-            leaf connection-timeout {
-                 mandatory true;
-                 type int32;
-            }
-
-            leaf reconnect-attempts {
-                 mandatory true;
-                 type int64;
+			
+            container session-reconnect-strategy {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rs:reconnect-strategy;
+                    }
+                }
+            }			
+            
+            container tcp-reconnect-strategy {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rs:reconnect-strategy;
+                    }
+                }
             }
                        
             container data-provider {

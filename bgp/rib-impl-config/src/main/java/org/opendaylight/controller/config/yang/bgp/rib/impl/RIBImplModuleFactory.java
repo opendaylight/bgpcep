@@ -9,11 +9,12 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+
 /**
 *
 */
 public class RIBImplModuleFactory
 		extends
 		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleFactory {
-
+	
 }

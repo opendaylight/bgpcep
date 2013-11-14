@@ -36,7 +36,6 @@ public final class BGPDispatcherImplModule
 	@Override
 	public void validate() {
 		super.validate();
-		// Add custom validation for module attributes here.
 	}
 
 	@Override
