@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.impl.message.PCCreateMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PcinitiateMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
@@ -306,7 +306,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerMessageParser(PCEPCloseMessageParser.TYPE, new PCEPCloseMessageParser(objReg));
 		context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE, new PCEPUpdateRequestMessageParser(objReg));
 		context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg));
-		context.registerMessageParser(PCCreateMessageParser.TYPE, new PCCreateMessageParser(objReg));
+		context.registerMessageParser(PcinitiateMessageParser.TYPE, new PcinitiateMessageParser(objReg));
 
 		context.registerMessageSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open.class,
@@ -319,7 +319,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerMessageSerializer(Close.class, new PCEPCloseMessageParser(objReg));
 		context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg));
 		context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg));
-		context.registerMessageSerializer(Pcinitiate.class, new PCCreateMessageParser(objReg));
+		context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(objReg));
 
 		this.registrations = regs;
 	}

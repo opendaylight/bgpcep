@@ -43,13 +43,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link PCCreateMessage}
+ * Parser for {@link Pcinitiate}
  */
-public class PCCreateMessageParser extends AbstractMessageParser {
+public class PcinitiateMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 12;
 
-	public PCCreateMessageParser(final ObjectHandlerRegistry registry) {
+	public PcinitiateMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
@@ -122,73 +122,71 @@ public class PCCreateMessageParser extends AbstractMessageParser {
 	}
 
 	private Requests getValidRequest(final List<Object> objects) throws PCEPDocumentedException {
-		final Srp srp = ((Srp) objects.get(0));
+		final RequestsBuilder builder = new RequestsBuilder();
+		builder.setSrp((Srp) objects.get(0));
 		objects.remove(0);
 
-		final Lsp lsp = (Lsp) objects.get(0);
+		builder.setLsp((Lsp) objects.get(0));
 		objects.remove(0);
 
-		EndpointsObj endpoints = null;
-		Ero ero = null;
-		Lspa lspa = null;
-		Bandwidth bandwidth = null;
 		final List<Metrics> metrics = Lists.newArrayList();
-		Iro iro = null;
 
 		Object obj;
-		int state = 1;
+		State state = State.Init;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
-			if (obj instanceof UnknownObject) {
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
-			}
 
 			switch (state) {
-			case 1:
-				state = 2;
+			case Init:
+				state = State.EndpointsIn;
 				if (obj instanceof EndpointsObj) {
-					endpoints = (EndpointsObj) obj;
+					builder.setEndpointsObj((EndpointsObj) obj);
 					break;
 				}
-			case 2:
-				state = 3;
+			case EndpointsIn:
+				state = State.EroIn;
 				if (obj instanceof Ero) {
-					ero = (Ero) obj;
+					builder.setEro((Ero) obj);
 					break;
 				}
-			case 3:
-				state = 4;
+			case EroIn:
+				state = State.LspaIn;
 				if (obj instanceof Lspa) {
-					lspa = (Lspa) obj;
+					builder.setLspa((Lspa) obj);
 					break;
 				}
-			case 4:
-				state = 5;
+			case LspaIn:
+				state = State.BandwidthIn;
 				if (obj instanceof Bandwidth) {
-					bandwidth = (Bandwidth) obj;
+					builder.setBandwidth((Bandwidth) obj);
 					break;
 				}
-			case 5:
-				state = 6;
+			case BandwidthIn:
+				state = State.MetricIn;
 				if (obj instanceof Metric) {
 					metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = 5;
+					state = State.BandwidthIn;
 					break;
 				}
-			case 6:
-				state = 7;
+			case MetricIn:
+				state = State.End;
 				if (obj instanceof Iro) {
-					iro = (Iro) obj;
+					builder.setIro((Iro) obj);
 					break;
 				}
-			}
-			if (state == 7) {
+			case End:
 				break;
+			default:
+				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
 			objects.remove(0);
 		}
-		return new RequestsBuilder().setSrp(srp).setLsp(lsp).setEndpointsObj(endpoints).setEro(ero).setLspa(lspa).setBandwidth(bandwidth).setMetrics(
-				metrics).setIro(iro).build();
+		builder.setMetrics(metrics);
+		return builder.build();
+	}
+
+	private enum State {
+		Init, EndpointsIn, EroIn, LspaIn, BandwidthIn, MetricIn, End
 	}
 
 	@Override

@@ -150,7 +150,7 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 				state = State.IroIn;
 				if (obj instanceof Metric) {
 					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.MetricIn;
+					state = State.BandwidthIn;
 					break;
 				}
 			case IroIn:

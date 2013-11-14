@@ -259,7 +259,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 				state = State.MetricIn;
 				if (obj instanceof Metric) {
 					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.MetricIn;
+					state = State.BandwidthIn;
 					break;
 				}
 			case MetricIn:
