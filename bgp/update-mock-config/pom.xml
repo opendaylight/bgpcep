@@ -28,7 +28,7 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>threadpool-config-api</artifactId>
-         <version>${controller.config.version}</version>
+         <version>0.2.2-SNAPSHOT</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
