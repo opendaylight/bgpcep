@@ -63,22 +63,24 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 			}
 			buffer.writeBytes(serializeObject(report.getLsp()));
 			final Path p = report.getPath();
-			if (p.getEro() != null) {
-				buffer.writeBytes(serializeObject(p.getEro()));
-			}
-			if (p.getBandwidth() != null) {
-				buffer.writeBytes(serializeObject(p.getBandwidth()));
-			}
-			if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-				for (final Metrics m : p.getMetrics()) {
-					buffer.writeBytes(serializeObject(m.getMetric()));
+			if (p != null) {
+				if (p.getEro() != null) {
+					buffer.writeBytes(serializeObject(p.getEro()));
 				}
-			}
-			if (p.getIro() != null) {
-				buffer.writeBytes(serializeObject(p.getIro()));
-			}
-			if (p.getRro() != null) {
-				buffer.writeBytes(serializeObject(p.getRro()));
+				if (p.getBandwidth() != null) {
+					buffer.writeBytes(serializeObject(p.getBandwidth()));
+				}
+				if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+					for (final Metrics m : p.getMetrics()) {
+						buffer.writeBytes(serializeObject(m.getMetric()));
+					}
+				}
+				if (p.getIro() != null) {
+					buffer.writeBytes(serializeObject(p.getIro()));
+				}
+				if (p.getRro() != null) {
+					buffer.writeBytes(serializeObject(p.getRro()));
+				}
 			}
 		}
 	}
@@ -118,70 +120,68 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 	}
 
 	private Reports getValidReports(final List<Object> objects) throws PCEPDocumentedException {
-		Srp srp = null;
-		Lsp lsp = null;
-		Ero ero = null;
-		Lspa pathLspa = null;
-		Bandwidth pathBandwidth = null;
-		final List<Metrics> pathMetrics = Lists.newArrayList();
-		Rro pathRro = null;
-		Iro iro = null;
+		final ReportsBuilder builder = new ReportsBuilder();
+		if (objects.get(0) instanceof Srp) {
+			builder.setSrp((Srp) objects.get(0));
+			objects.remove(0);
+		}
+		if (objects.get(0) instanceof Lsp) {
+			builder.setLsp((Lsp) objects.get(0));
+			objects.remove(0);
+		} else {
+			throw new PCEPDocumentedException("LSP object missing", PCEPErrors.LSP_MISSING);
+		}
+		if (!objects.isEmpty()) {
+			final PathBuilder pBuilder = new PathBuilder();
+			parsePath(objects, pBuilder);
+			builder.setPath(pBuilder.build());
+		}
+		return builder.build();
+	}
 
+	private void parsePath(final List<Object> objects, final PathBuilder builder) throws PCEPDocumentedException {
+		final List<Metrics> pathMetrics = Lists.newArrayList();
 		Object obj;
 		State state = State.Init;
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
-			if (obj instanceof UnknownObject) {
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
-			}
+
 			switch (state) {
 			case Init:
-				state = State.SrpIn;
-				if (obj instanceof Srp) {
-					srp = (Srp) obj;
-					break;
-				}
-			case SrpIn:
-				state = State.LspIn;
-				if (obj instanceof Lsp) {
-					lsp = (Lsp) obj;
+				state = State.EroIn;
+				if (obj instanceof Ero) {
+					builder.setEro((Ero) obj);
 					break;
 				}
 			case EroIn:
 				state = State.LspaIn;
-				if (obj instanceof Ero) {
-					ero = (Ero) obj;
+				if (obj instanceof Lspa) {
+					builder.setLspa((Lspa) obj);
 					break;
 				}
 			case LspaIn:
 				state = State.BandwidthIn;
-				if (obj instanceof Lspa) {
-					pathLspa = (Lspa) obj;
+				if (obj instanceof Bandwidth) {
+					builder.setBandwidth((Bandwidth) obj);
 					break;
 				}
 			case BandwidthIn:
 				state = State.MetricIn;
-				if (obj instanceof Bandwidth) {
-					pathBandwidth = (Bandwidth) obj;
+				if (obj instanceof Metric) {
+					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+					state = State.BandwidthIn;
 					break;
 				}
 			case MetricIn:
 				state = State.IroIn;
-				if (obj instanceof Metric) {
-					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.MetricIn;
+				if (obj instanceof Iro) {
+					builder.setIro((Iro) obj);
 					break;
 				}
 			case IroIn:
-				state = State.RroIn;
-				if (obj instanceof Iro) {
-					iro = (Iro) obj;
-					break;
-				}
-			case RroIn:
 				state = State.End;
 				if (obj instanceof Rro) {
-					pathRro = (Rro) obj;
+					builder.setRro((Rro) obj);
 					break;
 				}
 			case End:
@@ -193,22 +193,10 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 			}
 			objects.remove(0);
 		}
-		if (lsp == null) {
-			throw new PCEPDocumentedException("LSP object missing", PCEPErrors.LSP_MISSING);
-		}
-
-		final PathBuilder builder = new PathBuilder();
-		builder.setEro(ero);
-		builder.setLspa(pathLspa);
-		builder.setBandwidth(pathBandwidth);
-		builder.setMetrics(pathMetrics);
-		builder.setIro(iro);
-		builder.setRro(pathRro);
-		return new ReportsBuilder().setSrp(srp).setLsp(lsp).setPath(builder.build()).build();
 	}
 
 	private enum State {
-		Init, SrpIn, LspIn, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, End
+		Init, SrpIn, LspIn, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, End
 	}
 
 	@Override
