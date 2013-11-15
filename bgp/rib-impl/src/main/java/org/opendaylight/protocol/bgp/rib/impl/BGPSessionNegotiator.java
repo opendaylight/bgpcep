@@ -98,8 +98,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<BGPMes
 			public void run(final Timeout timeout) throws Exception {
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
-						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
 						BGPSessionNegotiator.this.channel.writeAndFlush(new BGPNotificationMessage(BGPError.HOLD_TIMER_EXPIRED));
+						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
 						BGPSessionNegotiator.this.state = State.Finished;
 					}
 				}
