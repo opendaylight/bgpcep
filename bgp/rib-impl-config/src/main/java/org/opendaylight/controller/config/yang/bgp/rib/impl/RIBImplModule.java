@@ -11,8 +11,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import io.netty.util.concurrent.GlobalEventExecutor;
 
-import java.io.IOException;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
@@ -23,6 +21,8 @@ import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 import org.osgi.framework.BundleContext;
 
@@ -71,17 +71,22 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
-		try {
-			final long reconnects = getReconnectAttempts();
-			ListenerRegistration<BGPSessionListener> reg = bgp
-					.registerUpdateListener(peer, new TimedReconnectStrategy(
-							GlobalEventExecutor.INSTANCE,
-							getConnectionTimeout(), 5000, 1.0, null,
-							reconnects, null));
-			return new RibImplCloseable(reg, rib);
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to register with BGP", e);
-		}
+		final long reconnects = getReconnectAttempts();
+		ListenerRegistration<BGPSessionListener> reg = bgp
+				.registerUpdateListener(peer,
+						new ReconnectStrategyFactory() {
+					@Override
+					public ReconnectStrategy createReconnectStrategy() {
+						return new TimedReconnectStrategy(
+								GlobalEventExecutor.INSTANCE,
+								getConnectionTimeout(), 5000, 1.0, null,
+								reconnects, null);
+					}
+				}, new TimedReconnectStrategy(
+						GlobalEventExecutor.INSTANCE,
+						getConnectionTimeout(), 5000, 1.0, null,
+						reconnects, null));
+		return new RibImplCloseable(reg, rib);
 	}
 
 	private static final class RibImplCloseable implements AutoCloseable {

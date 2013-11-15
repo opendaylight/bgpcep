@@ -57,8 +57,7 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 		}
 	}
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
+	private void cleanup() {
 		// FIXME: support graceful restart
 		for (final TablesKey key : this.tables) {
 			this.rib.clearTable(this, key);
@@ -68,12 +67,19 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	}
 
 	@Override
-	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-		logger.info("Session with peer {} terminated: {}", this.name, cause);
+	public void onSessionDown(final BGPSession session, final Exception e) {
+		logger.info("Session with peer {} went down", this.name, e);
+		cleanup();
 	}
 
 	@Override
-	public String toString() {
+	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
+		logger.info("Session with peer {} terminated: {}", this.name, cause);
+		cleanup();
+	}
+
+	@Override
+	public final String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
