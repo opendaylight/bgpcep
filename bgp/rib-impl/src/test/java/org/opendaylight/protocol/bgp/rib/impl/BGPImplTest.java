@@ -22,10 +22,10 @@ import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParameter;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.BGPImpl.BGPListenerRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
+import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
@@ -37,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.*;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 
 public class BGPImplTest {
 
@@ -50,7 +51,7 @@ public class BGPImplTest {
 	private BGPMessageFactory parser;
 
 	@Mock
-	private Future<BGPSession> future;
+	private Future<Void> future;
 
 	private BGPImpl bgp;
 
@@ -59,10 +60,10 @@ public class BGPImplTest {
 		MockitoAnnotations.initMocks(this);
 		doReturn("").when(this.parser).toString();
 
-		doReturn(mockSession()).when(this.future).get();
-		doReturn(mock(Throwable.class)).when(future).cause();
 		doReturn(this.future).when(this.disp).createClient(any(InetSocketAddress.class), any(BGPSessionPreferences.class),
 				any(BGPSessionListener.class), any(ReconnectStrategy.class));
+		doReturn(this.future).when(this.disp).createReconnectingClient(any(InetSocketAddress.class), any(BGPSessionPreferences.class),
+				any(BGPSessionListener.class), any(ReconnectStrategyFactory.class), any(ReconnectStrategy.class));
 	}
 
 	private BGPSession mockSession() {
@@ -73,33 +74,17 @@ public class BGPImplTest {
 
 	@Test
 	public void testBgpImpl() throws Exception {
-		doReturn(future).when(future).addListener(Matchers.<GenericFutureListener<Future<BGPSession>>>any());
+		doReturn(future).when(future).addListener(Matchers.<GenericFutureListener<Future<Void>>>any());
 		doReturn(new BGPSessionPreferences(null, 0, null, Collections.<BGPParameter> emptyList())).when(this.prop).getProposal();
 		this.bgp = new BGPImpl(this.disp, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop);
-		final BGPListenerRegistration reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
-				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
-		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
-	}
-
-	@Test
-	public void testSession() throws Exception {
-		doReturn(true).when(future).cancel(anyBoolean());
-		doReturn(true).when(future).isSuccess();
-		doAnswer(new Answer() {
+		final ListenerRegistration<?> reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
+				new ReconnectStrategyFactory() {
 			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				GenericFutureListener<Future<BGPSession>> listener = (GenericFutureListener<Future<BGPSession>>) invocation.getArguments()[0];
-				listener.operationComplete(future);
-				return future;
+			public ReconnectStrategy createReconnectStrategy() {
+				return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000);
 			}
-		}).when(future).addListener(Matchers.<GenericFutureListener<Future<BGPSession>>>any());
-
-		BGPListenerRegistration registration = new BGPListenerRegistration(mock(BGPSessionListener.class), future);
-		registration.close();
-
-		verify(future).isSuccess();
-		verify(future).get();
-		verify(future.get()).close();
+		}, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
+		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
 	}
 
 	@After

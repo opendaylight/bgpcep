@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.util.Set;
-
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import org.opendaylight.protocol.bgp.concepts.BGPTableType;
 import org.opendaylight.protocol.bgp.parser.BGPMessage;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
@@ -18,9 +20,7 @@ import org.opendaylight.protocol.bgp.parser.BGPUpdateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Preconditions;
+import java.util.Set;
 
 /**
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
@@ -28,7 +28,7 @@ import com.google.common.base.Preconditions;
  */
 public final class BGPPeer implements BGPSessionListener {
 	private static final Logger logger = LoggerFactory.getLogger(BGPPeer.class);
-	private Set<BGPTableType> tables;
+	private Set<BGPTableType> tables = Sets.newHashSet();
 	private final String name;
 	private final RIBImpl rib;
 
@@ -52,8 +52,7 @@ public final class BGPPeer implements BGPSessionListener {
 		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 	}
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
+	private void cleanup() {
 		// FIXME: support graceful restart
 		for (final BGPTableType t : this.tables) {
 			this.rib.clearTable(this, t);
@@ -61,8 +60,15 @@ public final class BGPPeer implements BGPSessionListener {
 	}
 
 	@Override
+	public void onSessionDown(final BGPSession session, final Exception e) {
+		logger.info("Session with peer {} went down", this.name, e);
+		cleanup();
+	}
+
+	@Override
 	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.info("Session with peer {} terminated: {}", this.name, cause);
+		cleanup();
 	}
 
 	@Override

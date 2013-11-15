@@ -9,8 +9,6 @@
 */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import java.io.IOException;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.RIB;
@@ -51,12 +49,9 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
-		try {
-			ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer, getReconnectStrategyDependency());
-			return new RibImpl(reg, rib);
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to register with BGP", e);
-		}
+        // TODO add strategy factory
+		ListenerRegistration<BGPSessionListener> reg = bgp.registerUpdateListener(peer, null, getReconnectStrategyDependency());
+		return new RibImpl(reg, rib);
 	}
 
 	private static final class RibImpl implements RIB, AutoCloseable {

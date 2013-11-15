@@ -7,15 +7,18 @@
  */
 package org.opendaylight.protocol.framework;
 
+import com.google.common.base.Preconditions;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
-
-import java.net.InetSocketAddress;
-
+import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.framework.AbstractDispatcher.PipelineInitializer;
 
-import com.google.common.base.Preconditions;
+import java.io.Closeable;
+import java.net.InetSocketAddress;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionListener<?, ?, ?>> extends DefaultPromise<Void> {
 	private final AbstractDispatcher<S, L> dispatcher;
@@ -24,6 +27,8 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 	private final ReconnectStrategy strategy;
 	private final PipelineInitializer<S> initializer;
 	private Future<?> pending;
+
+	public AtomicBoolean negotiationFinished = new AtomicBoolean(false);
 
 	public ReconnectPromise(final AbstractDispatcher<S, L> dispatcher, final InetSocketAddress address,
 			final ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy,
@@ -36,7 +41,11 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 		this.initializer = Preconditions.checkNotNull(initializer);
 	}
 
+	// TODO rafactor
+
 	synchronized void connect() {
+		negotiationFinished.set(false);
+
 		final ReconnectStrategy cs = this.strategyFactory.createReconnectStrategy();
 		final ReconnectStrategy rs = new ReconnectStrategy() {
 			@Override
@@ -64,17 +73,31 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 			}
 		};
 
-		final Future<S> cf = this.dispatcher.createClient(this.address, rs, this.initializer);
+		final Future<S> cf = this.dispatcher.createClient(this.address, rs, new PipelineInitializer<S>() {
+			@Override
+			public void initializeChannel(SocketChannel channel, Promise<S> promise) {
+				addChannelClosedListener(channel.closeFuture());
+				initializer.initializeChannel(channel, promise);
+			}
+		});
 
 		final Object lock = this;
 		this.pending = cf;
 
 		cf.addListener(new FutureListener<S>() {
+
 			@Override
 			public void operationComplete(final Future<S> future) {
 				synchronized (lock) {
 					if (!future.isSuccess()) {
 						final Future<Void> rf = ReconnectPromise.this.strategy.scheduleReconnect(cf.cause());
+
+						if(rf == null) {
+							// This should reflect: no more reconnecting strategies, enough
+							// Currently all reconnect strategies fail with exception, should return null
+							return;
+						}
+
 						ReconnectPromise.this.pending = rf;
 
 						rf.addListener(new FutureListener<Void>() {
@@ -102,18 +125,48 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 					} else {
 						/*
 						 *  FIXME: we have a slight race window with cancellation
-						 *         here. Analyze and define its semantics.
+						 *		 here. Analyze and define its semantics.
 						 */
 						ReconnectPromise.this.strategy.reconnectSuccessful();
-						setSuccess(null);
+						negotiationFinished.set(true);
 					}
 				}
 			}
 		});
 	}
 
+	private final ClosedChannelListener closedChannelListener = new ClosedChannelListener();
+
+	class ClosedChannelListener implements Closeable, FutureListener<Void> {
+
+		private final AtomicBoolean stop = new AtomicBoolean(false);
+
+		@Override
+		public void operationComplete(Future<Void> future) throws Exception {
+			if(stop.get())
+				return;
+
+			// Start reconnecting crashed session after negotiation was successful
+			if(negotiationFinished.get() == false)
+				return;
+
+			connect();
+		}
+
+		@Override
+		public void close() {
+			this.stop.set(true);
+		}
+	}
+
+	private void addChannelClosedListener(ChannelFuture channelFuture) {
+		channelFuture.addListener(closedChannelListener);
+	}
+
 	@Override
 	public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+		closedChannelListener.close();
+
 		if (super.cancel(mayInterruptIfRunning)) {
 			this.pending.cancel(mayInterruptIfRunning);
 			return true;

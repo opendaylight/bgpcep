@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 
 /**
  * Dispatcher class for creating BGP clients.
@@ -30,4 +31,7 @@ public interface BGPDispatcher {
 	 * @throws IOException
 	 */
 	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener, final ReconnectStrategy strategy);
+
+	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
+			ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy);
 }

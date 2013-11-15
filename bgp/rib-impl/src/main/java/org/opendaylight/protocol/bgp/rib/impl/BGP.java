@@ -12,6 +12,7 @@ import java.io.IOException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 
 /**
  * BGP interface. At this time it only supports listening to changes seen by the backing device, typically a network
@@ -24,10 +25,12 @@ public interface BGP {
 	 * needs to be explicitly closed in order to stop receiving the updates.
 	 * 
 	 * @param listener {@link BGPSessionListener}
-	 * @param strategy {@link ReconnectStrategy} to use for TCP-level retries
+	 * @param tcpStrategyFactory {@link ReconnectStrategyFactory} to use for creating TCP-level retry strategies
+	 * @param sessionStrategy {@link ReconnectStrategy} to use for session-level retries
 	 * @throws IllegalStateException if there is already a listener registered
 	 * @throws IOException if some IO error occurred
 	 * @return ListenerRegistration
 	 */
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener, ReconnectStrategy strategy) throws IOException;
+	public ListenerRegistration<BGPSessionListener> registerUpdateListener(
+			BGPSessionListener listener, ReconnectStrategyFactory tcpStrategyFactory, ReconnectStrategy sessionStrategy);
 }
