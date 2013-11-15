@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 
 /**
@@ -55,5 +56,32 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 				ch.pipeline().addLast(hf.getEncoders());
 			}
 		});
+	}
+
+	@Override
+	public Future<Void> createReconnectingClient(final InetSocketAddress address,
+			final BGPSessionPreferences preferences, final BGPSessionListener listener,
+			final ReconnectStrategyFactory connectStrategyFactory,
+			final ReconnectStrategy reestablishStrategy) {
+		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
+			@Override
+			public BGPSessionListener getSessionListener() {
+				return listener;
+			}
+		};
+
+		return super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategy, new PipelineInitializer<BGPSessionImpl>() {
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(slf, ch, promise));
+				ch.pipeline().addLast(hf.getEncoders());
+			}
+		});
+	}
+
+	@Override
+	public void close() {
 	}
 }
