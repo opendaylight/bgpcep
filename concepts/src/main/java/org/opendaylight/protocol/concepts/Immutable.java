@@ -17,7 +17,10 @@ package org.opendaylight.protocol.concepts;
  * the object to get a stable checkpoint. Objects marked with this interface are guaranteed to remain stable, thus
  * already being a checkpoint for all intents and purposes, so aside from retaining a reference no further action on
  * them is necessary.
+ * 
+ * @deprecated Use {@link org.opendaylight.yangtools.concepts.Immutable} instead
  */
+@Deprecated
 public interface Immutable {
 
 }
