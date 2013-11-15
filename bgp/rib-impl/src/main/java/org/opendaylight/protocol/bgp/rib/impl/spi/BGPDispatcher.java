@@ -11,8 +11,8 @@ import io.netty.util.concurrent.Future;
 
 import java.net.InetSocketAddress;
 
+import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
 /**
@@ -27,6 +27,6 @@ public interface BGPDispatcher {
 	 * @param parser BGP message parser
 	 * @return client session
 	 */
-	Future<BGPSessionImpl> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
+	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
 			final ReconnectStrategy strategy);
 }
