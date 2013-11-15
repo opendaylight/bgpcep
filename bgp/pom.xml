@@ -30,6 +30,5 @@
         <module>rib-api-config</module>
         <module>update-api-config</module>
         <module>rib-impl-config</module>
-        <module>update-mock-config</module>
 	</modules>
 </project>
