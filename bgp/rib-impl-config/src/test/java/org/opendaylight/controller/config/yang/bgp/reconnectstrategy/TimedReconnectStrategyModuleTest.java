@@ -97,7 +97,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, 100, null, new BigDecimal(1.0), null, 10L, 10000L);
+			createInstance(transaction, instanceName, 100, null, new BigDecimal(1.0), 100L, 10L, 10000L);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
