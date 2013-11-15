@@ -16,55 +16,15 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
  * Implementation of {@link BGP}.
  */
 public class BGPImpl implements BGP, Closeable {
-	/**
-	 * Wrapper class to give listener a close method.
-	 */
-	public static class BGPListenerRegistration implements ListenerRegistration<BGPSessionListener> {
-
-		private final BGPSessionListener listener;
-
-		private BGPSession session;
-		private Object bgpSessionLock = new Object();
-
-		public BGPListenerRegistration(final BGPSessionListener l, final Future<? extends BGPSession> sessionFuture) {
-			this.listener = l;
-			sessionFuture.addListener(new GenericFutureListener<Future<BGPSession>>() {
-
-				@Override
-				public void operationComplete(Future<BGPSession> future) throws Exception {
-					if (future.isSuccess() == false) {
-						throw new IOException("Failed to connect to peer with listener " + listener, future.cause());
-					}
-					synchronized (bgpSessionLock) {
-						session = future.get();
-					}
-				}
-			});
-		}
-
-		@Override
-		public void close() {
-			synchronized (bgpSessionLock) {
-				if (session != null)
-					this.session.close();
-			}
-		}
-
-		@Override
-		public BGPSessionListener getListener() {
-			return this.listener;
-		}
-	}
-
 	private final BGPDispatcher dispatcher;
 
 	private final InetSocketAddress address;
@@ -77,14 +37,20 @@ public class BGPImpl implements BGP, Closeable {
 		this.proposal = Preconditions.checkNotNull(proposal);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public BGPListenerRegistration registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategy strategy) throws IOException {
-		final Future<? extends BGPSession> sessionFuture;
-		sessionFuture = this.dispatcher.createClient(this.address, this.proposal.getProposal(), listener, strategy);
-		return new BGPListenerRegistration(listener, sessionFuture);
+	public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategyFactory tcpStrategyFactory, final ReconnectStrategy sessionStrategy) {
+		final Future<Void> s = this.dispatcher.createReconnectingClient(address, this.proposal.getProposal(), listener, tcpStrategyFactory, sessionStrategy);
+		return new ListenerRegistration<BGPSessionListener>() {
+			@Override
+			public BGPSessionListener getListener() {
+				return listener;
+			}
+
+			@Override
+			public void close() {
+				s.cancel(true);
+			}
+		};
 	}
 
 	@Override

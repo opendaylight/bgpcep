@@ -52,8 +52,7 @@ public final class BGPPeer implements BGPSessionListener {
 		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 	}
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
+	private void cleanup() {
 		// FIXME: support graceful restart
 		for (final BGPTableType t : this.tables) {
 			this.rib.clearTable(this, t);
@@ -61,8 +60,15 @@ public final class BGPPeer implements BGPSessionListener {
 	}
 
 	@Override
+	public void onSessionDown(final BGPSession session, final Exception e) {
+		logger.info("Session with peer {} went down", this.name, e);
+		cleanup();
+	}
+
+	@Override
 	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
 		logger.info("Session with peer {} terminated: {}", this.name, cause);
+		cleanup();
 	}
 
 	@Override
