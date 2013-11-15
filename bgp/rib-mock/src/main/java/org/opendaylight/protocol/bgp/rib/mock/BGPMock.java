@@ -25,6 +25,7 @@ import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.NotifyBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -78,16 +79,6 @@ public final class BGPMock implements BGP, Closeable {
 		return messages;
 	}
 
-	/**
-	 * @param listener BGPListener
-	 * @return ListenerRegistration
-	 */
-	@Override
-	public synchronized ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener,
-			final ReconnectStrategy strategy) {
-		return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
-	}
-
 	public synchronized void insertConnectionLostEvent() {
 		this.insertMessage(CONNECTION_LOST_MAGIC_MSG);
 	}
@@ -128,5 +119,13 @@ public final class BGPMock implements BGP, Closeable {
 
 	public EventBus getEventBus() {
 		return this.eventBus;
+	}
+
+	@Override
+	public ListenerRegistration<BGPSessionListener> registerUpdateListener(
+			final BGPSessionListener listener,
+			final ReconnectStrategyFactory tcpStrategyFactory,
+			final ReconnectStrategy sessionStrategy) {
+		return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
 	}
 }

@@ -25,12 +25,13 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.BGPImpl.BGPListenerRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
+import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.BgpParameters;
 
 public class BGPImplTest {
@@ -63,8 +64,13 @@ public class BGPImplTest {
 	public void testBgpImpl() throws Exception {
 		doReturn(new BGPSessionPreferences(0, 0, null, Collections.<BgpParameters> emptyList())).when(this.prop).getProposal();
 		this.bgp = new BGPImpl(this.disp, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop);
-		final BGPListenerRegistration reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
-				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
+		final ListenerRegistration<?> reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
+				new ReconnectStrategyFactory() {
+			@Override
+			public ReconnectStrategy createReconnectStrategy() {
+				return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000);
+			}
+		}, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
 		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
 	}
 

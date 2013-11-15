@@ -13,15 +13,17 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
+
+import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * Implementation of BGPDispatcher.
@@ -31,7 +33,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
 	private final BGPHandlerFactory hf;
 
-	public BGPDispatcherImpl(final BGPMessageFactory parser, EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+	public BGPDispatcherImpl(final BGPMessageFactory parser, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
 		super(bossGroup, workerGroup);
 		this.hf = new BGPHandlerFactory(parser);
 	}
@@ -47,6 +49,29 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 			}
 		};
 		return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
+			@Override
+			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(slf, ch, promise));
+				ch.pipeline().addLast(hf.getEncoders());
+			}
+		});
+	}
+
+	@Override
+	public Future<Void> createReconnectingClient(final InetSocketAddress address,
+			final BGPSessionPreferences preferences, final BGPSessionListener listener,
+			final ReconnectStrategyFactory connectStrategyFactory,
+			final ReconnectStrategy reestablishStrategy) {
+		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
+			@Override
+			public BGPSessionListener getSessionListener() {
+				return listener;
+			}
+		};
+
+		return super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategy, new PipelineInitializer<BGPSessionImpl>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
 				ch.pipeline().addLast(hf.getDecoders());
