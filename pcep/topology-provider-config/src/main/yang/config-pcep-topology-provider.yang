@@ -1,0 +1,100 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module config-pcep-topology-provider {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider";
+    prefix "spi";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import config-programming-spi { prefix pgmspi; revision-date 2013-11-15; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import pcep { prefix pcep; revision-date 2013-04-09; }
+    import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+        PCEP topology provider service.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2013-11-15" {
+        description
+            "Initial revision";
+    }
+
+    identity pcep-topology {
+        description
+            "Service representing a PCEP-enabled topology.";
+
+        base "config:service-type";
+        // FIXME: move to topology-api-config
+        config:java-class "org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology";
+    }
+
+    identity pcep-topology-impl {
+        base config:module-type;
+        config:provided-service pcep-topology;
+        config:java-name-prefix PCEPTopologyProvider;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-topology-impl {
+            when "/config:modules/config:module/config:type = 'pcep-topology-impl'";
+
+            container data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        // FIXME: config:required-identity mdsal:binding-data-broker;
+                        config:required-identity pcep:pcep-dispatcher;
+                    }
+                }
+            }
+
+            container dispatcher {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pcep:pcep-dispatcher;
+                    }
+                }
+            }
+
+            container scheduler {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pgmspi:instruction-scheduler;
+                    }
+                }
+            }
+
+            leaf topology-id {
+                type nt:topology-id;
+                mandatory true;
+            }
+
+            leaf listen-address {
+                type inet:ip-address;
+//                default "0.0.0.0";
+                mandatory true;
+            }
+
+            leaf listen-port {
+                type inet:port-number;
+//                default 4189;
+                mandatory true;
+            }
+        }
+    }
+}
+

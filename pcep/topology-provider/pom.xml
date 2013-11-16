@@ -92,7 +92,6 @@
                        <Private-Package>
                            org.opendaylight.bgpcep.pcep.topology.provider
                        </Private-Package>
-                       <Bundle-Activator>org.opendaylight.bgpcep.pcep.topology.provider.BundleActivator</Bundle-Activator>
                    </instructions>
                </configuration>
            </plugin>

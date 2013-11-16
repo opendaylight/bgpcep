@@ -6,7 +6,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 public final class LocRIBListeners {
-	public interface Subscribtion {
+	public interface Subscription {
 		public Class<? extends AddressFamily> getAfi();
 		public Class<? extends SubsequentAddressFamily> getSafi();
 		public LocRIBListener getLocRIBListener();
@@ -16,10 +16,10 @@ public final class LocRIBListeners {
 
 	}
 
-	public static ServiceRegistration<Subscribtion> subscribe(final BundleContext context,
+	public static ServiceRegistration<Subscription> subscribe(final BundleContext context,
 			final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi, final LocRIBListener listener) {
-		return context.registerService(Subscribtion.class,
-				new Subscribtion() {
+		return context.registerService(Subscription.class,
+				new Subscription() {
 			@Override
 			public Class<? extends AddressFamily> getAfi() {
 				return afi;

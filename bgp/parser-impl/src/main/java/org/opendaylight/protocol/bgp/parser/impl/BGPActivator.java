@@ -57,8 +57,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public final class Activator implements BGPExtensionProviderActivator {
-	private static final Logger logger = LoggerFactory.getLogger(Activator.class);
+public final class BGPActivator implements BGPExtensionProviderActivator {
+	private static final Logger logger = LoggerFactory.getLogger(BGPActivator.class);
 	private List<AutoCloseable> registrations;
 
 	@Override
