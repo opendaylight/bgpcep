@@ -7,9 +7,11 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -19,25 +21,37 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import com.google.common.base.Preconditions;
 
-public final class PCEPTopologyProvider {
-	private final PCEPDispatcher dispatcher;
-	private final TopologyProgramming topology;
+public final class PCEPTopologyProvider implements AutoCloseable {
 	private final ServerSessionManager manager;
+	private final TopologyProgramming network;
 	private final TopologyRPCs element;
+	private final Channel channel;
 
-	public PCEPTopologyProvider(final PCEPDispatcher dispatcher,
-			final InstructionScheduler scheduler,
-			final DataProviderService dataService,
-			final InstanceIdentifier<Topology> topology) {
-		this.dispatcher = Preconditions.checkNotNull(dispatcher);
-
-
-		this.manager = new ServerSessionManager(dataService, topology);
-		this.element = new TopologyRPCs(manager);
-		this.topology = new TopologyProgramming(scheduler, manager);
+	private PCEPTopologyProvider(final Channel channel, final ServerSessionManager manager,
+			final TopologyRPCs element, final TopologyProgramming network) {
+		this.channel = Preconditions.checkNotNull(channel);
+		this.manager = Preconditions.checkNotNull(manager);
+		this.element = Preconditions.checkNotNull(element);
+		this.network = Preconditions.checkNotNull(network);
 	}
 
-	public ChannelFuture startServer(final InetSocketAddress address) {
-		return dispatcher.createServer(address, manager);
+	public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher,
+			final InetSocketAddress address,
+			final InstructionScheduler scheduler,
+			final DataProviderService dataService,
+			final InstanceIdentifier<Topology> topology) throws InterruptedException, ExecutionException {
+
+		final ServerSessionManager manager = new ServerSessionManager(dataService, topology);
+		final TopologyRPCs element = new TopologyRPCs(manager);
+		final TopologyProgramming network = new TopologyProgramming(scheduler, manager);
+		ChannelFuture f = dispatcher.createServer(address, manager);
+		f.get();
+		return new PCEPTopologyProvider(f.channel(), manager, element, network);
+	}
+
+	@Override
+	public void close() throws Exception {
+		channel.close();
+		// FIXME: close other stuff
 	}
 }

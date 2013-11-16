@@ -22,7 +22,7 @@ import org.osgi.framework.ServiceRegistration;
 import com.google.common.base.Preconditions;
 
 public class Activator extends AbstractBindingAwareProvider {
-	private ServiceRegistration<LocRIBListeners.Subscribtion> ipv4, ipv6, linkstate;
+	private ServiceRegistration<LocRIBListeners.Subscription> ipv4, ipv6, linkstate;
 	private BundleContext context;
 
 	@Override

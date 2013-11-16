@@ -59,8 +59,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
-final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService {
+public final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService, AutoCloseable {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
+
+	// Default stop timeout, in seconds
+	private static final long CLOSE_TIMEOUT = 5;
 
 	private final Map<InstructionId, Instruction> insns = new HashMap<>();
 
@@ -73,7 +76,7 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 	private java.util.concurrent.Future<Void> thread;
 	private ExecutorService exec;
 
-	ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor,
+	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor,
 			final Timer timer) {
 		this.notifs = Preconditions.checkNotNull(notifs);
 		this.executor = Preconditions.checkNotNull(executor);
@@ -419,5 +422,10 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 		thread.cancel(true);
 		exec.awaitTermination(timeout, unit);
 		exec = null;
+	}
+
+	@Override
+	public void close() throws Exception {
+		stop(CLOSE_TIMEOUT, TimeUnit.SECONDS);
 	}
 }

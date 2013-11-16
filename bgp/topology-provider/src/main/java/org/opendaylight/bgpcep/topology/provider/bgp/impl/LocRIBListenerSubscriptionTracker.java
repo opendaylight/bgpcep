@@ -27,19 +27,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListeners.Subscribtion, ListenerRegistration<LocRIBListener>> {
+final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListeners.Subscription, ListenerRegistration<LocRIBListener>> {
 	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder().node(LocRib.class).toInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(LocRIBListenerSubscriptionTracker.class);
 	private final DataProviderService dps;
 
 	LocRIBListenerSubscriptionTracker(final BundleContext context, final DataProviderService dps) {
-		super(context, LocRIBListeners.Subscribtion.class, null);
+		super(context, LocRIBListeners.Subscription.class, null);
 		this.dps = Preconditions.checkNotNull(dps);
 	}
 
 	@Override
-	public ListenerRegistration<LocRIBListener> addingService(final ServiceReference<LocRIBListeners.Subscribtion> reference) {
-		final LocRIBListeners.Subscribtion service = context.getService(reference);
+	public ListenerRegistration<LocRIBListener> addingService(final ServiceReference<LocRIBListeners.Subscription> reference) {
+		final LocRIBListeners.Subscription service = context.getService(reference);
 		if (service == null) {
 			LOG.trace("Service for reference {} disappeared", reference);
 			return null;
@@ -81,7 +81,7 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 	}
 
 	@Override
-	public void removedService(final ServiceReference<LocRIBListeners.Subscribtion> reference, final ListenerRegistration<LocRIBListener> service) {
+	public void removedService(final ServiceReference<LocRIBListeners.Subscription> reference, final ListenerRegistration<LocRIBListener> service) {
 		try {
 			service.close();
 		} catch (Exception e) {

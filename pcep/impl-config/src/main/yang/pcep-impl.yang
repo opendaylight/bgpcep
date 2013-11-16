@@ -6,6 +6,7 @@ module pcep-impl {
 
     import config { prefix config; revision-date 2013-04-05; }
     import pcep { prefix pcep; revision-date 2013-04-09; }
+    import config-pcep-spi { prefix spi; revision-date 2013-11-15; }
     import threadpool { prefix th; revision-date 2013-04-09; }
 
     organization "Cisco Systems, Inc.";
@@ -45,6 +46,15 @@ module pcep-impl {
 
 			leaf max-unknown-messages {
 				type uint16;
+			}
+
+			container extensions {
+				uses config:service-ref {
+					refine type {
+						mandatory true;
+						config:required-identity spi:consumer-extensions;
+					}
+				}
 			}
 
 			container pcep-session-proposal-factory {
@@ -118,7 +128,5 @@ module pcep-impl {
 			}
 		}
 	}
-
-
 }
 
