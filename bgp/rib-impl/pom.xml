@@ -142,7 +142,6 @@
 							org.opendaylight.protocol.bgp.rib.impl,
 							org.opendaylight.protocol.bgp.rib.impl.spi
                         </Export-Package>
-                        <Bundle-Activator>org.opendaylight.protocol.bgp.rib.impl.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

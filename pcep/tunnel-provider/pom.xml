@@ -80,7 +80,6 @@
                        <Private-Package>
                            org.opendaylight.bgpcep.pcep.tunnel.provider
                        </Private-Package>
-                       <Bundle-Activator>org.opendaylight.bgpcep.pcep.tunnel.provider.BundleActivator</Bundle-Activator>
                    </instructions>
                </configuration>
            </plugin>

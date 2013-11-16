@@ -18,6 +18,7 @@
 	
 	<modules>
         <module>api</module>
+        <module>api-config</module>
 		<module>tunnel-api</module>
         <module>segment-routing</module>
     </modules>

@@ -6,6 +6,8 @@ module bgp-rib-impl {
 
     import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
     import bgp-rib { prefix bgprib; revision-date 2013-07-01; }
+    import config-bgp-parser-spi { prefix bgpspi; revision-date 2013-11-15; }
+    import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
     import threadpool { prefix th; revision-date 2013-04-09; }
     import config { prefix config; revision-date 2013-04-05; }
@@ -30,6 +32,26 @@ module bgp-rib-impl {
             "Initial revision";
     }
 
+    identity base-bgp-parser {
+        base config:module-type;
+        config:java-name-prefix BaseBGPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case base-bgp-parser {
+            when "/config:modules/config:module/config:type = 'base-bgp-parser'";
+
+            container bgp-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgpspi:extensions;
+                    }
+                }
+            }
+        }
+    }
+
     identity bgp-message-factory {
         description
             "Service representing a BGP proposal.";
@@ -42,12 +64,32 @@ module bgp-rib-impl {
         base config:module-type;
         config:provided-service bgp-message-factory;
         config:java-name-prefix BGPMessageFactoryImpl;
-
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case bgp-message-factory-impl {
             when "/config:modules/config:module/config:type = 'bgp-message-factory-impl'";
+
+            container bgp-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgpspi:consumer-extensions;
+                    }
+                }
+            }
+        }
+    }
+
+    identity bgp-rib-extensions-impl {
+        base config:module-type;
+        config:provided-service ribspi:extensions;
+        config:java-name-prefix RIBExtensionsImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-rib-extensions-impl {
+            when "/config:modules/config:module/config:type = 'bgp-rib-extensions-impl'";
         }
     }
 
@@ -63,7 +105,6 @@ module bgp-rib-impl {
         base config:module-type;
         config:provided-service bgp-proposal;
         config:java-name-prefix BGPSessionProposalImpl;
-
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -99,7 +140,6 @@ module bgp-rib-impl {
         base config:module-type;
         config:provided-service bgp-dispatcher;
         config:java-name-prefix BGPDispatcherImpl;
-
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -176,11 +216,11 @@ module bgp-rib-impl {
         }
     }
 
-     identity rib-impl {
+    identity rib-impl {
         base config:module-type;
         config:provided-service bgprib:rib;
         config:java-name-prefix RIBImpl;
-     }
+    }
 
 
     augment "/config:modules/config:module/config:configuration" {
@@ -192,6 +232,15 @@ module bgp-rib-impl {
                     refine type {
                         mandatory true;
                         config:required-identity bgpl:listener;
+                    }
+                }
+            }
+
+            container extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity ribspi:consumer-extensions;
                     }
                 }
             }
@@ -221,7 +270,5 @@ module bgp-rib-impl {
             }
         }
     }
-
-
 }
 

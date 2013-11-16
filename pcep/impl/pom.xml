@@ -123,7 +123,6 @@
 						<Private-Package>
 							org.opendaylight.protocol.pcep.impl.*,
 						</Private-Package>
-                        <Activator>org.opendaylight.protocol.pcep.parser.impl.BundleActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

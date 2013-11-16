@@ -76,7 +76,6 @@
                        <Private-Package>
                            org.opendaylight.bgpcep.programming.impl,
                        </Private-Package>
-                       <Bundle-Activator>org.opendaylight.bgpcep.programming.impl.BundleActivator</Bundle-Activator>
                    </instructions>
                </configuration>
            </plugin>

@@ -111,7 +111,6 @@
 						<Export-Package>
 							org.opendaylight.protocol.bgp.parser.impl.*
 						</Export-Package>
-                        <Activator>org.opendaylight.protocol.bgp.parser.impl.BundleActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

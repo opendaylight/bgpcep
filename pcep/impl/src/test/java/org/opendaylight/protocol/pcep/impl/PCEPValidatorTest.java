@@ -30,7 +30,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PcinitiateMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
@@ -144,7 +144,7 @@ public class PCEPValidatorTest {
 
 	@Before
 	public void setUp() throws Exception {
-		this.objectRegistry = PCEPExtensionProviderContextImpl.create().getObjectHandlerRegistry();
+		this.objectRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getObjectHandlerRegistry();
 		final RpBuilder rpBuilder = new RpBuilder();
 		rpBuilder.setProcessingRule(false);
 		rpBuilder.setIgnore(false);

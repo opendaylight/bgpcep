@@ -1,0 +1,61 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module config-programming-impl {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:programming:impl";
+    prefix "pgm";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+    import config-programming-spi { prefix spi; revision-date 2013-11-15; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         Programming implementation.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2013-11-15" {
+        description
+            "Initial revision";
+    }
+
+    identity instruction-scheduler-impl {
+        base config:module-type;
+        config:provided-service spi:instruction-scheduler;
+        config:java-name-prefix InstructionSchedulerImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case instruction-scheduler-impl {
+            when "/config:modules/config:module/config:type = 'instruction-scheduler-impl'";
+
+            container notification-service {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-notification-service;
+                    }
+                }
+            }
+
+            container rpc-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-rpc-registry;
+                    }
+                }
+            }
+        }
+    }
+}
+

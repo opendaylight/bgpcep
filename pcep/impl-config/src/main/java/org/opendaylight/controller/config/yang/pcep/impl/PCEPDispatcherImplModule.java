@@ -15,27 +15,26 @@ import io.netty.util.Timer;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 /**
-*
-*/
+ *
+ */
 public final class PCEPDispatcherImplModule
-		extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
+extends
+org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
 
 	public PCEPDispatcherImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
 	public PCEPDispatcherImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			PCEPDispatcherImplModule oldModule,
-			java.lang.AutoCloseable oldInstance) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final PCEPDispatcherImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -47,7 +46,7 @@ public final class PCEPDispatcherImplModule
 		JmxAttributeValidationException.checkCondition(
 				getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
 						+ "must be greater than 0",
-				this.maxUnknownMessagesJmxAttribute);
+						this.maxUnknownMessagesJmxAttribute);
 	}
 
 	@Override
@@ -59,9 +58,8 @@ public final class PCEPDispatcherImplModule
 				timer, localPrefs, getMaxUnknownMessages());
 
 		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
-				PCEPExtensionProviderContextImpl.getSingletonInstance()
-						.getMessageHandlerRegistry(), negFactory,
-				getBossGroupDependency(), getWorkerGroupDependency());
+				getExtensionsDependency().getMessageHandlerRegistry(),
+				negFactory, getBossGroupDependency(), getWorkerGroupDependency());
 		return instance;
 	}
 }

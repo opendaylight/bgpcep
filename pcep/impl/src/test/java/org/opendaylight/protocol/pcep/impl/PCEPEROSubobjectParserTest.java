@@ -21,7 +21,7 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
-import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -41,15 +41,15 @@ import com.google.common.collect.Lists;
 public class PCEPEROSubobjectParserTest {
 	private static final byte[] ip4PrefixBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00 };
 	private static final byte[] ip6PrefixBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0x16, (byte) 0x00 };
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+		(byte) 0xFF, (byte) 0x16, (byte) 0x00 };
 	private static final byte[] asNumberBytes = { (byte) 0x00, (byte) 0x64 };
 	private static final byte[] unnumberedBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 	private static final byte[] pathKey32Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 };
 	private static final byte[] pathKey128Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
-			(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-			(byte) 0x00, (byte) 0x00, (byte) 0x00 };
+		(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+		(byte) 0x00, (byte) 0x00, (byte) 0x00 };
 	private static final byte[] labelBytes = { (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF };
 	private static final byte[] exrsBytes = { (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 
@@ -125,7 +125,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROLabelSubobject() throws Exception {
-		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(PCEPExtensionProviderContextImpl.create().getLabelHandlerRegistry());
+		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getLabelHandlerRegistry());
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new LabelBuilder().setUniDirectional(true).setLabelType(
@@ -136,7 +136,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROEXRSSubobject() throws Exception {
-		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(PCEPExtensionProviderContextImpl.create().getXROSubobjectHandlerRegistry());
+		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getXROSubobjectHandlerRegistry());
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs.Exrs> list = Lists.newArrayList();
