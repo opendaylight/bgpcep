@@ -11,29 +11,28 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
-*
-*/
+ *
+ */
 public final class BGPMessageFactoryImplModule
-		extends
-		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPMessageFactoryImplModule {
+extends
+org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPMessageFactoryImplModule {
 
 	public BGPMessageFactoryImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
 	public BGPMessageFactoryImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			BGPMessageFactoryImplModule oldModule,
-			java.lang.AutoCloseable oldInstance) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final BGPMessageFactoryImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -47,19 +46,18 @@ public final class BGPMessageFactoryImplModule
 	public java.lang.AutoCloseable createInstance() {
 		try {
 			return new BGPMessageFactoryCloseable(new BGPMessageFactoryImpl(
-					ServiceLoaderBGPExtensionProviderContext
-							.createConsumerContext().getMessageRegistry()));
+					getBgpExtensionsDependency().getMessageRegistry()));
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to create consumer context.", e);
 		}
 	}
 
 	private static class BGPMessageFactoryCloseable implements
-			BGPMessageFactory, AutoCloseable {
+	BGPMessageFactory, AutoCloseable {
 		private final BGPMessageFactoryImpl inner;
 
 		public BGPMessageFactoryCloseable(
-				BGPMessageFactoryImpl bgpMessageFactory) {
+				final BGPMessageFactoryImpl bgpMessageFactory) {
 			this.inner = bgpMessageFactory;
 		}
 
@@ -69,13 +67,13 @@ public final class BGPMessageFactoryImplModule
 		}
 
 		@Override
-		public Notification parse(byte[] bytes) throws DeserializerException,
-				DocumentedException {
+		public Notification parse(final byte[] bytes) throws DeserializerException,
+		DocumentedException {
 			return inner.parse(bytes);
 		}
 
 		@Override
-		public byte[] put(Notification bgpMessage) {
+		public byte[] put(final Notification bgpMessage) {
 			return inner.put(bgpMessage);
 		}
 	}

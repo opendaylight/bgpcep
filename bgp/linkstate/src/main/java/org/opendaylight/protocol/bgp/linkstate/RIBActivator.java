@@ -17,14 +17,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
 public final class RIBActivator implements RIBExtensionProviderActivator {
+	private static final Logger LOG = LoggerFactory.getLogger(RIBActivator.class);
 	private AutoCloseable reg;
 
 	@Override
-	public void startRIBExtensionProvider(final RIBExtensionProviderContext context) throws Exception {
+	public void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
 		Preconditions.checkState(reg == null);
 
 		reg = context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
@@ -36,10 +39,15 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
 	}
 
 	@Override
-	public void stopRIBExtensionProvider(final RIBExtensionProviderContext context) throws Exception {
+	public void stopRIBExtensionProvider() {
 		if (reg != null) {
-			reg.close();
-			reg = null;
+			try {
+				reg.close();
+			} catch (Exception e) {
+				LOG.warn("Failed to unregister Linkstate extension", e);
+			} finally {
+				reg = null;
+			}
 		}
 	}
 }
