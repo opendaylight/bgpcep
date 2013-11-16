@@ -9,42 +9,64 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.Comparator;
 
-import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-// FIXME: rework in terms of RIBExtensionProviderActivator
-public final class Activator extends AbstractBindingAwareProvider {
-	@SuppressWarnings("unused")
-	private RIBImpl rib;
+import com.google.common.base.Preconditions;
+
+public final class RIBActivator implements RIBExtensionProviderActivator {
+	private static final Logger LOG = LoggerFactory.getLogger(RIBActivator.class);
+	private AutoCloseable v4reg, v6reg;
 
 	@Override
-	public void onSessionInitiated(final ProviderContext session) {
-		final RIBExtensionProviderContext reg = new AdjRIBsInFactoryRegistryImpl();
+	public void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
+		Preconditions.checkState(v4reg == null);
+		Preconditions.checkState(v6reg == null);
 
-		reg.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
+		v4reg = context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
 			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 				return new Ipv4AdjRIBsIn(comparator, key);
 			}
 		});
-		reg.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
+
+		v6reg = context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
 			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 				return new Ipv6AdjRIBsIn(comparator, key);
 			}
 		});
 
+	}
 
-		// FIXME: publish the registry
-		this.rib = new RIBImpl(reg, session.getSALService(DataProviderService.class));
+	@Override
+	public void stopRIBExtensionProvider() {
+		if (v4reg != null) {
+			try {
+				v4reg.close();
+			} catch (Exception e) {
+				LOG.warn("Failed to unregister IPv4 extension", e);
+			} finally {
+				v4reg = null;
+			}
+		}
+		if (v6reg != null) {
+			try {
+				v6reg.close();
+			} catch (Exception e) {
+				LOG.warn("Failed to unregister IPv6 extension", e);
+			} finally {
+				v6reg = null;
+			}
+		}
 	}
 }

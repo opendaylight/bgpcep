@@ -22,7 +22,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -42,7 +42,7 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		final InetSocketAddress address = new InetSocketAddress("0.0.0.0", 4189);
 		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(30, 10, true, true, true, true, 0);
 		final Open prefs = spf.getSessionProposal(address, 0);
-		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(PCEPExtensionProviderContextImpl
+		final PCEPDispatcher dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
 				.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(
 						new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
 

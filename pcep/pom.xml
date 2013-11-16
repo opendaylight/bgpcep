@@ -18,14 +18,15 @@
 	
 	<modules>
 		<module>api</module>
+        <module>api-config</module>
 		<module>impl</module>
+        <module>impl-config</module>
 		<module>spi</module>
+		<module>spi-config</module>
         <module>testtool</module>
         <module>topology-api</module>
-        <module>topology-provider</module>
-        <module>api-config</module>
-        <module>impl-config</module>
         <module>topology-spi</module>
+        <module>topology-provider</module>
         <module>tunnel-api</module>
         <module>tunnel-provider</module>
     </modules>

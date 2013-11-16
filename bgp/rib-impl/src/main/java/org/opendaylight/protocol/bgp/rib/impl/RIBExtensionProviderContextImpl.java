@@ -17,11 +17,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
-final class AdjRIBsInFactoryRegistryImpl implements RIBExtensionProviderContext {
+public class RIBExtensionProviderContextImpl implements RIBExtensionProviderContext {
 	private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
 
 	@Override
-	public synchronized AutoCloseable registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+	public final synchronized AbstractRegistration registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
 			final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsInFactory factory) {
 		final TablesKey key = new TablesKey(afi, safi);
 
@@ -36,14 +36,14 @@ final class AdjRIBsInFactoryRegistryImpl implements RIBExtensionProviderContext 
 			@Override
 			protected void removeRegistration() {
 				synchronized (lock) {
-					AdjRIBsInFactoryRegistryImpl.this.factories.remove(key);
+					RIBExtensionProviderContextImpl.this.factories.remove(key);
 				}
 			}
 		};
 	}
 
 	@Override
-	public synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+	public final synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
 			final Class<? extends SubsequentAddressFamily> safi) {
 		return this.factories.get(new TablesKey(afi, safi));
 	}
