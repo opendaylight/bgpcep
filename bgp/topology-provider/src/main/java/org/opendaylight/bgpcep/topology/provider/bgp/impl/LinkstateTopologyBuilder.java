@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.bgpcep.topology.provider.bgp.AbstractLocRIBListener;
+import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.NodeIdentifier;
@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev13
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.UnreservedBandwidthKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
@@ -63,9 +63,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
-final class LinkstateTopologyBuilder extends AbstractLocRIBListener<LinkstateRoute> {
-	LinkstateTopologyBuilder(final InstanceIdentifier<Topology> topology) {
-		super(topology, LinkstateRoute.class);
+public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
+	public LinkstateTopologyBuilder(final TopologyId topologyId) {
+		super(topologyId, LinkstateRoute.class);
 	}
 
 	private String buildNamePrefix(final LinkstateRoute route) {
@@ -95,7 +95,7 @@ final class LinkstateTopologyBuilder extends AbstractLocRIBListener<LinkstateRou
 	}
 
 	private InstanceIdentifier<?> buildLinkIdentifier(final String pfx, final Link l) {
-		return InstanceIdentifier.builder(getTopology()).node(
+		return InstanceIdentifier.builder(getInstanceIdentifier()).node(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link.class,
 				new LinkKey(buildLinkId(pfx, l))).toInstance();
 	}
@@ -190,7 +190,7 @@ final class LinkstateTopologyBuilder extends AbstractLocRIBListener<LinkstateRou
 	}
 
 	private InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nodeIdentifierBuilder(final String pfx, final NodeIdentifier node) {
-		return InstanceIdentifier.builder(getTopology()).node(
+		return InstanceIdentifier.builder(getInstanceIdentifier()).node(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
 				new NodeKey(buildNodeId(pfx, node)));
 	}

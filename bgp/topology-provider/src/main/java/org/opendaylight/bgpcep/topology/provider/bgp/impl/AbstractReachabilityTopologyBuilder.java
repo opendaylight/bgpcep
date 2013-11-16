@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.topology.provider.bgp.impl;
 
 import java.util.ArrayList;
 
-import org.opendaylight.bgpcep.topology.provider.bgp.AbstractLocRIBListener;
+import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHop;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractLocRIBListener<T> {
+abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
 
-	protected AbstractReachabilityTopologyBuilder(final InstanceIdentifier<Topology> topology, final Class<T> idClass) {
-		super(topology, idClass);
+	protected AbstractReachabilityTopologyBuilder(final TopologyId topologyId, final Class<T> idClass) {
+		super(topologyId, idClass);
 	}
 
 	private NodeId advertizingNode(final Attributes attrs) {
@@ -61,7 +61,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 	}
 
 	private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
-		return InstanceIdentifier.builder(getTopology()).child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
+		return InstanceIdentifier.builder(getInstanceIdentifier()).child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
 	}
 
 	private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans,
@@ -118,4 +118,5 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
 		removeEmptyNode(trans, nii);
 	}
+
 }

@@ -68,7 +68,6 @@
                        <Private-Package>
                            org.opendaylight.bgpcep.topology.provider.bgp.impl
                        </Private-Package>
-                       <Bundle-Activator>org.opendaylight.bgpcep.topology.provider.bgp.impl.Activator</Bundle-Activator>
                    </instructions>
                </configuration>
            </plugin>
