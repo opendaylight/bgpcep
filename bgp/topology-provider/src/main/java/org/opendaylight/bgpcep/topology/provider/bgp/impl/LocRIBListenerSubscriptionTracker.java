@@ -46,7 +46,7 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 		}
 
 		final InstanceIdentifier<Tables> path = InstanceIdentifier.builder(locRIBPath).
-				node(Tables.class, new TablesKey(service.getAfi(), service.getSafi())).toInstance();
+				child(Tables.class, new TablesKey(service.getAfi(), service.getSafi())).toInstance();
 		final LocRIBListener listener = service.getLocRIBListener();
 
 		final DataChangeListener dcl = new DataChangeListener() {
