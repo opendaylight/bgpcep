@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
@@ -20,10 +21,14 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.Item;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
 
 public abstract class AbstractLocRIBListener<T extends Route> implements LocRIBListener {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractLocRIBListener.class);
@@ -79,5 +84,18 @@ public abstract class AbstractLocRIBListener<T extends Route> implements LocRIBL
 				createObject(trans, i, newValue);
 			}
 		}
+
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+				new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				// Nothing to do
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to propagate change by listener {}", AbstractLocRIBListener.this);
+			}
+		});
 	}
 }
