@@ -32,6 +32,6 @@ public final class BundleActivator extends AbstractBindingAwareProvider {
 		final NotificationProviderService notifs = Preconditions.checkNotNull(session.getSALService(NotificationProviderService.class));
 
 		reg = Preconditions.checkNotNull(session.addRpcImplementation(ProgrammingService.class,
-				new ProgrammingServiceImpl(notifs, Executors.newSingleThreadExecutor(), timer, null)));
+				new ProgrammingServiceImpl(notifs, Executors.newSingleThreadExecutor(), timer)));
 	}
 }

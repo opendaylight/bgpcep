@@ -74,7 +74,7 @@ final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingS
 	private ExecutorService exec;
 
 	ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor,
-			final Timer timer, final InstructionScheduler registry) {
+			final Timer timer) {
 		this.notifs = Preconditions.checkNotNull(notifs);
 		this.executor = Preconditions.checkNotNull(executor);
 		this.timer = Preconditions.checkNotNull(timer);
