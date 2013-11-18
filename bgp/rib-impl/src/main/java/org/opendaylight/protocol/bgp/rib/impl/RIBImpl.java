@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -31,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
 
 @ThreadSafe
 public class RIBImpl {
@@ -79,13 +79,18 @@ public class RIBImpl {
 			}
 		}
 
-		// FIXME: we need to attach to this future for failures
-		final Future<RpcResult<TransactionStatus>> f = trans.commit();
-		try {
-			f.get();
-		} catch (InterruptedException | ExecutionException e) {
-			LOG.error("Failed to commit RIB modification", e);
-		}
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+				new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				// Nothing to do
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to commit RIB modification", t);
+			}
+		});
 	}
 
 	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
@@ -94,18 +99,23 @@ public class RIBImpl {
 			final DataModificationTransaction trans = this.dps.beginTransaction();
 			ari.clear(trans, peer);
 
-			// FIXME: we need to attach to this future for failures
-			final Future<RpcResult<TransactionStatus>> f = trans.commit();
-			try {
-				f.get();
-			} catch (InterruptedException | ExecutionException e) {
-				LOG.error("Failed to commit RIB modification", e);
-			}
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+					new FutureCallback<RpcResult<TransactionStatus>>() {
+				@Override
+				public void onSuccess(final RpcResult<TransactionStatus> result) {
+					// Nothing to do
+				}
+
+				@Override
+				public void onFailure(final Throwable t) {
+					LOG.error("Failed to commit RIB modification", t);
+				}
+			});
 		}
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 

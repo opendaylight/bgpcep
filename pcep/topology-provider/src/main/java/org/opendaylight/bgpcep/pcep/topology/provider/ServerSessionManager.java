@@ -13,8 +13,6 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -79,7 +77,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -162,19 +162,19 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
 
 			// All set, commit the modifications
-			final Future<RpcResult<TransactionStatus>> s = trans.commit();
+			final ListenableFuture<RpcResult<TransactionStatus>> f = JdkFutureAdapters.listenInPoolThread(trans.commit());
+			Futures.addCallback(f, new FutureCallback<RpcResult<TransactionStatus>>() {
+				@Override
+				public void onSuccess(final RpcResult<TransactionStatus> result) {
+					// Nothing to do
+				}
 
-			/*
-			 * FIXME: once this Future is listenable, attach to it so we can
-			 *        do cleanup if the commit fails. For now we force a commit.
-			 */
-			try {
-				s.get();
-			} catch (InterruptedException | ExecutionException e) {
-				LOG.error("Failed to update internal state for session {}, terminating it", session, e);
-				session.close(TerminationReason.Unknown);
-				return;
-			}
+				@Override
+				public void onFailure(final Throwable t) {
+					LOG.error("Failed to update internal state for session {}, terminating it", session, t);
+					session.close(TerminationReason.Unknown);
+				}
+			});
 
 			ServerSessionManager.this.nodes.put(this.nodeId, this);
 			this.session = session;
@@ -194,16 +194,18 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				trans.removeRuntimeData(this.topologyNode);
 			}
 
-			/*
-			 * FIXME: once this Future is listenable, attach to it so we can
-			 *        do cleanup if the commit fails. For now we force a commit.
-			 */
-			final Future<RpcResult<TransactionStatus>> s = trans.commit();
-			try {
-				s.get();
-			} catch (InterruptedException | ExecutionException e) {
-				LOG.error("Failed to cleanup internal state for session {}", session, e);
-			}
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+					new FutureCallback<RpcResult<TransactionStatus>>() {
+				@Override
+				public void onSuccess(final RpcResult<TransactionStatus> result) {
+					// Nothing to do
+				}
+
+				@Override
+				public void onFailure(final Throwable t) {
+					LOG.error("Failed to cleanup internal state for session {}", session, t);
+				}
+			});
 
 			// Clear all requests which have not been sent to the peer: they result in cancellation
 			for (final Entry<SrpIdNumber, SettableFuture<OperationResult>> e : this.sendingRequests.entrySet()) {
@@ -297,7 +299,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
 						final SymbolicPathName name = tlvs.getSymbolicPathName();
 						if (name == null) {
-							LOG.error("PLSPID {} seen for the first time, not reporting the LSP");
+							LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
 							// TODO: what should we do here?
 							continue;
 						}
@@ -306,21 +308,23 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					final SymbolicPathName name = this.lsps.get(id);
 					trans.putRuntimeData(lspIdentifier(name), lsp);
 
-					LOG.debug("LSP {} updated");
+					LOG.debug("LSP {} updated", lsp);
 				}
 			}
 
-			/*
-			 * FIXME: once this Future is listenable, attach to it so we can
-			 *        do cleanup if the commit fails. For now we force a commit.
-			 */
-			final Future<RpcResult<TransactionStatus>> s = trans.commit();
-			try {
-				s.get();
-			} catch (InterruptedException | ExecutionException e) {
-				LOG.error("Failed to update internal state for session {}, closing it", session, e);
-				session.close(TerminationReason.Unknown);
-			}
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+					new FutureCallback<RpcResult<TransactionStatus>>() {
+				@Override
+				public void onSuccess(final RpcResult<TransactionStatus> result) {
+					// Nothing to do
+				}
+
+				@Override
+				public void onFailure(final Throwable t) {
+					LOG.error("Failed to update internal state for session {}, closing it", session, t);
+					session.close(TerminationReason.Unknown);
+				}
+			});
 		}
 
 		private synchronized SrpIdNumber nextRequest() {

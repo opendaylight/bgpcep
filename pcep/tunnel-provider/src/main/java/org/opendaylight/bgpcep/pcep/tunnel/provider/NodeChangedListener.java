@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
@@ -70,6 +68,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
 
 final class NodeChangedListener implements DataChangeListener {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
@@ -340,14 +341,18 @@ final class NodeChangedListener implements DataChangeListener {
 			}
 		}
 
-		final Future<RpcResult<TransactionStatus>> f = trans.commit();
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
+				new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				// Nothing to do
+			}
 
-		// FIXME: change to a subscribtion once that is possible
-		try {
-			f.get();
-		} catch (InterruptedException | ExecutionException e) {
-			LOG.error("Failed to propagate a topology change, target topology became inconsistent", e);
-		}
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to propagate a topology change, target topology became inconsistent", t);
+			}
+		});
 	}
 
 	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology,
