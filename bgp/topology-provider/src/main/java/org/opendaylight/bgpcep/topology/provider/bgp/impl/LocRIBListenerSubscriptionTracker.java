@@ -85,7 +85,7 @@ final class LocRIBListenerSubscriptionTracker extends ServiceTracker<LocRIBListe
 		try {
 			service.close();
 		} catch (Exception e) {
-			LOG.error("Failed to unregister service {}", e);
+			LOG.error("Failed to unregister service {}", service, e);
 		}
 		context.ungetService(reference);
 	}
