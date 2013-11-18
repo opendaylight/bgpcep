@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +16,7 @@ import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.concepts.InstanceIdentifierUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4;
@@ -56,24 +56,19 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.IdentifiableItem;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
-final class NodeChangedListener implements DataChangeListener {
-	private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
+public final class NodeChangedListener implements DataChangeListener {
+	public static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
 	private final InstanceIdentifier<Topology> target;
 	private final DataProviderService dataProvider;
 
@@ -82,47 +77,12 @@ final class NodeChangedListener implements DataChangeListener {
 		this.target = Preconditions.checkNotNull(target);
 	}
 
-	private static <T extends DataObject> InstanceIdentifier<T> firstIdentifierOf(final InstanceIdentifier<?> id, final Class<T> type) {
-		final List<PathArgument> p = id.getPath();
-
-		int i = 1;
-		for (final PathArgument a : p) {
-			if (type.equals(a.getType())) {
-				new InstanceIdentifier<>(p.subList(0, i), type);
-			}
-
-			++i;
-		}
-
-		LOG.debug("Identifier {} does not contain type {}", id, type);
-		return null;
-	}
-
-	private static <N extends Identifiable<K> & DataObject, K extends Identifier<N>> K firstKeyOf(final InstanceIdentifier<?> id,  final Class<N> listItem, final Class<K> listKey) {
-		for (PathArgument i : id.getPath()) {
-			if (i.getType().equals(listItem)) {
-				@SuppressWarnings("unchecked")
-				final K ret = ((IdentifiableItem<N, K>)i).getKey();
-				return ret;
-			}
-		}
-
-		LOG.debug("Identifier {} does not contain type {}", id, listItem);
-		return null;
-	}
-
-	private static <N extends Identifiable<K> & DataObject, K extends Identifier<N>> K keyOf(final InstanceIdentifier<N> id) {
-		@SuppressWarnings("unchecked")
-		final K ret = ((IdentifiableItem<N, K>)Iterables.getLast(id.getPath())).getKey();
-		return ret;
-	}
-
 	private static void categorizeIdentifier(final InstanceIdentifier<?> i,
 			final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
 			final Set<InstanceIdentifier<Node>> changedNodes) {
-		final InstanceIdentifier<ReportedLsps> li = firstIdentifierOf(i, ReportedLsps.class);
+		final InstanceIdentifier<ReportedLsps> li = InstanceIdentifierUtil.firstIdentifierOf(i, ReportedLsps.class);
 		if (li == null) {
-			final InstanceIdentifier<Node> ni = firstIdentifierOf(i, Node.class);
+			final InstanceIdentifier<Node> ni = InstanceIdentifierUtil.firstIdentifierOf(i, Node.class);
 			if (ni == null) {
 				LOG.warn("Ignoring uncategorized identifier {}", i);
 			} else {
@@ -153,7 +113,7 @@ final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsps> i, final ReportedLsps lsp) {
-		return new LinkId(firstKeyOf(i, Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
+		return new LinkId(InstanceIdentifierUtil.firstKeyOf(i, Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
 	}
 
 	private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
@@ -183,7 +143,7 @@ final class NodeChangedListener implements DataChangeListener {
 						for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
 							if (addr.equals(a.getIpv6Address())) {
 								if (sni != null) {
-									final NodeKey k = keyOf(sni);
+									final NodeKey k = InstanceIdentifierUtil.keyOf(sni);
 									boolean have = false;
 
 									/*
@@ -233,7 +193,7 @@ final class NodeChangedListener implements DataChangeListener {
 		nb.setKey(nk).setNodeId(nk.getNodeId());
 		nb.setTerminationPoint(Lists.newArrayList(tpb.build()));
 		if (sni != null) {
-			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(keyOf(sni).getNodeId(), inControl)));
+			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifierUtil.keyOf(sni).getNodeId(), inControl)));
 		}
 
 		trans.putOperationalData(InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).toInstance(), nb.build());
@@ -243,7 +203,7 @@ final class NodeChangedListener implements DataChangeListener {
 	private void create(final DataModificationTransaction trans,
 			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
 
-		final InstanceIdentifier<Node> ni = firstIdentifierOf(i, Node.class);
+		final InstanceIdentifier<Node> ni = InstanceIdentifierUtil.firstIdentifierOf(i, Node.class);
 		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
 		/*
@@ -277,11 +237,11 @@ final class NodeChangedListener implements DataChangeListener {
 		lb.setLinkId(id);
 
 		lb.setSource(new SourceBuilder().
-				setSourceNode(firstKeyOf(src, Node.class, NodeKey.class).getNodeId()).
-				setSourceTp(firstKeyOf(src, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+				setSourceNode(InstanceIdentifierUtil.firstKeyOf(src, Node.class, NodeKey.class).getNodeId()).
+				setSourceTp(InstanceIdentifierUtil.firstKeyOf(src, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
 		lb.setDestination(new DestinationBuilder().
-				setDestNode(firstKeyOf(dst, Node.class, NodeKey.class).getNodeId()).
-				setDestTp(firstKeyOf(dst, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+				setDestNode(InstanceIdentifierUtil.firstKeyOf(dst, Node.class, NodeKey.class).getNodeId()).
+				setDestTp(InstanceIdentifierUtil.firstKeyOf(dst, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
 		lb.addAugmentation(Link1.class, lab.build());
 
 		trans.putOperationalData(linkForLsp(id), lb.build());
