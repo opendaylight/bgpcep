@@ -12,10 +12,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.sal.binding.api.AbstractBindingAwareProvider;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.ProviderContext;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -24,9 +20,6 @@ import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.TimedReconnectStrategy;
-import org.osgi.framework.BundleContext;
-
-import com.google.common.base.Preconditions;
 
 /**
  *
@@ -61,14 +54,7 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		BAProvider provider = new BAProvider();
-
-		ProviderContext providerContext = ((BindingAwareBroker) getOsgiRegistry())
-				.registerProvider(provider, provider.ctx);
-		DataProviderService dataProviderService = providerContext
-				.getSALService(DataProviderService.class);
-
-		RIBImpl rib = new RIBImpl(getExtensionsDependency(), dataProviderService);
+		RIBImpl rib = new RIBImpl(getExtensionsDependency(), getDataProviderDependency());
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
@@ -104,21 +90,5 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		public void close() throws Exception {
 			reg.close();
 		}
-	}
-
-	private static final class BAProvider extends AbstractBindingAwareProvider {
-
-		BundleContext ctx;
-
-		@Override
-		public void onSessionInitiated(final ProviderContext session) {
-
-		}
-
-		@Override
-		protected void startImpl(final BundleContext context) {
-			this.ctx = Preconditions.checkNotNull(context);
-		}
-
 	}
 }
