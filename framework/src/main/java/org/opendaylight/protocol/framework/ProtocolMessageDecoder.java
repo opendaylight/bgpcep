@@ -8,39 +8,41 @@
 package org.opendaylight.protocol.framework;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
-import java.util.Arrays;
 import java.util.List;
+
+import com.google.common.base.Preconditions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ProtocolMessageDecoder<T> extends ByteToMessageDecoder {
 
-	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
+	private final static Logger LOG = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 
 	private final ProtocolMessageFactory<T> factory;
 
 	public ProtocolMessageDecoder(final ProtocolMessageFactory<T> factory) {
-		this.factory = factory;
+		this.factory = Preconditions.checkNotNull(factory);
 	}
 
 	@Override
 	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
 		if (in.readableBytes() == 0) {
-			logger.debug("No more content in incoming buffer.");
+			LOG.debug("No more content in incoming buffer.");
 			return;
 		}
 		in.markReaderIndex();
 		try {
+			LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
 			final byte[] bytes = new byte[in.readableBytes()];
 			in.readBytes(bytes);
-			logger.debug("Received to decode: {}", Arrays.toString(bytes));
 			out.add(this.factory.parse(bytes));
 		} catch (DeserializerException | DocumentedException e) {
-			logger.debug("Failed to decode protocol message", e);
+			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
 		}
 		in.discardReadBytes();
