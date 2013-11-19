@@ -23,6 +23,7 @@ import com.google.common.collect.Iterables;
 /**
  *
  */
+@Deprecated
 public final class InstanceIdentifierUtil {
 	private static final Logger LOG = LoggerFactory.getLogger(InstanceIdentifierUtil.class);
 
