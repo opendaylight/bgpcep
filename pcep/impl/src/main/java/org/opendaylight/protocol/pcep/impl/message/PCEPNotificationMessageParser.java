@@ -126,8 +126,8 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> notifications = Lists.newArrayList();
 		Object obj;
 
-		int state = 1;
-		while (!objects.isEmpty()) {
+		State state = State.Init;
+		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
 
 			if (obj instanceof UnknownObject) {
@@ -135,32 +135,34 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 			}
 
 			switch (state) {
-			case 1:
-				state = 2;
+			case Init:
+				state = State.RpIn;
 				if (obj instanceof Rp) {
 					final Rp rp = (Rp) obj;
 					if (rp.isProcessingRule()) {
 						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
 					}
 					requestParameters.add(new RpsBuilder().setRp(rp).build());
-					state = 1;
+					state = State.Init;
 					break;
 				}
-			case 2:
+			case RpIn:
+				state = State.NotificationIn;
 				if (obj instanceof CNotification) {
 					final CNotification n = (CNotification) obj;
 					notifications.add(new NotificationsBuilder().setCNotification(n).build());
-					state = 2;
+					state = State.RpIn;
 					break;
 				}
-				state = 3;
-			}
-
-			if (state == 3) {
+			case NotificationIn:
+				state = State.End;
+				break;
+			case End:
 				break;
 			}
-
-			objects.remove(obj);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
 		}
 
 		if (notifications.isEmpty()) {
@@ -169,6 +171,10 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
 		return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.NotificationsBuilder().setNotifications(
 				notifications).setRps(requestParameters).build();
+	}
+
+	private enum State {
+		Init, RpIn, NotificationIn, End
 	}
 
 	@Override

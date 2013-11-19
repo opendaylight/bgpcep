@@ -102,13 +102,29 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
 
-		Open openObj = null;
 		final List<Rps> requestParameters = Lists.newArrayList();
 		final List<Errors> errorObjects = Lists.newArrayList();
 		final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
 		Object obj;
-		int state = 0;
+		State state = State.Init;
+		obj = objects.get(0);
+
+		if (obj instanceof ErrorObject) {
+			final ErrorObject o = (ErrorObject) obj;
+			errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+			state = State.ErrorIn;
+			objects.remove(0);
+		} else if (obj instanceof Rp) {
+			final Rp o = ((Rp) obj);
+			if (o.isProcessingRule()) {
+				throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
+			}
+			requestParameters.add(new RpsBuilder().setRp(o).build());
+			state = State.RpIn;
+			objects.remove(0);
+		}
+
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
 
@@ -116,66 +132,51 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 				return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build()).build();
 			}
 
-			if (state == 0) {
-				if (obj instanceof ErrorObject) {
-					final ErrorObject o = (ErrorObject) obj;
-					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-					state = 1;
-					objects.remove(0);
-					continue;
-				} else if (obj instanceof Rp) {
-					final Rp o = ((Rp) obj);
-					if (o.isProcessingRule()) {
-						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-					}
-					requestParameters.add(new RpsBuilder().setRp(o).build());
-					state = 2;
-					objects.remove(0);
-					continue;
-				}
-			}
-
 			switch (state) {
-			case 1:
+			case ErrorIn:
+				state = State.Open;
 				if (obj instanceof ErrorObject) {
 					final ErrorObject o = (ErrorObject) obj;
 					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-					state = 1;
+					state = State.ErrorIn;
 					break;
 				}
-				state = 3;
-			case 2:
+			case RpIn:
+				state = State.Error;
 				if (obj instanceof Rp) {
 					final Rp o = ((Rp) obj);
 					if (o.isProcessingRule()) {
 						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
 					}
 					requestParameters.add(new RpsBuilder().setRp(o).build());
-					state = 2;
+					state = State.RpIn;
 					break;
 				}
-				state = 4;
-			case 3:
+			case Open:
+				state = State.OpenIn;
 				if (obj instanceof Open) {
-					openObj = (Open) obj;
-					state = 5;
+					b.setErrorType(new SessionBuilder().setOpen((Open) obj).build());
 					break;
 				}
-			case 4:
+			case Error:
+				state = State.OpenIn;
 				if (obj instanceof ErrorObject) {
 					final ErrorObject o = (ErrorObject) obj;
 					errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
-					state = 4;
+					state = State.Error;
 					break;
 				}
-				state = 5;
-
-				if (state == 5) {
-					break;
-				}
+			case OpenIn:
+				state = State.End;
+				break;
+			case End:
+				break;
+			default:
+				break;
 			}
-
-			objects.remove(0);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
 		}
 
 		if (errorObjects.isEmpty() && errorObjects.isEmpty()) {
@@ -185,14 +186,15 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
-		if (requestParameters != null) {
+		if (requestParameters != null && !requestParameters.isEmpty()) {
 			b.setErrorType(new RequestBuilder().setRps(requestParameters).build());
-		}
-		if (openObj != null) {
-			b.setErrorType(new SessionBuilder().setOpen(openObj).build());
 		}
 
 		return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
+	}
+
+	private enum State {
+		Init, ErrorIn, RpIn, Open, Error, OpenIn, End
 	}
 
 	@Override

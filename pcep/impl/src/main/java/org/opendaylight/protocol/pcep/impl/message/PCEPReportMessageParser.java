@@ -67,6 +67,9 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 				if (p.getEro() != null) {
 					buffer.writeBytes(serializeObject(p.getEro()));
 				}
+				if (p.getLspa() != null) {
+					buffer.writeBytes(serializeObject(p.getLspa()));
+				}
 				if (p.getBandwidth() != null) {
 					buffer.writeBytes(serializeObject(p.getBandwidth()));
 				}
@@ -98,16 +101,17 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 		}
 	}
 
-	public Pcrpt validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Message validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
-
 		final List<Reports> reports = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {
 			final Reports report = getValidReports(objects);
-			reports.add(report);
+			if (reports != null) {
+				reports.add(report);
+			}
 		}
 
 		if (!objects.isEmpty()) {
@@ -143,9 +147,8 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 		Object obj;
 		State state = State.Init;
-		while (!objects.isEmpty()) {
+		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
-
 			switch (state) {
 			case Init:
 				state = State.EroIn;
@@ -179,11 +182,14 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 					break;
 				}
 			case IroIn:
-				state = State.End;
+				state = State.RroIn;
 				if (obj instanceof Rro) {
 					builder.setRro((Rro) obj);
 					break;
 				}
+			case RroIn:
+				state = State.End;
+				break;
 			case End:
 				break;
 			default:
@@ -191,12 +197,17 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 					throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 				}
 			}
-			objects.remove(0);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
+		}
+		if (!pathMetrics.isEmpty()) {
+			builder.setMetrics(pathMetrics);
 		}
 	}
 
 	private enum State {
-		Init, SrpIn, LspIn, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, End
+		Init, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, End
 	}
 
 	@Override
