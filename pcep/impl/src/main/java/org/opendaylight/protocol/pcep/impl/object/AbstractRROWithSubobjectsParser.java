@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
@@ -92,8 +93,8 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 
 			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
 
-			final byte typeBytes = (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0]);
-			final byte lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - 1)[0];
+			final byte typeBytes = UnsignedBytes.checkedCast(serializer.getType());
+			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
 
 			bytes[0] = typeBytes;
 			bytes[1] = lengthBytes;

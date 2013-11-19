@@ -189,7 +189,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
 		Object obj;
 		State state = State.Init;
-		while (!objects.isEmpty()) {
+		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
 
 			switch (state) {
@@ -213,17 +213,22 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 					break;
 				}
 			case MetricIn:
-				state = State.End;
+				state = State.IroIn;
 				if (obj instanceof Iro) {
 					builder.setIro((Iro) obj);
 					break;
 				}
+			case IroIn:
+				state = State.End;
+				break;
 			case End:
 				break;
 			default:
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
-			objects.remove(0);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
 		}
 		builder.setMetrics(pathMetrics);
 	}
@@ -233,7 +238,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
 		Object obj;
 		State state = State.Init;
-		while (!objects.isEmpty()) {
+		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
 
 			switch (state) {
@@ -263,23 +268,28 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 					break;
 				}
 			case MetricIn:
-				state = State.End;
+				state = State.IroIn;
 				if (obj instanceof Iro) {
 					builder.setIro((Iro) obj);
 					break;
 				}
+			case IroIn:
+				state = State.End;
+				break;
 			case End:
 				break;
 			default:
 				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
-			objects.remove(0);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
 		}
 		builder.setMetrics(pathMetrics);
 	}
 
 	private enum State {
-		Init, LspaIn, OfIn, BandwidthIn, MetricIn, End
+		Init, LspaIn, OfIn, BandwidthIn, MetricIn, IroIn, End
 	}
 
 	@Override

@@ -61,17 +61,22 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 			buffer.writeBytes(serializeObject(update.getSrp()));
 			buffer.writeBytes(serializeObject(update.getLsp()));
 			final Path p = update.getPath();
-			buffer.writeBytes(serializeObject(p.getEro()));
-			if (p.getBandwidth() != null) {
-				buffer.writeBytes(serializeObject(p.getBandwidth()));
-			}
-			if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-				for (final Metrics m : p.getMetrics()) {
-					buffer.writeBytes(serializeObject(m.getMetric()));
+			if (p != null) {
+				buffer.writeBytes(serializeObject(p.getEro()));
+				if (p.getLspa() != null) {
+					buffer.writeBytes(serializeObject(p.getLspa()));
 				}
-			}
-			if (p.getIro() != null) {
-				buffer.writeBytes(serializeObject(p.getIro()));
+				if (p.getBandwidth() != null) {
+					buffer.writeBytes(serializeObject(p.getBandwidth()));
+				}
+				if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+					for (final Metrics m : p.getMetrics()) {
+						buffer.writeBytes(serializeObject(m.getMetric()));
+					}
+				}
+				if (p.getIro() != null) {
+					buffer.writeBytes(serializeObject(p.getIro()));
+				}
 			}
 		}
 	}
@@ -96,69 +101,83 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 		final List<Updates> updateRequests = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {
-			final Updates update = this.getValidUpdates(objects);
+			final Updates update = getValidUpdates(objects);
 			if (update != null) {
 				updateRequests.add(update);
 			}
-			if (objects.isEmpty()) {
-				break;
+		}
+		if (!objects.isEmpty()) {
+			if (objects.get(0) instanceof UnknownObject) {
+				throw new PCEPDocumentedException("Unknown object encountered", ((UnknownObject) objects.get(0)).getError());
 			}
+			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 		return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
 	}
 
 	private Updates getValidUpdates(final List<Object> objects) throws PCEPDocumentedException {
-		if (!(objects.get(0) instanceof Srp)) {
+		final UpdatesBuilder builder = new UpdatesBuilder();
+		if (objects.get(0) instanceof Srp) {
+			builder.setSrp((Srp) objects.get(0));
+			objects.remove(0);
+		} else {
 			throw new PCEPDocumentedException("Srp object missing.", PCEPErrors.SRP_MISSING);
 		}
-		final Srp srp = (Srp) objects.get(0);
-		objects.remove(0);
-		if (!(objects.get(0) instanceof Lsp)) {
+		if (objects.get(0) instanceof Lsp) {
+			builder.setLsp((Lsp) objects.get(0));
+			objects.remove(0);
+		} else {
 			throw new PCEPDocumentedException("Lsp object missing.", PCEPErrors.LSP_MISSING);
 		}
-		final Lsp lsp = (Lsp) objects.get(0);
-		objects.remove(0);
-		if (!(objects.get(0) instanceof Ero)) {
-			throw new PCEPDocumentedException("Ero object missing.", PCEPErrors.ERO_MISSING);
+		if (!objects.isEmpty()) {
+			final PathBuilder pBuilder = new PathBuilder();
+			if (objects.get(0) instanceof Ero) {
+				pBuilder.setEro((Ero) objects.get(0));
+				objects.remove(0);
+			} else {
+				throw new PCEPDocumentedException("Ero object missing.", PCEPErrors.ERO_MISSING);
+			}
+			parsePath(objects, pBuilder);
+			builder.setPath(pBuilder.build());
 		}
-		final Ero ero = (Ero) objects.get(0);
-		objects.remove(0);
+		return builder.build();
+	}
 
-		Lspa pathLspa = null;
-		Bandwidth pathBandwidth = null;
-		Iro pathIro = null;
+	private void parsePath(final List<Object> objects, final PathBuilder pBuilder) throws PCEPDocumentedException {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
-
 		Object obj;
 		State state = State.Init;
-		while (!objects.isEmpty()) {
+		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
 			switch (state) {
+			case Init:
+				state = State.LspaIn;
+				if (obj instanceof Lspa) {
+					pBuilder.setLspa((Lspa) obj);
+					break;
+				}
 			case LspaIn:
 				state = State.BandwidthIn;
-				if (obj instanceof Lspa) {
-					pathLspa = (Lspa) obj;
+				if (obj instanceof Bandwidth) {
+					pBuilder.setBandwidth((Bandwidth) obj);
 					break;
 				}
 			case BandwidthIn:
 				state = State.MetricIn;
-				if (obj instanceof Bandwidth) {
-					pathBandwidth = (Bandwidth) obj;
-					break;
-				}
-			case MetricIn:
-				state = State.IroIn;
 				if (obj instanceof Metric) {
 					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
 					state = State.BandwidthIn;
 					break;
 				}
-			case IroIn:
-				state = State.End;
+			case MetricIn:
+				state = State.IroIn;
 				if (obj instanceof Iro) {
-					pathIro = (Iro) obj;
+					pBuilder.setIro((Iro) obj);
 					break;
 				}
+			case IroIn:
+				state = State.End;
+				break;
 			case End:
 				break;
 			default:
@@ -166,15 +185,13 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 					throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 				}
 			}
-			objects.remove(0);
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
 		}
-		final PathBuilder builder = new PathBuilder();
-		builder.setEro(ero);
-		builder.setLspa(pathLspa);
-		builder.setBandwidth(pathBandwidth);
-		builder.setMetrics(pathMetrics);
-		builder.setIro(pathIro);
-		return new UpdatesBuilder().setSrp(srp).setLsp(lsp).setPath(builder.build()).build();
+		if (!pathMetrics.isEmpty()) {
+			pBuilder.setMetrics(pathMetrics);
+		}
 	}
 
 	private enum State {
