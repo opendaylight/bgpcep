@@ -36,7 +36,7 @@ public final class InstanceIdentifierUtil {
 		int i = 1;
 		for (final PathArgument a : p) {
 			if (type.equals(a.getType())) {
-				new InstanceIdentifier<>(p.subList(0, i), type);
+				return new InstanceIdentifier<>(p.subList(0, i), type);
 			}
 
 			++i;
