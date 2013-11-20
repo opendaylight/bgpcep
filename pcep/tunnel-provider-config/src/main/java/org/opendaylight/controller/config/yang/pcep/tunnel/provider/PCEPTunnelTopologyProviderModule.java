@@ -12,6 +12,7 @@ package org.opendaylight.controller.config.yang.pcep.tunnel.provider;
 import org.opendaylight.bgpcep.pcep.tunnel.provider.PCEPTunnelTopologyProvider;
 import org.opendaylight.bgpcep.pcep.tunnel.provider.TunnelProgramming;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.TopologyTunnelPcepProgrammingService;
@@ -35,7 +36,8 @@ public final class PCEPTunnelTopologyProviderModule extends org.opendaylight.con
 	@Override
 	public void validate(){
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getTopologyId(),
+				"is not set.", topologyIdJmxAttribute);
 	}
 
 	@Override

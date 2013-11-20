@@ -12,6 +12,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.spi;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.topology.provider.bgp.LinkstateTopologyBuilder;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateSubsequentAddressFamily;
@@ -38,7 +39,8 @@ public final class LinkstateTopologyBuilderModule extends org.opendaylight.contr
 	@Override
 	public void validate(){
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getTopologyId(),
+				"is not set.", topologyIdJmxAttribute);
 	}
 
 	@Override
