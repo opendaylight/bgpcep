@@ -14,6 +14,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -42,7 +43,12 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 	@Override
 	public void validate(){
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getTopologyId(),
+				"is not set.", topologyIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenAddress(),
+				"is not set.", listenAddressJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenPort(),
+				"is not set.", listenPortJmxAttribute);
 	}
 
 	private InetAddress listenAddress() {

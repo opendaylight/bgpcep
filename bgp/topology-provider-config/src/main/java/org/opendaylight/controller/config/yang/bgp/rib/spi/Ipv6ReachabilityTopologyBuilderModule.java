@@ -12,6 +12,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.spi;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.topology.provider.bgp.Ipv6ReachabilityTopologyBuilder;
+import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -37,7 +38,8 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendayligh
 	@Override
 	public void validate(){
 		super.validate();
-		// Add custom validation for module attributes here.
+		JmxAttributeValidationException.checkNotNull(getTopologyId(),
+				"is not set.", topologyIdJmxAttribute);
 	}
 
 	@Override
