@@ -260,13 +260,13 @@ module bgp-rib-impl {
                  type int64;
             }
                        
-            container osgi-registry {
-            	uses config:service-ref {
-            		refine type {
-            			mandatory true;
-            			config:required-identity mdsb:binding-broker-osgi-registry;
-            		}
-            	}
+            container data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsb:binding-data-broker;
+                    }
+                }
             }
         }
     }
