@@ -133,8 +133,8 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
 
-			final byte typeBytes = (byte) (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - 1)[0] | (subobject.isMandatory() ? 1 << 7
-					: 0));
+			final byte typeBytes = (byte) (UnsignedBytes.checkedCast(serializer.getType()) | (subobject.isMandatory() ? 1 << 7 : 0));
+
 			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length);
 
 			bytes[0] = typeBytes;

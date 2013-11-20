@@ -105,7 +105,8 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 		Requests req = null;
 		while (!objects.isEmpty()) {
 			try {
-				if ((req = this.getValidRequest(objects)) == null) {
+				req = this.getValidRequest(objects);
+				if (req == null) {
 					break;
 				}
 			} catch (final PCEPDocumentedException e) {

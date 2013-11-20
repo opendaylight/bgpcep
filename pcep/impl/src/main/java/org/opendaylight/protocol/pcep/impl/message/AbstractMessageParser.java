@@ -30,30 +30,30 @@ import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
 
-	private final static int COMMON_OBJECT_HEADER_LENGTH = 4;
+	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
-	private final static int OC_F_LENGTH = 1;
-	private final static int OT_FLAGS_MF_LENGTH = 1;
-	private final static int OBJ_LENGTH_F_LENGTH = 2;
+	private static final int OC_F_LENGTH = 1;
+	private static final int OT_FLAGS_MF_LENGTH = 1;
+	private static final int OBJ_LENGTH_F_LENGTH = 2;
 
-	private final static int OC_F_OFFSET = 0;
-	private final static int OT_FLAGS_MF_OFFSET = OC_F_OFFSET + OC_F_LENGTH;
-	private final static int OBJ_LENGTH_F_OFFSET = OT_FLAGS_MF_OFFSET + OT_FLAGS_MF_LENGTH;
+	private static final int OC_F_OFFSET = 0;
+	private static final int OT_FLAGS_MF_OFFSET = OC_F_OFFSET + OC_F_LENGTH;
+	private static final int OBJ_LENGTH_F_OFFSET = OT_FLAGS_MF_OFFSET + OT_FLAGS_MF_LENGTH;
 
-	private final static int OT_SF_LENGTH = 4;
-	private final static int FLAGS_SF_LENGTH = 4;
+	private static final int OT_SF_LENGTH = 4;
+	private static final int FLAGS_SF_LENGTH = 4;
 
 	/*
 	 * offsets of fields inside of multi-field in bits
 	 */
-	private final static int OT_SF_OFFSET = 0;
-	private final static int FLAGS_SF_OFFSET = OT_SF_OFFSET + OT_SF_LENGTH;
+	private static final int OT_SF_OFFSET = 0;
+	private static final int FLAGS_SF_OFFSET = OT_SF_OFFSET + OT_SF_LENGTH;
 
 	/*
 	 * flags offsets inside multi-filed
 	 */
-	private final static int P_FLAG_OFFSET = 6;
-	private final static int I_FLAG_OFFSET = 7;
+	private static final int P_FLAG_OFFSET = 6;
+	private static final int I_FLAG_OFFSET = 7;
 
 	private final ObjectHandlerRegistry registry;
 
@@ -145,7 +145,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return objs;
 	}
 
-	protected PcerrMessage createErrorMsg(PCEPErrors e) {
+	protected PcerrMessage createErrorMsg(final PCEPErrors e) {
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrors(
