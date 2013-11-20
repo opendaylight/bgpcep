@@ -41,8 +41,15 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
 			builder.setStateful((new StatefulBuilder().setFlags(new Flags(PCEPSessionProposalFactoryImpl.this.versioned, PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active)).build()));
 		}
-		return new OpenBuilder().setKeepalive((short) PCEPSessionProposalFactoryImpl.this.keepAlive).setDeadTimer(
-				(short) PCEPSessionProposalFactoryImpl.this.deadTimer).setSessionId((short) sessionId).setTlvs(tlvs).build();
+		final OpenBuilder oBuilder = new OpenBuilder();
+		oBuilder.setSessionId((short) sessionId);
+		if (PCEPSessionProposalFactoryImpl.this.keepAlive != 0) {
+			oBuilder.setKeepalive((short) PCEPSessionProposalFactoryImpl.this.keepAlive);
+		}
+		if (PCEPSessionProposalFactoryImpl.this.deadTimer != 0) {
+			oBuilder.setDeadTimer((short) PCEPSessionProposalFactoryImpl.this.deadTimer);
+		}
+		return oBuilder.setTlvs(tlvs).build();
 	}
 
 	public int getKeepAlive() {
