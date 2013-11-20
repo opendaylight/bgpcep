@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import com.google.common.base.Preconditions;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
@@ -15,6 +14,9 @@ import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
+
+import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
@@ -27,13 +29,13 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.PCEPExtensionProviderContextImpl;
+import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 
-import java.net.InetSocketAddress;
+import com.google.common.base.Preconditions;
 
 public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
@@ -66,15 +68,15 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
 		final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new OpenBuilder().setKeepalive(
 				(short) 30).setDeadTimer((short) 120).setSessionId((short) 0).setTlvs(builder.build()).build(), 0);
 
-		final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(PCEPExtensionProviderContextImpl.getSingletonInstance().getMessageHandlerRegistry()), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
+		final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
 		pcc.createClient(new InetSocketAddress("127.0.0.3", 12345), new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 2000),
 				new SessionListenerFactory<PCEPSessionListener>() {
 
-					@Override
-					public PCEPSessionListener getSessionListener() {
-						return new SimpleSessionListener();
-					}
-				}).get();
+			@Override
+			public PCEPSessionListener getSessionListener() {
+				return new SimpleSessionListener();
+			}
+		}).get();
 	}
 }

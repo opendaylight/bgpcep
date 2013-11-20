@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,13 +81,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-final class TunnelProgramming implements TopologyTunnelPcepProgrammingService {
+public final class TunnelProgramming implements TopologyTunnelPcepProgrammingService, AutoCloseable {
 	private static final Logger LOG = LoggerFactory.getLogger(TunnelProgramming.class);
 	private final NetworkTopologyPcepService topologyService;
 	private final DataProviderService dataProvider;
 	private final InstructionScheduler scheduler;
 
-	TunnelProgramming(final InstructionScheduler scheduler, final DataProviderService dataProvider,
+	public TunnelProgramming(final InstructionScheduler scheduler, final DataProviderService dataProvider,
 			final NetworkTopologyPcepService topologyService) {
 		this.scheduler = Preconditions.checkNotNull(scheduler);
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
@@ -278,12 +277,12 @@ final class TunnelProgramming implements TopologyTunnelPcepProgrammingService {
 	// FIXME: tunnel programming utility class
 	private InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final BaseTunnelInput input) {
 		return InstanceIdentifier.builder(topology).
-				node(Link.class, new LinkKey(Preconditions.checkNotNull(input.getLinkId()))).toInstance();
+				child(Link.class, new LinkKey(Preconditions.checkNotNull(input.getLinkId()))).toInstance();
 	}
 
 	private Node sourceNode(final DataModificationTransaction t, final InstanceIdentifier<Topology> topology, final Link link) {
 		final InstanceIdentifier<Node> nii = InstanceIdentifier.builder(topology).
-				node(Node.class, new NodeKey(link.getSource().getSourceNode())).toInstance();
+				child(Node.class, new NodeKey(link.getSource().getSourceNode())).toInstance();
 		return (Node) t.readOperationalData(nii);
 	}
 
@@ -382,5 +381,10 @@ final class TunnelProgramming implements TopologyTunnelPcepProgrammingService {
 
 		final RpcResult<PcepUpdateTunnelOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
+	}
+
+	@Override
+	public void close() {
+		// FIXME: remove all scheduled instructions, etc.
 	}
 }

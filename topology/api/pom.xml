@@ -19,6 +19,11 @@
 	</prerequisites>
 
 	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concepts</artifactId>
+            <version>${project.version}</version>
+		</dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
@@ -81,11 +86,12 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
-                           org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ospf.topology.rev130712.*,
-                           org.opendaylight.yang.gen.v1.urn.TBD.params.xml.ns.yang.network.ted.rev130712.*,
-                           org.opendaylight.yang.gen.v1.urn.TBD.params.xml.ns.yang.network.topology.rev130712.*,
-                           org.opendaylight.yang.gen.v1.urn.TBD.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev130712.*,
-                           org.opendaylight.yang.gen.v1.urn.TBD.params.xml.ns.yang.network.isis.topology.rev130712.*,
+                           org.opendaylight.bgpcep.topology,
+                           org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.*,
+                           org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.*,
+                           org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.*,
+                           org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.*,
+                           org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.*,
                        </Export-Package>
                    </instructions>
                </configuration>

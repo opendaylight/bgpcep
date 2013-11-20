@@ -55,6 +55,8 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 				"value is not set.", ribNameJmxAttribute);
 		JmxAttributeValidationException.checkCondition(!getRibName().isEmpty(),
 				"should not be empty string.", ribNameJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getExtensions(),
+				"is not set.", extensionsJmxAttribute);
 	}
 
 	@Override
@@ -66,8 +68,7 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		DataProviderService dataProviderService = providerContext
 				.getSALService(DataProviderService.class);
 
-		// FIXME: deal with Extensions
-		RIBImpl rib = new RIBImpl(null, dataProviderService);
+		RIBImpl rib = new RIBImpl(getExtensionsDependency(), dataProviderService);
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 

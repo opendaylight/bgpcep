@@ -19,7 +19,9 @@
 	<modules>
         <module>api</module>
         <module>impl</module>
+        <module>impl-config</module>
         <module>spi</module>
+        <module>spi-config</module>
         <module>topology-api</module>
 		<module>tunnel-api</module>
     </modules>
