@@ -9,7 +9,7 @@ module bgp-rib-impl {
     import config-bgp-parser-spi { prefix bgpspi; revision-date 2013-11-15; }
     import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
-    import threadpool { prefix th; revision-date 2013-04-09; }
+    import netty { prefix netty; revision-date 2013-11-19; }
     import reconnect-strategy { prefix rs; revision-date 2013-11-09; }
     import config { prefix config; revision-date 2013-04-05; }
 
@@ -160,7 +160,7 @@ module bgp-rib-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity th:netty-threadgroup;
+                        config:required-identity netty:netty-threadgroup;
                     }
                 }
             }
@@ -169,7 +169,7 @@ module bgp-rib-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity th:netty-threadgroup;
+                        config:required-identity netty:netty-threadgroup;
                     }
                 }
             }

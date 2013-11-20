@@ -41,7 +41,7 @@
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
-         <artifactId>threadpool-config-api</artifactId>
+         <artifactId>netty-config-api</artifactId>
          <version>${controller.config.version}</version>
       </dependency>
 
@@ -74,6 +74,12 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>netty-threadgroup-config</artifactId>
+         <version>${controller.config.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.controller</groupId>
+         <artifactId>netty-timer-config</artifactId>
          <version>${controller.config.version}</version>
          <scope>test</scope>
       </dependency>

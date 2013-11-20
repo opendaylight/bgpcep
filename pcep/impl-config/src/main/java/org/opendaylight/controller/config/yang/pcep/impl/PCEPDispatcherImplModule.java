@@ -9,9 +9,6 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -51,11 +48,10 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModu
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		Timer timer = new HashedWheelTimer();
 		Open localPrefs = getPcepSessionProposalFactoryDependency()
 				.getSessionProposal(null, -1);
 		DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(
-				timer, localPrefs, getMaxUnknownMessages());
+				getTimerDependency(), localPrefs, getMaxUnknownMessages());
 
 		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
 				getExtensionsDependency().getMessageHandlerRegistry(),

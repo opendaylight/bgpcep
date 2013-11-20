@@ -17,6 +17,8 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
+import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
+import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
 
@@ -32,14 +34,18 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
 	private SimplePCEPExtensionProviderContextModuleFactory extensionsFactory;
 
+	private HashedWheelTimerModuleFactory timerFactory;
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new PCEPDispatcherImplModuleFactory();
 		this.sessionFactory = new PCEPSessionProposalFactoryImplModuleFactory();
 		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
 		this.extensionsFactory = new SimplePCEPExtensionProviderContextModuleFactory();
+		this.timerFactory = new HashedWheelTimerModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
-				factory, sessionFactory, threadgroupFactory, extensionsFactory));
+				factory, sessionFactory, threadgroupFactory, extensionsFactory,
+				timerFactory));
 	}
 
 	@Test
@@ -52,11 +58,13 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 					instanceName, null,
 					this.sessionFactory.getImplementationName(),
 					this.threadgroupFactory.getImplementationName(),
-					this.extensionsFactory.getImplementationName());
+					this.extensionsFactory.getImplementationName(),
+					this.timerFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("MaxUnknownMessages value is not set"));
+			assertTrue(e.getMessage().contains(
+					"MaxUnknownMessages value is not set"));
 		}
 	}
 
@@ -70,7 +78,8 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 					instanceName, 0,
 					this.sessionFactory.getImplementationName(),
 					this.threadgroupFactory.getImplementationName(),
-					this.extensionsFactory.getImplementationName());
+					this.extensionsFactory.getImplementationName(),
+					this.timerFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -85,50 +94,54 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 		createInstance(transaction, this.factory.getImplementationName(),
 				instanceName, 5, this.sessionFactory.getImplementationName(),
 				this.threadgroupFactory.getImplementationName(),
-				this.extensionsFactory.getImplementationName());
+				this.extensionsFactory.getImplementationName(),
+				this.timerFactory.getImplementationName());
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 5, 0, 0);
+		assertStatus(status, 6, 0, 0);
 	}
 
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-	ConflictingVersionException, ValidationException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, 5, this.sessionFactory.getImplementationName(),
-				this.threadgroupFactory.getImplementationName(), this.extensionsFactory.getImplementationName());
-		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 0, 5);
-	}
-
-	@Test
-	public void testReconfigure() throws InstanceAlreadyExistsException,
-	ConflictingVersionException, ValidationException,
-	InstanceNotFoundException {
+			ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
 				instanceName, 5, this.sessionFactory.getImplementationName(),
 				this.threadgroupFactory.getImplementationName(),
-				this.extensionsFactory.getImplementationName());
+				this.extensionsFactory.getImplementationName(),
+				this.timerFactory.getImplementationName());
+		transaction.commit();
+		transaction = configRegistryClient.createTransaction();
+		assertBeanCount(1, factory.getImplementationName());
+		CommitStatus status = transaction.commit();
+		assertBeanCount(1, factory.getImplementationName());
+		assertStatus(status, 0, 0, 6);
+	}
+
+	@Test
+	public void testReconfigure() throws InstanceAlreadyExistsException,
+			ConflictingVersionException, ValidationException,
+			InstanceNotFoundException {
+		ConfigTransactionJMXClient transaction = configRegistryClient
+				.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(),
+				instanceName, 5, this.sessionFactory.getImplementationName(),
+				this.threadgroupFactory.getImplementationName(),
+				this.extensionsFactory.getImplementationName(),
+				this.timerFactory.getImplementationName());
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
 		PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
 				transaction.lookupConfigBean(
 						this.factory.getImplementationName(), instanceName),
-						PCEPDispatcherImplModuleMXBean.class);
+				PCEPDispatcherImplModuleMXBean.class);
 		mxBean.setMaxUnknownMessages(10);
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 1, 4);
+		assertStatus(status, 0, 1, 5);
 	}
 
 	public static ObjectName createInstance(
@@ -137,8 +150,8 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 			final Integer maxUnknownMessages,
 			final String sessionFactoryImplName,
 			final String threadGroupFactoryImplName,
-			final String extensionsImplName)
-					throws InstanceAlreadyExistsException {
+			final String extensionsImplName, final String timerFactoryImplName)
+			throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
 		PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
@@ -153,16 +166,19 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 				threadGroupFactoryImplName, "worker-group", 10));
 		mxBean.setExtensions(createExtensionsInstance(transaction,
 				extensionsImplName, "extensions"));
+		mxBean.setTimer(createTimerInstance(transaction, timerFactoryImplName,
+				"timmer1"));
 		return nameCreated;
 	}
 
 	public static ObjectName createExtensionsInstance(
 			final ConfigTransactionJMXClient transaction,
-			final String moduleName, final String instanceName) throws InstanceAlreadyExistsException {
+			final String moduleName, final String instanceName)
+			throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
-		SimplePCEPExtensionProviderContextModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, SimplePCEPExtensionProviderContextModuleMXBean.class);
+		transaction.newMBeanProxy(nameCreated,
+				SimplePCEPExtensionProviderContextModuleMXBean.class);
 
 		return nameCreated;
 	}
@@ -176,6 +192,17 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 		NettyThreadgroupModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, NettyThreadgroupModuleMXBean.class);
 		mxBean.setThreadCount(threadCount);
+		return nameCreated;
+	}
+
+	public static ObjectName createTimerInstance(
+			final ConfigTransactionJMXClient transaction,
+			final String moduleName, final String instanceName)
+			throws InstanceAlreadyExistsException {
+		ObjectName nameCreated = transaction.createModule(moduleName,
+				instanceName);
+		transaction.newMBeanProxy(nameCreated,
+				HashedWheelTimerModuleMXBean.class);
 		return nameCreated;
 	}
 
