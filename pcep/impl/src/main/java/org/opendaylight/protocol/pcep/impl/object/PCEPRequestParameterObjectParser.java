@@ -107,6 +107,10 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
 		final RpBuilder builder = new RpBuilder();
 		builder.setIgnore(header.isIgnore());
+		// FIXME: change binary files
+		// if (!header.isProcessingRule()) {
+		// throw new PCEPDocumentedException("P flag is not set.", PCEPErrors.P_FLAG_NOT_SET);
+		// }
 		builder.setProcessingRule(header.isProcessingRule());
 
 		builder.setPriority(priority);

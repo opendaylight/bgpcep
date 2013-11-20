@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
+import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -55,8 +56,12 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		final byte[] srpId = ByteArray.subByte(bytes, FLAGS_SIZE, SRP_ID_SIZE);
-		if (Arrays.equals(srpId, new byte[] { 0, 0, 0, 0 }) || Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
-			throw new PCEPDeserializerException("Min/Max values for SRP ID are reserved.");
+		if (Arrays.equals(srpId, new byte[] { 0, 0, 0, 0 })) {
+			// The absence of the SRP object is equivalent to an SRP object with the reserved value of 0x00000000.
+			throw new PCEPDocumentedException("Srp object has 0 value.", PCEPErrors.SRP_MISSING);
+		}
+		if (Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
+			throw new PCEPDeserializerException("Max values for SRP ID are reserved.");
 		}
 		builder.setOperationId(new SrpIdNumber(ByteArray.bytesToLong(srpId)));
 		return builder.build();

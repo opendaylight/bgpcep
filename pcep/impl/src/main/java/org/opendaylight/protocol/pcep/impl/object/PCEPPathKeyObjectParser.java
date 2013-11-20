@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -37,7 +36,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
 	}
 
 	@Override
-	public PathKey parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public PathKey parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		final PathKeyBuilder builder = new PathKeyBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
