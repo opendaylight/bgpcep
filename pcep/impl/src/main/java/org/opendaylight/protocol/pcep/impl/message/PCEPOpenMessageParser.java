@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -35,7 +34,7 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
 		if (!(message instanceof OpenMessage)) {
-			throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass() + ". Nedded OpenMessage.");
+			throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass() + ". Needed OpenMessage.");
 		}
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage open = ((OpenMessage) message).getOpenMessage();
 
@@ -47,17 +46,7 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public OpenMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Open message doesn't contain OPEN object.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-
-		return new OpenBuilder().setOpenMessage(validate(objs)).build();
-	}
-
-	private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage validate(
-			final List<Object> objects) throws PCEPDeserializerException {
+	protected org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
@@ -75,7 +64,7 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 
-		return msg;
+		return new OpenBuilder().setOpenMessage(msg).build();
 	}
 
 	@Override

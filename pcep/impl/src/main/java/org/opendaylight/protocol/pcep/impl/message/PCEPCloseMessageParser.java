@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
@@ -49,15 +48,7 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public CloseMessage parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-		return validate(objs);
-	}
-
-	private Close validate(final List<Object> objects) throws PCEPDeserializerException {
+	protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}

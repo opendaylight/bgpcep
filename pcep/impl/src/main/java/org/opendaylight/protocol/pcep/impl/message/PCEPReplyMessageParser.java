@@ -9,16 +9,12 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -32,9 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.PcrepMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.Replies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.RepliesBuilder;
@@ -122,26 +115,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Error message is empty.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-		PcrepMessage m = null;
-		try {
-			m = validate(objs);
-		} catch (final PCEPDocumentedException e) {
-			final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
-			return new PcerrBuilder().setPcerrMessage(
-					new PcerrMessageBuilder().setErrors(
-							Arrays.asList(new ErrorsBuilder().setErrorObject(
-									new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-											maping.getFromErrorsEnum(e.getError()).value).build()).build())).build()).build();
-		}
-		return m;
-	}
-
-	private Pcrep validate(final List<Object> objects) throws PCEPDocumentedException {
+	protected Pcrep validate(final List<Object> objects, final List<Message> errors) throws PCEPDocumentedException {
 		final List<Replies> replies = Lists.newArrayList();
 		while (!objects.isEmpty()) {
 			replies.add(this.getValidReply(objects));

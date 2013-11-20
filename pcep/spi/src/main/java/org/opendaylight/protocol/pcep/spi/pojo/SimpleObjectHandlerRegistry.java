@@ -8,11 +8,13 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
+import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
@@ -41,7 +43,34 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 
 	@Override
 	public ObjectParser getObjectParser(final int objectClass, final int objectType) {
-		return this.handlers.getParser(createKey(objectClass, objectType));
+		final ObjectParser ret = this.handlers.getParser(createKey(objectClass, objectType));
+		if (ret != null) {
+			return ret;
+		}
+
+		boolean foundClass = false;
+
+		// FIXME: search the parsers, check classes
+		//e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_CLASS || e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_TYPE
+
+		if (!foundClass) {
+			return new ObjectParser() {
+				@Override
+				public Object parseObject(final ObjectHeader header, final byte[] buffer) {
+					// FIXME: appropriate error (unrecognized object class)
+					return new UnknownObject(null);
+				}
+			};
+
+		} else {
+			return new ObjectParser() {
+				@Override
+				public Object parseObject(final ObjectHeader header, final byte[] buffer) {
+					// FIXME: appropriate error (unrecognized object type)
+					return new UnknownObject(null);
+				}
+			};
+		}
 	}
 
 	@Override

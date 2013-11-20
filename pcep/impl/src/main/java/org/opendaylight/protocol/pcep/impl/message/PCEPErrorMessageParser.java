@@ -9,12 +9,10 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
@@ -24,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
@@ -78,28 +75,13 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Error message is empty.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-		PcerrMessage m = null;
-		try {
-			m = validate(objs);
-		} catch (final PCEPDocumentedException e) {
-			final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
-			return new PcerrBuilder().setPcerrMessage(
-					new PcerrMessageBuilder().setErrors(
-							Arrays.asList(new ErrorsBuilder().setErrorObject(
-									new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-											maping.getFromErrorsEnum(e.getError()).value).build()).build())).build()).build();
-		}
-		return m;
-	}
-
-	private PcerrMessage validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
+	protected PcerrMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
+		}
+
+		if (objects.isEmpty()) {
+			throw new PCEPDeserializerException("Error message is empty.");
 		}
 
 		final List<Rps> requestParameters = Lists.newArrayList();

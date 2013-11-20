@@ -10,8 +10,6 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -56,14 +54,14 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 	}
 
 	@Override
-	public EndpointsObj parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException,
-			PCEPDocumentedException {
+	public EndpointsObj parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
 		}
 
 		if (!header.isProcessingRule()) {
-			throw new PCEPDocumentedException("Processed flag not set", PCEPErrors.P_FLAG_NOT_SET);
+			//LOG.debug("Processed bit not set on ENDPOINTS OBJECT, ignoring it");
+			return null;
 		}
 
 		final EndpointsObjBuilder builder = new EndpointsObjBuilder();

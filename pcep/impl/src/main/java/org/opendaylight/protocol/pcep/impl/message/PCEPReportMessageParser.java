@@ -89,22 +89,14 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
-		}
-		try {
-			final List<Object> objs = parseObjects(buffer);
-			return validate(objs);
-		} catch (final PCEPDocumentedException e) {
-			return createErrorMsg(e.getError());
-		}
-	}
-
-	public Message validate(final List<Object> objects) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
+		if (objects.isEmpty()) {
+			throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
+		}
+
 		final List<Reports> reports = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {

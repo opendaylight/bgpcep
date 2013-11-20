@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -93,7 +92,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 	}
 
 	@Override
-	public Rp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Rp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -107,10 +106,13 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
 		final RpBuilder builder = new RpBuilder();
 		builder.setIgnore(header.isIgnore());
-		// FIXME: change binary files
-		// if (!header.isProcessingRule()) {
-		// throw new PCEPDocumentedException("P flag is not set.", PCEPErrors.P_FLAG_NOT_SET);
-		// }
+
+		//FIXME : change binary files
+		//if (!header.isProcessingRule()) {
+		//LOG.debug("Processed bit not set on RP OBJECT, ignoring it");
+		//	return null;
+		//}
+
 		builder.setProcessingRule(header.isProcessingRule());
 
 		builder.setPriority(priority);

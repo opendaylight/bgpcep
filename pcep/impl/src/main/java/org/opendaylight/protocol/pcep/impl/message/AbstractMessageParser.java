@@ -8,7 +8,6 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
@@ -17,18 +16,22 @@ import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageParser.class);
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
@@ -92,7 +95,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return retBytes;
 	}
 
-	protected List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	protected final List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
 		int offset = 0;
 		final List<Object> objs = Lists.newArrayList();
 		while (bytes.length - offset > 0) {
@@ -127,30 +130,45 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 			offset += objLength - COMMON_OBJECT_HEADER_LENGTH;
 
-			final ObjectParser parser = this.registry.getObjectParser(objClass, objType);
-
+			final ObjectParser parser = Preconditions.checkNotNull(this.registry.getObjectParser(objClass, objType));
 			final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
-			try {
-				objs.add(parser.parseObject(header, bytesToPass));
-			} catch (final PCEPDocumentedException e) {
-				if (e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_CLASS | e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_TYPE
-						| e.getError() == PCEPErrors.NOT_SUPPORTED_OBJ_CLASS | e.getError() == PCEPErrors.NOT_SUPPORTED_OBJ_TYPE) {
-					objs.add(new UnknownObject(e.getError()));
-				} else {
-					throw e;
-				}
+			// parseObject is required to return null for P=0 errored objects
+			final Object o = parser.parseObject(header, bytesToPass);
+			if (o != null) {
+				objs.add(o);
 			}
 		}
+
 		return objs;
 	}
 
-	protected PcerrMessage createErrorMsg(final PCEPErrors e) {
+	public static PcerrMessage createErrorMsg(final PCEPErrors e) {
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrors(
 						Arrays.asList(new ErrorsBuilder().setErrorObject(
 								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
 										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+	}
+
+	// FIXME: remove PCEPDocumentedException
+	abstract protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException;
+
+	@Override
+	public final Message parseMessage(final byte[] buffer, final List<Message> errors) throws PCEPDeserializerException {
+		Preconditions.checkNotNull(buffer, "Buffer may not be null");
+
+		// Parse objects first
+		final List<Object> objs = parseObjects(buffer);
+
+		// Run validation
+		try {
+			return validate(objs, errors);
+		} catch (PCEPDocumentedException e) {
+			LOG.info("Message failed to validate", e);
+			errors.add(createErrorMsg(e.getError()));
+			return null;
+		}
 	}
 }

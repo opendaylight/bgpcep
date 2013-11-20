@@ -10,11 +10,13 @@ package org.opendaylight.protocol.pcep.impl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.util.ByteArray;
@@ -77,17 +79,20 @@ public final class PCEPMessageFactory implements ProtocolMessageFactory<Message>
 					+ (msgLength - COMMON_HEADER_LENGTH));
 		}
 
+		final List<Message> errors = new ArrayList<>();
 		Message msg = null;
 
 		try {
-			msg = this.registry.getMessageParser(type).parseMessage(msgBody);
+			msg = this.registry.getMessageParser(type).parseMessage(msgBody, errors);
 		} catch (final PCEPDeserializerException e) {
 			logger.debug("Unexpected deserializer problem", e);
 			throw new DeserializerException(e.getMessage(), e);
-		} catch (final PCEPDocumentedException e) {
-			logger.debug("Documented deserializer problem", e);
-			throw new DocumentedException(e.getMessage(), e);
 		}
+
+		if (!errors.isEmpty()) {
+			// FIXME: we have a bunch of error messages, how can we send them back?
+		}
+
 		logger.debug("Message was parsed. {}", msg);
 		return msg;
 	}

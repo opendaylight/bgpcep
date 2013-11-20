@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.PCEPErrors;
+import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -48,7 +48,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 	}
 
 	@Override
-	public ClassType parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException, PCEPDocumentedException {
+	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -57,7 +57,8 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 					+ bytes.length);
 		}
 		if (!header.isProcessingRule()) {
-			throw new PCEPDocumentedException("Processed bit not set", PCEPErrors.P_FLAG_NOT_SET);
+			//LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
+			return null;
 		}
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
 
@@ -68,7 +69,8 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
 		if (ct < 0 || ct > 8) {
-			throw new PCEPDocumentedException("Invalid class type " + ct, PCEPErrors.INVALID_CT);
+			// LOG.info("Invalid class type {}", ct);
+			return new UnknownObject(PCEPErrors.INVALID_CT);
 		}
 		return builder.build();
 	}

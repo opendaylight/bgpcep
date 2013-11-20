@@ -72,18 +72,13 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public Message parseMessage(final byte[] buffer) throws PCEPDeserializerException, PCEPDocumentedException {
-		if (buffer == null || buffer.length == 0) {
-			throw new PCEPDeserializerException("Notification message cannot be empty.");
-		}
-		final List<Object> objs = parseObjects(buffer);
-
-		return validate(objs);
-	}
-
-	public Message validate(final List<Object> objects) throws PCEPDeserializerException {
+	protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
+		}
+
+		if (objects.isEmpty()) {
+			throw new PCEPDeserializerException("Notification message cannot be empty.");
 		}
 
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
