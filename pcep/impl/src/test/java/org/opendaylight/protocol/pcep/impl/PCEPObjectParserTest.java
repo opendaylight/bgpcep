@@ -265,7 +265,7 @@ public class PCEPObjectParserTest {
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder().setIpPrefix(
 						new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).setProtectionAvailable(false).setProtectionInUse(
-								false).build());
+				false).build());
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder().setRouterId(
 						0x1245678L).setInterfaceId(0x9abcdef0L).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
@@ -546,7 +546,7 @@ public class PCEPObjectParserTest {
 
 		final List<RequestId> requestIDs = Lists.newArrayList();
 		requestIDs.add(new RequestId(0xFFFFFFFFL));
-		requestIDs.add(new RequestId(0x00000000L));
+		requestIDs.add(new RequestId(0x00000001L));
 		requestIDs.add(new RequestId(0x01234567L));
 		requestIDs.add(new RequestId(0x89ABCDEFL));
 		requestIDs.add(new RequestId(0xFEDCBA98L));
@@ -652,7 +652,7 @@ public class PCEPObjectParserTest {
 		builder.setMaxHop((short) 1);
 		builder.setMaxUtilization((short) 0);
 		builder.setMinUtilization((short) 100);
-		builder.setOverBookingFactor((short) 0xFF);
+		builder.setOverBookingFactor((short) 99);
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
