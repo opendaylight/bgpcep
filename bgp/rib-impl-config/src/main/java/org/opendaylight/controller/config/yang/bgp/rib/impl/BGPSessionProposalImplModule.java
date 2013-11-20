@@ -50,6 +50,13 @@ public final class BGPSessionProposalImplModule
 
 		JmxAttributeValidationException.checkNotNull(getAsNumber(),
 				"value is not set.", asNumberJmxAttribute);
+		JmxAttributeValidationException.checkCondition(getAsNumber() >= 0,
+				"value must be greather than 0", asNumberJmxAttribute);
+		
+		JmxAttributeValidationException.checkNotNull(getHoldtimer(),
+				"value is not set.", holdtimerJmxAttribute);
+		JmxAttributeValidationException.checkCondition((getHoldtimer() == 0) || (getHoldtimer() >= 3),
+				"value must be 0 or 3 and more", holdtimerJmxAttribute);
 	}
 
 	@Override

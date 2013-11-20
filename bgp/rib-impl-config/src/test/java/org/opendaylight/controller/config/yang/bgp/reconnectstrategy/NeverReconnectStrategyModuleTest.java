@@ -25,40 +25,38 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 	private final String instanceName = "never";
 
 	private NeverReconnectStrategyModuleFactory factory;
-
-	private ObjectName executor;
+	
+	private GlobalEventExecutorModuleFactory executorFactory;
 
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new NeverReconnectStrategyModuleFactory();
-		GlobalEventExecutorModuleFactory executorFactory = new GlobalEventExecutorModuleFactory();
+		this.executorFactory = new GlobalEventExecutorModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
 				factory, executorFactory));
-		this.executor = GlobalEventExecutorUtil.createGlobalEventExecutorBean(
-				executorFactory, configRegistryClient);
 	}
 
 	@Test
-	public void testValidationException1()
+	public void testValidationExceptionTimeoutNotSet()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, null, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("value is not set."));
+			assertTrue(e.getMessage().contains("Timeout value is not set."));
 		}
 	}
 
 	@Test
-	public void testValidationException2()
+	public void testValidationExceptionTimeoutMinValue()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, -1, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -67,29 +65,14 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 	}
 
 	@Test
-	public void testValidationException3()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, instanceName, 100, null);
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains(
-					"expected dependency implementing interface"));
-		}
-	}
-
-	@Test
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 500, this.executor);
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 1, 0, 1);
+		assertStatus(status, 2, 0, 0);
 	}
 
 	@Test
@@ -97,7 +80,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 100, this.executor);
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -112,7 +95,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 			InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 500, this.executor);
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -126,16 +109,16 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 		assertStatus(status, 0, 1, 1);
 	}
 
-	private ObjectName createInstance(
-			final ConfigTransactionJMXClient transaction,
+	public static ObjectName createInstance(
+			final ConfigTransactionJMXClient transaction, final String moduleName,
 			final String instanceName, final Integer timeout,
-			final ObjectName executor) throws InstanceAlreadyExistsException {
+			final String eventexecutorModuleName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
-				factory.getImplementationName(), instanceName);
+				moduleName, instanceName);
 		NeverReconnectStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, NeverReconnectStrategyModuleMXBean.class);
 		mxBean.setTimeout(timeout);
-		mxBean.setExecutor(executor);
+		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, eventexecutorModuleName, "global-event-executor1"));
 		return nameCreated;
 	}
 

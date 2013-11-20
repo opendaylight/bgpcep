@@ -29,26 +29,24 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	private TimedReconnectStrategyModuleFactory factory;
 
-	private ObjectName executor;
+	private GlobalEventExecutorModuleFactory executorFactory;
 
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new TimedReconnectStrategyModuleFactory();
-		GlobalEventExecutorModuleFactory executorFactory = new GlobalEventExecutorModuleFactory();
+		this.executorFactory = new GlobalEventExecutorModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
 				factory, executorFactory));
-		this.executor = GlobalEventExecutorUtil.createGlobalEventExecutorBean(
-				executorFactory, configRegistryClient);
 	}
 
 	@Test
-	public void testValidationException1()
+	public void testValidationExceptionSleepFactorNotSet()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, 500, 100L, null, 500L,
-					10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L, null, 500L,
+					10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -57,28 +55,28 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	}
 
 	@Test
-	public void testValidationException2()
+	public void testValidationExceptionSleepFactorMinValue()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, 500, 100L,
-					new BigDecimal(0.5), 500L, 10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
+					new BigDecimal(0.5), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("value 0.5 is less than 1"));
+			assertTrue(e.getMessage().contains("is less than 1"));
 		}
 	}
 
 	@Test
-	public void testValidationException3()
+	public void testValidationExceptionConnectTimeNotSet()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, null, 100L,
-					new BigDecimal(1.0), 500L, 10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, 100L,
+					new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -87,28 +85,28 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	}
 
 	@Test
-	public void testValidationException4()
+	public void testValidationExceptionConnectTimeMinValue()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, -1, 100L, new BigDecimal(
-					1.0), 500L, 10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1, 100L, new BigDecimal(
+					1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("value -1 is less than 0"));
+			assertTrue(e.getMessage().contains("is less than 0"));
 		}
 	}
 
 	@Test
-	public void testValidationException5()
+	public void testValidationExceptionMinSleepNotSet()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, 100, null,
-					new BigDecimal(1.0), null, 10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, 100, null,
+					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -117,34 +115,18 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	}
 
 	@Test
-	public void testValidationException6()
+	public void testValidationExceptionMaxSleep()
 			throws InstanceAlreadyExistsException {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, instanceName, 100, 300L,
-					new BigDecimal(1.0), 100L, 10L, 10000L, this.executor);
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, 100, 300L,
+					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
 			assertTrue(e.getMessage().contains(
-					"value 300 is greter than MaxSleep 100"));
-		}
-	}
-
-	@Test
-	public void testValidationException7()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, instanceName, 100, 100L,
-					new BigDecimal(1.0), 300L, 10L, 10000L, null);
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains(
-					"expected dependency implementing interface"));
+					"is greter than MaxSleep"));
 		}
 	}
 
@@ -152,12 +134,12 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 500, 100L,
-				new BigDecimal(1.0), 500L, 10L, 10000L, this.executor);
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
+				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 1, 0, 1);
+		assertStatus(status, 2, 0, 0);
 	}
 
 	@Test
@@ -165,8 +147,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 500, 100L,
-				new BigDecimal(1.0), 500L, 10L, 10000L, this.executor);
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
+				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -181,9 +163,9 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, instanceName, 500, 100L,
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
 				new BigDecimal(1.0), new Long(500), new Long(10), new Long(
-						10000), this.executor);
+						10000), this.executorFactory.getImplementationName());
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -200,14 +182,15 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	}
 
-	private ObjectName createInstance(
+	public static ObjectName createInstance(
 			final ConfigTransactionJMXClient transaction,
+			final String moduleName,
 			final String instanceName, final Integer connectTime,
 			final Long minSleep, final BigDecimal sleepFactor,
 			final Long maxSleep, final Long maxAttempts, final Long deadline,
-			final ObjectName executor) throws InstanceAlreadyExistsException {
+			final String executorModuleName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
-				factory.getImplementationName(), instanceName);
+				moduleName, instanceName);
 		TimedReconnectStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, TimedReconnectStrategyModuleMXBean.class);
 		mxBean.setConnectTime(connectTime);
@@ -216,7 +199,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 		mxBean.setMaxSleep(maxSleep);
 		mxBean.setMinSleep(minSleep);
 		mxBean.setSleepFactor(sleepFactor);
-		mxBean.setExecutor(executor);
+		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, executorModuleName, "global-event-executor"));
 		return nameCreated;
 	}
 

@@ -9,17 +9,16 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import io.netty.util.concurrent.GlobalEventExecutor;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.protocol.framework.TimedReconnectStrategy;
 
 /**
  *
@@ -44,51 +43,42 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 	@Override
 	public void validate() {
 		super.validate();
-		JmxAttributeValidationException.checkNotNull(getRibName(),
-				"value is not set.", ribNameJmxAttribute);
-		JmxAttributeValidationException.checkCondition(!getRibName().isEmpty(),
-				"should not be empty string.", ribNameJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getExtensions(),
 				"is not set.", extensionsJmxAttribute);
 	}
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		RIBImpl rib = new RIBImpl(getExtensionsDependency(), getDataProviderDependency());
+		RibImplCloseable rib = new RibImplCloseable(getExtensionsDependency(), getDataProviderDependency());
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
-		final long reconnects = getReconnectAttempts();
 		ListenerRegistration<BGPSessionListener> reg = bgp
 				.registerUpdateListener(peer,
 						new ReconnectStrategyFactory() {
 					@Override
 					public ReconnectStrategy createReconnectStrategy() {
-						return new TimedReconnectStrategy(
-								GlobalEventExecutor.INSTANCE,
-								getConnectionTimeout(), 5000, 1.0, null,
-								reconnects, null);
+						return getTcpReconnectStrategyDependency();
 					}
-				}, new TimedReconnectStrategy(
-						GlobalEventExecutor.INSTANCE,
-						getConnectionTimeout(), 5000, 1.0, null,
-						reconnects, null));
-		return new RibImplCloseable(reg, rib);
+				}, getSessionReconnectStrategyDependency());
+		rib.setListenerRegistration(reg);
+		return rib;
 	}
 
-	private static final class RibImplCloseable implements AutoCloseable {
-		private final ListenerRegistration<BGPSessionListener> reg;
-		private final RIBImpl innerRib;
+	private static final class RibImplCloseable extends RIBImpl implements AutoCloseable {
+		private ListenerRegistration<BGPSessionListener> reg;
 
-		private RibImplCloseable(final ListenerRegistration<BGPSessionListener> reg,
-				final RIBImpl innerRib) {
-			this.reg = reg;
-			this.innerRib = innerRib;
+		private RibImplCloseable(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+			super(extensions, dps);
 		}
 
 		@Override
 		public void close() throws Exception {
 			reg.close();
+		}
+		
+		public void setListenerRegistration(ListenerRegistration<BGPSessionListener> reg) {
+			this.reg = reg;
 		}
 	}
 }

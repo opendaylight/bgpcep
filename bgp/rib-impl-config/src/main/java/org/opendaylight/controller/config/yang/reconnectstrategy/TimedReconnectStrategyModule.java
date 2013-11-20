@@ -44,7 +44,7 @@ public final class TimedReconnectStrategyModule extends org.opendaylight.control
 				"value " + getConnectTime() + " is less than 0",
 				connectTimeJmxAttribute);
 
-		JmxAttributeValidationException.checkNotNull(getMaxSleep(),
+		JmxAttributeValidationException.checkNotNull(getMinSleep(),
 		"value is not set.", minSleepJmxAttribute);
 		JmxAttributeValidationException.checkCondition(
 				getMaxSleep() == null || getMinSleep() <= getMaxSleep(),
