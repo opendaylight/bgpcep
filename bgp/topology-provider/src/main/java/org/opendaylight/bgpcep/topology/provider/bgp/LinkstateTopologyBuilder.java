@@ -95,7 +95,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private InstanceIdentifier<?> buildLinkIdentifier(final String pfx, final Link l) {
-		return InstanceIdentifier.builder(getInstanceIdentifier()).node(
+		return InstanceIdentifier.builder(getInstanceIdentifier()).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link.class,
 				new LinkKey(buildLinkId(pfx, l))).toInstance();
 	}
@@ -190,7 +190,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nodeIdentifierBuilder(final String pfx, final NodeIdentifier node) {
-		return InstanceIdentifier.builder(getInstanceIdentifier()).node(
+		return InstanceIdentifier.builder(getInstanceIdentifier()).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
 				new NodeKey(buildNodeId(pfx, node)));
 	}

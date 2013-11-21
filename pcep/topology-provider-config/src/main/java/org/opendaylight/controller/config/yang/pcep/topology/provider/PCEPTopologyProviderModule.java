@@ -65,7 +65,7 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		final InstanceIdentifier<Topology> topology =
-				InstanceIdentifier.builder().node(NetworkTopology.class).child(Topology.class, new TopologyKey(getTopologyId())).toInstance();
+				InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(getTopologyId())).toInstance();
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 		try {
 			return PCEPTopologyProvider.create(getDispatcherDependency(), address,
