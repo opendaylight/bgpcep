@@ -22,32 +22,26 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>topology-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>programming-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>programming-spi</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-topology-api</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-topology-spi</artifactId>
-            <version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>programming-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>programming-spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>topology-api</artifactId>
 		</dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -57,26 +51,13 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
+        </dependency>
+
+        <!-- Test dependencies -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>mockito-configuration</artifactId>
-            <version>${project.version}</version>
-			<scope>test</scope>
         </dependency>
-
-        <!-- FIXME: integrate with config to get rid of this -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>pcep-impl</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>pcep-spi</artifactId>
-            <version>${project.version}</version>
-		</dependency>
 	</dependencies>
 
 	<build>

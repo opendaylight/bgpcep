@@ -21,50 +21,46 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>concepts</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-api</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>pcep-impl</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concepts</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>framework</artifactId>
+        </dependency>
+
         <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-common</artifactId>
-            <version>${netty.version}</version>
 		</dependency>
         <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport</artifactId>
-            <version>${netty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
 			<scope>runtime</scope>
-		</dependency>
+        </dependency>
+
+        <!-- Testing dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -16,28 +16,20 @@
 
    <dependencies>
       <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>pcep-impl</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>pcep-api-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>pcep-spi-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
@@ -46,6 +38,10 @@
       </dependency>
 
       <!--test dependencies -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+      </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-manager</artifactId>

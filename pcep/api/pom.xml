@@ -21,45 +21,32 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>concepts</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>rsvp-api</artifactId>
-            <version>${project.version}</version>
+			<artifactId>framework</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>util</artifactId>
-            <version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>rsvp-api</artifactId>
 		</dependency>
         <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport</artifactId>
-            <version>${netty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>mockito-configuration</artifactId>
-            <version>${project.version}</version>
-			<scope>test</scope>
-        </dependency>
 
         <!--
             FIXME: this is in support of the generated code. This should not
@@ -68,12 +55,10 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${yang.binding.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-            <version>${yangtools.version}</version>
         </dependency>
 
         <!--
@@ -86,9 +71,15 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>${ietf.types.version}</version>
         </dependency>
+
+        <!-- Testing dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mockito-configuration</artifactId>
         </dependency>
 	</dependencies>
 
