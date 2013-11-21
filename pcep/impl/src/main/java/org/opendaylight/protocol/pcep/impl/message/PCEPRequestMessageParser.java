@@ -13,13 +13,44 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcrepMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.Gc;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Svec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.PathKeyExpansionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+
+import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link PcrepMessage}
+ * Parser for {@link Pcreq}
  */
-// FIXME finish
 public class PCEPRequestMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 3;
@@ -30,260 +61,264 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof PcrepMessage)) {
+		if (!(message instanceof Pcreq)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
 					+ ". Needed PcrepMessage.");
 		}
+
 	}
 
 	@Override
 	protected Message validate(
 			final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object> objects,
 			final List<Message> errors) throws PCEPDeserializerException {
-		// if (objects == null)
-		// throw new IllegalArgumentException("Passed list can't be null.");
-		//
-		// final List<Message> msgs = Lists.newArrayList();
-		// final List<CompositeRequestSvecObject> svecList = new ArrayList<CompositeRequestSvecObject>();
-		//
-		// CompositeRequestSvecObject svecComp;
-		// while (!objects.isEmpty()) {
-		// try {
-		// if ((svecComp = getValidSvecComposite(objects)) == null)
-		// break;
-		// } catch (final PCEPDocumentedException e) {
-		// msgs.add(new PCEPErrorMessage(new PCEPErrorObject(e.getError())));
-		// return msgs;
-		// }
-		//
-		// svecList.add(svecComp);
-		// }
-		//
-		// while (!objects.isEmpty()) {
-		// final List<CompositeRequestObject> requests = new ArrayList<CompositeRequestObject>();
-		// PCEPRequestParameterObject rpObj = null;
-		// boolean requestRejected = false;
-		//
-		// if (objects.get(0) instanceof PCEPRequestParameterObject) {
-		// rpObj = (PCEPRequestParameterObject) objects.get(0);
-		// objects.remove(rpObj);
-		// if (!rpObj.isProcessed()) {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(rpObj, new PCEPErrorObject(PCEPErrors.P_FLAG_NOT_SET))));
-		// requestRejected = true;
-		// }
-		//
-		// } else {
-		// // if RP obj is missing return error only;
-		// msgs.clear();
-		// msgs.add(new PCEPErrorMessage(new PCEPErrorObject(PCEPErrors.RP_MISSING)));
-		// return msgs;
-		// }
-		//
-		// PCEPEndPointsObject<?> endPoints = null;
-		// if (objects.get(0) instanceof PCEPEndPointsObject<?>) {
-		// endPoints = (PCEPEndPointsObject<?>) objects.get(0);
-		// objects.remove(0);
-		// if (!endPoints.isProcessed()) {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new
-		// PCEPErrorObject(PCEPErrors.P_FLAG_NOT_SET))));
-		// requestRejected = true;
-		// }
-		// } else {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new
-		// PCEPErrorObject(PCEPErrors.END_POINTS_MISSING))));
-		// requestRejected = true;
-		// }
-		//
-		// // ignore all continual end-points objects
-		// while (!objects.isEmpty() && objects.get(0) instanceof PCEPEndPointsObject<?>) {
-		// objects.remove(0);
-		// }
-		//
-		// PCEPClassTypeObject classType = null;
-		// PCEPLspObject lsp = null;
-		// PCEPLspaObject lspa = null;
-		// PCEPRequestedPathBandwidthObject bandwidth = null;
-		// final List<PCEPMetricObject> metrics = new ArrayList<PCEPMetricObject>();
-		// PCEPReportedRouteObject rro = null;
-		// PCEPExistingPathBandwidthObject rroBandwidth = null;
-		// PCEPIncludeRouteObject iro = null;
-		// PCEPLoadBalancingObject loadBalancing = null;
-		//
-		// int state = 1;
-		// while (!objects.isEmpty()) {
-		// final Object obj = objects.get(0);
-		// if (obj instanceof UnknownObject) {
-		// if (((UnknownObject) obj).isProcessingRule()) {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new PCEPErrorObject(((UnknownObject)
-		// obj).getError()))));
-		// requestRejected = true;
-		// }
-		//
-		// objects.remove(0);
-		// continue;
-		// }
-		// switch (state) {
-		// case 1:
-		// state = 2;
-		// if (obj instanceof PCEPClassTypeObject) {
-		// classType = (PCEPClassTypeObject) obj;
-		// if (!classType.isProcessed()) {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new
-		// PCEPErrorObject(PCEPErrors.P_FLAG_NOT_SET))));
-		// requestRejected = true;
-		// }
-		// break;
-		// }
-		// case 2:
-		// state = 3;
-		// if (obj instanceof PCEPLspObject) {
-		// lsp = (PCEPLspObject) obj;
-		// break;
-		// }
-		// case 3:
-		// state = 4;
-		// if (obj instanceof PCEPLspaObject) {
-		// lspa = (PCEPLspaObject) obj;
-		// break;
-		// }
-		// case 4:
-		// state = 5;
-		// if (obj instanceof PCEPRequestedPathBandwidthObject) {
-		// bandwidth = (PCEPRequestedPathBandwidthObject) obj;
-		// break;
-		// }
-		// case 5:
-		// state = 6;
-		// if (obj instanceof PCEPMetricObject) {
-		// metrics.add((PCEPMetricObject) obj);
-		// state = 5;
-		//
-		// break;
-		// }
-		// case 6:
-		// state = 8;
-		// if (obj instanceof PCEPReportedRouteObject) {
-		// rro = (PCEPReportedRouteObject) obj;
-		// state = 7;
-		// break;
-		// }
-		// case 7:
-		// state = 8;
-		// if (obj instanceof PCEPExistingPathBandwidthObject) {
-		// rroBandwidth = (PCEPExistingPathBandwidthObject) obj;
-		// break;
-		// }
-		// case 8:
-		// state = 9;
-		// if (obj instanceof PCEPIncludeRouteObject) {
-		// iro = (PCEPIncludeRouteObject) obj;
-		// break;
-		// }
-		// case 9:
-		// if (obj instanceof PCEPLoadBalancingObject) {
-		// loadBalancing = (PCEPLoadBalancingObject) obj;
-		// break;
-		// }
-		// state = 10;
-		// }
-		//
-		// if (state == 10) {
-		// break;
-		// }
-		//
-		// objects.remove(obj);
-		// }
-		//
-		// if (rpObj.isReoptimized() && bandwidth != null && bandwidth.getBandwidth() != new Bandwidth(new byte[] { 0 }) &&
-		// rro == null) {
-		// msgs.add(new PCEPErrorMessage(new CompositeErrorObject(copyRP(rpObj, false), new
-		// PCEPErrorObject(PCEPErrors.RRO_MISSING))));
-		// requestRejected = true;
-		// }
-		//
-		// if (!requestRejected) {
-		// requests.add(new CompositeRequestObject(rpObj, endPoints, classType, lsp, lspa, bandwidth, metrics, rro,
-		// rroBandwidth, iro, loadBalancing));
-		// msgs.add(new PCEPRequestMessage(Collections.unmodifiableList(svecList), Collections.unmodifiableList(requests)));
-		// }
-		// }
-		//
-		// return msgs;
-		// }
-		//
-		// private static CompositeRequestSvecObject getValidSvecComposite(final List<Object> objects) throws
-		// PCEPDocumentedException {
-		// if (objects == null || objects.isEmpty()) {
-		// throw new IllegalArgumentException("List cannot be null or empty.");
-		// }
-		//
-		// PCEPSvecObject svec = null;
-		// if (objects.get(0) instanceof PCEPSvecObject) {
-		// svec = (PCEPSvecObject) objects.get(0);
-		// objects.remove(svec);
-		// } else
-		// return null;
-		//
-		// PCEPObjectiveFunctionObject of = null;
-		// PCEPGlobalConstraintsObject gc = null;
-		// PCEPExcludeRouteObject xro = null;
-		// final List<PCEPMetricObject> metrics = new ArrayList<PCEPMetricObject>();
-		//
-		// int state = 1;
-		// while (!objects.isEmpty()) {
-		// final Object obj = objects.get(0);
-		//
-		// if (obj instanceof UnknownObject && ((UnknownObject) obj).isProcessingRule()) {
-		// throw new PCEPDocumentedException("Unknown object in SVEC list.", ((UnknownObject) obj).getError());
-		// }
-		//
-		// switch (state) {
-		// case 1:
-		// state = 2;
-		// if (obj instanceof PCEPObjectiveFunctionObject) {
-		// of = (PCEPObjectiveFunctionObject) obj;
-		// break;
-		// }
-		// case 2:
-		// state = 3;
-		// if (obj instanceof PCEPGlobalConstraintsObject) {
-		// gc = (PCEPGlobalConstraintsObject) obj;
-		// break;
-		// }
-		// case 3:
-		// state = 4;
-		// if (obj instanceof PCEPExcludeRouteObject) {
-		// xro = (PCEPExcludeRouteObject) obj;
-		// break;
-		// }
-		// case 4:
-		// state = 5;
-		// if (obj instanceof PCEPMetricObject) {
-		// metrics.add((PCEPMetricObject) obj);
-		// state = 4;
-		//
-		// break;
-		// }
-		// }
-		//
-		// if (state == 5)
-		// break;
-		//
-		// objects.remove(obj);
-		// }
-		//
-		// return new CompositeRequestSvecObject(svec, of, gc, xro, metrics);
-		// }
-		//
-		// private static PCEPRequestParameterObject copyRP(final PCEPRequestParameterObject origRp, final boolean
-		// processed) {
-		// return new PCEPRequestParameterObject(origRp.isLoose(), origRp.isBidirectional(), origRp.isReoptimized(),
-		// origRp.isMakeBeforeBreak(), origRp.isReportRequestOrder(), origRp.isSuplyOFOnResponse(),
-		// origRp.isFragmentation(), origRp.isP2mp(), origRp.isEroCompression(), origRp.getPriority(),
-		// origRp.getRequestID(), origRp.getTlvs(), processed, origRp.isIgnored());
-		// }
+		if (objects == null) {
+			throw new IllegalArgumentException("Passed list can't be null.");
+		}
 
-		return null;
+		final List<Requests> requests = Lists.newArrayList();
+		final List<Svec> svecList = Lists.newArrayList();
+		while (!objects.isEmpty()) {
+			final RequestsBuilder rBuilder = new RequestsBuilder();
+			Rp rpObj = null;
+			if (objects.get(0) instanceof Rp) {
+				rpObj = (Rp) objects.get(0);
+				objects.remove(0);
+				if (!rpObj.isProcessingRule()) {
+					errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
+				} else {
+					rBuilder.setRp(rpObj);
+				}
+			} else {
+				// if RP obj is missing return error only;
+				errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
+				return null;
+			}
+
+			// expansion
+			if (rpObj.isPathKey()) {
+				if (objects.get(0) instanceof PathKey) {
+					rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
+				}
+				continue;
+			}
+
+			final P2pBuilder p2pBuilder = new P2pBuilder();
+
+			if (objects.get(0) instanceof EndpointsObj) {
+				final EndpointsObj ep = (EndpointsObj) objects.get(0);
+				objects.remove(0);
+				if (!ep.isProcessingRule()) {
+					errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, rpObj));
+				} else {
+					p2pBuilder.setEndpointsObj(ep);
+				}
+			} else {
+				errors.add(createErrorMsg(PCEPErrors.END_POINTS_MISSING, rpObj));
+				return null;
+			}
+			// p2p
+			if (!rpObj.isP2mp()) {
+				final SegmentComputation segm = getSegmentComputation(p2pBuilder, objects, errors, rpObj);
+				if (segm != null) {
+					rBuilder.setSegmentComputation(segm);
+				}
+			}
+			while (!objects.isEmpty()) {
+				final SvecBuilder sBuilder = new SvecBuilder();
+				final Svec svecComp = getValidSvec(sBuilder, objects);
+				if (svecComp == null) {
+					break;
+				}
+				svecList.add(svecComp);
+			}
+		}
+
+		final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
+		mBuilder.setRequests(requests);
+		if (!svecList.isEmpty()) {
+			mBuilder.setSvec(svecList);
+		}
+		return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
+	}
+
+	private SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
+			final Rp rp) {
+		final List<Metrics> metrics = Lists.newArrayList();
+
+		State state = State.Init;
+		while (!objects.isEmpty() && state != State.End) {
+			Object obj = objects.get(0);
+
+			switch (state) {
+			case Init:
+				state = State.ReportedIn;
+				if (obj instanceof Rro) {
+					final ReportedRouteBuilder rrBuilder = new ReportedRouteBuilder();
+					rrBuilder.setRro((Rro) obj);
+					objects.remove(0);
+					obj = objects.get(0);
+					if (obj instanceof Bandwidth) {
+						rrBuilder.setBandwidth((Bandwidth) obj);
+					}
+					break;
+				}
+			case ReportedIn:
+				state = State.LoadBIn;
+				if (obj instanceof LoadBalancing) {
+					builder.setLoadBalancing((LoadBalancing) obj);
+					break;
+				}
+			case LoadBIn:
+				state = State.LspaIn;
+				if (obj instanceof Lspa) {
+					builder.setLspa((Lspa) obj);
+					break;
+				}
+			case LspaIn:
+				state = State.BandwidthIn;
+				if (obj instanceof Bandwidth) {
+					builder.setBandwidth((Bandwidth) obj);
+					break;
+				}
+			case BandwidthIn:
+				state = State.MetricIn;
+				if (obj instanceof Metric) {
+					metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+					state = State.BandwidthIn;
+					break;
+				}
+			case MetricIn:
+				state = State.IroIn;
+				if (obj instanceof Iro) {
+					builder.setIro((Iro) obj);
+					break;
+				}
+			case IroIn:
+				state = State.RroIn;
+				if (obj instanceof Rro) {
+					builder.setRro((Rro) obj);
+					break;
+				}
+			case RroIn:
+				state = State.XroIn;
+				if (obj instanceof Xro) {
+					builder.setXro((Xro) obj);
+					break;
+				}
+			case XroIn:
+				state = State.OfIn;
+				if (obj instanceof Of) {
+					builder.setOf((Of) obj);
+					break;
+				}
+			case OfIn:
+				state = State.CtIn;
+				if (obj instanceof ClassType) {
+					final ClassType classType = (ClassType) obj;
+					if (!classType.isProcessingRule()) {
+						errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, rp));
+					} else {
+						builder.setClassType(classType);
+					}
+					break;
+				}
+			case CtIn:
+				state = State.LspIn;
+				if (obj instanceof Lsp) {
+					builder.setLsp((Lsp) obj);
+					break;
+				}
+			case LspIn:
+				state = State.End;
+				break;
+			case End:
+				break;
+			}
+			if (!state.equals(State.End)) {
+				objects.remove(0);
+			}
+		}
+		if (!metrics.isEmpty()) {
+			builder.setMetrics(metrics);
+		}
+
+		if (rp.isReoptimization()
+				&& builder.getBandwidth() != null
+				&& builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
+						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth(new byte[] { 0 })).build()
+				&& builder.getReportedRoute().getRro() == null) {
+			errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
+			return null;
+		}
+		return new SegmentComputationBuilder().setP2p(builder.build()).build();
+	}
+
+	private enum State {
+		Init, ReportedIn, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, LspIn, End
+	}
+
+	private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
+		if (objects == null || objects.isEmpty()) {
+			throw new IllegalArgumentException("List cannot be null or empty.");
+		}
+
+		if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) {
+			builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec) objects.get(0));
+			objects.remove(0);
+		} else {
+			return null;
+		}
+
+		final List<Metrics> metrics = Lists.newArrayList();
+
+		Object obj = null;
+		SvecState state = SvecState.Init;
+		while (!objects.isEmpty() && !state.equals(SvecState.End)) {
+			obj = objects.get(0);
+
+			switch (state) {
+			case Init:
+				state = SvecState.OfIn;
+				if (obj instanceof Of) {
+					builder.setOf((Of) obj);
+					break;
+				}
+			case OfIn:
+				state = SvecState.GcIn;
+				if (obj instanceof Gc) {
+					builder.setGc((Gc) obj);
+					break;
+				}
+			case GcIn:
+				state = SvecState.XroIn;
+				if (obj instanceof Xro) {
+					builder.setXro((Xro) obj);
+					break;
+				}
+			case XroIn:
+				state = SvecState.MetricIn;
+				if (obj instanceof Metric) {
+					metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+					state = SvecState.XroIn;
+
+					break;
+				}
+			case MetricIn:
+				state = SvecState.End;
+				break;
+			case End:
+				break;
+			}
+			if (!state.equals(SvecState.End)) {
+				objects.remove(0);
+			}
+		}
+		return builder.build();
+	}
+
+	private enum SvecState {
+		Init, OfIn, GcIn, XroIn, MetricIn, End
 	}
 
 	@Override

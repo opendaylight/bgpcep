@@ -494,6 +494,7 @@ public class PCEPObjectParserTest {
 		builder.setLoose(true);
 		builder.setMakeBeforeBreak(true);
 		builder.setOrder(false);
+		builder.setPathKey(false);
 		builder.setSupplyOf(false);
 		builder.setFragmentation(false);
 		builder.setP2mp(false);

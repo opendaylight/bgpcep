@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -97,6 +98,10 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			objects.remove(0);
 		} else if (obj instanceof Rp) {
 			final Rp o = ((Rp) obj);
+			if (o.isProcessingRule()) {
+				errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
+				return null;
+			}
 			requestParameters.add(new RpsBuilder().setRp(o).build());
 			state = State.RpIn;
 			objects.remove(0);

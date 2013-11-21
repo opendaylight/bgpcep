@@ -10,7 +10,9 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -22,11 +24,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parser for IPv4 {@link EndpointsObj}
  */
 public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<EndpointsObjBuilder> {
+
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsObjectParser.class);
 
 	public static final int CLASS = 4;
 	public static final int TYPE = 1;
@@ -54,16 +60,10 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 	}
 
 	@Override
-	public EndpointsObj parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
+	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory");
 		}
-
-		if (!header.isProcessingRule()) {
-			//LOG.debug("Processed bit not set on ENDPOINTS OBJECT, ignoring it");
-			return null;
-		}
-
 		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
@@ -80,6 +80,10 @@ public class PCEPEndPointsObjectParser extends AbstractObjectWithTlvsParser<Endp
 			builder.setAddressFamily(b.build());
 		} else {
 			throw new PCEPDeserializerException("Wrong length of array of bytes.");
+		}
+		if (!builder.isProcessingRule()) {
+			LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
+			return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, builder.build());
 		}
 		return builder.build();
 	}

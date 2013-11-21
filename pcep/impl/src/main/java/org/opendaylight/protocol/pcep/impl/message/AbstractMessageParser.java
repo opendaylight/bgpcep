@@ -17,10 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -138,10 +140,20 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return objs;
 	}
 
-	public static PcerrMessage createErrorMsg(final PCEPErrors e) {
+	public static Message createErrorMsg(final PCEPErrors e) {
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrors(
+						Arrays.asList(new ErrorsBuilder().setErrorObject(
+								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
+										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+	}
+
+	public static Message createErrorMsg(final PCEPErrors e, final Rp rp) {
+		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
+		return new PcerrBuilder().setPcerrMessage(
+				new PcerrMessageBuilder().setErrorType(
+						new RequestBuilder().setRps(Lists.newArrayList(new RpsBuilder().setRp(rp).build())).build()).setErrors(
 						Arrays.asList(new ErrorsBuilder().setErrorObject(
 								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
 										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();

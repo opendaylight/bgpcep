@@ -74,9 +74,12 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 	private static final int D_FLAG_OFFSET = 22;
 
 	/*
+	 * Path-key bit (RFC5520)
+	 */
+	private static final int P_FLAG_OFFSET = 23;
+	/*
 	 * OF extension flags offsets inside flags sub.field in bits
 	 */
-
 	private static final int S_FLAG_OFFSET = 24;
 	/*
 	 * RFC6006 flags
@@ -92,7 +95,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 	}
 
 	@Override
-	public Rp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
+	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -106,13 +109,6 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
 		final RpBuilder builder = new RpBuilder();
 		builder.setIgnore(header.isIgnore());
-
-		// FIXME : change binary files
-		// if (!header.isProcessingRule()) {
-		// LOG.debug("Processed bit not set on RP OBJECT, ignoring it");
-		// return null;
-		// }
-
 		builder.setProcessingRule(header.isProcessingRule());
 
 		builder.setPriority(priority);
@@ -121,6 +117,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		builder.setEroCompression(flags.get(E_FLAG_OFFSET));
 		builder.setMakeBeforeBreak(flags.get(M_FLAG_OFFSET));
 		builder.setOrder(flags.get(D_FLAG_OFFSET));
+		builder.setPathKey(flags.get(P_FLAG_OFFSET));
 		builder.setSupplyOf(flags.get(S_FLAG_OFFSET));
 		builder.setLoose(flags.get(O_FLAG_OFFSET));
 		builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
@@ -128,6 +125,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
 		builder.setRequestId(new RequestId(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH))));
 		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+
 		return builder.build();
 	}
 
@@ -151,6 +149,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		flags.set(O_FLAG_OFFSET, rPObj.isLoose());
 		flags.set(M_FLAG_OFFSET, rPObj.isMakeBeforeBreak());
 		flags.set(D_FLAG_OFFSET, rPObj.isOrder());
+		flags.set(P_FLAG_OFFSET, rPObj.isPathKey());
 		flags.set(S_FLAG_OFFSET, rPObj.isSupplyOf());
 		flags.set(F_FLAG_OFFSET, rPObj.isFragmentation());
 		flags.set(N_FLAG_OFFSET, rPObj.isP2mp());

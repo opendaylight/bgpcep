@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -67,7 +68,6 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
-
 		if (objects.isEmpty()) {
 			throw new PCEPDeserializerException("Notification message cannot be empty.");
 		}
@@ -76,27 +76,24 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
 		while (!objects.isEmpty()) {
 			org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications comObj;
-			comObj = getValidNotificationComposite(objects);
+			comObj = getValidNotificationComposite(objects, errors);
 
 			if (comObj == null) {
 				break;
 			}
 			compositeNotifications.add(comObj);
 		}
-
 		if (compositeNotifications.isEmpty()) {
 			throw new PCEPDeserializerException("Atleast one Notifications is mandatory.");
 		}
-
 		if (!objects.isEmpty()) {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
-
 		return new PcntfBuilder().setPcntfMessage(new PcntfMessageBuilder().setNotifications(compositeNotifications).build()).build();
 	}
 
 	private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications getValidNotificationComposite(
-			final List<Object> objects) {
+			final List<Object> objects, final List<Message> errors) {
 		final List<Rps> requestParameters = Lists.newArrayList();
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> notifications = Lists.newArrayList();
 		Object obj;
@@ -109,6 +106,10 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 				state = State.RpIn;
 				if (obj instanceof Rp) {
 					final Rp rp = (Rp) obj;
+					if (rp.isProcessingRule()) {
+						errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
+						return null;
+					}
 					requestParameters.add(new RpsBuilder().setRp(rp).build());
 					state = State.Init;
 					break;
