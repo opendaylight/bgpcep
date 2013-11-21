@@ -10,7 +10,11 @@ package org.opendaylight.protocol.framework;
 /**
  * Documented exception occurrs when an error is thrown that is documented
  * in any RFC or draft for the specific protocol.
+ * 
+ * @deprecated This exception no longer carries any special meaning. Users
+ * are advised to stop using it and define their own replacement.
  */
+@Deprecated
 public class DocumentedException extends Exception  {
 
 	private static final long serialVersionUID = -3727963789710833704L;
@@ -20,7 +24,7 @@ public class DocumentedException extends Exception  {
 	 * @param message string
 	 */
 	public DocumentedException(final String message) {
-		this(message, null);
+		super(message);
 	}
 
 	/**

@@ -9,7 +9,11 @@ package org.opendaylight.protocol.framework;
 
 /**
  * Used when something occurs during parsing bytes to java objects.
+ *
+ * @deprecated This exception no longer carries any special meaning. Users
+ * are advised to stop using it and define their own replacement.
  */
+@Deprecated
 public class DeserializerException extends Exception {
 
 	private static final long serialVersionUID = -2247000673438452870L;
@@ -19,7 +23,7 @@ public class DeserializerException extends Exception {
 	 * @param err string
 	 */
 	public DeserializerException(final String err) {
-		this(err, null);
+		super(err);
 	}
 
 	/**
@@ -27,7 +31,7 @@ public class DeserializerException extends Exception {
 	 * @param err string
 	 * @param e underlying exception
 	 */
-	public DeserializerException(final String err, final Exception e) {
+	public DeserializerException(final String err, final Throwable e) {
 		super(err, e);
 	}
 }

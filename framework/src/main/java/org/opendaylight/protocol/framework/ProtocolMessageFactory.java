@@ -14,7 +14,11 @@ package org.opendaylight.protocol.framework;
  * OpenMessageParser etc.
  * 
  * @param <T> type of messages created by this factory
+ * 
+ * @deprecated Interact with Netty 4.0 directly, by subclassing {@link io.netty.handler.codec.ByteToMessageCodec} or
+ * similar.
  */
+@Deprecated
 public interface ProtocolMessageFactory<T> {
 
 	/**
