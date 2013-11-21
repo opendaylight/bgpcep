@@ -8,23 +8,22 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelOutboundHandler;
 
-import org.opendaylight.protocol.framework.ProtocolMessageDecoder;
-import org.opendaylight.protocol.framework.ProtocolMessageEncoder;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+
+import com.google.common.base.Preconditions;
 
 /**
  * PCEP specific factory for protocol inbound/outbound handlers.
  */
-public class PCEPHandlerFactory {
-	private final ProtocolMessageFactory<Message> msgFactory;
-	private final ProtocolMessageEncoder<Message> encoder;
+public final class PCEPHandlerFactory {
+	private final MessageHandlerRegistry registry;
+	private final ChannelOutboundHandler encoder;
 
 	public PCEPHandlerFactory(final MessageHandlerRegistry registry) {
-		this.msgFactory = new PCEPMessageFactory(registry);
-		this.encoder = new ProtocolMessageEncoder<Message>(this.msgFactory);
+		this.registry = Preconditions.checkNotNull(registry);
+		this.encoder = new PCEPMessageToByteEncoder(registry);
 	}
 
 	public ChannelHandler[] getEncoders() {
@@ -32,6 +31,9 @@ public class PCEPHandlerFactory {
 	}
 
 	public ChannelHandler[] getDecoders() {
-		return new ChannelHandler[] { new PCEPMessageHeaderDecoder(), new ProtocolMessageDecoder<Message>(this.msgFactory) };
+		return new ChannelHandler[] {
+				new PCEPMessageHeaderDecoder(),
+				new PCEPByteToMessageDecoder(registry),
+		};
 	}
 }
