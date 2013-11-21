@@ -19,17 +19,14 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>programming-spi-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>programming-impl</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
