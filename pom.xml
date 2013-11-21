@@ -117,6 +117,11 @@
 			<!-- Netty -->
 			<dependency>
 				<groupId>io.netty</groupId>
+				<artifactId>netty-buffer</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
 				<artifactId>netty-codec</artifactId>
 				<version>${netty.version}</version>
 			</dependency>
@@ -148,6 +153,14 @@
 				<groupId>org.opendaylight.controller</groupId>
 				<artifactId>config-api</artifactId>
 				<version>${controller.config.version}</version>
+			</dependency>
+
+			<!-- OSGi -->
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>${osgi.version}</version>
+				<scope>provided</scope>
 			</dependency>
         </dependencies>
     </dependencyManagement>
