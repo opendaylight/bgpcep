@@ -318,6 +318,6 @@ public final class NodeChangedListener implements DataChangeListener {
 	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology,
 			final NodeId node, final SymbolicPathName name) {
 		return InstanceIdentifier.builder(topology).
-				node(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
+				child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
 	}
 }

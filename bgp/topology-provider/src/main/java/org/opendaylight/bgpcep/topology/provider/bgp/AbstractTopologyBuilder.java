@@ -40,7 +40,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener, TopologyReference {
-	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder().node(LocRib.class).toInstance();
+	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder(LocRib.class).toInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
@@ -48,7 +48,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
 	protected AbstractTopologyBuilder(final DataProviderService dataProvider, final TopologyId topologyId, final Class<T> idClass) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
-		this.topology = InstanceIdentifier.builder().node(Topology.class, new TopologyKey(Preconditions.checkNotNull(topologyId))).toInstance();
+		this.topology = InstanceIdentifier.builder(Topology.class, new TopologyKey(Preconditions.checkNotNull(topologyId))).toInstance();
 		this.idClass = Preconditions.checkNotNull(idClass);
 	}
 

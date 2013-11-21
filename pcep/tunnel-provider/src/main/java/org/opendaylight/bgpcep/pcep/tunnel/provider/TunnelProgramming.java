@@ -102,8 +102,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		TpReader(final DataModificationTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
 			this.t = Preconditions.checkNotNull(t);
 
-			nii = InstanceIdentifier.builder(topo).node(Node.class, new NodeKey(ref.getNode())).toInstance();
-			tii = InstanceIdentifier.builder(nii).node(TerminationPoint.class, new TerminationPointKey(ref.getTp())).toInstance();
+			nii = InstanceIdentifier.builder(topo).child(Node.class, new NodeKey(ref.getNode())).toInstance();
+			tii = InstanceIdentifier.builder(nii).child(TerminationPoint.class, new TerminationPointKey(ref.getTp())).toInstance();
 		}
 
 		private Node getNode() {
@@ -270,8 +270,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	// FIXME: topology programming utility class
 	private InstanceIdentifier<Topology> topologyIdentifier(final TopologyInstructionInput input) {
-		return InstanceIdentifier.builder().
-				node(NetworkTopology.class).child(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
+		return InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
 	}
 
 	// FIXME: tunnel programming utility class

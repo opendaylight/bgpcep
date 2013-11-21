@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspsKey;
@@ -122,7 +123,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			 */
 			final NodeId id = new NodeId(pccId);
 			final NodeKey nk = new NodeKey(id);
-			final InstanceIdentifier<Node> nti = InstanceIdentifier.builder(ServerSessionManager.this.topology).node(Node.class, nk).toInstance();
+			final InstanceIdentifier<Node> nti = InstanceIdentifier.builder(ServerSessionManager.this.topology).child(Node.class, nk).toInstance();
 
 			final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
@@ -235,7 +236,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifier<ReportedLsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(this.topologyAugment).node(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
+			return InstanceIdentifier.builder(this.topologyAugment).
+					child(PathComputationClient.class).
+					child(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -403,8 +406,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure there is no such LSP
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
-				new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
+				child(PathComputationClient.class).
+				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return Futures.immediateFuture(OPERATION_UNSENT);
@@ -446,8 +450,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists, we need it for PLSP-ID
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
-				new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
+				child(PathComputationClient.class).
+				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
@@ -473,8 +478,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).node(ReportedLsps.class,
-				new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
+				child(PathComputationClient.class).
+				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());

@@ -122,7 +122,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 	protected AbstractAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
 		this.comparator = Preconditions.checkNotNull(comparator);
-		this.basePath = InstanceIdentifier.builder().node(LocRib.class).child(Tables.class, key).toInstance();
+		this.basePath = InstanceIdentifier.builder(LocRib.class).child(Tables.class, key).toInstance();
 	}
 
 	@Override

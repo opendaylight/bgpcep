@@ -83,7 +83,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
 	@Override
 	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
-		return InstanceIdentifier.builder(basePath).node(LinkstateRoute.class, new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
+		return InstanceIdentifier.builder(basePath).child(LinkstateRoute.class, new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
 	}
 
 	@Override
