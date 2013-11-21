@@ -5,15 +5,14 @@ import java.util.BitSet;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
+import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -23,15 +22,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageParser.class);
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
@@ -152,8 +148,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 
-	// FIXME: remove PCEPDocumentedException
-	abstract protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException;
+	abstract protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;
 
 	@Override
 	public final Message parseMessage(final byte[] buffer, final List<Message> errors) throws PCEPDeserializerException {
@@ -163,12 +158,6 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		final List<Object> objs = parseObjects(buffer);
 
 		// Run validation
-		try {
-			return validate(objs, errors);
-		} catch (PCEPDocumentedException e) {
-			LOG.info("Message failed to validate", e);
-			errors.add(createErrorMsg(e.getError()));
-			return null;
-		}
+		return validate(objs, errors);
 	}
 }

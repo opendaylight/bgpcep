@@ -12,10 +12,8 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -81,7 +79,7 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException {
+	protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
@@ -92,33 +90,32 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 		final List<Updates> updateRequests = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {
-			final Updates update = getValidUpdates(objects);
+			final Updates update = getValidUpdates(objects, errors);
 			if (update != null) {
 				updateRequests.add(update);
 			}
 		}
 		if (!objects.isEmpty()) {
-			if (objects.get(0) instanceof UnknownObject) {
-				throw new PCEPDocumentedException("Unknown object encountered", ((UnknownObject) objects.get(0)).getError());
-			}
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 		return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
 	}
 
-	private Updates getValidUpdates(final List<Object> objects) throws PCEPDocumentedException {
+	private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
 		final UpdatesBuilder builder = new UpdatesBuilder();
 		if (objects.get(0) instanceof Srp) {
 			builder.setSrp((Srp) objects.get(0));
 			objects.remove(0);
 		} else {
-			throw new PCEPDocumentedException("Srp object missing.", PCEPErrors.SRP_MISSING);
+			errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
+			return null;
 		}
 		if (objects.get(0) instanceof Lsp) {
 			builder.setLsp((Lsp) objects.get(0));
 			objects.remove(0);
 		} else {
-			throw new PCEPDocumentedException("Lsp object missing.", PCEPErrors.LSP_MISSING);
+			errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
+			return null;
 		}
 		if (!objects.isEmpty()) {
 			final PathBuilder pBuilder = new PathBuilder();
@@ -126,7 +123,8 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 				pBuilder.setEro((Ero) objects.get(0));
 				objects.remove(0);
 			} else {
-				throw new PCEPDocumentedException("Ero object missing.", PCEPErrors.ERO_MISSING);
+				errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+				return null;
 			}
 			parsePath(objects, pBuilder);
 			builder.setPath(pBuilder.build());
@@ -134,7 +132,7 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 		return builder.build();
 	}
 
-	private void parsePath(final List<Object> objects, final PathBuilder pBuilder) throws PCEPDocumentedException {
+	private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 		Object obj;
 		State state = State.Init;
@@ -171,10 +169,6 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 				break;
 			case End:
 				break;
-			default:
-				if (obj instanceof UnknownObject) {
-					throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
-				}
 			}
 			if (!state.equals(State.End)) {
 				objects.remove(0);

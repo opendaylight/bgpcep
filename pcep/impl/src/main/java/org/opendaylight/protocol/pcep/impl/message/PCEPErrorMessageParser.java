@@ -12,10 +12,8 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -75,7 +73,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	protected PcerrMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException, PCEPDocumentedException {
+	protected PcerrMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
@@ -99,9 +97,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			objects.remove(0);
 		} else if (obj instanceof Rp) {
 			final Rp o = ((Rp) obj);
-			if (o.isProcessingRule()) {
-				throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-			}
 			requestParameters.add(new RpsBuilder().setRp(o).build());
 			state = State.RpIn;
 			objects.remove(0);
@@ -127,9 +122,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 				state = State.Error;
 				if (obj instanceof Rp) {
 					final Rp o = ((Rp) obj);
-					if (o.isProcessingRule()) {
-						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-					}
 					requestParameters.add(new RpsBuilder().setRp(o).build());
 					state = State.RpIn;
 					break;

@@ -13,9 +13,9 @@ import java.util.List;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping.PCEPErrorIdentifier;
-import org.opendaylight.protocol.pcep.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping.PCEPErrorIdentifier;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;

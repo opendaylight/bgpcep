@@ -9,24 +9,15 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcntfMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.NotificationsBuilder;
@@ -81,26 +72,15 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 			throw new PCEPDeserializerException("Notification message cannot be empty.");
 		}
 
-		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
-
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications> compositeNotifications = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {
 			org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications comObj;
-			try {
-				comObj = getValidNotificationComposite(objects);
-			} catch (final PCEPDocumentedException e) {
-				final PcerrMessageBuilder b = new PcerrMessageBuilder();
-				b.setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(
-						new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-								maping.getFromErrorsEnum(e.getError()).value).build()).build()));
-				return new PcerrBuilder().setPcerrMessage(b.build()).build();
-			}
+			comObj = getValidNotificationComposite(objects);
 
 			if (comObj == null) {
 				break;
 			}
-
 			compositeNotifications.add(comObj);
 		}
 
@@ -116,7 +96,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 	}
 
 	private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications getValidNotificationComposite(
-			final List<Object> objects) throws PCEPDocumentedException {
+			final List<Object> objects) {
 		final List<Rps> requestParameters = Lists.newArrayList();
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.notifications.Notifications> notifications = Lists.newArrayList();
 		Object obj;
@@ -124,19 +104,11 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 		State state = State.Init;
 		while (!objects.isEmpty() && !state.equals(State.End)) {
 			obj = objects.get(0);
-
-			if (obj instanceof UnknownObject) {
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
-			}
-
 			switch (state) {
 			case Init:
 				state = State.RpIn;
 				if (obj instanceof Rp) {
 					final Rp rp = (Rp) obj;
-					if (rp.isProcessingRule()) {
-						throw new PCEPDocumentedException("Invalid setting of P flag.", PCEPErrors.P_FLAG_NOT_SET);
-					}
 					requestParameters.add(new RpsBuilder().setRp(rp).build());
 					state = State.Init;
 					break;

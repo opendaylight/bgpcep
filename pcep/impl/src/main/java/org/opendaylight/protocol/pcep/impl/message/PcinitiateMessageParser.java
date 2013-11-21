@@ -9,15 +9,10 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -32,9 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -92,21 +84,12 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
 		final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
-		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		final List<Requests> reqs = Lists.newArrayList();
 		Requests req = null;
 		while (!objects.isEmpty()) {
-			try {
-				req = this.getValidRequest(objects);
-				if (req == null) {
-					break;
-				}
-			} catch (final PCEPDocumentedException e) {
-				final PcerrMessageBuilder b = new PcerrMessageBuilder();
-				b.setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(
-						new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e.getError()).type).setValue(
-								maping.getFromErrorsEnum(e.getError()).value).build()).build()));
-				return new PcerrBuilder().setPcerrMessage(b.build()).build();
+			req = this.getValidRequest(objects);
+			if (req == null) {
+				break;
 			}
 			reqs.add(req);
 		}
@@ -114,7 +97,7 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 		return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
 	}
 
-	private Requests getValidRequest(final List<Object> objects) throws PCEPDocumentedException {
+	private Requests getValidRequest(final List<Object> objects) {
 		final RequestsBuilder builder = new RequestsBuilder();
 		builder.setSrp((Srp) objects.get(0));
 		objects.remove(0);
@@ -172,8 +155,6 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 				break;
 			case End:
 				break;
-			default:
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
 			if (!state.equals(State.End)) {
 				objects.remove(0);

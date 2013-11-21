@@ -11,10 +11,9 @@ import io.netty.buffer.ByteBuf;
 
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
-import org.opendaylight.protocol.pcep.UnknownObject;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -115,17 +114,30 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	protected Pcrep validate(final List<Object> objects, final List<Message> errors) throws PCEPDocumentedException {
+	protected Pcrep validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+		if (objects == null) {
+			throw new IllegalArgumentException("Passed list can't be null.");
+		}
+		if (objects.isEmpty()) {
+			throw new PCEPDeserializerException("Pcrep message cannot be empty.");
+		}
 		final List<Replies> replies = Lists.newArrayList();
 		while (!objects.isEmpty()) {
-			replies.add(this.getValidReply(objects));
+			final Replies r = this.getValidReply(objects, errors);
+			if (r != null) {
+				replies.add(r);
+			}
+		}
+		if (!objects.isEmpty()) {
+			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 		return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
 	}
 
-	private Replies getValidReply(final List<Object> objects) throws PCEPDocumentedException {
+	private Replies getValidReply(final List<Object> objects, final List<Message> errors) {
 		if (!(objects.get(0) instanceof Rp)) {
-			throw new PCEPDocumentedException("Pcrep message must contain at least one RP object.", PCEPErrors.RP_MISSING);
+			errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
+			return null;
 		}
 		final Rp rp = (Rp) objects.get(0);
 		objects.remove(0);
@@ -158,7 +170,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		return new RepliesBuilder().setRp(rp).setResult(res).build();
 	}
 
-	private void parseAttributes(final FailureBuilder builder, final List<Object> objects) throws PCEPDocumentedException {
+	private void parseAttributes(final FailureBuilder builder, final List<Object> objects) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 
 		Object obj;
@@ -197,8 +209,6 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 				break;
 			case End:
 				break;
-			default:
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
 			if (!state.equals(State.End)) {
 				objects.remove(0);
@@ -207,7 +217,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		builder.setMetrics(pathMetrics);
 	}
 
-	private void parsePath(final PathsBuilder builder, final List<Object> objects) throws PCEPDocumentedException {
+	private void parsePath(final PathsBuilder builder, final List<Object> objects) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 
 		Object obj;
@@ -252,8 +262,6 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 				break;
 			case End:
 				break;
-			default:
-				throw new PCEPDocumentedException("Unknown object", ((UnknownObject) obj).getError());
 			}
 			if (!state.equals(State.End)) {
 				objects.remove(0);

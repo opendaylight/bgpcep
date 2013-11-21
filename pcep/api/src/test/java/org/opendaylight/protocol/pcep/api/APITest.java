@@ -12,8 +12,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
-import org.opendaylight.protocol.pcep.PCEPErrors;
 
 public class APITest {
 
@@ -25,11 +23,5 @@ public class APITest {
 		final PCEPDeserializerException e1 = new PCEPDeserializerException(new IllegalArgumentException(), "Some error message.");
 		assertEquals("Some error message.", e1.getErrorMessage());
 		assertTrue(e1.getCause() instanceof IllegalArgumentException);
-	}
-
-	@Test
-	public void testDocumentedException() throws PCEPDocumentedException {
-		final PCEPDocumentedException de = new PCEPDocumentedException("", PCEPErrors.C_BIT_SET);
-		assertEquals(PCEPErrors.C_BIT_SET, de.getError());
 	}
 }

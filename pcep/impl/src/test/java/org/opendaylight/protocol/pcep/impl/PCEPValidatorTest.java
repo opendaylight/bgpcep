@@ -20,7 +20,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
@@ -263,7 +262,7 @@ public class PCEPValidatorTest {
 	}
 
 	@Test
-	public void testOpenMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testOpenMsg() throws IOException, PCEPDeserializerException {
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenMessage1.bin");
 		final PCEPOpenMessageParser parser = new PCEPOpenMessageParser(this.objectRegistry);
 		final OpenMessageBuilder builder = new OpenMessageBuilder();
@@ -281,33 +280,34 @@ public class PCEPValidatorTest {
 				tlv1).setLspDbVersion(tlv2).build());
 		builder.setOpen(b.build());
 
-		assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testKeepAliveMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
-		final byte[] result = new byte[] { };
+	public void testKeepAliveMsg() throws IOException, PCEPDeserializerException {
+		final byte[] result = new byte[] {};
 		final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
 		final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());
 
-		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(builder.build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testCloseMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testCloseMsg() throws IOException, PCEPDeserializerException {
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPCloseMessage1.bin");
 
 		final PCEPCloseMessageParser parser = new PCEPCloseMessageParser(this.objectRegistry);
 		final CloseBuilder builder = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder().setCClose(
 				new CCloseBuilder().setIgnore(false).setProcessingRule(false).setReason((short) 5).build()).build());
 
-		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(builder.build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -540,7 +540,7 @@ public class PCEPValidatorTest {
 	//
 
 	@Test
-	public void testReplyMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testReplyMsg() throws IOException, PCEPDeserializerException {
 		// only RP
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCRep.1.bin");
 
@@ -554,7 +554,8 @@ public class PCEPValidatorTest {
 		replies1.add(rBuilder.build());
 		builder.setReplies(replies1);
 
-		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -571,7 +572,8 @@ public class PCEPValidatorTest {
 		replies2.add(rBuilder2.build());
 		builder.setReplies(replies2);
 
-		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -586,7 +588,8 @@ public class PCEPValidatorTest {
 		replies3.add(rBuilder.build());
 		builder.setReplies(replies3);
 
-		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -608,14 +611,15 @@ public class PCEPValidatorTest {
 		replies4.add(rBuilder.build());
 		builder.setReplies(replies4);
 
-		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testUpdMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testUpdMsg() throws IOException, PCEPDeserializerException {
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCUpd.2.bin");
 
 		final PCEPUpdateRequestMessageParser parser = new PCEPUpdateRequestMessageParser(this.objectRegistry);
@@ -629,7 +633,8 @@ public class PCEPValidatorTest {
 		updates.add(new UpdatesBuilder().setSrp(this.srp).setLsp(this.lsp).setPath(pBuilder.build()).build());
 		builder.setUpdates(updates);
 
-		assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -644,14 +649,15 @@ public class PCEPValidatorTest {
 		updates1.add(new UpdatesBuilder().setSrp(this.srp).setLsp(this.lsp).setPath(pBuilder1.build()).build());
 		builder.setUpdates(updates1);
 
-		assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testRptMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testRptMsg() throws IOException, PCEPDeserializerException {
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCRpt.1.bin");
 
 		final PCEPReportMessageParser parser = new PCEPReportMessageParser(this.objectRegistry);
@@ -662,7 +668,8 @@ public class PCEPValidatorTest {
 		reports.add(new ReportsBuilder().setLsp(this.lsp).build());
 		builder.setReports(reports);
 
-		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -673,7 +680,8 @@ public class PCEPValidatorTest {
 		reports1.add(new ReportsBuilder().setLsp(this.lsp).setPath(new PathBuilder().setEro(this.ero).setLspa(this.lspa).build()).build());
 		builder.setReports(reports1);
 
-		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -689,7 +697,8 @@ public class PCEPValidatorTest {
 		reports2.add(new ReportsBuilder().setSrp(this.srp).setLsp(this.lsp).setPath(pBuilder.build()).build());
 		builder.setReports(reports2);
 
-		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -706,14 +715,15 @@ public class PCEPValidatorTest {
 		reports3.add(new ReportsBuilder().setSrp(this.srp).setLsp(this.lsp).setPath(pBuilder1.build()).build());
 		builder.setReports(reports3);
 
-		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testPcinitMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testPcinitMsg() throws IOException, PCEPDeserializerException {
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/Pcinit.bin");
 
 		final PcinitiateMessageParser parser = new PcinitiateMessageParser(this.objectRegistry);
@@ -731,14 +741,15 @@ public class PCEPValidatorTest {
 		reqs.add(rBuilder.build());
 		builder.setRequests(reqs);
 
-		assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testNotificationMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testNotificationMsg() throws IOException, PCEPDeserializerException {
 		final CNotification cn1 = new CNotificationBuilder().setIgnore(false).setProcessingRule(false).setType((short) 1).setValue(
 				(short) 1).build();
 
@@ -773,14 +784,15 @@ public class PCEPValidatorTest {
 		nots.add(b.build());
 		builder.setNotifications(nots);
 
-		assertEquals(new PcntfBuilder().setPcntfMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcntfBuilder().setPcntfMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcntfBuilder().setPcntfMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
 	}
 
 	@Test
-	public void testErrorMsg() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testErrorMsg() throws IOException, PCEPDeserializerException {
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCErr.3.bin");
 
 		final ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 3).setValue((short) 1).build();
@@ -794,7 +806,8 @@ public class PCEPValidatorTest {
 		builder.setErrors(innerErr);
 		builder.setErrorType(new SessionBuilder().setOpen(this.open).build());
 
-		assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -811,7 +824,8 @@ public class PCEPValidatorTest {
 		builder.setErrors(innerErr);
 		builder.setErrorType(new RequestBuilder().setRps(rps).build());
 
-		assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(), parser.parseMessage(result, Collections.<Message>emptyList()));
+		assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(),
+				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());

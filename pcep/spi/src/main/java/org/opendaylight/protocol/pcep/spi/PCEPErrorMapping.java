@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep;
+package org.opendaylight.protocol.pcep.spi;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.PCEPErrors PCEPErrors} and
+ * Bidirectional mapping of {@link org.opendaylight.protocol.pcep.spi.PCEPErrors PCEPErrors} and
  * {@link org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser.PCEPErrorIdentifier ErrorIdentifier}
  */
 public final class PCEPErrorMapping {

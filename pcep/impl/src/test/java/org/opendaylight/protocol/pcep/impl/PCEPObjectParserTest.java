@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.PCEPDocumentedException;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
@@ -123,7 +122,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
 		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
 
@@ -149,7 +148,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testCloseObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testCloseObject() throws IOException, PCEPDeserializerException {
 		final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPCloseObject1.bin");
 
@@ -163,7 +162,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testLoadBalancingObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testLoadBalancingObject() throws IOException, PCEPDeserializerException {
 		final PCEPLoadBalancingObjectParser parser = new PCEPLoadBalancingObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLoadBalancingObject1.bin");
 
@@ -178,7 +177,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
 		final PCEPLspObjectParser parser = new PCEPLspObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
 
@@ -277,7 +276,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testBandwidthObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testBandwidthObject() throws IOException, PCEPDeserializerException {
 		final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin");
 
@@ -298,7 +297,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testEndPointsObjectIPv4() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testEndPointsObjectIPv4() throws IOException, PCEPDeserializerException {
 		final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
 		final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
@@ -316,7 +315,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testEndPointsObjectIPv6() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testEndPointsObjectIPv6() throws IOException, PCEPDeserializerException {
 		final byte[] destIPBytes = { (byte) 0x00, (byte) 0x02, (byte) 0x5D, (byte) 0xD2, (byte) 0xFF, (byte) 0xEC, (byte) 0xA1,
 				(byte) 0xB6, (byte) 0x58, (byte) 0x1E, (byte) 0x9F, (byte) 0x50, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, };
 		final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -336,7 +335,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testErrorObjectWithTlv() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	public void testErrorObjectWithTlv() throws PCEPDeserializerException, IOException {
 		final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPErrorObject1.bin");
 
@@ -360,7 +359,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testLspaObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testLspaObject() throws IOException, PCEPDeserializerException {
 		final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin");
 
@@ -403,7 +402,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testMetricObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testMetricObject() throws IOException, PCEPDeserializerException {
 		final PCEPMetricObjectParser parser = new PCEPMetricObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject1LowerBounds.bin");
 
@@ -430,7 +429,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testNoPathObjectWithTlv() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	public void testNoPathObjectWithTlv() throws PCEPDeserializerException, IOException {
 		final PCEPNoPathObjectParser parser = new PCEPNoPathObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject1WithoutTLV.bin");
 
@@ -458,7 +457,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testNotifyObjectWithTlv() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	public void testNotifyObjectWithTlv() throws PCEPDeserializerException, IOException {
 		final PCEPNotificationObjectParser parser = new PCEPNotificationObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject2WithoutTlv.bin");
 
@@ -483,7 +482,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testRPObjectWithTlv() throws PCEPDeserializerException, IOException, PCEPDocumentedException {
+	public void testRPObjectWithTlv() throws PCEPDeserializerException, IOException {
 		final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPRPObject1.bin");
 
@@ -523,7 +522,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testSvecObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testSvecObject() throws IOException, PCEPDeserializerException {
 		final PCEPSvecObjectParser parser = new PCEPSvecObjectParser(this.tlvRegistry);
 		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPSvecObject2.bin");
 
@@ -563,7 +562,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testClassTypeObject() throws PCEPDeserializerException, PCEPDocumentedException {
+	public void testClassTypeObject() throws PCEPDeserializerException {
 		final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser(this.tlvRegistry);
 		final byte[] result = new byte[] { 0, 0, 0, (byte) 0x04 };
 
@@ -614,7 +613,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testSrpObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testSrpObject() throws IOException, PCEPDeserializerException {
 		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
 		final byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
 
@@ -628,7 +627,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testObjectiveFunctionObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testObjectiveFunctionObject() throws IOException, PCEPDeserializerException {
 		final PCEPObjectiveFunctionObjectParser parser = new PCEPObjectiveFunctionObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPObjectiveFunctionObject.1.bin");
 
@@ -642,7 +641,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testGlobalConstraintsObject() throws IOException, PCEPDeserializerException, PCEPDocumentedException {
+	public void testGlobalConstraintsObject() throws IOException, PCEPDeserializerException {
 		final PCEPGlobalConstraintsObjectParser parser = new PCEPGlobalConstraintsObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPGlobalConstraintsObject.1.bin");
 
