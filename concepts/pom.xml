@@ -22,18 +22,22 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>util</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        </dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
-			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
-		</dependency>
+        </dependency>
+
 		 <!--
             FIXME: this is in support of the generated code. This should not
                    be here, but the plugin should bring it in.
@@ -41,14 +45,11 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${yang.binding.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-            <version>${yangtools.version}</version>
         </dependency>
-
         <!--
              FIXME: these are IETF models which are pre-generated in SAL infra.
                     This should not be here, but rather should somehow be
@@ -59,6 +60,8 @@
             <artifactId>ietf-inet-types</artifactId>
             <version>${ietf.types.version}</version>
         </dependency>
+
+        <!-- Testing dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
