@@ -22,22 +22,20 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>programming-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
+        </dependency>
+
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>topology-api</artifactId>
-            <version>${project.version}</version>
-		</dependency>
+        </dependency>
+
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${yang.binding.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-            <version>${yangtools.version}</version>
         </dependency>
 	</dependencies>
 
