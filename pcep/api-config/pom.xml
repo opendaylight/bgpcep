@@ -18,12 +18,10 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>pcep-api</artifactId>
-         <version>${project.version}</version>
       </dependency>
    </dependencies>
 
