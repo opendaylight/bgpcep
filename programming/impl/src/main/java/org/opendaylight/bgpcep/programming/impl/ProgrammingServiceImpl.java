@@ -404,11 +404,8 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 			public Void call() throws Exception {
 				try {
 					processQueues();
-				} catch (Exception ex) {
-					if (!(ex instanceof InterruptedException)) {
-						LOG.error("Programming service dispatch thread died", ex);
-					}
-					throw ex;
+				} catch (InterruptedException ex) {
+					LOG.error("Programming service dispatch thread died", ex);
 				}
 				return null;
 			}

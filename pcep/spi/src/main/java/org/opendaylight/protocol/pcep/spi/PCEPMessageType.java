@@ -19,7 +19,7 @@ public enum PCEPMessageType {
 	// TODO: replace with actual values by IANA
 	PCCREATE(12);
 
-	private static final Logger logger = LoggerFactory.getLogger(PCEPMessageType.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPMessageType.class);
 	private final int identifier;
 
 	PCEPMessageType(final int identifier) {
@@ -32,13 +32,13 @@ public enum PCEPMessageType {
 
 	public static PCEPMessageType getFromInt(final int type) {
 
-		for (final PCEPMessageType type_e : PCEPMessageType.values()) {
-			if (type_e.getIdentifier() == type) {
-				return type_e;
+		for (final PCEPMessageType msgType : PCEPMessageType.values()) {
+			if (msgType.getIdentifier() == type) {
+				return msgType;
 			}
 		}
 
-		logger.trace("Unknown PCEPMessage Class identifier. Passed: {}; Known: {}", type, values());
+		LOG.trace("Unknown PCEPMessage Class identifier. Passed: {}; Known: {}", type, values());
 		return null;
 	}
 }

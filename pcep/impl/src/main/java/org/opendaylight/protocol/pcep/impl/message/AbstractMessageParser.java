@@ -8,7 +8,6 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;

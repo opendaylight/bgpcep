@@ -7,11 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
+
+import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
@@ -20,8 +22,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import com.google.common.base.Preconditions;
 
 /**
  * Implementation of PCEPDispatcher.
@@ -33,12 +34,10 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
-	 *
-	 * @throws IOException if some error occurred during opening the selector
 	 */
 	public PCEPDispatcherImpl(final MessageHandlerRegistry registry,
-			final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory,
-			EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+			final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, EventLoopGroup bossGroup,
+			EventLoopGroup workerGroup) {
 		super(bossGroup, workerGroup);
 		this.snf = Preconditions.checkNotNull(negotiatorFactory);
 		this.hf = new PCEPHandlerFactory(registry);
@@ -56,7 +55,7 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 		});
 	}
 
-    @Override
-    public void close() {
-    }
+	@Override
+	public void close() {
+	}
 }

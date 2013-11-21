@@ -28,48 +28,40 @@ import com.google.common.collect.Lists;
 /**
 *
 */
-public final class BgpMockModule extends
-		org.opendaylight.controller.config.yang.bgp.mock.AbstractBgpMockModule {
+public final class BgpMockModule extends org.opendaylight.controller.config.yang.bgp.mock.AbstractBgpMockModule {
 
 	private List<byte[]> bgpMessages;
 
-	public BgpMockModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
+	public BgpMockModule(org.opendaylight.controller.config.api.ModuleIdentifier name,
 			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
-	public BgpMockModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			BgpMockModule oldModule, java.lang.AutoCloseable oldInstance) {
+	public BgpMockModule(org.opendaylight.controller.config.api.ModuleIdentifier name,
+			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, BgpMockModule oldModule,
+			java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
 	public void validate() {
 		super.validate();
-		JmxAttributeValidationException.checkCondition(
-				(getBinDump() != null && getHexDump() != null) == false,
-				"Both 'HexDump' and 'BinDump' contain value",
-				binDumpJmxAttribute);
+		JmxAttributeValidationException.checkCondition(!(getBinDump() != null && getHexDump() != null),
+				"Both 'HexDump' and 'BinDump' contain value", this.binDumpJmxAttribute);
 		if (getBinDump() == null && getHexDump() == null) {
-			bgpMessages = new ArrayList<>();
+			this.bgpMessages = new ArrayList<>();
 		} else if (getHexDump() != null) {
 			try {
-				bgpMessages = HexDumpBGPFileParser.parseMessages(getHexDump());
-				bgpMessages = Lists.newArrayList(fixMessages(bgpMessages));
-			} catch (Exception e) {
-				JmxAttributeValidationException.wrap(e,
-						"Error while parsing HexDump", hexDumpJmxAttribute);
+				this.bgpMessages = HexDumpBGPFileParser.parseMessages(getHexDump());
+				this.bgpMessages = Lists.newArrayList(fixMessages(this.bgpMessages));
+			} catch (final Exception e) {
+				JmxAttributeValidationException.wrap(e, "Error while parsing HexDump", this.hexDumpJmxAttribute);
 			}
 		} else {
 			try {
-				bgpMessages = BinaryBGPDumpFileParser
-						.parseMessages(getBinDump());
-			} catch (Exception e) {
-				JmxAttributeValidationException.wrap(e,
-						"Error while parsing BinDump", binDumpJmxAttribute);
+				this.bgpMessages = BinaryBGPDumpFileParser.parseMessages(getBinDump());
+			} catch (final Exception e) {
+				JmxAttributeValidationException.wrap(e, "Error while parsing BinDump", this.binDumpJmxAttribute);
 			}
 		}
 	}
@@ -77,30 +69,26 @@ public final class BgpMockModule extends
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		try {
-			return new BGPMock(getEventBusDependency(),
-					ServiceLoaderBGPExtensionProviderContext
-							.createConsumerContext().getMessageRegistry(),
-					bgpMessages);
-		} catch (Exception e) {
+			return new BGPMock(getEventBusDependency(), ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(), this.bgpMessages);
+		} catch (final Exception e) {
 			throw new RuntimeException("Failed to create consumer context.", e);
 		}
 	}
 
 	private Collection<byte[]> fixMessages(Collection<byte[]> bgpMessages) {
-		return Collections2.transform(bgpMessages,
-				new Function<byte[], byte[]>() {
+		return Collections2.transform(bgpMessages, new Function<byte[], byte[]>() {
 
-					@Nullable
-					@Override
-					public byte[] apply(@Nullable byte[] input) {
-						byte[] ret = new byte[input.length + 1];
-						// ff
-						ret[0] = -1;
-						for (int i = 0; i < input.length; i++) {
-							ret[i + 1] = input[i];
-						}
-						return ret;
-					}
-				});
+			@Nullable
+			@Override
+			public byte[] apply(@Nullable byte[] input) {
+				final byte[] ret = new byte[input.length + 1];
+				// ff
+				ret[0] = -1;
+				for (int i = 0; i < input.length; i++) {
+					ret[i + 1] = input[i];
+				}
+				return ret;
+			}
+		});
 	}
 }

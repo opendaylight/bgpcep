@@ -7,12 +7,10 @@
  */
 package org.mockito.configuration;
 
-import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.stubbing.Answer;
 
 /**
- * Configuration customization for Mockito. Change default answer from {@link ReturnsEmptyValues}
- * to {@link ThrowsUnstubbedMethodException}.
+ * Configuration customization for Mockito. Change default answer to {@link ThrowsUnstubbedMethodException}.
  */
 public class MockitoConfiguration extends DefaultMockitoConfiguration {
 

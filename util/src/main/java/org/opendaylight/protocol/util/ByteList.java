@@ -27,6 +27,7 @@ public class ByteList {
 
 	/**
 	 * Returns underlying list of byte arrays
+	 * 
 	 * @return underlying list of byte arrays
 	 */
 	public List<byte[]> getBytes() {
@@ -35,6 +36,7 @@ public class ByteList {
 
 	/**
 	 * Adds byte array to underlying list
+	 * 
 	 * @param value byte array
 	 */
 	public void add(byte[] value) {
@@ -57,20 +59,24 @@ public class ByteList {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (!(obj instanceof ByteList))
+		}
+		if (!(obj instanceof ByteList)) {
 			return false;
+		}
 		final ByteList other = (ByteList) obj;
 		if (this.bytes == null) {
-			if (other.bytes != null)
+			if (other.bytes != null) {
 				return false;
-		} else if (this.bytes.size() != other.bytes.size())
+			}
+		} else if (this.bytes.size() != other.bytes.size()) {
 			return false;
-		else {
-			for (int i = 0; i < this.bytes.size(); i ++) {
+		} else {
+			for (int i = 0; i < this.bytes.size(); i++) {
 				if (!Arrays.equals(this.bytes.get(i), other.bytes.get(i))) {
 					return false;
 				}

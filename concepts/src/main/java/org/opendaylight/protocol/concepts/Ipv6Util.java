@@ -28,6 +28,8 @@ import com.google.common.primitives.UnsignedBytes;
  * Util class for creating generated Ipv6Address.
  */
 public class Ipv6Util {
+	private Ipv6Util() {
+	}
 
 	public static final int IPV6_LENGTH = 16;
 

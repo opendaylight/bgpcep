@@ -14,12 +14,13 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
  */
 public class PCEPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
-	private static final int MAX_FRAME_SIZE = 65528; // min 4, max 4096
+	// min 4, max 4096
+	private static final int MAX_FRAME_SIZE = 65528;
 
 	private static final int VERSION_FLAGS_SIZE = 1;
 
-	private static final int LENGTH_SIZE = 2; // the length field represents the length of the whole message including
-												// the header
+	// the length field represents the length of the whole message including the header
+	private static final int LENGTH_SIZE = 2;
 
 	private static final int MESSAGE_TYPE_SIZE = 1;
 

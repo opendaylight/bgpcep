@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.io.IOException;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
@@ -28,9 +26,8 @@ public interface BGP {
 	 * @param tcpStrategyFactory {@link ReconnectStrategyFactory} to use for creating TCP-level retry strategies
 	 * @param sessionStrategy {@link ReconnectStrategy} to use for session-level retries
 	 * @throws IllegalStateException if there is already a listener registered
-	 * @throws IOException if some IO error occurred
 	 * @return ListenerRegistration
 	 */
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(
-			BGPSessionListener listener, ReconnectStrategyFactory tcpStrategyFactory, ReconnectStrategy sessionStrategy);
+	public ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener,
+			ReconnectStrategyFactory tcpStrategyFactory, ReconnectStrategy sessionStrategy);
 }

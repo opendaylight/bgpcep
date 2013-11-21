@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -24,11 +23,13 @@ import javax.net.ssl.TrustManagerFactory;
 import com.google.common.base.Preconditions;
 
 public class SSLUtil {
-	public static SSLContext initializeSecureContext(
-			final String pass, final InputStream ksKeysFile,
-			final InputStream ksTrustFile, final String algorithm)
-					throws KeyStoreException, NoSuchAlgorithmException, CertificateException,
-					FileNotFoundException, IOException, UnrecoverableKeyException, KeyManagementException {
+
+	private SSLUtil() {
+	}
+
+	public static SSLContext initializeSecureContext(final String pass, final InputStream ksKeysFile, final InputStream ksTrustFile,
+			final String algorithm) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
+			UnrecoverableKeyException, KeyManagementException {
 
 		Preconditions.checkNotNull(ksTrustFile, "ksTrustFile cannot be null");
 		Preconditions.checkNotNull(ksKeysFile, "ksKeysFile cannot be null");

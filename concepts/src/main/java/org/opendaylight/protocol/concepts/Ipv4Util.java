@@ -30,6 +30,9 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class Ipv4Util {
 
+	private Ipv4Util() {
+	}
+
 	public static final int IP4_LENGTH = 4;
 
 	public static Ipv4Address addressForBytes(final byte[] bytes) {

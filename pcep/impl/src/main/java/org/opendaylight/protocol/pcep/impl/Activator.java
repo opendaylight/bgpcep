@@ -136,7 +136,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 public final class Activator implements PCEPExtensionProviderActivator {
-	private static final Logger logger = LoggerFactory.getLogger(Activator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
 	private List<AutoCloseable> registrations;
 
 	@Override
@@ -332,7 +332,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 			try {
 				r.close();
 			} catch (final Exception e) {
-				logger.warn("Failed to close registration", e);
+				LOG.warn("Failed to close registration", e);
 			}
 		}
 

@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -351,12 +352,12 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	@Override
 	public Integer getDeadTimerValue() {
-		return new Integer(this.remoteOpen.getDeadTimer());
+		return Integer.valueOf(this.remoteOpen.getDeadTimer());
 	}
 
 	@Override
 	public Integer getKeepAliveTimerValue() {
-		return new Integer(this.localOpen.getKeepalive());
+		return Integer.valueOf(this.localOpen.getKeepalive());
 	}
 
 	@Override
@@ -388,12 +389,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	@Override
 	public String getNodeIdentifier() {
-		if (this.remoteOpen.getTlvs() == null) {
-			if (this.remoteOpen.getTlvs().getPredundancyGroupId() != null) {
-				return new String(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier());
-			}
+		if (this.remoteOpen.getTlvs() == null && this.remoteOpen.getTlvs().getPredundancyGroupId() != null) {
+			return StringUtils.newStringUtf8(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier());
 		}
 		return "";
 	}
-
 }

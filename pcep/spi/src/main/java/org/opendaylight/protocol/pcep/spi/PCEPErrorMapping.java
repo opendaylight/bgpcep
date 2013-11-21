@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
  */
 public final class PCEPErrorMapping {
 
-	private final static Logger logger = LoggerFactory.getLogger(PCEPErrorMapping.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPErrorMapping.class);
 
 	/**
 	 * Caret for combination of Error-type and Error-value
 	 */
-	public static class PCEPErrorIdentifier {
-		public final short type;
-		public final short value;
+	public static final class PCEPErrorIdentifier {
+		public short type;
+		public short value;
 
 		private PCEPErrorIdentifier(final short type, final short value) {
 			this.type = type;
@@ -70,7 +70,7 @@ public final class PCEPErrorMapping {
 		}
 	}
 
-	private static final PCEPErrorMapping instance = new PCEPErrorMapping();
+	private static final PCEPErrorMapping INSTANCE = new PCEPErrorMapping();
 
 	private final Map<PCEPErrors, PCEPErrorIdentifier> errorsMap = new HashMap<PCEPErrors, PCEPErrorIdentifier>();
 	private final Map<PCEPErrorIdentifier, PCEPErrors> errorIdsMap = new HashMap<PCEPErrorIdentifier, PCEPErrors>();
@@ -163,7 +163,7 @@ public final class PCEPErrorMapping {
 	public PCEPErrorIdentifier getFromErrorsEnum(final PCEPErrors error) {
 		final PCEPErrorIdentifier ei = this.errorsMap.get(error);
 		if (ei == null) {
-			logger.debug("Unknown PCEPErrors type: {}.", error);
+			LOG.debug("Unknown PCEPErrors type: {}.", error);
 			throw new NoSuchElementException("Unknown PCEPErrors type: " + error);
 		}
 		return ei;
@@ -172,13 +172,13 @@ public final class PCEPErrorMapping {
 	public PCEPErrors getFromErrorIdentifier(final PCEPErrorIdentifier identifier) {
 		final PCEPErrors e = this.errorIdsMap.get(identifier);
 		if (e == null) {
-			logger.debug("Unknown error type/value combination: {}.", identifier);
+			LOG.debug("Unknown error type/value combination: {}.", identifier);
 			throw new NoSuchElementException("Unknown error type/value combination: " + identifier);
 		}
 		return e;
 	}
 
 	public static PCEPErrorMapping getInstance() {
-		return instance;
+		return INSTANCE;
 	}
 }

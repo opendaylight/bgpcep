@@ -340,8 +340,9 @@ public final class ByteArray {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < array.length; i++) {
 			sb.append(Hex.encodeHexString(new byte[] { array[i] }));
-			if (i + 1 != array.length)
+			if (i + 1 != array.length) {
 				sb.append(separator);
+			}
 		}
 		return sb.toString();
 	}
@@ -398,21 +399,26 @@ public final class ByteArray {
 	 *         in bytes
 	 */
 	public static int findByteSequence(final byte[] bytes, final byte[] sequence) {
-		if (bytes.length < sequence.length)
+		if (bytes.length < sequence.length) {
 			throw new IllegalArgumentException("Sequence to be found is longer than the given byte array.");
-		if (bytes.length == sequence.length)
-			if (Arrays.equals(bytes, sequence))
+		}
+		if (bytes.length == sequence.length) {
+			if (Arrays.equals(bytes, sequence)) {
 				return 0;
-			else
+			} else {
 				return -1;
+			}
+		}
 		int j = 0;
 		for (int i = 0; i < bytes.length; i++) {
 			if (bytes[i] == sequence[j]) {
 				j++;
-				if (j == sequence.length)
+				if (j == sequence.length) {
 					return i - j + 1;
-			} else
+				}
+			} else {
 				j = 0;
+			}
 		}
 		return -1;
 	}
@@ -420,8 +426,9 @@ public final class ByteArray {
 	private static final byte maskBits[] = new byte[] { 0, -128, -64, -32, -16, -8, -4, -2 };
 
 	public static final byte[] maskBytes(final byte[] original, final int bits) {
-		if (original.length * 8 < bits)
+		if (original.length * 8 < bits) {
 			throw new IllegalArgumentException("Attempted to apply invalid mask (too long)");
+		}
 
 		final int needbytes = (bits + 7) / 8;
 		// We need to have a new copy of the underlying byte array, so that
@@ -429,8 +436,9 @@ public final class ByteArray {
 		final byte[] bytes = Arrays.copyOf(original, original.length);
 
 		final int needmask = bits % 8;
-		if (needmask != 0)
+		if (needmask != 0) {
 			bytes[needbytes - 1] &= maskBits[needmask];
+		}
 
 		// zero-out the rest of the bytes
 		for (int i = needbytes; i < bytes.length; i++) {

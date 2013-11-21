@@ -22,9 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Main {
+public final class Main {
 
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 	public static String usage = "DESCRIPTION:\n" + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
 			+ "from PCCs.\n" + "USAGE:\n" + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
@@ -112,12 +112,12 @@ public class Main {
 					i++;
 				}
 			} else {
-				logger.warn("WARNING: Unrecognized argument: {}", args[i]);
+				LOG.warn("WARNING: Unrecognized argument: {}", args[i]);
 			}
 			i++;
 		}
 		if (deadTimerValue != 0 && deadTimerValue != keepAliveValue * 4) {
-			logger.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
+			LOG.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
 		}
 		if (deadTimerValue == 0) {
 			deadTimerValue = keepAliveValue * 4;
@@ -127,9 +127,7 @@ public class Main {
 
 		final Open prefs = spf.getSessionProposal(address, 0);
 
-		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
-				.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(
-						new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
+		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
 
 		dispatcher.createServer(address, new TestingSessionListenerFactory()).get();
 	}
