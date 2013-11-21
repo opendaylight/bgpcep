@@ -23,42 +23,34 @@
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-rib-api-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-rib-spi-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-parser-api</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-parser-spi-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-rib-impl</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-parser-impl</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-update-api-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
       </dependency>
        <dependency>
          <groupId>org.opendaylight.controller</groupId>

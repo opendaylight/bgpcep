@@ -19,40 +19,35 @@
 	</prerequisites>
 
 	<dependencies>
-        <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-            <version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>concepts</artifactId>
-            <version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-concepts</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-parser-api</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-parser-impl</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-rib-impl</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>concepts</artifactId>
 		</dependency>
+        <dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>framework</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

@@ -22,12 +22,10 @@
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
          <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-update-api-config</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
@@ -37,7 +35,6 @@
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-rib-mock</artifactId>
-         <version>${project.version}</version>
       </dependency>
 
       <!--test dependencies -->

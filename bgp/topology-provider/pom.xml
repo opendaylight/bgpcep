@@ -22,17 +22,14 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-rib-api</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-linkstate</artifactId>
-            <version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>topology-api</artifactId>
-            <version>${project.version}</version>
 		</dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -42,13 +39,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
+        </dependency>
+
+        <!-- Test dependencies -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>mockito-configuration</artifactId>
-            <version>${project.version}</version>
-			<scope>test</scope>
         </dependency>
 	</dependencies>
 
