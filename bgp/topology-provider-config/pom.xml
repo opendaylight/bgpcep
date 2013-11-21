@@ -17,19 +17,16 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.opendaylight.controller</groupId>
-         <artifactId>config-api</artifactId>
-         <version>${controller.config.version}</version>
-      </dependency>
-      <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>bgp-topology-provider</artifactId>
-         <version>${project.version}</version>
       </dependency>
       <dependency>
          <groupId>${project.groupId}</groupId>
          <artifactId>topology-api-config</artifactId>
-         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.opendaylight.controller</groupId>
+         <artifactId>config-api</artifactId>
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>

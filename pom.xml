@@ -41,26 +41,114 @@
 	</prerequisites>
 
 	<modules>
-		<module>bgp</module>
+		<!-- Common infra -->
 		<module>concepts</module>
 		<module>framework</module>
-		<module>integration-tests</module>
 		<module>mockito-configuration</module>
+		<module>util</module>
+
+		<!-- Subsystems -->
+		<module>bgp</module>
 		<module>pcep</module>
 		<module>programming</module>
 		<module>rsvp</module>
 		<module>topology</module>
-		<module>util</module>
+
+		<!-- Integration tests -->
+		<module>integration-tests</module>
 	</modules>
 
     <dependencyManagement>
-        <dependencies>
+		<dependencies>
+			<!-- This project -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>concepts</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>framework</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+			<!-- Testing Dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>${mockito.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>mockito-configuration</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Supporting Libraries -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>2.0.1</version>
+			</dependency>
+
+			<!-- Netty -->
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-codec</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-common</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-transport</artifactId>
+				<version>${netty.version}</version>
+			</dependency>
+
+			<!-- YANG tools -->
+			<dependency>
+				<groupId>org.opendaylight.yangtools</groupId>
+				<artifactId>yang-binding</artifactId>
+				<version>${yang.binding.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opendaylight.yangtools</groupId>
+				<artifactId>yang-common</artifactId>
+				<version>${yangtools.version}</version>
+			</dependency>
+
+			<!-- Controller infrastructure -->
+			<dependency>
+				<groupId>org.opendaylight.controller</groupId>
+				<artifactId>config-api</artifactId>
+				<version>${controller.config.version}</version>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 

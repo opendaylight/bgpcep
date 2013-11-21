@@ -22,26 +22,23 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>concepts</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-		</dependency>
-		 <!--
+        </dependency>
+
+        <!--
             FIXME: this is in support of the generated code. This should not
                    be here, but the plugin should bring it in.
         -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-binding</artifactId>
-            <version>${yang.binding.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
-            <version>${yangtools.version}</version>
         </dependency>
 
         <!--
