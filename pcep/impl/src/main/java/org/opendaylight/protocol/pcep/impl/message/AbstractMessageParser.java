@@ -91,7 +91,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return retBytes;
 	}
 
-	protected final List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
+	private final List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
 		int offset = 0;
 		final List<Object> objs = Lists.newArrayList();
 		while (bytes.length - offset > 0) {
