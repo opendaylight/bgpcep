@@ -67,7 +67,7 @@
       </dependency>
       <dependency>
          <groupId>org.opendaylight.controller</groupId>
-         <artifactId>threadpool-config-api</artifactId>
+         <artifactId>netty-config-api</artifactId>
          <version>${controller.config.version}</version>
       </dependency>
       

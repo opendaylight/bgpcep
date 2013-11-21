@@ -5,7 +5,7 @@ module reconnect-strategy {
     prefix "rs";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import threadpool { prefix th; revision-date 2013-04-09; }
+    import netty { prefix netty; revision-date 2013-11-19; }
 
     organization "Cisco Systems, Inc.";
 
@@ -54,7 +54,7 @@ module reconnect-strategy {
 				uses config:service-ref {
 					refine type {
 						mandatory true;
-						config:required-identity th:netty-event-executor;
+						config:required-identity netty:netty-event-executor;
 					}
 				}
 			}
@@ -80,7 +80,7 @@ module reconnect-strategy {
 				uses config:service-ref {
 					refine type {
 						mandatory true;
-						config:required-identity th:netty-event-executor;
+						config:required-identity netty:netty-event-executor;
 					}
 				}
 			}
@@ -133,7 +133,7 @@ module reconnect-strategy {
 				uses config:service-ref {
 					refine type {
 						mandatory true;
-						config:required-identity th:netty-event-executor;
+						config:required-identity netty:netty-event-executor;
 					}
 				}
 			}
