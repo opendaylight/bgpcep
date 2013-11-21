@@ -15,6 +15,12 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated This is an adaptor class for turning ProtocolMessageFactory into
+ * Netty encoder. Use Netty-provided classes directly, by subclassing
+ * {@link io.netty.handler.codec.MessageToByteDecoder} or similar instead.
+ */
+@Deprecated
 @Sharable
 public final class ProtocolMessageEncoder<T> extends MessageToByteEncoder<Object> {
 

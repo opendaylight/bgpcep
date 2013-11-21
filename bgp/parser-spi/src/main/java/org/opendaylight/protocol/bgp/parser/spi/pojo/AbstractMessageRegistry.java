@@ -11,9 +11,9 @@ import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
-import org.opendaylight.protocol.framework.DeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 	protected abstract byte[] serializeMessageImpl(final Notification message);
 
 	@Override
-	public final Notification parseMessage(final byte[] bytes) throws BGPDocumentedException, DeserializerException {
+	public final Notification parseMessage(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Array of bytes is mandatory.");
 		}
@@ -54,7 +54,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
 		if (msgBody.length != messageLength - MessageUtil.COMMON_HEADER_LENGTH) {
-			throw new DeserializerException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "
+			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "
 					+ (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
 		}
 

@@ -11,6 +11,12 @@ import io.netty.channel.ChannelHandler;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * @deprecated This is an adaptor class for turning ProtocolMessageFactory into
+ * Netty encoder/decoder. Use Netty-provided classes directly, by subclassing
+ * {@link io.netty.handler.codec.ByteToMessageDecoder} or similar instead.
+ */
+@Deprecated
 public class ProtocolHandlerFactory<T> {
 	private final ProtocolMessageEncoder<T> encoder;
 	protected final ProtocolMessageFactory<T> msgFactory;
