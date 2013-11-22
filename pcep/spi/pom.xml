@@ -64,10 +64,8 @@
                        <Export-Package>
                            org.opendaylight.protocol.pcep.spi,
                            org.opendaylight.protocol.pcep.spi.osgi,
-                       </Export-Package>
-                       <Private-Package>
                            org.opendaylight.protocol.pcep.spi.pojo,
-                       </Private-Package>
+                       </Export-Package>
                    </instructions>
                </configuration>
            </plugin>

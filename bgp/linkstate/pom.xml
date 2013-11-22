@@ -131,11 +131,8 @@
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Export-Package>
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.*,
+                            org.opendaylight.protocol.bgp.linkstate,
                         </Export-Package>
-                        <Private-Package>
-                            org.opendaylight.protocol.bgp.linkstate
-                        </Private-Package>
-                        <Activator>org.opendaylight.protocol.bgp.linkstate.LinkstateOSGiActivator</Activator>
 					</instructions>
 				</configuration>
 			</plugin>

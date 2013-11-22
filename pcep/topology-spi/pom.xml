@@ -62,7 +62,7 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
-                           org.opendaylight.bgpcep.pcep.topology.spi
+                           org.opendaylight.bgpcep.pcep.topology.spi,
                        </Export-Package>
                    </instructions>
                </configuration>

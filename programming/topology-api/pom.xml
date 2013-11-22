@@ -88,7 +88,7 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.*,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.*,
                         </Export-Package>
                     </instructions>
                 </configuration>

@@ -70,9 +70,9 @@
                <configuration>
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                       <Private-Package>
+                       <Export-Package>
                            org.opendaylight.bgpcep.pcep.topology.provider
-                       </Private-Package>
+                       </Export-Package>
                    </instructions>
                </configuration>
            </plugin>
