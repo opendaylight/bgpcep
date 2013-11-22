@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.UnsignedBytes;
 
@@ -33,6 +35,7 @@ import com.google.common.primitives.UnsignedBytes;
  */
 
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
 
 	public static final int CLASS = 1;
 
@@ -78,10 +81,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		}
 		final int versionValue = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
-		if (versionValue != PCEP_VERSION) {
-			// LOG.info("Unsupported PCEP version {}", versionValue);
-			return new UnknownObject(PCEPErrors.PCEP_VERSION_NOT_SUPPORTED);
-		}
 		final OpenBuilder builder = new OpenBuilder();
 		builder.setVersion(new ProtocolVersion((short) versionValue));
 		builder.setProcessingRule(header.isProcessingRule());
@@ -93,7 +92,15 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		final TlvsBuilder tbuilder = new TlvsBuilder();
 		parseTlvs(tbuilder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		builder.setTlvs(tbuilder.build());
-		return builder.build();
+
+		final Open obj = builder.build();
+		if (versionValue != PCEP_VERSION) {
+			// TODO: Should we move this check into the negotiator
+			LOG.debug("Unsupported PCEP version {}", versionValue);
+			return new UnknownObject(PCEPErrors.PCEP_VERSION_NOT_SUPPORTED, obj);
+		}
+
+		return obj;
 	}
 
 	@Override

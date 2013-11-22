@@ -16,6 +16,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.UnsignedBytes;
 
@@ -23,6 +25,7 @@ import com.google.common.primitives.UnsignedBytes;
  * Parser for {@link ClassType}
  */
 public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<ClassTypeBuilder> {
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
 
 	public static final int CLASS = 22;
 
@@ -68,11 +71,12 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		final short ct = (short) UnsignedBytes.toInt(bytes[SIZE - 1]);
 		builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
+		final Object obj = builder.build();
 		if (ct < 0 || ct > 8) {
-			// LOG.info("Invalid class type {}", ct);
-			return new UnknownObject(PCEPErrors.INVALID_CT);
+			LOG.debug("Invalid class type {}", ct);
+			return new UnknownObject(PCEPErrors.INVALID_CT, obj);
 		}
-		return builder.build();
+		return obj;
 	}
 
 	@Override
