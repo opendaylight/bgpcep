@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +33,8 @@ import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectS
 public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "timed";
+	
+	private final String EXECUTOR_INSTANCE_NAME = "global-event-executor-insatnce"; 
 
 	private TimedReconnectStrategyModuleFactory factory;
 
@@ -46,7 +55,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L, null, 500L,
-					10L, 10000L, this.executorFactory.getImplementationName());
+					10L, 10000L, this.executorFactory.getImplementationName(), EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -61,7 +70,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
-					new BigDecimal(0.5), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
+					new BigDecimal(0.5), 500L, 10L, 10000L, this.executorFactory.getImplementationName(),
+					EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -76,7 +86,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, 100L,
-					new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
+					new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName(), 
+					EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -91,7 +102,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1, 100L, new BigDecimal(
-					1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
+					1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName(),
+					EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -106,7 +118,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, 100, null,
-					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName());
+					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName(),
+					EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -121,7 +134,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(), instanceName, 100, 300L,
-					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName());
+					new BigDecimal(1.0), 100L, 10L, 10000L, this.executorFactory.getImplementationName(),
+					EXECUTOR_INSTANCE_NAME);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -135,7 +149,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
-				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
+				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName(),
+				EXECUTOR_INSTANCE_NAME);
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -148,7 +163,8 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
-				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName());
+				new BigDecimal(1.0), 500L, 10L, 10000L, this.executorFactory.getImplementationName(),
+				EXECUTOR_INSTANCE_NAME);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -165,7 +181,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, 100L,
 				new BigDecimal(1.0), new Long(500), new Long(10), new Long(
-						10000), this.executorFactory.getImplementationName());
+						10000), this.executorFactory.getImplementationName(),EXECUTOR_INSTANCE_NAME);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -188,7 +204,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 			final String instanceName, final Integer connectTime,
 			final Long minSleep, final BigDecimal sleepFactor,
 			final Long maxSleep, final Long maxAttempts, final Long deadline,
-			final String executorModuleName) throws InstanceAlreadyExistsException {
+			final String executorModuleName, final String executorInstanceName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		TimedReconnectStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
@@ -199,7 +215,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 		mxBean.setMaxSleep(maxSleep);
 		mxBean.setMinSleep(minSleep);
 		mxBean.setSleepFactor(sleepFactor);
-		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, executorModuleName, "global-event-executor"));
+		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, executorModuleName, executorInstanceName));
 		return nameCreated;
 	}
 
