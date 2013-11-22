@@ -11,22 +11,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 
 public class APITest {
 
 	@Test
 	public void testDocumentedException() {
-		final DocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
+		final BGPDocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
 		assertEquals("Some message", de.getMessage());
-		assertEquals(BGPError.BAD_BGP_ID, ((BGPDocumentedException) de).getError());
-		assertNull(((BGPDocumentedException) de).getData());
+		assertEquals(BGPError.BAD_BGP_ID, de.getError());
+		assertNull(de.getData());
 	}
 
 	@Test
 	public void testParsingException() {
-		final DeserializerException de = new BGPParsingException("Some message");
+		final BGPParsingException de = new BGPParsingException("Some message");
 		assertEquals("Some message", de.getMessage());
 	}
 

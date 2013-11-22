@@ -20,9 +20,9 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
@@ -82,12 +82,12 @@ public class BGPMessageParserMockTest {
 	/**
 	 * Test if mock implementation of parser returns correct message
 	 * 
-	 * @throws DocumentedException
-	 * @throws DeserializerException
+	 * @throws BGPParsingException
+	 * @throws BGPDocumentedException
 	 * @throws IOException
 	 */
 	@Test
-	public void testGetUpdateMessage() throws DeserializerException, DocumentedException, IOException {
+	public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException, IOException {
 		final Map<byte[], Notification> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
 			updateMap.put(this.inputBytes[i], this.messages.get(i));
@@ -104,12 +104,12 @@ public class BGPMessageParserMockTest {
 	/**
 	 * Test if method throws IllegalArgumentException after finding no BGPUpdateMessage associated with given byte[] key
 	 * 
-	 * @throws DocumentedException
-	 * @throws DeserializerException
+	 * @throws BGPDocumentedException
+	 * @throws BGPParsingException
 	 * @throws IOException
 	 */
 	@Test(expected = IllegalArgumentException.class)
-	public void testGetUpdateMessageException() throws DeserializerException, DocumentedException, IOException {
+	public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException, IOException {
 		final Map<byte[], Notification> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
 			updateMap.put(this.inputBytes[i], this.messages.get(i));
@@ -150,7 +150,7 @@ public class BGPMessageParserMockTest {
 		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(asn)).build());
 		final List<Segments> asPath = Lists.newArrayList();
 		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
-		final CNextHop nextHop = (CNextHop) new CIpv6NextHopBuilder().setIpv6NextHop(
+		final CNextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
 		final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
@@ -176,7 +176,7 @@ public class BGPMessageParserMockTest {
 	}
 
 	@Test
-	public void testGetOpenMessage() throws DeserializerException, DocumentedException, IOException {
+	public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException, IOException {
 		final Map<byte[], Notification> openMap = Maps.newHashMap();
 
 		final Set<BgpTableType> type = Sets.newHashSet();

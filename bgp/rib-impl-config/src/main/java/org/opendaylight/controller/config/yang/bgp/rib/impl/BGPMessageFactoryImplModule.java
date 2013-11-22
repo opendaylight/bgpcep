@@ -9,10 +9,10 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -67,8 +67,7 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPMessageFactoryIm
 		}
 
 		@Override
-		public Notification parse(final byte[] bytes) throws DeserializerException,
-		DocumentedException {
+		public Notification parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
 			return inner.parse(bytes);
 		}
 

@@ -15,7 +15,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.framework.DeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -57,7 +57,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 
 		try {
 			out.add(parse(bytes, errors));
-		} catch (DeserializerException e) {
+		} catch (PCEPDeserializerException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
 		}
@@ -72,13 +72,13 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 		}
 	}
 
-	private Message parse(final byte[] bytes, final List<Message> errors) throws DeserializerException {
+	private Message parse(final byte[] bytes, final List<Message> errors) throws PCEPDeserializerException {
 		final int type = UnsignedBytes.toInt(bytes[1]);
 		final int msgLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, TYPE_SIZE + 1, LENGTH_SIZE));
 
 		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
 		if (msgBody.length != msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH) {
-			throw new DeserializerException("Body size " + msgBody.length + " does not match header size "
+			throw new PCEPDeserializerException("Body size " + msgBody.length + " does not match header size "
 					+ (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
 		}
 
