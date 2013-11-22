@@ -12,11 +12,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKeySubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
