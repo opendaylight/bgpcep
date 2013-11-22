@@ -11,6 +11,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -51,23 +52,19 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 		boolean foundClass = false;
 
 		// FIXME: search the parsers, check classes
-		//e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_CLASS || e.getError() == PCEPErrors.UNRECOGNIZED_OBJ_TYPE
 
 		if (!foundClass) {
 			return new ObjectParser() {
 				@Override
 				public Object parseObject(final ObjectHeader header, final byte[] buffer) {
-					// FIXME: appropriate error (unrecognized object class)
-					return new UnknownObject(null);
+					return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
 				}
 			};
-
 		} else {
 			return new ObjectParser() {
 				@Override
 				public Object parseObject(final ObjectHeader header, final byte[] buffer) {
-					// FIXME: appropriate error (unrecognized object type)
-					return new UnknownObject(null);
+					return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
 				}
 			};
 		}
