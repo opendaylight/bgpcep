@@ -14,5 +14,6 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * Interface to expose BGP specific MessageFactory.
  */
 public interface BGPMessageFactory extends ProtocolMessageFactory<Notification> {
-
+	@Override
+	public Notification parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException;
 }

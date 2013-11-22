@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
@@ -27,7 +27,7 @@ public final class BGPMessageFactoryImpl implements BGPMessageFactory {
 	 * @see org.opendaylight.protocol.bgp.parser.BGPMessageParser#parse(byte[])
 	 */
 	@Override
-	public Notification parse(final byte[] bytes) throws DeserializerException, DocumentedException {
+	public Notification parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
 		return this.registry.parseMessage(bytes);
 	}
 
