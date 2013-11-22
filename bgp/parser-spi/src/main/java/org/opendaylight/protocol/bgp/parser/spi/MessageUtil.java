@@ -36,8 +36,8 @@ public final class MessageUtil {
 		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
 
 		Arrays.fill(retBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
-		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH), Integer.SIZE / Byte.SIZE - LENGTH_FIELD_LENGTH,
-				retBytes, MARKER_LENGTH, LENGTH_FIELD_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH, LENGTH_FIELD_LENGTH), 0, retBytes, MARKER_LENGTH,
+				LENGTH_FIELD_LENGTH);
 
 		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(type);
 		ByteArray.copyWhole(body, retBytes, COMMON_HEADER_LENGTH);

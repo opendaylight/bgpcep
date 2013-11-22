@@ -50,9 +50,9 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 
 		final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];
 
-		msgBody[0] = ByteArray.intToBytes(ntf.getErrorCode())[Integer.SIZE / Byte.SIZE - 1];
+		msgBody[0] = UnsignedBytes.checkedCast(ntf.getErrorCode());
 
-		msgBody[1] = ByteArray.intToBytes(ntf.getErrorSubcode())[Integer.SIZE / Byte.SIZE - 1];
+		msgBody[1] = UnsignedBytes.checkedCast(ntf.getErrorSubcode());
 
 		if (ntf.getData() != null) {
 			System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);

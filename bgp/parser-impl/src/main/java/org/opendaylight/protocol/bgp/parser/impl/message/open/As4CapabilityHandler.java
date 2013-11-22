@@ -36,7 +36,6 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
 	}
 
 	private static byte[] putAS4BytesParameterValue(final CAs4Bytes param) {
-		return ByteArray.subByte(ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue()), Long.SIZE / Byte.SIZE
-				- AS4_LENGTH, AS4_LENGTH);
+		return ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue(), AS4_LENGTH);
 	}
 }

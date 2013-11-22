@@ -111,8 +111,8 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 
 		for (int i = 0; i < requestIDs.size(); i++) {
-			System.arraycopy(ByteArray.longToBytes(requestIDs.get(i).getValue()), 4, retBytes, REQ_LIST_ITEM_LENGTH * i
-					+ REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
+			System.arraycopy(ByteArray.longToBytes(requestIDs.get(i).getValue(), REQ_LIST_ITEM_LENGTH), 0, retBytes, REQ_LIST_ITEM_LENGTH
+					* i + REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
 		}
 		assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
 		return retBytes;

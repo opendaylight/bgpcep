@@ -77,7 +77,7 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");
 		}
 		final byte[] retBytes = new byte[MIN_SIZE];
-		System.arraycopy(ByteArray.intToBytes(id.intValue()), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
+		System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
 		return retBytes;
 	}
 

@@ -61,9 +61,8 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 		byte[] retBytes;
 		retBytes = new byte[CONTENT_LENGTH];
 		final UnnumberedSubobject specObj = (UnnumberedSubobject) subobject.getSubobjectType();
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(specObj.getRouterId()), 4, ROUTER_ID_NUMBER_LENGTH), retBytes,
-				ROUTER_ID_NUMBER_OFFSET);
-		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId()), Long.SIZE / Byte.SIZE - INTERFACE_ID_NUMBER_LENGTH, retBytes,
+		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
+		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 		return retBytes;
 	}

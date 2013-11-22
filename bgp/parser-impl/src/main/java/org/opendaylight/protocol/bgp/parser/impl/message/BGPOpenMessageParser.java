@@ -94,7 +94,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		int offset = 0;
 
-		msgBody[offset] = ByteArray.intToBytes(BGP_VERSION)[(Integer.SIZE / Byte.SIZE) - 1];
+		msgBody[offset] = UnsignedBytes.checkedCast(BGP_VERSION);
 		offset += VERSION_SIZE;
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
@@ -103,16 +103,16 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			openAS = AS_TRANS;
 		}
 
-		System.arraycopy(ByteArray.longToBytes(openAS), 6, msgBody, offset, AS_SIZE);
+		System.arraycopy(ByteArray.longToBytes(openAS, AS_SIZE), 0, msgBody, offset, AS_SIZE);
 		offset += AS_SIZE;
 
-		System.arraycopy(ByteArray.intToBytes(open.getHoldTimer()), 2, msgBody, offset, HOLD_TIME_SIZE);
+		System.arraycopy(ByteArray.intToBytes(open.getHoldTimer(), HOLD_TIME_SIZE), 0, msgBody, offset, HOLD_TIME_SIZE);
 		offset += HOLD_TIME_SIZE;
 
 		System.arraycopy(Ipv4Util.bytesForAddress(open.getBgpIdentifier()), 0, msgBody, offset, BGP_ID_SIZE);
 		offset += BGP_ID_SIZE;
 
-		msgBody[offset] = ByteArray.intToBytes(optParamsLength)[Integer.SIZE / Byte.SIZE - 1];
+		msgBody[offset] = UnsignedBytes.checkedCast(optParamsLength);
 
 		int index = MIN_MSG_LENGTH;
 		if (optParams != null) {
@@ -145,8 +145,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
 		}
 		if (UnsignedBytes.toInt(body[0]) != BGP_VERSION) {
-			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(body[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED, ByteArray.subByte(
-					ByteArray.intToBytes(BGP_VERSION), 2, 2));
+			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(body[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED);
 		}
 
 		int offset = VERSION_SIZE;

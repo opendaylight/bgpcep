@@ -107,11 +107,11 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		final RpBuilder builder = new RpBuilder();
 		builder.setIgnore(header.isIgnore());
 
-		//FIXME : change binary files
-		//if (!header.isProcessingRule()) {
-		//LOG.debug("Processed bit not set on RP OBJECT, ignoring it");
-		//	return null;
-		//}
+		// FIXME : change binary files
+		// if (!header.isProcessingRule()) {
+		// LOG.debug("Processed bit not set on RP OBJECT, ignoring it");
+		// return null;
+		// }
 
 		builder.setProcessingRule(header.isProcessingRule());
 
@@ -164,8 +164,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(rPObj.getRequestId().getValue()), (Long.SIZE / Byte.SIZE)
-				- RID_F_LENGTH, RID_F_LENGTH), retBytes, RID_F_OFFSET);
+		ByteArray.copyWhole(ByteArray.longToBytes(rPObj.getRequestId().getValue(), RID_F_LENGTH), retBytes, RID_F_OFFSET);
 		if (tlvs.length != 0) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}

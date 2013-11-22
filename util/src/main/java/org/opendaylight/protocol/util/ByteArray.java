@@ -209,26 +209,28 @@ public final class ByteArray {
 	 * Parses integer to array of bytes
 	 * 
 	 * @param num integer to be parsed
-	 * @return parsed array of bytes with length of Integer.SIZE/Byte.SIZE
+	 * @param size desired byte array length
+	 * @return parsed array of bytes with length of size
 	 */
-	public static byte[] intToBytes(final int num) {
-		final ByteBuffer bytesBuffer = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE);
+	public static byte[] intToBytes(final int num, final int size) {
+		final int finalSize = Integer.SIZE / Byte.SIZE;
+		final ByteBuffer bytesBuffer = ByteBuffer.allocate(finalSize);
 		bytesBuffer.putInt(num);
-
-		return bytesBuffer.array();
+		return ByteArray.subByte(bytesBuffer.array(), finalSize - size, size);
 	}
 
 	/**
 	 * Parses long to array of bytes
 	 * 
 	 * @param num long to be parsed
-	 * @return parsed array of bytes with length of Long.SIZE/Byte.SIZE
+	 * @param size desired byte array length
+	 * @return parsed array of bytes with length of size
 	 */
-	public static byte[] longToBytes(final long num) {
-		final ByteBuffer bytesBuffer = ByteBuffer.allocate(Long.SIZE / Byte.SIZE);
+	public static byte[] longToBytes(final long num, final int size) {
+		final int finalSize = Long.SIZE / Byte.SIZE;
+		final ByteBuffer bytesBuffer = ByteBuffer.allocate(finalSize);
 		bytesBuffer.putLong(num);
-
-		return bytesBuffer.array();
+		return ByteArray.subByte(bytesBuffer.array(), finalSize - size, size);
 	}
 
 	/**

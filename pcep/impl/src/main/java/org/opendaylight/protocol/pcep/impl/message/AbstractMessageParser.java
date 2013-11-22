@@ -83,8 +83,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		}
 
 		// objLength
-		System.arraycopy(ByteArray.intToBytes(valueBytes.length + COMMON_OBJECT_HEADER_LENGTH), Integer.SIZE / Byte.SIZE
-				- OBJ_LENGTH_F_LENGTH, retBytes, OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(valueBytes.length + COMMON_OBJECT_HEADER_LENGTH, OBJ_LENGTH_F_LENGTH), 0, retBytes,
+				OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_LENGTH);
 
 		ByteArray.copyWhole(valueBytes, retBytes, COMMON_OBJECT_HEADER_LENGTH);
 		return retBytes;

@@ -35,7 +35,7 @@ public class LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("LspErrorCodeTlv is mandatory.");
 		}
 		final LspErrorCode lsp = (LspErrorCode) tlv;
-		return ByteArray.subByte(ByteArray.longToBytes(lsp.getErrorCode()), UPDATE_ERR_CODE_LENGTH, UPDATE_ERR_CODE_LENGTH);
+		return ByteArray.longToBytes(lsp.getErrorCode(), UPDATE_ERR_CODE_LENGTH);
 	}
 
 	@Override

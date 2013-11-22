@@ -96,9 +96,12 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 
 		final byte[] retBytes = new byte[TLVS_F_OFFSET];
 
-		System.arraycopy(ByteArray.longToBytes(lspaObj.getExcludeAny().getValue()), 4, retBytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH);
-		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAny().getValue()), 4, retBytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH);
-		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAll().getValue()), 4, retBytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(lspaObj.getExcludeAny().getValue(), EXC_ANY_F_LENGTH), 0, retBytes, EXC_ANY_F_OFFSET,
+				EXC_ANY_F_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAny().getValue(), INC_ANY_F_LENGTH), 0, retBytes, INC_ANY_F_OFFSET,
+				INC_ANY_F_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAll().getValue(), INC_ALL_F_LENGTH), 0, retBytes, INC_ALL_F_OFFSET,
+				INC_ALL_F_LENGTH);
 		retBytes[SET_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getSetupPriority());
 		retBytes[HOLD_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getHoldPriority());
 
