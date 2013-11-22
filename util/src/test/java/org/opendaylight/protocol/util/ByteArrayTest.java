@@ -44,32 +44,32 @@ public class ByteArrayTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte2(){
+	public void testSubByte2() {
 		ByteArray.subByte(new byte[0], 2, 2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte3(){
+	public void testSubByte3() {
 		ByteArray.subByte(this.before, 2, -1);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte4(){
+	public void testSubByte4() {
 		ByteArray.subByte(this.before, -1, 2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte5(){
+	public void testSubByte5() {
 		ByteArray.subByte(this.before, 9, 2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte6(){
+	public void testSubByte6() {
 		ByteArray.subByte(this.before, 2, 19);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testSubByte7(){
+	public void testSubByte7() {
 		ByteArray.subByte(this.before, 2, 7);
 	}
 
@@ -84,17 +84,17 @@ public class ByteArrayTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCutBytes2(){
+	public void testCutBytes2() {
 		ByteArray.cutBytes(new byte[0], 5);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCutBytes3(){
+	public void testCutBytes3() {
 		ByteArray.cutBytes(this.before, 9);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCutBytes4(){
+	public void testCutBytes4() {
 		ByteArray.cutBytes(this.before, 0);
 	}
 
@@ -179,21 +179,23 @@ public class ByteArrayTest {
 
 	@Test
 	public void testIntToBytes() {
-		assertEquals(Integer.MAX_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MAX_VALUE)));
-		assertEquals(Integer.MIN_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MIN_VALUE)));
-		assertEquals(5, ByteArray.bytesToInt(ByteArray.intToBytes(5)));
+		assertEquals(Integer.MAX_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MAX_VALUE, Integer.SIZE / Byte.SIZE)));
+		assertEquals(Integer.MIN_VALUE, ByteArray.bytesToInt(ByteArray.intToBytes(Integer.MIN_VALUE, Integer.SIZE / Byte.SIZE)));
+		assertEquals(2, ByteArray.intToBytes(12, 2).length);
+		assertArrayEquals(new byte[] { 0, 12 }, ByteArray.intToBytes(12, 2));
+		assertEquals(5, ByteArray.bytesToInt(ByteArray.intToBytes(5, 2)));
 	}
 
 	@Test
 	public void testLongToBytes_bytesToLong() {
-		assertEquals(Long.MAX_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MAX_VALUE)));
-		assertEquals(Long.MIN_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MIN_VALUE)));
-		assertEquals(5, ByteArray.bytesToLong(ByteArray.longToBytes(5)));
+		assertEquals(Long.MAX_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MAX_VALUE, Long.SIZE / Byte.SIZE)));
+		assertEquals(Long.MIN_VALUE, ByteArray.bytesToLong(ByteArray.longToBytes(Long.MIN_VALUE, Long.SIZE / Byte.SIZE)));
+		assertArrayEquals(new byte[] { 0, 0, 5 }, ByteArray.longToBytes(5L, 3));
+		assertEquals(5, ByteArray.bytesToLong(ByteArray.longToBytes(5, 2)));
 	}
 
 	/**
-	 * if less than 4 bytes are converted, zero bytes should be appendet at the
-	 * buffer's start
+	 * if less than 4 bytes are converted, zero bytes should be appendet at the buffer's start
 	 */
 	@Test
 	public void testBytesToLong_prependingZeros() {
@@ -201,25 +203,24 @@ public class ByteArrayTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testBytesToInt(){
+	public void testBytesToInt() {
 		final byte[] b = new byte[Integer.SIZE + 1];
 		ByteArray.bytesToInt(b);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testBytesToShort2(){
+	public void testBytesToShort2() {
 		final byte[] b = new byte[Short.SIZE + 1];
 		ByteArray.bytesToInt(b);
 	}
 
 	@Test
-	public void testBytes(){
-		assertTrue(ByteArray.bytesToInt(new byte[]{ 0, 0, 0, 15}) == 15);
-		assertEquals(Float.valueOf((float) 1.4E-45), Float.valueOf(ByteArray.bytesToFloat(new byte[]{ 0, 0, 0, 1})));
+	public void testBytes() {
+		assertTrue(ByteArray.bytesToInt(new byte[] { 0, 0, 0, 15 }) == 15);
+		assertEquals(Float.valueOf((float) 1.4E-45), Float.valueOf(ByteArray.bytesToFloat(new byte[] { 0, 0, 0, 1 })));
 		assertEquals(Long.valueOf(16613001005322L), Long.valueOf(ByteArray.bytesToLong(this.before)));
-		assertEquals(Short.valueOf((short) 1), Short.valueOf(ByteArray.bytesToShort(new byte[]{0, 1})));
+		assertEquals(Short.valueOf((short) 1), Short.valueOf(ByteArray.bytesToShort(new byte[] { 0, 1 })));
 	}
-
 
 	@Test
 	public void testCopyBitRange() {
@@ -233,27 +234,27 @@ public class ByteArrayTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCopyBitsRange2(){
+	public void testCopyBitsRange2() {
 		ByteArray.copyBitsRange((byte) 0x28, -1, 4);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCopyBitsRange3(){
+	public void testCopyBitsRange3() {
 		ByteArray.copyBitsRange((byte) 0x28, 1, 187);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCopyBitsRange4(){
+	public void testCopyBitsRange4() {
 		ByteArray.copyBitsRange((byte) 0x28, 1, 40);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCopyBitsRange5(){
+	public void testCopyBitsRange5() {
 		ByteArray.copyBitsRange((byte) 0x28, 28, 2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testCopyBitsRange6(){
+	public void testCopyBitsRange6() {
 		ByteArray.copyBitsRange((byte) 0x28, 2, -2);
 	}
 
@@ -274,7 +275,7 @@ public class ByteArrayTest {
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
-	public void testCopyWhole2(){
+	public void testCopyWhole2() {
 		ByteArray.copyWhole(new byte[0], new byte[1], 2);
 	}
 
@@ -319,7 +320,8 @@ public class ByteArrayTest {
 
 	@Test
 	public void testBytesToHexString() {
-		final byte[] b = new byte[] { 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, };
+		final byte[] b = new byte[] { 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01, 0x16, 0x01,
+				0x16, };
 		final String expected = "01 16 01 16 01 16 01 16  01 16 01 16 01 16 01 16\n01 16 ";
 		assertEquals(expected, ByteArray.bytesToHexString(b));
 	}
@@ -344,21 +346,21 @@ public class ByteArrayTest {
 
 	@Test
 	public void testFindByteSequence() {
-		final byte[] bytes = new byte[] { (byte)36, (byte)41, (byte)55, (byte)101, (byte)38 };
-		final byte[] sequence1 = new byte[] { (byte)36, (byte)41 };
+		final byte[] bytes = new byte[] { (byte) 36, (byte) 41, (byte) 55, (byte) 101, (byte) 38 };
+		final byte[] sequence1 = new byte[] { (byte) 36, (byte) 41 };
 
 		assertEquals(0, ByteArray.findByteSequence(bytes, sequence1));
 
-		final byte[] sequence2 = new byte[] { (byte)55, (byte)38 };
+		final byte[] sequence2 = new byte[] { (byte) 55, (byte) 38 };
 
 		assertEquals(-1, ByteArray.findByteSequence(bytes, sequence2));
 
-		final byte[] sequence3 = new byte[] { (byte)101, (byte)38 };
+		final byte[] sequence3 = new byte[] { (byte) 101, (byte) 38 };
 
 		assertEquals(3, ByteArray.findByteSequence(bytes, sequence3));
 
 		try {
-			ByteArray.findByteSequence(bytes, new byte[]  { (byte)36, (byte)41, (byte)55, (byte)101, (byte)38, (byte)66 });
+			ByteArray.findByteSequence(bytes, new byte[] { (byte) 36, (byte) 41, (byte) 55, (byte) 101, (byte) 38, (byte) 66 });
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Sequence to be found is longer than the given byte array.", e.getMessage());
 		}
@@ -366,7 +368,7 @@ public class ByteArrayTest {
 
 	@Test
 	public void testMaskBytes() {
-		final byte[] bytes = new byte[] {(byte)0xAC, (byte)0xA8, (byte)0x1F, (byte)0x08 };
+		final byte[] bytes = new byte[] { (byte) 0xAC, (byte) 0xA8, (byte) 0x1F, (byte) 0x08 };
 		try {
 			ByteArray.maskBytes(bytes, 48);
 		} catch (final IllegalArgumentException e) {
@@ -375,7 +377,7 @@ public class ByteArrayTest {
 
 		assertArrayEquals(bytes, ByteArray.maskBytes(bytes, 32));
 
-		assertArrayEquals(new byte[] { (byte)0xAC, (byte)0x80, 0, 0}, ByteArray.maskBytes(bytes, 10));
+		assertArrayEquals(new byte[] { (byte) 0xAC, (byte) 0x80, 0, 0 }, ByteArray.maskBytes(bytes, 10));
 	}
 
 }

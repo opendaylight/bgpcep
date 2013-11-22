@@ -55,9 +55,10 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 		}
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 		final WavebandSwitchingLabel obj = (WavebandSwitchingLabel) subobject;
-		System.arraycopy(ByteArray.intToBytes(obj.getWavebandId().intValue()), 0, retBytes, 0, WAVEB_F_LENGTH);
-		System.arraycopy(ByteArray.intToBytes(obj.getStartLabel().intValue()), 0, retBytes, WAVEB_F_LENGTH, START_F_LENGTH);
-		System.arraycopy(ByteArray.intToBytes(obj.getEndLabel().intValue()), 0, retBytes, WAVEB_F_LENGTH + START_F_LENGTH, END_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(obj.getWavebandId().intValue(), WAVEB_F_LENGTH), 0, retBytes, 0, WAVEB_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(obj.getStartLabel().intValue(), START_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH, START_F_LENGTH);
+		System.arraycopy(ByteArray.intToBytes(obj.getEndLabel().intValue(), END_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH + START_F_LENGTH,
+				END_F_LENGTH);
 		return retBytes;
 	}
 

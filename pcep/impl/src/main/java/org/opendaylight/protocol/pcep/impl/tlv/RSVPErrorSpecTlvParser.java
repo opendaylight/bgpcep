@@ -119,9 +119,9 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 	}
 
 	private byte[] serializerUserError(final UserError ue) {
-		final byte[] enterprise = ByteArray.subByte(ByteArray.longToBytes(ue.getEnterprise().getValue()), 4, ENTERPRISE_F_LENGTH);
+		final byte[] enterprise = ByteArray.longToBytes(ue.getEnterprise().getValue(), ENTERPRISE_F_LENGTH);
 		final byte suborg = UnsignedBytes.checkedCast(ue.getSubOrg());
-		final byte[] value = ByteArray.subByte(ByteArray.intToBytes(ue.getValue()), 2, USER_VALUE_F_LENGTH);
+		final byte[] value = ByteArray.intToBytes(ue.getValue(), USER_VALUE_F_LENGTH);
 		final byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes();
 		final byte descLen = UnsignedBytes.checkedCast(desc.length);
 		// TODO: if we have any subobjects
@@ -189,7 +189,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		offset += FLAGS_F_LENGTH;
 		bytes[offset] = UnsignedBytes.checkedCast(rsvp.getCode());
 		offset += ERROR_CODE_F_LENGTH;
-		final byte[] value = ByteArray.subByte(ByteArray.intToBytes(rsvp.getValue().intValue()), 2, ERROR_VALUE_F_LENGTH);
+		final byte[] value = ByteArray.intToBytes(rsvp.getValue().intValue(), ERROR_VALUE_F_LENGTH);
 		ByteArray.copyWhole(value, bytes, offset);
 		return bytes;
 	}

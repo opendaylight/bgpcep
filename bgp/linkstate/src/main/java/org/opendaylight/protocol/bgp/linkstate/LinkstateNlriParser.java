@@ -365,6 +365,8 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	public static byte[] serializeNlri(final CLinkstateDestination destination) {
+		final byte[] typeBytes = ByteArray.intToBytes(destination.getNlriType().getIntValue(), TYPE_LENGTH);
+
 		// FIXME: BUG-108: finish this
 		throw new UnsupportedOperationException("BUG-108: not implemented");
 	}

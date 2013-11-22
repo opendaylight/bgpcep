@@ -40,7 +40,7 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
 		if (!(subobject instanceof Type1Label)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass() + ". Needed Type1Label.");
 		}
-		return ByteArray.subByte(ByteArray.longToBytes(((Type1Label) subobject).getType1Label().longValue()), 4, LABEL_LENGTH);
+		return ByteArray.longToBytes(((Type1Label) subobject).getType1Label().longValue(), LABEL_LENGTH);
 	}
 
 	@Override

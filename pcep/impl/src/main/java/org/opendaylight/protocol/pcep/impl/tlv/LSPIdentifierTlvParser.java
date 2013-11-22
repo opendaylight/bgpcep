@@ -99,9 +99,9 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 			final Ipv4 ipv4 = (Ipv4) afi;
 			ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelSenderAddress()), bytes, offset);
 			offset += IP4_F_LENGTH;
-			ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(lsp.getLspId().getValue()), 6, LSP_ID_F_LENGTH), bytes, offset);
+			ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);
 			offset += LSP_ID_F_LENGTH;
-			ByteArray.copyWhole(ByteArray.subByte(ByteArray.intToBytes(lsp.getTunnelId().getValue()), 2, TUNNEL_ID_F_LENGTH), bytes, offset);
+			ByteArray.copyWhole(ByteArray.intToBytes(lsp.getTunnelId().getValue(), TUNNEL_ID_F_LENGTH), bytes, offset);
 			offset += TUNNEL_ID_F_LENGTH;
 			ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()), bytes, offset);
 			return bytes;
@@ -110,9 +110,9 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 			final Ipv6 ipv6 = (Ipv6) afi;
 			ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelSenderAddress()), bytes, offset);
 			offset += IP6_F_LENGTH;
-			ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(lsp.getLspId().getValue()), 6, LSP_ID_F_LENGTH), bytes, offset);
+			ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);
 			offset += LSP_ID_F_LENGTH;
-			ByteArray.copyWhole(ByteArray.subByte(ByteArray.intToBytes(lsp.getTunnelId().getValue()), 2, TUNNEL_ID_F_LENGTH), bytes, offset);
+			ByteArray.copyWhole(ByteArray.intToBytes(lsp.getTunnelId().getValue(), TUNNEL_ID_F_LENGTH), bytes, offset);
 			offset += TUNNEL_ID_F_LENGTH;
 			ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6ExtendedTunnelId()), bytes, offset);
 			return bytes;

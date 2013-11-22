@@ -64,8 +64,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 		retBytes = new byte[CONTENT_LENGTH];
 		final SrlgSubobject specObj = (SrlgSubobject) subobject.getSubobjectType();
 
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(specObj.getSrlgId().getValue()), 4, SRLG_ID_NUMBER_LENGTH), retBytes,
-				SRLG_ID_NUMBER_OFFSET);
+		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getSrlgId().getValue(), SRLG_ID_NUMBER_LENGTH), retBytes, SRLG_ID_NUMBER_OFFSET);
 		retBytes[ATTRIBUTE_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
 
 		return retBytes;

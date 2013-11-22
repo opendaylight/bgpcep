@@ -51,8 +51,8 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 		}
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 		final AsNumberSubobject obj = (AsNumberSubobject) subobject.getSubobjectType();
-		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH, retBytes,
-				AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
+				AS_NUMBER_LENGTH);
 		return retBytes;
 	}
 

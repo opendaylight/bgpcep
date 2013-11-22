@@ -40,9 +40,9 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 		final Order otlv = (Order) tlv;
 		final byte[] bytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
 		int offset = 0;
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(otlv.getDelete()), 4, ORDR_DEL_LENGTH), bytes, offset);
+		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getDelete(), ORDR_DEL_LENGTH), bytes, offset);
 		offset += ORDR_DEL_LENGTH;
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(otlv.getSetup()), 4, ORDR_SETUP_LENGTH), bytes, offset);
+		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
 		return bytes;
 	}
 

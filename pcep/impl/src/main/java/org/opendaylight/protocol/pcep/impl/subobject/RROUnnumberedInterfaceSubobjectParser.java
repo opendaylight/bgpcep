@@ -74,9 +74,8 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 		flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
 		flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
 		retBytes[0] = ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH)[0];
-		ByteArray.copyWhole(ByteArray.subByte(ByteArray.longToBytes(specObj.getRouterId()), 4, ROUTER_ID_NUMBER_LENGTH), retBytes,
-				ROUTER_ID_NUMBER_OFFSET);
-		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId()), Long.SIZE / Byte.SIZE - INTERFACE_ID_NUMBER_LENGTH, retBytes,
+		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
+		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 		return retBytes;
 	}

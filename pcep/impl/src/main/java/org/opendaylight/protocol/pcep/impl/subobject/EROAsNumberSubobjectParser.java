@@ -56,8 +56,8 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
 		final SubobjectType s = subobject.getSubobjectType();
 
-		System.arraycopy(ByteArray.longToBytes(((AsNumberSubobject) s).getAsNumber().getValue()), Long.SIZE / Byte.SIZE - AS_NUMBER_LENGTH,
-				retBytes, AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(((AsNumberSubobject) s).getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes,
+				AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
 
 		return retBytes;
 	}

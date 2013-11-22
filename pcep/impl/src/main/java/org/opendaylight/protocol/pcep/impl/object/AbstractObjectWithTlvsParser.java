@@ -74,11 +74,11 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 
 		final TlvSerializer serializer = this.tlvReg.getTlvSerializer(tlv);
 
-		final byte[] typeBytes = (ByteArray.cutBytes(ByteArray.intToBytes(serializer.getType()), (Integer.SIZE / 8) - TLV_TYPE_F_LENGTH));
+		final byte[] typeBytes = ByteArray.intToBytes(serializer.getType(), TLV_TYPE_F_LENGTH);
 
 		final byte[] valueBytes = serializer.serializeTlv(tlv);
 
-		final byte[] lengthBytes = ByteArray.cutBytes(ByteArray.intToBytes(valueBytes.length), (Integer.SIZE / 8) - TLV_LENGTH_F_LENGTH);
+		final byte[] lengthBytes = ByteArray.intToBytes(valueBytes.length, TLV_LENGTH_F_LENGTH);
 
 		final byte[] bytes = new byte[TLV_HEADER_LENGTH + valueBytes.length + getPadding(TLV_HEADER_LENGTH + valueBytes.length, PADDED_TO)];
 
