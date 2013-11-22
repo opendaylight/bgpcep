@@ -21,19 +21,19 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 	private final String instanceName = "bgp-message-fct";
 
 	private BGPDispatcherImplModuleFactory factory;
-	
+
 	private NettyThreadgroupModuleFactory threadgroupFactory;
-	
-	private BGPMessageFactoryImplModuleFactory messageFactory;
-	
+
+	private RIBExtensionsImplModuleFactory messageFactory;
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPDispatcherImplModuleFactory();
 		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
-		this.messageFactory = new BGPMessageFactoryImplModuleFactory();
+		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, threadgroupFactory, messageFactory));
 	}
-	
+
 	@Test
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
@@ -44,10 +44,10 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		assertBeanCount(1, factory.getImplementationName());
 		assertStatus(status, 4, 0, 0);
 	}
-	
+
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
+	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, this.threadgroupFactory.getImplementationName(), this.messageFactory.getImplementationName());
@@ -58,7 +58,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		assertBeanCount(1, factory.getImplementationName());
 		assertStatus(status, 0, 0, 4);
 	}
-	
+
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
 			final String instanceName, final String threadgropuModuleName, final String messageFactoryModuleName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
@@ -68,9 +68,9 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		mxBean.setBossGroup(createThreadgroupInstance(transaction, threadgropuModuleName, "boss-threadgroup", 10));
 		mxBean.setWorkerGroup(createThreadgroupInstance(transaction, threadgropuModuleName, "worker-threadgroup", 10));
 		//mxBean.setMessageFactory(BGPMessageFactoryImplModuleTest.createInstance(transaction, messageFactoryModuleName, "bgp-msg-fct"));
-		return nameCreated;	
+		return nameCreated;
 	}
-	
+
 	public static ObjectName createThreadgroupInstance(
 			final ConfigTransactionJMXClient transaction,
 			final String moduleName, final String instanceName,

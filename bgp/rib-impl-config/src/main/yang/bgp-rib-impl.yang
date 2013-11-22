@@ -53,35 +53,6 @@ module bgp-rib-impl {
         }
     }
 
-    identity bgp-message-factory {
-        description
-            "Service representing a BGP proposal.";
-
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.bgp.parser.BGPMessageFactory";
-    }
-
-    identity bgp-message-factory-impl {
-        base config:module-type;
-        config:provided-service bgp-message-factory;
-        config:java-name-prefix BGPMessageFactoryImpl;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bgp-message-factory-impl {
-            when "/config:modules/config:module/config:type = 'bgp-message-factory-impl'";
-
-            container bgp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgpspi:consumer-extensions;
-                    }
-                }
-            }
-        }
-    }
-
     identity bgp-rib-extensions-impl {
         base config:module-type;
         config:provided-service ribspi:extensions;
@@ -147,11 +118,11 @@ module bgp-rib-impl {
         case bgp-dispatcher-impl {
             when "/config:modules/config:module/config:type = 'bgp-dispatcher-impl'";
 
-            container message-factory {
+            container bgp-extensions {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity bgp-message-factory;
+                        config:required-identity bgpspi:consumer-extensions;
                     }
                 }
             }

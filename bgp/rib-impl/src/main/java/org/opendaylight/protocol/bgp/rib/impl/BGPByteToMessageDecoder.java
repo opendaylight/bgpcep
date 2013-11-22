@@ -15,8 +15,8 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +27,10 @@ import com.google.common.base.Preconditions;
  */
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
 	private final static Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
-	private final BGPMessageFactory factory;
+	private final MessageRegistry registry;
 
-	public BGPByteToMessageDecoder(final BGPMessageFactory factory) {
-		this.factory = Preconditions.checkNotNull(factory);
+	public BGPByteToMessageDecoder(final MessageRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
 			LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
 			final byte[] bytes = new byte[in.readableBytes()];
 			in.readBytes(bytes);
-			out.add(this.factory.parse(bytes));
+			out.add(this.registry.parseMessage(bytes));
 		} catch (BGPParsingException | BGPDocumentedException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);

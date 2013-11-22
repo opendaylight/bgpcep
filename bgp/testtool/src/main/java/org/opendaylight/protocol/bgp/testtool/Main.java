@@ -14,7 +14,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
@@ -55,7 +54,7 @@ public class Main {
 	private static final int RECONNECT_MILLIS = 5000;
 
 	private Main() throws Exception {
-		this.dispatcher = new BGPDispatcherImpl(new BGPMessageFactoryImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry()), new NioEventLoopGroup(), new NioEventLoopGroup());
+		this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
 	}
 
 	public static void main(final String[] args) throws Exception {

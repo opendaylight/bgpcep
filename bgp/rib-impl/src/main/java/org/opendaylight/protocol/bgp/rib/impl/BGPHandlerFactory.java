@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 
 import com.google.common.base.Preconditions;
 
@@ -19,11 +19,11 @@ import com.google.common.base.Preconditions;
  */
 public class BGPHandlerFactory  {
 	private final ChannelOutboundHandler encoder;
-	private final BGPMessageFactory msgFactory;
+	private final MessageRegistry registry;
 
-	public BGPHandlerFactory(final BGPMessageFactory msgFactory) {
-		this.msgFactory = Preconditions.checkNotNull(msgFactory);
-		this.encoder = new BGPMessageToByteEncoder(msgFactory);
+	public BGPHandlerFactory(final MessageRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
+		this.encoder = new BGPMessageToByteEncoder(registry);
 	}
 
 	public ChannelHandler[] getEncoders() {
@@ -35,7 +35,7 @@ public class BGPHandlerFactory  {
 	public ChannelHandler[] getDecoders() {
 		return new ChannelHandler[] {
 				new BGPMessageHeaderDecoder(),
-				new BGPByteToMessageDecoder(this.msgFactory),
+				new BGPByteToMessageDecoder(this.registry),
 		};
 	}
 }

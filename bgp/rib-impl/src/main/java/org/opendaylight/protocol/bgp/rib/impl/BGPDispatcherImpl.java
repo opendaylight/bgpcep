@@ -16,8 +16,8 @@ import io.netty.util.concurrent.Promise;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
@@ -33,9 +33,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
 	private final BGPHandlerFactory hf;
 
-	public BGPDispatcherImpl(final BGPMessageFactory parser, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+	public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
 		super(bossGroup, workerGroup);
-		this.hf = new BGPHandlerFactory(parser);
+		this.hf = new BGPHandlerFactory(messageRegistry);
 	}
 
 	@Override

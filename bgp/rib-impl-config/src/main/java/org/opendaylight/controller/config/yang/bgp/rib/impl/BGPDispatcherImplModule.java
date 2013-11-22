@@ -9,27 +9,27 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 
 /**
-*
-*/
+ *
+ */
 public final class BGPDispatcherImplModule
-		extends
-		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModule {
+extends
+org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModule {
 
 	public BGPDispatcherImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
 	public BGPDispatcherImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			BGPDispatcherImplModule oldModule,
-			java.lang.AutoCloseable oldInstance) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final BGPDispatcherImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -40,8 +40,8 @@ public final class BGPDispatcherImplModule
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final BGPMessageFactory messageFactoryDependency = getMessageFactoryDependency();
-		return new BGPDispatcherImpl(messageFactoryDependency,
+		final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
+		return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(),
 				getBossGroupDependency(), getWorkerGroupDependency());
 	}
 }

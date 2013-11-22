@@ -12,7 +12,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +25,15 @@ import com.google.common.base.Preconditions;
 @Sharable
 final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
 	private final static Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
-	private final BGPMessageFactory factory;
+	private final MessageRegistry registry;
 
-	BGPMessageToByteEncoder(final BGPMessageFactory factory) {
-		this.factory = Preconditions.checkNotNull(factory);
+	BGPMessageToByteEncoder(final MessageRegistry registry) {
+		this.registry = Preconditions.checkNotNull(registry);
 	}
 
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) throws Exception {
 		LOG.debug("Sent to encode : {}", msg);
-		out.writeBytes(this.factory.put(msg));
+		out.writeBytes(this.registry.serializeMessage(msg));
 	}
 }

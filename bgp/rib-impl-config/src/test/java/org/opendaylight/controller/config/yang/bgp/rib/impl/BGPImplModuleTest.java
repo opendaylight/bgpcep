@@ -22,27 +22,27 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 public class BGPImplModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "bgp-impl1";
-	
+
 	private BGPImplModuleFactory factory;
-	
+
 	private BGPSessionProposalImplModuleFactory sessionFacotry;
-	
+
 	private BGPDispatcherImplModuleFactory dispactherFactory;
-	
+
 	private NettyThreadgroupModuleFactory threadgropFactory;
-	
-	private BGPMessageFactoryImplModuleFactory messageFactory;
-	
+
+	private RIBExtensionsImplModuleFactory messageFactory;
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPImplModuleFactory();
 		this.dispactherFactory = new BGPDispatcherImplModuleFactory();
 		this.sessionFacotry = new BGPSessionProposalImplModuleFactory();
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
-		this.messageFactory = new BGPMessageFactoryImplModuleFactory();
+		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory, this.sessionFacotry, this.messageFactory, this.threadgropFactory));
 	}
-	
+
 	@Test
 	public void testValidationExceptionPortNotSet()
 			throws InstanceAlreadyExistsException {
@@ -56,7 +56,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 			assertTrue(e.getMessage().contains("Port value is not set."));
 		}
 	}
-	
+
 	@Test
 	public void testValidationExceptionPortOutOfRange()
 			throws InstanceAlreadyExistsException {
@@ -70,7 +70,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 			assertTrue(e.getMessage().contains("is out of range (0-65535)."));
 		}
 	}
-	
+
 	@Test
 	public void testValidationExceptionHostNotSet()
 			throws InstanceAlreadyExistsException {
@@ -84,7 +84,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 			assertTrue(e.getMessage().contains("Host value is not set."));
 		}
 	}
-	
+
 	@Test
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
@@ -95,10 +95,10 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		assertBeanCount(1, factory.getImplementationName());
 		assertStatus(status, 6, 0, 0);
 	}
-	
+
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
+	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName());
@@ -112,8 +112,8 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 
 	@Test
 	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
-			InstanceNotFoundException {
+	ConflictingVersionException, ValidationException,
+	InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName());
@@ -129,7 +129,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		assertBeanCount(1, factory.getImplementationName());
 		assertStatus(status, 0, 1, 5);
 	}
-	
+
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
 			final String instanceName, final String host, final Integer port, final String sessionModuleName, final String dispatcherModuleName, final String threadgroupModuleName, final String messageFactoryModuleName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
@@ -142,5 +142,5 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher1", threadgroupModuleName, messageFactoryModuleName));
 		return nameCreated;
 	}
-	
+
 }
