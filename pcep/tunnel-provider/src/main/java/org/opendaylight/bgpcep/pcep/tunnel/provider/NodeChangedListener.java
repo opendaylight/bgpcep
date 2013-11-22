@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.protocol.concepts.InstanceIdentifierUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4;
@@ -80,9 +79,9 @@ public final class NodeChangedListener implements DataChangeListener {
 	private static void categorizeIdentifier(final InstanceIdentifier<?> i,
 			final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
 			final Set<InstanceIdentifier<Node>> changedNodes) {
-		final InstanceIdentifier<ReportedLsps> li = InstanceIdentifierUtil.firstIdentifierOf(i, ReportedLsps.class);
+		final InstanceIdentifier<ReportedLsps> li = i.firstIdentifierOf(ReportedLsps.class);
 		if (li == null) {
-			final InstanceIdentifier<Node> ni = InstanceIdentifierUtil.firstIdentifierOf(i, Node.class);
+			final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 			if (ni == null) {
 				LOG.warn("Ignoring uncategorized identifier {}", i);
 			} else {
@@ -113,7 +112,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsps> i, final ReportedLsps lsp) {
-		return new LinkId(InstanceIdentifierUtil.firstKeyOf(i, Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
+		return new LinkId(i.firstKeyOf(Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
 	}
 
 	private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
@@ -143,7 +142,7 @@ public final class NodeChangedListener implements DataChangeListener {
 						for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
 							if (addr.equals(a.getIpv6Address())) {
 								if (sni != null) {
-									final NodeKey k = InstanceIdentifierUtil.keyOf(sni);
+									final NodeKey k = InstanceIdentifier.keyOf(sni);
 									boolean have = false;
 
 									/*
@@ -193,7 +192,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		nb.setKey(nk).setNodeId(nk.getNodeId());
 		nb.setTerminationPoint(Lists.newArrayList(tpb.build()));
 		if (sni != null) {
-			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifierUtil.keyOf(sni).getNodeId(), inControl)));
+			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(), inControl)));
 		}
 
 		trans.putOperationalData(InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).toInstance(), nb.build());
@@ -203,7 +202,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	private void create(final DataModificationTransaction trans,
 			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
 
-		final InstanceIdentifier<Node> ni = InstanceIdentifierUtil.firstIdentifierOf(i, Node.class);
+		final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
 		/*
@@ -237,11 +236,11 @@ public final class NodeChangedListener implements DataChangeListener {
 		lb.setLinkId(id);
 
 		lb.setSource(new SourceBuilder().
-				setSourceNode(InstanceIdentifierUtil.firstKeyOf(src, Node.class, NodeKey.class).getNodeId()).
-				setSourceTp(InstanceIdentifierUtil.firstKeyOf(src, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+				setSourceNode(src.firstKeyOf(Node.class, NodeKey.class).getNodeId()).
+				setSourceTp(src.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
 		lb.setDestination(new DestinationBuilder().
-				setDestNode(InstanceIdentifierUtil.firstKeyOf(dst, Node.class, NodeKey.class).getNodeId()).
-				setDestTp(InstanceIdentifierUtil.firstKeyOf(dst, TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+				setDestNode(dst.firstKeyOf(Node.class, NodeKey.class).getNodeId()).
+				setDestTp(dst.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
 		lb.addAugmentation(Link1.class, lab.build());
 
 		trans.putOperationalData(linkForLsp(id), lb.build());

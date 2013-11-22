@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.protocol.concepts.InstanceIdentifierUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -60,10 +59,6 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
 	protected abstract void removeObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
 
-	private InstanceIdentifier<T> changedObject(final InstanceIdentifier<?> id) {
-		return InstanceIdentifierUtil.firstIdentifierOf(id, idClass);
-	}
-
 	public final DataProviderService getDataProvider() {
 		return dataProvider;
 	}
@@ -79,13 +74,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
 		final Set<InstanceIdentifier<T>> ids = new HashSet<>();
 		for (final InstanceIdentifier<?> i : event.getRemovedOperationalData()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
 		}
 		for (final InstanceIdentifier<?> i : event.getUpdatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
 		}
 		for (final InstanceIdentifier<?> i : event.getCreatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(changedObject(i)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
 		}
 
 		final Map<InstanceIdentifier<?>, DataObject> o = event.getOriginalOperationalData();
