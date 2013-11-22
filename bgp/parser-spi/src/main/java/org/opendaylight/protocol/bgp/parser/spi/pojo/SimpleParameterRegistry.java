@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -23,7 +23,7 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 	private final HandlerRegistry<DataContainer, ParameterParser, ParameterSerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerParameterParser(final int messageType, final ParameterParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return this.handlers.registerParser(messageType, parser);
 	}
 

@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 
 import com.google.common.base.Preconditions;
 
 final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer> implements AddressFamilyRegistry {
 	AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
-		Preconditions.checkArgument(number >= 0 && number <= Util.UNSIGNED_SHORT_MAX_VALUE);
+		Preconditions.checkArgument(number >= 0 && number <= Values.UNSIGNED_SHORT_MAX_VALUE);
 		return super.registerFamily(clazz, number);
 	}
 

@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -99,7 +99,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
 		// When our AS number does not fit into two bytes, we report it as AS_TRANS
 		int openAS = open.getMyAsNumber();
-		if (openAS > Util.UNSIGNED_SHORT_MAX_VALUE) {
+		if (openAS > Values.UNSIGNED_SHORT_MAX_VALUE) {
 			openAS = AS_TRANS;
 		}
 

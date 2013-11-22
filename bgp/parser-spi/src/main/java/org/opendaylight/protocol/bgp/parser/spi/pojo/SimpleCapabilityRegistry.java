@@ -13,7 +13,7 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -23,7 +23,7 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return this.handlers.registerParser(messageType, parser);
 	}
 

@@ -13,7 +13,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -27,13 +27,13 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 	private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 
 	private static int createKey(final int objectClass, final int objectType) {
-		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
 		return (objectClass << 4) | objectType;
 	}
 
 	public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
-		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
 		return this.handlers.registerParser(createKey(objectClass, objectType), parser);
 	}

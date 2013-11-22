@@ -15,7 +15,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -155,7 +155,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(valueBytes, byteOffset, FLAGS_F_LENGTH));
 		byteOffset += FLAGS_F_LENGTH;
 		builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
-		final short errorCode = (short) (valueBytes[byteOffset] & Util.BYTE_MAX_VALUE_BYTES);
+		final short errorCode = (short) (valueBytes[byteOffset] & Values.BYTE_MAX_VALUE_BYTES);
 		byteOffset += ERROR_CODE_F_LENGTH;
 		builder.setCode(errorCode);
 		final int errorValue = (ByteArray.bytesToShort(ByteArray.subByte(valueBytes, byteOffset, ERROR_VALUE_F_LENGTH)) & 0xFFFF);

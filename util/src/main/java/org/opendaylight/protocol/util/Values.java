@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.util;
 
-public class Util {
+public class Values {
 
-	private Util() {
+	private Values() {
 	}
 
 	public static final int UNSIGNED_SHORT_MAX_VALUE = 65535;

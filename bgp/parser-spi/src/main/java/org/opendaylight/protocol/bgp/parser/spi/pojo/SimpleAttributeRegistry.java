@@ -15,7 +15,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -28,7 +28,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 	private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
 
 	AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
-		Preconditions.checkArgument(attributeType >= 0 && attributeType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return this.handlers.registerParser(attributeType, parser);
 	}
 

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 import com.google.common.base.Preconditions;
@@ -16,7 +16,7 @@ import com.google.common.base.Preconditions;
 final class SimpleSubsequentAddressFamilyRegistry extends AbstractFamilyRegistry<SubsequentAddressFamily, Integer> implements
 		SubsequentAddressFamilyRegistry {
 	AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
-		Preconditions.checkArgument(number >= 0 && number <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(number >= 0 && number <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return super.registerFamily(clazz, number);
 	}
 

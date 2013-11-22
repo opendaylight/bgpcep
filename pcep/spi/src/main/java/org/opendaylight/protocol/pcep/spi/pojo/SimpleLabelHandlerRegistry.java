@@ -11,7 +11,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
-import org.opendaylight.protocol.util.Util;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
@@ -21,7 +21,7 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 	private final HandlerRegistry<DataContainer, LabelParser, LabelSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
-		Preconditions.checkArgument(cType >= 0 && cType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(cType >= 0 && cType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return this.handlers.registerParser(cType, parser);
 	}
 
@@ -31,7 +31,7 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 
 	@Override
 	public LabelParser getLabelParser(final int cType) {
-		Preconditions.checkArgument(cType >= 0 && cType <= Util.UNSIGNED_BYTE_MAX_VALUE);
+		Preconditions.checkArgument(cType >= 0 && cType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		return this.handlers.getParser(cType);
 	}
 
