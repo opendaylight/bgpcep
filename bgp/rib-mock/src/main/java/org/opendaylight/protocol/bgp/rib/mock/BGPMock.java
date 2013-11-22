@@ -15,15 +15,15 @@ import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.util.ByteArray;
@@ -43,7 +43,7 @@ import com.google.common.eventbus.EventBus;
 @ThreadSafe
 public final class BGPMock implements BGP, Closeable {
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPMock.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
 
 	static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
@@ -63,7 +63,7 @@ public final class BGPMock implements BGP, Closeable {
 
 	private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
 		final List<Notification> messages = Lists.newArrayList();
-		final ProtocolMessageFactory<Notification> parser = new BGPMessageFactoryImpl(registry);
+		final BGPMessageFactory parser = new BGPMessageFactoryImpl(registry);
 		try {
 			for (final byte[] b : msgs) {
 
@@ -71,10 +71,8 @@ public final class BGPMock implements BGP, Closeable {
 
 				messages.add(parser.parse(body));
 			}
-		} catch (final DeserializerException e) {
-			logger.warn(e.getMessage(), e);
-		} catch (final DocumentedException e) {
-			logger.warn(e.getMessage(), e);
+		} catch (final BGPDocumentedException | BGPParsingException e) {
+			LOG.warn("Failed to parse message {}", e);
 		}
 		return messages;
 	}

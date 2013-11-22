@@ -21,8 +21,6 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
-import org.opendaylight.protocol.framework.DeserializerException;
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.opendaylight.protocol.util.ByteList;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -226,10 +224,6 @@ public class ComplementaryTest {
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
-		} catch (final DeserializerException e) {
-			fail("Not this exception should have occured:" + e);
-		} catch (final DocumentedException e) {
-			fail("Not this exception should have occured:" + e);
 		}
 	}
 

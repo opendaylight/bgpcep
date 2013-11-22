@@ -7,13 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
-import com.google.common.base.Preconditions;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
+
+import java.net.InetSocketAddress;
+
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -23,7 +25,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
-import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
 import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -31,14 +32,14 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import java.net.InetSocketAddress;
+import com.google.common.base.Preconditions;
 
 public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
 	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
-	private final ProtocolHandlerFactory<?> factory;
+	private final BGPHandlerFactory factory;
 
-	public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final ProtocolHandlerFactory<?> factory,
+	public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
 			final DefaultPromise<BGPSessionImpl> defaultPromise) {
 		super(new NioEventLoopGroup(), new NioEventLoopGroup());
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
