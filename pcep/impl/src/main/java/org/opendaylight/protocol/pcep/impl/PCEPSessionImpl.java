@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -46,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -390,7 +390,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	@Override
 	public String getNodeIdentifier() {
 		if (this.remoteOpen.getTlvs() == null && this.remoteOpen.getTlvs().getPredundancyGroupId() != null) {
-			return StringUtils.newStringUtf8(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier());
+			return new String(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier(), Charsets.UTF_8);
 		}
 		return "";
 	}
