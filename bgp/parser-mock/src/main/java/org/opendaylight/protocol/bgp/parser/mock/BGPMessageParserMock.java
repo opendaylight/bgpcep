@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.parser.mock;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */
-public class BGPMessageParserMock implements BGPMessageFactory {
+public class BGPMessageParserMock implements MessageRegistry {
 	private final Map<byte[], Notification> messages;
 
 	/**
@@ -30,7 +30,7 @@ public class BGPMessageParserMock implements BGPMessageFactory {
 	}
 
 	@Override
-	public Notification parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
+	public Notification parseMessage(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
 		final Notification ret = this.messages.get(bytes);
 		if (ret == null) {
 			throw new IllegalArgumentException("Undefined message encountered");
@@ -39,7 +39,7 @@ public class BGPMessageParserMock implements BGPMessageFactory {
 	}
 
 	@Override
-	public byte[] put(final Notification msg) {
+	public byte[] serializeMessage(final Notification msg) {
 		// nothing
 		return null;
 	}

@@ -96,9 +96,9 @@ public class BGPMessageParserMockTest {
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			assertEquals(this.messages.get(i), mockParser.parse(this.inputBytes[i]));
+			assertEquals(this.messages.get(i), mockParser.parseMessage(this.inputBytes[i]));
 		}
-		assertNotSame(this.messages.get(3), mockParser.parse(this.inputBytes[8]));
+		assertNotSame(this.messages.get(3), mockParser.parseMessage(this.inputBytes[8]));
 	}
 
 	/**
@@ -116,7 +116,7 @@ public class BGPMessageParserMockTest {
 		}
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-		mockParser.parse(new byte[] { 7, 4, 6 });
+		mockParser.parseMessage(new byte[] { 7, 4, 6 });
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class BGPMessageParserMockTest {
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
 		final Set<BgpTableType> result = Sets.newHashSet();
-		for (final BgpParameters p : ((Open) mockParser.parse(input)).getBgpParameters()) {
+		for (final BgpParameters p : ((Open) mockParser.parseMessage(input)).getBgpParameters()) {
 			final CParameters cp = p.getCParameters();
 			final BgpTableType t = new BgpTableTypeImpl(((CMultiprotocol) cp).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) cp).getMultiprotocolCapability().getSafi());
 			result.add(t);

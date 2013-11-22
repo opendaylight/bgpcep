@@ -17,10 +17,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.parser.impl.BGPMessageFactoryImpl;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
@@ -63,13 +61,12 @@ public final class BGPMock implements BGP, Closeable {
 
 	private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
 		final List<Notification> messages = Lists.newArrayList();
-		final BGPMessageFactory parser = new BGPMessageFactoryImpl(registry);
 		try {
 			for (final byte[] b : msgs) {
 
 				final byte[] body = ByteArray.cutBytes(b, 1);
 
-				messages.add(parser.parse(body));
+				messages.add(registry.parseMessage(body));
 			}
 		} catch (final BGPDocumentedException | BGPParsingException e) {
 			LOG.warn("Failed to parse message {}", e);
