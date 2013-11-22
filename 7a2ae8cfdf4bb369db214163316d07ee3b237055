@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_0eba396e",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteArray.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-22T15:35:37Z",
+      "side": 1,
+      "message": "Incompatible API change. Create a copy of the method with new parameters",
+      "revId": "7a2ae8cfdf4bb369db214163316d07ee3b237055",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_eeb0058d",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteArray.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-11-22T15:35:37Z",
+      "side": 1,
+      "message": "Incompatible API change. Create a copy of the method with new parameters",
+      "revId": "7a2ae8cfdf4bb369db214163316d07ee3b237055",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
