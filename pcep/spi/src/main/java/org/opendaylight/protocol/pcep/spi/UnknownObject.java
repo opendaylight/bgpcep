@@ -1,10 +1,10 @@
 /*
-* Copyright (c) 2013 Cisco Systems, Inc. and others. All rights reserved.
-*
-* This program and the accompanying materials are made available under the
-* terms of the Eclipse Public License v1.0 which accompanies this distribution,
-* and is available at http://www.eclipse.org/legal/epl-v10.html
-*/
+ * Copyright (c) 2013 Cisco Systems, Inc. and others. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.protocol.pcep.spi;
 
 import java.util.Arrays;
@@ -16,17 +16,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-public class UnknownObject implements Object {
+import com.google.common.base.Preconditions;
 
+/**
+ * Placeholder object. This object should be injected by in positions where an
+ * object is either completely unknown or has failed semantic validation.
+ */
+public final class UnknownObject implements Object {
+	private final Object invalidObject;
 	private final Errors error;
-
 	private final PCEPErrors e;
 
 	public UnknownObject(final PCEPErrors error) {
+		this(error, null);
+	}
+
+	public UnknownObject(final PCEPErrors error, final Object invalidObject) {
+		this.e = Preconditions.checkNotNull(error);
+
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
-		this.e = error;
 		this.error = new ErrorsBuilder().setErrorObject(
 				new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).type).setValue(mapping.getFromErrorsEnum(error).value).build()).build();
+		this.invalidObject = invalidObject;
 	}
 
 	public List<Errors> getErrors() {
@@ -35,6 +46,10 @@ public class UnknownObject implements Object {
 
 	public PCEPErrors getError() {
 		return this.e;
+	}
+
+	public Object getInvalidObject() {
+		return this.invalidObject;
 	}
 
 	@Override
