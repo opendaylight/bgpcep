@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
@@ -19,6 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfListBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -30,6 +32,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 	public static final int TYPE = 4;
 
 	private static final int OF_CODE_ELEMENT_LENGTH = 2;
+	private static final Logger LOG = LoggerFactory.getLogger(OFListTlvParser.class);
 
 	@Override
 	public OfList parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
@@ -44,7 +47,8 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 			try {
 				ofCodes.add(new OfId(ByteArray.bytesToShort(Arrays.copyOfRange(valueBytes, i, i + OF_CODE_ELEMENT_LENGTH)) & 0xFFFF));
 			} catch (final NoSuchElementException nsee) {
-				throw new PCEPDeserializerException(nsee, "Unknown OF Code inside OF Code list Tlv.");
+				LOG.debug("Unknown Objective Function encountered", nsee);
+				throw new PCEPDeserializerException("Unknown OF Code inside OF Code list Tlv.", nsee);
 			}
 		}
 		return new OfListBuilder().setCodes(ofCodes).build();
