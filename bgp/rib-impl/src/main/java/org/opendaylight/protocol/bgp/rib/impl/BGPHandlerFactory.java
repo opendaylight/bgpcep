@@ -8,31 +8,34 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelOutboundHandler;
 
 import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
-import org.opendaylight.protocol.framework.ProtocolHandlerFactory;
-import org.opendaylight.protocol.framework.ProtocolMessageDecoder;
-import org.opendaylight.protocol.framework.ProtocolMessageEncoder;
-import org.opendaylight.yangtools.yang.binding.Notification;
+
+import com.google.common.base.Preconditions;
 
 /**
  * BGP specific factory for protocol inbound/outbound handlers.
  */
-public class BGPHandlerFactory extends ProtocolHandlerFactory<Notification> {
-	private final ProtocolMessageEncoder<Notification> encoder;
+public class BGPHandlerFactory  {
+	private final ChannelOutboundHandler encoder;
+	private final BGPMessageFactory msgFactory;
 
 	public BGPHandlerFactory(final BGPMessageFactory msgFactory) {
-		super(msgFactory);
-		this.encoder = new ProtocolMessageEncoder<Notification>(this.msgFactory);
+		this.msgFactory = Preconditions.checkNotNull(msgFactory);
+		this.encoder = new BGPMessageToByteEncoder(msgFactory);
 	}
 
-	@Override
 	public ChannelHandler[] getEncoders() {
-		return new ChannelHandler[] { this.encoder };
+		return new ChannelHandler[] {
+				this.encoder,
+		};
 	}
 
-	@Override
 	public ChannelHandler[] getDecoders() {
-		return new ChannelHandler[] { new BGPMessageHeaderDecoder(), new ProtocolMessageDecoder<Notification>(this.msgFactory) };
+		return new ChannelHandler[] {
+				new BGPMessageHeaderDecoder(),
+				new BGPByteToMessageDecoder(this.msgFactory),
+		};
 	}
 }

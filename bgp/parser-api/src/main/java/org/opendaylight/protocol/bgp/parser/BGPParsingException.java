@@ -7,18 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import org.opendaylight.protocol.framework.DeserializerException;
 
 /**
  *
  * Used when something occurs during the parsing to get Update Message.
  *
  */
-public class BGPParsingException extends DeserializerException {
-
-	private static final long serialVersionUID = -6893285837086620580L;
-
-	private final String message;
+public class BGPParsingException extends Exception {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 *
@@ -26,7 +22,6 @@ public class BGPParsingException extends DeserializerException {
 	 */
 	public BGPParsingException(final String err) {
 		super(err);
-		this.message = err;
 	}
 
 	/**
@@ -36,14 +31,16 @@ public class BGPParsingException extends DeserializerException {
 	 */
 	public BGPParsingException(final String message, final Exception cause){
 		super(message, cause);
-		this.message = message;
 	}
 
 	/**
 	 *
 	 * @return error message.
+	 * 
+	 * @deprecated Use getMessage() instead.
 	 */
+	@Deprecated
 	public String getError() {
-		return this.message;
+		return this.getMessage();
 	}
 }

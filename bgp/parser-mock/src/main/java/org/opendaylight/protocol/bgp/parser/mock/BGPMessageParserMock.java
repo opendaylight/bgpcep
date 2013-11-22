@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.parser.mock;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPMessageFactory;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * each used in one of the methods. It looks up the key provided to the method and returns whatever value is stored in
  * the map.
  */
-public class BGPMessageParserMock implements ProtocolMessageFactory<Notification> {
+public class BGPMessageParserMock implements BGPMessageFactory {
 	private final Map<byte[], Notification> messages;
 
 	/**

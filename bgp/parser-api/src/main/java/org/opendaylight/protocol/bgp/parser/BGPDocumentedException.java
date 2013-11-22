@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import org.opendaylight.protocol.framework.DocumentedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ import com.google.common.primitives.UnsignedBytes;
  * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP. This exception is
  * used, when any of those errors occurs.
  */
-public final class BGPDocumentedException extends DocumentedException {
+public final class BGPDocumentedException extends Exception {
 
 	private static final long serialVersionUID = -6212702584439430736L;
 

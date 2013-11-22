@@ -7,13 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import org.opendaylight.protocol.framework.ProtocolMessageFactory;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Interface to expose BGP specific MessageFactory.
  */
-public interface BGPMessageFactory extends ProtocolMessageFactory<Notification> {
-	@Override
+public interface BGPMessageFactory {
 	public Notification parse(final byte[] bytes) throws BGPParsingException, BGPDocumentedException;
+
+	/**
+	 * Serializes protocol specific message to byte array.
+	 * 
+	 * @param msg message to be serialized.
+	 * @return byte array resulting message
+	 */
+	public byte[] put(final Notification msg);
 }
