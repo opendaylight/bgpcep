@@ -130,7 +130,7 @@
 	<distributionManagement>
 		<site>
 			<id>${project.artifactId}</id>
-			<name>NPS-CONCEPTS Module site</name>
+			<name>CONCEPTS Module site</name>
 			<url>${basedir}/target/site/${project.artifactId}</url>
 		</site>
 	</distributionManagement>
