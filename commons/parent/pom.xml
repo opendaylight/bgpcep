@@ -360,7 +360,6 @@
                 <!-- Let eclipse know about the generated sources -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.8</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -393,6 +392,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>${maven.release.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.8</version>
                 </plugin>
 
                 <!--This plugin's configuration is used to store Eclipse m2e settings
