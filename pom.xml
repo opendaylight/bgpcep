@@ -40,6 +40,7 @@
         <module>programming</module>
         <module>rsvp</module>
         <module>topology</module>
+        <module>tcpmd5</module>
 
         <!-- Integration tests -->
         <module>integration-tests</module>
