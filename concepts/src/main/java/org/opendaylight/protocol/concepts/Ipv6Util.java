@@ -56,7 +56,7 @@ public class Ipv6Util {
 		final int sep = p.indexOf("/");
 		try {
 			final byte[] bytes = Inet6Address.getByName(p.substring(0, sep)).getAddress();
-			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length() - 1)) });
+			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
 		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}

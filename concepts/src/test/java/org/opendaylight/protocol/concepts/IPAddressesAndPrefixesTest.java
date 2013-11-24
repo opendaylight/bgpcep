@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -45,8 +46,14 @@ public class IPAddressesAndPrefixesTest {
 
 	@Test
 	public void testPrefix4ForBytes() {
-		final byte[] bytes = new byte[] { 123, 122, 4, 5 };
-		assertEquals(new Ipv4Prefix("123.122.4.5/32"), Ipv4Util.prefixForBytes(bytes, 32));
+		byte[] bytes = new byte[] { 123, 122, 4, 5 };
+		assertEquals(new Ipv4Prefix("123.122.4.5/8"), Ipv4Util.prefixForBytes(bytes, 8));
+		assertArrayEquals(new byte[] { 102, 0, 0, 0, 8 }, Ipv4Util.bytesForPrefix(new Ipv4Prefix("102.0.0.0/8")));
+
+		bytes = new byte[] { (byte) 255, (byte) 255, 0, 0 };
+		assertEquals(new Ipv4Prefix("255.255.0.0/16"), Ipv4Util.prefixForBytes(bytes, 16));
+
+		assertArrayEquals(new byte[] { (byte) 255, (byte) 255, 0, 0, 16 }, Ipv4Util.bytesForPrefix(new Ipv4Prefix("255.255.0.0/16")));
 	}
 
 	@Test
