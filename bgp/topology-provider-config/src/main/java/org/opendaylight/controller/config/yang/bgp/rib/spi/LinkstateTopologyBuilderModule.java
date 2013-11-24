@@ -9,9 +9,9 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
+import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
+import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
-import org.opendaylight.bgpcep.topology.provider.bgp.LinkstateTopologyBuilder;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.LinkstateAddressFamily;

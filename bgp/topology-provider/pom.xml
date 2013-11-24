@@ -59,7 +59,7 @@
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
-                           org.opendaylight.bgpcep.topology.provider.bgp
+                           org.opendaylight.bgpcep.bgp.topology.provider
                        </Export-Package>
                    </instructions>
                </configuration>

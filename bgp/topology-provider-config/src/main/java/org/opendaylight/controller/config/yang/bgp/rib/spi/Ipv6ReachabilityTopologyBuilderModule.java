@@ -9,9 +9,9 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
+import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
+import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
-import org.opendaylight.bgpcep.topology.provider.bgp.AbstractTopologyBuilder;
-import org.opendaylight.bgpcep.topology.provider.bgp.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
