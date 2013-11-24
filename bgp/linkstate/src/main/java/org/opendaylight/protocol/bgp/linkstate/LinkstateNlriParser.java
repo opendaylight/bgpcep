@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -44,13 +47,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.CRouterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.CIsisPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.COspfPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.isis.node.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.isis.node.IsisNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.isis.pseudonode.IsisPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.isis.pseudonode.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.node.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.pseudonode.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.node.identifier.c.router.identifier.c.ospf.pseudonode.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130918.update.path.attributes.MpReachNlriBuilder;
@@ -65,7 +75,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class LinkstateNlriParser implements NlriParser {
-	private static final Logger logger = LoggerFactory.getLogger(LinkstateNlriParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 	private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
 	private static final int PROTOCOL_ID_LENGTH = 1;
 	private static final int IDENTIFIER_LENGTH = 8;
@@ -86,7 +96,7 @@ public final class LinkstateNlriParser implements NlriParser {
 		final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 		byteOffset += LENGTH_SIZE;
 		final NodeIdentifier remote = null;
-		if (type == 257) {
+		if (type == TlvCode.REMOTE_NODE_DESCRIPTORS) {
 			builder.setRemoteNodeDescriptors((RemoteNodeDescriptors) parseNodeDescriptors(ByteArray.subByte(bytes, byteOffset, length),
 					false));
 			byteOffset += length;
@@ -104,45 +114,45 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			logger.trace("Parsing Link Descriptor: {}", Arrays.toString(value));
+			LOG.trace("Parsing Link Descriptor: {}", Arrays.toString(value));
 			switch (type) {
-			case 258:
+			case TlvCode.LINK_LR_IDENTIFIERS:
 				builder.setLinkLocalIdentifier(ByteArray.subByte(value, 0, 4));
 				builder.setLinkRemoteIdentifier(ByteArray.subByte(value, 4, 4));
-				logger.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
+				LOG.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
 						builder.getLinkRemoteIdentifier());
 				break;
-			case 259:
+			case TlvCode.IPV4_IFACE_ADDRESS:
 				final Ipv4InterfaceIdentifier lipv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForBytes(value));
 				builder.setIpv4InterfaceAddress(lipv4);
-				logger.debug("Parsed IPv4 interface address {}.", lipv4);
+				LOG.debug("Parsed IPv4 interface address {}.", lipv4);
 				break;
-			case 260:
+			case TlvCode.IPV4_NEIGHBOR_ADDRESS:
 				final Ipv4InterfaceIdentifier ripv4 = new Ipv4InterfaceIdentifier(Ipv4Util.addressForBytes(value));
 				builder.setIpv4NeighborAddress(ripv4);
-				logger.debug("Parsed IPv4 neighbor address {}.", ripv4);
+				LOG.debug("Parsed IPv4 neighbor address {}.", ripv4);
 				break;
-			case 261:
+			case TlvCode.IPV6_IFACE_ADDRESS:
 				final Ipv6InterfaceIdentifier lipv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForBytes(value));
 				builder.setIpv6InterfaceAddress(lipv6);
-				logger.debug("Parsed IPv6 interface address {}.", lipv6);
+				LOG.debug("Parsed IPv6 interface address {}.", lipv6);
 				break;
-			case 262:
+			case TlvCode.IPV6_NEIGHBOR_ADDRESS:
 				final Ipv6InterfaceIdentifier ripv6 = new Ipv6InterfaceIdentifier(Ipv6Util.addressForBytes(value));
 				builder.setIpv6NeighborAddress(ripv6);
-				logger.debug("Parsed IPv6 neighbor address {}.", ripv6);
+				LOG.debug("Parsed IPv6 neighbor address {}.", ripv6);
 				break;
-			case 263:
+			case TlvCode.MULTI_TOPOLOGY_ID:
 				final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToInt(value) & 0x3fff);
 				builder.setMultiTopologyId(topId);
-				logger.debug("Parsed topology identifier {}.", topId);
+				LOG.debug("Parsed topology identifier {}.", topId);
 				break;
 			default:
 				throw new BGPParsingException("Link Descriptor not recognized, type: " + type);
 			}
 			byteOffset += length;
 		}
-		logger.trace("Finished parsing Link descriptors.");
+		LOG.trace("Finished parsing Link descriptors.");
 		return builder.build();
 	}
 
@@ -158,30 +168,30 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			logger.trace("Parsing Node Descriptor: {}", Arrays.toString(value));
+			LOG.trace("Parsing Node Descriptor: {}", Arrays.toString(value));
 			switch (type) {
-			case 512:
+			case TlvCode.AS_NUMBER:
 				asnumber = new AsNumber(ByteArray.bytesToLong(value));
-				logger.debug("Parsed {}", asnumber);
+				LOG.debug("Parsed {}", asnumber);
 				break;
-			case 513:
+			case TlvCode.BGP_LS_ID:
 				bgpId = new DomainIdentifier(value);
-				logger.debug("Parsed {}", bgpId);
+				LOG.debug("Parsed {}", bgpId);
 				break;
-			case 514:
+			case TlvCode.AREA_ID:
 				ai = new AreaIdentifier(value);
-				logger.debug("Parsed area identifier {}", ai);
+				LOG.debug("Parsed area identifier {}", ai);
 				break;
-			case 515:
+			case TlvCode.IGP_ROUTER_ID:
 				routerId = parseRouterId(value);
-				logger.debug("Parsed Router Identifier {}", routerId);
+				LOG.debug("Parsed Router Identifier {}", routerId);
 				break;
 			default:
 				throw new BGPParsingException("Node Descriptor not recognized, type: " + type);
 			}
 			byteOffset += length;
 		}
-		logger.trace("Finished parsing Node descriptors.");
+		LOG.trace("Finished parsing Node descriptors.");
 		return (local) ? new LocalNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(
 				routerId).build()
 				: new RemoteNodeDescriptorsBuilder().setAsNumber(asnumber).setDomainId(bgpId).setAreaId(ai).setCRouterIdentifier(routerId).build();
@@ -194,7 +204,7 @@ public final class LinkstateNlriParser implements NlriParser {
 		}
 		if (value.length == 7) {
 			if (value[6] == 0) {
-				logger.warn("PSN octet is 0. Ignoring System ID.");
+				LOG.warn("PSN octet is 0. Ignoring System ID.");
 				return new CIsisNodeBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
 			} else {
@@ -225,28 +235,28 @@ public final class LinkstateNlriParser implements NlriParser {
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			logger.trace("Parsing Prefix Descriptor: {}", Arrays.toString(value));
+			LOG.trace("Parsing Prefix Descriptor: {}", Arrays.toString(value));
 			switch (type) {
-			case 263:
+			case TlvCode.MULTI_TOPOLOGY_ID:
 				final TopologyIdentifier topologyId = new TopologyIdentifier(ByteArray.bytesToInt(value) & 0x3fff);
 				builder.setMultiTopologyId(topologyId);
-				logger.trace("Parsed Topology Identifier: {}", topologyId);
+				LOG.trace("Parsed Topology Identifier: {}", topologyId);
 				break;
-			case 264:
+			case TlvCode.OSPF_ROUTE_TYPE:
 				final int rt = ByteArray.bytesToInt(value);
 				final OspfRouteType routeType = OspfRouteType.forValue(rt);
 				if (routeType == null) {
 					throw new BGPParsingException("Unknown OSPF Route Type: " + rt);
 				}
 				builder.setOspfRouteType(routeType);
-				logger.trace("Parser RouteType: {}", routeType);
+				LOG.trace("Parser RouteType: {}", routeType);
 				break;
-			case 265:
+			case TlvCode.IP_REACHABILITY:
 				IpPrefix prefix = null;
 				final int prefixLength = UnsignedBytes.toInt(value[0]);
 				final int size = prefixLength / 8 + ((prefixLength % 8 == 0) ? 0 : 1);
 				if (size != value.length - 1) {
-					logger.debug("Expected length {}, actual length {}.", size, value.length - 1);
+					LOG.debug("Expected length {}, actual length {}.", size, value.length - 1);
 					throw new BGPParsingException("Illegal length of IP reachability TLV: " + (value.length - 1));
 				}
 				if (size == 4) {
@@ -255,14 +265,14 @@ public final class LinkstateNlriParser implements NlriParser {
 					prefix = new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(value, 1, size), prefixLength));
 				}
 				builder.setIpReachabilityInformation(prefix);
-				logger.trace("Parsed IP reachability info: {}", prefix);
+				LOG.trace("Parsed IP reachability info: {}", prefix);
 				break;
 			default:
 				throw new BGPParsingException("Prefix Descriptor not recognized, type: " + type);
 			}
 			byteOffset += length;
 		}
-		logger.debug("Finished parsing Prefix descriptors.");
+		LOG.debug("Finished parsing Prefix descriptors.");
 		return builder.build();
 	}
 
@@ -318,14 +328,14 @@ public final class LinkstateNlriParser implements NlriParser {
 			byteOffset += TYPE_LENGTH;
 			locallength = ByteArray.bytesToInt(ByteArray.subByte(nlri, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
-			if (localtype == 256) {
+			if (localtype == TlvCode.LOCAL_NODE_DESCRIPTORS) {
 				localDescriptor = parseNodeDescriptors(ByteArray.subByte(nlri, byteOffset, locallength), true);
 			}
 			byteOffset += locallength;
 			builder.setLocalNodeDescriptors((LocalNodeDescriptors) localDescriptor);
 			final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
 					- TYPE_LENGTH - LENGTH_SIZE - locallength;
-			logger.trace("Restlength {}", restLength);
+			LOG.trace("Restlength {}", restLength);
 			switch (type) {
 			case Link:
 				parseLink(builder, ByteArray.subByte(nlri, byteOffset, restLength));
@@ -365,9 +375,160 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	public static byte[] serializeNlri(final CLinkstateDestination destination) {
-		final byte[] typeBytes = ByteArray.intToBytes(destination.getNlriType().getIntValue(), TYPE_LENGTH);
+		final ByteBuf finalBuffer = Unpooled.buffer();
+		finalBuffer.writeShort(destination.getNlriType().getIntValue());
+		final ByteBuf buffer = Unpooled.buffer();
+		if (destination.getDistinguisher() != null) {
+			buffer.writeBytes(destination.getDistinguisher().getValue().toByteArray());
+		}
+		buffer.writeByte(destination.getProtocolId().getIntValue());
+		buffer.writeBytes(ByteArray.longToBytes(destination.getIdentifier().getValue().longValue(), IDENTIFIER_LENGTH));
 
-		// FIXME: BUG-108: finish this
-		throw new UnsupportedOperationException("BUG-108: not implemented");
+		// serialize local node descriptors
+		final byte[] ldescs = serializeNodeDescriptors(destination.getLocalNodeDescriptors());
+		buffer.writeShort(TlvCode.LOCAL_NODE_DESCRIPTORS);
+		buffer.writeShort(ldescs.length);
+		buffer.writeBytes(ldescs);
+
+		switch (destination.getNlriType()) {
+		case Ipv4Prefix:
+		case Ipv6Prefix:
+			if (destination.getPrefixDescriptors() != null) {
+				serializePrefixDescriptors(buffer, destination.getPrefixDescriptors());
+			}
+			break;
+		case Link:
+			final byte[] rdescs = serializeNodeDescriptors(destination.getRemoteNodeDescriptors());
+			buffer.writeShort(TlvCode.REMOTE_NODE_DESCRIPTORS);
+			buffer.writeShort(rdescs.length);
+			buffer.writeBytes(rdescs);
+			if (destination.getLinkDescriptors() != null) {
+				serializeLinkDescriptors(buffer, destination.getLinkDescriptors());
+			}
+			break;
+		case Node:
+			break;
+		default:
+			LOG.warn("Unknown NLRI Type.");
+			break;
+		}
+		finalBuffer.writeShort(buffer.readableBytes());
+		finalBuffer.writeBytes(buffer);
+		return ByteArray.subByte(finalBuffer.array(), 0, finalBuffer.readableBytes());
+	}
+
+	private static byte[] serializeNodeDescriptors(final NodeIdentifier descriptors) {
+		final ByteBuf buffer = Unpooled.buffer();
+		final int length = Integer.SIZE / Byte.SIZE;
+		if (descriptors.getAsNumber() != null) {
+			buffer.writeShort(TlvCode.AS_NUMBER);
+			buffer.writeShort(length);
+			buffer.writeBytes(ByteArray.longToBytes(descriptors.getAsNumber().getValue(), length));
+		}
+		if (descriptors.getDomainId() != null) {
+			buffer.writeShort(TlvCode.BGP_LS_ID);
+			buffer.writeShort(length);
+			buffer.writeBytes(descriptors.getDomainId().getValue());
+		}
+		if (descriptors.getAreaId() != null) {
+			buffer.writeShort(TlvCode.AREA_ID);
+			buffer.writeShort(length);
+			buffer.writeBytes(descriptors.getAreaId().getValue());
+		}
+		if (descriptors.getCRouterIdentifier() != null) {
+			final byte[] value = serializeRouterId(descriptors.getCRouterIdentifier());
+			buffer.writeShort(TlvCode.IGP_ROUTER_ID);
+			buffer.writeShort(value.length);
+			buffer.writeBytes(value);
+		}
+		return ByteArray.subByte(buffer.array(), 0, buffer.readableBytes());
+	}
+
+	private static byte[] serializeRouterId(final CRouterIdentifier routerId) {
+		byte[] bytes = null;
+		if (routerId instanceof CIsisNode) {
+			final IsisNode isis = ((CIsisNode) routerId).getIsisNode();
+			bytes = isis.getIsoSystemId().getValue();
+		} else if (routerId instanceof CIsisPseudonode) {
+			bytes = new byte[6 + 1];
+			final IsisPseudonode isis = ((CIsisPseudonode) routerId).getIsisPseudonode();
+			ByteArray.copyWhole(isis.getIsIsRouterIdentifier().getIsoSystemId().getValue(), bytes, 0);
+			bytes[6] = UnsignedBytes.checkedCast((isis.getPsn() != null) ? isis.getPsn() : 0);
+		} else if (routerId instanceof COspfNode) {
+			bytes = ((COspfNode) routerId).getOspfNode().getOspfRouterId();
+		} else if (routerId instanceof COspfPseudonode) {
+			final OspfPseudonode node = ((COspfPseudonode) routerId).getOspfPseudonode();
+			bytes = new byte[node.getOspfRouterId().length + node.getLanInterface().getValue().length];
+			ByteArray.copyWhole(node.getOspfRouterId(), bytes, 0);
+			ByteArray.copyWhole(node.getLanInterface().getValue(), bytes, node.getOspfRouterId().length);
+		}
+		return bytes;
+	}
+
+	private static void serializeLinkDescriptors(final ByteBuf buffer, final LinkDescriptors descriptors) {
+		if (descriptors.getLinkLocalIdentifier() != null && descriptors.getLinkRemoteIdentifier() != null) {
+			final byte[] localId = descriptors.getLinkLocalIdentifier();
+			final byte[] remoteId = descriptors.getLinkRemoteIdentifier();
+			buffer.writeShort(TlvCode.LINK_LR_IDENTIFIERS);
+			buffer.writeShort(localId.length + remoteId.length);
+			buffer.writeBytes(localId);
+			buffer.writeBytes(remoteId);
+		}
+		if (descriptors.getIpv4InterfaceAddress() != null) {
+			final byte[] ipv4Address = Ipv4Util.bytesForAddress(descriptors.getIpv4InterfaceAddress());
+			buffer.writeShort(TlvCode.IPV4_IFACE_ADDRESS);
+			buffer.writeShort(ipv4Address.length);
+			buffer.writeBytes(ipv4Address);
+		}
+		if (descriptors.getIpv4NeighborAddress() != null) {
+			final byte[] ipv4Address = Ipv4Util.bytesForAddress(descriptors.getIpv4NeighborAddress());
+			buffer.writeShort(TlvCode.IPV4_NEIGHBOR_ADDRESS);
+			buffer.writeShort(ipv4Address.length);
+			buffer.writeBytes(ipv4Address);
+		}
+		if (descriptors.getIpv6InterfaceAddress() != null) {
+			final byte[] ipv6Address = Ipv6Util.bytesForAddress(descriptors.getIpv6InterfaceAddress());
+			buffer.writeShort(TlvCode.IPV6_IFACE_ADDRESS);
+			buffer.writeShort(ipv6Address.length);
+			buffer.writeBytes(ipv6Address);
+		}
+		if (descriptors.getIpv6NeighborAddress() != null) {
+			final byte[] ipv6Address = Ipv6Util.bytesForAddress(descriptors.getIpv6NeighborAddress());
+			buffer.writeShort(TlvCode.IPV6_NEIGHBOR_ADDRESS);
+			buffer.writeShort(ipv6Address.length);
+			buffer.writeBytes(ipv6Address);
+		}
+		if (descriptors.getMultiTopologyId() != null) {
+			buffer.writeShort(TlvCode.MULTI_TOPOLOGY_ID);
+			buffer.writeShort(Short.SIZE / Byte.SIZE);
+			buffer.writeShort(descriptors.getMultiTopologyId().getValue());
+		}
+	}
+
+	private static void serializePrefixDescriptors(final ByteBuf buffer, final PrefixDescriptors descriptors) {
+		if (descriptors.getMultiTopologyId() != null) {
+			buffer.writeShort(TlvCode.MULTI_TOPOLOGY_ID);
+			buffer.writeShort(Short.SIZE / Byte.SIZE);
+			buffer.writeShort(descriptors.getMultiTopologyId().getValue());
+		}
+		if (descriptors.getOspfRouteType() != null) {
+			buffer.writeShort(TlvCode.OSPF_ROUTE_TYPE);
+			buffer.writeShort(1);
+			buffer.writeByte(descriptors.getOspfRouteType().getIntValue());
+		}
+		if (descriptors.getIpReachabilityInformation() != null) {
+			final IpPrefix prefix = descriptors.getIpReachabilityInformation();
+			byte[] prefixBytes = null;
+			final int prefixLength = Ipv4Util.getPrefixLength(prefix);
+			if (prefix.getIpv4Prefix() != null) {
+				prefixBytes = Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix());
+			} else if (prefix.getIpv6Prefix() != null) {
+				prefixBytes = Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix());
+			}
+			buffer.writeShort(TlvCode.IP_REACHABILITY);
+			buffer.writeShort(1 + prefixBytes.length);
+			buffer.writeShort(prefixLength);
+			buffer.writeBytes(prefixBytes);
+		}
 	}
 }

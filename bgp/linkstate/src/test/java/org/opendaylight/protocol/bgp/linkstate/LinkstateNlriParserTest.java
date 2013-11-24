@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -80,6 +81,8 @@ public class LinkstateNlriParserTest {
 										(byte) 0x39 })).build()).build(), nodeD.getCRouterIdentifier());
 
 		assertNull(dest.getRemoteNodeDescriptors());
+
+		assertArrayEquals(this.nodeNlri, LinkstateNlriParser.serializeNlri(dest));
 	}
 
 	@Test
@@ -120,5 +123,7 @@ public class LinkstateNlriParserTest {
 		final LinkDescriptors ld = dest.getLinkDescriptors();
 		assertEquals("197.20.160.42", ld.getIpv4InterfaceAddress().getValue());
 		assertEquals("197.20.160.40", ld.getIpv4NeighborAddress().getValue());
+
+		assertArrayEquals(this.linkNlri, LinkstateNlriParser.serializeNlri(dest));
 	}
 }
