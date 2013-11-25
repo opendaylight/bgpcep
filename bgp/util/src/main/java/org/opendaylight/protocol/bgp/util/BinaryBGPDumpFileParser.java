@@ -39,7 +39,7 @@ public final class BinaryBGPDumpFileParser {
 	/**
 	 * Extract BGP messages from binary file in MRT format.
 	 * 
-	 * @param file file with BGP messages in binary form.
+	 * @param byteArray array of bytes with BGP messages in binary form.
 	 * @return list with byte arrays representing extracted messages.
 	 */
 	public static List<byte[]> parseMessages(final byte[] byteArray) {
