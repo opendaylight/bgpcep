@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public final class AS4AggregatorAttributeParser implements AttributeParser {
 	public static final int TYPE = 17;

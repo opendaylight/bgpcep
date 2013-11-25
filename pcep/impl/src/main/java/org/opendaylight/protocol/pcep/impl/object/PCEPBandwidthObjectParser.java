@@ -46,7 +46,7 @@ public class PCEPBandwidthObjectParser extends AbstractObjectWithTlvsParser<Band
 		final BandwidthBuilder builder = new BandwidthBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth(bytes));
+		builder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(bytes));
 		return builder.build();
 	}
 

@@ -4,11 +4,11 @@ module bgp-linkstate {
 	prefix "bgp-ls";
 
 	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-	import bgp-message { prefix bgp-msg; }
-	import bgp-multiprotocol { prefix bgp-mp; }
-	import bgp-rib { prefix bgp-rib; }
-	import bgp-types { prefix bgp-t; }
-	import nps-concepts { prefix nps-c;}
+	import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+	import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+	import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+	import network-concepts { prefix netc; revision-date 2013-11-25; }
 	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 
 	organization "Cisco Systems, Inc.";
@@ -25,6 +25,11 @@ module bgp-linkstate {
 		under the terms of the Eclipse Public License v1.0 which
 		accompanies this distribution, and is available at
 		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-11-25" {
+		description
+			"Updated to cover network-concepts.";
+	}
 
 	revision "2013-09-18" {
 		description
@@ -160,7 +165,7 @@ module bgp-linkstate {
 	grouping isis-router-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		leaf iso-system-id {
-			type nps-c:iso-system-identifier;
+			type netc:iso-system-identifier;
 			mandatory true;
 		}
 	}
@@ -438,7 +443,7 @@ module bgp-linkstate {
 			}
 		}
 		leaf bandwidth {
-			type nps-c:bandwidth;
+			type netc:bandwidth;
 		}
 	}
 
@@ -460,10 +465,10 @@ module bgp-linkstate {
 			type mpls-protocol-mask;
 		}
 		leaf te-metric {
-			type nps-c:te-metric;
+			type netc:te-metric;
 		}
 		leaf metric {
-			type nps-c:metric;
+			type netc:metric;
 		}
 		leaf-list shared-risk-link-groups {
 			type rsvp:srlg-id;
@@ -472,10 +477,10 @@ module bgp-linkstate {
 			type string;
 		}
 		leaf max-link-bandwidth {
-			type nps-c:bandwidth;
+			type netc:bandwidth;
 		}
 		leaf max-reservable-bandwidth {
-			type nps-c:bandwidth;
+			type netc:bandwidth;
 		}
 		list unreserved-bandwidth {
 			key "priority";
@@ -525,7 +530,7 @@ module bgp-linkstate {
 			type extended-route-tag;
 		}
 		leaf prefix-metric {
-			type nps-c:igp-metric;
+			type netc:igp-metric;
 		}
 		leaf ospf-forwarding-address {
 			type inet:ipv4-address;
