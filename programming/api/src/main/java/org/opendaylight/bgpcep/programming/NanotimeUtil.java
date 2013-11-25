@@ -22,22 +22,20 @@ public final class NanotimeUtil {
 	private static volatile BigInteger nanoTimeOffset = null;
 
 	private NanotimeUtil() {
-
 	}
 
-	public static final Nanotime currentTime() {
+	public static Nanotime currentTime() {
 		return new Nanotime(BigInteger.valueOf(System.currentTimeMillis()).multiply(MILLION));
 	}
 
-	public static final Nanotime currentNanoTime() {
+	public static Nanotime currentNanoTime() {
 		if (nanoTimeOffset == null) {
 			calibrate();
 		}
-
 		return new Nanotime(BigInteger.valueOf(System.nanoTime()).add(nanoTimeOffset));
 	}
 
-	public static final void calibrate() {
+	public static void calibrate() {
 		final long tm1 = System.currentTimeMillis();
 		final long nt1 = System.nanoTime();
 		final long tm2 = System.currentTimeMillis();
@@ -48,6 +46,6 @@ public final class NanotimeUtil {
 		final BigInteger tm = BigInteger.valueOf(tm1).add(BigInteger.valueOf(tm2)).divide(BigInteger.valueOf(2));
 		final BigInteger nt = BigInteger.valueOf(nt1).add(BigInteger.valueOf(nt2)).divide(BigInteger.valueOf(2));
 
-		nanoTimeOffset = nt.subtract(tm.multiply(MILLION));
+		nanoTimeOffset = tm.multiply(MILLION).subtract(nt);
 	}
 }
