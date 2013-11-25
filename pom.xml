@@ -2,14 +2,23 @@
 <!-- vi: set smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<name>OpenDaylight protocols</name>
-	<url>index.html</url>
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>org.opendaylight.bgpcep</groupId>
 	<artifactId>protocol-parent</artifactId>
+	<name>OpenDaylight protocols</name>
 	<description>OpenDaylight BGP+PCEP protocol parent</description>
 	<version>0.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<url>index.html</url>
+
+	<licenses>
+		<license>
+			<name>The Eclipse Public License v1.0</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
