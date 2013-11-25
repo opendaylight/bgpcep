@@ -360,13 +360,15 @@ public class PCEPValidatorTest {
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder rBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder();
 		rBuilder.setRp(this.rpTrue);
 		rBuilder.setSegmentComputation(new SegmentComputationBuilder().setP2p(new P2pBuilder().setEndpointsObj(this.endpoints).build()).build());
+		reqs1.add(rBuilder.build());
 		builder.setRequests(reqs1);
 
 		assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(),
 				parser.parseMessage(result, Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
-		// assertArrayEquals(result, buf.array());
+
+		assertArrayEquals(result, buf.array());
 
 		result = ByteArray.fileToBytes("src/test/resources/PCReq.3.bin");
 
@@ -379,6 +381,7 @@ public class PCEPValidatorTest {
 		p2pBuilder.setMetrics(Lists.newArrayList(this.metrics));
 		p2pBuilder.setIro(this.iro);
 		rBuilder1.setSegmentComputation(new SegmentComputationBuilder().setP2p(p2pBuilder.build()).build());
+		reqs2.add(rBuilder1.build());
 		builder.setRequests(reqs2);
 		builder.setSvec(Lists.newArrayList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder().setSvec(
 				this.svec).build()));
@@ -387,7 +390,7 @@ public class PCEPValidatorTest {
 				parser.parseMessage(result, Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
-		// assertArrayEquals(result, buf.array());
+		assertArrayEquals(result, buf.array());
 
 		// specMessages.clear();
 		// requests = new ArrayList<CompositeRequestObject>();

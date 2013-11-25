@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.PcreqMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder;
@@ -41,7 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.PathKeyExpansionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2p;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
@@ -65,7 +68,88 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
 					+ ". Needed PcrepMessage.");
 		}
+		final PcreqMessage msg = ((Pcreq) message).getPcreqMessage();
+		if (msg.getRequests() == null || msg.getRequests().isEmpty()) {
+			throw new IllegalArgumentException("Requests cannot be null or empty.");
+		}
+		for (final Requests req : msg.getRequests()) {
+			buffer.writeBytes(serializeObject(req.getRp()));
+			if (req.getPathKeyExpansion() != null) {
+				buffer.writeBytes(serializeObject(req.getPathKeyExpansion().getPathKey()));
+			}
+			if (req.getSegmentComputation() != null) {
+				final SegmentComputation sc = req.getSegmentComputation();
+				if (sc.getP2p() != null) {
+					serializeP2P(buffer, sc.getP2p());
+				}
+			}
+		}
+		if (msg.getSvec() != null) {
+			for (final Svec s : msg.getSvec()) {
+				buffer.writeBytes(serializeObject(s.getSvec()));
+				if (s.getOf() != null) {
+					buffer.writeBytes(serializeObject(s.getOf()));
+				}
+				if (s.getGc() != null) {
+					buffer.writeBytes(serializeObject(s.getGc()));
+				}
+				if (s.getXro() != null) {
+					buffer.writeBytes(serializeObject(s.getXro()));
+				}
+				if (s.getMetric() != null) {
+					for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
+						buffer.writeBytes(serializeObject(m.getMetric()));
+					}
+				}
+			}
+		}
+	}
 
+	private void serializeP2P(final ByteBuf buffer, final P2p p2p) {
+		if (p2p.getEndpointsObj() != null) {
+			buffer.writeBytes(serializeObject(p2p.getEndpointsObj()));
+		}
+		if (p2p.getReportedRoute() != null) {
+			final ReportedRoute rr = p2p.getReportedRoute();
+			if (rr.getRro() != null) {
+				buffer.writeBytes(serializeObject(rr.getRro()));
+			}
+			if (rr.getBandwidth() != null) {
+				buffer.writeBytes(serializeObject(rr.getBandwidth()));
+			}
+		}
+		if (p2p.getLoadBalancing() != null) {
+			buffer.writeBytes(serializeObject(p2p.getLoadBalancing()));
+		}
+		if (p2p.getLspa() != null) {
+			buffer.writeBytes(serializeObject(p2p.getLspa()));
+		}
+		if (p2p.getBandwidth() != null) {
+			buffer.writeBytes(serializeObject(p2p.getBandwidth()));
+		}
+		if (p2p.getMetrics() != null) {
+			for (final Metrics m : p2p.getMetrics()) {
+				buffer.writeBytes(serializeObject(m.getMetric()));
+			}
+		}
+		if (p2p.getIro() != null) {
+			buffer.writeBytes(serializeObject(p2p.getIro()));
+		}
+		if (p2p.getRro() != null) {
+			buffer.writeBytes(serializeObject(p2p.getRro()));
+		}
+		if (p2p.getXro() != null) {
+			buffer.writeBytes(serializeObject(p2p.getXro()));
+		}
+		if (p2p.getOf() != null) {
+			buffer.writeBytes(serializeObject(p2p.getOf()));
+		}
+		if (p2p.getClassType() != null) {
+			buffer.writeBytes(serializeObject(p2p.getClassType()));
+		}
+		if (p2p.getLsp() != null) {
+			buffer.writeBytes(serializeObject(p2p.getLsp()));
+		}
 	}
 
 	@Override
@@ -132,6 +216,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				}
 				svecList.add(svecComp);
 			}
+			requests.add(rBuilder.build());
 		}
 
 		final PcreqMessageBuilder mBuilder = new PcreqMessageBuilder();
@@ -301,7 +386,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				if (obj instanceof Metric) {
 					metrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
 					state = SvecState.XroIn;
-
 					break;
 				}
 			case MetricIn:
