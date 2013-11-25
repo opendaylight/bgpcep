@@ -22,7 +22,7 @@ public class BGPHexFileParserTest {
 
 	public static final String hexDumpFileName = "/bgp_hex.txt";
 	private final String fileNameInvalid = "/BgpMessage_Hex_InvalidLength";
-	private final int expectedSize = 9;
+	private final int expectedSize = 25;
 
 	@Test
 	public void testCleanWhiteSpace() {
