@@ -210,7 +210,7 @@ public class PCEPValidatorTest {
 		final BandwidthBuilder bBuilder = new BandwidthBuilder();
 		bBuilder.setIgnore(false);
 		bBuilder.setProcessingRule(false);
-		bBuilder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth(new Float32(new byte[4])));
+		bBuilder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new Float32(new byte[4])));
 		this.bandwidth = bBuilder.build();
 
 		final MetricBuilder mBuilder = new MetricBuilder();

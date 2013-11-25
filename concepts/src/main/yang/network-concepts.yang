@@ -1,7 +1,7 @@
-module nps-concepts {
+module network-concepts {
 	yang-version 1;
-	namespace "urn:opendaylight:params:xml:ns:yang:nps-concepts";
-	prefix "nps-c";
+	namespace "urn:opendaylight:params:xml:ns:yang:network:concepts";
+	prefix "netc";
 
 	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
 
@@ -18,6 +18,11 @@ module nps-concepts {
 		under the terms of the Eclipse Public License v1.0 which
 		accompanies this distribution, and is available at
 		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-11-25" {
+		description
+			"Rename to network concepts";
+	}
 
 	revision "2013-09-30" {
 		description

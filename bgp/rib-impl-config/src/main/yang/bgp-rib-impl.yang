@@ -5,7 +5,7 @@ module bgp-rib-impl {
     prefix "bgprib-impl";
 
     import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
-    import bgp-rib { prefix bgprib; revision-date 2013-07-01; }
+    import config-bgp-rib { prefix bgprib; revision-date 2013-07-01; }
     import config-bgp-parser-spi { prefix bgpspi; revision-date 2013-11-15; }
     import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }

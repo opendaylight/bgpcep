@@ -3,12 +3,8 @@ module bgp-message {
 	namespace "urn:opendaylight:params:xml:ns:yang:bgp-message";
 	prefix "bgp-msg";
 
-	import ietf-inet-types {
-		prefix inet;
-		revision-date 2010-09-24;
-	}
-
-	import bgp-types { prefix bgp-t; }
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
@@ -23,6 +19,11 @@ module bgp-message {
 		under the terms of the Eclipse Public License v1.0 which
 		accompanies this distribution, and is available at
 		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-09-19" {
+		description
+			"Split off basic types";
+	}
 
 	revision "2013-09-18" {
 		description

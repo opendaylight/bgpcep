@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130918.open.bgp.parameters.CParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 
 final class GracefulCapabilityHandler implements CapabilitySerializer {
 	static final int CODE = 64;

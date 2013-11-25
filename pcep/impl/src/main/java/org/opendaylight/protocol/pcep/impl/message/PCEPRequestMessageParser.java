@@ -331,7 +331,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		if (rp.isReoptimization()
 				&& builder.getBandwidth() != null
 				&& builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
-						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.Bandwidth(new byte[] { 0 })).build()
+						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })).build()
 				&& builder.getReportedRoute().getRro() == null) {
 			errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
 			return null;

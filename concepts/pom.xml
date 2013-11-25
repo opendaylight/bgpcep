@@ -119,7 +119,7 @@
                             org.opendaylight.protocol.concepts,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.*,
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.nps.concepts.rev130930.*,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.*,
 						</Export-Package>
 					</instructions>
 				</configuration>

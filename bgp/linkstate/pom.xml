@@ -130,7 +130,7 @@
 					<instructions>
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Export-Package>
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev130918.*,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.*,
                             org.opendaylight.protocol.bgp.linkstate,
                         </Export-Package>
 					</instructions>
