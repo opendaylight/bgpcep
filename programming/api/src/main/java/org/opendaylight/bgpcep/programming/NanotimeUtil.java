@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Util methods for {@link Nanotime}.
  */
 public final class NanotimeUtil {
 	private static final Logger LOG = LoggerFactory.getLogger(NanotimeUtil.class);
@@ -22,22 +22,30 @@ public final class NanotimeUtil {
 	private static volatile BigInteger nanoTimeOffset = null;
 
 	private NanotimeUtil() {
-
 	}
 
-	public static final Nanotime currentTime() {
+	/**
+	 * Returns current time in nanoseconds.
+	 * 
+	 * @return Nanotime object filled with current time in nanoseconds.
+	 */
+	public static Nanotime currentTime() {
 		return new Nanotime(BigInteger.valueOf(System.currentTimeMillis()).multiply(MILLION));
 	}
 
-	public static final Nanotime currentNanoTime() {
+	/**
+	 * Returns calibrated current JVM nano time.
+	 * 
+	 * @return Nanotime object filled with current JVM nano time.
+	 */
+	public static Nanotime currentNanoTime() {
 		if (nanoTimeOffset == null) {
 			calibrate();
 		}
-
 		return new Nanotime(BigInteger.valueOf(System.nanoTime()).add(nanoTimeOffset));
 	}
 
-	public static final void calibrate() {
+	private static void calibrate() {
 		final long tm1 = System.currentTimeMillis();
 		final long nt1 = System.nanoTime();
 		final long tm2 = System.currentTimeMillis();
@@ -48,6 +56,6 @@ public final class NanotimeUtil {
 		final BigInteger tm = BigInteger.valueOf(tm1).add(BigInteger.valueOf(tm2)).divide(BigInteger.valueOf(2));
 		final BigInteger nt = BigInteger.valueOf(nt1).add(BigInteger.valueOf(nt2)).divide(BigInteger.valueOf(2));
 
-		nanoTimeOffset = nt.subtract(tm.multiply(MILLION));
+		nanoTimeOffset = tm.multiply(MILLION).subtract(nt);
 	}
 }
