@@ -1,0 +1,56 @@
+module pcep-crabbe-initiated {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:pcep:crabbe:initiated";
+	prefix "crabbe";
+
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+	import pcep-message { prefix pcep-msg; revision-date 2013-10-07; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the data model of PCEP extensions defined
+		in draft-crabbe-pce-initiated-pce.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-11-26" {
+		description
+			"Initial revision.";
+		reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02";
+	}
+
+	grouping pcinitiate-message {
+		uses pcep:message;
+
+		container pcinitiate-message {
+			description "LSP Initiate Message";
+			reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
+
+			uses pcep:message-header;
+
+			list requests {
+				uses pcep:srp-object;
+
+				uses pcep:lsp-object;
+
+				uses pcep:endpoints-object;
+
+				uses pcep:explicit-route-object;
+
+				uses pcep:lsp-attributes;
+			}
+		}
+	}
+
+	notification pcinitiate {
+		uses pcinitiate-message;
+	}
+}
+

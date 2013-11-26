@@ -1212,27 +1212,4 @@ module pcep-types {
 			}
 		}
 	}
-
-	grouping pcinitiate-message {
-		uses message;
-
-		container pcinitiate-message {
-			description "LSP Initiate Message";
-			reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
-
-			uses message-header;
-
-			list requests {
-				uses srp-object;
-
-				uses lsp-object;
-
-				uses endpoints-object;
-
-				uses explicit-route-object;
-
-				uses lsp-attributes;
-			}
-		}
-	}
 }

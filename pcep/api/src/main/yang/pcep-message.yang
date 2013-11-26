@@ -61,9 +61,5 @@ module pcep-message {
 	notification pcrpt {
 		uses pcep:pcrpt-message;
 	}
-
-	notification pcinitiate {
-		uses pcep:pcinitiate-message;
-	}
 }
 
