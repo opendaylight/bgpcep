@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_68b1a8e0",
+        "filename": "bgp/rib-impl-config/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2013-11-26T12:11:55Z",
+      "side": 1,
+      "message": "Whitespace.",
+      "revId": "53933a6552bc3400f87ef987b952f08e6dea6f5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
