@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.impl.message.PcinitiateMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
@@ -74,15 +73,14 @@ import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.pojo.AbstractExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcntf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
@@ -130,18 +128,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
-public final class Activator implements PCEPExtensionProviderActivator {
-	private static final Logger LOG = LoggerFactory.getLogger(Activator.class);
-	private List<AutoCloseable> registrations;
-
+public final class Activator extends AbstractExtensionProviderActivator {
 	@Override
-	public void start(final PCEPExtensionProviderContext context) {
-		Preconditions.checkState(this.registrations == null);
+	public List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final LabelHandlerRegistry labelReg = context.getLabelHandlerRegistry();
@@ -306,7 +296,6 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerMessageParser(PCEPCloseMessageParser.TYPE, new PCEPCloseMessageParser(objReg));
 		context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE, new PCEPUpdateRequestMessageParser(objReg));
 		context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg));
-		context.registerMessageParser(PcinitiateMessageParser.TYPE, new PcinitiateMessageParser(objReg));
 
 		context.registerMessageSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open.class,
@@ -319,23 +308,7 @@ public final class Activator implements PCEPExtensionProviderActivator {
 		context.registerMessageSerializer(Close.class, new PCEPCloseMessageParser(objReg));
 		context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg));
 		context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg));
-		context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(objReg));
 
-		this.registrations = regs;
-	}
-
-	@Override
-	public void stop() {
-		Preconditions.checkState(this.registrations != null);
-
-		for (final AutoCloseable r : this.registrations) {
-			try {
-				r.close();
-			} catch (final Exception e) {
-				LOG.warn("Failed to close registration", e);
-			}
-		}
-
-		this.registrations = null;
+		return regs;
 	}
 }

@@ -1,1 +1,2 @@
 org.opendaylight.protocol.pcep.impl.Activator
+org.opendaylight.protocol.pcep.impl.CrabbeInitiatedActivator
