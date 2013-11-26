@@ -15,7 +15,6 @@ import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
 /**
@@ -42,7 +41,12 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 		}
 
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(buffer, 0, FLAGS_F_LENGTH));
-		return new StatefulBuilder().setFlags(new Flags(flags.get(S_FLAG_OFFSET), flags.get(I_FLAG_OFFSET), flags.get(U_FLAG_OFFSET))).build();
+
+		final StatefulBuilder sb = new StatefulBuilder();
+		sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));
+		sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
+		sb.setInitiation(flags.get(I_FLAG_OFFSET));
+		return sb.build();
 	}
 
 	@Override
@@ -53,9 +57,9 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 		final Stateful sct = (Stateful) tlv;
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(I_FLAG_OFFSET, sct.getFlags().isInitiation());
-		flags.set(U_FLAG_OFFSET, sct.getFlags().isLspUpdateCapability());
-		flags.set(S_FLAG_OFFSET, sct.getFlags().isIncludeDbVersion());
+		flags.set(I_FLAG_OFFSET, sct.isInitiation());
+		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+		flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
 
 		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
 	}
