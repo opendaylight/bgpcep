@@ -15,7 +15,7 @@
 	<description>RSVP-related components</description>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
-	
+
 	<modules>
         <module>api</module>
     </modules>

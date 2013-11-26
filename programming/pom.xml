@@ -15,7 +15,7 @@
 	<description>Programming parent</description>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
-	
+
 	<modules>
         <module>api</module>
         <module>impl</module>

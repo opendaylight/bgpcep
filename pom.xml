@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- vi: set smarttab sw=4 tabstop=4: -->
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.opendaylight.bgpcep</groupId>
-	<artifactId>protocol-parent</artifactId>
-	<name>OpenDaylight protocols</name>
-	<description>OpenDaylight BGP+PCEP protocol parent</description>
-	<version>0.3.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<url>index.html</url>
+    <groupId>org.opendaylight.bgpcep</groupId>
+    <artifactId>protocol-parent</artifactId>
+    <name>OpenDaylight protocols</name>
+    <description>OpenDaylight BGP+PCEP protocol parent</description>
+    <version>0.3.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <url>index.html</url>
 
-	<licenses>
-		<license>
-			<name>The Eclipse Public License v1.0</name>
-			<url>http://www.eclipse.org/legal/epl-v10.html</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <licenses>
+        <license>
+            <name>The Eclipse Public License v1.0</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<commonscodec.version>1.7</commonscodec.version>
-		<dependency.version>2.8</dependency.version>
-		<guava.version>14.0.1</guava.version>
-		<java.version.source>1.7</java.version.source>
-		<java.version.target>1.7</java.version.target>
-		<junit.version>4.10</junit.version>
-		<logback.version>1.0.7</logback.version>
-		<maven.bundle.version>2.4.0</maven.bundle.version>
-		<maven.compiler.version>3.1</maven.compiler.version>
-		<maven.jar.version>2.4</maven.jar.version>
-		<maven.shade.version>2.1</maven.shade.version>
-		<mockito.version>1.9.5</mockito.version>
-		<netty.version>4.0.10.Final</netty.version>
-		<nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
-		<slf4j.version>1.7.2</slf4j.version>
-		<surefire.version>2.15</surefire.version>
-		<osgi.version>5.0.0</osgi.version>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <commonscodec.version>1.7</commonscodec.version>
+        <dependency.version>2.8</dependency.version>
+        <guava.version>14.0.1</guava.version>
+        <java.version.source>1.7</java.version.source>
+        <java.version.target>1.7</java.version.target>
+        <junit.version>4.10</junit.version>
+        <logback.version>1.0.7</logback.version>
+        <maven.bundle.version>2.4.0</maven.bundle.version>
+        <maven.compiler.version>3.1</maven.compiler.version>
+        <maven.jar.version>2.4</maven.jar.version>
+        <maven.shade.version>2.1</maven.shade.version>
+        <mockito.version>1.9.5</mockito.version>
+        <netty.version>4.0.10.Final</netty.version>
+        <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
+        <slf4j.version>1.7.2</slf4j.version>
+        <surefire.version>2.15</surefire.version>
+        <osgi.version>5.0.0</osgi.version>
 
-		<yangtools.version>0.5.9-SNAPSHOT</yangtools.version>
+        <yangtools.version>0.5.9-SNAPSHOT</yangtools.version>
         <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
-		<yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
-		<ietf.types.version>2010.09.24.1</ietf.types.version>
-	</properties>
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
+        <yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
+        <ietf.types.version>2010.09.24.1</ietf.types.version>
+    </properties>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
-	<modules>
-		<!-- Common infra -->
-		<module>concepts</module>
-		<module>framework</module>
-		<module>mockito-configuration</module>
-		<module>util</module>
+    <modules>
+        <!-- Common infra -->
+        <module>concepts</module>
+        <module>framework</module>
+        <module>mockito-configuration</module>
+        <module>util</module>
 
-		<!-- Subsystems -->
-		<module>bgp</module>
-		<module>pcep</module>
-		<module>programming</module>
-		<module>rsvp</module>
-		<module>topology</module>
+        <!-- Subsystems -->
+        <module>bgp</module>
+        <module>pcep</module>
+        <module>programming</module>
+        <module>rsvp</module>
+        <module>topology</module>
 
-		<!-- Integration tests -->
-		<module>integration-tests</module>
-	</modules>
+        <!-- Integration tests -->
+        <module>integration-tests</module>
+    </modules>
 
     <dependencyManagement>
-		<dependencies>
-			<!-- This project -->
+        <dependencies>
+            <!-- This project -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>concepts</artifactId>
@@ -86,27 +86,27 @@
                 <version>${project.version}</version>
             </dependency>
 
-			<!-- Testing Dependencies -->
+            <!-- Testing Dependencies -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>${mockito.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>mockito-configuration</artifactId>
-				<version>${project.version}</version>
-				<scope>test</scope>
-			</dependency>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>mockito-configuration</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
 
-			<!-- Supporting Libraries -->
+            <!-- Supporting Libraries -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -117,140 +117,140 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-			<dependency>
-				<groupId>com.google.code.findbugs</groupId>
-				<artifactId>jsr305</artifactId>
-				<version>2.0.1</version>
-			</dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>2.0.1</version>
+            </dependency>
 
-			<!-- Netty -->
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-buffer</artifactId>
-				<version>${netty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-codec</artifactId>
-				<version>${netty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-common</artifactId>
-				<version>${netty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-transport</artifactId>
-				<version>${netty.version}</version>
-			</dependency>
+            <!-- Netty -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
 
-			<!-- YANG tools -->
-			<dependency>
-				<groupId>org.opendaylight.yangtools</groupId>
-				<artifactId>yang-binding</artifactId>
-				<version>${yang.binding.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.opendaylight.yangtools</groupId>
-				<artifactId>yang-common</artifactId>
-				<version>${yangtools.version}</version>
-			</dependency>
+            <!-- YANG tools -->
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-binding</artifactId>
+                <version>${yang.binding.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-common</artifactId>
+                <version>${yangtools.version}</version>
+            </dependency>
 
-			<!-- Controller infrastructure -->
-			<dependency>
-				<groupId>org.opendaylight.controller</groupId>
-				<artifactId>config-api</artifactId>
-				<version>${controller.config.version}</version>
-			</dependency>
+            <!-- Controller infrastructure -->
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>config-api</artifactId>
+                <version>${controller.config.version}</version>
+            </dependency>
 
-			<!-- OSGi -->
-			<dependency>
-				<groupId>org.osgi</groupId>
-				<artifactId>org.osgi.core</artifactId>
-				<version>${osgi.version}</version>
-				<scope>provided</scope>
-			</dependency>
+            <!-- OSGi -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>${logback.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-			</plugin>
-		</plugins>
-	</reporting>
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-	<distributionManagement>
-		<!-- OpenDayLight Released artifact -->
-		<repository>
-			<id>opendaylight-release</id>
-			<url>${nexusproxy}/repositories/opendaylight.release/</url>
-		</repository>
-		<!-- OpenDayLight Snapshot artifact -->
-		<snapshotRepository>
-			<id>opendaylight-snapshot</id>
-			<url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
-		</snapshotRepository>
-		<site>
-			<id>${project.artifactId}-site</id>
-			<url>./</url>
-		</site>
-	</distributionManagement>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven.compiler.version}</version>
-				<configuration>
-					<source>${java.version.source}</source>
-					<target>${java.version.target}</target>
-					<testSource>${java.version.source}</testSource>
-					<testTarget>${java.version.target}</testTarget>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${surefire.version}</version>
-				<configuration>
-					<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					<!--parallel>classes</parallel>
-					<forkCount>1C</forkCount>
-					<reuseForks>false</reuseForks>
-					<perCoreThreadCount>true</perCoreThreadCount-->
-					<threadCount>1</threadCount>
-				</configuration>
-			</plugin>
+    <distributionManagement>
+        <!-- OpenDayLight Released artifact -->
+        <repository>
+            <id>opendaylight-release</id>
+            <url>${nexusproxy}/repositories/opendaylight.release/</url>
+        </repository>
+        <!-- OpenDayLight Snapshot artifact -->
+        <snapshotRepository>
+            <id>opendaylight-snapshot</id>
+            <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+        </snapshotRepository>
+        <site>
+            <id>${project.artifactId}-site</id>
+            <url>./</url>
+        </site>
+    </distributionManagement>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>${dependency.version}</version>
-				<configuration>
-					<failOnWarning>true</failOnWarning>
-					<ignoreNonCompile>true</ignoreNonCompile>
-				</configuration>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${java.version.source}</source>
+                    <target>${java.version.target}</target>
+                    <testSource>${java.version.source}</testSource>
+                    <testTarget>${java.version.target}</testTarget>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <!--parallel>classes</parallel>
+                    <forkCount>1C</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <perCoreThreadCount>true</perCoreThreadCount-->
+                    <threadCount>1</threadCount>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${dependency.version}</version>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                    <ignoreNonCompile>true</ignoreNonCompile>
+                </configuration>
+            </plugin>
             <plugin>
                 <!-- Let eclipse know about the generated sources -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.8</version>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -266,31 +266,31 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>pl.project13.maven</groupId>
-										<artifactId>git-commit-id-plugin</artifactId>
-										<versionRange>[2.1.4,)</versionRange>
-										<goals>
-											<goal>revision</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings
+                    only. It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>pl.project13.maven</groupId>
+                                        <artifactId>git-commit-id-plugin</artifactId>
+                                        <versionRange>[2.1.4,)</versionRange>
+                                        <goals>
+                                            <goal>revision</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>org.opendaylight.yangtools</groupId>
@@ -304,78 +304,78 @@
                                         <ignore></ignore>
                                     </action>
                                 </pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
 
-				<!-- Our YANG->DTO generation plugin -->
-				<plugin>
-					<groupId>org.opendaylight.yangtools</groupId>
-					<artifactId>yang-maven-plugin</artifactId>
-					<version>${yangtools.version}</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>generate-sources</goal>
-							</goals>
-							<configuration>
-								<yangFilesRootDir>src/main/yang</yangFilesRootDir>
-								<codeGenerators>
-									<generator>
-										<codeGeneratorClass>
-											org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl
-										</codeGeneratorClass>
-										<outputBaseDir>
-											target/generated-sources/sal
-										</outputBaseDir>
-									</generator>
-									<generator>
-										<codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
-										<outputBaseDir>target/generated-sources/site</outputBaseDir>
-									</generator>
-								</codeGenerators>
-								<inspectDependencies>true</inspectDependencies>
-							</configuration>
-						</execution>
-					</executions>
-					<dependencies>
-						<dependency>
-							<groupId>org.opendaylight.yangtools</groupId>
-							<artifactId>maven-sal-api-gen-plugin</artifactId>
-							<version>${yang.binding.version}</version>
-							<type>jar</type>
-						</dependency>
-					</dependencies>
-				</plugin>
+                <!-- Our YANG->DTO generation plugin -->
+                <plugin>
+                    <groupId>org.opendaylight.yangtools</groupId>
+                    <artifactId>yang-maven-plugin</artifactId>
+                    <version>${yangtools.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate-sources</goal>
+                            </goals>
+                            <configuration>
+                                <yangFilesRootDir>src/main/yang</yangFilesRootDir>
+                                <codeGenerators>
+                                    <generator>
+                                        <codeGeneratorClass>
+                                            org.opendaylight.yangtools.maven.sal.api.gen.plugin.CodeGeneratorImpl
+                                        </codeGeneratorClass>
+                                        <outputBaseDir>
+                                            target/generated-sources/sal
+                                        </outputBaseDir>
+                                    </generator>
+                                    <generator>
+                                        <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
+                                        <outputBaseDir>target/generated-sources/site</outputBaseDir>
+                                    </generator>
+                                </codeGenerators>
+                                <inspectDependencies>true</inspectDependencies>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.opendaylight.yangtools</groupId>
+                            <artifactId>maven-sal-api-gen-plugin</artifactId>
+                            <version>${yang.binding.version}</version>
+                            <type>jar</type>
+                        </dependency>
+                    </dependencies>
+                </plugin>
 
-			</plugins>
-		</pluginManagement>
-	</build>
+            </plugins>
+        </pluginManagement>
+    </build>
 
-	<repositories>
-		<repository>
-			<id>opendaylight-release</id>
-			<name>opendaylight-release</name>
-			<url>${nexusproxy}/repositories/opendaylight.release/</url>
-		</repository>
-		<repository>
-			<id>opendaylight-snapshot</id>
-			<name>opendaylight-snapshot</name>
-			<url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>opendaylight-release</id>
+            <name>opendaylight-release</name>
+            <url>${nexusproxy}/repositories/opendaylight.release/</url>
+        </repository>
+        <repository>
+            <id>opendaylight-snapshot</id>
+            <name>opendaylight-snapshot</name>
+            <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+        </repository>
+    </repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>opendaylight-release</id>
-			<name>opendaylight-release</name>
-			<url>${nexusproxy}/repositories/opendaylight.release/</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>opendaylight-snapshot</id>
-			<name>opendaylight-snapshot</name>
-			<url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
-		</pluginRepository>
-	</pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>opendaylight-release</id>
+            <name>opendaylight-release</name>
+            <url>${nexusproxy}/repositories/opendaylight.release/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>opendaylight-snapshot</id>
+            <name>opendaylight-snapshot</name>
+            <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

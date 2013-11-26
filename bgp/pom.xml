@@ -15,7 +15,7 @@
 	<description>BGP-related components</description>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
-	
+
 	<modules>
 		<module>concepts</module>
 		<module>linkstate</module>
