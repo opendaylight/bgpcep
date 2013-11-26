@@ -107,6 +107,7 @@
                             org.opendaylight.protocol.pcep.tlv,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.*,
                             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.*,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.*,
                         </Export-Package>
                     </instructions>
                 </configuration>
