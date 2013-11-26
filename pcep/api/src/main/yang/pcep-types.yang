@@ -171,18 +171,21 @@ module pcep-types {
 
 		container stateful {
 			uses tlv;
-			leaf flags {
-				type bits {
-					bit lsp-update-capability {
-						position 31;
-					}
-					bit include-db-version {
-						position 30;
-					}
-					bit initiation {
-						position 29;
-					}
-				}
+
+			leaf lsp-update-capability {
+				type boolean;
+				default false;
+				// position 31;
+			}
+			leaf include-db-version {
+				type boolean;
+				default false;
+				// position 30;
+			}
+			leaf initiation {
+				type boolean;
+				default false;
+				// position 29;
 			}
 		}
 	}

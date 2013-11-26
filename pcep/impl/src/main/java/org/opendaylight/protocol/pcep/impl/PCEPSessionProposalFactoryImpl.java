@@ -14,7 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
 public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactory {
@@ -39,7 +38,10 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		final Tlvs tlvs = null;
 		final TlvsBuilder builder = new TlvsBuilder();
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
-			builder.setStateful((new StatefulBuilder().setFlags(new Flags(PCEPSessionProposalFactoryImpl.this.versioned, PCEPSessionProposalFactoryImpl.this.instant, PCEPSessionProposalFactoryImpl.this.active)).build()));
+			builder.setStateful((new StatefulBuilder().
+					setIncludeDbVersion(this.versioned).
+					setInitiation(this.instant).
+					setLspUpdateCapability(this.active).build()));
 		}
 		final OpenBuilder oBuilder = new OpenBuilder();
 		oBuilder.setSessionId((short) sessionId);
