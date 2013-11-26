@@ -18,8 +18,8 @@ import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.reconnectstrategy.TimedReconnectStrategyModuleTest;
-import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplSingletonModuleFactory;
-import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplSingletonModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
@@ -35,7 +35,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 	private RIBImplModuleFactory factory;
 
-	private BindingBrokerImplSingletonModuleFactory brokerFactory;
+	private BindingBrokerImplModuleFactory brokerFactory;
 
 	private TimedReconnectStrategyModuleFactory reconnectFactory;
 
@@ -54,7 +54,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new RIBImplModuleFactory();
-		this.brokerFactory = new BindingBrokerImplSingletonModuleFactory();
+		this.brokerFactory = new BindingBrokerImplModuleFactory();
 		this.bgpFactory = new BGPImplModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
 		this.dispactherFactory = new BGPDispatcherImplModuleFactory();
@@ -119,7 +119,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		transaction.newMBeanProxy(
-				nameCreated, BindingBrokerImplSingletonModuleMXBean.class);
+				nameCreated, BindingBrokerImplModuleMXBean.class);
 		return nameCreated;
 	}
 }
