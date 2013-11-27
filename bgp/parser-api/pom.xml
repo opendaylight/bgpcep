@@ -56,7 +56,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
-            <version>${ietf.types.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
