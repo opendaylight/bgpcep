@@ -106,7 +106,7 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testStatefulTlv() throws PCEPDeserializerException {
 		final PCEStatefulCapabilityTlvParser parser = new PCEStatefulCapabilityTlvParser();
-		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.FALSE).setInitiation(Boolean.FALSE).setIncludeDbVersion(Boolean.TRUE).build();
+		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.FALSE).setIncludeDbVersion(Boolean.TRUE).build();
 		assertEquals(tlv, parser.parseTlv(statefulBytes));
 		assertArrayEquals(statefulBytes, parser.serializeTlv(tlv));
 	}

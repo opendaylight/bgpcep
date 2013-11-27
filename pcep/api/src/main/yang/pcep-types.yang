@@ -175,17 +175,10 @@ module pcep-types {
 			leaf lsp-update-capability {
 				type boolean;
 				default false;
-				// position 31;
 			}
 			leaf include-db-version {
 				type boolean;
 				default false;
-				// position 30;
-			}
-			leaf initiation {
-				type boolean;
-				default false;
-				// position 29;
 			}
 		}
 	}

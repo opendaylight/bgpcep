@@ -10,6 +10,8 @@ package org.opendaylight.protocol.pcep.impl;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
@@ -40,8 +42,8 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
 			builder.setStateful((new StatefulBuilder().
 					setIncludeDbVersion(this.versioned).
-					setInitiation(this.instant).
-					setLspUpdateCapability(this.active).build()));
+					setLspUpdateCapability(this.active).
+					addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()));
 		}
 		final OpenBuilder oBuilder = new OpenBuilder();
 		oBuilder.setSessionId((short) sessionId);
