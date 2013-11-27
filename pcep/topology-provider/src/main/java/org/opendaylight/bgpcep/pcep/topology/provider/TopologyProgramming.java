@@ -17,12 +17,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitEnsureLspOperationalOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitRemoveLspOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitUpdateLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -108,4 +112,27 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		return Futures.immediateFuture(res);
 	}
 
+	@Override
+	public ListenableFuture<RpcResult<SubmitEnsureLspOperationalOutput>> submitEnsureLspOperational(final SubmitEnsureLspOperationalInput input) {
+		Preconditions.checkArgument(input.getNode() != null);
+		Preconditions.checkArgument(input.getName() != null);
+		Preconditions.checkArgument(input.getArguments() != null);
+		Preconditions.checkArgument(input.getArguments().getOperational() != null);
+
+		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+			@Override
+			protected ListenableFuture<OperationResult> executeImpl() {
+				return manager.realEnsureLspOperational(new EnsureLspOperationalInputBuilder(input).build());
+			}
+		};
+
+		final Failure f = this.scheduler.submitInstruction(input, e);
+		final SubmitEnsureLspOperationalOutputBuilder b = new SubmitEnsureLspOperationalOutputBuilder();
+		if (f != null) {
+			b.setResult(new FailureBuilder().setFailure(f).build());
+		}
+
+		final RpcResult<SubmitEnsureLspOperationalOutput> res = SuccessfulRpcResult.create(b.build());
+		return Futures.immediateFuture(res);
+	}
 }

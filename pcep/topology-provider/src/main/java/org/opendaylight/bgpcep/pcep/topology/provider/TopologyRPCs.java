@@ -13,6 +13,9 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInput;
@@ -60,6 +63,16 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 			@Override
 			public RpcResult<UpdateLspOutput> apply(final OperationResult input) {
 				return SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input).build());
+			}
+		});
+	}
+
+	@Override
+	public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
+		return Futures.transform(manager.realEnsureLspOperational(input), new Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>() {
+			@Override
+			public RpcResult<EnsureLspOperationalOutput> apply(final OperationResult input) {
+				return SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input).build());
 			}
 		});
 	}

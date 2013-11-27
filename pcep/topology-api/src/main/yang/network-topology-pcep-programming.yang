@@ -61,5 +61,15 @@ module network-topology-pcep-programming {
             uses ntp:topology-instruction-output;
         }
     }
+
+    rpc submit-ensure-lsp-operational {
+        input {
+            uses ntp:topology-instruction-input;
+            uses pcep:ensure-lsp-operational-args;
+        }
+        output {
+            uses ntp:topology-instruction-output;
+        }
+    }
 }
 

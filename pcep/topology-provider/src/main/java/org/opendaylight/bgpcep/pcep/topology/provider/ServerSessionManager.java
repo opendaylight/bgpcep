@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1Builder;
@@ -497,5 +498,31 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(messageHeader);
 		ub.setUpdates(ImmutableList.of(rb.build()));
 		return l.sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId());
+	}
+
+	synchronized ListenableFuture<OperationResult> realEnsureLspOperational(final EnsureLspOperationalInput input) {
+		// Get the listener corresponding to the node
+		final SessionListener l = this.nodes.get(input.getNode());
+		if (l == null) {
+			LOG.debug("Session for node {} not found", input.getNode());
+			return Futures.immediateFuture(OPERATION_UNSENT);
+		}
+
+		// Make sure the LSP exists
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
+				child(PathComputationClient.class).
+				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		LOG.debug("Checking if LSP {} has operational state {}", lsp, input.getArguments().getOperational());
+		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
+		if (rep == null) {
+			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+			return Futures.immediateFuture(OPERATION_UNSENT);
+		}
+
+		if (rep.getLsp().getOperational().equals(input.getArguments().getOperational())) {
+			return Futures.immediateFuture(OPERATION_SUCCESS);
+		} else {
+			return Futures.immediateFuture(OPERATION_UNSENT);
+		}
 	}
 }
