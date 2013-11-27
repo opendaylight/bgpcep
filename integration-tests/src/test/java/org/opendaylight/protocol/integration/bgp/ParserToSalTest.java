@@ -129,7 +129,7 @@ public class ParserToSalTest {
 			}
 		}, null);
 		Mockito.verify(this.mockedTransaction, Mockito.times(24)).commit();
-		Mockito.verify(this.mockedTransaction, Mockito.times(40)).putRuntimeData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(65)).putRuntimeData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 
