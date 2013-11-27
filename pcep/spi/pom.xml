@@ -34,12 +34,6 @@
 			<artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- FIXME: move into pcep-spi-osgi -->
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -63,7 +57,6 @@
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                        <Export-Package>
                            org.opendaylight.protocol.pcep.spi,
-                           org.opendaylight.protocol.pcep.spi.osgi,
                            org.opendaylight.protocol.pcep.spi.pojo,
                        </Export-Package>
                    </instructions>
