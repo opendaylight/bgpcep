@@ -15,12 +15,21 @@ import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +57,16 @@ public class RIBImpl {
 
 		// FIXME: detect and handle end-of-RIB markers
 
-		// remove(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-		// trans, peer, message.getWithdrawnRoutes().getWithdrawnRoutes().iterator());
+		final WithdrawnRoutes wr = message.getWithdrawnRoutes();
+		if (wr != null) {
+			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			if (ari != null) {
+				ari.removeRoutes(trans, peer, new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+						new WithdrawnRoutesBuilder().setDestinationType(new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build());
+			} else {
+				LOG.debug("Not removing objects from unhandled IPv4 Unicast");
+			}
+		}
 
 		final PathAttributes attrs = message.getPathAttributes();
 		final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
@@ -64,8 +81,17 @@ public class RIBImpl {
 			}
 		}
 
-		// add(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
-		// trans, peer, message.getNlri().getNlri().iterator(), attrs);
+		final Nlri ar = message.getNlri();
+		if (ar != null) {
+			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			if (ari != null) {
+				ari.addRoutes(trans, peer, new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).
+						setCNextHop(attrs.getCNextHop()).setAdvertizedRoutes(
+								new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build(), attrs);
+			} else {
+				LOG.debug("Not adding objects from unhandled IPv4 Unicast");
+			}
+		}
 
 		final PathAttributes1 mpr = message.getPathAttributes().getAugmentation(PathAttributes1.class);
 		if (mpr != null) {
