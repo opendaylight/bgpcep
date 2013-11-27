@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ public final class BGPDocumentedException extends Exception {
 
 	private static final long serialVersionUID = -6212702584439430736L;
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPDocumentedException.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPDocumentedException.class);
 
 	private final BGPError error;
 
@@ -70,8 +72,8 @@ public final class BGPDocumentedException extends Exception {
 	public BGPDocumentedException(final String message, final BGPError error, final byte[] data, final Exception cause) {
 		super(message, cause);
 		this.error = error;
-		this.data = data;
-		logger.error("Error = " + error, this);
+		this.data = data == null ? null : Arrays.copyOf(data, data.length);
+		LOG.error("Error = {}", error, this);
 	}
 
 	/**

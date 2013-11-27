@@ -84,7 +84,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	private final Open remoteOpen;
 
-	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
 	/**
 	 * Timer object grouping FSM Timers
@@ -133,7 +133,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			}, getKeepAliveTimerValue(), TimeUnit.SECONDS);
 		}
 
-		logger.debug("Session started.");
+		LOG.debug("Session started.");
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 		if (this.channel.isActive()) {
 			if (ct >= nextDead) {
-				logger.debug("DeadTimer expired. " + new Date());
+				LOG.debug("DeadTimer expired. " + new Date());
 				this.terminate(TerminationReason.ExpDeadtimer);
 			} else {
 				this.stateTimer.newTimeout(new TimerTask() {
@@ -198,7 +198,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		final ChannelFuture f = this.channel.writeAndFlush(msg);
 		this.lastMessageSentAt = System.nanoTime();
 		if (!(msg instanceof KeepaliveMessage)) {
-			logger.debug("Message enqueued: {}", msg);
+			LOG.debug("Message enqueued: {}", msg);
 		}
 		this.sentMsgCount++;
 
@@ -206,9 +206,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			@Override
 			public void operationComplete(final ChannelFuture arg) {
 				if (arg.isSuccess()) {
-					logger.debug("Message sent to socket: {}", msg);
+					LOG.debug("Message sent to socket: {}", msg);
 				} else {
-					logger.debug("Message not sent: {}", msg, arg.cause());
+					LOG.debug("Message not sent: {}", msg, arg.cause());
 				}
 			}
 		});
@@ -221,7 +221,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	@Override
 	public void close() {
-		logger.trace("Closing session: {}", this);
+		LOG.trace("Closing session: {}", this);
 		this.channel.close();
 	}
 
@@ -232,7 +232,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	@Override
 	public synchronized void close(final TerminationReason reason) {
-		logger.debug("Closing session: {}", this);
+		LOG.debug("Closing session: {}", this);
 		this.closed = true;
 		this.sendMessage(new CloseBuilder().setCCloseMessage(
 				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
@@ -317,6 +317,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		// Internal message handling. The user does not see these messages
 		if (msg instanceof KeepaliveMessage) {
 			// Do nothing, the timer has been already reset
+			LOG.trace("Session {} received a keepalive", this);
 		} else if (msg instanceof OpenMessage) {
 			this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
 		} else if (msg instanceof CloseMessage) {
