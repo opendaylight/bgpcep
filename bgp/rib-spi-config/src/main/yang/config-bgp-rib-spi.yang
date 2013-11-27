@@ -43,5 +43,18 @@ module config-bgp-rib-spi {
         base "consumer-extensions";
         config:java-class "org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext";
     }
+
+    identity bgp-rib-extensions-impl {
+        base config:module-type;
+        config:provided-service extensions;
+        config:java-name-prefix RIBExtensionsImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-rib-extensions-impl {
+            when "/config:modules/config:module/config:type = 'bgp-rib-extensions-impl'";
+        }
+    }
+
 }
 

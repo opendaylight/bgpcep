@@ -53,18 +53,6 @@ module bgp-rib-impl {
         }
     }
 
-    identity bgp-rib-extensions-impl {
-        base config:module-type;
-        config:provided-service ribspi:extensions;
-        config:java-name-prefix RIBExtensionsImpl;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bgp-rib-extensions-impl {
-            when "/config:modules/config:module/config:type = 'bgp-rib-extensions-impl'";
-        }
-    }
-
     identity bgp-proposal {
         description
             "Service representing a BGP proposal.";

@@ -5,19 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
-public class RIBExtensionProviderContextImpl implements RIBExtensionProviderContext {
+public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
 	private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
 
 	@Override
@@ -36,7 +34,7 @@ public class RIBExtensionProviderContextImpl implements RIBExtensionProviderCont
 			@Override
 			protected void removeRegistration() {
 				synchronized (lock) {
-					RIBExtensionProviderContextImpl.this.factories.remove(key);
+					SimpleRIBExtensionProviderContext.this.factories.remove(key);
 				}
 			}
 		};
