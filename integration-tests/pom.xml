@@ -27,6 +27,12 @@
 	<dependencies>
         <dependency>
 			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-linkstate</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-parser-mock</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
