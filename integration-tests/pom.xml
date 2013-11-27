@@ -31,6 +31,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bgp-rib-mock</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
         <dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-testtool</artifactId>
@@ -84,7 +90,7 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>concepts</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.1.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -139,5 +145,11 @@
             <version>${felix.version}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>mockito-configuration</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>

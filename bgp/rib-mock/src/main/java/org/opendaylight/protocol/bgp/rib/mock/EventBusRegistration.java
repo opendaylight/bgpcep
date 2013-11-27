@@ -17,10 +17,11 @@ import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
@@ -31,6 +32,9 @@ import com.google.common.eventbus.Subscribe;
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
 final class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
+
+	private static final Logger LOG = LoggerFactory.getLogger(EventBusRegistration.class);
+
 	private final EventBus eventBus;
 
 	public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
@@ -64,9 +68,10 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 		} else if (message instanceof Open) {
 			final Set<BgpTableType> tts = Sets.newHashSet();
 			for (final BgpParameters param : ((Open) message).getBgpParameters()) {
-				if (param instanceof CParameters) {
-					final CParameters p = (CParameters) param;
-					final BgpTableType type = new BgpTableTypeImpl(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
+				if (param.getCParameters() instanceof CMultiprotocol) {
+					final CMultiprotocol p = (CMultiprotocol) param.getCParameters();
+					LOG.debug("Adding open parameter {}", p);
+					final BgpTableType type = new BgpTableTypeImpl(p.getMultiprotocolCapability().getAfi(), p.getMultiprotocolCapability().getSafi());
 					tts.add(type);
 				}
 			}
