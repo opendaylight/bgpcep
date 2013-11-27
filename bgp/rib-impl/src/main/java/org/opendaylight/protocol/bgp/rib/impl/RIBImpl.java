@@ -79,11 +79,10 @@ public class RIBImpl {
 			}
 		}
 
-		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-				new FutureCallback<RpcResult<TransactionStatus>>() {
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
-				// Nothing to do
+				LOG.debug("RIB modification successfully committed.");
 			}
 
 			@Override
@@ -99,8 +98,7 @@ public class RIBImpl {
 			final DataModificationTransaction trans = this.dps.beginTransaction();
 			ari.clear(trans, peer);
 
-			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-					new FutureCallback<RpcResult<TransactionStatus>>() {
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
 					// Nothing to do
