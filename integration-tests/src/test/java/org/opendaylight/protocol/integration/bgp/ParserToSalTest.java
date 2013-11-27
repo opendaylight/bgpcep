@@ -27,11 +27,13 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.linkstate.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
-import org.opendaylight.protocol.bgp.rib.spi.ServiceLoaderRIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -118,8 +120,10 @@ public class ParserToSalTest {
 	}
 
 	@Test
-	public void test() throws Exception {
-		final RIBImpl rib = new RIBImpl(ServiceLoaderRIBExtensionConsumerContext.createConsumerContext(), this.providerService);
+	public void test() {
+		final RIBExtensionProviderContext ext = new SimpleRIBExtensionProviderContext();
+		new RIBActivator().startRIBExtensionProvider(ext);
+		final RIBImpl rib = new RIBImpl(ext, this.providerService);
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + this.mock.toString());
 
 		this.mock.registerUpdateListener(peer, new ReconnectStrategyFactory() {
