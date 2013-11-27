@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 /**
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
@@ -30,7 +31,7 @@ import com.google.common.base.Preconditions;
  */
 public final class BGPPeer implements BGPSessionListener, Peer {
 	private static final Logger logger = LoggerFactory.getLogger(BGPPeer.class);
-	private Set<TablesKey> tables;
+	private final Set<TablesKey> tables = Sets.newHashSet();
 	private final String name;
 	private final RIBImpl rib;
 

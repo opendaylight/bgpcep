@@ -49,7 +49,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import com.google.common.base.Preconditions;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
-	private static abstract class LinkstateRIBEntryData<LSATTR extends LinkStateAttribute> extends RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+	private static abstract class LinkstateRIBEntryData<LSATTR extends LinkStateAttribute> extends
+			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final LSATTR lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final LSATTR lsattr) {
@@ -58,6 +59,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 		}
 
 		protected abstract AttributeType createAttributes(LSATTR lsattr);
+
 		protected abstract ObjectType createObject(CLinkstateDestination key);
 
 		@Override
@@ -67,10 +69,8 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 			builder.setIdentifier(key.getIdentifier());
 			builder.setProtocolId(key.getProtocolId());
 			builder.setDistinguisher(key.getDistinguisher());
-			builder.setAttributes(new AttributesBuilder(getPathAttributes()).
-					addAugmentation(Attributes1.class, new Attributes1Builder().setAttributeType(
-							Preconditions.checkNotNull(createAttributes(lsattr))).build()).
-							build());
+			builder.setAttributes(new AttributesBuilder(getPathAttributes()).addAugmentation(Attributes1.class,
+					new Attributes1Builder().setAttributeType(Preconditions.checkNotNull(createAttributes(this.lsattr))).build()).build());
 			builder.setObjectType(Preconditions.checkNotNull(createObject(key)));
 
 			return builder.build();
@@ -83,76 +83,73 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
 	@Override
 	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
-		return InstanceIdentifier.builder(basePath).child(LinkstateRoute.class, new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
+		return InstanceIdentifier.builder(basePath).child(LinkstateRoute.class,
+				new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
 	}
 
 	@Override
-	public void addRoutes(
-			final DataModificationTransaction trans,
-			final Peer peer,
-			final MpReachNlri nlri,
+	public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
-		final CLinkstateDestination key = (CLinkstateDestination) ((LinkstateDestination) nlri.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+		final LinkstateDestination keys = ((LinkstateDestination) nlri.getAdvertizedRoutes().getDestinationType());
 
-		final LinkStateAttribute lsattr = attributes.getAugmentation(PathAttributes1.class).
-				getLinkstatePathAttribute().getLinkStateAttribute();
+		for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
+			final LinkStateAttribute lsattr = attributes.getAugmentation(PathAttributes1.class).getLinkstatePathAttribute().getLinkStateAttribute();
 
-		RIBEntryData<CLinkstateDestination, LinkstateRoute> data = null;
-		switch (key.getNlriType()) {
-		case Ipv4Prefix:
-		case Ipv6Prefix:
-			data = new LinkstateRIBEntryData<PrefixAttributes>(attributes, (PrefixAttributes)lsattr) {
-				@Override
-				protected AttributeType createAttributes(final PrefixAttributes lsattr) {
-					return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixBuilder().
-							setPrefixAttributes(new PrefixAttributesBuilder(lsattr).build()).build();
-				}
+			RIBEntryData<CLinkstateDestination, LinkstateRoute> data = null;
+			switch (key.getNlriType()) {
+			case Ipv4Prefix:
+			case Ipv6Prefix:
+				data = new LinkstateRIBEntryData<PrefixAttributes>(attributes, (PrefixAttributes) lsattr) {
+					@Override
+					protected AttributeType createAttributes(final PrefixAttributes lsattr) {
+						return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixBuilder().setPrefixAttributes(
+								new PrefixAttributesBuilder(lsattr).build()).build();
+					}
 
-				@Override
-				protected Prefix createObject(final CLinkstateDestination key) {
-					return new PrefixBuilder(key.getPrefixDescriptors()).
-							setAdvertisingNodeDescriptors(new AdvertisingNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).
-							build();
-				}
-			};
-			break;
-		case Link:
-			data = new LinkstateRIBEntryData<LinkAttributes>(attributes, (LinkAttributes)lsattr) {
-				@Override
-				protected AttributeType createAttributes(final LinkAttributes lsattr) {
-					return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkBuilder().
-							setLinkAttributes(new LinkAttributesBuilder(lsattr).build()).build();
-				}
+					@Override
+					protected Prefix createObject(final CLinkstateDestination key) {
+						return new PrefixBuilder(key.getPrefixDescriptors()).setAdvertisingNodeDescriptors(
+								new AdvertisingNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
+					}
+				};
+				break;
+			case Link:
+				data = new LinkstateRIBEntryData<LinkAttributes>(attributes, (LinkAttributes) lsattr) {
+					@Override
+					protected AttributeType createAttributes(final LinkAttributes lsattr) {
+						return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.LinkBuilder().setLinkAttributes(
+								new LinkAttributesBuilder(lsattr).build()).build();
+					}
 
-				@Override
-				protected ObjectType createObject(final CLinkstateDestination key) {
-					final LinkBuilder b = new LinkBuilder();
+					@Override
+					protected ObjectType createObject(final CLinkstateDestination key) {
+						final LinkBuilder b = new LinkBuilder();
 
-					b.setLinkDescriptors(new LinkDescriptorsBuilder(key.getLinkDescriptors()).build());
-					b.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
-					b.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder(key.getRemoteNodeDescriptors()).build());
+						b.setLinkDescriptors(new LinkDescriptorsBuilder(key.getLinkDescriptors()).build());
+						b.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build());
+						b.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder(key.getRemoteNodeDescriptors()).build());
 
-					return b.build();
-				}
-			};
-			break;
-		case Node:
-			data = new LinkstateRIBEntryData<NodeAttributes>(attributes, (NodeAttributes)lsattr) {
-				@Override
-				protected AttributeType createAttributes(final NodeAttributes lsattr) {
-					return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeBuilder().
-							setNodeAttributes(new NodeAttributesBuilder(lsattr).build()).build();
-				}
+						return b.build();
+					}
+				};
+				break;
+			case Node:
+				data = new LinkstateRIBEntryData<NodeAttributes>(attributes, (NodeAttributes) lsattr) {
+					@Override
+					protected AttributeType createAttributes(final NodeAttributes lsattr) {
+						return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes.linkstate.route.attributes.attribute.type.NodeBuilder().setNodeAttributes(
+								new NodeAttributesBuilder(lsattr).build()).build();
+					}
 
-				@Override
-				protected ObjectType createObject(final CLinkstateDestination key) {
-					return new NodeBuilder().setNodeDescriptors(new NodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
-				}
-			};
-			break;
+					@Override
+					protected ObjectType createObject(final CLinkstateDestination key) {
+						return new NodeBuilder().setNodeDescriptors(new NodeDescriptorsBuilder(key.getLocalNodeDescriptors()).build()).build();
+					}
+				};
+				break;
+			}
+			super.add(trans, peer, key, data);
 		}
-
-		super.add(trans, peer, key, data);
 	}
 
 	@Override
