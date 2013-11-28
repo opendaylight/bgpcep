@@ -34,13 +34,13 @@ public abstract class AbstractProtocolSession<M> extends SimpleChannelInboundHan
 	protected abstract void sessionUp();
 
 	@Override
-	final public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
+	final public void channelInactive(final ChannelHandlerContext ctx) {
 		logger.debug("Channel inactive.");
 		endOfInput();
 	}
 
 	@Override
-	final protected void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+	final protected void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
 		logger.debug("Message was received: {}", msg);
 		handleMessage((M)msg);
 	}

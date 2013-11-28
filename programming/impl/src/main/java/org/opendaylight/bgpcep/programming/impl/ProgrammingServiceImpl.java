@@ -401,7 +401,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		exec = Executors.newSingleThreadExecutor(threadFactory);
 		thread = exec.submit(new Callable<Void>() {
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				try {
 					processQueues();
 				} catch (InterruptedException ex) {
@@ -422,7 +422,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() throws InterruptedException {
 		stop(CLOSE_TIMEOUT, TimeUnit.SECONDS);
 	}
 }

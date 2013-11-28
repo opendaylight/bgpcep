@@ -21,11 +21,12 @@ import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
@@ -61,7 +62,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 		this(new NioEventLoopGroup(),new NioEventLoopGroup());
 	}
 
-	protected AbstractDispatcher(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
+	protected AbstractDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
 		this.bossGroup = bossGroup;
 		this.workerGroup = workerGroup;
 	}
@@ -82,7 +83,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 		b.childHandler(new ChannelInitializer<SocketChannel>() {
 
 			@Override
-			protected void initChannel(final SocketChannel ch) throws Exception {
+			protected void initChannel(final SocketChannel ch) {
 				initializer.initializeChannel(ch, new DefaultPromise<S>(GlobalEventExecutor.INSTANCE));
 			}
 		});
@@ -111,7 +112,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 				new ChannelInitializer<SocketChannel>() {
 
 					@Override
-					protected void initChannel(final SocketChannel ch) throws Exception {
+					protected void initChannel(final SocketChannel ch) {
 						initializer.initializeChannel(ch, p);
 					}
 				});
@@ -140,17 +141,17 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 	}
 
-    /**
-     * @deprecated Should only be used with {@link AbstractDispatcher#AbstractDispatcher()}
-     */
-    @Deprecated
-    @Override
-    public void close() {
-        try {
-            this.workerGroup.shutdownGracefully();
-        } finally {
-            this.bossGroup.shutdownGracefully();
-        }
-    }
+	/**
+	 * @deprecated Should only be used with {@link AbstractDispatcher#AbstractDispatcher()}
+	 */
+	@Deprecated
+	@Override
+	public void close() {
+		try {
+			this.workerGroup.shutdownGracefully();
+		} finally {
+			this.bossGroup.shutdownGracefully();
+		}
+	}
 
 }

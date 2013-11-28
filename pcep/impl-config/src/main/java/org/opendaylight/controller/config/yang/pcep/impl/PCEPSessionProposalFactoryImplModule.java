@@ -25,7 +25,7 @@ public final class PCEPSessionProposalFactoryImplModule
 		extends
 		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
 	
-	private static final Logger logger = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
 
 	public PCEPSessionProposalFactoryImplModule(
 			org.opendaylight.controller.config.api.ModuleIdentifier name,
@@ -61,12 +61,13 @@ public final class PCEPSessionProposalFactoryImplModule
 					getKeepAliveTimerValue() >= 1, "minimum value is 1.",
 					keepAliveTimerValueJmxAttribute);
 			if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() == 4)) {
-				logger.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
+				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
 		}
 		if ((getActive() || getVersioned() || getTimeout() > 0)
-				&& !getStateful())
+				&& !getStateful()) {
 			setStateful(true);
+		}
 		JmxAttributeValidationException.checkNotNull(getStateful(),
 				"value is not set.", statefulJmxAttribute);
 	}
