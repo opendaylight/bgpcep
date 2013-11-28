@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractProtocolSession<M> extends SimpleChannelInboundHandler<Object> implements ProtocolSession<M> {
-	private final static Logger logger = LoggerFactory.getLogger(AbstractProtocolSession.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractProtocolSession.class);
 
 	/**
 	 * Handles incoming message (parsing, reacting if necessary).
@@ -34,19 +34,19 @@ public abstract class AbstractProtocolSession<M> extends SimpleChannelInboundHan
 	protected abstract void sessionUp();
 
 	@Override
-	final public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-		logger.debug("Channel inactive.");
+	public final void channelInactive(final ChannelHandlerContext ctx) {
+		LOG.debug("Channel inactive.");
 		endOfInput();
 	}
 
 	@Override
-	final protected void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception {
-		logger.debug("Message was received: {}", msg);
+	protected final void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
+		LOG.debug("Message was received: {}", msg);
 		handleMessage((M)msg);
 	}
 
 	@Override
-	final public void handlerAdded(final ChannelHandlerContext ctx) {
+	public final void handlerAdded(final ChannelHandlerContext ctx) {
 		sessionUp();
 	}
 }

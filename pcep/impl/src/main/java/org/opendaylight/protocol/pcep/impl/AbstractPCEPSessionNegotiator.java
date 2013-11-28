@@ -157,7 +157,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 		this.failTimer = this.timer.newTimeout(new TimerTask() {
 			@Override
-			public void run(final Timeout timeout) throws Exception {
+			public void run(final Timeout timeout) {
 				synchronized (lock) {
 					// This closes the race between timer expiring and new timer
 					// being armed while it waits for the lock.
@@ -197,7 +197,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	}
 
 	@Override
-	final synchronized protected void handleMessage(final Message msg) throws Exception {
+	final synchronized protected void handleMessage(final Message msg) {
 		this.failTimer.cancel();
 
 		logger.debug("Channel {} handling message in state {}", this.channel, this.state);

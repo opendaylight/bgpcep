@@ -149,8 +149,8 @@ public final class ByteArray {
 		final BitSet bitSet = new BitSet(bytes.length * Byte.SIZE);
 		for (int bytes_iter = 0; bytes_iter < bytes.length; bytes_iter++) {
 			final int offset = bytes_iter * Byte.SIZE;
-			for (int byte_iter = Byte.SIZE - 1; byte_iter >= 0; byte_iter--) {
-				bitSet.set(offset + (Byte.SIZE - byte_iter - 1), (bytes[bytes_iter] & 1 << (byte_iter)) != 0);
+			for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
+				bitSet.set(offset + (Byte.SIZE - byteIter - 1), (bytes[bytes_iter] & 1 << (byteIter)) != 0);
 			}
 		}
 		return bitSet;
@@ -169,8 +169,8 @@ public final class ByteArray {
 		for (int bytes_iter = 0; bytes_iter < bytes.length; bytes_iter++) {
 			final int offset = bytes_iter * Byte.SIZE;
 
-			for (int byte_iter = Byte.SIZE - 1; byte_iter >= 0; byte_iter--) {
-				bytes[bytes_iter] |= (bitSet.get(offset + (Byte.SIZE - byte_iter - 1)) ? 1 << byte_iter : 0);
+			for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
+				bytes[bytes_iter] |= (bitSet.get(offset + (Byte.SIZE - byteIter - 1)) ? 1 << byteIter : 0);
 			}
 		}
 		return bytes;

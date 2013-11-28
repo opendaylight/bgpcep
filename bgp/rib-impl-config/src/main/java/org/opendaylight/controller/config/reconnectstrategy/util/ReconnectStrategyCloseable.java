@@ -1,20 +1,27 @@
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.opendaylight.controller.config.reconnectstrategy.util;
 
 import io.netty.util.concurrent.Future;
 
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 
-final public class ReconnectStrategyCloseable implements ReconnectStrategy,
-		AutoCloseable {
+public final class ReconnectStrategyCloseable implements ReconnectStrategy,
+AutoCloseable {
 
 	private final ReconnectStrategy inner;
 
-	public ReconnectStrategyCloseable(ReconnectStrategy inner) {
+	public ReconnectStrategyCloseable(final ReconnectStrategy inner) {
 		this.inner = inner;
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 
 	}
 
@@ -24,7 +31,7 @@ final public class ReconnectStrategyCloseable implements ReconnectStrategy,
 	}
 
 	@Override
-	public Future<Void> scheduleReconnect(Throwable cause) {
+	public Future<Void> scheduleReconnect(final Throwable cause) {
 		return this.inner.scheduleReconnect(cause);
 	}
 
