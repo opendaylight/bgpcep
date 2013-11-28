@@ -7,16 +7,28 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
-import org.opendaylight.protocol.pcep.*;
+import org.opendaylight.protocol.pcep.PCEPCloseTermination;
+import org.opendaylight.protocol.pcep.PCEPErrors;
+import org.opendaylight.protocol.pcep.PCEPMessage;
+import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPTlv;
 import org.opendaylight.protocol.pcep.message.PCEPCloseMessage;
 import org.opendaylight.protocol.pcep.message.PCEPErrorMessage;
 import org.opendaylight.protocol.pcep.message.PCEPKeepAliveMessage;
@@ -29,11 +41,10 @@ import org.opendaylight.protocol.pcep.tlv.NodeIdentifierTlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Preconditions;
 
 /**
  * Implementation of PCEPSession. (Not final for testing.)
@@ -94,7 +105,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 		this.remoteOpen = Preconditions.checkNotNull(remoteOpen);
 		this.lastMessageReceivedAt = System.nanoTime();
 
-		if (this.maxUnknownMessages != 0) {
+		if (maxUnknownMessages != 0) {
 			this.maxUnknownMessages = maxUnknownMessages;
 		}
 
@@ -133,7 +144,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 		if (this.channel.isActive()) {
 			if (ct >= nextDead) {
 				logger.debug("DeadTimer expired. " + new Date());
-				this.terminate(Reason.EXP_DEADTIMER);
+				terminate(Reason.EXP_DEADTIMER);
 			} else {
 				this.stateTimer.newTimeout(new TimerTask() {
 					@Override
@@ -158,7 +169,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 
 		if (this.channel.isActive()) {
 			if (ct >= nextKeepalive) {
-				this.sendMessage(new PCEPKeepAliveMessage());
+				sendMessage(new PCEPKeepAliveMessage());
 				nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 			}
 
@@ -173,7 +184,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 
 	/**
 	 * Sends message to serialization.
-	 *
+	 * 
 	 * @param msg to be sent
 	 */
 	@Override
@@ -208,13 +219,13 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	public synchronized void close(final PCEPCloseObject.Reason reason) {
 		logger.debug("Closing session: {}", this);
 		this.closed = true;
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
 		this.channel.close();
 	}
 
 	@Override
 	public List<PCEPTlv> getRemoteTlvs() {
-		return remoteOpen.getTlvs();
+		return this.remoteOpen.getTlvs();
 	}
 
 	@Override
@@ -225,7 +236,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	private synchronized void terminate(final PCEPCloseObject.Reason reason) {
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
-		this.sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
+		sendMessage(new PCEPCloseMessage(new PCEPCloseObject(reason)));
 		this.close();
 	}
 
@@ -243,7 +254,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError and Open Object.
-	 *
+	 * 
 	 * @param value
 	 * @param open
 	 */
@@ -251,7 +262,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 		final PCEPErrorObject error = new PCEPErrorObject(value);
 		final List<PCEPErrorObject> errors = new ArrayList<PCEPErrorObject>();
 		errors.add(error);
-		this.sendMessage(new PCEPErrorMessage(open, errors, null));
+		sendMessage(new PCEPErrorMessage(open, errors, null));
 	}
 
 	/**
@@ -259,7 +270,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	 * sent (CAPABILITY_NOT_SUPPORTED) and the method checks if the MAX_UNKNOWN_MSG per minute wasn't overstepped.
 	 * Second, any other error occurred that is specified by rfc. In this case, the an error message is generated and
 	 * sent.
-	 *
+	 * 
 	 * @param error documented error in RFC5440 or draft
 	 */
 	@VisibleForTesting
@@ -272,7 +283,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 				this.unknownMessagesTimes.poll();
 			}
 			if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
-				this.terminate(Reason.TOO_MANY_UNKNOWN_MSG);
+				terminate(Reason.TOO_MANY_UNKNOWN_MSG);
 			}
 		}
 	}
@@ -280,7 +291,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<PCEPMessage> implem
 	/**
 	 * Handles incoming message. If the session is up, it notifies the user. The user is notified about every message
 	 * except KeepAlive.
-	 *
+	 * 
 	 * @param msg incoming message
 	 */
 	@Override
