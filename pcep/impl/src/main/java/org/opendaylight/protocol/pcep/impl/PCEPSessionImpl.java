@@ -111,7 +111,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		this.remoteOpen = Preconditions.checkNotNull(remoteOpen);
 		this.lastMessageReceivedAt = System.nanoTime();
 
-		if (this.maxUnknownMessages != 0) {
+		if (maxUnknownMessages != 0) {
 			this.maxUnknownMessages = maxUnknownMessages;
 		}
 

@@ -17,6 +17,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -74,22 +75,24 @@ public class FiniteStateMachineTest {
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
 				(short) 1).build();
 		this.serverSession = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.clientListener, new SimpleSessionListener(), (short) 1, 20, localPrefs);
+		final ChannelFuture future = new DefaultChannelPromise(this.clientListener);
 		doAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
 				FiniteStateMachineTest.this.receivedMsgs.add((Notification) args[0]);
-				return null;
+				return future;
 			}
 		}).when(this.clientListener).writeAndFlush(any(Notification.class));
 		doReturn("TestingChannel").when(this.clientListener).toString();
 		doReturn(this.pipeline).when(this.clientListener).pipeline();
 		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+		doReturn(true).when(this.clientListener).isActive();
 		doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 		this.openmsg = new OpenBuilder().setOpenMessage(
 				new OpenMessageBuilder().setOpen(
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
-								(short) 3).build()).build()).build();
+								(short) 45).setKeepalive((short) 15).build()).build()).build();
 		this.kamsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 	}
 
@@ -210,41 +213,43 @@ public class FiniteStateMachineTest {
 	@Test
 	@Ignore
 	public void testUnknownMessage() throws InterruptedException {
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(1, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(10000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(2, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(10000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(20000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(4, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(30000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(10000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(3, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(5000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(4, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(1000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// assertEquals(5, this.serverSession.unknownMessagesTimes.size());
-		// Thread.sleep(1000);
-		// this.serverSession.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-		// synchronized (this.client) {
-		// while (!this.client.down) {
-		// try {
-		// this.client.wait();
-		// } catch (final InterruptedException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }
-		// assertTrue(this.client.down);
+		final SimpleSessionListener client = new SimpleSessionListener();
+		final PCEPSessionImpl s = new PCEPSessionImpl(new HashedWheelTimer(), client, 5, this.clientListener, this.openmsg.getOpenMessage().getOpen(), this.openmsg.getOpenMessage().getOpen());
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(1, s.unknownMessagesTimes.size());
+		Thread.sleep(10000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(2, s.unknownMessagesTimes.size());
+		Thread.sleep(10000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(3, s.unknownMessagesTimes.size());
+		Thread.sleep(20000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(4, s.unknownMessagesTimes.size());
+		Thread.sleep(30000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(3, s.unknownMessagesTimes.size());
+		Thread.sleep(10000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(3, s.unknownMessagesTimes.size());
+		Thread.sleep(5000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(4, s.unknownMessagesTimes.size());
+		Thread.sleep(1000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		assertEquals(5, s.unknownMessagesTimes.size());
+		Thread.sleep(1000);
+		s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+		synchronized (client) {
+			while (client.up) {
+				try {
+					client.wait();
+				} catch (final InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		assertTrue(!client.up);
 	}
 
 	@After
