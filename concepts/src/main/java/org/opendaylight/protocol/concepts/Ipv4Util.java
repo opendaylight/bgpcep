@@ -55,7 +55,7 @@ public final class Ipv4Util {
 
 	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
 		final String p = prefix.getValue();
-		final int sep = p.indexOf("/");
+		final int sep = p.indexOf('/');
 		final InetAddress a = InetAddresses.forString(p.substring(0, sep));
 		Preconditions.checkArgument(a instanceof Inet4Address);
 		final byte[] bytes = a.getAddress();
@@ -66,7 +66,7 @@ public final class Ipv4Util {
 		Preconditions.checkArgument(length <= bytes.length * 8);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 4);
 		final InetAddress a = getAddress(tmp);
-		return new Ipv4Prefix(InetAddresses.toAddrString(a) + "/" + length);
+		return new Ipv4Prefix(InetAddresses.toAddrString(a) + '/' + length);
 	}
 
 	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
@@ -93,7 +93,7 @@ public final class Ipv4Util {
 		} else {
 			p = prefix.getIpv6Prefix().getValue();
 		}
-		final int sep = p.indexOf("/");
+		final int sep = p.indexOf('/');
 		return Integer.valueOf(p.substring(sep + 1, p.length()));
 	}
 }

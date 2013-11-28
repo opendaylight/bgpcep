@@ -27,7 +27,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Util class for creating generated Ipv6Address.
  */
-public class Ipv6Util {
+public final class Ipv6Util {
 	private Ipv6Util() {
 	}
 
@@ -53,7 +53,7 @@ public class Ipv6Util {
 
 	public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
 		final String p = prefix.getValue();
-		final int sep = p.indexOf("/");
+		final int sep = p.indexOf('/');
 		final InetAddress a = InetAddresses.forString(p.substring(0, sep));
 		Preconditions.checkArgument(a instanceof Inet6Address);
 		final byte[] bytes = a.getAddress();
@@ -64,7 +64,7 @@ public class Ipv6Util {
 		Preconditions.checkArgument(length <= bytes.length * 8);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
 		final InetAddress a = getAddress(tmp);
-		return new Ipv6Prefix(InetAddresses.toAddrString(a) + "/" + length);
+		return new Ipv6Prefix(InetAddresses.toAddrString(a) + '/' + length);
 	}
 
 	public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
