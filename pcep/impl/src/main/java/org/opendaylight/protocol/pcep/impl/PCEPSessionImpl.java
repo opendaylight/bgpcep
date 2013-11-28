@@ -338,7 +338,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 
 	@Override
-	public Integer getSentMsgCount() {
+	public final Integer getSentMsgCount() {
 		return this.sentMsgCount;
 	}
 
@@ -347,22 +347,22 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 
 	@Override
-	public Integer getReceivedMsgCount() {
+	public final Integer getReceivedMsgCount() {
 		return this.receivedMsgCount;
 	}
 
 	@Override
-	public Integer getDeadTimerValue() {
+	public final Integer getDeadTimerValue() {
 		return Integer.valueOf(this.remoteOpen.getDeadTimer());
 	}
 
 	@Override
-	public Integer getKeepAliveTimerValue() {
+	public final Integer getKeepAliveTimerValue() {
 		return Integer.valueOf(this.localOpen.getKeepalive());
 	}
 
 	@Override
-	public String getPeerAddress() {
+	public final String getPeerAddress() {
 		final InetSocketAddress a = (InetSocketAddress) this.channel.remoteAddress();
 		return a.getHostName();
 	}
