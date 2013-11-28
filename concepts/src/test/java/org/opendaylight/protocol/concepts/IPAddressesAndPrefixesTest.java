@@ -64,7 +64,7 @@ public class IPAddressesAndPrefixesTest {
 			Ipv4Util.addressForBytes(new byte[] { 22, 44, 66, 18, 88, 33 });
 			fail();
 		} catch (final IllegalArgumentException e) {
-			assertEquals("addr is of illegal length", e.getMessage());
+			assertEquals("Failed to construct IPv4 address", e.getMessage());
 		}
 	}
 
