@@ -28,7 +28,7 @@ public class CommunityTest {
 
 	@Test
 	@Ignore
-	// FIXME: range is not implemented
+	// FIXME: BUG-178: range is not implemented
 	public void testOverflows() {
 		try {
 			CommunityUtil.create(10, -2);
