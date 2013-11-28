@@ -80,8 +80,7 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 
 				@Override
 				public void close() {
-					// TODO Auto-generated method stub
-
+					LOG.debug("Session {} closed", this);
 				}
 
 				@Override
