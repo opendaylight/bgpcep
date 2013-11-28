@@ -10,7 +10,6 @@
     <description>OpenDaylight BGP+PCEP protocol parent</description>
     <version>0.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <url>index.html</url>
 
     <licenses>
         <license>
@@ -31,8 +30,10 @@
         <logback.version>1.0.7</logback.version>
         <maven.bundle.version>2.4.0</maven.bundle.version>
         <maven.compiler.version>3.1</maven.compiler.version>
+        <maven.info.reports.version>2.7</maven.info.reports.version>
         <maven.jar.version>2.4</maven.jar.version>
         <maven.shade.version>2.1</maven.shade.version>
+        <maven.site.version>3.3</maven.site.version>
         <mockito.version>1.9.5</mockito.version>
         <netty.version>4.0.10.Final</netty.version>
         <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
@@ -239,6 +240,21 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.info.reports.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependency-info</report>
+                            <report>index</report>
+                            <report>license</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
         </plugins>
     </reporting>
 
@@ -254,8 +270,8 @@
             <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
         </snapshotRepository>
         <site>
-            <id>${project.artifactId}-site</id>
-            <url>./</url>
+            <id>wiki.opendaylight.org</id>
+            <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main/site</url>
         </site>
     </distributionManagement>
 
@@ -381,7 +397,7 @@
                                     </generator>
                                     <generator>
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
-                                        <outputBaseDir>target/generated-sources/site</outputBaseDir>
+                                        <outputBaseDir>target/site</outputBaseDir>
                                     </generator>
                                 </codeGenerators>
                                 <inspectDependencies>true</inspectDependencies>
@@ -396,6 +412,12 @@
                             <type>jar</type>
                         </dependency>
                     </dependencies>
+                </plugin>
+
+                <!-- Maven site plugin -->
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven.site.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

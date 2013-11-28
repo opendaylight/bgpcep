@@ -82,13 +82,4 @@
            </plugin>
 		</plugins>
 	</build>
-
-	<distributionManagement>
-		<site>
-			<id>${project.artifactId}</id>
-			<name>PCEP-TUNNEL-PROVIDER Module site</name>
-			<url>${basedir}/target/site/${project.artifactId}</url>
-		</site>
-	</distributionManagement>
-
 </project>
