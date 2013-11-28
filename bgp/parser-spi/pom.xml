@@ -47,13 +47,6 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
         </dependency>
-
-        <!-- FIXME: move into bgp-parser-spi-osgi -->
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-
         <!-- Testing dependencies -->
         <dependency>
 			<groupId>junit</groupId>
@@ -73,11 +66,8 @@
 						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
 						<Export-Package>
                             org.opendaylight.protocol.bgp.parser.spi,
-                            org.opendaylight.protocol.bgp.parser.spi.osgi,
-                        </Export-Package>
-                        <Private-Package>
                             org.opendaylight.protocol.bgp.parser.spi.pojo,
-                        </Private-Package>
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
