@@ -33,44 +33,37 @@ public class Ipv6Util {
 
 	public static final int IPV6_LENGTH = 16;
 
-	public static Ipv6Address addressForBytes(final byte[] bytes) {
+	private static InetAddress getAddress(final byte[] bytes) {
 		try {
-			return new Ipv6Address(InetAddresses.toAddrString(Inet6Address.getByAddress(bytes)));
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
+			return Inet6Address.getByAddress(bytes);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException("Failed to construct IPv6 address", e);
 		}
 	}
 
+	public static Ipv6Address addressForBytes(final byte[] bytes) {
+		return new Ipv6Address(InetAddresses.toAddrString(getAddress(bytes)));
+	}
+
 	public static byte[] bytesForAddress(final Ipv6Address address) {
-		Inet6Address a;
-		try {
-			a = (Inet6Address) InetAddress.getByName(address.getValue());
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = InetAddresses.forString(address.getValue());
+		Preconditions.checkArgument(a instanceof Inet6Address);
 		return a.getAddress();
 	}
 
 	public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
 		final String p = prefix.getValue();
 		final int sep = p.indexOf("/");
-		try {
-			final byte[] bytes = Inet6Address.getByName(p.substring(0, sep)).getAddress();
-			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = InetAddresses.forString(p.substring(0, sep));
+		Preconditions.checkArgument(a instanceof Inet6Address);
+		final byte[] bytes = a.getAddress();
+		return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
 	}
 
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
-		InetAddress a = null;
-		try {
-			a = InetAddress.getByAddress(tmp);
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = getAddress(tmp);
 		return new Ipv6Prefix(InetAddresses.toAddrString(a) + "/" + length);
 	}
 

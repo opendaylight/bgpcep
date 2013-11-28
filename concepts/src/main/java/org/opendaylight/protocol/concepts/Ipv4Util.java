@@ -35,44 +35,37 @@ public final class Ipv4Util {
 
 	public static final int IP4_LENGTH = 4;
 
-	public static Ipv4Address addressForBytes(final byte[] bytes) {
+	private static InetAddress getAddress(final byte[] bytes) {
 		try {
-			return new Ipv4Address(InetAddresses.toAddrString(Inet4Address.getByAddress(bytes)));
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
+			return Inet4Address.getByAddress(bytes);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException("Failed to construct IPv4 address", e);
 		}
 	}
 
+	public static Ipv4Address addressForBytes(final byte[] bytes) {
+		return new Ipv4Address(InetAddresses.toAddrString(getAddress(bytes)));
+	}
+
 	public static byte[] bytesForAddress(final Ipv4Address address) {
-		Inet4Address a;
-		try {
-			a = (Inet4Address) InetAddress.getByName(address.getValue());
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = InetAddresses.forString(address.getValue());
+		Preconditions.checkArgument(a instanceof Inet4Address);
 		return a.getAddress();
 	}
 
 	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
 		final String p = prefix.getValue();
 		final int sep = p.indexOf("/");
-		try {
-			final byte[] bytes = Inet4Address.getByName(p.substring(0, sep)).getAddress();
-			return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = InetAddresses.forString(p.substring(0, sep));
+		Preconditions.checkArgument(a instanceof Inet4Address);
+		final byte[] bytes = a.getAddress();
+		return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
 	}
 
 	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * 8);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 4);
-		InetAddress a = null;
-		try {
-			a = InetAddress.getByAddress(tmp);
-		} catch (final UnknownHostException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		final InetAddress a = getAddress(tmp);
 		return new Ipv4Prefix(InetAddresses.toAddrString(a) + "/" + length);
 	}
 
