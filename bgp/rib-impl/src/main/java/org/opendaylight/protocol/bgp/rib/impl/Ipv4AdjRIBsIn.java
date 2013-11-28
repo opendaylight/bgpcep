@@ -25,8 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
-	Ipv4AdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
-		super(comparator, key);
+	Ipv4AdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
+		super(trans, comparator, key);
 	}
 
 	@Override

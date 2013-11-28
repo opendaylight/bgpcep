@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -26,7 +27,7 @@ final class RIBTables {
 		return tables.get(key);
 	}
 
-	public synchronized AdjRIBsIn getOrCreate(final TablesKey key) {
+	public synchronized AdjRIBsIn getOrCreate(final DataModificationTransaction trans, final TablesKey key) {
 		if (tables.containsKey(key)) {
 			return tables.get(key);
 		}
@@ -36,7 +37,7 @@ final class RIBTables {
 			return null;
 		}
 
-		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(comparator, key));
+		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, comparator, key));
 		tables.put(key, table);
 		return table;
 	}

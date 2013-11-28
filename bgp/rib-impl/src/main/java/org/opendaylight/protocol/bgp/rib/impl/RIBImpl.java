@@ -15,6 +15,7 @@ import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
@@ -44,6 +45,7 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 @ThreadSafe
 public class RIBImpl {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
+	private static final Update EOR = new UpdateBuilder().build();
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
@@ -55,11 +57,19 @@ public class RIBImpl {
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
 		final DataModificationTransaction trans = this.dps.beginTransaction();
 
-		// FIXME: detect and handle end-of-RIB markers
+		if (EOR.equals(message)) {
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			if (ari != null) {
+				ari.markUptodate(trans, peer);
+			} else {
+				LOG.debug("End-of-RIB for IPv4 Unicast ignored");
+			}
+			return;
+		}
 
 		final WithdrawnRoutes wr = message.getWithdrawnRoutes();
 		if (wr != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.removeRoutes(trans, peer, new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
 						new WithdrawnRoutesBuilder().setDestinationType(new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build());
@@ -73,7 +83,7 @@ public class RIBImpl {
 		if (mpu != null) {
 			final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
 
-			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.removeRoutes(trans, peer, nlri);
 			} else {
@@ -83,7 +93,7 @@ public class RIBImpl {
 
 		final Nlri ar = message.getNlri();
 		if (ar != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.addRoutes(trans, peer, new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).
 						setCNextHop(attrs.getCNextHop()).setAdvertizedRoutes(
@@ -97,9 +107,12 @@ public class RIBImpl {
 		if (mpr != null) {
 			final MpReachNlri nlri = mpr.getMpReachNlri();
 
-			final AdjRIBsIn ari = this.tables.getOrCreate(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.addRoutes(trans, peer, nlri, attrs);
+				if (message.equals(ari.endOfRib())) {
+					ari.markUptodate(trans, peer);
+				}
 			} else {
 				LOG.debug("Not adding objects from unhandled NLRI {}", nlri);
 			}

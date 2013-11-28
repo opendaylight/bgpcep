@@ -17,8 +17,15 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -88,7 +95,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			LOG.trace("Electing state {} to supersede {}", candidate, currentState);
 
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
-				transaction.putRuntimeData(getName(), candidate.getDataObject(this.key));
+				transaction.putOperationalData(getName(), candidate.getDataObject(this.key));
 				this.currentState = candidate;
 			}
 		}
@@ -117,12 +124,33 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBsIn.class);
 	private final Comparator<PathAttributes> comparator;
 	private final InstanceIdentifier<Tables> basePath;
+	private final Update eor;
+
 	@GuardedBy("this")
 	private final Map<ID, RIBEntry> entries = new HashMap<>();
 
-	protected AbstractAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
+	@GuardedBy("this")
+	private final Map<Peer, Boolean> peers = new HashMap<>();
+
+	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
 		this.comparator = Preconditions.checkNotNull(comparator);
 		this.basePath = InstanceIdentifier.builder(LocRib.class).child(Tables.class, key).toInstance();
+
+		eor = new UpdateBuilder().setPathAttributes(
+				new PathAttributesBuilder().addAugmentation(
+						PathAttributes1.class,
+						new PathAttributes1Builder().setMpReachNlri(
+								new MpReachNlriBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).build()).build()).build()).build();
+
+		trans.putOperationalData(basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setUptodate(Boolean.FALSE).build());
+	}
+
+	private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
+		final Tables t = (Tables) trans.readOperationalData(basePath);
+		if (t == null || !uptodate.equals(t.isUptodate())) {
+			LOG.debug("Table {} switching uptodate to {}", uptodate);
+			trans.putOperationalData(basePath, new TablesBuilder(t).setUptodate(uptodate).build());
+		}
 	}
 
 	@Override
@@ -135,6 +163,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 				i.remove();
 			}
 		}
+
+		peers.remove(peer);
+		setUptodate(trans, peers.values().contains(Boolean.FALSE) == false);
 	}
 
 	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final ID id);
@@ -147,6 +178,10 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		e.setState(trans, peer, data);
+		if (!peers.containsKey(peer)) {
+			peers.put(peer, Boolean.FALSE);
+			setUptodate(trans, Boolean.FALSE);
+		}
 	}
 
 	protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final ID id) {
@@ -155,5 +190,16 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			LOG.debug("Removed last state, removing entry for {}", id);
 			this.entries.remove(id);
 		}
+	}
+
+	@Override
+	public final void markUptodate(final DataModificationTransaction trans, final Peer peer) {
+		peers.put(peer, Boolean.TRUE);
+		setUptodate(trans, peers.values().contains(Boolean.FALSE) == false);
+	}
+
+	@Override
+	public final Update endOfRib() {
+		return eor;
 	}
 }

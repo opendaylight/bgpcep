@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.integration.bgp;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -27,9 +28,9 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.protocol.bgp.linkstate.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
+import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -106,23 +107,36 @@ public class ParserToSalTest {
 			}
 		}).when(this.mockedTransaction).commit();
 
+		final HashMap<Object, Object> data = new HashMap<>();
+
 		Mockito.doAnswer(new Answer<String>() {
 			@Override
 			public String answer(final InvocationOnMock invocation) throws Throwable {
 				final Object[] args = invocation.getArguments();
-				for (final Object a : args) {
-					LOG.debug("Arg: {}", a);
-				}
+				LOG.debug("Put key {} value {}", args[0]);
+				LOG.debug("Put value {}", args[1]);
+				data.put(args[0], args[1]);
 				return null;
 			}
 
-		}).when(this.mockedTransaction).putRuntimeData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+		}).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+
+		Mockito.doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) throws Throwable {
+				final Object[] args = invocation.getArguments();
+				LOG.debug("Get key {}", args[0]);
+				return data.get(args[0]);
+			}
+
+		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 	}
 
 	@Test
 	public void test() {
 		final RIBExtensionProviderContext ext = new SimpleRIBExtensionProviderContext();
 		new RIBActivator().startRIBExtensionProvider(ext);
+		new org.opendaylight.protocol.bgp.linkstate.RIBActivator().startRIBExtensionProvider(ext);
 		final RIBImpl rib = new RIBImpl(ext, this.providerService);
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + this.mock.toString());
 
@@ -133,7 +147,7 @@ public class ParserToSalTest {
 			}
 		}, null);
 		Mockito.verify(this.mockedTransaction, Mockito.times(24)).commit();
-		Mockito.verify(this.mockedTransaction, Mockito.times(40)).putRuntimeData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(67)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 

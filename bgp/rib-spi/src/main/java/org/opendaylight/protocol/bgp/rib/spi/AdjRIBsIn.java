@@ -8,12 +8,15 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 
 public interface AdjRIBsIn {
-	public void addRoutes(DataModificationTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
-	public void removeRoutes(DataModificationTransaction trans, Peer peer, MpUnreachNlri nlri);
-	public void clear(DataModificationTransaction trans, Peer peer);
+	void addRoutes(DataModificationTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
+	void removeRoutes(DataModificationTransaction trans, Peer peer, MpUnreachNlri nlri);
+	void clear(DataModificationTransaction trans, Peer peer);
+	void markUptodate(DataModificationTransaction trans,  Peer peer);
+	Update endOfRib();
 }

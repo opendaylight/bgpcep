@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.Comparator;
 
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
@@ -34,15 +35,15 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
 
 		v4reg = context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
-			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
-				return new Ipv4AdjRIBsIn(comparator, key);
+			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
+				return new Ipv4AdjRIBsIn(trans, comparator, key);
 			}
 		});
 
 		v6reg = context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
-			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
-				return new Ipv6AdjRIBsIn(comparator, key);
+			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
+				return new Ipv6AdjRIBsIn(trans, comparator, key);
 			}
 		});
 

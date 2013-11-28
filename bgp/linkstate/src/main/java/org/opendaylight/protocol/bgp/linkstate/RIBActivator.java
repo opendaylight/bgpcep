@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Comparator;
 
+import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
@@ -32,8 +33,8 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
 
 		reg = context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
-			public AdjRIBsIn createAdjRIBsIn(final Comparator<PathAttributes> comparator, final TablesKey key) {
-				return new LinkstateAdjRIBsIn(comparator, key);
+			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
+				return new LinkstateAdjRIBsIn(trans, comparator, key);
 			}
 		});
 	}
