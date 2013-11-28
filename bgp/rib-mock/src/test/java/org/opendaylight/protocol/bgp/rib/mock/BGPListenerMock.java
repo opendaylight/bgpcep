@@ -17,9 +17,9 @@ import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
- * Mock implementation of {@link BGPListener} for testing purposes.
+ * Mock implementation of {@link BGPSessionListener} for testing purposes.
  */
-final class BGPListenerMock implements BGPSessionListener {
+public final class BGPListenerMock implements BGPSessionListener {
 	private final List<Notification> buffer = Collections.synchronizedList(new ArrayList<Notification>());
 	private boolean connected = false;
 
