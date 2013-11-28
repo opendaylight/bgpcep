@@ -127,7 +127,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 			final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
-			trans.putRuntimeData(nti, ret);
+			trans.putOperationalData(nti, ret);
 			this.ownsTopology = true;
 			this.topologyNode = nti;
 			this.nodeId = id;
@@ -160,7 +160,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 			this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
 			this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).augmentation(Node1.class).toInstance();
-			trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
+			trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
 
 			// All set, commit the modifications
 			final ListenableFuture<RpcResult<TransactionStatus>> f = JdkFutureAdapters.listenInPoolThread(trans.commit());
@@ -259,7 +259,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					// Update synchronization flag
 					this.synced = true;
 					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-					trans.putRuntimeData(this.topologyAugment, this.topologyAugmentBuilder.build());
+					trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
 					LOG.debug("Session {} achieved synchronized state", session);
 				}
 
@@ -309,7 +309,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					}
 
 					final SymbolicPathName name = this.lsps.get(id);
-					trans.putRuntimeData(lspIdentifier(name), lsp);
+					trans.putOperationalData(lspIdentifier(name), lsp);
 
 					LOG.debug("LSP {} updated", lsp);
 				}
