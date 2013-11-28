@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -95,7 +94,11 @@ public class BGPUpdateMessageParser implements MessageParser {
 				final PathAttributes pathAttributes = reg.parseAttributes(ByteArray.subByte(body, byteOffset, totalPathAttrLength));
 				byteOffset += totalPathAttrLength;
 				eventBuilder.setPathAttributes(pathAttributes);
-			} catch (final BGPParsingException e) {
+			} catch (final BGPDocumentedException e) {
+				// Rethrow BGPDocumentedExceptions
+				throw e;
+			} catch (final Exception e) {
+				// Catch everything else and turn it into a BGPDocumentedException
 				logger.warn("Could not parse BGP attributes", e);
 				throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
 			}

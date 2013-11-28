@@ -38,7 +38,6 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
 	private int parseAttribute(final byte[] bytes, final int offset, final PathAttributesBuilder builder) throws BGPDocumentedException,
 			BGPParsingException {
-		// FIXME: validate minimum length
 		final boolean[] flags = ByteArray.parseBits(bytes[offset]);
 		final int type = UnsignedBytes.toInt(bytes[offset + 1]);
 		final int hdrlen;
