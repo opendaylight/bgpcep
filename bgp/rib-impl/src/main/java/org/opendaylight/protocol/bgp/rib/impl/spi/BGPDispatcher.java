@@ -24,9 +24,10 @@ public interface BGPDispatcher {
 	/**
 	 * Creates BGP client.
 	 * 
-	 * @param connection attributes required for connection
-	 * @param parser BGP message parser
-	 * @return client session
+	 * @param address Peer address
+	 * @param preferences connection attributes required for connection
+	 * @param listener BGP message listener
+	 * @return Future promising a client session
 	 */
 	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
 			final ReconnectStrategy strategy);
