@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.As4CapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.CapabilityParameterParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4AggregatorAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4PathAttributeParser;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.CAs4Bytes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CGracefulRestart;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -103,6 +105,10 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
 		final As4CapabilityHandler as4 = new As4CapabilityHandler();
 		regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
 		regs.add(context.registerCapabilitySerializer(CAs4Bytes.class, as4));
+
+		final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
+		regs.add(context.registerCapabilitySerializer(CGracefulRestart.class, grace));
+		regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
 
 		final ParameterRegistry paramReg = context.getParameterRegistry();
 		final CapabilityParameterParser cpp = new CapabilityParameterParser(capReg);
