@@ -10,9 +10,11 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import io.netty.util.concurrent.FutureListener;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -60,17 +62,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.topology.pcep.type.TopologyPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -88,7 +96,7 @@ import com.google.common.util.concurrent.SettableFuture;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener> {
+final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable {
 	private static String createNodeId(final InetAddress addr) {
 		return "pcc://" + addr.getHostAddress();
 	}
@@ -191,13 +199,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
 			// The session went down. Undo all the Topology changes we have done.
-			trans.removeRuntimeData(this.topologyAugment);
+			trans.removeOperationalData(this.topologyAugment);
 			if (this.ownsTopology) {
-				trans.removeRuntimeData(this.topologyNode);
+				trans.removeOperationalData(this.topologyNode);
 			}
 
-			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-					new FutureCallback<RpcResult<TransactionStatus>>() {
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
 					// Nothing to do
@@ -237,9 +244,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifier<ReportedLsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(this.topologyAugment).
-					child(PathComputationClient.class).
-					child(ReportedLsps.class, new ReportedLspsKey(name.getPathName())).toInstance();
+			return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class).child(ReportedLsps.class,
+					new ReportedLspsKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -292,7 +298,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				if (lsp.isRemove()) {
 					final SymbolicPathName name = this.lsps.remove(id);
 					if (name != null) {
-						trans.removeRuntimeData(lspIdentifier(name));
+						trans.removeOperationalData(lspIdentifier(name));
 					}
 
 					LOG.debug("LSP {} removed", lsp);
@@ -307,6 +313,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 							// TODO: what should we do here?
 							continue;
 						}
+						this.lsps.put(id, name);
 					}
 
 					final SymbolicPathName name = this.lsps.get(id);
@@ -316,8 +323,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				}
 			}
 
-			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-					new FutureCallback<RpcResult<TransactionStatus>>() {
+			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
 					// Nothing to do
@@ -391,6 +397,24 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.topology = Preconditions.checkNotNull(topology);
+
+		// Make sure the topology does not exist
+		final Object c = dataProvider.readOperationalData(topology);
+		Preconditions.checkArgument(c == null, "Topology %s already exists", topology);
+
+		// Now create the base topology
+		final TopologyKey k = InstanceIdentifier.keyOf(topology);
+		final DataModificationTransaction t = dataProvider.beginTransaction();
+		t.putOperationalData(
+				topology,
+				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
+								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
+						new ArrayList<Node>()).build());
+
+		// FIXME: attach to the future to notify of failures
+		t.commit();
+
 	}
 
 	@Override
@@ -407,9 +431,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure there is no such LSP
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
-				child(PathComputationClient.class).
-				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return Futures.immediateFuture(OPERATION_UNSENT);
@@ -451,9 +474,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists, we need it for PLSP-ID
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
-				child(PathComputationClient.class).
-				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
@@ -479,9 +501,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
-				child(PathComputationClient.class).
-				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
@@ -524,5 +545,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		} else {
 			return Futures.immediateFuture(OPERATION_UNSENT);
 		}
+	}
+	
+	@Override
+	public void close() throws InterruptedException, ExecutionException {
+		final DataModificationTransaction t = this.dataProvider.beginTransaction();
+		t.removeOperationalData(this.topology);
+		t.commit().get();
 	}
 }
