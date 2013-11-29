@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.util;
+package org.opendaylight.protocol.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,32 +14,29 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
 
 /**
- * Read text file, parse BGP messages. File can contain comments or other data. BGP messages are detected using 16 ff
- * marker. New lines and spaces are ignored. Use {@link ByteArray#bytesToHexString(byte[])} for serializing bytes to
- * this format.
+ * Parses PCEP messages from a text file. Messages need to follow this formatting:
+ *
+ * Received PCEP Open message. Length:28.
+ *
+ * 20 01 00 1c 01 10 00 18 20 1e 78 03 00 10 00 04 00 00 00 05 00 1a 00 04 00 00 00 b4
+ *
  */
-@Immutable
-public final class HexDumpBGPFileParser {
-	private static final int MINIMAL_LENGTH = 19;
-	private static final Logger LOG = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
-	private static final String FF_16 = Strings.repeat("FF", 16);
+public class PCEPHexDumpParser {
+	private static final int MINIMAL_LENGTH = 4;
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPHexDumpParser.class);
+	private static final String LENGTH = "LENGTH:";
 
-	private HexDumpBGPFileParser() {
+	private PCEPHexDumpParser() {
 
 	}
 
@@ -57,28 +54,21 @@ public final class HexDumpBGPFileParser {
 		}
 	}
 
-	public static List<byte[]> parseMessages(final String c) {
+	private static List<byte[]> parseMessages(final String c) {
 		final String content = clearWhiteSpaceToUpper(c);
-		// search for 16 FFs
 
 		final List<byte[]> messages = Lists.newLinkedList();
-		int idx = content.indexOf(FF_16, 0);
+		int idx = content.indexOf(LENGTH, 0);
 		while (idx > -1) {
-			// next 2 bytes are length
-			final int lengthIdx = idx + 16 * 2;
-			final int messageIdx = lengthIdx + 4;
-			final String hexLength = content.substring(lengthIdx, messageIdx);
-			byte[] byteLength = null;
-			try {
-				byteLength = Hex.decodeHex(hexLength.toCharArray());
-			} catch (final DecoderException e) {
-				throw new RuntimeException(e);
-			}
-			final int length = ByteArray.bytesToInt(byteLength);
+			// next chars are final length, ending with '.'
+			final int lengthIdx = idx + LENGTH.length();
+			final int messageIdx = content.indexOf('.', lengthIdx);
+
+			final int length = Integer.valueOf(content.substring(lengthIdx, messageIdx));
 			final int messageEndIdx = idx + length * 2;
 
-			// Assert that message is longer than minimum 19(header.length == 19)
-			// If length in BGP message would be 0, loop would never end
+			// Assert that message is longer than minimum 4(header.length == 4)
+			// If length in PCEP message would be 0, loop would never end
 			Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
 					+ MINIMAL_LENGTH);
 
@@ -91,14 +81,13 @@ public final class HexDumpBGPFileParser {
 			}
 			messages.add(message);
 			idx = messageEndIdx;
-			idx = content.indexOf(FF_16, idx);
+			idx = content.indexOf(LENGTH, idx);
 		}
 		LOG.info("Succesfully extracted {} messages", messages.size());
 		return messages;
 	}
 
-	@VisibleForTesting
-	static String clearWhiteSpaceToUpper(final String line) {
+	private static String clearWhiteSpaceToUpper(final String line) {
 		return line.replaceAll("\\s", "").toUpperCase();
 	}
 }

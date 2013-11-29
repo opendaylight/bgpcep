@@ -57,6 +57,15 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>mockito-configuration</artifactId>
         </dependency>
+        <dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>pcep-impl</artifactId>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -15,6 +15,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegotiator {
@@ -38,7 +39,8 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
 	}
 
 	@Override
-	protected PCEPSessionImpl createSession(final Timer timer, final Channel channel, final Open localPrefs, final Open remotePrefs) {
+	@VisibleForTesting
+	public PCEPSessionImpl createSession(final Timer timer, final Channel channel, final Open localPrefs, final Open remotePrefs) {
 		return new PCEPSessionImpl(timer, this.listener, this.maxUnknownMessages, channel, localPrefs, remotePrefs);
 	}
 
