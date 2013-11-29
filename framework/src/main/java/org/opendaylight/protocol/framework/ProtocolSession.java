@@ -19,5 +19,5 @@ import java.io.Closeable;
  */
 public interface ProtocolSession<T> extends Closeable {
 	@Override
-	public void close();
+	void close();
 }

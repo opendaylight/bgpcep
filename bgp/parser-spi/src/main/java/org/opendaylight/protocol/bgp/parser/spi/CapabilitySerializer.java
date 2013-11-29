@@ -10,5 +10,5 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 
 public interface CapabilitySerializer {
-	public byte[] serializeCapability(final CParameters capability);
+	byte[] serializeCapability(final CParameters capability);
 }

@@ -12,5 +12,5 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public interface AttributeParser {
-	public void parseAttribute(final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
+	void parseAttribute(final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
 }

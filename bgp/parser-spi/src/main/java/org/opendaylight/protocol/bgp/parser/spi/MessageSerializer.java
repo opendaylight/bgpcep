@@ -10,5 +10,5 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageSerializer {
-	public byte[] serializeMessage(final Notification message);
+	byte[] serializeMessage(Notification message);
 }

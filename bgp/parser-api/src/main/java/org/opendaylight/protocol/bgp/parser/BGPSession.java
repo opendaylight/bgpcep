@@ -22,5 +22,5 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  */
 public interface BGPSession extends ProtocolSession<Notification> {
 
-	public Set<BgpTableType> getAdvertisedTableTypes();
+	Set<BgpTableType> getAdvertisedTableTypes();
 }

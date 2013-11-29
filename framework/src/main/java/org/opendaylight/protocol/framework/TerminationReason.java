@@ -16,6 +16,6 @@ public interface TerminationReason {
 	 * Get cause of session termination.
 	 * @return human-readable cause.
 	 */
-	public String getErrorMessage();
+	String getErrorMessage();
 }
 

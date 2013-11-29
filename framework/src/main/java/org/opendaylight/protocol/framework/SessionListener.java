@@ -20,7 +20,7 @@ public interface SessionListener<M, S extends ProtocolSession<?>, T extends Term
 	 * 
 	 * @param remoteParams Peer address families which we accepted
 	 */
-	public void onSessionUp(S session);
+	void onSessionUp(S session);
 
 	/**
 	 * Fired when the session went down because of an IO error. Implementation should take care of closing underlying
@@ -29,7 +29,7 @@ public interface SessionListener<M, S extends ProtocolSession<?>, T extends Term
 	 * @param session that went down
 	 * @param e Exception that was thrown as the cause of session being down
 	 */
-	public void onSessionDown(S session, Exception e);
+	void onSessionDown(S session, Exception e);
 
 	/**
 	 * Fired when the session is terminated locally. The session has already been closed and transitioned to IDLE state.
@@ -37,12 +37,12 @@ public interface SessionListener<M, S extends ProtocolSession<?>, T extends Term
 	 * 
 	 * @param reason the cause why the session went down
 	 */
-	public void onSessionTerminated(S session, T reason);
+	void onSessionTerminated(S session, T reason);
 
 	/**
 	 * Fired when a normal protocol message is received.
 	 * 
 	 * @param message Protocol message
 	 */
-	public void onMessage(S session, M message);
+	void onMessage(S session, M message);
 }

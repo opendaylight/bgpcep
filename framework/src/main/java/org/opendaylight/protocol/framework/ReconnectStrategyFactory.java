@@ -18,6 +18,6 @@ public interface ReconnectStrategyFactory {
 	 *
 	 * @return a new reconnecty strategy
 	 */
-	public ReconnectStrategy createReconnectStrategy();
+	ReconnectStrategy createReconnectStrategy();
 }
 

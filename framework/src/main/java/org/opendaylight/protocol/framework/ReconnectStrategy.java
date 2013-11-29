@@ -31,7 +31,7 @@ public interface ReconnectStrategy {
 	 *         0 for infinite (or system-default) timeout
 	 * @throws Exception if the connection should not be attempted
 	 */
-	public int getConnectTimeout() throws Exception;
+	int getConnectTimeout() throws Exception;
 
 	/**
 	 * Schedule a connection attempt. The precise time when the connection
@@ -43,11 +43,11 @@ public interface ReconnectStrategy {
 	 * @throws IllegalStateException when a connection attempt is currently
 	 *         scheduled.
 	 */
-	public Future<Void> scheduleReconnect(Throwable cause);
+	Future<Void> scheduleReconnect(Throwable cause);
 
 	/**
 	 * Reset the strategy state. Users call this method once the reconnection
 	 * process succeeds.
 	 */
-	public void reconnectSuccessful();
+	void reconnectSuccessful();
 }

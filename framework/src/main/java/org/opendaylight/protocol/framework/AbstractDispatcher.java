@@ -42,7 +42,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 		 * @param channel whose pipeline should be defined, also to be passed to {@link SessionNegotiatorFactory}
 		 * @param promise to be passed to {@link SessionNegotiatorFactory}
 		 */
-		public void initializeChannel(SocketChannel channel, Promise<S> promise);
+		void initializeChannel(SocketChannel channel, Promise<S> promise);
 	}
 
 

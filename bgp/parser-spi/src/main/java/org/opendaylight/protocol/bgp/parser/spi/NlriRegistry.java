@@ -12,7 +12,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 
 public interface NlriRegistry {
-	public MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException;
-
-	public MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException;
+	MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException;
+	MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException;
 }
