@@ -243,13 +243,12 @@
                     <reportSet>
                         <reports>
                             <report>dependency-info</report>
-                            <report>index</report>
                             <report>license</report>
                         </reports>
                     </reportSet>
                 </reportSets>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.4.0</version>
@@ -258,7 +257,7 @@
                     <threshold>Low</threshold>
                     <goal>site</goal>
                 </configuration>
-            </plugin>
+            </plugin-->
         </plugins>
     </reporting>
 
