@@ -12,7 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public interface XROSubobjectSerializer {
 
 	@Deprecated
-	public int getType();
+	int getType();
 
-	public byte[] serializeSubobject(Subobjects subobject);
+	byte[] serializeSubobject(Subobjects subobject);
 }

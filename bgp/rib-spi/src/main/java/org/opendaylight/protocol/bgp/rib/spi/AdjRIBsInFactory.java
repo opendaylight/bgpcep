@@ -14,5 +14,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 public interface AdjRIBsInFactory {
-	public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key);
+	AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, Comparator<PathAttributes> comparator, TablesKey key);
 }

@@ -12,8 +12,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public interface MessageSerializer {
-	public void serializeMessage(Message message, ByteBuf buffer);
-
 	@Deprecated
-	public int getMessageType();
+	int getMessageType();
+	void serializeMessage(Message message, ByteBuf buffer);
 }

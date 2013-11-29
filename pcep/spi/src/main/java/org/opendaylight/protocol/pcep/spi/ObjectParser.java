@@ -11,6 +11,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
 public interface ObjectParser {
-
-	public Object parseObject(final ObjectHeader header, final byte[] buffer) throws PCEPDeserializerException;
+	Object parseObject(ObjectHeader header, byte[] buffer) throws PCEPDeserializerException;
 }

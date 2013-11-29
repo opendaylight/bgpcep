@@ -8,6 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 public interface RIBExtensionProviderActivator {
-	public void startRIBExtensionProvider(RIBExtensionProviderContext context);
-	public void stopRIBExtensionProvider();
+	void startRIBExtensionProvider(RIBExtensionProviderContext context);
+	void stopRIBExtensionProvider();
 }

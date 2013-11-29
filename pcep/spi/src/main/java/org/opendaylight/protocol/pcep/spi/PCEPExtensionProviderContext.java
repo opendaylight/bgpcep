@@ -14,33 +14,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerContext {
-	public AutoCloseable registerLabelSerializer(Class<? extends LabelType> labelClass, LabelSerializer serializer);
+	AutoCloseable registerLabelSerializer(Class<? extends LabelType> labelClass, LabelSerializer serializer);
 
-	public AutoCloseable registerLabelParser(int cType, LabelParser parser);
+	AutoCloseable registerLabelParser(int cType, LabelParser parser);
 
-	public AutoCloseable registerEROSubobjectParser(int subobjectType, EROSubobjectParser parser);
+	AutoCloseable registerEROSubobjectParser(int subobjectType, EROSubobjectParser parser);
 
-	public AutoCloseable registerEROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, EROSubobjectSerializer serializer);
+	AutoCloseable registerEROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, EROSubobjectSerializer serializer);
 
-	public AutoCloseable registerMessageParser(int messageType, MessageParser parser);
+	AutoCloseable registerMessageParser(int messageType, MessageParser parser);
 
-	public AutoCloseable registerMessageSerializer(Class<? extends Message> msgClass, MessageSerializer serializer);
+	AutoCloseable registerMessageSerializer(Class<? extends Message> msgClass, MessageSerializer serializer);
 
-	public AutoCloseable registerObjectParser(int objectClass, int objectType, ObjectParser parser);
+	AutoCloseable registerObjectParser(int objectClass, int objectType, ObjectParser parser);
 
-	public AutoCloseable registerObjectSerializer(Class<? extends Object> objClass, ObjectSerializer serializer);
+	AutoCloseable registerObjectSerializer(Class<? extends Object> objClass, ObjectSerializer serializer);
 
-	public AutoCloseable registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
+	AutoCloseable registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
 
-	public AutoCloseable registerRROSubobjectSerializer(
+	AutoCloseable registerRROSubobjectSerializer(
 			Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType> subobjectClass,
 			RROSubobjectSerializer serializer);
 
-	public AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
+	AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 
-	public AutoCloseable registerTlvParser(int tlvType, TlvParser parser);
+	AutoCloseable registerTlvParser(int tlvType, TlvParser parser);
 
-	public AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
+	AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
 
-	public AutoCloseable registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
+	AutoCloseable registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
 }

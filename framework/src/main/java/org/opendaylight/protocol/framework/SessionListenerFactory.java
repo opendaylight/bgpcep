@@ -18,5 +18,5 @@ public interface SessionListenerFactory<T extends SessionListener<?, ?, ?>> {
 	 * Returns one session listener
 	 * @return specific session listener
 	 */
-	public T getSessionListener();
+	T getSessionListener();
 }

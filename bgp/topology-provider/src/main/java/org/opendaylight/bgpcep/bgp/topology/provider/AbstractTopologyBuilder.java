@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -113,7 +114,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 	}
 
 	@Override
-	public final void close() throws Exception {
+	public final void close() throws InterruptedException, ExecutionException {
 		final DataModificationTransaction trans = dataProvider.beginTransaction();
 		trans.removeOperationalData(getInstanceIdentifier());
 		trans.commit().get();
@@ -125,7 +126,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
 		try {
 			onLocRIBChange(trans, change);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOG.info("Data change {} was not completely propagated to listener {}", change, this, e);
 		}
 

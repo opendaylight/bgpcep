@@ -24,5 +24,5 @@ public interface SessionNegotiatorFactory<M, S extends ProtocolSession<?>, L ext
 	 * @param promise Promise to be notified
 	 * @return new negotiator instance
 	 */
-	public SessionNegotiator<S> getSessionNegotiator(SessionListenerFactory<L> factory, Channel channel, Promise<S> promise);
+	SessionNegotiator<S> getSessionNegotiator(SessionListenerFactory<L> factory, Channel channel, Promise<S> promise);
 }

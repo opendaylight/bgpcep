@@ -28,6 +28,6 @@ public interface BGP {
 	 * @throws IllegalStateException if there is already a listener registered
 	 * @return ListenerRegistration
 	 */
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener,
+	ListenerRegistration<BGPSessionListener> registerUpdateListener(BGPSessionListener listener,
 			ReconnectStrategyFactory tcpStrategyFactory, ReconnectStrategy sessionStrategy);
 }

@@ -25,10 +25,10 @@ public abstract class AbstractExtensionProviderActivator implements PCEPExtensio
 	private List<AutoCloseable> registrations;
 
 	@GuardedBy("this")
-	protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context) throws Exception;
+	protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context);
 
 	@Override
-	public synchronized final void start(final PCEPExtensionProviderContext context) throws Exception {
+	public synchronized final void start(final PCEPExtensionProviderContext context) {
 		Preconditions.checkState(this.registrations == null);
 
 		this.registrations = Preconditions.checkNotNull(startImpl(context));

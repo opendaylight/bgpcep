@@ -18,7 +18,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * AdjRIBsIn instances, which handle the specifics.
  */
 public interface RIBExtensionConsumerContext {
-	public AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi,
-			Class<? extends SubsequentAddressFamily> safi);
-
+	AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi);
 }

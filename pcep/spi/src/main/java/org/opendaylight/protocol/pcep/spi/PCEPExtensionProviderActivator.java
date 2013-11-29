@@ -8,6 +8,6 @@
 package org.opendaylight.protocol.pcep.spi;
 
 public interface PCEPExtensionProviderActivator {
-	public void start(PCEPExtensionProviderContext context) throws Exception;
-	public void stop() throws Exception;
+	void start(PCEPExtensionProviderContext context);
+	void stop();
 }

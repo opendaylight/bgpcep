@@ -8,6 +8,6 @@
 package org.opendaylight.protocol.pcep.spi;
 
 public interface PCEPExtensionConsumerActivator {
-	public void start(PCEPExtensionConsumerContext context);
-	public void stop();
+	void start(PCEPExtensionConsumerContext context);
+	void stop();
 }

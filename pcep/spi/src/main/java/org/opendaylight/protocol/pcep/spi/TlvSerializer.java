@@ -12,7 +12,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public interface TlvSerializer {
 
 	@Deprecated
-	public int getType();
+	int getType();
 
-	public byte[] serializeTlv(Tlv tlv);
+	byte[] serializeTlv(Tlv tlv);
 }

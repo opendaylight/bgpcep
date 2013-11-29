@@ -24,5 +24,5 @@ public interface PCEPDispatcher {
 	 * @param listenerFactory to create listeners for clients
 	 * @return instance of PCEPServer
 	 */
-	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory);
+	ChannelFuture createServer(InetSocketAddress address, SessionListenerFactory<PCEPSessionListener> listenerFactory);
 }

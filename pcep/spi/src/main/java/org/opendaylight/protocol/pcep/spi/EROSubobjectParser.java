@@ -10,5 +10,5 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
 
 public interface EROSubobjectParser {
-	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException;
+	Subobjects parseSubobject(byte[] buffer, boolean loose) throws PCEPDeserializerException;
 }

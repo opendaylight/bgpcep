@@ -24,5 +24,5 @@ public interface PCEPSessionProposalFactory {
 	 * @param sessionId is used for creation of PCEPOpenObject
 	 * @return specific session proposal
 	 */
-	public Open getSessionProposal(InetSocketAddress address, int sessionId);
+	Open getSessionProposal(InetSocketAddress address, int sessionId);
 }

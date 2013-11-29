@@ -10,6 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public interface MessageHandlerRegistry {
-	public MessageParser getMessageParser(int messageType);
-	public MessageSerializer getMessageSerializer(Message message);
+	MessageParser getMessageParser(int messageType);
+	MessageSerializer getMessageSerializer(Message message);
 }

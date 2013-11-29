@@ -8,6 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 public interface RIBExtensionConsumerActivator {
-	public void startRIBExtensionConsumer(RIBExtensionConsumerContext context) throws Exception;
-	public void stopRIBExtensionConsumer(RIBExtensionConsumerContext context) throws Exception;
+	void startRIBExtensionConsumer(RIBExtensionConsumerContext context);
+	void stopRIBExtensionConsumer(RIBExtensionConsumerContext context);
 }

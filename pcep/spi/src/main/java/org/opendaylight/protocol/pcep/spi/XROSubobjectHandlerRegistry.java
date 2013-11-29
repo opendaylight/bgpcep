@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 
 public interface XROSubobjectHandlerRegistry {
-	public XROSubobjectParser getSubobjectParser(int subobjectType);
-
-	public XROSubobjectSerializer getSubobjectSerializer(SubobjectType subobject);
+	XROSubobjectParser getSubobjectParser(int subobjectType);
+	XROSubobjectSerializer getSubobjectSerializer(SubobjectType subobject);
 }

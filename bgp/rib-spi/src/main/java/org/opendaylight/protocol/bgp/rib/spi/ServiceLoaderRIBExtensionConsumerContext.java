@@ -29,7 +29,7 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
 		}
 	}
 
-	public static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() throws Exception {
+	public static ServiceLoaderRIBExtensionConsumerContext createConsumerContext() {
 		final ServiceLoader<RIBExtensionProviderActivator> loader = ServiceLoader.load(RIBExtensionProviderActivator.class);
 		final ServiceLoaderRIBExtensionConsumerContext ctx = new ServiceLoaderRIBExtensionConsumerContext(loader);
 
@@ -37,11 +37,11 @@ public final class ServiceLoaderRIBExtensionConsumerContext extends SimpleRIBExt
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() {
 		for (RIBExtensionProviderActivator a : loader) {
 			try {
 				a.stopRIBExtensionProvider();
-			} catch (Exception e) {
+			} catch (RuntimeException e) {
 				LOG.warn("Stopping activator {} failed", a, e);
 			}
 		}

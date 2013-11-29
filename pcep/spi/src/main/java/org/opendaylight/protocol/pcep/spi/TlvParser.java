@@ -10,5 +10,5 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 public interface TlvParser {
-	public Tlv parseTlv(final byte[] buffer) throws PCEPDeserializerException;
+	Tlv parseTlv(byte[] buffer) throws PCEPDeserializerException;
 }

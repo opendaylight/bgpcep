@@ -24,6 +24,6 @@ public interface LocRIBListener extends EventListener {
 	 * @param depth Subscription path depth.
 	 * @throws Exception throw it if you must. If you can handle it, please do so.
 	 */
-	public void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans,
+	void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans,
 			DataChangeEvent<InstanceIdentifier<?>, DataObject> event) throws Exception;
 }

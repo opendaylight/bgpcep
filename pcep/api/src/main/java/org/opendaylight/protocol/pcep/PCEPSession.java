@@ -33,9 +33,9 @@ public interface PCEPSession extends ProtocolSession<Message> {
 	 */
 	Future<Void> sendMessage(Message message);
 
-	public void close(TerminationReason reason);
+	void close(TerminationReason reason);
 
-	public Tlvs getRemoteTlvs();
+	Tlvs getRemoteTlvs();
 
-	public InetAddress getRemoteAddress();
+	InetAddress getRemoteAddress();
 }

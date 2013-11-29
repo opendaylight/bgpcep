@@ -29,7 +29,7 @@ public interface ProtocolMessageFactory<T> {
 	 * @throws DeserializerException if some parsing error occurs
 	 * @throws DocumentedException if some documented error occurs
 	 */
-	public T parse(final byte[] bytes) throws DeserializerException, DocumentedException;
+	T parse(byte[] bytes) throws DeserializerException, DocumentedException;
 
 	/**
 	 * Serializes protocol specific message to byte array.
@@ -37,5 +37,5 @@ public interface ProtocolMessageFactory<T> {
 	 * @param msg message to be serialized.
 	 * @return byte array resulting message
 	 */
-	public byte[] put(final T msg);
+	byte[] put(T msg);
 }
