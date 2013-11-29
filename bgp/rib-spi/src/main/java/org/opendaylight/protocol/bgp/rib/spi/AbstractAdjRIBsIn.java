@@ -109,7 +109,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 				electCandidate(transaction, candidate);
 			} else {
 				LOG.trace("Final candidate disappeared, removing entry {}", name);
-				transaction.removeRuntimeData(this.name);
+				transaction.removeOperationalData(this.name);
 			}
 
 			return candidates.isEmpty();
