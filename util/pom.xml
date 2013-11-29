@@ -28,6 +28,10 @@
 			<artifactId>commons-codec</artifactId>
 			<version>${commonscodec.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
         <!-- Testing dependencies -->
         <dependency>
