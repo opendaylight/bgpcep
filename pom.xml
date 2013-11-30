@@ -307,6 +307,9 @@
                     <target>${java.version.target}</target>
                     <testSource>${java.version.source}</testSource>
                     <testTarget>${java.version.target}</testTarget>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <optimize>true</optimize>
                 </configuration>
             </plugin>
             <plugin>
