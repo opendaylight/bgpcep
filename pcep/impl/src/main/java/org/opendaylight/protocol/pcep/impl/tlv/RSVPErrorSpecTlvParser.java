@@ -114,7 +114,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		byteOffset += USER_VALUE_F_LENGTH;
 		error.setDescription(ByteArray.bytesToHRString(ByteArray.subByte(valueBytes, byteOffset, errDescrLength)));
 		byteOffset += errDescrLength;
-		// TODO: if we have any subobjects
+		// if we have any subobjects, place the implementation here
 		return new UserBuilder().setUserError(error.build()).build();
 	}
 
@@ -124,7 +124,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		final byte[] value = ByteArray.intToBytes(ue.getValue(), USER_VALUE_F_LENGTH);
 		final byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes();
 		final byte descLen = UnsignedBytes.checkedCast(desc.length);
-		// TODO: if we have any subobjects
+		// if we have any subobjects, place the implementation here
 		final byte[] bytes = new byte[2 + ENTERPRISE_F_LENGTH + SUB_ORG_F_LENGTH + USER_VALUE_F_LENGTH + ERR_DESCR_LENGTH_F_LENGTH
 				+ desc.length];
 		bytes[0] = UnsignedBytes.checkedCast(USER_ERROR_CLASS_NUM);
