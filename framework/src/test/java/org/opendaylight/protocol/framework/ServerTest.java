@@ -43,7 +43,7 @@ public class ServerTest {
 	@Before
 	public void setUp() {
 		final int port = 10000 + (int)(10000 * Math.random());
-		serverAddress = new InetSocketAddress("127.0.0.5", port);
+		serverAddress = new InetSocketAddress("127.0.0.1", port);
 		eventLoopGroup = new NioEventLoopGroup();
 	}
 
