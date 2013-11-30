@@ -43,8 +43,7 @@ import com.google.common.base.Preconditions;
 
 public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
 	// 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
-	// FIXME to actual value
-	protected static final int INITIAL_HOLDTIMER = 1;
+	protected static final int INITIAL_HOLDTIMER = 4;
 
 	@VisibleForTesting
 	public enum State {

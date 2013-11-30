@@ -46,8 +46,9 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 
 	@Override
 	protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-		// FIXME: keepalive shouldn't have objects
-
+		if (objects != null && !objects.isEmpty()) {
+			throw new PCEPDeserializerException("Keepalive message should not contain any objects.");
+		}
 		return MESSAGE;
 	}
 }
