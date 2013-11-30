@@ -242,7 +242,7 @@ public class PCEPObjectParserTest {
 		builder.setSubobjects(subs);
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
-		// FIXME: fix Ipv6Serializers (getType)
+		// FIXME: BUG-130: fix Ipv6Serializers (getType)
 		// assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -263,14 +263,14 @@ public class PCEPObjectParserTest {
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder().setIpPrefix(
 						new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).setProtectionAvailable(false).setProtectionInUse(
-								false).build());
+				false).build());
 		subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder().setRouterId(
 						0x1245678L).setInterfaceId(0x9abcdef0L).build()).setProtectionAvailable(false).setProtectionInUse(false).build());
 		builder.setSubobjects(subs);
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
-		// FIXME: fix Ipv6Serializers (getType)
+		// FIXME: BUG-130: fix Ipv6Serializers (getType)
 		// assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
