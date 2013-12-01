@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,9 +154,9 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 				final CParameters cap = param.getCParameters();
 				// FIXME: BUG-199: the reference to linkstate should be moved to config subsystem!
 
-				if (cap instanceof CMultiprotocol
-						&& ((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
-						&& ((CMultiprotocol) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
+				if (cap instanceof MultiprotocolCase
+						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
+						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
 					this.remotePref = openObj;
 					this.channel.writeAndFlush(new KeepaliveBuilder().build());
 					this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);

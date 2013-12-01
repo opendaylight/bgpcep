@@ -48,7 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
@@ -138,9 +139,10 @@ public class FiniteStateMachineTest {
 		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrorType(
-						new SessionBuilder().setOpen(
-								new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
-										(short) 1).build()).build()).setErrors(
+						new SessionCaseBuilder().setSession(
+								new SessionBuilder().setOpen(
+										new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
+												(short) 1).build()).build()).build()).setErrors(
 						Arrays.asList(new ErrorsBuilder().setErrorObject(
 								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
 										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();

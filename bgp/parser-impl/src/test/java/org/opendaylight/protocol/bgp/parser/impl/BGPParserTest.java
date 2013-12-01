@@ -48,14 +48,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.LinkDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.LocalNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.COspfNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.COspfPseudonodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.c.ospf.node.OspfNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.c.ospf.pseudonode.OspfPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfPseudonodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttributeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -82,8 +84,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv6._case.DestinationIpv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -94,18 +97,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CASetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequenceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv4.next.hop.Ipv4NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.c.ipv6.next.hop.Ipv6NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.inet4.specific.extended.community._case.Inet4SpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 
 import com.google.common.collect.Lists;
@@ -210,9 +215,10 @@ public class BGPParserTest {
 
 		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
 		final List<Segments> asPath = Lists.newArrayList();
-		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
+		asPath.add(new SegmentsBuilder().setCSegment(
+				new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
-		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+		final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
 		final List<Communities> comms = Lists.newArrayList();
@@ -337,9 +343,10 @@ public class BGPParserTest {
 
 		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65001L)).build());
 		final List<Segments> asPath = Lists.newArrayList();
-		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
+		asPath.add(new SegmentsBuilder().setCSegment(
+				new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
-		final CIpv6NextHop nextHop = new CIpv6NextHopBuilder().setIpv6NextHop(
+		final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
 		final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new byte[] { 1, 2, 3, 4 }),
@@ -371,7 +378,7 @@ public class BGPParserTest {
 		mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
 		mpBuilder.setCNextHop(nextHop);
 		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-				new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build());
+				new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
 
 		paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpBuilder.build()).build());
 		assertEquals(paBuilder.getAugmentation(PathAttributes1.class).getMpReachNlri(),
@@ -444,13 +451,14 @@ public class BGPParserTest {
 		// attributes
 		final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(30L)).build());
 		final List<Segments> asPath = Lists.newArrayList();
-		asPath.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(asnums).build()).build());
 		asPath.add(new SegmentsBuilder().setCSegment(
-				new CASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build());
+				new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+		asPath.add(new SegmentsBuilder().setCSegment(
+				new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build()).build());
 
 		final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
 				new Ipv4Address("10.0.0.9")).build();
-		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+		final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
 		// check path attributes
@@ -539,12 +547,12 @@ public class BGPParserTest {
 		assertEquals(builder.getNlri(), message.getNlri());
 
 		// attributes
-		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+		final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
 		final List<ExtendedCommunities> comms = Lists.newArrayList();
 		comms.add(new ExtendedCommunitiesBuilder().setCommType((short) 1).setExtendedCommunity(
-				new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+				new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
 						new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
 								new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
 
@@ -842,7 +850,7 @@ public class BGPParserTest {
 
 		assertNull(message.getWithdrawnRoutes());
 
-		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+		final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
 		final List<Segments> asPath = Lists.newArrayList();
@@ -868,29 +876,29 @@ public class BGPParserTest {
 
 		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfPseudonodeBuilder().setOspfPseudonode(
+				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
 						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
 								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
 				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfPseudonodeBuilder().setOspfPseudonode(
+				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
 						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
 								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
 				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-				new COspfPseudonodeBuilder().setOspfPseudonode(
+				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
 						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
 								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
@@ -921,7 +929,8 @@ public class BGPParserTest {
 		final DestinationLinkstateBuilder dBuilder = new DestinationLinkstateBuilder();
 		dBuilder.setCLinkstateDestination(linkstates);
 
-		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(dBuilder.build()).build());
+		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+				new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
 		lsBuilder.setMpReachNlri(mpBuilder.build());
 
 		paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
@@ -929,7 +938,7 @@ public class BGPParserTest {
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder();
 
 		lsAttrBuilder.setLinkstatePathAttribute(new LinkstatePathAttributeBuilder().setLinkStateAttribute(
-				new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build());
+				new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build()).build());
 		paBuilder.addAugmentation(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class,
 				lsAttrBuilder.build());
@@ -939,7 +948,7 @@ public class BGPParserTest {
 				attrs.getAugmentation(
 						org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class).getLinkstatePathAttribute());
 
-		final List<CLinkstateDestination> dests = ((DestinationLinkstate) mp.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+		final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
 		assertEquals(linkstates.size(), dests.size());
 
@@ -1047,7 +1056,7 @@ public class BGPParserTest {
 
 		// attributes
 
-		final CIpv4NextHop nextHop = new CIpv4NextHopBuilder().setIpv4NextHop(
+		final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
 		final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
@@ -1061,17 +1070,17 @@ public class BGPParserTest {
 
 		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfPseudonodeBuilder().setOspfPseudonode(
+				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
 						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
 								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
@@ -1083,7 +1092,8 @@ public class BGPParserTest {
 		final DestinationLinkstateBuilder dBuilder = new DestinationLinkstateBuilder();
 		dBuilder.setCLinkstateDestination(linkstates);
 
-		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(dBuilder.build()).build());
+		mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+				new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
 		lsBuilder.setMpReachNlri(mpBuilder.build());
 
 		final List<Segments> asPath = Lists.newArrayList();
@@ -1109,7 +1119,7 @@ public class BGPParserTest {
 		assertEquals(mpBuilder.getSafi(), mp.getSafi());
 		assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
 
-		final List<CLinkstateDestination> dests = ((DestinationLinkstate) mp.getAdvertizedRoutes().getDestinationType()).getCLinkstateDestination();
+		final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
 		assertEquals(linkstates.size(), dests.size());
 
@@ -1165,8 +1175,8 @@ public class BGPParserTest {
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {
 			final CParameters p = param.getCParameters();
-			if (p instanceof CMultiprotocol) {
-				final BgpTableType type = new BgpTableTypeImpl(((CMultiprotocol) p).getMultiprotocolCapability().getAfi(), ((CMultiprotocol) p).getMultiprotocolCapability().getSafi());
+			if (p instanceof MultiprotocolCase) {
+				final BgpTableType type = new BgpTableTypeImpl(((MultiprotocolCase) p).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) p).getMultiprotocolCapability().getSafi());
 				types.add(type);
 			}
 		}

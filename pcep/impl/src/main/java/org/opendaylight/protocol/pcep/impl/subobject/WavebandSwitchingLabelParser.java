@@ -12,11 +12,13 @@ import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 
 /**
- * Parser for {@link WavebandSwitchingLabel}
+ * Parser for {@link WavebandSwitchingLabelCase}
  */
 public class WavebandSwitchingLabelParser implements LabelParser, LabelSerializer {
 
@@ -29,7 +31,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 	private static final int CONTENT_LENGTH = WAVEB_F_LENGTH + START_F_LENGTH + END_F_LENGTH;
 
 	@Override
-	public WavebandSwitchingLabel parseLabel(final byte[] buffer) throws PCEPDeserializerException {
+	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -44,17 +46,17 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 		builder.setStartLabel(ByteArray.bytesToLong(ByteArray.subByte(buffer, byteOffset, START_F_LENGTH)));
 		byteOffset += START_F_LENGTH;
 		builder.setEndLabel(ByteArray.bytesToLong(ByteArray.subByte(buffer, byteOffset, END_F_LENGTH)));
-		return builder.build();
+		return new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(builder.build()).build();
 	}
 
 	@Override
 	public byte[] serializeLabel(final LabelType subobject) {
-		if (!(subobject instanceof WavebandSwitchingLabel)) {
+		if (!(subobject instanceof WavebandSwitchingLabelCase)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-					+ ". Needed WavebandSwitchingLabel.");
+					+ ". Needed WavebandSwitchingLabelCase.");
 		}
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
-		final WavebandSwitchingLabel obj = (WavebandSwitchingLabel) subobject;
+		final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();
 		System.arraycopy(ByteArray.intToBytes(obj.getWavebandId().intValue(), WAVEB_F_LENGTH), 0, retBytes, 0, WAVEB_F_LENGTH);
 		System.arraycopy(ByteArray.intToBytes(obj.getStartLabel().intValue(), START_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH, START_F_LENGTH);
 		System.arraycopy(ByteArray.intToBytes(obj.getEndLabel().intValue(), END_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH + START_F_LENGTH,

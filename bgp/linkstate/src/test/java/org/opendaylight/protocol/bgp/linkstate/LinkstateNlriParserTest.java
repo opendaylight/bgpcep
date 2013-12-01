@@ -27,11 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.PrefixDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.c.linkstate.destination.RemoteNodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.CIsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.c.isis.node.IsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public class LinkstateNlriParserTest {
@@ -71,9 +72,9 @@ public class LinkstateNlriParserTest {
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
 		parser.parseNlri(this.nodeNlri, this.nextHop, builder);
 
-		assertEquals("10.25.2.27", ((CIpv4NextHop) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 
-		final DestinationLinkstate ls = (DestinationLinkstate) builder.getAdvertizedRoutes().getDestinationType();
+		final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
 		assertEquals(1, ls.getCLinkstateDestination().size());
 
@@ -88,7 +89,7 @@ public class LinkstateNlriParserTest {
 		assertEquals(new AsNumber(72L), nodeD.getAsNumber());
 		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), nodeD.getDomainId());
 		assertEquals(
-				new CIsisNodeBuilder().setIsisNode(
+				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
 								new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 										(byte) 0x39 })).build()).build(), nodeD.getCRouterIdentifier());
@@ -104,9 +105,9 @@ public class LinkstateNlriParserTest {
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
 		parser.parseNlri(this.linkNlri, this.nextHop, builder);
 
-		assertEquals("10.25.2.27", ((CIpv4NextHop) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 
-		final DestinationLinkstate ls = (DestinationLinkstate) builder.getAdvertizedRoutes().getDestinationType();
+		final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
 		assertEquals(1, ls.getCLinkstateDestination().size());
 
@@ -121,7 +122,7 @@ public class LinkstateNlriParserTest {
 		assertEquals(new AsNumber(72L), local.getAsNumber());
 		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), local.getDomainId());
 		assertEquals(
-				new CIsisNodeBuilder().setIsisNode(
+				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
 								new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 										(byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
@@ -129,7 +130,7 @@ public class LinkstateNlriParserTest {
 		assertEquals(new AsNumber(72L), remote.getAsNumber());
 		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), remote.getDomainId());
 		assertEquals(
-				new CIsisNodeBuilder().setIsisNode(
+				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
 								new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 										(byte) 0x40 })).build()).build(), remote.getCRouterIdentifier());
@@ -146,9 +147,9 @@ public class LinkstateNlriParserTest {
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
 		parser.parseNlri(this.prefixNlri, this.nextHop, builder);
 
-		assertEquals("10.25.2.27", ((CIpv4NextHop) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 
-		final DestinationLinkstate ls = (DestinationLinkstate) builder.getAdvertizedRoutes().getDestinationType();
+		final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
 		assertEquals(1, ls.getCLinkstateDestination().size());
 
@@ -163,7 +164,7 @@ public class LinkstateNlriParserTest {
 		assertEquals(new AsNumber(72L), local.getAsNumber());
 		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), local.getDomainId());
 		assertEquals(
-				new CIsisNodeBuilder().setIsisNode(
+				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
 								new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 										(byte) 0x42 })).build()).build(), local.getCRouterIdentifier());

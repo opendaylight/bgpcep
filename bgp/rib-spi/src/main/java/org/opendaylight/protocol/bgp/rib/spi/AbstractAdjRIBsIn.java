@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements AdjRIBsIn {
-	protected static abstract class RIBEntryData<ID, DATA extends DataObject> {
+public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjRIBsIn {
+	protected static abstract class RIBEntryData<I, D extends DataObject> {
 		private final PathAttributes attributes;
 
 		protected RIBEntryData(final PathAttributes attributes) {
@@ -47,7 +47,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return this.attributes;
 		}
 
-		protected abstract DATA getDataObject(ID key);
+		protected abstract D getDataObject(I key);
 	}
 
 	/**
@@ -61,15 +61,15 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		 *       to retain the candidate states ordered -- thus selection would occur
 		 *       automatically through insertion, without the need of a second walk.
 		 */
-		private final Map<Peer, RIBEntryData<ID, DATA>> candidates = new HashMap<>();
-		private final ID key;
+		private final Map<Peer, RIBEntryData<I, D>> candidates = new HashMap<>();
+		private final I key;
 
 		@GuardedBy("this")
 		private InstanceIdentifier<?> name;
 		@GuardedBy("this")
-		private RIBEntryData<ID, DATA> currentState;
+		private RIBEntryData<I, D> currentState;
 
-		RIBEntry(final ID key) {
+		RIBEntry(final I key) {
 			this.key = Preconditions.checkNotNull(key);
 		}
 
@@ -80,9 +80,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return this.name;
 		}
 
-		private RIBEntryData<ID, DATA> findCandidate(final RIBEntryData<ID, DATA> initial) {
-			RIBEntryData<ID, DATA> newState = initial;
-			for (final RIBEntryData<ID, DATA> s : this.candidates.values()) {
+		private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial) {
+			RIBEntryData<I, D> newState = initial;
+			for (final RIBEntryData<I, D> s : this.candidates.values()) {
 				if (newState == null || AbstractAdjRIBsIn.this.comparator.compare(newState.attributes, s.attributes) > 0) {
 					newState = s;
 				}
@@ -91,7 +91,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return newState;
 		}
 
-		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData<ID, DATA> candidate) {
+		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData<I, D> candidate) {
 			LOG.trace("Electing state {} to supersede {}", candidate, currentState);
 
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
@@ -101,10 +101,10 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 
 		synchronized boolean removeState(final DataModificationTransaction transaction, final Peer peer) {
-			final RIBEntryData<ID, DATA> data = this.candidates.remove(peer);
+			final RIBEntryData<I, D> data = this.candidates.remove(peer);
 			LOG.trace("Removed data {}", data);
 
-			final RIBEntryData<ID, DATA> candidate = findCandidate(null);
+			final RIBEntryData<I, D> candidate = findCandidate(null);
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
 			} else {
@@ -115,7 +115,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 			return candidates.isEmpty();
 		}
 
-		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<ID, DATA> state) {
+		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
 			this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
 			electCandidate(transaction, findCandidate(state));
 		}
@@ -127,7 +127,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 	private final Update eor;
 
 	@GuardedBy("this")
-	private final Map<ID, RIBEntry> entries = new HashMap<>();
+	private final Map<I, RIBEntry> entries = new HashMap<>();
 
 	@GuardedBy("this")
 	private final Map<Peer, Boolean> peers = new HashMap<>();
@@ -155,9 +155,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 
 	@Override
 	public synchronized void clear(final DataModificationTransaction trans, final Peer peer) {
-		final Iterator<Map.Entry<ID, RIBEntry>> i = this.entries.entrySet().iterator();
+		final Iterator<Map.Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
 		while (i.hasNext()) {
-			final Map.Entry<ID, RIBEntry> e = i.next();
+			final Map.Entry<I, RIBEntry> e = i.next();
 
 			if (e.getValue().removeState(trans, peer)) {
 				i.remove();
@@ -168,9 +168,9 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		setUptodate(trans, peers.values().contains(Boolean.FALSE) == false);
 	}
 
-	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final ID id);
+	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
-	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final ID id, final RIBEntryData<ID, DATA> data) {
+	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
 		RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
 		if (e == null) {
 			e = new RIBEntry(id);
@@ -184,7 +184,7 @@ public abstract class AbstractAdjRIBsIn<ID, DATA extends DataObject> implements 
 		}
 	}
 
-	protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final ID id) {
+	protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final I id) {
 		final RIBEntry e = this.entries.get(id);
 		if (e != null && e.removeState(trans, peer)) {
 			LOG.debug("Removed last state, removing entry for {}", id);

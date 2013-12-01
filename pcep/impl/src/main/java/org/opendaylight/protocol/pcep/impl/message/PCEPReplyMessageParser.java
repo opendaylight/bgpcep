@@ -30,13 +30,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.Replies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.RepliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.Result;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.Failure;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.FailureBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.Success;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.SuccessBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure.NoPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success.Paths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success.PathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.FailureCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.FailureCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.SuccessCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.SuccessCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.NoPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.SuccessBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.Paths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.PathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 import com.google.common.collect.Lists;
@@ -68,8 +69,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 			}
 			buffer.writeBytes(serializeObject(reply.getRp()));
 			if (reply.getResult() != null) {
-				if (reply.getResult() instanceof Failure) {
-					final Failure f = (Failure) reply.getResult();
+				if (reply.getResult() instanceof FailureCase) {
+					final FailureCase f = ((FailureCase) reply.getResult());
 					buffer.writeBytes(serializeObject(f.getNoPath()));
 					if (f.getLspa() != null) {
 						buffer.writeBytes(serializeObject(f.getLspa()));
@@ -86,8 +87,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 						buffer.writeBytes(serializeObject(f.getIro()));
 					}
 				} else {
-					final Success s = (Success) reply.getResult();
-					for (final Paths p : s.getPaths()) {
+					final SuccessCase s = (SuccessCase) reply.getResult();
+					for (final Paths p : s.getSuccess().getPaths()) {
 						buffer.writeBytes(serializeObject(p.getEro()));
 						if (p.getLspa() != null) {
 							buffer.writeBytes(serializeObject(p.getLspa()));
@@ -145,7 +146,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 			if (objects.get(0) instanceof NoPath) {
 				final NoPath noPath = (NoPath) objects.get(0);
 				objects.remove(0);
-				final FailureBuilder builder = new FailureBuilder();
+				final FailureCaseBuilder builder = new FailureCaseBuilder();
 				builder.setNoPath(noPath);
 				while (!objects.isEmpty()) {
 					this.parseAttributes(builder, objects);
@@ -163,13 +164,13 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 					paths.add(pBuilder.build());
 				}
 				builder.setPaths(paths);
-				res = builder.build();
+				res = new SuccessCaseBuilder().setSuccess(builder.build()).build();
 			}
 		}
 		return new RepliesBuilder().setRp(rp).setResult(res).build();
 	}
 
-	private void parseAttributes(final FailureBuilder builder, final List<Object> objects) {
+	private void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 
 		Object obj;

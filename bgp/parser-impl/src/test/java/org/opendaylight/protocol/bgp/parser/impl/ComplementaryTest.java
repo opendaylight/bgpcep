@@ -26,33 +26,33 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.CAs4Bytes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.CAs4BytesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.c.as4.bytes.As4BytesCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.as4.bytes._case.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.COpaqueExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.COpaqueExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteOriginExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteOriginExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteTargetExtendedCommunity;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteTargetExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.as.specific.extended.community.AsSpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.opaque.extended.community.OpaqueExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.origin.extended.community.RouteOriginExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.target.extended.community.RouteTargetExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.OpaqueExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.OpaqueExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteOriginExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteOriginExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteTargetExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteTargetExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.as.specific.extended.community._case.AsSpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.inet4.specific.extended.community._case.Inet4SpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.opaque.extended.community._case.OpaqueExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunityBuilder;
 
 import com.google.common.collect.Maps;
 
@@ -66,11 +66,11 @@ public class ComplementaryTest {
 
 		final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
 				UnicastSubsequentAddressFamily.class).build();
-		final CParameters tlv1 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap).build();
+		final CParameters tlv1 = new MultiprotocolCaseBuilder().setMultiprotocolCapability(cap).build();
 
 		final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
 				UnicastSubsequentAddressFamily.class).build();
-		final CParameters tlv2 = new CMultiprotocolBuilder().setMultiprotocolCapability(cap1).build();
+		final CParameters tlv2 = new MultiprotocolCaseBuilder().setMultiprotocolCapability(cap1).build();
 
 		final Map<BgpTableType, Boolean> tt = Maps.newHashMap();
 		tt.put(t, true);
@@ -79,7 +79,7 @@ public class ComplementaryTest {
 		// FIXME: BUG-196: revive test for graceful capability tlv
 		// final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
 
-		final CParameters tlv4 = new CAs4BytesBuilder().setAs4BytesCapability(
+		final CParameters tlv4 = new As4BytesCaseBuilder().setAs4BytesCapability(
 				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build();
 
 		// assertFalse(((GracefulCapability) tlv3).isRestartFlag());
@@ -98,11 +98,11 @@ public class ComplementaryTest {
 
 		assertNotSame(cap.getAfi(), cap1.getAfi());
 
-		assertEquals(40, ((CAs4Bytes) tlv4).getAs4BytesCapability().getAsNumber().getValue().longValue());
+		assertEquals(40, ((As4BytesCase) tlv4).getAs4BytesCapability().getAsNumber().getValue().longValue());
 
 		assertEquals(
-				new CAs4BytesBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build(),
-				tlv4);
+				new As4BytesCaseBuilder().setAs4BytesCapability(
+						new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) 40)).build()).build(), tlv4);
 	}
 
 	@Test
@@ -127,10 +127,10 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		CAsSpecificExtendedCommunity expected = new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+		AsSpecificExtendedCommunityCase expected = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
 				new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(new AsNumber(54L)).setLocalAdministrator(
 						new byte[] { 0, 0, 1, 76 }).build()).build();
-		CAsSpecificExtendedCommunity result = (CAsSpecificExtendedCommunity) as.getExtendedCommunity();
+		AsSpecificExtendedCommunityCase result = (AsSpecificExtendedCommunityCase) as.getExtendedCommunity();
 		assertEquals(expected.getAsSpecificExtendedCommunity().isTransitive(), result.getAsSpecificExtendedCommunity().isTransitive());
 		assertEquals(expected.getAsSpecificExtendedCommunity().getGlobalAdministrator(),
 				result.getAsSpecificExtendedCommunity().getGlobalAdministrator());
@@ -143,10 +143,10 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		expected = new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+		expected = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
 				new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new AsNumber(54L)).setLocalAdministrator(
 						new byte[] { 0, 0, 1, 76 }).build()).build();
-		result = (CAsSpecificExtendedCommunity) as.getExtendedCommunity();
+		result = (AsSpecificExtendedCommunityCase) as.getExtendedCommunity();
 		assertEquals(expected.getAsSpecificExtendedCommunity().isTransitive(), result.getAsSpecificExtendedCommunity().isTransitive());
 		assertEquals(40, as.getCommType().intValue());
 
@@ -156,10 +156,10 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		final CRouteTargetExtendedCommunity rexpected = new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+		final RouteTargetExtendedCommunityCase rexpected = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
 				new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(new AsNumber(35L)).setLocalAdministrator(
 						new byte[] { 4, 2, 8, 7 }).build()).build();
-		final CRouteTargetExtendedCommunity rresult = (CRouteTargetExtendedCommunity) rtc.getExtendedCommunity();
+		final RouteTargetExtendedCommunityCase rresult = (RouteTargetExtendedCommunityCase) rtc.getExtendedCommunity();
 		assertEquals(rexpected.getRouteTargetExtendedCommunity().getGlobalAdministrator(),
 				rresult.getRouteTargetExtendedCommunity().getGlobalAdministrator());
 		assertArrayEquals(rexpected.getRouteTargetExtendedCommunity().getLocalAdministrator(),
@@ -173,10 +173,10 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		final CRouteOriginExtendedCommunity oexpected = new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+		final RouteOriginExtendedCommunityCase oexpected = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
 				new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(new AsNumber(24L)).setLocalAdministrator(
 						new byte[] { 4, 2, 8, 7 }).build()).build();
-		final CRouteOriginExtendedCommunity oresult = (CRouteOriginExtendedCommunity) roc.getExtendedCommunity();
+		final RouteOriginExtendedCommunityCase oresult = (RouteOriginExtendedCommunityCase) roc.getExtendedCommunity();
 		assertEquals(oexpected.getRouteOriginExtendedCommunity().getGlobalAdministrator(),
 				oresult.getRouteOriginExtendedCommunity().getGlobalAdministrator());
 		assertArrayEquals(oexpected.getRouteOriginExtendedCommunity().getLocalAdministrator(),
@@ -190,10 +190,10 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		final CInet4SpecificExtendedCommunity iexpected = new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+		final Inet4SpecificExtendedCommunityCase iexpected = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
 				new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new Ipv4Address("12.51.2.5")).setLocalAdministrator(
 						new byte[] { 21, 45 }).build()).build();
-		final CInet4SpecificExtendedCommunity iresult = (CInet4SpecificExtendedCommunity) sec.getExtendedCommunity();
+		final Inet4SpecificExtendedCommunityCase iresult = (Inet4SpecificExtendedCommunityCase) sec.getExtendedCommunity();
 		assertEquals(iexpected.getInet4SpecificExtendedCommunity().isTransitive(),
 				iresult.getInet4SpecificExtendedCommunity().isTransitive());
 		assertEquals(iexpected.getInet4SpecificExtendedCommunity().getGlobalAdministrator(),
@@ -208,9 +208,9 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		final COpaqueExtendedCommunity oeexpected = new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+		final OpaqueExtendedCommunityCase oeexpected = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
 				new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(new byte[] { 21, 45, 5, 4, 3, 1 }).build()).build();
-		final COpaqueExtendedCommunity oeresult = (COpaqueExtendedCommunity) oec.getExtendedCommunity();
+		final OpaqueExtendedCommunityCase oeresult = (OpaqueExtendedCommunityCase) oec.getExtendedCommunity();
 		assertEquals(oeexpected.getOpaqueExtendedCommunity().isTransitive(), oeresult.getOpaqueExtendedCommunity().isTransitive());
 		assertArrayEquals(oeexpected.getOpaqueExtendedCommunity().getValue(), oeresult.getOpaqueExtendedCommunity().getValue());
 		assertEquals(3, oec.getCommType().intValue());
@@ -220,9 +220,9 @@ public class ComplementaryTest {
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
-		final COpaqueExtendedCommunity oeexpected1 = new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+		final OpaqueExtendedCommunityCase oeexpected1 = new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
 				new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(new byte[] { 21, 45, 5, 4, 3, 1 }).build()).build();
-		final COpaqueExtendedCommunity oeresult1 = (COpaqueExtendedCommunity) oec.getExtendedCommunity();
+		final OpaqueExtendedCommunityCase oeresult1 = (OpaqueExtendedCommunityCase) oec.getExtendedCommunity();
 		assertEquals(oeexpected1.getOpaqueExtendedCommunity().isTransitive(), oeresult1.getOpaqueExtendedCommunity().isTransitive());
 		assertArrayEquals(oeexpected1.getOpaqueExtendedCommunity().getValue(), oeresult1.getOpaqueExtendedCommunity().getValue());
 		assertEquals(43, oec.getCommType().intValue());

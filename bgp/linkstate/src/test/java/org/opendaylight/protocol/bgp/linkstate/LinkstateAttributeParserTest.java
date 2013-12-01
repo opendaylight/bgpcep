@@ -15,8 +15,10 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public class LinkstateAttributeParserTest {
@@ -48,17 +50,15 @@ public class LinkstateAttributeParserTest {
 			fail("No exception should occur.");
 		}
 		final PathAttributes1 attrs = builder.getAugmentation(PathAttributes1.class);
-		final LinkAttributes ls = (LinkAttributes) attrs.getLinkstatePathAttribute().getLinkStateAttribute();
+		final LinkAttributes ls = ((LinkAttributesCase) attrs.getLinkstatePathAttribute().getLinkStateAttribute()).getLinkAttributes();
 		assertNotNull(ls);
 
 		assertEquals("42.42.42.42", ls.getLocalIpv4RouterId().getValue());
 		assertEquals(new Long(10), ls.getMetric().getValue());
 		assertEquals(new Long(0), ls.getAdminGroup().getValue());
 		assertEquals("43.43.43.43", ls.getRemoteIpv4RouterId().getValue());
-		assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 },
-				ls.getMaxLinkBandwidth().getValue());
-		assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 },
-				ls.getMaxReservableBandwidth().getValue());
+		assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 }, ls.getMaxLinkBandwidth().getValue());
+		assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 }, ls.getMaxReservableBandwidth().getValue());
 		assertNotNull(ls.getUnreservedBandwidth());
 		assertEquals(8, ls.getUnreservedBandwidth().size());
 	}
@@ -72,7 +72,7 @@ public class LinkstateAttributeParserTest {
 			fail("No exception should occur.");
 		}
 		final PathAttributes1 attrs = builder.getAugmentation(PathAttributes1.class);
-		final NodeAttributes ls = (NodeAttributes) attrs.getLinkstatePathAttribute().getLinkStateAttribute();
+		final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkstatePathAttribute().getLinkStateAttribute()).getNodeAttributes();
 		assertNotNull(ls);
 
 		assertEquals("12K-2", ls.getDynamicHostname());

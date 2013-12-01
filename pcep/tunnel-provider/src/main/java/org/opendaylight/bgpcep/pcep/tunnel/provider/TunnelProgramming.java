@@ -20,16 +20,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.FailureBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure.Failure;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.FailureCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
@@ -152,7 +154,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 			if (sc.getIpv4Address() != null) {
 				for (final IpAddress dc : dsts) {
 					if (dc.getIpv4Address() != null) {
-						return new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).setDestinationIpv4Address(dc.getIpv4Address()).build();
+						return new Ipv4CaseBuilder().setIpv4(
+								new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).setDestinationIpv4Address(dc.getIpv4Address()).build()).build();
 					}
 				}
 			}
@@ -166,7 +169,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 			if (sc.getIpv6Address() != null) {
 				for (final IpAddress dc : dsts) {
 					if (dc.getIpv6Address() != null) {
-						return new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).setDestinationIpv6Address(dc.getIpv6Address()).build();
+						return new Ipv6CaseBuilder().setIpv6(
+								new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).setDestinationIpv6Address(dc.getIpv6Address()).build()).build();
 					}
 				}
 			}
@@ -256,7 +260,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final Failure f = this.scheduler.submitInstruction(input, e);
 		final PcepCreateP2pTunnelOutputBuilder b = new PcepCreateP2pTunnelOutputBuilder();
 		if (f != null) {
-			b.setResult(new FailureBuilder().setFailure(f).build());
+			b.setResult(new FailureCaseBuilder().setFailure(f).build());
 		}
 
 		final RpcResult<PcepCreateP2pTunnelOutput> res = SuccessfulRpcResult.create(b.build());
@@ -315,7 +319,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final Failure f = this.scheduler.submitInstruction(input, e);
 		final PcepDestroyTunnelOutputBuilder b = new PcepDestroyTunnelOutputBuilder();
 		if (f != null) {
-			b.setResult(new FailureBuilder().setFailure(f).build());
+			b.setResult(new FailureCaseBuilder().setFailure(f).build());
 		}
 
 		final RpcResult<PcepDestroyTunnelOutput> res = SuccessfulRpcResult.create(b.build());
@@ -368,7 +372,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final Failure f = this.scheduler.submitInstruction(input, e);
 		final PcepUpdateTunnelOutputBuilder b = new PcepUpdateTunnelOutputBuilder();
 		if (f != null) {
-			b.setResult(new FailureBuilder().setFailure(f).build());
+			b.setResult(new FailureCaseBuilder().setFailure(f).build());
 		}
 
 		final RpcResult<PcepUpdateTunnelOutput> res = SuccessfulRpcResult.create(b.build());

@@ -21,9 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CAListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.CASetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.c.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
@@ -57,12 +59,13 @@ public final class AsPathAttributeParser implements AttributeParser {
 			if (segmentType == SegmentType.AS_SEQUENCE) {
 				final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-				ases.add(new SegmentsBuilder().setCSegment(new CAListBuilder().setAsSequence(numbers).build()).build());
+				ases.add(new SegmentsBuilder().setCSegment(
+						new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
 				isSequence = true;
 			} else {
 				final List<AsNumber> list = AsPathSegmentParser.parseAsSet(count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-				ases.add(new SegmentsBuilder().setCSegment(new CASetBuilder().setAsSet(list).build()).build());
+				ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
 
 			}
 			byteOffset += count * AsPathSegmentParser.AS_NUMBER_LENGTH;
@@ -75,7 +78,7 @@ public final class AsPathAttributeParser implements AttributeParser {
 	}
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder)	throws BGPDocumentedException, BGPParsingException {
+	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
 		builder.setAsPath(parseAsPath(bytes));
 	}
 }

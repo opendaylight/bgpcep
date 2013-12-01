@@ -22,14 +22,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.ErrorType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.Rsvp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.User;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.UserBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp.RsvpError;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp.RsvpErrorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user.UserError;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user.UserErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.UserCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.UserCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp._case.RsvpError;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp._case.RsvpErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user._case.UserError;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user._case.UserErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags;
 
 import com.google.common.primitives.UnsignedBytes;
@@ -92,16 +92,16 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		}
 		final RsvpErrorSpec rsvp = (RsvpErrorSpec) tlv;
 
-		if (rsvp.getErrorType().getImplementedInterface().equals(Rsvp.class)) {
-			final Rsvp r = (Rsvp) rsvp.getErrorType();
+		if (rsvp.getErrorType().getImplementedInterface().equals(RsvpCase.class)) {
+			final RsvpCase r = (RsvpCase) rsvp.getErrorType();
 			return serializeRsvp(r.getRsvpError());
 		} else {
-			final User u = (User) rsvp.getErrorType();
+			final UserCase u = (UserCase) rsvp.getErrorType();
 			return serializerUserError(u.getUserError());
 		}
 	}
 
-	private User parseUserError(final byte[] valueBytes) {
+	private UserCase parseUserError(final byte[] valueBytes) {
 		final UserErrorBuilder error = new UserErrorBuilder();
 		int byteOffset = 0;
 		error.setEnterprise(new EnterpriseNumber(ByteArray.bytesToLong(ByteArray.subByte(valueBytes, byteOffset, ENTERPRISE_F_LENGTH))));
@@ -115,7 +115,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		error.setDescription(ByteArray.bytesToHRString(ByteArray.subByte(valueBytes, byteOffset, errDescrLength)));
 		byteOffset += errDescrLength;
 		// if we have any subobjects, place the implementation here
-		return new UserBuilder().setUserError(error.build()).build();
+		return new UserCaseBuilder().setUserError(error.build()).build();
 	}
 
 	private byte[] serializerUserError(final UserError ue) {
@@ -142,7 +142,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		return bytes;
 	}
 
-	private Rsvp parseRsvp(final int classType, final byte[] valueBytes) {
+	private RsvpCase parseRsvp(final int classType, final byte[] valueBytes) {
 		int byteOffset = 0;
 		final RsvpErrorBuilder builder = new RsvpErrorBuilder();
 		if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
@@ -160,7 +160,7 @@ public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 		builder.setCode(errorCode);
 		final int errorValue = (ByteArray.bytesToShort(ByteArray.subByte(valueBytes, byteOffset, ERROR_VALUE_F_LENGTH)) & 0xFFFF);
 		builder.setValue(errorValue);
-		return new RsvpBuilder().setRsvpError(builder.build()).build();
+		return new RsvpCaseBuilder().setRsvpError(builder.build()).build();
 	}
 
 	private byte[] serializeRsvp(final RsvpError rsvp) {
