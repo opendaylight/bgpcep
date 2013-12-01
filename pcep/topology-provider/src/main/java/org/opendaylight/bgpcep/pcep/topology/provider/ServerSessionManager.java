@@ -310,7 +310,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						final SymbolicPathName name = tlvs.getSymbolicPathName();
 						if (name == null) {
 							LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
-							// TODO: what should we do here?
+							// FIXME: BUG-189
 							continue;
 						}
 						this.lsps.put(id, name);
@@ -539,9 +539,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).
-				child(PathComputationClient.class).
-				child(ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
 		LOG.debug("Checking if LSP {} has operational state {}", lsp, input.getArguments().getOperational());
 		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {

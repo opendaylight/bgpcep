@@ -39,7 +39,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
-public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener, TopologyReference {
+public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener,
+		TopologyReference {
 	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder(LocRib.class).toInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
 	private final InstanceIdentifier<Topology> topology;
@@ -52,21 +53,22 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 		this.idClass = Preconditions.checkNotNull(idClass);
 	}
 
-	public static final InstanceIdentifier<Tables> tableInstanceIdentifier(
-			final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+	public static final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
+			final Class<? extends SubsequentAddressFamily> safi) {
 		return InstanceIdentifier.builder(locRIBPath).child(Tables.class, new TablesKey(afi, safi)).toInstance();
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
+
 	protected abstract void removeObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
 
 	public final DataProviderService getDataProvider() {
-		return dataProvider;
+		return this.dataProvider;
 	}
 
 	@Override
 	public final InstanceIdentifier<Topology> getInstanceIdentifier() {
-		return topology;
+		return this.topology;
 	}
 
 	@Override
@@ -75,20 +77,20 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
 		final Set<InstanceIdentifier<T>> ids = new HashSet<>();
 		for (final InstanceIdentifier<?> i : event.getRemovedOperationalData()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
 		}
 		for (final InstanceIdentifier<?> i : event.getUpdatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
 		}
 		for (final InstanceIdentifier<?> i : event.getCreatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(idClass)));
+			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
 		}
 
 		final Map<InstanceIdentifier<?>, DataObject> o = event.getOriginalOperationalData();
 		final Map<InstanceIdentifier<?>, DataObject> n = event.getUpdatedOperationalData();
 		for (final InstanceIdentifier<T> i : ids) {
-			final T oldValue = idClass.cast(o.get(i));
-			final T newValue = idClass.cast(n.get(i));
+			final T oldValue = this.idClass.cast(o.get(i));
+			final T newValue = this.idClass.cast(n.get(i));
 
 			LOG.debug("Updating object {} value {} -> {}", i, oldValue, newValue);
 			if (oldValue != null) {
@@ -99,8 +101,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 			}
 		}
 
-		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-				new FutureCallback<RpcResult<TransactionStatus>>() {
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
 				// Nothing to do
@@ -115,21 +116,21 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 
 	@Override
 	public final void close() throws InterruptedException, ExecutionException {
-		final DataModificationTransaction trans = dataProvider.beginTransaction();
+		final DataModificationTransaction trans = this.dataProvider.beginTransaction();
 		trans.removeOperationalData(getInstanceIdentifier());
 		trans.commit().get();
 	}
 
 	@Override
 	public final void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-		final DataModificationTransaction trans = dataProvider.beginTransaction();
+		final DataModificationTransaction trans = this.dataProvider.beginTransaction();
 
 		try {
 			onLocRIBChange(trans, change);
-		} catch (RuntimeException e) {
+		} catch (final RuntimeException e) {
 			LOG.info("Data change {} was not completely propagated to listener {}", change, this, e);
 		}
 
-		// FIXME: abort the transaction if it's not committing?
+		// FIXME: BUG-198: abort the transaction if it's not committing?
 	}
 }

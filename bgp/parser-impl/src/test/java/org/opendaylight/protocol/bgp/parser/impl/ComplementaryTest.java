@@ -76,7 +76,7 @@ public class ComplementaryTest {
 		tt.put(t, true);
 		tt.put(t1, false);
 
-		// FIXME: revive test for graceful capability tlv
+		// FIXME: BUG-196: revive test for graceful capability tlv
 		// final BGPParameter tlv3 = new GracefulCapability(false, 0, tt);
 
 		final CParameters tlv4 = new CAs4BytesBuilder().setAs4BytesCapability(

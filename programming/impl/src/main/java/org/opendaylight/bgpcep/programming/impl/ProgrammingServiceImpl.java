@@ -76,8 +76,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	private java.util.concurrent.Future<Void> thread;
 	private ExecutorService exec;
 
-	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor,
-			final Timer timer) {
+	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor, final Timer timer) {
 		this.notifs = Preconditions.checkNotNull(notifs);
 		this.executor = Preconditions.checkNotNull(executor);
 		this.timer = Preconditions.checkNotNull(timer);
@@ -85,7 +84,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 
 	@Override
 	public java.util.concurrent.Future<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
-		return executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
+		return this.executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
 			@Override
 			public RpcResult<CancelInstructionOutput> call() {
 				return realCancelInstruction(input);
@@ -93,8 +92,8 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		});
 	}
 
-	private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input)  {
-		final Instruction i = insns.get(input.getId());
+	private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
+		final Instruction i = this.insns.get(input.getId());
 		if (i == null) {
 			LOG.debug("Instruction {} not present in the graph", input.getId());
 
@@ -109,8 +108,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		case Successful:
 		case Unknown:
 			LOG.debug("Instruction {} can no longer be cancelled due to status {}", input.getId());
-			return SuccessfulRpcResult.create(
-					new CancelInstructionOutputBuilder().setFailure(UncancellableInstruction.class).build());
+			return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder().setFailure(UncancellableInstruction.class).build());
 		case Queued:
 		case Scheduled:
 			break;
@@ -123,7 +121,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	@Override
 	public Failure submitInstruction(final SubmitInstructionInput input, final InstructionExecutor executor) {
 		final InstructionId id = input.getId();
-		if (insns.get(id) != null) {
+		if (this.insns.get(id) != null) {
 			LOG.info("Instruction ID {} already present", id);
 			return new FailureBuilder().setType(DuplicateInstructionId.class).build();
 		}
@@ -140,7 +138,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		// Resolve dependencies
 		final List<Instruction> dependencies = new ArrayList<>();
 		for (final InstructionId pid : input.getPreconditions()) {
-			final Instruction i = insns.get(pid);
+			final Instruction i = this.insns.get(pid);
 			if (i == null) {
 				LOG.info("Instruction {} depends on {}, which is not a known instruction", id, pid);
 				return new FailureBuilder().setType(UnknownPreconditionId.class).build();
@@ -181,7 +179,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		 */
 
 		// Schedule a timeout for the instruction
-		final Timeout t = timer.newTimeout(new TimerTask() {
+		final Timeout t = this.timer.newTimeout(new TimerTask() {
 			@Override
 			public void run(final Timeout timeout) throws Exception {
 				timeoutInstruction(input.getId());
@@ -190,7 +188,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 
 		// Put it into the instruction list
 		final Instruction i = new Instruction(input.getId(), executor, dependencies, t);
-		insns.put(id, i);
+		this.insns.put(id, i);
 
 		// Attach it into its dependencies
 		for (final Instruction d : dependencies) {
@@ -221,8 +219,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		LOG.debug("Instruction {} transitioned to status {}", v.getId(), status);
 
 		// Send out a notification
-		notifs.publish(new InstructionStatusChangedBuilder().
-				setId(v.getId()).setStatus(status).setDetails(details).build());
+		this.notifs.publish(new InstructionStatusChangedBuilder().setId(v.getId()).setStatus(status).setDetails(details).build());
 	}
 
 	@GuardedBy("this")
@@ -255,13 +252,13 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	}
 
 	private synchronized void cancelInstruction(final Instruction i, final Details details) {
-		readyQueue.remove(i);
+		this.readyQueue.remove(i);
 		cancelSingle(i, details);
 		cancelDependants(i);
 	}
 
 	private synchronized void timeoutInstruction(final InstructionId id) {
-		final Instruction i = insns.get(id);
+		final Instruction i = this.insns.get(id);
 		if (i == null) {
 			LOG.warn("Instruction {} timed out, but not found in the queue", id);
 			return;
@@ -295,7 +292,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 			break;
 		case Scheduled:
 			LOG.debug("Instruction {} timed out while Scheduled, cancelling it", i.getId());
-			// FIXME: we should provide details why it timed out while scheduled
+			// FIXME: BUG-191: we should provide details why it timed out while scheduled
 			cancelInstruction(i, null);
 			break;
 		}
@@ -344,7 +341,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 			LOG.debug("Instruction {} is ready for execution", i.getId());
 			transitionInstruction(i, InstructionStatus.Scheduled, null);
 
-			readyQueue.add(i);
+			this.readyQueue.add(i);
 			notify();
 		}
 	}
@@ -371,8 +368,8 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		 * This method is only ever interrupted by InterruptedException
 		 */
 		while (true) {
-			while (!readyQueue.isEmpty()) {
-				final Instruction i = readyQueue.poll();
+			while (!this.readyQueue.isEmpty()) {
+				final Instruction i = this.readyQueue.poll();
 
 				Preconditions.checkState(i.getStatus().equals(InstructionStatus.Scheduled));
 
@@ -396,29 +393,29 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	}
 
 	synchronized void start(final ThreadFactory threadFactory) {
-		Preconditions.checkState(exec == null, "Programming service dispatch thread already started");
+		Preconditions.checkState(this.exec == null, "Programming service dispatch thread already started");
 
-		exec = Executors.newSingleThreadExecutor(threadFactory);
-		thread = exec.submit(new Callable<Void>() {
+		this.exec = Executors.newSingleThreadExecutor(threadFactory);
+		this.thread = this.exec.submit(new Callable<Void>() {
 			@Override
 			public Void call() {
 				try {
 					processQueues();
-				} catch (InterruptedException ex) {
+				} catch (final InterruptedException ex) {
 					LOG.error("Programming service dispatch thread died", ex);
 				}
 				return null;
 			}
 		});
-		exec.shutdown();
+		this.exec.shutdown();
 	}
 
 	synchronized void stop(final long timeout, final TimeUnit unit) throws InterruptedException {
-		Preconditions.checkState(exec != null, "Programming service dispatch thread already stopped");
+		Preconditions.checkState(this.exec != null, "Programming service dispatch thread already stopped");
 
-		thread.cancel(true);
-		exec.awaitTermination(timeout, unit);
-		exec = null;
+		this.thread.cancel(true);
+		this.exec.awaitTermination(timeout, unit);
+		this.exec = null;
 	}
 
 	@Override

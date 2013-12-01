@@ -143,7 +143,7 @@ public final class PCEPErrorMapping {
 
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 1), PCEPErrors.UPDATE_REQ_FOR_NON_LSP);
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 2), PCEPErrors.UPDATE_REQ_FOR_NO_STATEFUL);
-		// TODO: value TBD
+		// TODO: replace with actual values by IANA
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.UNKNOWN_PLSP_ID);
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.LSP_LIMIT_EXCEEDED);
 

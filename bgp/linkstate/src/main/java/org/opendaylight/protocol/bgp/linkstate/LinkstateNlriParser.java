@@ -218,7 +218,7 @@ public final class LinkstateNlriParser implements NlriParser {
 			return new COspfNodeBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteArray.subByte(value, 0, 4)).build()).build();
 		}
 		if (value.length == 8) {
-			final byte[] o = ByteArray.subByte(value, 0, 4); // FIXME: OSPFv3 vs OSPFv2
+			final byte[] o = ByteArray.subByte(value, 0, 4);
 			final OspfInterfaceIdentifier a = new OspfInterfaceIdentifier(ByteArray.subByte(value, 4, 4));
 			return new COspfPseudonodeBuilder().setOspfPseudonode(new OspfPseudonodeBuilder().setOspfRouterId(o).setLanInterface(a).build()).build();
 		}

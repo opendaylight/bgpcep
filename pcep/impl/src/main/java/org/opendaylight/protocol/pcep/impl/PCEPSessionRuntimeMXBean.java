@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl;
 import java.io.IOException;
 
 public interface PCEPSessionRuntimeMXBean {
-	//TODO remove once operations are generated
+	// FIXME: BUG-194: remove once operations are generated
 
 	Integer getDeadTimerValue();
 

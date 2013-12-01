@@ -64,7 +64,7 @@ import com.google.common.primitives.UnsignedBytes;
  * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03">BGP-LS draft</a>
  */
 public class LinkstateAttributeParser implements AttributeParser {
-	// FIXME: update to IANA number once it is known
+	// TODO: replace with actual values by IANA
 	public static final int TYPE = 99;
 
 	private static final Logger logger = LoggerFactory.getLogger(LinkstateAttributeParser.class);
