@@ -398,6 +398,17 @@
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>
                                     </generator>
+                                    <generator>
+                                        <codeGeneratorClass>
+                                            org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
+                                        </codeGeneratorClass>
+                                        <outputBaseDir>${project.build.directory}/generated-sources/config</outputBaseDir>
+                                        <additionalConfiguration>
+                                            <namespaceToPackage1>
+                                                urn:opendaylight:params:xml:ns:yang:controller==org.opendaylight.controller.config.yang
+                                            </namespaceToPackage1>
+                                        </additionalConfiguration>
+                                    </generator>
                                 </codeGenerators>
                                 <inspectDependencies>true</inspectDependencies>
                             </configuration>
@@ -410,6 +421,11 @@
                             <version>${yang.binding.version}</version>
                             <type>jar</type>
                         </dependency>
+                    <dependency>
+                        <groupId>org.opendaylight.controller</groupId>
+                        <artifactId>yang-jmx-generator-plugin</artifactId>
+                        <version>${controller.config.version}</version>
+                    </dependency>
                     </dependencies>
                 </plugin>
 
