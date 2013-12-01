@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv4NextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.CIpv6NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 
 import com.google.common.primitives.UnsignedBytes;
 
@@ -49,7 +49,7 @@ public class UtilsTest {
 			fail("This exception should not happen");
 		}
 		CNextHop hop = builder.getCNextHop();
-		assertEquals("42.42.42.42", ((CIpv4NextHop) hop).getIpv4NextHop().getGlobal().getValue());
+		assertEquals("42.42.42.42", ((Ipv4NextHopCase) hop).getIpv4NextHop().getGlobal().getValue());
 
 		final byte[] ipv6 = new byte[] { (byte) 0x20, (byte) 0x01, (byte) 0x0d, (byte) 0xb8, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 01 };
 		try {
@@ -58,8 +58,8 @@ public class UtilsTest {
 			fail("This exception should not happen");
 		}
 		hop = builder.getCNextHop();
-		assertEquals("2001:db8::1", ((CIpv6NextHop) hop).getIpv6NextHop().getGlobal().getValue());
-		assertNull(((CIpv6NextHop) hop).getIpv6NextHop().getLinkLocal());
+		assertEquals("2001:db8::1", ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal().getValue());
+		assertNull(((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
 
 		final byte[] ipv6l = new byte[] { (byte) 0x20, (byte) 0x01, (byte) 0x0d, (byte) 0xb8, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00,
 				01, (byte) 0xfe, (byte) 0x80, 00, 00, 00, 00, 00, 00, (byte) 0xc0, 01, 0x0b, (byte) 0xff, (byte) 0xfe, 0x7e, 00, 00 };
@@ -69,8 +69,8 @@ public class UtilsTest {
 			fail("This exception should not happen");
 		}
 		hop = builder.getCNextHop();
-		assertEquals("2001:db8::1", ((CIpv6NextHop) hop).getIpv6NextHop().getGlobal().getValue());
-		assertEquals("fe80::c001:bff:fe7e:0", ((CIpv6NextHop) hop).getIpv6NextHop().getLinkLocal().getValue());
+		assertEquals("2001:db8::1", ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal().getValue());
+		assertEquals("fe80::c001:bff:fe7e:0", ((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal().getValue());
 
 		final byte[] wrong = new byte[] { (byte) 0x20, (byte) 0x01, (byte) 0x0d };
 		try {

@@ -17,12 +17,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link IpPrefixSubobject}
+ * Parser for {@link IpPrefixCase}
  */
 public class EROIpPrefixSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -56,13 +58,15 @@ public class EROIpPrefixSubobjectParser implements EROSubobjectParser, EROSubobj
 
 		if (buffer.length == CONTENT4_LENGTH) {
 			final int length = UnsignedBytes.toInt(buffer[PREFIX4_F_OFFSET]);
-			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-					new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, 0, IP4_F_LENGTH), length))).build());
+			builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+					new IpPrefixBuilder().setIpPrefix(
+							new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, 0, IP4_F_LENGTH), length))).build()).build());
 			return builder.build();
 		} else if (buffer.length == CONTENT_LENGTH) {
 			final int length = UnsignedBytes.toInt(buffer[PREFIX_F_OFFSET]);
-			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-					new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, 0, IP_F_LENGTH), length))).build());
+			builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+					new IpPrefixBuilder().setIpPrefix(
+							new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, 0, IP_F_LENGTH), length))).build()).build());
 			return builder.build();
 		} else {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
@@ -71,11 +75,11 @@ public class EROIpPrefixSubobjectParser implements EROSubobjectParser, EROSubobj
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof IpPrefixSubobject)) {
+		if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
 			throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed IpPrefixSubobject.");
+					+ ". Needed IpPrefixCase.");
 		}
-		final IpPrefixSubobject specObj = (IpPrefixSubobject) subobject.getSubobjectType();
+		final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
 		final IpPrefix prefix = specObj.getIpPrefix();
 
 		if (prefix.getIpv4Prefix() != null) {

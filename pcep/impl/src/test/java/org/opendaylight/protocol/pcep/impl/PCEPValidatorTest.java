@@ -126,10 +126,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Unnumbered;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 import com.google.common.collect.Lists;
 
@@ -153,8 +155,8 @@ public class PCEPValidatorTest {
 	private EndpointsObj endpoints;
 	private Svec svec;
 
-	private AsNumber eroASSubobject;
-	private Unnumbered rroUnnumberedSub;
+	private AsNumberCase eroASSubobject;
+	private UnnumberedCase rroUnnumberedSub;
 
 	@Before
 	public void setUp() throws Exception {
@@ -221,10 +223,12 @@ public class PCEPValidatorTest {
 		mBuilder.setValue(new Float32(new byte[4]));
 		this.metrics = new MetricsBuilder().setMetric(mBuilder.build()).build();
 
-		this.eroASSubobject = new AsNumberBuilder().setAsNumber(
-				new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber(0xFFFFL)).build();
+		this.eroASSubobject = new AsNumberCaseBuilder().setAsNumber(
+				new AsNumberBuilder().setAsNumber(
+						new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber(0xFFFFL)).build()).build();
 
-		this.rroUnnumberedSub = new UnnumberedBuilder().setRouterId(0x00112233L).setInterfaceId(0x00ff00ffL).build();
+		this.rroUnnumberedSub = new UnnumberedCaseBuilder().setUnnumbered(
+				new UnnumberedBuilder().setRouterId(0x00112233L).setInterfaceId(0x00ff00ffL).build()).build();
 
 		final IroBuilder iroBuilder = new IroBuilder();
 		iroBuilder.setIgnore(false);

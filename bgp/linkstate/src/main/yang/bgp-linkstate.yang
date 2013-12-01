@@ -222,25 +222,25 @@ module bgp-linkstate {
 			type domain-identifier;
 		}
 		choice c-router-identifier {
-			case c-isis-node {
+			case isis-node-case {
 				container isis-node {
 					uses isis-router-identifier;
 				}
 			}
 
-			case c-isis-pseudonode {
+			case isis-pseudonode-case {
 				container isis-pseudonode {
 					uses isis-lan-identifier;
 				}
 			}
 
-			case c-ospf-node {
+			case ospf-node-case {
 				container ospf-node {
 					uses ospf-router-identifier;
 				}
 			}
 
-			case c-ospf-pseudonode {
+			case ospf-pseudonode-case {
 				container ospf-pseudonode {
 					uses ospf-v3-lan-identifier;
 				}
@@ -327,14 +327,18 @@ module bgp-linkstate {
 	}
 
 	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
-		case destination-linkstate {
-			uses linkstate-destination;
+		case destination-linkstate-case {
+			container destination-linkstate {
+				uses linkstate-destination;
+			}
 		}
 	}
 
 	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
-		case destination-linkstate {
-			uses linkstate-destination;
+		case destination-linkstate-case {
+			container destination-linkstate {
+				uses linkstate-destination;
+			}
 		}
 	}
 
@@ -540,104 +544,112 @@ module bgp-linkstate {
 	augment "/bgp-msg:update/bgp-msg:path-attributes" {
 		container linkstate-path-attribute {
 			choice link-state-attribute {
-				case node-attributes {
-					when "../../nlri-type = node";
-					uses node-state;
+				case node-attributes-case {
+					container node-attributes {
+						when "../../nlri-type = node";
+						uses node-state;
+					}
 				}
-				case link-attributes {
-					when "../../nlri-type = link";
-					uses link-state;
+				case link-attributes-case {
+					container link-attributes {
+						when "../../nlri-type = link";
+						uses link-state;
+					}
 				}
-				case prefix-attributes {
-					when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-					uses prefix-state;
+				case prefix-attributes-case {
+					container prefix-attributes {
+						when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+						uses prefix-state;
+					}
 				}
 			}
 		}
 	}
 
 	augment "/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
-		case linkstate-routes {
-			list linkstate-route {
-				description
-					"Link-state information entry. Due to
-					the complexity of link-state information
-					and YANG limitations this is the top-level
-					object from contract perspective. It is
-					keyed by route-key, whose format is
-					internal to the implementation exposing
-					this information. As an explicit example
-					it can rely on information stored in the
-					entry's subtree, so the subtree MUST NOT
-					be modified by outside entities.
-					Augmentations can attach data, but must
-					be explicitly aware that such data, unlike
-					the data modeled directly here, does not
-					have any effects on keys, especially they
-					must not impact equality tests.";
-
-				leaf route-key {
+		case linkstate-routes-case {
+			container linkstate-routes {
+				list linkstate-route {
 					description
-						"The sole function of this leaf
-						to act as the key in the list.
-						Its format does not form the
-						API contract of this model.";
-					type binary;
-				}
-				key "route-key";
+						"Link-state information entry. Due to
+						the complexity of link-state information
+						and YANG limitations this is the top-level
+						object from contract perspective. It is
+						keyed by route-key, whose format is
+						internal to the implementation exposing
+						this information. As an explicit example
+						it can rely on information stored in the
+						entry's subtree, so the subtree MUST NOT
+						be modified by outside entities.
+						Augmentations can attach data, but must
+						be explicitly aware that such data, unlike
+						the data modeled directly here, does not
+						have any effects on keys, especially they
+						must not impact equality tests.";
 
-				leaf distinguisher {
-					type route-distinguisher;
-				}
-				leaf protocol-id {
-					type protocol-id;
-				}
-				leaf identifier {
-					type identifier;
-				}
-
-				choice object-type {
-					case node {
-						container node-descriptors {
-							uses node-identifier;
-						}
+					leaf route-key {
+						description
+							"The sole function of this leaf
+							to act as the key in the list.
+							Its format does not form the
+							API contract of this model.";
+						type binary;
 					}
-					case link {
-						container local-node-descriptors {
-							uses node-identifier;
-						}
-						container remote-node-descriptors {
-							uses node-identifier;
-						}
-						container link-descriptors {
-							uses link-identifier;
-						}
-					}
-					case prefix {
-						container advertising-node-descriptors {
-							uses node-identifier;
-						}
+					key "route-key";
 
-						uses prefix-identifiers;
+					leaf distinguisher {
+						type route-distinguisher;
 					}
-				}
+					leaf protocol-id {
+						type protocol-id;
+					}
+					leaf identifier {
+						type identifier;
+					}
 
-				uses bgp-rib:route {
-					augment attributes {
-						choice attribute-type {
-							case node {
-								container node-attributes {
-									uses node-state;
-								}
+					choice object-type {
+						case node-case {
+							container node {
+								uses node-identifier;
 							}
-							case link {
-								container link-attributes {
-									uses link-state;
-								}
+						}
+						case link-case {
+							container local-node-descriptors {
+								uses node-identifier;
 							}
-							case prefix {
-								container prefix-attributes {
-									uses prefix-state;
+							container remote-node-descriptors {
+								uses node-identifier;
+							}
+							container link-descriptors {
+								uses link-identifier;
+							}
+						}
+						case prefix-case {
+							container prefix {
+								uses node-identifier;
+							}
+
+							uses prefix-identifiers;
+						}
+					}
+
+					uses bgp-rib:route {
+						augment attributes {
+							choice attribute-type {
+								case node-case {
+									container node {
+										uses node-state;
+									}
+								}
+								case link-case {
+									container link {
+										uses link-state;
+									}
+								}
+								case prefix-case {
+									container prefix {
+										uses prefix-state;
+									}
 								}
 							}
 						}

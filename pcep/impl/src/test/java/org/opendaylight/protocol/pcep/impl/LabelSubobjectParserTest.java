@@ -15,9 +15,12 @@ import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.type1.label._case.Type1LabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 
 public class LabelSubobjectParserTest {
 
@@ -29,8 +32,9 @@ public class LabelSubobjectParserTest {
 	@Test
 	public void testGeneralizedLabel() throws PCEPDeserializerException {
 		final GeneralizedLabelParser parser = new GeneralizedLabelParser();
-		final GeneralizedLabelBuilder builder = new GeneralizedLabelBuilder();
-		builder.setGeneralizedLabel(generalizedLabelBytes);
+		final GeneralizedLabelBuilder iBuilder = new GeneralizedLabelBuilder();
+		iBuilder.setGeneralizedLabel(generalizedLabelBytes);
+		final GeneralizedLabelCaseBuilder builder = new GeneralizedLabelCaseBuilder().setGeneralizedLabel(iBuilder.build());
 		assertEquals(builder.build(), parser.parseLabel(generalizedLabelBytes));
 		assertArrayEquals(generalizedLabelBytes, parser.serializeLabel(builder.build()));
 	}
@@ -38,10 +42,11 @@ public class LabelSubobjectParserTest {
 	@Test
 	public void testWavebandLabel() throws PCEPDeserializerException {
 		final WavebandSwitchingLabelParser parser = new WavebandSwitchingLabelParser();
-		final WavebandSwitchingLabelBuilder builder = new WavebandSwitchingLabelBuilder();
-		builder.setWavebandId(0x1234L);
-		builder.setStartLabel(0x9999L);
-		builder.setEndLabel(0x1111L);
+		final WavebandSwitchingLabelBuilder iBuilder = new WavebandSwitchingLabelBuilder();
+		iBuilder.setWavebandId(0x1234L);
+		iBuilder.setStartLabel(0x9999L);
+		iBuilder.setEndLabel(0x1111L);
+		final WavebandSwitchingLabelCaseBuilder builder = new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
 		assertEquals(builder.build(), parser.parseLabel(wavebandLabelBytes));
 		assertArrayEquals(wavebandLabelBytes, parser.serializeLabel(builder.build()));
 	}
@@ -49,8 +54,9 @@ public class LabelSubobjectParserTest {
 	@Test
 	public void testTypeOneLabel() throws PCEPDeserializerException {
 		final Type1LabelParser parser = new Type1LabelParser();
-		final Type1LabelBuilder builder = new Type1LabelBuilder();
-		builder.setType1Label(0x120025ffL);
+		final Type1LabelBuilder iBuilder = new Type1LabelBuilder();
+		iBuilder.setType1Label(0x120025ffL);
+		final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder().setType1Label(iBuilder.build());
 		assertEquals(builder.build(), parser.parseLabel(generalizedLabelBytes));
 		assertArrayEquals(generalizedLabelBytes, parser.serializeLabel(builder.build()));
 	}

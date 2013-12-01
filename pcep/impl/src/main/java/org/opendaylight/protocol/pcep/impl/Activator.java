@@ -120,14 +120,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.Label;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.Srlg;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.Unnumbered;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1Label;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCase;
 
 public final class Activator extends AbstractExtensionProviderActivator {
 	@Override
@@ -139,9 +139,9 @@ public final class Activator extends AbstractExtensionProviderActivator {
 		context.registerLabelParser(GeneralizedLabelParser.CTYPE, new GeneralizedLabelParser());
 		context.registerLabelParser(WavebandSwitchingLabelParser.CTYPE, new WavebandSwitchingLabelParser());
 
-		context.registerLabelSerializer(Type1Label.class, new Type1LabelParser());
-		context.registerLabelSerializer(GeneralizedLabel.class, new GeneralizedLabelParser());
-		context.registerLabelSerializer(WavebandSwitchingLabel.class, new WavebandSwitchingLabelParser());
+		context.registerLabelSerializer(Type1LabelCase.class, new Type1LabelParser());
+		context.registerLabelSerializer(GeneralizedLabelCase.class, new GeneralizedLabelParser());
+		context.registerLabelSerializer(WavebandSwitchingLabelCase.class, new WavebandSwitchingLabelParser());
 
 		final EROSubobjectHandlerRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
 		context.registerEROSubobjectParser(EROIpPrefixSubobjectParser.TYPE, new EROIpPrefixSubobjectParser());
@@ -152,10 +152,10 @@ public final class Activator extends AbstractExtensionProviderActivator {
 		context.registerEROSubobjectParser(EROPathKeySubobjectParser.TYPE, new EROPathKeySubobjectParser());
 		context.registerEROSubobjectParser(EROPathKeySubobjectParser.TYPE128, new EROPathKeySubobjectParser());
 
-		context.registerEROSubobjectSerializer(IpPrefix.class, new EROIpPrefixSubobjectParser());
-		context.registerEROSubobjectSerializer(AsNumber.class, new EROAsNumberSubobjectParser());
-		context.registerEROSubobjectSerializer(Label.class, new EROLabelSubobjectParser(labelReg));
-		context.registerEROSubobjectSerializer(Unnumbered.class, new EROUnnumberedInterfaceSubobjectParser());
+		context.registerEROSubobjectSerializer(IpPrefixCase.class, new EROIpPrefixSubobjectParser());
+		context.registerEROSubobjectSerializer(AsNumberCase.class, new EROAsNumberSubobjectParser());
+		context.registerEROSubobjectSerializer(LabelCase.class, new EROLabelSubobjectParser(labelReg));
+		context.registerEROSubobjectSerializer(UnnumberedCase.class, new EROUnnumberedInterfaceSubobjectParser());
 		context.registerEROSubobjectSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKey.class,
 				new EROPathKeySubobjectParser());
@@ -169,13 +169,13 @@ public final class Activator extends AbstractExtensionProviderActivator {
 		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE128, new RROPathKeySubobjectParser());
 
 		context.registerRROSubobjectSerializer(
-				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefix.class,
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCase.class,
 				new RROIpPrefixSubobjectParser());
 		context.registerRROSubobjectSerializer(
-				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Label.class,
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelCase.class,
 				new RROLabelSubobjectParser(labelReg));
 		context.registerRROSubobjectSerializer(
-				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.Unnumbered.class,
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCase.class,
 				new RROUnnumberedInterfaceSubobjectParser());
 		context.registerRROSubobjectSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobjects.subobject.type.PathKey.class,
@@ -190,10 +190,10 @@ public final class Activator extends AbstractExtensionProviderActivator {
 		context.registerXROSubobjectParser(XROPathKeySubobjectParser.TYPE, new XROPathKeySubobjectParser());
 		context.registerXROSubobjectParser(XROPathKeySubobjectParser.TYPE128, new XROPathKeySubobjectParser());
 
-		context.registerXROSubobjectSerializer(IpPrefix.class, new XROIpPrefixSubobjectParser());
-		context.registerXROSubobjectSerializer(AsNumber.class, new XROAsNumberSubobjectParser());
-		context.registerXROSubobjectSerializer(Srlg.class, new XROSRLGSubobjectParser());
-		context.registerXROSubobjectSerializer(Unnumbered.class, new XROUnnumberedInterfaceSubobjectParser());
+		context.registerXROSubobjectSerializer(IpPrefixCase.class, new XROIpPrefixSubobjectParser());
+		context.registerXROSubobjectSerializer(AsNumberCase.class, new XROAsNumberSubobjectParser());
+		context.registerXROSubobjectSerializer(SrlgCase.class, new XROSRLGSubobjectParser());
+		context.registerXROSubobjectSerializer(UnnumberedCase.class, new XROUnnumberedInterfaceSubobjectParser());
 		context.registerXROSubobjectSerializer(PathKey.class, new XROPathKeySubobjectParser());
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();

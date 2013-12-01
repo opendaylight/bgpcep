@@ -16,12 +16,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.srlg._case.SrlgBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link SrlgSubobject}
+ * Parser for {@link SrlgCase}
  */
 public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -48,21 +50,22 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
 		builder.setMandatory(mandatory);
 		builder.setAttribute(Attribute.Srlg);
-		builder.setSubobjectType(new SrlgBuilder().setSrlgId(
-				new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(buffer, SRLG_ID_NUMBER_OFFSET, SRLG_ID_NUMBER_LENGTH)))).build());
+		builder.setSubobjectType(new SrlgCaseBuilder().setSrlg(
+				new SrlgBuilder().setSrlgId(
+						new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(buffer, SRLG_ID_NUMBER_OFFSET, SRLG_ID_NUMBER_LENGTH)))).build()).build());
 		return builder.build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof SrlgSubobject)) {
+		if (!(subobject.getSubobjectType() instanceof SrlgCase)) {
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed SrlgSubobject.");
+					+ ". Needed SrlgCase.");
 		}
 
 		byte[] retBytes;
 		retBytes = new byte[CONTENT_LENGTH];
-		final SrlgSubobject specObj = (SrlgSubobject) subobject.getSubobjectType();
+		final SrlgSubobject specObj = ((SrlgCase) subobject.getSubobjectType()).getSrlg();
 
 		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getSrlgId().getValue(), SRLG_ID_NUMBER_LENGTH), retBytes, SRLG_ID_NUMBER_OFFSET);
 		retBytes[ATTRIBUTE_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
