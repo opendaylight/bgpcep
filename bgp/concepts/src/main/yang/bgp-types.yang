@@ -106,7 +106,7 @@ module bgp-types {
 			type uint8;
 		}
 		choice extended-community {
-			case c-as-specific-extended-community {
+			case as-specific-extended-community-case {
 				container as-specific-extended-community {
 					when "../comm-type = 0 and ../comm-sub-type = 0 or ../comm-type = 40 and ../comm-sub-type = 0";
 					leaf transitive {
@@ -126,7 +126,7 @@ module bgp-types {
 					}
 				}
 			}
-			case c-inet4-specific-extended-community {
+			case inet4-specific-extended-community-case {
 				container inet4-specific-extended-community {
 					when "../comm-type = 1 and ../comm-sub-type = 0 or ../comm-type = 41 and ../comm-sub-type = 0";
 					leaf transitive {
@@ -142,7 +142,7 @@ module bgp-types {
 					}
 				}
 			}
-			case c-opaque-extended-community {
+			case opaque-extended-community-case {
 				container opaque-extended-community {
 					when "../comm-type = 3 and ../comm-sub-type = 0 or ../comm-type = 43 and ../comm-sub-type = 0";
 					leaf transitive {
@@ -155,7 +155,7 @@ module bgp-types {
 					}
 				}
 			}
-			case c-route-target-extended-community {
+			case route-target-extended-community-case {
 				container route-target-extended-community {
 					when "../comm-type = 1 and ../comm-sub-type = 2 or ../comm-type = 2 and ../comm-sub-type = 2 or ../comm-type = 3 and ../comm-sub-type = 2";
 					leaf global-administrator {
@@ -172,7 +172,7 @@ module bgp-types {
 					}
 				}
 			}
-			case c-route-origin-extended-community {
+			case route-origin-extended-community-case {
 				container route-origin-extended-community {
 					when "../comm-type = 1 and ../comm-sub-type = 3 or ../comm-type = 2 and ../comm-sub-type = 3 or ../comm-type = 3 and ../comm-sub-type = 3";
 					leaf global-administrator {
@@ -194,7 +194,7 @@ module bgp-types {
 
 	grouping next-hop {
 		choice c-next-hop {
-			case c-ipv4-next-hop {
+			case ipv4-next-hop-case {
 				container ipv4-next-hop {
 					reference "http://tools.ietf.org/html/rfc4271#section-5.1.3";
 					leaf global {
@@ -202,7 +202,7 @@ module bgp-types {
 					}
 				}
 			}
-			case c-ipv6-next-hop {
+			case ipv6-next-hop-case {
 				container ipv6-next-hop {
 					reference "http://tools.ietf.org/html/rfc4760#section-3";
 					leaf global {
@@ -219,15 +219,19 @@ module bgp-types {
 	grouping as-path-segment {
 		reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
 		choice c-segment {
-			case c-a-set {
-				leaf-list as-set {
-					type inet:as-number;
+			case a-set-case {
+				container a-set {
+					leaf-list as-set {
+						type inet:as-number;
+					}
 				}
 			}
-			case c-a-list {
-				list as-sequence {
-					leaf as {
-						type inet:as-number;
+			case a-list-case {
+				container a-list {
+					list as-sequence {
+						leaf as {
+							type inet:as-number;
+						}
 					}
 				}
 			}

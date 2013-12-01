@@ -59,7 +59,7 @@ module bgp-message {
 		list bgp-parameters {
 			reference "http://tools.ietf.org/html/rfc3392#section-4";
 			choice c-parameters {
-				case c-as4-bytes {
+				case as4-bytes-case {
 					container as4-bytes-capability {
 						reference "http://tools.ietf.org/html/rfc6793";
 						leaf as-number {
