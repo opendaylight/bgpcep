@@ -89,7 +89,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 				}
 			}
 		}
-
 		final byte[] msgBody = new byte[MIN_MSG_LENGTH + optParamsLength];
 
 		int offset = 0;
@@ -102,7 +101,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (openAS > Values.UNSIGNED_SHORT_MAX_VALUE) {
 			openAS = AS_TRANS;
 		}
-
 		System.arraycopy(ByteArray.longToBytes(openAS, AS_SIZE), 0, msgBody, offset, AS_SIZE);
 		offset += AS_SIZE;
 
@@ -121,7 +119,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 				index += entry.getValue();
 			}
 		}
-
 		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
 		logger.trace("Open message serialized to: {}", Arrays.toString(ret));
 		return ret;
@@ -147,7 +144,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (UnsignedBytes.toInt(body[0]) != BGP_VERSION) {
 			throw new BGPDocumentedException("BGP Protocol version " + UnsignedBytes.toInt(body[0]) + " not supported.", BGPError.VERSION_NOT_SUPPORTED);
 		}
-
 		int offset = VERSION_SIZE;
 		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(body, offset, AS_SIZE)));
 		offset += AS_SIZE;
@@ -159,7 +155,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (holdTime == 1 || holdTime == 2) {
 			throw new BGPDocumentedException("Hold time value not acceptable.", BGPError.HOLD_TIME_NOT_ACC);
 		}
-
 		Ipv4Address bgpId = null;
 		try {
 			bgpId = Ipv4Util.addressForBytes(ByteArray.subByte(body, offset, BGP_ID_SIZE));
@@ -183,15 +178,12 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
-
 		logger.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
 		while (byteOffset < bytes.length) {
 			if (byteOffset + 2 >= bytes.length) {
-				// FIXME: throw a BGPDocumentedException here?
-				throw new IllegalArgumentException("Malformed parameter encountered (" + (bytes.length - byteOffset) + " bytes left)");
+				throw new BGPDocumentedException("Malformed parameter encountered (" + (bytes.length - byteOffset) + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
 			}
-
 			final int paramType = UnsignedBytes.toInt(bytes[byteOffset++]);
 			final int paramLength = UnsignedBytes.toInt(bytes[byteOffset++]);
 			final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, paramLength);
@@ -203,14 +195,12 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			} catch (final BGPParsingException e) {
 				throw new BGPDocumentedException("Optional parameter not parsed", BGPError.UNSPECIFIC_OPEN_ERROR, e);
 			}
-
 			if (param != null) {
 				params.add(param);
 			} else {
 				logger.debug("Ignoring BGP Parameter type: {}", paramType);
 			}
 		}
-
 		logger.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
 	}
 }

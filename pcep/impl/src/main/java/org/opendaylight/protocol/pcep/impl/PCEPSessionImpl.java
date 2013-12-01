@@ -384,7 +384,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	}
 
 	@Override
-	protected void sessionUp() {
+	@VisibleForTesting
+	public void sessionUp() {
 		this.listener.onSessionUp(this);
 	}
 

@@ -82,7 +82,6 @@ public class ParserToSalTest {
 
 			@Override
 			public boolean isCancelled() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 
@@ -95,14 +94,12 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get() throws InterruptedException, ExecutionException {
-				// TODO Auto-generated method stub
 				return null;
 			}
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-			ExecutionException, TimeoutException {
-				// TODO Auto-generated method stub
+					ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
