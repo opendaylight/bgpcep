@@ -4,7 +4,6 @@ module pcep-message {
 	prefix "pcep-msg";
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
