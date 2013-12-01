@@ -24,13 +24,18 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.srlg._case.SrlgBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
 public class PCEPXROSubobjectParserTest {
 
@@ -53,7 +58,8 @@ public class PCEPXROSubobjectParserTest {
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(false);
 		subs.setAttribute(Attribute.Interface);
-		subs.setSubobjectType(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build());
+		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+				new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(ip4PrefixBytes, false));
 		assertArrayEquals(ip4PrefixBytes, parser.serializeSubobject(subs.build()));
 	}
@@ -64,10 +70,11 @@ public class PCEPXROSubobjectParserTest {
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		subs.setAttribute(Attribute.Node);
-		subs.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-				new IpPrefix(Ipv6Util.prefixForBytes(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-						(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-						(byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 22))).build());
+		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+				new IpPrefixBuilder().setIpPrefix(
+						new IpPrefix(Ipv6Util.prefixForBytes(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+								(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+								(byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 22))).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(ip6PrefixBytes, true));
 		assertArrayEquals(ip6PrefixBytes, parser.serializeSubobject(subs.build()));
 	}
@@ -78,7 +85,7 @@ public class PCEPXROSubobjectParserTest {
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		subs.setAttribute(Attribute.Srlg);
-		subs.setSubobjectType(new SrlgBuilder().setSrlgId(new SrlgId(0x12345678L)).build());
+		subs.setSubobjectType(new SrlgCaseBuilder().setSrlg(new SrlgBuilder().setSrlgId(new SrlgId(0x12345678L)).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(srlgBytes, true));
 		assertArrayEquals(srlgBytes, parser.serializeSubobject(subs.build()));
 	}
@@ -89,7 +96,8 @@ public class PCEPXROSubobjectParserTest {
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		subs.setAttribute(Attribute.Node);
-		subs.setSubobjectType(new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build());
+		subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
+				new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(unnumberedBytes, true));
 		assertArrayEquals(unnumberedBytes, parser.serializeSubobject(subs.build()));
 	}
@@ -99,7 +107,7 @@ public class PCEPXROSubobjectParserTest {
 		final XROAsNumberSubobjectParser parser = new XROAsNumberSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
-		subs.setSubobjectType(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build());
+		subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(asNumberBytes, true));
 		assertArrayEquals(asNumberBytes, parser.serializeSubobject(subs.build()));
 	}
@@ -109,10 +117,10 @@ public class PCEPXROSubobjectParserTest {
 		final XROPathKeySubobjectParser parser = new XROPathKeySubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
-		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key.PathKeyBuilder pBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key.PathKeyBuilder();
+		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
 		pBuilder.setPathKey(new PathKey(4660));
-		subs.setSubobjectType(new PathKeyBuilder().setPathKey(pBuilder.build()).build());
+		subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(pathKey32Bytes, true));
 		assertArrayEquals(pathKey32Bytes, parser.serializeSubobject(subs.build()));
 	}
@@ -122,11 +130,11 @@ public class PCEPXROSubobjectParserTest {
 		final XROPathKeySubobjectParser parser = new XROPathKeySubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
-		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key.PathKeyBuilder pBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key.PathKeyBuilder();
+		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
 				(byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
 		pBuilder.setPathKey(new PathKey(4660));
-		subs.setSubobjectType(new PathKeyBuilder().setPathKey(pBuilder.build()).build());
+		subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(pathKey128Bytes, true));
 		assertArrayEquals(pathKey128Bytes, parser.serializeSubobject(subs.build()));
 	}

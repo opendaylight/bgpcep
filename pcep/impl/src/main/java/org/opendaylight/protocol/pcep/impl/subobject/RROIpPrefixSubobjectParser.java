@@ -20,12 +20,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for {@link IpPrefix}
+ * Parser for {@link IpPrefixCase}
  */
 public class RROIpPrefixSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
@@ -65,15 +67,17 @@ public class RROIpPrefixSubobjectParser implements RROSubobjectParser, RROSubobj
 			final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, FLAGS4_F_OFFSET, FLAGS4_F_OFFSET + FLAGS_F_LENGTH));
 			builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
 			builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-					new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP4_F_LENGTH), length))).build());
+			builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+					new IpPrefixBuilder().setIpPrefix(
+							new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP4_F_LENGTH), length))).build()).build());
 		} else if (buffer.length == CONTENT_LENGTH) {
 			final int length = UnsignedBytes.toInt(buffer[PREFIX_F_OFFSET]);
 			final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, FLAGS_F_OFFSET, FLAGS_F_OFFSET + FLAGS_F_LENGTH));
 			builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
 			builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-			builder.setSubobjectType(new IpPrefixBuilder().setIpPrefix(
-					new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP_F_LENGTH), length))).build());
+			builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
+					new IpPrefixBuilder().setIpPrefix(
+							new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP_F_LENGTH), length))).build()).build());
 		} else {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
 		}
@@ -82,12 +86,12 @@ public class RROIpPrefixSubobjectParser implements RROSubobjectParser, RROSubobj
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof IpPrefixSubobject)) {
+		if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
 			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
-					+ ". Needed RROIPAddressSubobject.");
+					+ ". Needed IpPrefixCase.");
 		}
 
-		final IpPrefixSubobject specObj = (IpPrefixSubobject) subobject.getSubobjectType();
+		final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
 		final IpPrefix prefix = specObj.getIpPrefix();
 
 		if (prefix.getIpv4Prefix() == null && prefix.getIpv6Prefix() == null) {

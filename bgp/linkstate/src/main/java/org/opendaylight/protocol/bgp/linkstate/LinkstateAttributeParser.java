@@ -38,12 +38,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.prefix.state.IgpBitsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttributeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
@@ -145,10 +146,10 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * Parse Link Attributes.
 	 * 
 	 * @param attributes key is the tlv type and value is the value of the tlv
-	 * @return {@link LinkAttributes}
+	 * @return {@link LinkStateAttribute}
 	 * @throws BGPParsingException if a link attribute is not recognized
 	 */
-	private static LinkAttributes parseLinkAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parseLinkAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 
 		final LinkAttributesBuilder builder = new LinkAttributesBuilder();
 		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
@@ -246,17 +247,17 @@ public class LinkstateAttributeParser implements AttributeParser {
 			}
 		}
 		logger.trace("Finished parsing Link Attributes.");
-		return builder.build();
+		return new LinkAttributesCaseBuilder().setLinkAttributes(builder.build()).build();
 	}
 
 	/**
 	 * Parse Node Attributes.
 	 * 
 	 * @param attributes key is the tlv type and value is the value of the tlv
-	 * @return {@link NodeAttributes}
+	 * @return {@link LinkStateAttribute}
 	 * @throws BGPParsingException if a node attribute is not recognized
 	 */
-	private static NodeAttributes parseNodeAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parseNodeAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 		final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
 		final List<IsisAreaIdentifier> areaMembership = Lists.newArrayList();
 		final NodeAttributesBuilder builder = new NodeAttributesBuilder();
@@ -310,17 +311,17 @@ public class LinkstateAttributeParser implements AttributeParser {
 		builder.setTopologyIdentifier(topologyMembership);
 		builder.setIsisAreaId(areaMembership);
 		logger.trace("Finished parsing Node Attributes.");
-		return builder.build();
+		return new NodeAttributesCaseBuilder().setNodeAttributes(builder.build()).build();
 	}
 
 	/**
 	 * Parse prefix attributes.
 	 * 
 	 * @param attributes key is the tlv type and value are the value bytes of the tlv
-	 * @return {@link PrefixAttributes}
+	 * @return {@link LinkStateAttribute}
 	 * @throws BGPParsingException if some prefix attributes is not recognized
 	 */
-	private static PrefixAttributes parsePrefixAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parsePrefixAttributes(final Map<Integer, ByteList> attributes) throws BGPParsingException {
 		final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
 		final List<RouteTag> routeTags = Lists.newArrayList();
 		final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
@@ -383,6 +384,6 @@ public class LinkstateAttributeParser implements AttributeParser {
 		logger.debug("Finished parsing Prefix Attributes.");
 		builder.setRouteTags(routeTags);
 		builder.setExtendedTags(exRouteTags);
-		return builder.build();
+		return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
 	}
 }

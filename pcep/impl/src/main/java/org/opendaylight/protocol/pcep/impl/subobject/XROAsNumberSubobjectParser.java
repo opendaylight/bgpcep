@@ -15,10 +15,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
 
 /**
- * Parser for {@link AsNumberSubobject}
+ * Parser for {@link AsNumberCase}
  */
 public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
@@ -40,17 +42,18 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 					+ CONTENT_LENGTH + ".");
 		}
 		return new SubobjectsBuilder().setMandatory(mandatory).setSubobjectType(
-				new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build();
+				new AsNumberCaseBuilder().setAsNumber(
+						new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build()).build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject)) {
+		if (!(subobject.getSubobjectType() instanceof AsNumberCase)) {
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed AsNumberSubobject.");
+					+ ". Needed AsNumberCase.");
 		}
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
-		final AsNumberSubobject obj = (AsNumberSubobject) subobject.getSubobjectType();
+		final AsNumberSubobject obj = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
 		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
 				AS_NUMBER_LENGTH);
 		return retBytes;

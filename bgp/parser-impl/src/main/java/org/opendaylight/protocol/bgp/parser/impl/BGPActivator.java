@@ -47,9 +47,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.CAs4Bytes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CGracefulRestart;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.GracefulRestartCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -100,14 +100,14 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
 		final CapabilityRegistry capReg = context.getCapabilityRegistry();
 		final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
 		regs.add(context.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi));
-		regs.add(context.registerCapabilitySerializer(CMultiprotocol.class, multi));
+		regs.add(context.registerCapabilitySerializer(MultiprotocolCase.class, multi));
 
 		final As4CapabilityHandler as4 = new As4CapabilityHandler();
 		regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
-		regs.add(context.registerCapabilitySerializer(CAs4Bytes.class, as4));
+		regs.add(context.registerCapabilitySerializer(As4BytesCase.class, as4));
 
 		final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
-		regs.add(context.registerCapabilitySerializer(CGracefulRestart.class, grace));
+		regs.add(context.registerCapabilitySerializer(GracefulRestartCase.class, grace));
 		regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
 
 		final ParameterRegistry paramReg = context.getParameterRegistry();

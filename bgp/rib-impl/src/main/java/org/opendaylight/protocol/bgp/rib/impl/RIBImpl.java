@@ -21,7 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv4._case.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
@@ -58,7 +59,8 @@ public class RIBImpl {
 		final DataModificationTransaction trans = this.dps.beginTransaction();
 
 		if (EOR.equals(message)) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.markUptodate(trans, peer);
 			} else {
@@ -69,10 +71,16 @@ public class RIBImpl {
 
 		final WithdrawnRoutes wr = message.getWithdrawnRoutes();
 		if (wr != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
-				ari.removeRoutes(trans, peer, new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
-						new WithdrawnRoutesBuilder().setDestinationType(new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build());
+				ari.removeRoutes(
+						trans,
+						peer,
+						new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setWithdrawnRoutes(
+								new WithdrawnRoutesBuilder().setDestinationType(
+										new DestinationIpv4CaseBuilder().setDestinationIpv4(
+												new DestinationIpv4Builder().setIpv4Prefixes(wr.getWithdrawnRoutes()).build()).build()).build()).build());
 			} else {
 				LOG.debug("Not removing objects from unhandled IPv4 Unicast");
 			}
@@ -93,11 +101,18 @@ public class RIBImpl {
 
 		final Nlri ar = message.getNlri();
 		if (ar != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
-				ari.addRoutes(trans, peer, new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).
-						setCNextHop(attrs.getCNextHop()).setAdvertizedRoutes(
-								new AdvertizedRoutesBuilder().setDestinationType(new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build(), attrs);
+				ari.addRoutes(
+						trans,
+						peer,
+						new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
+								attrs.getCNextHop()).setAdvertizedRoutes(
+								new AdvertizedRoutesBuilder().setDestinationType(
+										new DestinationIpv4CaseBuilder().setDestinationIpv4(
+												new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
+						attrs);
 			} else {
 				LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 			}

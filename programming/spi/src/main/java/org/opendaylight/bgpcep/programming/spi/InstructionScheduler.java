@@ -8,9 +8,8 @@
 package org.opendaylight.bgpcep.programming.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure.Failure;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 
 public interface InstructionScheduler {
 	Failure submitInstruction(SubmitInstructionInput input, InstructionExecutor executor);
 }
-

@@ -18,8 +18,10 @@ import org.opendaylight.controller.sal.binding.api.data.DataModificationTransact
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
@@ -208,12 +210,12 @@ public final class NodeChangedListener implements DataChangeListener {
 		 * We are trying to ensure we have source and destination nodes.
 		 */
 		final IpAddress srcIp, dstIp;
-		if (af instanceof Ipv4) {
-			final Ipv4 ipv4 = (Ipv4) af;
+		if (af instanceof Ipv4Case) {
+			final Ipv4 ipv4 = ((Ipv4Case) af).getIpv4();
 			srcIp = new IpAddress(ipv4.getSourceIpv4Address());
 			dstIp = new IpAddress(ipv4.getDestinationIpv4Address());
-		} else if (af instanceof Ipv6) {
-			final Ipv6 ipv6 = (Ipv6) af;
+		} else if (af instanceof Ipv6Case) {
+			final Ipv6 ipv6 = ((Ipv6Case) af).getIpv6();
 			srcIp = new IpAddress(ipv6.getSourceIpv6Address());
 			dstIp = new IpAddress(ipv6.getDestinationIpv6Address());
 		} else {

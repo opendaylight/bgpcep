@@ -43,7 +43,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
 		final List<PathKeys> pk = Lists.newArrayList();
 		final List<Subobjects> subs = parseSubobjects(bytes);
 		for (final Subobjects s : subs) {
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKey k = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKey) s.getSubobjectType();
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCase k = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCase) s.getSubobjectType();
 			pk.add(new PathKeysBuilder().setLoose(s.isLoose()).setPceId(k.getPathKey().getPceId()).setPathKey(k.getPathKey().getPathKey()).build());
 		}
 		builder.setPathKeys(pk);
@@ -60,8 +60,8 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
 		final List<Subobjects> subs = Lists.newArrayList();
 		for (final PathKeys p : pk) {
 			subs.add(new SubobjectsBuilder().setLoose(p.isLoose()).setSubobjectType(
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyBuilder().setPathKey(
-							new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key.PathKeyBuilder().setPathKey(
+					new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCaseBuilder().setPathKey(
+							new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
 									p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
 		}
 		return serializeSubobject(subs);

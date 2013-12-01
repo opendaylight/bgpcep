@@ -11,11 +11,12 @@ import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 
 /**
- * Parser for {@link GeneralizedLabel}
+ * Parser for {@link GeneralizedLabelCase}
  */
 public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 
@@ -27,16 +28,16 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
 
-		return new GeneralizedLabelBuilder().setGeneralizedLabel(buffer).build();
+		return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(new GeneralizedLabelBuilder().setGeneralizedLabel(buffer).build()).build();
 	}
 
 	@Override
 	public byte[] serializeLabel(final LabelType subobject) {
-		if (!(subobject instanceof GeneralizedLabel)) {
+		if (!(subobject instanceof GeneralizedLabelCase)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-					+ ". Needed GeneralizedLabel.");
+					+ ". Needed GeneralizedLabelCase.");
 		}
-		return ((GeneralizedLabel) subobject).getGeneralizedLabel();
+		return ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel();
 	}
 
 	@Override

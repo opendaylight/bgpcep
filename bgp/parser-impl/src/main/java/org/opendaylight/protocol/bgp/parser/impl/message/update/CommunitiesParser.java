@@ -18,16 +18,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.COpaqueExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteOriginExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CRouteTargetExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.as.specific.extended.community.AsSpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.inet4.specific.extended.community.Inet4SpecificExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.opaque.extended.community.OpaqueExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.origin.extended.community.RouteOriginExtendedCommunityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.c.route.target.extended.community.RouteTargetExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.Inet4SpecificExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.OpaqueExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteOriginExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.RouteTargetExtendedCommunityCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.as.specific.extended.community._case.AsSpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.inet4.specific.extended.community._case.Inet4SpecificExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.opaque.extended.community._case.OpaqueExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunityBuilder;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
@@ -109,19 +109,19 @@ public final class CommunitiesParser {
 		case AS_TYPE_TRANS:
 			if (subType == ROUTE_TARGET_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
-						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+						new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
 								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
-						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+						new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
 								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else {
 				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setExtendedCommunity(
-						new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+						new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
 								new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
@@ -129,7 +129,7 @@ public final class CommunitiesParser {
 			break;
 		case AS_TYPE_NON_TRANS:
 			comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_NON_TRANS).setExtendedCommunity(
-					new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+					new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
 							new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
 									new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 									ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
@@ -137,13 +137,13 @@ public final class CommunitiesParser {
 		case ROUTE_TYPE_ONLY:
 			if (subType == ROUTE_TARGET_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(ROUTE_TYPE_ONLY).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
-						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+						new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
 								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(ROUTE_TYPE_ONLY).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
-						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+						new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
 								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
@@ -154,19 +154,19 @@ public final class CommunitiesParser {
 		case INET_TYPE_TRANS:
 			if (subType == ROUTE_TARGET_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
-						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+						new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
 								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
 				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
-						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+						new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
 								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
 										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
 										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else {
 				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setExtendedCommunity(
-						new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+						new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
 								new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
 										Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
 										ByteArray.subByte(value, 4, 2)).build()).build()).build();
@@ -174,19 +174,19 @@ public final class CommunitiesParser {
 			break;
 		case INET_TYPE_NON_TRANS:
 			comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_NON_TRANS).setExtendedCommunity(
-					new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+					new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
 							new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
 									Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
 									ByteArray.subByte(value, 4, 2)).build()).build()).build();
 			break;
 		case OPAQUE_TYPE_TRANS:
 			comm = new ExtendedCommunitiesBuilder().setCommType(OPAQUE_TYPE_TRANS).setExtendedCommunity(
-					new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+					new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
 							new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(value).build()).build()).build();
 			break;
 		case OPAQUE_TYPE_NON_TRANS:
 			comm = new ExtendedCommunitiesBuilder().setCommType(OPAQUE_TYPE_NON_TRANS).setExtendedCommunity(
-					new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+					new OpaqueExtendedCommunityCaseBuilder().setOpaqueExtendedCommunity(
 							new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(value).build()).build()).build();
 			break;
 		default:

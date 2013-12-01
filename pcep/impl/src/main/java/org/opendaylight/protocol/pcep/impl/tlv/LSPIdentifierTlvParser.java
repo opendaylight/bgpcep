@@ -17,10 +17,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.Ipv6ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
@@ -65,7 +69,7 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 			position += TUNNEL_ID_F_LENGTH;
 			builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position,
 					EX_TUNNEL_ID4_F_LENGTH))));
-			afi = builder.build();
+			afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
 			position += EX_TUNNEL_ID4_F_LENGTH;
 		} else if (valueBytes.length == V6_LENGTH) {
 			final Ipv6Builder builder = new Ipv6Builder();
@@ -77,7 +81,7 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 			position += TUNNEL_ID_F_LENGTH;
 			builder.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(ByteArray.subByte(valueBytes, position,
 					EX_TUNNEL_ID6_F_LENGTH))));
-			afi = builder.build();
+			afi = new Ipv6CaseBuilder().setIpv6(builder.build()).build();
 			position += EX_TUNNEL_ID6_F_LENGTH;
 		} else {
 			throw new IllegalArgumentException("Length " + valueBytes.length + " does not match LSP Identifiers tlv lengths.");
@@ -94,9 +98,9 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 		final LspIdentifiers lsp = (LspIdentifiers) tlv;
 		final AddressFamily afi = lsp.getAddressFamily();
 		int offset = 0;
-		if (afi.getImplementedInterface().equals(Ipv4.class)) {
+		if (afi.getImplementedInterface().equals(Ipv4Case.class)) {
 			final byte[] bytes = new byte[V4_LENGTH];
-			final Ipv4 ipv4 = (Ipv4) afi;
+			final Ipv4 ipv4 = ((Ipv4Case) afi).getIpv4();
 			ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelSenderAddress()), bytes, offset);
 			offset += IP4_F_LENGTH;
 			ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);
@@ -107,7 +111,7 @@ public class LSPIdentifierTlvParser implements TlvParser, TlvSerializer {
 			return bytes;
 		} else {
 			final byte[] bytes = new byte[V6_LENGTH];
-			final Ipv6 ipv6 = (Ipv6) afi;
+			final Ipv6 ipv6 = ((Ipv6Case) afi).getIpv6();
 			ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelSenderAddress()), bytes, offset);
 			offset += IP6_F_LENGTH;
 			ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);

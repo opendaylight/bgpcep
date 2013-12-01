@@ -24,12 +24,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.Request;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.Session;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request.Rps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.RequestCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.Rps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 import com.google.common.collect.Lists;
@@ -57,8 +59,8 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			throw new IllegalArgumentException("Errors should not be empty.");
 		}
 
-		if (err.getErrorType() instanceof Request) {
-			final List<Rps> rps = ((Request) err.getErrorType()).getRps();
+		if (err.getErrorType() instanceof RequestCase) {
+			final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
 			for (final Rps r : rps) {
 				buffer.writeBytes(serializeObject(r.getRp()));
 			}
@@ -68,8 +70,8 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			buffer.writeBytes(serializeObject(e.getErrorObject()));
 		}
 
-		if (err.getErrorType() instanceof Session) {
-			buffer.writeBytes(serializeObject(((Session) err.getErrorType()).getOpen()));
+		if (err.getErrorType() instanceof SessionCase) {
+			buffer.writeBytes(serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen()));
 		}
 	}
 
@@ -134,7 +136,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			case Open:
 				state = State.OpenIn;
 				if (obj instanceof Open) {
-					b.setErrorType(new SessionBuilder().setOpen((Open) obj).build());
+					b.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
 					break;
 				}
 			case Error:
@@ -166,7 +168,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
 		}
 		if (requestParameters != null && !requestParameters.isEmpty()) {
-			b.setErrorType(new RequestBuilder().setRps(requestParameters).build());
+			b.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
 		}
 
 		return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();

@@ -45,8 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.CMultiprotocolBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.c.multiprotocol.MultiprotocolCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -77,13 +77,11 @@ public class FSMTest {
 		final List<BgpParameters> tlvs = Lists.newArrayList();
 
 		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new CMultiprotocolBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(
-								this.ipv4tt.getSafi()).build()).build()).build());
+				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
 		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new CMultiprotocolBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(
-								this.linkstatett.getSafi()).build()).build()).build());
+				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build());
 		final BGPSessionPreferences prefs = new BGPSessionPreferences(30, (short) 3, null, tlvs);
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {

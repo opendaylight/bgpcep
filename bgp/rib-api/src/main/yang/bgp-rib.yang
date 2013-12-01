@@ -44,28 +44,32 @@ module bgp-rib {
 			}
 
 			choice routes {
-				case ipv4-routes {
-					list ipv4-route {
-						when "../../afi = ipv4";
+				case ipv4-routes-case {
+					container ipv4-routes {
+						list ipv4-route {
+							when "../../afi = ipv4";
 
-						leaf prefix {
-							type inet:ipv4-prefix;
+							leaf prefix {
+								type inet:ipv4-prefix;
+							}
+							key prefix;
+
+							uses route;
 						}
-						key prefix;
-
-						uses route;
 					}
 				}
-				case ipv6-routes {
-					list ipv6-route {
-						when "../../afi = ipv6";
+				case ipv6-routes-case {
+					container ipv6-routes {
+						list ipv6-route {
+							when "../../afi = ipv6";
 
-						leaf prefix {
-							type inet:ipv6-prefix;
+							leaf prefix {
+								type inet:ipv6-prefix;
+							}
+							key prefix;
+
+							uses route;
 						}
-						key prefix;
-
-						uses route;
 					}
 				}
 			}
@@ -77,4 +81,3 @@ module bgp-rib {
 		uses rib;
 	}
 }
-

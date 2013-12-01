@@ -15,11 +15,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AsNumberSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
 
 /**
- * Parser for {@link AsNumberSubobject}
+ * Parser for {@link AsNumberCase}
  */
 public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -42,22 +43,23 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 		}
 
 		return new SubobjectsBuilder().setLoose(loose).setSubobjectType(
-				new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build();
+				new AsNumberCaseBuilder().setAsNumber(
+						new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build()).build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobjects subobject) {
-		if (!(subobject.getSubobjectType() instanceof AsNumberSubobject)) {
+		if (!(subobject.getSubobjectType() instanceof AsNumberCase)) {
 			throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed AsNumberSubobject.");
+					+ ". Needed AsNumberCase.");
 		}
 
 		final byte[] retBytes = new byte[CONTENT_LENGTH];
 
-		final SubobjectType s = subobject.getSubobjectType();
+		final AsNumberSubobject s = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
 
-		System.arraycopy(ByteArray.longToBytes(((AsNumberSubobject) s).getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes,
-				AS_NUMBER_OFFSET, AS_NUMBER_LENGTH);
+		System.arraycopy(ByteArray.longToBytes(s.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
+				AS_NUMBER_LENGTH);
 
 		return retBytes;
 	}
