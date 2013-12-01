@@ -48,29 +48,33 @@ module bgp-multiprotocol {
 
 	grouping destination {
 		choice destination-type {
-			case destination-ipv4 {
-				when "../../afi = ipv4";
-				leaf-list ipv4-prefixes {
-					type inet:ipv4-prefix;
+			case destination-ipv4-case {
+				container destination-ipv4 {
+					when "../../afi = ipv4";
+					leaf-list ipv4-prefixes {
+						type inet:ipv4-prefix;
+					}
 				}
 			}
-			case destination-ipv6 {
-				when "../../afi = ipv6";
-				leaf-list ipv6-prefixes {
-					type inet:ipv6-prefix;
+			case destination-ipv6-case {
+				container destination-ipv6 {
+					when "../../afi = ipv6";
+					leaf-list ipv6-prefixes {
+						type inet:ipv6-prefix;
+					}
 				}
 			}
 		}
 	}
 
 	augment "/bgp-msg:open/bgp-msg:bgp-parameters/bgp-msg:c-parameters" {
-		case c-multiprotocol {
+		case multiprotocol-case {
 			container multiprotocol-capability {
 				reference "http://tools.ietf.org/html/rfc4760#section-8";
 				uses bgp-table-type;
 			}
 		}
-		case c-graceful-restart {
+		case graceful-restart-case {
 			container graceful-restart-capability {
 				reference "http://tools.ietf.org/html/rfc4724#section-3";
 
@@ -133,4 +137,3 @@ module bgp-multiprotocol {
 		}
 	}
 }
-

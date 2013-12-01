@@ -1,3 +1,4 @@
+// FileName: /Users/jmedved/Documents/ODL/Git-model/bgpcep/pcep/api/src/main/yang/pcep-types.yang
 module pcep-types {
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
@@ -225,24 +226,28 @@ module pcep-types {
 			}
 
 			choice address-family {
-				case ipv4 {
-					leaf ipv4-tunnel-sender-address {
-						type inet:ipv4-address;
-						mandatory true;
-					}
-					leaf ipv4-extended-tunnel-id {
-						type rsvp:ipv4-extended-tunnel-id;
-						mandatory true;
+				case ipv4-case {
+					container ipv4 {
+						leaf ipv4-tunnel-sender-address {
+							type inet:ipv4-address;
+							mandatory true;
+						}
+						leaf ipv4-extended-tunnel-id {
+							type rsvp:ipv4-extended-tunnel-id;
+							mandatory true;
+						}
 					}
 				}
-				case ipv6 {
-					leaf ipv6-tunnel-sender-address {
-						type inet:ipv6-address;
-						mandatory true;
-					}
-					leaf ipv6-extended-tunnel-id {
-						type rsvp:ipv6-extended-tunnel-id;
-						mandatory true;
+				case ipv6-case {
+					container ipv6 {
+						leaf ipv6-tunnel-sender-address {
+							type inet:ipv6-address;
+							mandatory true;
+						}
+						leaf ipv6-extended-tunnel-id {
+							type rsvp:ipv6-extended-tunnel-id;
+							mandatory true;
+						}
 					}
 				}
 			}
@@ -280,12 +285,12 @@ module pcep-types {
 		container rsvp-error-spec {
 			uses tlv;
 			choice error-type {
-				case rsvp {
+				case rsvp-case {
 					container rsvp-error {
 						uses rsvp:error-spec;
 					}
 				}
-				case user {
+				case user-case {
 					container user-error {
 						uses rsvp:user-error-spec;
 					}
@@ -492,26 +497,30 @@ module pcep-types {
 		choice address-family {
 			mandatory true;
 
-			case ipv4 {
-				leaf source-ipv4-address {
-					type inet:ipv4-address;
-					mandatory true;
-				}
+			case ipv4-case {
+				container ipv4 {
+					leaf source-ipv4-address {
+						type inet:ipv4-address;
+						mandatory true;
+					}
 
-				leaf destination-ipv4-address {
-					type inet:ipv4-address;
-					mandatory true;
+					leaf destination-ipv4-address {
+						type inet:ipv4-address;
+						mandatory true;
+					}
 				}
 			}
-			case ipv6 {
-				leaf source-ipv6-address {
-					type inet:ipv6-address;
-					mandatory true;
-				}
+			case ipv6-case {
+				container ipv6 {
+					leaf source-ipv6-address {
+						type inet:ipv6-address;
+						mandatory true;
+					}
 
-				leaf destination-ipv6-address {
-					type inet:ipv6-address;
-					mandatory true;
+					leaf destination-ipv6-address {
+						type inet:ipv6-address;
+						mandatory true;
+					}
 				}
 			}
 		}
@@ -605,7 +614,7 @@ module pcep-types {
 
 				uses rsvp:explicit-route-subobjects {
 					augment "subobject-type" {
-						case path-key {
+						case path-key-case {
 							container path-key {
 								uses path-key-subobject;
 							}
@@ -641,7 +650,7 @@ module pcep-types {
 			list subobjects {
 				uses rsvp:record-route-subobjects {
 					augment "subobject-type" {
-						case path-key {
+						case path-key-case {
 							container path-key {
 								uses path-key-subobject;
 							}
@@ -1080,12 +1089,14 @@ module pcep-types {
 				uses rp-object;
 
 				choice result {
-					case success {
-						list paths {
-							uses path-definition;
+					case success-case {
+						container success {
+							list paths {
+								uses path-definition;
+							}
 						}
 					}
-					case failure {
+					case failure-case {
 						container no-path {
 							uses no-path-object;
 							container "tlvs" {
@@ -1136,19 +1147,25 @@ module pcep-types {
 			}
 
 			choice error-type {
-				case request {
-					list rps {
-						uses rp-object;
+				case request-case {
+					container request {
+						list rps {
+							uses rp-object;
+						}
 					}
 				}
 
-				case session {
-					uses open-object;
+				case session-case {
+					container session {
+						uses open-object;
+					}
 				}
 
-				case stateful {
-					reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
-					uses srp-object;
+				case stateful-case {
+					container stateful {
+						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
+						uses srp-object;
+					}
 				}
 			}
 		}

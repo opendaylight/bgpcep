@@ -300,7 +300,7 @@ module programming {
 
 	grouping submit-instruction-output {
 		choice result {
-			case failure {
+			case failure-case {
 				container failure {
 					leaf type {
 						type identityref {
@@ -342,4 +342,3 @@ module programming {
 		}
 	}
 }
-

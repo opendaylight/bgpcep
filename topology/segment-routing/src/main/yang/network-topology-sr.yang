@@ -51,16 +51,20 @@ module network-topology-sr {
 			key segment-id;
 
 			choice segment-specification {
-				case adjacency {
-					leaf adjacency {
-						type nt:link-ref;
-						mandatory true;
+				case adjacency-case {
+					container adjacency {
+						leaf adjacency {
+							type nt:link-ref;
+							mandatory true;
+						}
 					}
 				}
-				case node {
-					leaf node {
-						type nt:node-ref;
-						mandatory true;
+				case node-case {
+					container node {
+						leaf node {
+							type nt:node-ref;
+							mandatory true;
+						}
 					}
 				}
 			}
@@ -87,4 +91,3 @@ module network-topology-sr {
 		uses sr-node-attributes;
 	}
 }
-
