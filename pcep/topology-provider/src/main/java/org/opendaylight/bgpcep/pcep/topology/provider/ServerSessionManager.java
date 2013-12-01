@@ -410,11 +410,20 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-						new ArrayList<Node>()).build());
+										new ArrayList<Node>()).build());
 
-		// FIXME: attach to the future to notify of failures
-		t.commit();
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()),
+				new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				// Nothing to do
+			}
 
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to create topology {}", topology);
+			}
+		});
 	}
 
 	@Override
