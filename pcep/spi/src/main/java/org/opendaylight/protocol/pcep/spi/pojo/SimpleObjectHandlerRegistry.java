@@ -49,9 +49,9 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 			return ret;
 		}
 
-		boolean foundClass = false;
+		final boolean foundClass = false;
 
-		// FIXME: search the parsers, check classes
+		// FIXME: BUG-187: search the parsers, check classes
 
 		if (!foundClass) {
 			return new ObjectParser() {
