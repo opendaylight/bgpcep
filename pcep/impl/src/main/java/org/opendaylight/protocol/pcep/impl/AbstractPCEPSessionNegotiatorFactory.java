@@ -77,8 +77,6 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 				synchronized (lock) {
 
 					if (AbstractPCEPSessionNegotiatorFactory.this.sessions.containsKey(clientAddress)) {
-						// FIXME: cross-reference this to RFC5440
-
 						final byte[] serverAddress = ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
 						if (comparator.compare(serverAddress, clientAddress) > 0) {
 							final Closeable n = AbstractPCEPSessionNegotiatorFactory.this.sessions.remove(clientAddress);
@@ -129,7 +127,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 	@GuardedBy("this")
 	private short nextSession(final byte[] clientAddress) {
 		/*
-		 * FIXME: Improve the allocation algorithm to make sure:
+		 * FIXME: BUG-197: Improve the allocation algorithm to make sure:
 		 * - no duplicate IDs are assigned
 		 * - we retain former session IDs for a reasonable time
 		 */

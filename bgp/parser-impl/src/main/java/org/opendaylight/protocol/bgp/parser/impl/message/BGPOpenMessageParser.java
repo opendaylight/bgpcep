@@ -148,8 +148,6 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		final AsNumber as = new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(body, offset, AS_SIZE)));
 		offset += AS_SIZE;
 
-		// TODO: BAD_PEER_AS Error: when is an AS unacceptable?
-
 		final short holdTime = ByteArray.bytesToShort(ByteArray.subByte(body, offset, HOLD_TIME_SIZE));
 		offset += HOLD_TIME_SIZE;
 		if (holdTime == 1 || holdTime == 2) {

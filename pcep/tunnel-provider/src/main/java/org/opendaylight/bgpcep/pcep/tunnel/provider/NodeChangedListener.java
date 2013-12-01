@@ -76,8 +76,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		this.target = Preconditions.checkNotNull(target);
 	}
 
-	private static void categorizeIdentifier(final InstanceIdentifier<?> i,
-			final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
+	private static void categorizeIdentifier(final InstanceIdentifier<?> i, final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
 			final Set<InstanceIdentifier<Node>> changedNodes) {
 		final InstanceIdentifier<ReportedLsps> li = i.firstIdentifierOf(ReportedLsps.class);
 		if (li == null) {
@@ -104,10 +103,8 @@ public final class NodeChangedListener implements DataChangeListener {
 		}
 
 		for (final ReportedLsps l : pccnode.getPathComputationClient().getReportedLsps()) {
-			lsps.add(InstanceIdentifier.builder(id).
-					augmentation(Node1.class).
-					child(PathComputationClient.class).
-					child(ReportedLsps.class, l.getKey()).toInstance());
+			lsps.add(InstanceIdentifier.builder(id).augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsps.class,
+					l.getKey()).toInstance());
 		}
 	}
 
@@ -116,7 +113,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
-		return InstanceIdentifier.builder(target).child(Link.class, new LinkKey(linkId)).toInstance();
+		return InstanceIdentifier.builder(this.target).child(Link.class, new LinkKey(linkId)).toInstance();
 	}
 
 	private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
@@ -124,14 +121,16 @@ public final class NodeChangedListener implements DataChangeListener {
 		final SupportingNodeBuilder snb = new SupportingNodeBuilder();
 		snb.setNodeRef(sni);
 		snb.setKey(sk);
-		snb.addAugmentation(SupportingNode1.class, new SupportingNode1Builder().setPathComputationClient(
-				new PathComputationClientBuilder().setControlling(inControl).build()).build());
+		snb.addAugmentation(
+				SupportingNode1.class,
+				new SupportingNode1Builder().setPathComputationClient(new PathComputationClientBuilder().setControlling(inControl).build()).build());
 
 		return snb.build();
 	}
 
-	private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final DataModificationTransaction trans, final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl) {
-		for (final Node n : ((Topology) trans.readOperationalData(target)).getNode()) {
+	private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final DataModificationTransaction trans, final IpAddress addr,
+			final InstanceIdentifier<Node> sni, final Boolean inControl) {
+		for (final Node n : ((Topology) trans.readOperationalData(this.target)).getNode()) {
 			for (final TerminationPoint tp : n.getTerminationPoint()) {
 				final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
 
@@ -150,7 +149,7 @@ public final class NodeChangedListener implements DataChangeListener {
 									 * so it does not have a supporting node pointer. Since we now know what it is,
 									 * fill it in.
 									 */
-									for (SupportingNode sn : n.getSupportingNode()) {
+									for (final SupportingNode sn : n.getSupportingNode()) {
 										if (sn.getNodeRef().equals(k.getNodeId())) {
 											have = true;
 											break;
@@ -160,12 +159,13 @@ public final class NodeChangedListener implements DataChangeListener {
 									if (!have) {
 										final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
 
-										trans.putOperationalData(InstanceIdentifier.builder(target).
-												child(Node.class, n.getKey()).
-												child(SupportingNode.class, sn.getKey()).toInstance(), sn);
+										trans.putOperationalData(
+												InstanceIdentifier.builder(this.target).child(Node.class, n.getKey()).child(
+														SupportingNode.class, sn.getKey()).toInstance(), sn);
 									}
 								}
-								return InstanceIdentifier.builder(target).child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
+								return InstanceIdentifier.builder(this.target).child(Node.class, n.getKey()).child(TerminationPoint.class,
+										tp.getKey()).toInstance();
 							}
 						}
 					} else {
@@ -181,11 +181,11 @@ public final class NodeChangedListener implements DataChangeListener {
 		final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
 		final TerminationPointBuilder tpb = new TerminationPointBuilder();
 		tpb.setKey(tpk).setTpId(tpk.getTpId());
-		tpb.addAugmentation(TerminationPoint1.class,
-				new TerminationPoint1Builder().
-				setIgpTerminationPointAttributes(
-						new IgpTerminationPointAttributesBuilder().
-						setTerminationPointType(new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build()).build()).build());
+		tpb.addAugmentation(
+				TerminationPoint1.class,
+				new TerminationPoint1Builder().setIgpTerminationPointAttributes(
+						new IgpTerminationPointAttributesBuilder().setTerminationPointType(
+								new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build()).build()).build());
 
 		final NodeKey nk = new NodeKey(new NodeId(url));
 		final NodeBuilder nb = new NodeBuilder();
@@ -195,12 +195,11 @@ public final class NodeChangedListener implements DataChangeListener {
 			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(), inControl)));
 		}
 
-		trans.putOperationalData(InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).toInstance(), nb.build());
-		return InstanceIdentifier.builder(target).child(Node.class, nb.getKey()).child(TerminationPoint.class, tpb.getKey()).toInstance();
+		trans.putOperationalData(InstanceIdentifier.builder(this.target).child(Node.class, nb.getKey()).toInstance(), nb.build());
+		return InstanceIdentifier.builder(this.target).child(Node.class, nb.getKey()).child(TerminationPoint.class, tpb.getKey()).toInstance();
 	}
 
-	private void create(final DataModificationTransaction trans,
-			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+	private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
 
 		final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
@@ -235,32 +234,29 @@ public final class NodeChangedListener implements DataChangeListener {
 		final LinkBuilder lb = new LinkBuilder();
 		lb.setLinkId(id);
 
-		lb.setSource(new SourceBuilder().
-				setSourceNode(src.firstKeyOf(Node.class, NodeKey.class).getNodeId()).
-				setSourceTp(src.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
-		lb.setDestination(new DestinationBuilder().
-				setDestNode(dst.firstKeyOf(Node.class, NodeKey.class).getNodeId()).
-				setDestTp(dst.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+		lb.setSource(new SourceBuilder().setSourceNode(src.firstKeyOf(Node.class, NodeKey.class).getNodeId()).setSourceTp(
+				src.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
+		lb.setDestination(new DestinationBuilder().setDestNode(dst.firstKeyOf(Node.class, NodeKey.class).getNodeId()).setDestTp(
+				dst.firstKeyOf(TerminationPoint.class, TerminationPointKey.class).getTpId()).build());
 		lb.addAugmentation(Link1.class, lab.build());
 
 		trans.putOperationalData(linkForLsp(id), lb.build());
 	}
 
-	private void remove(final DataModificationTransaction trans,
-			final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
 		final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
-		final Link l = (Link)trans.readOperationalData(li);
+		final Link l = (Link) trans.readOperationalData(li);
 		if (l != null) {
 			trans.removeOperationalData(li);
 
-			// FIXME: clean up/garbage collect nodes/termination types
+			// FIXME: BUG-195: clean up/garbage collect nodes/termination types
 		}
 	}
 
 	@Override
 	public void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-		final DataModificationTransaction trans = dataProvider.beginTransaction();
+		final DataModificationTransaction trans = this.dataProvider.beginTransaction();
 
 		final Set<InstanceIdentifier<ReportedLsps>> lsps = new HashSet<>();
 		final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
@@ -300,8 +296,7 @@ public final class NodeChangedListener implements DataChangeListener {
 			}
 		}
 
-		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()),
-				new FutureCallback<RpcResult<TransactionStatus>>() {
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
 				// Nothing to do
@@ -314,9 +309,8 @@ public final class NodeChangedListener implements DataChangeListener {
 		});
 	}
 
-	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology,
-			final NodeId node, final SymbolicPathName name) {
-		return InstanceIdentifier.builder(topology).
-				child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
+	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final NodeId node,
+			final SymbolicPathName name) {
+		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
 	}
 }

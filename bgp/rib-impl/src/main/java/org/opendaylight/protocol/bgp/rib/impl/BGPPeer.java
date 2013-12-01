@@ -59,7 +59,7 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 	}
 
 	private void cleanup() {
-		// FIXME: support graceful restart
+		// FIXME: BUG-196: support graceful restart
 		for (final TablesKey key : this.tables) {
 			this.rib.clearTable(this, key);
 		}

@@ -27,7 +27,7 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
 
 	@Override
 	public void stop() {
-		// TODO Auto-generated method stub
+		// FIXME: BUG-194
 	}
 
 }

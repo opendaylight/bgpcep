@@ -152,7 +152,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		if (prefs != null && !prefs.isEmpty()) {
 			for (final BgpParameters param : openObj.getBgpParameters()) {
 				final CParameters cap = param.getCParameters();
-				// FIXME: the reference to linkstate should be moved to config subsystem!
+				// FIXME: BUG-199: the reference to linkstate should be moved to config subsystem!
 
 				if (cap instanceof CMultiprotocol
 						&& ((CMultiprotocol) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class

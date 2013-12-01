@@ -26,26 +26,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 /**
  *
  */
-public final class InstructionSchedulerImplModule extends org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule
-{
+public final class InstructionSchedulerImplModule extends
+		org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
 
-	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
 	}
 
-	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
 		super(identifier, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
-	public void validate(){
+	public void validate() {
 		super.validate();
 		// Add custom validation for module attributes here.
 	}
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		// FIXME: configured timer
+		// FIXME: BUG-192 : configured timer
 		final Timer timer = new HashedWheelTimer();
 
 		final ExecutorService exec = Executors.newSingleThreadExecutor();

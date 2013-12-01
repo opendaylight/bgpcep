@@ -28,6 +28,13 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 
 	protected abstract byte[] serializeMessageImpl(final Notification message);
 
+	private final static byte[] MARKER;
+
+	static {
+		MARKER = new byte[MessageUtil.MARKER_LENGTH];
+		Arrays.fill(MARKER, (byte) 0xff);
+	}
+
 	@Override
 	public final Notification parseMessage(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		if (bytes == null) {
@@ -38,12 +45,10 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 					+ MessageUtil.COMMON_HEADER_LENGTH + ".");
 		}
 		final byte[] marker = ByteArray.subByte(bytes, 0, MessageUtil.MARKER_LENGTH);
-		final byte[] ones = new byte[MessageUtil.MARKER_LENGTH];
-		Arrays.fill(ones, (byte) 0xff);
-		// TODO: possible refactor
-		// if (Arrays.equals(marker, ones)) {
-		// throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
-		// }
+
+		if (!Arrays.equals(marker, MARKER)) {
+			throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
+		}
 		final byte[] bs = ByteArray.cutBytes(bytes, MessageUtil.MARKER_LENGTH);
 		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bs, 0, MessageUtil.LENGTH_FIELD_LENGTH));
 		final int messageType = UnsignedBytes.toInt(bs[MessageUtil.LENGTH_FIELD_LENGTH]);

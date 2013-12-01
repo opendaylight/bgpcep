@@ -101,7 +101,7 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 						});
 					} else {
 						/*
-						 *  FIXME: we have a slight race window with cancellation
+						 *  FIXME: BUG-190: we have a slight race window with cancellation
 						 *         here. Analyze and define its semantics.
 						 */
 						ReconnectPromise.this.strategy.reconnectSuccessful();

@@ -102,16 +102,16 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		TpReader(final DataModificationTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
 			this.t = Preconditions.checkNotNull(t);
 
-			nii = InstanceIdentifier.builder(topo).child(Node.class, new NodeKey(ref.getNode())).toInstance();
-			tii = InstanceIdentifier.builder(nii).child(TerminationPoint.class, new TerminationPointKey(ref.getTp())).toInstance();
+			this.nii = InstanceIdentifier.builder(topo).child(Node.class, new NodeKey(ref.getNode())).toInstance();
+			this.tii = InstanceIdentifier.builder(this.nii).child(TerminationPoint.class, new TerminationPointKey(ref.getTp())).toInstance();
 		}
 
 		private Node getNode() {
-			return (Node) t.readOperationalData(nii);
+			return (Node) this.t.readOperationalData(this.nii);
 		}
 
 		private TerminationPoint getTp() {
-			return (TerminationPoint) t.readOperationalData(tii);
+			return (TerminationPoint) this.t.readOperationalData(this.tii);
 		}
 	}
 
@@ -152,9 +152,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 			if (sc.getIpv4Address() != null) {
 				for (final IpAddress dc : dsts) {
 					if (dc.getIpv4Address() != null) {
-						return new Ipv4Builder().
-								setSourceIpv4Address(sc.getIpv4Address()).
-								setDestinationIpv4Address(dc.getIpv4Address()).build();
+						return new Ipv4Builder().setSourceIpv4Address(sc.getIpv4Address()).setDestinationIpv4Address(dc.getIpv4Address()).build();
 					}
 				}
 			}
@@ -168,9 +166,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 			if (sc.getIpv6Address() != null) {
 				for (final IpAddress dc : dsts) {
 					if (dc.getIpv6Address() != null) {
-						return new Ipv6Builder().
-								setSourceIpv6Address(sc.getIpv6Address()).
-								setDestinationIpv6Address(dc.getIpv6Address()).build();
+						return new Ipv6Builder().setSourceIpv6Address(sc.getIpv6Address()).setDestinationIpv6Address(dc.getIpv6Address()).build();
 					}
 				}
 			}
@@ -180,7 +176,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 	}
 
 	private NodeId supportingNode(final DataModificationTransaction t, final Node node) {
-		for (SupportingNode n : node.getSupportingNode()) {
+		for (final SupportingNode n : node.getSupportingNode()) {
 			final SupportingNode1 n1 = n.getAugmentation(SupportingNode1.class);
 			if (n1 != null && n1.getPathComputationClient().isControlling()) {
 				return n.getKey().getNodeRef();
@@ -195,7 +191,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 		if (!explicitHops.isEmpty()) {
 			final List<Subobjects> subobjs = new ArrayList<>(explicitHops.size());
-			for (ExplicitHops h : explicitHops) {
+			for (final ExplicitHops h : explicitHops) {
 
 				final ExplicitHops1 h1 = h.getAugmentation(ExplicitHops1.class);
 				if (h1 != null) {
@@ -219,8 +215,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 			protected ListenableFuture<OperationResult> executeImpl() {
 				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
 
-				final DataModificationTransaction t = dataProvider.beginTransaction();
-
+				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
 				final TpReader dr = new TpReader(t, tii, input.getDestination());
 				final TpReader sr = new TpReader(t, tii, input.getSource());
@@ -248,7 +243,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				ab.setArguments(args.build());
 
 				return Futures.transform(
-						(ListenableFuture<RpcResult<AddLspOutput>>) topologyService.addLsp(ab.build()),
+						(ListenableFuture<RpcResult<AddLspOutput>>) TunnelProgramming.this.topologyService.addLsp(ab.build()),
 						new Function<RpcResult<AddLspOutput>, OperationResult>() {
 							@Override
 							public OperationResult apply(final RpcResult<AddLspOutput> input) {
@@ -275,13 +270,12 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	// FIXME: tunnel programming utility class
 	private InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final BaseTunnelInput input) {
-		return InstanceIdentifier.builder(topology).
-				child(Link.class, new LinkKey(Preconditions.checkNotNull(input.getLinkId()))).toInstance();
+		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(Preconditions.checkNotNull(input.getLinkId()))).toInstance();
 	}
 
 	private Node sourceNode(final DataModificationTransaction t, final InstanceIdentifier<Topology> topology, final Link link) {
-		final InstanceIdentifier<Node> nii = InstanceIdentifier.builder(topology).
-				child(Node.class, new NodeKey(link.getSource().getSourceNode())).toInstance();
+		final InstanceIdentifier<Node> nii = InstanceIdentifier.builder(topology).child(Node.class,
+				new NodeKey(link.getSource().getSourceNode())).toInstance();
 		return (Node) t.readOperationalData(nii);
 	}
 
@@ -293,7 +287,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
 				final InstanceIdentifier<Link> lii = linkIdentifier(tii, input);
 
-				final DataModificationTransaction t = dataProvider.beginTransaction();
+				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
 				// The link has to exist
 				final Link link = (Link) t.readOperationalData(lii);
@@ -308,7 +302,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
 
 				return Futures.transform(
-						(ListenableFuture<RpcResult<RemoveLspOutput>>) topologyService.removeLsp(ab.build()),
+						(ListenableFuture<RpcResult<RemoveLspOutput>>) TunnelProgramming.this.topologyService.removeLsp(ab.build()),
 						new Function<RpcResult<RemoveLspOutput>, OperationResult>() {
 							@Override
 							public OperationResult apply(final RpcResult<RemoveLspOutput> input) {
@@ -336,7 +330,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
 				final InstanceIdentifier<Link> lii = linkIdentifier(tii, input);
 
-				final DataModificationTransaction t = dataProvider.beginTransaction();
+				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
 				// The link has to exist
 				final Link link = (Link) t.readOperationalData(lii);
@@ -350,8 +344,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
 				ab.setNode(Preconditions.checkNotNull(supportingNode(t, node)));
 
-				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args =
-						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
+				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
 
 				args.setAdministrative(input.getAdministrativeStatus() == AdministrativeStatus.Active);
 				args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
@@ -362,7 +355,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				ab.setArguments(args.build());
 
 				return Futures.transform(
-						(ListenableFuture<RpcResult<UpdateLspOutput>>) topologyService.updateLsp(ab.build()),
+						(ListenableFuture<RpcResult<UpdateLspOutput>>) TunnelProgramming.this.topologyService.updateLsp(ab.build()),
 						new Function<RpcResult<UpdateLspOutput>, OperationResult>() {
 							@Override
 							public OperationResult apply(final RpcResult<UpdateLspOutput> input) {

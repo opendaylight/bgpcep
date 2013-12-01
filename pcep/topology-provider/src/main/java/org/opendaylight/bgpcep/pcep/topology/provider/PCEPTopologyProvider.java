@@ -37,23 +37,21 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 		this.network = Preconditions.checkNotNull(network);
 	}
 
-	public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher,
-			final InetSocketAddress address,
-			final InstructionScheduler scheduler,
-			final DataProviderService dataService,
-			final InstanceIdentifier<Topology> topology) throws InterruptedException, ExecutionException {
+	public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address,
+			final InstructionScheduler scheduler, final DataProviderService dataService, final InstanceIdentifier<Topology> topology)
+			throws InterruptedException, ExecutionException {
 
 		final ServerSessionManager manager = new ServerSessionManager(dataService, topology);
 		final TopologyRPCs element = new TopologyRPCs(manager);
 		final TopologyProgramming network = new TopologyProgramming(scheduler, manager);
-		ChannelFuture f = dispatcher.createServer(address, manager);
+		final ChannelFuture f = dispatcher.createServer(address, manager);
 		f.get();
 		return new PCEPTopologyProvider(f.channel(), topology, manager, element, network);
 	}
 
 	@Override
 	public void close() throws Exception {
-		channel.close();
-		// FIXME: close other stuff
+		this.channel.close();
+		// FIXME: BUG-193: close other stuff
 	}
 }
