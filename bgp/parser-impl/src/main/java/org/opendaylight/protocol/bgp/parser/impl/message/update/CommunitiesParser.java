@@ -15,8 +15,9 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CAsSpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.CInet4SpecificExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.COpaqueExtendedCommunityBuilder;
@@ -36,15 +37,33 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public final class CommunitiesParser {
 
-	public static final int EXTENDED_COMMUNITY_LENGTH = 8;
+	protected static final int EXTENDED_COMMUNITY_LENGTH = 8;
 
-	public static final int COMMUNITY_LENGTH = 4;
+	protected static final int COMMUNITY_LENGTH = 4;
 
 	private static final int TYPE_LENGTH = 2;
 
 	private static final int AS_NUMBER_LENGTH = 2;
 
 	private static final int AS_LOCAL_ADMIN_LENGTH = 4;
+
+	protected static final short AS_TYPE_TRANS = 0;
+
+	protected static final short AS_TYPE_NON_TRANS = 40;
+
+	protected static final short INET_TYPE_TRANS = 1;
+
+	protected static final short INET_TYPE_NON_TRANS = 41;
+
+	protected static final short OPAQUE_TYPE_TRANS = 3;
+
+	protected static final short OPAQUE_TYPE_NON_TRANS = 43;
+
+	protected static final short ROUTE_TYPE_ONLY = 2;
+
+	protected static final short ROUTE_TARGET_SUBTYPE = 2;
+
+	protected static final short ROUTE_ORIGIN_SUBTYPE = 3;
 
 	private CommunitiesParser() {
 
@@ -80,78 +99,99 @@ public final class CommunitiesParser {
 	 * @throws BGPDocumentedException if the type is not recognized
 	 */
 	@VisibleForTesting
-	// FIXME: switch to return ExtendedCommunities with setType and subtype
-	public static ExtendedCommunity parseExtendedCommunity(final byte[] bytes) throws BGPDocumentedException {
+	public static ExtendedCommunities parseExtendedCommunity(final byte[] bytes) throws BGPDocumentedException {
 		final int type = UnsignedBytes.toInt(bytes[0]);
 		final int subType = UnsignedBytes.toInt(bytes[1]);
 		final byte[] value = ByteArray.subByte(bytes, TYPE_LENGTH, bytes.length - TYPE_LENGTH);
 
+		ExtendedCommunities comm;
 		switch (type) {
-		case 0:
-			if (subType == 2) {
-				return new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
-						new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
-			} else if (subType == 3) {
-				return new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
-						new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
+		case AS_TYPE_TRANS:
+			if (subType == ROUTE_TARGET_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
+						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
+			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
+						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else {
-				return new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
-						new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
+				comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_TRANS).setExtendedCommunity(
+						new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+								new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			}
-		case 40:
-			return new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
-					new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
-							new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-							ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
-		case 2:
-			if (subType == 2) {
-				return new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
-						new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
-			} else if (subType == 3) {
-				return new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
-						new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
+			break;
+		case AS_TYPE_NON_TRANS:
+			comm = new ExtendedCommunitiesBuilder().setCommType(AS_TYPE_NON_TRANS).setExtendedCommunity(
+					new CAsSpecificExtendedCommunityBuilder().setAsSpecificExtendedCommunity(
+							new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
+									new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+									ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
+			break;
+		case ROUTE_TYPE_ONLY:
+			if (subType == ROUTE_TARGET_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(ROUTE_TYPE_ONLY).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
+						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
+			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(ROUTE_TYPE_ONLY).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
+						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else {
 				throw new BGPDocumentedException("Could not parse Extended Community subtype: " + subType, BGPError.OPT_ATTR_ERROR);
 			}
-		case 1:
-			if (subType == 2) {
-				return new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
-						new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
-			} else if (subType == 3) {
-				return new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
-						new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
-								new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
-								ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build();
+			break;
+		case INET_TYPE_TRANS:
+			if (subType == ROUTE_TARGET_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setCommSubType(ROUTE_TARGET_SUBTYPE).setExtendedCommunity(
+						new CRouteTargetExtendedCommunityBuilder().setRouteTargetExtendedCommunity(
+								new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
+			} else if (subType == ROUTE_ORIGIN_SUBTYPE) {
+				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setCommSubType(ROUTE_ORIGIN_SUBTYPE).setExtendedCommunity(
+						new CRouteOriginExtendedCommunityBuilder().setRouteOriginExtendedCommunity(
+								new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(
+										new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(value, 0, AS_NUMBER_LENGTH)))).setLocalAdministrator(
+										ByteArray.subByte(value, AS_NUMBER_LENGTH, AS_LOCAL_ADMIN_LENGTH)).build()).build()).build();
 			} else {
-				return new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
-						new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
-								Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
-								ByteArray.subByte(value, 4, 2)).build()).build();
+				comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_TRANS).setExtendedCommunity(
+						new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+								new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
+										Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
+										ByteArray.subByte(value, 4, 2)).build()).build()).build();
 			}
-		case 41:
-			return new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
-					new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
-							Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(ByteArray.subByte(value, 4, 2)).build()).build();
-		case 3:
-			return new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
-					new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(value).build()).build();
-		case 43:
-			return new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
-					new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(value).build()).build();
+			break;
+		case INET_TYPE_NON_TRANS:
+			comm = new ExtendedCommunitiesBuilder().setCommType(INET_TYPE_NON_TRANS).setExtendedCommunity(
+					new CInet4SpecificExtendedCommunityBuilder().setInet4SpecificExtendedCommunity(
+							new Inet4SpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(
+									Ipv4Util.addressForBytes(ByteArray.subByte(value, 0, 4))).setLocalAdministrator(
+									ByteArray.subByte(value, 4, 2)).build()).build()).build();
+			break;
+		case OPAQUE_TYPE_TRANS:
+			comm = new ExtendedCommunitiesBuilder().setCommType(OPAQUE_TYPE_TRANS).setExtendedCommunity(
+					new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+							new OpaqueExtendedCommunityBuilder().setTransitive(false).setValue(value).build()).build()).build();
+			break;
+		case OPAQUE_TYPE_NON_TRANS:
+			comm = new ExtendedCommunitiesBuilder().setCommType(OPAQUE_TYPE_NON_TRANS).setExtendedCommunity(
+					new COpaqueExtendedCommunityBuilder().setOpaqueExtendedCommunity(
+							new OpaqueExtendedCommunityBuilder().setTransitive(true).setValue(value).build()).build()).build();
+			break;
 		default:
 			throw new BGPDocumentedException("Could not parse Extended Community type: " + type, BGPError.OPT_ATTR_ERROR);
 		}
+		return comm;
 	}
 }

@@ -36,8 +36,7 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 			return 0;
 		}
 
-		// FIXME: look at ASPath
-		// FIXME: look at everything else :-)
+		// FIXME: BUG-185: implement here
 
 		return 0;
 	}
