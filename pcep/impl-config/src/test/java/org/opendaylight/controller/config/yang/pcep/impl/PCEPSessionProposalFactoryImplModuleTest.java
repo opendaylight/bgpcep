@@ -17,7 +17,7 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 
 public class PCEPSessionProposalFactoryImplModuleTest extends
-		AbstractConfigTest {
+AbstractConfigTest {
 
 	private final String instanceName = "pcep-proposal";
 
@@ -37,7 +37,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, null, 100, true, true, true, true, 1000);
+					instanceName, null, 100, true, true, true, true);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -53,7 +53,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, null, true, true, true, true, 1000);
+					instanceName, 400, null, true, true, true, true);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -69,7 +69,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, 100, null, false, false, false, -1);
+					instanceName, 400, 100, null, false, false, false);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -84,7 +84,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, 100, true, null, true, true, 1000);
+					instanceName, 400, 100, true, null, true, true);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -99,7 +99,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, 100, true, true, null, true, 1000);
+					instanceName, 400, 100, true, true, null, true);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -114,26 +114,11 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, 100, true, true, true, null, 1000);
+					instanceName, 400, 100, true, true, true, null);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("Instantiated value is not set"));
-		}
-	}
-
-	@Test
-	public void testValidationExceptionTimeoutNotSet()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, 100, true, true, true, true, null);
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("Timeout value is not set"));
+			assertTrue(e.getMessage().contains("Initiated value is not set"));
 		}
 	}
 
@@ -144,7 +129,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
 			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, 400, -10, true, true, true, true, 1000);
+					instanceName, 400, -10, true, true, true, true);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -158,17 +143,17 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, 400, 100, false, true, true, true, 1000);
+				instanceName, 400, 100, false, true, true, true);
 		transaction.validateConfig();
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction
 				.newMBeanProxy(
 						transaction
-								.lookupConfigBean(
-										AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
-										instanceName),
-						PCEPSessionProposalFactoryImplModuleMXBean.class);
+						.lookupConfigBean(
+								AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
+								instanceName),
+								PCEPSessionProposalFactoryImplModuleMXBean.class);
 		assertTrue(mxBean.getStateful());
 	}
 
@@ -177,7 +162,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, 0, 0, true, true, true, true, 1000);
+				instanceName, 0, 0, true, true, true, true);
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -186,11 +171,11 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
+	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, 400, 100, true, true, true, true, 1000);
+				instanceName, 400, 100, true, true, true, true);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -201,26 +186,25 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 
 	@Test
 	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
-			InstanceNotFoundException {
+	ConflictingVersionException, ValidationException,
+	InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, 400, 100, true, true, true, true, 1000);
+				instanceName, 400, 100, true, true, true, true);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
 		PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction
 				.newMBeanProxy(
 						transaction
-								.lookupConfigBean(
-										AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
-										instanceName),
-						PCEPSessionProposalFactoryImplModuleMXBean.class);
-		mxBean.setTimeout(200);
+						.lookupConfigBean(
+								AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
+								instanceName),
+								PCEPSessionProposalFactoryImplModuleMXBean.class);
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 1, 0);
+		assertStatus(status, 0, 0, 1);
 	}
 
 	public static ObjectName createInstance(
@@ -228,8 +212,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 			final String moduleName, final String instanceName,
 			final Integer deadTimer, final Integer keepAlive,
 			final Boolean stateful, final Boolean active,
-			final Boolean versioned, final Boolean instant,
-			final Integer timeout) throws InstanceAlreadyExistsException {
+			final Boolean versioned, final Boolean instant) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
 		PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction
@@ -237,10 +220,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 						PCEPSessionProposalFactoryImplModuleMXBean.class);
 		mxBean.setActive(active);
 		mxBean.setDeadTimerValue(deadTimer);
-		mxBean.setInstantiated(instant);
+		mxBean.setInitiated(instant);
 		mxBean.setKeepAliveTimerValue(keepAlive);
 		mxBean.setStateful(stateful);
-		mxBean.setTimeout(timeout);
 		mxBean.setVersioned(versioned);
 		return nameCreated;
 	}
