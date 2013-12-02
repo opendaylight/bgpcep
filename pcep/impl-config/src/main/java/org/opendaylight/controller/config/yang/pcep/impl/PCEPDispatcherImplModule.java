@@ -49,7 +49,7 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModu
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		Open localPrefs = getPcepSessionProposalFactoryDependency()
-				.getSessionProposal(null, -1);
+				.getSessionProposal(null, 0);
 		DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(
 				getTimerDependency(), localPrefs, getMaxUnknownMessages());
 

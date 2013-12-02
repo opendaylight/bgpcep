@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -17,6 +16,8 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
+
+import com.google.common.primitives.UnsignedLong;
 
 /**
  * Parser for {@link LspDbVersion}
@@ -29,7 +30,7 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public LspDbVersion parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH)))).build();
+		return new LspDbVersionBuilder().setVersion(UnsignedLong.fromLongBits(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH))).bigIntegerValue()).build();
 	}
 
 	@Override
@@ -38,7 +39,7 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("LspDbVersionTlv is mandatory.");
 		}
 		final LspDbVersion lsp = (LspDbVersion) tlv;
-		final byte[] array = lsp.getVersion().toByteArray();
+		final byte[] array = ByteArray.longToBytes(UnsignedLong.valueOf(lsp.getVersion()).longValue(), DBV_F_LENGTH);
 		if (array.length > DBV_F_LENGTH) {
 			throw new IllegalArgumentException("LspDBVersion too big.");
 		}

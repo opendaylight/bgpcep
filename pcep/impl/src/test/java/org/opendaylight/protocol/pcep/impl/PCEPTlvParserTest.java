@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Test;
@@ -69,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.TunnelId;
 
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedLong;
 
 public class PCEPTlvParserTest {
 
@@ -114,7 +114,7 @@ public class PCEPTlvParserTest {
 	@Test
 	public void testStateDbVersionTlv() throws PCEPDeserializerException {
 		final LspDbVersionTlvParser parser = new LspDbVersionTlvParser();
-		final LspDbVersion tlv = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(0xFF00FFAAB2F5F2CFL)).build();
+		final LspDbVersion tlv = new LspDbVersionBuilder().setVersion(UnsignedLong.fromLongBits(0xFF00FFAAB2F5F2CFL).bigIntegerValue()).build();
 		assertEquals(tlv, parser.parseTlv(DbVersionBytes));
 		assertArrayEquals(DbVersionBytes, parser.serializeTlv(tlv));
 	}
