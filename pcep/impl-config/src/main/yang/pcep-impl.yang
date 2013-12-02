@@ -46,6 +46,7 @@ module pcep-impl {
 
             leaf max-unknown-messages {
                 type uint16;
+                default 5;
             }
 
             container extensions {
@@ -95,7 +96,7 @@ module pcep-impl {
         }
     }
 
-       identity pcep-session-proposal-factory-impl {
+    identity pcep-session-proposal-factory-impl {
         base config:module-type;
         config:java-name-prefix "PCEPSessionProposalFactoryImpl";
         config:provided-service pcep:pcep-session-proposal-factory;
@@ -104,7 +105,6 @@ module pcep-impl {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-session-proposal-factory-impl {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
-
 
             leaf dead-timer-value {
                 type uint16;
