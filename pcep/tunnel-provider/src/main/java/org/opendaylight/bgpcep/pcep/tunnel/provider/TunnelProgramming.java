@@ -14,6 +14,8 @@ import org.opendaylight.bgpcep.pcep.topology.spi.AbstractTopologyProgrammingExec
 import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
+import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
+import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -41,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.add.lsp.args.ArgumentsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.TopologyInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepCreateP2pTunnelOutput;
@@ -57,14 +58,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.ExplicitHops1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.SupportingNode1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.BaseTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.TpReference;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
@@ -217,7 +214,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
 			@Override
 			protected ListenableFuture<OperationResult> executeImpl() {
-				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
+				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 
 				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
@@ -267,16 +264,6 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		return Futures.immediateFuture(res);
 	}
 
-	// FIXME: topology programming utility class
-	private InstanceIdentifier<Topology> topologyIdentifier(final TopologyInstructionInput input) {
-		return InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
-	}
-
-	// FIXME: tunnel programming utility class
-	private InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final BaseTunnelInput input) {
-		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(Preconditions.checkNotNull(input.getLinkId()))).toInstance();
-	}
-
 	private Node sourceNode(final DataModificationTransaction t, final InstanceIdentifier<Topology> topology, final Link link) {
 		final InstanceIdentifier<Node> nii = InstanceIdentifier.builder(topology).child(Node.class,
 				new NodeKey(link.getSource().getSourceNode())).toInstance();
@@ -288,8 +275,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
 			@Override
 			protected ListenableFuture<OperationResult> executeImpl() {
-				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
-				final InstanceIdentifier<Link> lii = linkIdentifier(tii, input);
+				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
+				final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
 				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
@@ -331,8 +318,8 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
 			@Override
 			protected ListenableFuture<OperationResult> executeImpl() {
-				final InstanceIdentifier<Topology> tii = topologyIdentifier(input);
-				final InstanceIdentifier<Link> lii = linkIdentifier(tii, input);
+				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
+				final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
 				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
 
