@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractExtensionProviderActivator implements PCEPExtensionProviderActivator {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractExtensionProviderActivator.class);
+public abstract class AbstractPCEPExtensionProviderActivator implements PCEPExtensionProviderActivator {
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPExtensionProviderActivator.class);
 
 	@GuardedBy("this")
 	private List<AutoCloseable> registrations;

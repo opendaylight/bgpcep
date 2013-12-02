@@ -12,10 +12,10 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.impl.message.PcinitiateMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractExtensionProviderActivator;
+import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 
-public final class CrabbeInitiatedActivator extends AbstractExtensionProviderActivator {
+public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProviderActivator {
 
 	@Override
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
