@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_10cc8ebb",
+        "filename": "bgp/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 27
+      },
+      "writtenOn": "2013-12-02T01:45:43Z",
+      "side": 1,
+      "message": "This where the tool crapped out :-) (it\u0027s a simple stream parser, and this particular use case is not handled well). To make the long story short, ether the name of this container should be local-\u0027node-identifiers\u0027 (as you had it originally), or all three identifier containers should be wrapped up in a \u0027node\u0027 container.",
+      "revId": "0975918ec113bb7f1a437142f189ae0c878cc357",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
