@@ -42,15 +42,10 @@
            <plugin>
                <groupId>org.apache.felix</groupId>
                <artifactId>maven-bundle-plugin</artifactId>
-               <version>${maven.bundle.version}</version>
                <extensions>true</extensions>
                <configuration>
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                       <Export-Package>
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.*,
-                           org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.sr.rev130819.*,
-                       </Export-Package>
                    </instructions>
                </configuration>
            </plugin>

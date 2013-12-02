@@ -37,14 +37,10 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>${maven.bundle.version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.opendaylight.controller.config.yang.bgp.rib.spi
-                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
