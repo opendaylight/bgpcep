@@ -121,10 +121,6 @@ module pcep-impl {
                 default false;
             }
 
-            leaf timeout {
-                type uint16;
-            }
-
             leaf stateful {
                 type boolean;
                 default true;

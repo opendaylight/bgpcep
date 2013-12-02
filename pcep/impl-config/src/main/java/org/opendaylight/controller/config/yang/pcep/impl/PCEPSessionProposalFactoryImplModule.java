@@ -48,8 +48,6 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFac
 				"value is not set.", activeJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getVersioned(),
 				"value is not set.", versionedJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getTimeout(),
-				"value is not set.", timeoutJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getInitiated(),
 				"value is not set.", initiatedJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(),
@@ -64,8 +62,7 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFac
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
 		}
-		if ((getActive() || getVersioned() || getTimeout() > 0)
-				&& !getStateful()) {
+		if ((getActive() || getVersioned())	&& !getStateful()) {
 			setStateful(true);
 		}
 		JmxAttributeValidationException.checkNotNull(getStateful(),
@@ -76,7 +73,7 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFac
 	public java.lang.AutoCloseable createInstance() {
 		PCEPSessionProposalFactoryImpl inner = new PCEPSessionProposalFactoryImpl(
 				getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(),
-				getActive(), getVersioned(), getInitiated(), getTimeout());
+				getActive(), getVersioned(), getInitiated());
 		return new PCEPSessionProposalFactoryCloseable(inner);
 	}
 
