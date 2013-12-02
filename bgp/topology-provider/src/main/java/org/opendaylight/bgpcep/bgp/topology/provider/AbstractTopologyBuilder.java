@@ -40,7 +40,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener,
-		TopologyReference {
+TopologyReference {
 	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder(LocRib.class).toInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
 	private final InstanceIdentifier<Topology> topology;
@@ -129,8 +129,20 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCl
 			onLocRIBChange(trans, change);
 		} catch (final RuntimeException e) {
 			LOG.info("Data change {} was not completely propagated to listener {}", change, this, e);
+			return;
 		}
 
-		// FIXME: BUG-198: abort the transaction if it's not committing?
+		switch (trans.getStatus()) {
+		case COMMITED:
+		case SUBMITED:
+			break;
+		case NEW:
+			LOG.warn("Data change {} transaction {} was not committed by builder {}", change, trans, this);
+			break;
+		case CANCELED:
+		case FAILED:
+			LOG.error("Data change {} transaction {} failed to commit", change, trans);
+			break;
+		}
 	}
 }
