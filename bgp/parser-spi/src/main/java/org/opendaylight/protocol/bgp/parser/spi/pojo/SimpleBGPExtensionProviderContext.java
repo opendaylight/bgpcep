@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements BGPExtensionProviderContext {
+public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements BGPExtensionProviderContext {
 	@Override
 	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
 		return afiReg.registerAddressFamily(clazz, number);

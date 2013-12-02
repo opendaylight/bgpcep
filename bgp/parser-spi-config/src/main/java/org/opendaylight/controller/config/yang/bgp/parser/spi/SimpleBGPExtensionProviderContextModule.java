@@ -9,20 +9,22 @@
  */
 package org.opendaylight.controller.config.yang.bgp.parser.spi;
 
-/**
-*
-*/
-public final class SimpleBGPExtensionProviderContextModule extends
-		org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensionProviderContextModule {
+import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 
-	public SimpleBGPExtensionProviderContextModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+/**
+ *
+ */
+public final class SimpleBGPExtensionProviderContextModule extends
+org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensionProviderContextModule {
+
+	public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
 	}
 
-	public SimpleBGPExtensionProviderContextModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			SimpleBGPExtensionProviderContextModule oldModule, java.lang.AutoCloseable oldInstance) {
+	public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final SimpleBGPExtensionProviderContextModule oldModule, final java.lang.AutoCloseable oldInstance) {
 		super(identifier, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -34,7 +36,13 @@ public final class SimpleBGPExtensionProviderContextModule extends
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		// FIXME: BUG-188: implement
-		throw new java.lang.UnsupportedOperationException("Unimplemented stub method");
+		final class SimpleBGPExtensionProviderContextAutoCloseable extends SimpleBGPExtensionProviderContext implements AutoCloseable {
+			@Override
+			public void close() {
+				// Do-nothing
+			}
+		}
+
+		return new SimpleBGPExtensionProviderContextAutoCloseable();
 	}
 }
