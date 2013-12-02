@@ -260,7 +260,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		case IsisLevel2:
 			inab.addAugmentation(
 					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1.class,
-					isisNodeAttributes(n.getNode(), na));
+					isisNodeAttributes(n.getNodeDescriptors(), na));
 			break;
 		case Ospf:
 			inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
@@ -269,22 +269,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		}
 
 		final NodeBuilder nb = new NodeBuilder();
-		nb.setNodeId(buildNodeId(pfx, n.getNode()));
+		nb.setNodeId(buildNodeId(pfx, n.getNodeDescriptors()));
 		nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(inab.build()).build());
 
-		trans.putOperationalData(nodeIdentifierBuilder(pfx, n.getNode()).toInstance(), nb.build());
+		trans.putOperationalData(nodeIdentifierBuilder(pfx, n.getNodeDescriptors()).toInstance(), nb.build());
 	}
 
 	private void removeNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final String pfx, final NodeCase n) {
-		trans.removeOperationalData(nodeIdentifierBuilder(pfx, n.getNode()).toInstance());
+		trans.removeOperationalData(nodeIdentifierBuilder(pfx, n.getNodeDescriptors()).toInstance());
 	}
 
 	private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix> prefixIdentifier(
 			final String pfx, final PrefixCase p) {
 		return nodeIdentifierBuilder(pfx, p.getAdvertisingNodeDescriptors()).augmentation(Node1.class).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
-				new PrefixKey(p.getIpReachabilityInformation())).toInstance();
+						org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
+						new PrefixKey(p.getIpReachabilityInformation())).toInstance();
 	}
 
 	private void createPrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final String pfx,

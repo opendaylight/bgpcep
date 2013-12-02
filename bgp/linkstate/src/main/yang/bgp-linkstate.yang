@@ -609,7 +609,7 @@ module bgp-linkstate {
 
 					choice object-type {
 						case node-case {
-							container node {
+							container node-descriptors {
 								uses node-identifier;
 							}
 						}
@@ -637,17 +637,17 @@ module bgp-linkstate {
 						augment attributes {
 							choice attribute-type {
 								case node-case {
-									container node {
+									container node-attributes {
 										uses node-state;
 									}
 								}
 								case link-case {
-									container link {
+									container link-attributes {
 										uses link-state;
 									}
 								}
 								case prefix-case {
-									container prefix {
+									container prefix-attributes {
 										uses prefix-state;
 									}
 								}
