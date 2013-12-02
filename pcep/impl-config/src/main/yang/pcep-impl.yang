@@ -18,13 +18,13 @@ module pcep-impl {
          PCEP implementation.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
-        
-        This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
 
-	revision "2013-06-27" {
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2013-06-27" {
         description
             "Updated revision dates for imports.";
     }
@@ -40,33 +40,33 @@ module pcep-impl {
         config:java-name-prefix PCEPDispatcherImpl;
     }
 
-	augment "/config:modules/config:module/config:configuration" {
-		case pcep-dispatcher-impl {
-			when "/config:modules/config:module/config:type = 'pcep-dispatcher-impl'";
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-dispatcher-impl {
+            when "/config:modules/config:module/config:type = 'pcep-dispatcher-impl'";
 
-			leaf max-unknown-messages {
-				type uint16;
-			}
+            leaf max-unknown-messages {
+                type uint16;
+            }
 
-			container extensions {
-				uses config:service-ref {
-					refine type {
-						mandatory true;
-						config:required-identity spi:consumer-extensions;
-					}
-				}
-			}
+            container extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity spi:consumer-extensions;
+                    }
+                }
+            }
 
-			container pcep-session-proposal-factory {
-				uses config:service-ref {
-					refine type {
-						mandatory true;
-						config:required-identity pcep:pcep-session-proposal-factory;
-					}
-				}
-			}
-			
-			container boss-group {
+            container pcep-session-proposal-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity pcep:pcep-session-proposal-factory;
+                    }
+                }
+            }
+
+            container boss-group {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
@@ -74,7 +74,7 @@ module pcep-impl {
                     }
                 }
             }
-            
+
             container worker-group {
                 uses config:service-ref {
                     refine type {
@@ -83,7 +83,7 @@ module pcep-impl {
                     }
                 }
             }
-            
+
             container timer {
                 uses config:service-ref {
                     refine type {
@@ -95,47 +95,51 @@ module pcep-impl {
         }
     }
 
-   	identity pcep-session-proposal-factory-impl {
+       identity pcep-session-proposal-factory-impl {
         base config:module-type;
         config:java-name-prefix "PCEPSessionProposalFactoryImpl";
         config:provided-service pcep:pcep-session-proposal-factory;
     }
 
-	augment "/config:modules/config:module/config:configuration" {
-		case pcep-session-proposal-factory-impl {
-			when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-session-proposal-factory-impl {
+            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
 
 
-			leaf dead-timer-value {
-				type uint16;
-				default 120;
-			}
+            leaf dead-timer-value {
+                type uint16;
+                default 120;
+            }
 
-			leaf keep-alive-timer-value {
-				type uint16;
-				default 30;
-			}
+            leaf keep-alive-timer-value {
+                type uint16;
+                default 30;
+            }
 
-			leaf instantiated {
-				type boolean;
-			}
+            leaf initiated {
+                type boolean;
+                default false;
+            }
 
-			leaf timeout {
-				type uint16;
-			}
+            leaf timeout {
+                type uint16;
+            }
 
-			leaf stateful {
-				type boolean;
-			}
+            leaf stateful {
+                type boolean;
+                default true;
+            }
 
-			leaf active {
-				type boolean;
-			}
+            leaf active {
+                type boolean;
+                default true;
+            }
 
-			leaf versioned {
-				type boolean;
-			}
-		}
-	}
+            leaf versioned {
+                type boolean;
+                default false;
+            }
+        }
+    }
 }
 

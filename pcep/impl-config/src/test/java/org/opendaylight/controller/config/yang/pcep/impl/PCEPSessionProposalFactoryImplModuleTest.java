@@ -17,7 +17,7 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 
 public class PCEPSessionProposalFactoryImplModuleTest extends
-		AbstractConfigTest {
+AbstractConfigTest {
 
 	private final String instanceName = "pcep-proposal";
 
@@ -165,10 +165,10 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 		PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction
 				.newMBeanProxy(
 						transaction
-								.lookupConfigBean(
-										AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
-										instanceName),
-						PCEPSessionProposalFactoryImplModuleMXBean.class);
+						.lookupConfigBean(
+								AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
+								instanceName),
+								PCEPSessionProposalFactoryImplModuleMXBean.class);
 		assertTrue(mxBean.getStateful());
 	}
 
@@ -186,7 +186,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
+	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
@@ -201,8 +201,8 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 
 	@Test
 	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
-			InstanceNotFoundException {
+	ConflictingVersionException, ValidationException,
+	InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
@@ -213,10 +213,10 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 		PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction
 				.newMBeanProxy(
 						transaction
-								.lookupConfigBean(
-										AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
-										instanceName),
-						PCEPSessionProposalFactoryImplModuleMXBean.class);
+						.lookupConfigBean(
+								AbstractPCEPSessionProposalFactoryImplModuleFactory.NAME,
+								instanceName),
+								PCEPSessionProposalFactoryImplModuleMXBean.class);
 		mxBean.setTimeout(200);
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -237,7 +237,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends
 						PCEPSessionProposalFactoryImplModuleMXBean.class);
 		mxBean.setActive(active);
 		mxBean.setDeadTimerValue(deadTimer);
-		mxBean.setInstantiated(instant);
+		mxBean.setInitiated(instant);
 		mxBean.setKeepAliveTimerValue(keepAlive);
 		mxBean.setStateful(stateful);
 		mxBean.setTimeout(timeout);
