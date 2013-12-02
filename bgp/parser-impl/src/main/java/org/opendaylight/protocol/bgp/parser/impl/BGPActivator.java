@@ -37,12 +37,12 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeP
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -54,18 +54,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
-public final class BGPActivator implements BGPExtensionProviderActivator {
-	private static final Logger logger = LoggerFactory.getLogger(BGPActivator.class);
-	private List<AutoCloseable> registrations;
-
+public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 	@Override
-	public synchronized void start(final BGPExtensionProviderContext context) {
-		Preconditions.checkState(this.registrations == null);
+	protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
@@ -131,21 +123,6 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
 		regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
 		regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
 
-		this.registrations = regs;
-	}
-
-	@Override
-	public synchronized void stop() {
-		Preconditions.checkState(this.registrations != null);
-
-		for (final AutoCloseable r : this.registrations) {
-			try {
-				r.close();
-			} catch (final Exception e) {
-				logger.warn("Failed to close registration", e);
-			}
-		}
-
-		this.registrations = null;
+		return regs;
 	}
 }

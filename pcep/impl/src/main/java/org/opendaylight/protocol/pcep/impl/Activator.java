@@ -131,7 +131,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public final class Activator extends AbstractPCEPExtensionProviderActivator {
 	@Override
-	public List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
+	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final LabelHandlerRegistry labelReg = context.getLabelHandlerRegistry();

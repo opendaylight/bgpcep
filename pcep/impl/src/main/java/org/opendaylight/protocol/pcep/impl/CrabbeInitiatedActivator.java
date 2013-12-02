@@ -16,7 +16,6 @@ import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 
 public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProviderActivator {
-
 	@Override
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
