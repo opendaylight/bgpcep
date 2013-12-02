@@ -69,7 +69,7 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 		try {
 			return PCEPTopologyProvider.create(getDispatcherDependency(), address,
-					getSchedulerDependency(), getDataProviderDependency(), topology);
+					getSchedulerDependency(), getDataProviderDependency(), getRpcRegistryDependency(), topology);
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
 			throw new RuntimeException("Failed to instantiate provider", e);

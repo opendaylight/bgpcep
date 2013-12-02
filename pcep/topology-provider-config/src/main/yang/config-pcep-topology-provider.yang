@@ -60,6 +60,15 @@ module config-pcep-topology-provider {
                 }
             }
 
+            container rpc-registry {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-rpc-registry;
+                    }
+                }
+            }
+
             container dispatcher {
                 uses config:service-ref {
                     refine type {
