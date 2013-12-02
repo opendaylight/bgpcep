@@ -1,7 +1,7 @@
 // vi: set smarttab et sw=4 tabstop=4:
 module config-bgp-topology-provider {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi";
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider";
     prefix "bgptopo";
 
     import config { prefix config; revision-date 2013-04-05; }

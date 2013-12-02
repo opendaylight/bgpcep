@@ -7,7 +7,7 @@
  *
  * Do not modify this file unless it is present under src/main directory
  */
-package org.opendaylight.controller.config.yang.bgp.rib.spi;
+package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyBuilder;
@@ -25,7 +25,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  *
  */
-public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractLinkstateTopologyBuilderModule
+public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule
 {
 
 	public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
