@@ -9,9 +9,6 @@
  */
 package org.opendaylight.controller.config.yang.programming.impl;
 
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,11 +20,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 
-/** 
+/**
  *
  */
 public final class InstructionSchedulerImplModule extends
-		org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
+org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
 
 	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
 			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -48,12 +45,9 @@ public final class InstructionSchedulerImplModule extends
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		// FIXME: BUG-192 : configured timer
-		final Timer timer = new HashedWheelTimer();
-
 		final ExecutorService exec = Executors.newSingleThreadExecutor();
 
-		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getNotificationServiceDependency(), exec, timer);
+		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getNotificationServiceDependency(), exec, getTimerDependency());
 
 		final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
 
