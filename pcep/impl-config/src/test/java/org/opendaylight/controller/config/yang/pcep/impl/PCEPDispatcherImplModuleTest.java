@@ -104,7 +104,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
 	@Test
 	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
+	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
@@ -122,8 +122,8 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
 	@Test
 	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
-			InstanceNotFoundException {
+	ConflictingVersionException, ValidationException,
+	InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(),
@@ -137,7 +137,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 		PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
 				transaction.lookupConfigBean(
 						this.factory.getImplementationName(), instanceName),
-				PCEPDispatcherImplModuleMXBean.class);
+						PCEPDispatcherImplModuleMXBean.class);
 		mxBean.setMaxUnknownMessages(10);
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -151,14 +151,14 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 			final String sessionFactoryImplName,
 			final String threadGroupFactoryImplName,
 			final String extensionsImplName, final String timerFactoryImplName)
-			throws InstanceAlreadyExistsException {
+					throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
 		PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, PCEPDispatcherImplModuleMXBean.class);
 		mxBean.setPcepSessionProposalFactory(PCEPSessionProposalFactoryImplModuleTest
 				.createInstance(transaction, sessionFactoryImplName,
-						"pcep-proposal", 0, 0, true, true, true, true, 1000));
+						"pcep-proposal", 0, 0, true, true, true, true));
 		mxBean.setMaxUnknownMessages(maxUnknownMessages);
 		mxBean.setBossGroup(createThreadGroupInstance(transaction,
 				threadGroupFactoryImplName, "boss-group", 10));
@@ -174,7 +174,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 	public static ObjectName createExtensionsInstance(
 			final ConfigTransactionJMXClient transaction,
 			final String moduleName, final String instanceName)
-			throws InstanceAlreadyExistsException {
+					throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
 		transaction.newMBeanProxy(nameCreated,
@@ -198,7 +198,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 	public static ObjectName createTimerInstance(
 			final ConfigTransactionJMXClient transaction,
 			final String moduleName, final String instanceName)
-			throws InstanceAlreadyExistsException {
+					throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(moduleName,
 				instanceName);
 		transaction.newMBeanProxy(nameCreated,

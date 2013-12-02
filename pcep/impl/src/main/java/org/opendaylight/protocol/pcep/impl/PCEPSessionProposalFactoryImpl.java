@@ -20,19 +20,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactory {
 
-	private final int keepAlive, deadTimer, timeout;
+	private final int keepAlive, deadTimer;
 
 	private final boolean stateful, active, versioned, instant;
 
 	public PCEPSessionProposalFactoryImpl(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
-			final boolean versioned, final boolean instant, final int timeout) {
+			final boolean versioned, final boolean instant) {
 		this.deadTimer = deadTimer;
 		this.keepAlive = keepAlive;
 		this.stateful = stateful;
 		this.active = active;
 		this.versioned = versioned;
 		this.instant = instant;
-		this.timeout = timeout;
 	}
 
 	@Override
@@ -80,7 +79,4 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		return this.instant;
 	}
 
-	public int getTimeout() {
-		return this.timeout;
-	}
 }

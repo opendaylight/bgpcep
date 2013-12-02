@@ -80,7 +80,6 @@ public final class Main {
 		boolean active = false;
 		boolean versioned = false;
 		boolean instant = false;
-		int timeout = 0;
 
 		int i = 0;
 		while (i < args.length) {
@@ -105,12 +104,6 @@ public final class Main {
 			} else if (args[i].equalsIgnoreCase("--instant")) {
 				stateful = true;
 				instant = true;
-				if (i == args.length - 1) {
-					timeout = 0;
-				} else if (Integer.valueOf(args[i + 1]) > 0 && Integer.valueOf(args[i + 1]) < Integer.MAX_VALUE) {
-					timeout = Integer.valueOf(args[i + 1]);
-					i++;
-				}
 			} else {
 				LOG.warn("WARNING: Unrecognized argument: {}", args[i]);
 			}
@@ -123,7 +116,7 @@ public final class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant, timeout);
+		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant);
 
 		final Open prefs = spf.getSessionProposal(address, 0);
 
