@@ -19,25 +19,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-*
-*/
+ *
+ */
 public final class PCEPSessionProposalFactoryImplModule
-		extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
-	
+extends
+org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
+
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
 
 	public PCEPSessionProposalFactoryImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
 	public PCEPSessionProposalFactoryImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			PCEPSessionProposalFactoryImplModule oldModule,
-			java.lang.AutoCloseable oldInstance) {
+			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final PCEPSessionProposalFactoryImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
@@ -48,10 +48,8 @@ public final class PCEPSessionProposalFactoryImplModule
 				"value is not set.", activeJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getVersioned(),
 				"value is not set.", versionedJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getTimeout(),
-				"value is not set.", timeoutJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getInstantiated(),
-				"value is not set.", instantiatedJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getInitiated(),
+				"value is not set.", initiatedJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(),
 				"value is not set.", deadTimerValueJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(),
@@ -64,8 +62,7 @@ public final class PCEPSessionProposalFactoryImplModule
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
 		}
-		if ((getActive() || getVersioned() || getTimeout() > 0)
-				&& !getStateful()) {
+		if ((getActive() || getVersioned())	&& !getStateful()) {
 			setStateful(true);
 		}
 		JmxAttributeValidationException.checkNotNull(getStateful(),
@@ -76,17 +73,17 @@ public final class PCEPSessionProposalFactoryImplModule
 	public java.lang.AutoCloseable createInstance() {
 		PCEPSessionProposalFactoryImpl inner = new PCEPSessionProposalFactoryImpl(
 				getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(),
-				getActive(), getVersioned(), getInstantiated(), getTimeout());
+				getActive(), getVersioned(), getInitiated());
 		return new PCEPSessionProposalFactoryCloseable(inner);
 	}
 
 	private static final class PCEPSessionProposalFactoryCloseable implements
-			PCEPSessionProposalFactory, AutoCloseable {
+	PCEPSessionProposalFactory, AutoCloseable {
 
-		private PCEPSessionProposalFactoryImpl inner;
+		private final PCEPSessionProposalFactoryImpl inner;
 
 		public PCEPSessionProposalFactoryCloseable(
-				PCEPSessionProposalFactoryImpl inner) {
+				final PCEPSessionProposalFactoryImpl inner) {
 			this.inner = inner;
 		}
 
@@ -95,8 +92,8 @@ public final class PCEPSessionProposalFactoryImplModule
 		}
 
 		@Override
-		public Open getSessionProposal(InetSocketAddress inetSocketAddress,
-				int i) {
+		public Open getSessionProposal(final InetSocketAddress inetSocketAddress,
+				final int i) {
 			return inner.getSessionProposal(inetSocketAddress, i);
 		}
 	}
