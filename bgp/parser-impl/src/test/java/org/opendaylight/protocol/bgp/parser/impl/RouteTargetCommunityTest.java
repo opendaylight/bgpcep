@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.route.target.extended.community._case.RouteTargetExtendedCommunityBuilder;
 
@@ -22,14 +23,14 @@ public class RouteTargetCommunityTest {
 
 	@Before
 	public void init() {
-		final AsNumber globalAdmin = new AsNumber(65535L);
+		final ShortAsNumber globalAdmin = new ShortAsNumber(65535L);
 		final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
 		this.community = new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(globalAdmin).setLocalAdministrator(localAdmin).build();
 	}
 
 	@Test
 	public void testGetGlobalAdmin() {
-		final AsNumber testAsn = new AsNumber(65535L);
+		final ShortAsNumber testAsn = new ShortAsNumber(65535L);
 		assertEquals(this.community.getGlobalAdministrator(), testAsn);
 	}
 

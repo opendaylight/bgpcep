@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.extended.community.extended.community.AsSpecificExtendedCommunityCaseBuilder;
@@ -128,7 +129,7 @@ public class ComplementaryTest {
 			fail("Not expected exception: " + e1);
 		}
 		AsSpecificExtendedCommunityCase expected = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
-				new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(new AsNumber(54L)).setLocalAdministrator(
+				new AsSpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(new ShortAsNumber(54L)).setLocalAdministrator(
 						new byte[] { 0, 0, 1, 76 }).build()).build();
 		AsSpecificExtendedCommunityCase result = (AsSpecificExtendedCommunityCase) as.getExtendedCommunity();
 		assertEquals(expected.getAsSpecificExtendedCommunity().isTransitive(), result.getAsSpecificExtendedCommunity().isTransitive());
@@ -144,7 +145,7 @@ public class ComplementaryTest {
 			fail("Not expected exception: " + e1);
 		}
 		expected = new AsSpecificExtendedCommunityCaseBuilder().setAsSpecificExtendedCommunity(
-				new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new AsNumber(54L)).setLocalAdministrator(
+				new AsSpecificExtendedCommunityBuilder().setTransitive(true).setGlobalAdministrator(new ShortAsNumber(54L)).setLocalAdministrator(
 						new byte[] { 0, 0, 1, 76 }).build()).build();
 		result = (AsSpecificExtendedCommunityCase) as.getExtendedCommunity();
 		assertEquals(expected.getAsSpecificExtendedCommunity().isTransitive(), result.getAsSpecificExtendedCommunity().isTransitive());
@@ -157,7 +158,7 @@ public class ComplementaryTest {
 			fail("Not expected exception: " + e1);
 		}
 		final RouteTargetExtendedCommunityCase rexpected = new RouteTargetExtendedCommunityCaseBuilder().setRouteTargetExtendedCommunity(
-				new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(new AsNumber(35L)).setLocalAdministrator(
+				new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(35L)).setLocalAdministrator(
 						new byte[] { 4, 2, 8, 7 }).build()).build();
 		final RouteTargetExtendedCommunityCase rresult = (RouteTargetExtendedCommunityCase) rtc.getExtendedCommunity();
 		assertEquals(rexpected.getRouteTargetExtendedCommunity().getGlobalAdministrator(),
@@ -174,7 +175,7 @@ public class ComplementaryTest {
 			fail("Not expected exception: " + e1);
 		}
 		final RouteOriginExtendedCommunityCase oexpected = new RouteOriginExtendedCommunityCaseBuilder().setRouteOriginExtendedCommunity(
-				new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(new AsNumber(24L)).setLocalAdministrator(
+				new RouteOriginExtendedCommunityBuilder().setGlobalAdministrator(new ShortAsNumber(24L)).setLocalAdministrator(
 						new byte[] { 4, 2, 8, 7 }).build()).build();
 		final RouteOriginExtendedCommunityCase oresult = (RouteOriginExtendedCommunityCase) roc.getExtendedCommunity();
 		assertEquals(oexpected.getRouteOriginExtendedCommunity().getGlobalAdministrator(),
