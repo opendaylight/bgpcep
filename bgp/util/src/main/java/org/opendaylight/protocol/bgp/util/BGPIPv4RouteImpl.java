@@ -8,10 +8,9 @@
 package org.opendaylight.protocol.bgp.util;
 
 import org.opendaylight.protocol.bgp.concepts.BaseBGPObjectState;
-
+import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 import org.opendaylight.protocol.concepts.IPv4Address;
 import org.opendaylight.protocol.concepts.Prefix;
-import org.opendaylight.protocol.bgp.linkstate.NetworkRouteState;
 
 /**
  * Implementation of {@link AbstractBGPPrefix}.
@@ -22,5 +21,16 @@ public final class BGPIPv4RouteImpl extends AbstractBGPRoute<IPv4Address> {
 	public BGPIPv4RouteImpl(final Prefix<IPv4Address> prefix, final BaseBGPObjectState base,
 			final NetworkRouteState<IPv4Address> prefixState) {
 		super(prefix, base, prefixState);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	/* to match removed-objects toString */
+	@Override
+	public String toString() {
+		final StringBuilder builder = new StringBuilder();
+		builder.append(getName());
+		return builder.toString();
 	}
 }
