@@ -54,7 +54,7 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModu
 				getTimerDependency(), localPrefs, getMaxUnknownMessages());
 
 		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
-				getExtensionsDependency().getMessageHandlerRegistry(),
+				getPcepExtensionsDependency().getMessageHandlerRegistry(),
 				negFactory, getBossGroupDependency(), getWorkerGroupDependency());
 		return instance;
 	}

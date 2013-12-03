@@ -164,7 +164,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 				threadGroupFactoryImplName, "boss-group", 10));
 		mxBean.setWorkerGroup(createThreadGroupInstance(transaction,
 				threadGroupFactoryImplName, "worker-group", 10));
-		mxBean.setExtensions(createExtensionsInstance(transaction,
+		mxBean.setPcepExtensions(createExtensionsInstance(transaction,
 				extensionsImplName, "extensions"));
 		mxBean.setTimer(createTimerInstance(transaction, timerFactoryImplName,
 				"timmer1"));
