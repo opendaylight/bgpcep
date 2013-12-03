@@ -24,9 +24,9 @@ module bgp-rib-impl {
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
 
         This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
     revision "2013-04-09" {
         description
@@ -137,9 +137,8 @@ module bgp-rib-impl {
 
     identity bgp-impl {
         base config:module-type;
-            config:provided-service bgpl:listener;
+        config:provided-service bgpl:listener;
         config:java-name-prefix BGPImpl;
-
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -170,8 +169,8 @@ module bgp-rib-impl {
             }
 
             leaf port {
-                 mandatory true;
                  type uint16;
+                 default 179;
             }
         }
     }
@@ -223,7 +222,7 @@ module bgp-rib-impl {
                     }
                 }
             }
-			
+
             container session-reconnect-strategy {
                 uses config:service-ref {
                     refine type {
@@ -231,7 +230,7 @@ module bgp-rib-impl {
                         config:required-identity rs:reconnect-strategy;
                     }
                 }
-            }			
+            }
 
             container tcp-reconnect-strategy {
                 uses config:service-ref {
