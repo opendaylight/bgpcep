@@ -22,7 +22,7 @@ module bgp-rib-impl {
          BGP listener implementation.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
-        
+
         This program and the accompanying materials are made available
 		under the terms of the Eclipse Public License v1.0 which
 		accompanies this distribution, and is available at
@@ -114,7 +114,7 @@ module bgp-rib-impl {
                     }
                 }
             }
-            
+
             container boss-group {
                 uses config:service-ref {
                     refine type {
@@ -123,7 +123,7 @@ module bgp-rib-impl {
                     }
                 }
             }
-            
+
             container worker-group {
                 uses config:service-ref {
                     refine type {
@@ -176,12 +176,31 @@ module bgp-rib-impl {
         }
     }
 
+    identity base-bgp-rib {
+        base config:module-type;
+        config:java-name-prefix BaseBGPRIB;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case base-bgp-rib {
+            when "/config:modules/config:module/config:type = 'base-bgp-rib'";
+
+            container rib-extensions {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity ribspi:extensions;
+                    }
+                }
+            }
+        }
+    }
+
     identity rib-impl {
         base config:module-type;
         config:provided-service bgprib:rib;
         config:java-name-prefix RIBImpl;
     }
-
 
     augment "/config:modules/config:module/config:configuration" {
         case rib-impl {
@@ -213,7 +232,7 @@ module bgp-rib-impl {
                     }
                 }
             }			
-            
+
             container tcp-reconnect-strategy {
                 uses config:service-ref {
                     refine type {
@@ -222,7 +241,7 @@ module bgp-rib-impl {
                     }
                 }
             }
-                       
+
             container data-provider {
                 uses config:service-ref {
                     refine type {
