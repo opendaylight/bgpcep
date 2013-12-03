@@ -75,12 +75,17 @@ module bgp-types {
 		}
 	}
 
+	typedef short-as-number {
+		type inet:as-number {
+			range 0..65535;
+		}
+	}
+
 	grouping bgp-aggregator {
 		reference "http://tools.ietf.org/html/rfc4271#section-5.1.7";
 		description "BGP Path Attribute AGGREGATOR.";
 		leaf as-number {
-			// BUG-79 : add range 0..65535 when the bug is fixed.
-			type inet:as-number;
+			type short-as-number;
 		}
 		leaf network-address {
 			type inet:ipv4-address;
@@ -113,11 +118,7 @@ module bgp-types {
 						type boolean;
 					}
 					leaf global-administrator {
-						type inet:as-number;
-						// BUG-79
-						//{
-						//	range 0..65535;
-						//}
+						type short-as-number;
 					}
 					leaf local-administrator {
 						type binary {
@@ -159,11 +160,7 @@ module bgp-types {
 				container route-target-extended-community {
 					when "../comm-type = 1 and ../comm-sub-type = 2 or ../comm-type = 2 and ../comm-sub-type = 2 or ../comm-type = 3 and ../comm-sub-type = 2";
 					leaf global-administrator {
-						type inet:as-number;
-						// BUG-79
-						//{
-						//	range 0..65535;
-						//}
+						type short-as-number;
 					}
 					leaf local-administrator {
 						type binary {
@@ -176,11 +173,7 @@ module bgp-types {
 				container route-origin-extended-community {
 					when "../comm-type = 1 and ../comm-sub-type = 3 or ../comm-type = 2 and ../comm-sub-type = 3 or ../comm-type = 3 and ../comm-sub-type = 3";
 					leaf global-administrator {
-						type inet:as-number;
-						// BUG-79
-						//{
-						//	range 0..65535;
-						//}
+						type short-as-number;
 					}
 					leaf local-administrator {
 						type binary {
