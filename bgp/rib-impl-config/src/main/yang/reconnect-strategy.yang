@@ -16,11 +16,11 @@ module reconnect-strategy {
          reconnect strategy.
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
-        
+
         This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
     revision "2013-11-09" {
         description
@@ -44,23 +44,23 @@ module reconnect-strategy {
     augment "/config:modules/config:module/config:configuration" {
         case never-reconnect-strategy {
             when "/config:modules/config:module/config:type = 'never-reconnect-strategy'";
-            
+
             leaf timeout {
-                 mandatory true;
-                 type int32;
+                mandatory true;
+                type int32;
             }
-            
+
             container executor {
-				uses config:service-ref {
-					refine type {
-						mandatory true;
-						config:required-identity netty:netty-event-executor;
-					}
-				}
-			}
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-event-executor;
+                    }
+                }
+            }
         }
     }
-    
+
     identity reconnect-immediately-strategy {
         base config:module-type;
         config:provided-service reconnect-strategy;
@@ -70,23 +70,23 @@ module reconnect-strategy {
     augment "/config:modules/config:module/config:configuration" {
         case reconnect-immediately-strategy {
             when "/config:modules/config:module/config:type = 'reconnect-immediately-strategy'";
-            
+
             leaf timeout {
-                 mandatory true;
-                 type int32;
+                mandatory true;
+                type int32;
             }
-            
+
             container executor {
-				uses config:service-ref {
-					refine type {
-						mandatory true;
-						config:required-identity netty:netty-event-executor;
-					}
-				}
-			}
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-event-executor;
+                    }
+                }
+            }
         }
     }
-    
+
     identity timed-reconnect-strategy {
         base config:module-type;
         config:provided-service reconnect-strategy;
@@ -96,47 +96,50 @@ module reconnect-strategy {
     augment "/config:modules/config:module/config:configuration" {
         case timed-reconnect-strategy {
             when "/config:modules/config:module/config:type = 'timed-reconnect-strategy'";
-            
+
             leaf deadline {
-                 mandatory true;
-                 type int64;
+                type int64;
+                units "epoch nanoseconds";
             }
-            
+
             leaf max-attempts {
-                 mandatory true;
-                 type int64;
+                mandatory true;
+                type int64;
             }
-            
+
             leaf max-sleep {
-                 mandatory true;
-                 type int64;
+                mandatory true;
+                type int64;
+                units "milliseconds";
             }
-            
+
             leaf min-sleep {
-                 mandatory true;
-                 type int64;
+                mandatory true;
+                type int64;
+                units "milliseconds";
             }
-            
+
             leaf sleep-factor {
-                 mandatory true;
-                 type decimal64 {
-					fraction-digits 2;
-				}
+                mandatory true;
+                type decimal64 {
+                    fraction-digits 2;
+                }
             }
-            
+
             leaf connect-time {
-                 mandatory true;
-                 type int32;
+                mandatory true;
+                type int32;
+                units "milliseconds";
             }
-            
+
             container executor {
-				uses config:service-ref {
-					refine type {
-						mandatory true;
-						config:required-identity netty:netty-event-executor;
-					}
-				}
-			}
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-event-executor;
+                    }
+                }
+            }
         }
     }
 }
