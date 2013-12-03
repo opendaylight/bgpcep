@@ -19,6 +19,8 @@
 
     <artifactId>releasepom</artifactId>
     <packaging>pom</packaging>
+    <name>BGPCEP release</name>
+    <description>BGPCEP top-level pom</description>
 
     <modules>
         <!-- Common infra -->
