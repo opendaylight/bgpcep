@@ -26,9 +26,9 @@ public class ASNumberTest {
 
 	@Before
 	public void setUp() {
-		this.asn1 = new AsNumber(429496729800L);
+		this.asn1 = new AsNumber(4294967295L);
 		this.asn3 = new AsNumber((long) 200);
-		this.asn4 = new AsNumber(429496729799L);
+		this.asn4 = new AsNumber(429496335L);
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class ASNumberTest {
 
 	@Test
 	public void testGetters() {
-		assertEquals(429496729800L, this.asn1.getValue().longValue());
+		assertEquals(4294967295L, this.asn1.getValue().longValue());
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class ASNumberTest {
 
 	@Test
 	public void testToString() {
-		assertEquals("AsNumber [_value=429496729800]", this.asn1.toString());
+		assertEquals("AsNumber [_value=4294967295]", this.asn1.toString());
 		assertEquals("AsNumber [_value=200]", this.asn3.toString());
 	}
 }

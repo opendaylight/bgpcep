@@ -22,14 +22,14 @@ public class RouteTargetCommunityTest {
 
 	@Before
 	public void init() {
-		final AsNumber globalAdmin = new AsNumber(429496729800L);
+		final AsNumber globalAdmin = new AsNumber(65535L);
 		final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
 		this.community = new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(globalAdmin).setLocalAdministrator(localAdmin).build();
 	}
 
 	@Test
 	public void testGetGlobalAdmin() {
-		final AsNumber testAsn = new AsNumber(429496729800L);
+		final AsNumber testAsn = new AsNumber(65535L);
 		assertEquals(this.community.getGlobalAdministrator(), testAsn);
 	}
 
