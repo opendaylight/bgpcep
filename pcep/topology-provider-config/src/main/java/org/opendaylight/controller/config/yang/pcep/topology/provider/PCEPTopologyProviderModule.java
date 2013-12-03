@@ -52,7 +52,7 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 	}
 
 	private InetAddress listenAddress() {
-		final IpAddress a = getListenAddress();
+		final IpAddress a = new IpAddress(getListenAddress());
 		if (a.getIpv4Address() != null) {
 			return InetAddresses.forString(a.getIpv4Address().getValue());
 		} else if (a.getIpv6Address() != null) {
