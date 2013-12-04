@@ -66,45 +66,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
-	private static final class UriBuilder {
-		private final StringBuilder sb;
-
-		UriBuilder(final UriBuilder base, final String type) {
-			sb = new StringBuilder(base.sb);
-			sb.append("type=").append(type);
-		}
-
-		UriBuilder(final LinkstateRoute route) {
-			sb = new StringBuilder("bgpls://");
-
-			if (route.getDistinguisher() != null) {
-				sb.append(route.getDistinguisher().getValue().toString()).append(':');
-			}
-
-			sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
-		}
-
-		UriBuilder add(final String name, final Object value) {
-			if (value != null) {
-				sb.append('&').append(name).append('=').append(value.toString());
-			}
-			return this;
-		}
-
-		UriBuilder add(final String prefix, final NodeIdentifier node) {
-			add(prefix + "as", node.getAsNumber());
-			add(prefix + "domain", node.getDomainId());
-			add(prefix + "area", node.getAreaId());;
-			add(prefix + "router", node.getCRouterIdentifier());
-			return this;
-		}
-
-		@Override
-		public final String toString() {
-			return sb.toString();
-		}
-	}
-
 	public LinkstateTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId) {
 		super(dataProvider, locRibReference, topologyId, LinkstateRoute.class);
 	}
