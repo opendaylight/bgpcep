@@ -65,6 +65,12 @@ public final class CommunitiesParser {
 
 	protected static final short ROUTE_ORIGIN_SUBTYPE = 3;
 
+	private static final byte[] NO_EXPORT = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01 };
+
+	private static final byte[] NO_ADVERTISE = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x02 };
+
+	private static final byte[] NO_EXPORT_SUBCONFED = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 };
+
 	private CommunitiesParser() {
 
 	}
@@ -80,11 +86,11 @@ public final class CommunitiesParser {
 		if (bytes.length != COMMUNITY_LENGTH) {
 			throw new BGPDocumentedException("Community with wrong length: " + bytes.length, BGPError.OPT_ATTR_ERROR);
 		}
-		if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01 })) {
+		if (Arrays.equals(bytes, NO_EXPORT)) {
 			return CommunityUtil.NO_EXPORT;
-		} else if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x02 })) {
+		} else if (Arrays.equals(bytes, NO_ADVERTISE)) {
 			return CommunityUtil.NO_ADVERTISE;
-		} else if (Arrays.equals(bytes, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x03 })) {
+		} else if (Arrays.equals(bytes, NO_EXPORT_SUBCONFED)) {
 			return CommunityUtil.NO_EXPORT_SUBCONFED;
 		}
 		return CommunityUtil.create((ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))),

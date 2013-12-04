@@ -359,7 +359,7 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	@Override
-	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
+	public void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
 		if (nlri.length == 0) {
 			return;
 		}

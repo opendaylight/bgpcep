@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Main {
 
-	private static final Logger logger = LoggerFactory.getLogger(Main.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 	private static String usage = "DESCRIPTION:\n"
 			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
@@ -80,7 +80,7 @@ public class Main {
 				as = new AsNumber(Long.valueOf(args[i + 1]));
 				i++;
 			} else {
-				logger.error("WARNING: Unrecognized argument: " + args[i]);
+				LOG.error("WARNING: Unrecognized argument: " + args[i]);
 			}
 			i++;
 		}
@@ -93,7 +93,7 @@ public class Main {
 
 		final BGPSessionPreferences proposal = prop.getProposal();
 
-		logger.debug("{} {} {}", address, sessionListener, proposal);
+		LOG.debug("{} {} {}", address, sessionListener, proposal);
 
 		final InetSocketAddress addr = address;
 		m.dispatcher.createClient(addr, proposal, sessionListener,

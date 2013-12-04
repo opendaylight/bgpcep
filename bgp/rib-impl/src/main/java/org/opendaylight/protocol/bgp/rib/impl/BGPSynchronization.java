@@ -36,7 +36,7 @@ import com.google.common.collect.Maps;
  */
 public class BGPSynchronization {
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPSynchronization.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPSynchronization.class);
 
 	private static class SyncVariables {
 
@@ -100,7 +100,7 @@ public class BGPSynchronization {
 		}
 		final SyncVariables s = this.syncStorage.get(type);
 		if (s == null) {
-			logger.warn("BGPTableType was not present in open message : {}", type);
+			LOG.warn("BGPTableType was not present in open message : {}", type);
 			return;
 		}
 		s.setUpd(true);
@@ -118,7 +118,7 @@ public class BGPSynchronization {
 				if (!s.getUpd()) {
 					s.setEorTrue();
 					final Update up = generateEOR(entry.getKey());
-					logger.debug("Sending synchronization message: {}", up);
+					LOG.debug("Sending synchronization message: {}", up);
 					this.listener.onMessage(this.session, up);
 				}
 				s.setUpd(false);

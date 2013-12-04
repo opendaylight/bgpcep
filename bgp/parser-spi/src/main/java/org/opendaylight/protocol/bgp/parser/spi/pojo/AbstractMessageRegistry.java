@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.UnsignedBytes;
 
 abstract class AbstractMessageRegistry implements MessageRegistry {
-	private final static Logger logger = LoggerFactory.getLogger(AbstractMessageRegistry.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMessageRegistry.class);
+
+	private static final byte[] MARKER;
 
 	protected abstract Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException;
 
 	protected abstract byte[] serializeMessageImpl(final Notification message);
-
-	private final static byte[] MARKER;
 
 	static {
 		MARKER = new byte[MessageUtil.MARKER_LENGTH];

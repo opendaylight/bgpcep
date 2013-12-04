@@ -18,26 +18,26 @@ import org.slf4j.LoggerFactory;
  * Testing BGP Listener.
  */
 public class TestingListener implements BGPSessionListener {
-	private static final Logger logger = LoggerFactory.getLogger(TestingListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TestingListener.class);
 
 	@Override
 	public void onMessage(final BGPSession session, final Notification message) {
-		logger.info("Client Listener: message received: {}", message.toString());
+		LOG.info("Client Listener: message received: {}", message.toString());
 	}
 
 	@Override
 	public void onSessionUp(final BGPSession session) {
-		logger.info("Client Listener: Session Up.");
+		LOG.info("Client Listener: Session Up.");
 	}
 
 	@Override
 	public void onSessionDown(final BGPSession session, final Exception e) {
-		logger.info("Client Listener: Connection lost.");
+		LOG.info("Client Listener: Connection lost.");
 		session.close();
 	}
 
 	@Override
 	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-		logger.info("Client Listener: Connection lost: {}.", cause);
+		LOG.info("Client Listener: Connection lost: {}.", cause);
 	}
 }

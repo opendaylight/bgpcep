@@ -26,14 +26,14 @@ public abstract class AbstractRIBExtensionProviderActivator implements RIBExtens
 	protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(RIBExtensionProviderContext context);
 
 	@Override
-	public synchronized final void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
+	public final synchronized void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
 		Preconditions.checkState(this.registrations == null);
 
 		this.registrations = Preconditions.checkNotNull(startRIBExtensionProviderImpl(context));
 	}
 
 	@Override
-	public synchronized final void stopRIBExtensionProvider() {
+	public final synchronized void stopRIBExtensionProvider() {
 		Preconditions.checkState(this.registrations != null);
 
 		for (final AutoCloseable r : this.registrations) {

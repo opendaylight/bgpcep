@@ -28,14 +28,14 @@ public abstract class AbstractBGPExtensionProviderActivator implements BGPExtens
 	protected abstract List<AutoCloseable> startImpl(BGPExtensionProviderContext context);
 
 	@Override
-	public synchronized final void start(final BGPExtensionProviderContext context) {
+	public final synchronized void start(final BGPExtensionProviderContext context) {
 		Preconditions.checkState(this.registrations == null);
 
 		this.registrations = Preconditions.checkNotNull(startImpl(context));
 	}
 
 	@Override
-	public synchronized final void stop() {
+	public final synchronized void stop() {
 		Preconditions.checkState(this.registrations != null);
 
 		for (final AutoCloseable r : this.registrations) {
