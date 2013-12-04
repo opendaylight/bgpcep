@@ -11,6 +11,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -61,11 +62,14 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 			final byte[] tlvBytes = ByteArray.subByte(bytes, byteOffset, length);
 
 			LOG.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
-			final Tlv tlv = this.tlvReg.getTlvParser(type).parseTlv(tlvBytes);
-			LOG.trace("Tlv was parsed. {}", tlv);
-
-			addTlv(builder, tlv);
-
+			final TlvParser parser = this.tlvReg.getTlvParser(type);
+			if (parser != null) {
+				final Tlv tlv = parser.parseTlv(tlvBytes);
+				LOG.trace("Tlv was parsed. {}", tlv);
+				addTlv(builder, tlv);
+			} else {
+				LOG.warn("Unknown TLV received. Type {}. Ignoring it.", type);
+			}
 			byteOffset += length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO);
 		}
 	}
