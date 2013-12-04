@@ -174,7 +174,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 					rBuilder.setRp(rpObj);
 				}
 			} else {
-				// if RP obj is missing return error only;
+				// if RP obj is missing return error only
 				errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
 				return null;
 			}

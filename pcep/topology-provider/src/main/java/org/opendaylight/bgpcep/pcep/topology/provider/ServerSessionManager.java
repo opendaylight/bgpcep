@@ -115,7 +115,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		private long requestId = 1;
 		private NodeId nodeId;
 
-		final Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
+		Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
 			final String pccId = createNodeId(address);
 			final Topology topo = (Topology) trans.readOperationalData(ServerSessionManager.this.topology);
 
@@ -252,7 +252,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		public synchronized void onMessage(final PCEPSession session, final Message message) {
 			if (!(message instanceof PcrptMessage)) {
 				LOG.info("Unhandled message {} on session {}", message, session);
-				session.sendMessage(unhandledMessageError);
+				session.sendMessage(UNHANDLED_MESSAGE_ERROR);
 			}
 
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
@@ -370,9 +370,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
-	private static final Pcerr unhandledMessageError = new PcerrBuilder().setPcerrMessage(
+	private static final Pcerr UNHANDLED_MESSAGE_ERROR = new PcerrBuilder().setPcerrMessage(
 			new PcerrMessageBuilder().setErrorType(null).build()).build();
-	private static final MessageHeader messageHeader = new MessageHeader() {
+	private static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
 		private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
 		@Override
@@ -410,10 +410,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-										new ArrayList<Node>()).build());
+						new ArrayList<Node>()).build());
 
-		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()),
-				new FutureCallback<RpcResult<TransactionStatus>>() {
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
 				// Nothing to do
@@ -453,7 +452,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setTlvs(
 				new TlvsBuilder().setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(input.getName()).build()).build()).build());
 
-		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(messageHeader);
+		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
 		ib.setRequests(ImmutableList.of(rb.build()));
 
 		// Send the message
@@ -496,7 +495,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).setFlags(new Flags(Boolean.TRUE)).build());
 		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
 
-		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(messageHeader);
+		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
 		ib.setRequests(ImmutableList.of(rb.build()));
 		return l.sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId());
 	}
@@ -525,7 +524,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 
-		final PcupdMessageBuilder ub = new PcupdMessageBuilder(messageHeader);
+		final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ub.setUpdates(ImmutableList.of(rb.build()));
 		return l.sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId());
 	}
