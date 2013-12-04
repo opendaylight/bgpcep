@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.rib.LocRibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
@@ -40,9 +41,9 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
 
-	protected AbstractReachabilityTopologyBuilder(final DataProviderService dataProvider, final TopologyId topologyId,
+	protected AbstractReachabilityTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId,
 			final Class<T> idClass) {
-		super(dataProvider, topologyId, idClass);
+		super(dataProvider, locRibReference, topologyId, idClass);
 	}
 
 	private NodeId advertizingNode(final Attributes attrs) {
@@ -101,7 +102,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 		trans.putOperationalData(
 				InstanceIdentifier.builder(nii).child(
 						org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-						Prefix.class, pk).toInstance(), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
+								Prefix.class, pk).toInstance(), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
 	}
 
 	@Override
@@ -115,7 +116,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
 		trans.removeOperationalData(InstanceIdentifier.builder(nii).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-				Prefix.class, pk).toInstance());
+						Prefix.class, pk).toInstance());
 
 		removeEmptyNode(trans, nii);
 	}

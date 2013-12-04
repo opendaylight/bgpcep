@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.rib.LocRibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.TopologyIdentifier;
@@ -64,8 +65,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
-	public LinkstateTopologyBuilder(final DataProviderService dataProvider, final TopologyId topologyId) {
-		super(dataProvider, topologyId, LinkstateRoute.class);
+	public LinkstateTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId) {
+		super(dataProvider, locRibReference, topologyId, LinkstateRoute.class);
 	}
 
 	private String buildNamePrefix(final LinkstateRoute route) {

@@ -19,7 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.protocol.bgp.rib.LocRibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -41,21 +41,21 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 
 public abstract class AbstractTopologyBuilder<T extends Route> implements AutoCloseable, DataChangeListener, LocRIBListener,
 TopologyReference {
-	private static final InstanceIdentifier<LocRib> locRIBPath = InstanceIdentifier.builder(LocRib.class).toInstance();
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
+	private final LocRibReference locRibReference;
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
 	private final Class<T> idClass;
 
-	protected AbstractTopologyBuilder(final DataProviderService dataProvider, final TopologyId topologyId, final Class<T> idClass) {
+	protected AbstractTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId, final Class<T> idClass) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
+		this.locRibReference = Preconditions.checkNotNull(locRibReference);
 		this.topology = InstanceIdentifier.builder(Topology.class, new TopologyKey(Preconditions.checkNotNull(topologyId))).toInstance();
 		this.idClass = Preconditions.checkNotNull(idClass);
 	}
 
-	public static final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi,
-			final Class<? extends SubsequentAddressFamily> safi) {
-		return InstanceIdentifier.builder(locRIBPath).child(Tables.class, new TablesKey(afi, safi)).toInstance();
+	public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+		return InstanceIdentifier.builder(locRibReference.getInstanceIdentifier()).child(Tables.class, new TablesKey(afi, safi)).toInstance();
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
