@@ -19,6 +19,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.util.List;
@@ -83,13 +84,16 @@ public class FSMTest {
 				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
 						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build());
 		final BGPSessionPreferences prefs = new BGPSessionPreferences(30, (short) 3, null, tlvs);
+
+		final ChannelFuture f = mock(ChannelFuture.class);
+		doReturn(null).when(f).addListener(any(GenericFutureListener.class));
 		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
 				FSMTest.this.receivedMsgs.add((Notification) args[0]);
-				return null;
+				return f;
 			}
 		}).when(this.speakerListener).writeAndFlush(any(Notification.class));
 		doReturn("TestingChannel").when(this.speakerListener).toString();
