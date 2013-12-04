@@ -368,6 +368,6 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	@Override
 	public void close() {
-		// FIXME: BUG-186: remove all scheduled instructions, etc.
+		LOG.debug("Shutting down instruction scheduler {}", this);
 	}
 }
