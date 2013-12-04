@@ -14,11 +14,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import com.google.common.base.Preconditions;
 
 /**
- * An interface representing a listener registration. Objects offering
- * the ability to register listener should return an implementation of this
- * interface upon successful registration. The users are required to call
- * #close() before losing the reference to that object.
- *
+ * An interface representing a listener registration. Objects offering the ability to register listener should return an
+ * implementation of this interface upon successful registration. The users are required to call #close() before losing
+ * the reference to that object.
+ * 
  * @param <T> template reference to associated EventListener implementation
  */
 @ThreadSafe
@@ -31,11 +30,10 @@ public abstract class ListenerRegistration<T extends EventListener> extends Abst
 
 	/**
 	 * Access the listener object associated with this registration.
-	 *
+	 * 
 	 * @return Associated listener.
 	 */
 	public final T getListener() {
-		return listener;
+		return this.listener;
 	}
 }
-

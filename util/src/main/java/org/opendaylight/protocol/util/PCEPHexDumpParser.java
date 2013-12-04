@@ -25,13 +25,13 @@ import com.google.common.io.CharStreams;
 
 /**
  * Parses PCEP messages from a text file. Messages need to follow this formatting:
- *
+ * 
  * Received PCEP Open message. Length:28.
- *
+ * 
  * 20 01 00 1c 01 10 00 18 20 1e 78 03 00 10 00 04 00 00 00 05 00 1a 00 04 00 00 00 b4
- *
+ * 
  */
-public class PCEPHexDumpParser {
+public final class PCEPHexDumpParser {
 	private static final int MINIMAL_LENGTH = 4;
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPHexDumpParser.class);
 	private static final String LENGTH = "LENGTH:";

@@ -54,12 +54,12 @@ public final class ByteArray {
 	 * @return int
 	 */
 	public static int bytesToInt(final byte[] bytes) {
-		if (bytes.length > Integer.SIZE / 8) {
+		if (bytes.length > Integer.SIZE / Byte.SIZE) {
 			throw new IllegalArgumentException("Cannot convert bytes to integer. Byte array too big.");
 		}
-		byte[] res = new byte[Integer.SIZE / 8];
-		if (bytes.length != Integer.SIZE / 8) {
-			System.arraycopy(bytes, 0, res, Integer.SIZE / 8 - bytes.length, bytes.length);
+		byte[] res = new byte[Integer.SIZE / Byte.SIZE];
+		if (bytes.length != Integer.SIZE / Byte.SIZE) {
+			System.arraycopy(bytes, 0, res, Integer.SIZE / Byte.SIZE - bytes.length, bytes.length);
 		} else {
 			res = bytes;
 		}
@@ -75,12 +75,12 @@ public final class ByteArray {
 	 * @return long
 	 */
 	public static long bytesToLong(final byte[] bytes) {
-		if (bytes.length > Long.SIZE / 8) {
+		if (bytes.length > Long.SIZE / Byte.SIZE) {
 			throw new IllegalArgumentException("Cannot convert bytes to long.Byte array too big.");
 		}
-		byte[] res = new byte[Long.SIZE / 8];
-		if (bytes.length != Long.SIZE / 8) {
-			System.arraycopy(bytes, 0, res, Long.SIZE / 8 - bytes.length, bytes.length);
+		byte[] res = new byte[Long.SIZE / Byte.SIZE];
+		if (bytes.length != Long.SIZE / Byte.SIZE) {
+			System.arraycopy(bytes, 0, res, Long.SIZE / Byte.SIZE - bytes.length, bytes.length);
 		} else {
 			res = bytes;
 		}
@@ -96,12 +96,12 @@ public final class ByteArray {
 	 * @return float
 	 */
 	public static float bytesToFloat(final byte[] bytes) {
-		if (bytes.length > Float.SIZE / 8) {
+		if (bytes.length > Float.SIZE / Byte.SIZE) {
 			throw new IllegalArgumentException("Cannot convert bytes to float.Byte array too big.");
 		}
-		byte[] res = new byte[Float.SIZE / 8];
-		if (bytes.length != Float.SIZE / 8) {
-			System.arraycopy(bytes, 0, res, Float.SIZE / 8 - bytes.length, bytes.length);
+		byte[] res = new byte[Float.SIZE / Byte.SIZE];
+		if (bytes.length != Float.SIZE / Byte.SIZE) {
+			System.arraycopy(bytes, 0, res, Float.SIZE / Byte.SIZE - bytes.length, bytes.length);
 		} else {
 			res = bytes;
 		}
@@ -147,10 +147,10 @@ public final class ByteArray {
 	 */
 	public static BitSet bytesToBitSet(final byte[] bytes) {
 		final BitSet bitSet = new BitSet(bytes.length * Byte.SIZE);
-		for (int bytes_iter = 0; bytes_iter < bytes.length; bytes_iter++) {
-			final int offset = bytes_iter * Byte.SIZE;
+		for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
+			final int offset = bytesIter * Byte.SIZE;
 			for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
-				bitSet.set(offset + (Byte.SIZE - byteIter - 1), (bytes[bytes_iter] & 1 << (byteIter)) != 0);
+				bitSet.set(offset + (Byte.SIZE - byteIter - 1), (bytes[bytesIter] & 1 << (byteIter)) != 0);
 			}
 		}
 		return bitSet;
@@ -166,11 +166,11 @@ public final class ByteArray {
 	public static byte[] bitSetToBytes(final BitSet bitSet, final int returnedLength) {
 		final byte[] bytes = new byte[returnedLength];
 
-		for (int bytes_iter = 0; bytes_iter < bytes.length; bytes_iter++) {
-			final int offset = bytes_iter * Byte.SIZE;
+		for (int bytesIter = 0; bytesIter < bytes.length; bytesIter++) {
+			final int offset = bytesIter * Byte.SIZE;
 
 			for (int byteIter = Byte.SIZE - 1; byteIter >= 0; byteIter--) {
-				bytes[bytes_iter] |= (bitSet.get(offset + (Byte.SIZE - byteIter - 1)) ? 1 << byteIter : 0);
+				bytes[bytesIter] |= (bitSet.get(offset + (Byte.SIZE - byteIter - 1)) ? 1 << byteIter : 0);
 			}
 		}
 		return bytes;
@@ -445,21 +445,21 @@ public final class ByteArray {
 		return -1;
 	}
 
-	private static final byte maskBits[] = new byte[] { 0, -128, -64, -32, -16, -8, -4, -2 };
+	private static byte MASK_BITS[] = new byte[] { 0, -128, -64, -32, -16, -8, -4, -2 };
 
-	public static final byte[] maskBytes(final byte[] original, final int bits) {
-		if (original.length * 8 < bits) {
+	public static byte[] maskBytes(final byte[] original, final int bits) {
+		if (original.length * Byte.SIZE < bits) {
 			throw new IllegalArgumentException("Attempted to apply invalid mask (too long)");
 		}
 
-		final int needbytes = (bits + 7) / 8;
+		final int needbytes = (bits + 7) / Byte.SIZE;
 		// We need to have a new copy of the underlying byte array, so that
 		// the original bytes stay untouched
 		final byte[] bytes = Arrays.copyOf(original, original.length);
 
-		final int needmask = bits % 8;
+		final int needmask = bits % Byte.SIZE;
 		if (needmask != 0) {
-			bytes[needbytes - 1] &= maskBits[needmask];
+			bytes[needbytes - 1] &= MASK_BITS[needmask];
 		}
 
 		// zero-out the rest of the bytes

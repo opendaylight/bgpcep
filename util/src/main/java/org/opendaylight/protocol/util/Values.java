@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.util;
 
-public class Values {
+public final class Values {
 
 	private Values() {
 	}
