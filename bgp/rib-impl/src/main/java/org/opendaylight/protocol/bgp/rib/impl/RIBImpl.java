@@ -12,6 +12,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.rib.DefaultLocRibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -29,9 +30,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +47,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 @ThreadSafe
-public class RIBImpl {
+public class RIBImpl extends DefaultLocRibReference {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private static final Update EOR = new UpdateBuilder().build();
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
-	public RIBImpl(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+	public RIBImpl(final InstanceIdentifier<LocRib> instanceIdentifier, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+		super(instanceIdentifier);
 		this.dps = Preconditions.checkNotNull(dps);
 		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, extensions);
 	}
@@ -109,10 +113,10 @@ public class RIBImpl {
 						peer,
 						new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
 								attrs.getCNextHop()).setAdvertizedRoutes(
-								new AdvertizedRoutesBuilder().setDestinationType(
-										new DestinationIpv4CaseBuilder().setDestinationIpv4(
-												new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
-						attrs);
+										new AdvertizedRoutesBuilder().setDestinationType(
+												new DestinationIpv4CaseBuilder().setDestinationIpv4(
+														new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
+														attrs);
 			} else {
 				LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 			}

@@ -19,6 +19,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  *
@@ -69,15 +71,15 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		private ListenerRegistration<BGPSessionListener> reg;
 
 		private RibImplCloseable(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
-			super(extensions, dps);
+			super(InstanceIdentifier.builder(LocRib.class).toInstance(), extensions, dps);
 		}
 
 		@Override
 		public void close() throws Exception {
 			reg.close();
 		}
-		
-		public void setListenerRegistration(ListenerRegistration<BGPSessionListener> reg) {
+
+		public void setListenerRegistration(final ListenerRegistration<BGPSessionListener> reg) {
 			this.reg = reg;
 		}
 	}
