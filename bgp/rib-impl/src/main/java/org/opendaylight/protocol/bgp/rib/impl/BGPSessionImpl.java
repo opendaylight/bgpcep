@@ -48,14 +48,14 @@ import com.google.common.collect.Sets;
 @VisibleForTesting
 public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession {
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPSessionImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
 	/*
 	 * 240
 	 */
 	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
 
-	private static final Notification keepalive = new KeepaliveBuilder().build();
+	private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
 	private static int holdTimerValue = DEFAULT_HOLD_TIMER_VALUE;
 
@@ -153,7 +153,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	@Override
 	public synchronized void close() {
-		logger.debug("Closing session: {}", this);
+		LOG.debug("Closing session: {}", this);
 		if (this.state != State.Idle) {
 			this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build());
 			this.channel.close();
@@ -176,14 +176,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 			this.terminate(BGPError.FSM_ERROR);
 		} else if (msg instanceof Notify) {
 			// Notifications are handled internally
-			logger.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
+			LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
 					((Notify) msg).getErrorSubcode());
 			this.closeWithoutMessage();
 			this.listener.onSessionTerminated(this,
 					new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
 		} else if (msg instanceof Keepalive) {
 			// Keepalives are handled internally
-			logger.debug("Received KeepAlive messsage.");
+			LOG.debug("Received KeepAlive messsage.");
 			this.kaCounter++;
 			if (this.kaCounter >= 2) {
 				this.sync.kaReceived();
@@ -205,14 +205,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		try {
 			this.channel.writeAndFlush(msg);
 			this.lastMessageSentAt = System.nanoTime();
-			logger.debug("Sent message: {}", msg);
+			LOG.debug("Sent message: {}", msg);
 		} catch (final Exception e) {
-			logger.warn("Message {} was not sent.", msg, e);
+			LOG.warn("Message {} was not sent.", msg, e);
 		}
 	}
 
 	private synchronized void closeWithoutMessage() {
-		logger.debug("Closing session: {}", this);
+		LOG.debug("Closing session: {}", this);
 		this.channel.close();
 		this.state = State.Idle;
 	}
@@ -245,7 +245,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(holdTimerValue);
 
 		if (ct >= nextHold) {
-			logger.debug("HoldTimer expired. " + new Date());
+			LOG.debug("HoldTimer expired. " + new Date());
 			this.terminate(BGPError.HOLD_TIMER_EXPIRED);
 		} else {
 			this.stateTimer.newTimeout(new TimerTask() {
@@ -272,7 +272,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
 		if (ct >= nextKeepalive) {
-			this.sendMessage(keepalive);
+			this.sendMessage(KEEP_ALIVE);
 			nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 		}
 		this.stateTimer.newTimeout(new TimerTask() {

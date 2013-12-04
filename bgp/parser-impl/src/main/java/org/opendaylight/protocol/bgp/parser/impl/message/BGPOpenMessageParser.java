@@ -42,7 +42,7 @@ import com.google.common.primitives.UnsignedBytes;
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
 	public static final int TYPE = 1;
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPOpenMessageParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPOpenMessageParser.class);
 
 	private static final int VERSION_SIZE = 1;
 	private static final int AS_SIZE = 2;
@@ -73,7 +73,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (msg == null) {
 			throw new IllegalArgumentException("BGPOpen message cannot be null");
 		}
-		logger.trace("Started serializing open message: {}", msg);
+		LOG.trace("Started serializing open message: {}", msg);
 		final Open open = (Open) msg;
 
 		final Map<byte[], Integer> optParams = Maps.newHashMap();
@@ -120,7 +120,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			}
 		}
 		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-		logger.trace("Open message serialized to: {}", Arrays.toString(ret));
+		LOG.trace("Open message serialized to: {}", Arrays.toString(ret));
 		return ret;
 	}
 
@@ -136,7 +136,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (body == null) {
 			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
-		logger.trace("Started parsing of open message: {}", Arrays.toString(body));
+		LOG.trace("Started parsing of open message: {}", Arrays.toString(body));
 
 		if (body.length < MIN_MSG_LENGTH) {
 			throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
@@ -167,7 +167,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (optLength > 0) {
 			fillParams(ByteArray.subByte(body, MIN_MSG_LENGTH, optLength), optParams);
 		}
-		logger.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
+		LOG.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
 		return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer((int) holdTime).setBgpIdentifier(bgpId).setBgpParameters(
 				optParams).build();
 	}
@@ -176,7 +176,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
-		logger.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
+		LOG.trace("Started parsing of BGP parameter: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
 		while (byteOffset < bytes.length) {
 			if (byteOffset + 2 >= bytes.length) {
@@ -196,9 +196,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 			if (param != null) {
 				params.add(param);
 			} else {
-				logger.debug("Ignoring BGP Parameter type: {}", paramType);
+				LOG.debug("Ignoring BGP Parameter type: {}", paramType);
 			}
 		}
-		logger.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
+		LOG.trace("Parsed BGP parameters: {}", Arrays.toString(params.toArray()));
 	}
 }

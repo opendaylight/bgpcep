@@ -14,17 +14,17 @@ import org.opendaylight.protocol.concepts.AbstractRegistration;
 
 import com.google.common.base.Preconditions;
 
-abstract class AbstractFamilyRegistry<CLASS, NUMBER> {
-	private final Map<Class<? extends CLASS>, NUMBER> classToNumber = new ConcurrentHashMap<>();
-	private final Map<NUMBER, Class<? extends CLASS>> numberToClass = new ConcurrentHashMap<>();
+abstract class AbstractFamilyRegistry<C, N> {
+	private final Map<Class<? extends C>, N> classToNumber = new ConcurrentHashMap<>();
+	private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
 
-	protected synchronized AutoCloseable registerFamily(final Class<? extends CLASS> clazz, final NUMBER number) {
+	protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
 		Preconditions.checkNotNull(clazz);
 
 		final Class<?> c = numberToClass.get(number);
 		Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
 
-		final NUMBER n = classToNumber.get(clazz);
+		final N n = classToNumber.get(clazz);
 		Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
 
 		numberToClass.put(number, clazz);
@@ -43,11 +43,11 @@ abstract class AbstractFamilyRegistry<CLASS, NUMBER> {
 		};
 	}
 
-	protected Class<? extends CLASS> classForFamily(final NUMBER number) {
+	protected Class<? extends C> classForFamily(final N number) {
 		return numberToClass.get(number);
 	}
 
-	protected NUMBER numberForClass(final Class<? extends CLASS> clazz) {
+	protected N numberForClass(final Class<? extends C> clazz) {
 		return classToNumber.get(clazz);
 	}
 }

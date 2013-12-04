@@ -37,7 +37,7 @@ import com.google.common.base.Preconditions;
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
 
-	private static Logger logger = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
+	private static Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
 	/**
 	 * Size of the withdrawn_routes_length field, in bytes.
@@ -63,7 +63,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 		if (body == null || body.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
-		logger.trace("Started parsing of update message: {}", Arrays.toString(body));
+		LOG.trace("Started parsing of update message: {}", Arrays.toString(body));
 
 		int byteOffset = 0;
 
@@ -99,7 +99,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 				throw e;
 			} catch (final Exception e) {
 				// Catch everything else and turn it into a BGPDocumentedException
-				logger.warn("Could not parse BGP attributes", e);
+				LOG.warn("Could not parse BGP attributes", e);
 				throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
 			}
 		}
@@ -108,7 +108,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 		if (nlri != null && !nlri.isEmpty()) {
 			eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
 		}
-		logger.trace("Update message was parsed.");
+		LOG.trace("Update message was parsed.");
 		return eventBuilder.build();
 	}
 }

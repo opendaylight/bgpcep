@@ -51,16 +51,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import com.google.common.base.Preconditions;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
-	private static abstract class LinkstateRIBEntryData<LSATTR extends LinkStateAttribute> extends
-	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
-		private final LSATTR lsattr;
+	private abstract static class LinkstateRIBEntryData<L extends LinkStateAttribute> extends
+			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+		private final L lsattr;
 
-		protected LinkstateRIBEntryData(final PathAttributes attributes, final LSATTR lsattr) {
+		protected LinkstateRIBEntryData(final PathAttributes attributes, final L lsattr) {
 			super(attributes);
 			this.lsattr = Preconditions.checkNotNull(lsattr);
 		}
 
-		protected abstract AttributeType createAttributes(LSATTR lsattr);
+		protected abstract AttributeType createAttributes(L lsattr);
 
 		protected abstract ObjectType createObject(CLinkstateDestination key);
 

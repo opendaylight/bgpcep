@@ -26,7 +26,7 @@ import com.google.common.base.Preconditions;
  *
  */
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
-	private final static Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
 	private final MessageRegistry registry;
 
 	public BGPByteToMessageDecoder(final MessageRegistry registry) {

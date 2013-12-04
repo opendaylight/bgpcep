@@ -30,7 +30,7 @@ import com.google.common.collect.Sets;
  * RIB actions.
  */
 public final class BGPPeer implements BGPSessionListener, Peer {
-	private static final Logger logger = LoggerFactory.getLogger(BGPPeer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 	private final Set<TablesKey> tables = Sets.newHashSet();
 	private final String name;
 	private final RIBImpl rib;
@@ -45,13 +45,13 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 		if (message instanceof Update) {
 			this.rib.updateTables(this, (Update) message);
 		} else {
-			logger.info("Ignoring unhandled message class " + message.getClass());
+			LOG.info("Ignoring unhandled message class " + message.getClass());
 		}
 	}
 
 	@Override
 	public void onSessionUp(final BGPSession session) {
-		logger.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
+		LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
 		for (final BgpTableType t : session.getAdvertisedTableTypes()) {
 			this.tables.add(new TablesKey(t.getAfi(), t.getSafi()));
@@ -69,18 +69,18 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 
 	@Override
 	public void onSessionDown(final BGPSession session, final Exception e) {
-		logger.info("Session with peer {} went down", this.name, e);
+		LOG.info("Session with peer {} went down", this.name, e);
 		cleanup();
 	}
 
 	@Override
 	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-		logger.info("Session with peer {} terminated: {}", this.name, cause);
+		LOG.info("Session with peer {} terminated: {}", this.name, cause);
 		cleanup();
 	}
 
 	@Override
-	public final String toString() {
+	public String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 

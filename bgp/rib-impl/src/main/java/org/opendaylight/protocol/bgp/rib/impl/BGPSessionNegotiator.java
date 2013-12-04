@@ -66,7 +66,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		Finished,
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPSessionNegotiator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPSessionNegotiator.class);
 	private final BGPSessionListener listener;
 	private final Timer timer;
 	private final BGPSessionPreferences localPref;
@@ -113,7 +113,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 	@Override
 	protected synchronized void handleMessage(final Notification msg) {
-		logger.debug("Channel {} handling message in state {}", this.channel, this.state);
+		LOG.debug("Channel {} handling message in state {}", this.channel, this.state);
 
 		switch (this.state) {
 		case Finished:
@@ -140,7 +140,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		}
 
 		// Catch-all for unexpected message
-		logger.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
+		LOG.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
 		this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
 				BGPError.FSM_ERROR.getSubcode()).build());
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
@@ -161,7 +161,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 					this.channel.writeAndFlush(new KeepaliveBuilder().build());
 					this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
 					this.state = State.OpenConfirm;
-					logger.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+					LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
 					return;
 				}
 			}

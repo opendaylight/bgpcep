@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
  */
 @Sharable
 final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
-	private final static Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
 	private final MessageRegistry registry;
 
 	BGPMessageToByteEncoder(final MessageRegistry registry) {
