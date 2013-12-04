@@ -28,14 +28,14 @@ public abstract class AbstractPCEPExtensionProviderActivator implements PCEPExte
 	protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context);
 
 	@Override
-	public synchronized final void start(final PCEPExtensionProviderContext context) {
+	public final synchronized void start(final PCEPExtensionProviderContext context) {
 		Preconditions.checkState(this.registrations == null);
 
 		this.registrations = Preconditions.checkNotNull(startImpl(context));
 	}
 
 	@Override
-	public synchronized final void stop() {
+	public final synchronized void stop() {
 		Preconditions.checkState(this.registrations != null);
 
 		for (final AutoCloseable r : this.registrations) {

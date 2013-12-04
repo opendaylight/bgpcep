@@ -176,7 +176,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		return null;
 	}
 
-	private NodeId supportingNode(final DataModificationTransaction t, final Node node) {
+	private NodeId supportingNode(final Node node) {
 		for (final SupportingNode n : node.getSupportingNode()) {
 			final SupportingNode1 n1 = n.getAugmentation(SupportingNode1.class);
 			if (n1 != null && n1.getPathComputationClient().isControlling()) {
@@ -226,7 +226,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				final TerminationPoint dp = Preconditions.checkNotNull(dr.getTp());
 
 				final AddLspInputBuilder ab = new AddLspInputBuilder();
-				ab.setNode(Preconditions.checkNotNull(supportingNode(t, sn)));
+				ab.setNode(Preconditions.checkNotNull(supportingNode(sn)));
 				ab.setName(Preconditions.checkNotNull(input.getSymbolicPathName()));
 
 				// The link has to be non-existent
@@ -333,7 +333,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 				final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
 				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
-				ab.setNode(Preconditions.checkNotNull(supportingNode(t, node)));
+				ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
 
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
 

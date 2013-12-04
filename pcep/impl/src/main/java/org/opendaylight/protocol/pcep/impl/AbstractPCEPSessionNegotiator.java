@@ -73,7 +73,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		Finished,
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
 
 	private final Timer timer;
 
@@ -184,7 +184,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	}
 
 	@Override
-	final synchronized protected void startNegotiation() {
+	protected final synchronized void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
 		this.localPrefs = getInitialProposal();
 		final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
@@ -193,14 +193,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		this.state = State.OpenWait;
 		scheduleFailTimer();
 
-		logger.debug("Channel {} started sent proposal {}", this.channel, this.localPrefs);
+		LOG.debug("Channel {} started sent proposal {}", this.channel, this.localPrefs);
 	}
 
 	@Override
-	final synchronized protected void handleMessage(final Message msg) {
+	protected final synchronized void handleMessage(final Message msg) {
 		this.failTimer.cancel();
 
-		logger.debug("Channel {} handling message in state {}", this.channel, this.state);
+		LOG.debug("Channel {} handling message in state {}", this.channel, this.state);
 
 		switch (this.state) {
 		case Finished:
@@ -215,7 +215,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				} else {
 					scheduleFailTimer();
 					this.state = State.OpenWait;
-					logger.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
+					LOG.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
 				}
 
 				return;
@@ -251,7 +251,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					} else {
 						scheduleFailTimer();
 						this.state = State.KeepWait;
-						logger.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
+						LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
 					}
 					return;
 				}
@@ -282,7 +282,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 			break;
 		}
 
-		logger.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
+		LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
 		sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
 		negotiationFailed(new Exception("Illegal message encountered"));
 		this.state = State.Finished;

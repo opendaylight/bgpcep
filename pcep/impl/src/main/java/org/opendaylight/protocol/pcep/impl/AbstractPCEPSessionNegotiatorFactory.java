@@ -40,8 +40,8 @@ import com.google.common.primitives.UnsignedBytes;
  */
 public abstract class AbstractPCEPSessionNegotiatorFactory implements
 		SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
-	private static final Comparator<byte[]> comparator = UnsignedBytes.lexicographicalComparator();
-	private static final Logger logger = LoggerFactory.getLogger(AbstractPCEPSessionNegotiatorFactory.class);
+	private static final Comparator<byte[]> COMPARATOR = UnsignedBytes.lexicographicalComparator();
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiatorFactory.class);
 	private final BiMap<byte[], Closeable> sessions = HashBiMap.create();
 	private final Map<byte[], Short> sessionIds = new WeakHashMap<>();
 
@@ -62,11 +62,11 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 
 		final Object lock = this;
 
-		logger.debug("Instantiating bootstrap negotiator for channel {}", channel);
+		LOG.debug("Instantiating bootstrap negotiator for channel {}", channel);
 		return new AbstractSessionNegotiator<Message, PCEPSessionImpl>(promise, channel) {
 			@Override
 			protected void startNegotiation() throws Exception {
-				logger.debug("Bootstrap negotiation for channel {} started", this.channel);
+				LOG.debug("Bootstrap negotiation for channel {} started", this.channel);
 
 				/*
 				 * We have a chance to see if there's a client session already
@@ -78,12 +78,12 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 
 					if (AbstractPCEPSessionNegotiatorFactory.this.sessions.containsKey(clientAddress)) {
 						final byte[] serverAddress = ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
-						if (comparator.compare(serverAddress, clientAddress) > 0) {
+						if (COMPARATOR.compare(serverAddress, clientAddress) > 0) {
 							final Closeable n = AbstractPCEPSessionNegotiatorFactory.this.sessions.remove(clientAddress);
 							try {
 								n.close();
 							} catch (final IOException e) {
-								logger.warn("Unexpected failure to close old session", e);
+								LOG.warn("Unexpected failure to close old session", e);
 							}
 						} else {
 							negotiationFailed(new RuntimeException("A conflicting session for address "
@@ -111,7 +111,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements
 						}
 					});
 
-					logger.debug("Replacing bootstrap negotiator for channel {}", this.channel);
+					LOG.debug("Replacing bootstrap negotiator for channel {}", this.channel);
 					this.channel.pipeline().replace(this, "negotiator", n);
 					n.startNegotiation();
 				}

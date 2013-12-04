@@ -29,11 +29,11 @@ import com.google.common.primitives.UnsignedBytes;
  * A PCEP message parser which also does validation.
  */
 public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
-	private final static Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
 
-	private final static int TYPE_SIZE = 1; // bytes
+	private static final int TYPE_SIZE = 1;
 
-	private final static int LENGTH_SIZE = 2; // bytes
+	private static final int LENGTH_SIZE = 2;
 
 	private final MessageHandlerRegistry registry;
 
@@ -57,7 +57,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 
 		try {
 			out.add(parse(bytes, errors));
-		} catch (PCEPDeserializerException e) {
+		} catch (final PCEPDeserializerException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
 		}

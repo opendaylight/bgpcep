@@ -93,7 +93,7 @@ abstract class AbstractMessageParser implements MessageParser, MessageSerializer
 		return retBytes;
 	}
 
-	private final List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
+	private List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
 		int offset = 0;
 		final List<Object> objs = Lists.newArrayList();
 		while (bytes.length - offset > 0) {
@@ -161,7 +161,7 @@ abstract class AbstractMessageParser implements MessageParser, MessageSerializer
 										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 
-	abstract protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;
+	protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;
 
 	@Override
 	public final Message parseMessage(final byte[] buffer, final List<Message> errors) throws PCEPDeserializerException {

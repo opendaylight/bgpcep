@@ -27,7 +27,7 @@ import com.google.common.primitives.UnsignedBytes;
  */
 @Sharable
 public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message> {
-	private static final Logger logger = LoggerFactory.getLogger(PCEPMessageToByteEncoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PCEPMessageToByteEncoder.class);
 	private static final int VERSION_SF_LENGTH = 3;
 	private final MessageHandlerRegistry registry;
 
@@ -38,7 +38,7 @@ public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) throws Exception {
 		Preconditions.checkNotNull(msg);
-		logger.debug("Sent to encode : {}", msg);
+		LOG.debug("Sent to encode : {}", msg);
 
 		final ByteBuf body = Unpooled.buffer();
 		final MessageSerializer serializer = this.registry.getMessageSerializer(msg);

@@ -19,5 +19,5 @@ public abstract class PCEPTerminationReason implements TerminationReason {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
-	abstract protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper);
+	protected abstract ToStringHelper addToStringAttributes(ToStringHelper toStringHelper);
 }
