@@ -36,7 +36,7 @@ public final class Ipv6Util {
 	private static InetAddress getAddress(final byte[] bytes) {
 		try {
 			return Inet6Address.getByAddress(bytes);
-		} catch (UnknownHostException e) {
+		} catch (final UnknownHostException e) {
 			throw new IllegalArgumentException("Failed to construct IPv6 address", e);
 		}
 	}
@@ -61,8 +61,8 @@ public final class Ipv6Util {
 	}
 
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
-		Preconditions.checkArgument(length <= bytes.length * 8);
-		final byte[] tmp = Arrays.copyOfRange(bytes, 0, 16);
+		Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
+		final byte[] tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
 		final InetAddress a = getAddress(tmp);
 		return new Ipv6Prefix(InetAddresses.toAddrString(a) + '/' + length);
 	}
@@ -77,7 +77,7 @@ public final class Ipv6Util {
 		while (byteOffset < bytes.length) {
 			final int bitLength = UnsignedBytes.toInt(ByteArray.subByte(bytes, byteOffset, 1)[0]);
 			byteOffset += 1;
-			final int byteCount = (bitLength % 8 != 0) ? (bitLength / 8) + 1 : bitLength / 8;
+			final int byteCount = (bitLength % Byte.SIZE != 0) ? (bitLength / Byte.SIZE) + 1 : bitLength / Byte.SIZE;
 			list.add(prefixForBytes(ByteArray.subByte(bytes, byteOffset, byteCount), bitLength));
 			byteOffset += byteCount;
 		}

@@ -20,14 +20,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
- * @deprecated This is an adaptor class for turning ProtocolMessageFactory into
- * Netty decoder. Use Netty-provided classes directly, by subclassing
- * {@link io.netty.handler.codec.ByteToMessageDecoder} or similar instead.
+ * @deprecated This is an adaptor class for turning ProtocolMessageFactory into Netty decoder. Use Netty-provided
+ *             classes directly, by subclassing {@link io.netty.handler.codec.ByteToMessageDecoder} or similar instead.
  */
 @Deprecated
 public final class ProtocolMessageDecoder<T> extends ByteToMessageDecoder {
 
-	private final static Logger LOG = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProtocolMessageDecoder.class);
 
 	private final ProtocolMessageFactory<T> factory;
 

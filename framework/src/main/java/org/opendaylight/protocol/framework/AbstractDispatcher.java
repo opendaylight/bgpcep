@@ -46,7 +46,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 	}
 
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractDispatcher.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractDispatcher.class);
 
 	private final EventLoopGroup bossGroup;
 
@@ -91,7 +91,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 		// Bind and start to accept incoming connections.
 		final ChannelFuture f = b.bind(address);
-		logger.debug("Initiated server {} at {}.", f, address);
+		LOG.debug("Initiated server {} at {}.", f, address);
 		return f;
 
 	}
@@ -117,7 +117,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 					}
 				});
 		p.connect();
-		logger.debug("Client created.");
+		LOG.debug("Client created.");
 		return p;
 	}
 

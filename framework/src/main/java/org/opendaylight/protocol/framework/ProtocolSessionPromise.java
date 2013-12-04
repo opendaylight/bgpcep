@@ -28,7 +28,7 @@ import com.google.common.base.Preconditions;
 
 @ThreadSafe
 final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends DefaultPromise<S> {
-	private static final Logger logger = LoggerFactory.getLogger(ProtocolSessionPromise.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProtocolSessionPromise.class);
 	private final ReconnectStrategy strategy;
 	private final InetSocketAddress address;
 	private final Bootstrap b;
@@ -48,7 +48,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 		try {
 			final int timeout = this.strategy.getConnectTimeout();
 
-			logger.debug("Promise {} attempting connect for {}ms", lock, timeout);
+			LOG.debug("Promise {} attempting connect for {}ms", lock, timeout);
 
 			this.b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeout);
 			this.pending = this.b.connect(this.address).addListener(new ChannelFutureListener() {
@@ -56,7 +56,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 				public void operationComplete(final ChannelFuture cf) throws Exception {
 					synchronized (lock) {
 
-						logger.debug("Promise {} connection resolved", lock);
+						LOG.debug("Promise {} connection resolved", lock);
 
 						// Triggered when a connection attempt is resolved.
 						Preconditions.checkState(ProtocolSessionPromise.this.pending == cf);
@@ -72,7 +72,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 						 */
 						if (isCancelled()) {
 							if (cf.isSuccess()) {
-								logger.debug("Closing channel for cancelled promise {}", lock);
+								LOG.debug("Closing channel for cancelled promise {}", lock);
 								cf.channel().close();
 							}
 							return;
@@ -108,7 +108,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 
 							ProtocolSessionPromise.this.pending = rf;
 						} else {
-							logger.debug("Promise {} connection successful", lock);
+							LOG.debug("Promise {} connection successful", lock);
 						}
 					}
 				}
@@ -130,7 +130,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 
 	@Override
 	public synchronized Promise<S> setSuccess(final S result) {
-		logger.debug("Promise {} completed", this);
+		LOG.debug("Promise {} completed", this);
 		this.strategy.reconnectSuccessful();
 		return super.setSuccess(result);
 	}

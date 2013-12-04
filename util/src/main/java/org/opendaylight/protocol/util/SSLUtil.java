@@ -22,7 +22,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.google.common.base.Preconditions;
 
-public class SSLUtil {
+public final class SSLUtil {
 
 	private SSLUtil() {
 	}
