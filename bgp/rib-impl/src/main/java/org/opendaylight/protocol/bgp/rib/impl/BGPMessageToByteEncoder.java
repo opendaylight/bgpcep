@@ -13,6 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,10 @@ final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
 
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) throws Exception {
-		LOG.debug("Sent to encode : {}", msg);
-		out.writeBytes(this.registry.serializeMessage(msg));
+		LOG.trace("Encoding message: {}", msg);
+		final byte[] bytes = this.registry.serializeMessage(msg);
+		LOG.trace("Encoded message: {}", ByteArray.bytesToHexString(bytes));
+		out.writeBytes(bytes);
+		LOG.debug("Message sent to output: {}", msg);
 	}
 }
