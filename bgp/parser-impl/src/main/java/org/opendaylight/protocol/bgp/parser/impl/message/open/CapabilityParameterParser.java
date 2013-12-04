@@ -31,7 +31,7 @@ import com.google.common.primitives.UnsignedBytes;
 public final class CapabilityParameterParser implements ParameterParser, ParameterSerializer {
 	public static final int TYPE = 2;
 
-	private static final Logger logger = LoggerFactory.getLogger(CapabilityParameterParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CapabilityParameterParser.class);
 	private final CapabilityRegistry reg;
 
 	public CapabilityParameterParser(final CapabilityRegistry reg) {
@@ -43,7 +43,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 		if (bytes == null || bytes.length == 0) {
 			throw new IllegalArgumentException("Byte array cannot be null or empty.");
 		}
-		logger.trace("Started parsing of BGP Capability: {}", Arrays.toString(bytes));
+		LOG.trace("Started parsing of BGP Capability: {}", Arrays.toString(bytes));
 		int byteOffset = 0;
 		final int capCode = UnsignedBytes.toInt(bytes[byteOffset++]);
 		final int capLength = UnsignedBytes.toInt(bytes[byteOffset++]);
@@ -51,7 +51,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
 		final CParameters ret = reg.parseCapability(capCode, paramBody);
 		if (ret == null) {
-			logger.debug("Ignoring unsupported capability {}", capCode);
+			LOG.debug("Ignoring unsupported capability {}", capCode);
 			return null;
 		}
 
@@ -62,14 +62,14 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 	public byte[] serializeParameter(final BgpParameters parameter) {
 		final CParameters cap = parameter.getCParameters();
 
-		logger.trace("Started serializing BGP Capability: {}", cap);
+		LOG.trace("Started serializing BGP Capability: {}", cap);
 
 		byte[] bytes = reg.serializeCapability(cap);
 		if (bytes == null) {
 			throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
 		}
 
-		logger.trace("BGP capability serialized to: {}", Arrays.toString(bytes));
+		LOG.trace("BGP capability serialized to: {}", Arrays.toString(bytes));
 
 		return ParameterUtil.formatParameter(TYPE, bytes);
 	}

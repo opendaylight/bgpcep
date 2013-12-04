@@ -16,15 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @deprecated This is an adaptor class for turning ProtocolMessageFactory into
- * Netty encoder. Use Netty-provided classes directly, by subclassing
- * {@link io.netty.handler.codec.MessageToByteDecoder} or similar instead.
+ * @deprecated This is an adaptor class for turning ProtocolMessageFactory into Netty encoder. Use Netty-provided
+ *             classes directly, by subclassing {@link io.netty.handler.codec.MessageToByteDecoder} or similar instead.
  */
 @Deprecated
 @Sharable
 public final class ProtocolMessageEncoder<T> extends MessageToByteEncoder<Object> {
 
-	private final static Logger logger = LoggerFactory.getLogger(ProtocolMessageEncoder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ProtocolMessageEncoder.class);
 
 	private final ProtocolMessageFactory<T> factory;
 
@@ -34,7 +33,7 @@ public final class ProtocolMessageEncoder<T> extends MessageToByteEncoder<Object
 
 	@Override
 	protected void encode(final ChannelHandlerContext ctx, final Object msg, final ByteBuf out) throws Exception {
-		logger.debug("Sent to encode : {}", msg);
+		LOG.debug("Sent to encode : {}", msg);
 		final byte[] bytes = this.factory.put((T) msg);
 		out.writeBytes(bytes);
 	}

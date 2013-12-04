@@ -20,7 +20,7 @@ import com.google.common.collect.Lists;
 
 public class TestingSessionListener implements PCEPSessionListener {
 
-	public List<Message> messages = Lists.newArrayList();
+	private final List<Message> messages = Lists.newArrayList();
 
 	public boolean up = false;
 
@@ -50,5 +50,9 @@ public class TestingSessionListener implements PCEPSessionListener {
 	@Override
 	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
 		logger.debug("Session terminated. Cause : {}", cause);
+	}
+
+	public List<Message> messages() {
+		return this.messages;
 	}
 }

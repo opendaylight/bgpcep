@@ -21,10 +21,10 @@ public class PCEPTestingToolTest {
 	@Test
 	public void testSimpleSessionListener() {
 		final TestingSessionListener ssl = new TestingSessionListener();
-		assertEquals(0, ssl.messages.size());
+		assertEquals(0, ssl.messages().size());
 		ssl.onMessage(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
-		assertEquals(1, ssl.messages.size());
-		assertTrue(ssl.messages.get(0) instanceof KeepaliveMessage);
+		assertEquals(1, ssl.messages().size());
+		assertTrue(ssl.messages().get(0) instanceof KeepaliveMessage);
 		assertFalse(ssl.up);
 		ssl.onSessionUp(null);
 		assertTrue(ssl.up);

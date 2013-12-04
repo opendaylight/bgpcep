@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
-
 /**
  * Interface that provides the initial acceptable session characteristics with which the session should be started.
  */
@@ -18,5 +17,5 @@ public interface BGPSessionProposal {
 	 * @param address serves as constraint, the implementation can also take time into consideration
 	 * @return BGPSessionPreferences with acceptable session characteristics
 	 */
-	public BGPSessionPreferences getProposal();
+	BGPSessionPreferences getProposal();
 }

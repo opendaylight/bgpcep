@@ -36,7 +36,7 @@ import com.google.common.base.Preconditions;
 
 @ThreadSafe
 public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjRIBsIn {
-	protected static abstract class RIBEntryData<I, D extends DataObject> {
+	protected abstract static class RIBEntryData<I, D extends DataObject> {
 		private final PathAttributes attributes;
 
 		protected RIBEntryData(final PathAttributes attributes) {
@@ -92,7 +92,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		}
 
 		private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData<I, D> candidate) {
-			LOG.trace("Electing state {} to supersede {}", candidate, currentState);
+			LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
 				transaction.putOperationalData(getName(), candidate.getDataObject(this.key));
@@ -108,11 +108,11 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
 			} else {
-				LOG.trace("Final candidate disappeared, removing entry {}", name);
+				LOG.trace("Final candidate disappeared, removing entry {}", this.name);
 				transaction.removeOperationalData(this.name);
 			}
 
-			return candidates.isEmpty();
+			return this.candidates.isEmpty();
 		}
 
 		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
@@ -136,20 +136,21 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		this.comparator = Preconditions.checkNotNull(comparator);
 		this.basePath = InstanceIdentifier.builder(LocRib.class).child(Tables.class, key).toInstance();
 
-		eor = new UpdateBuilder().setPathAttributes(
+		this.eor = new UpdateBuilder().setPathAttributes(
 				new PathAttributesBuilder().addAugmentation(
 						PathAttributes1.class,
 						new PathAttributes1Builder().setMpReachNlri(
 								new MpReachNlriBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).build()).build()).build()).build();
 
-		trans.putOperationalData(basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setUptodate(Boolean.FALSE).build());
+		trans.putOperationalData(this.basePath,
+				new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setUptodate(Boolean.FALSE).build());
 	}
 
 	private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
-		final Tables t = (Tables) trans.readOperationalData(basePath);
+		final Tables t = (Tables) trans.readOperationalData(this.basePath);
 		if (t == null || !uptodate.equals(t.isUptodate())) {
 			LOG.debug("Table {} switching uptodate to {}", uptodate);
-			trans.putOperationalData(basePath, new TablesBuilder(t).setUptodate(uptodate).build());
+			trans.putOperationalData(this.basePath, new TablesBuilder(t).setUptodate(uptodate).build());
 		}
 	}
 
@@ -164,8 +165,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			}
 		}
 
-		peers.remove(peer);
-		setUptodate(trans, peers.values().contains(Boolean.FALSE) == false);
+		this.peers.remove(peer);
+		setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
 	}
 
 	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
@@ -178,8 +179,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		}
 
 		e.setState(trans, peer, data);
-		if (!peers.containsKey(peer)) {
-			peers.put(peer, Boolean.FALSE);
+		if (!this.peers.containsKey(peer)) {
+			this.peers.put(peer, Boolean.FALSE);
 			setUptodate(trans, Boolean.FALSE);
 		}
 	}
@@ -194,12 +195,12 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
 	@Override
 	public final void markUptodate(final DataModificationTransaction trans, final Peer peer) {
-		peers.put(peer, Boolean.TRUE);
-		setUptodate(trans, peers.values().contains(Boolean.FALSE) == false);
+		this.peers.put(peer, Boolean.TRUE);
+		setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
 	}
 
 	@Override
 	public final Update endOfRib() {
-		return eor;
+		return this.eor;
 	}
 }
