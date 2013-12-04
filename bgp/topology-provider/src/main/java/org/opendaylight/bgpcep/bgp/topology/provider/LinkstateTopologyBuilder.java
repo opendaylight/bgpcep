@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.node._case.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
@@ -71,21 +70,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private LinkId buildLinkId(final UriBuilder base, final LinkCase link) {
-		final UriBuilder ub = new UriBuilder(base, "link");
-
-		ub.add("local-", link.getLocalNodeDescriptors());
-		ub.add("remote-", link.getRemoteNodeDescriptors());
-
-		final LinkDescriptors ld = link.getLinkDescriptors();
-		ub.add("ipv4-iface", ld.getIpv4InterfaceAddress());
-		ub.add("ipv4-neigh", ld.getIpv4NeighborAddress());
-		ub.add("ipv6-iface", ld.getIpv6InterfaceAddress());
-		ub.add("ipv6-neigh", ld.getIpv6NeighborAddress());
-		ub.add("mt", ld.getMultiTopologyId());
-		ub.add("local-id", ld.getLinkLocalIdentifier());
-		ub.add("remote-id", ld.getLinkRemoteIdentifier());
-
-		return new LinkId(ub.toString());
+		return new LinkId(new UriBuilder(base, "link").add(link).toString());
 	}
 
 	private NodeId buildNodeId(final UriBuilder base, final NodeIdentifier node) {
