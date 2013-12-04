@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_3c1769a5",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAdjRIBsIn.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-12-04T12:39:29Z",
+      "side": 1,
+      "message": "please make this \"A\" as \"Attribute\"",
+      "revId": "66a189fefb7f30eee1c2b30a1abf9cb2ef76def5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_fc10b1a9",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/AbstractMessageRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-12-04T12:39:29Z",
+      "side": 1,
+      "message": "Move fields together?",
+      "revId": "66a189fefb7f30eee1c2b30a1abf9cb2ef76def5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
