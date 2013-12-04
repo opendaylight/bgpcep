@@ -9,7 +9,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
-import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
@@ -45,8 +44,8 @@ public final class LinkstateTopologyBuilderModule extends org.opendaylight.contr
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getTopologyId());
-		final InstanceIdentifier<Tables> i = AbstractTopologyBuilder.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+		final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
+		final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 		final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
 
 		final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {

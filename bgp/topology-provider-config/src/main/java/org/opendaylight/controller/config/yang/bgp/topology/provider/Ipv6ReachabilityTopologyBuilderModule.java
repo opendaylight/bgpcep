@@ -9,7 +9,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
-import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
@@ -44,8 +43,8 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendayligh
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getTopologyId());
-		final InstanceIdentifier<Tables> i = AbstractTopologyBuilder.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
+		final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 		final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
 
 		final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
