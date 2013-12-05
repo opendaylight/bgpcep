@@ -28,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -92,6 +93,8 @@ public class ParserToSalTest {
 
 	private Pcrpt rptmsg;
 
+	private ServerSessionManager manager;
+
 	@Before
 	public void setUp() throws IOException {
 		MockitoAnnotations.initMocks(this);
@@ -142,7 +145,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException, TimeoutException {
+			ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -169,6 +172,16 @@ public class ParserToSalTest {
 
 		}).when(this.providerService).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
+		Mockito.doAnswer(new Answer<Object>() {
+
+			@Override
+			public Object answer(final InvocationOnMock invocation) throws Throwable {
+				data.remove(invocation.getArguments()[0]);
+				return null;
+			}
+
+		}).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+
 		Mockito.doAnswer(new Answer<String>() {
 			@Override
 			public String answer(final InvocationOnMock invocation) throws Throwable {
@@ -181,7 +194,7 @@ public class ParserToSalTest {
 
 		}).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
-		final ServerSessionManager manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(
+		manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(
 				NetworkTopology.class).child(Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance());
 		final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, manager.getSessionListener(), (short) 1, 5, this.localPrefs);
 		this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
@@ -191,6 +204,11 @@ public class ParserToSalTest {
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(
 								new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(new byte[] { 22, 34 })).build()).build()).build()).build());
 		this.rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
+	}
+
+	@After
+	public void tearDown() throws InterruptedException, ExecutionException {
+		manager.close();
 	}
 
 	@Test
