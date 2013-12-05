@@ -43,7 +43,7 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
 
 	public PCCMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final PCEPHandlerFactory factory,
 			final DefaultPromise<PCEPSessionImpl> defaultPromise) {
-		super(new NioEventLoopGroup(), new NioEventLoopGroup());
+		super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
 		this.factory = Preconditions.checkNotNull(factory);
 	}

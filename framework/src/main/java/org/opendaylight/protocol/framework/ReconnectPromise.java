@@ -10,6 +10,7 @@ package org.opendaylight.protocol.framework;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
@@ -32,10 +33,10 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 
 	private final AtomicBoolean negotiationFinished = new AtomicBoolean(false);
 
-	public ReconnectPromise(final AbstractDispatcher<S, L> dispatcher, final InetSocketAddress address,
+	public ReconnectPromise(final EventExecutor executor, final AbstractDispatcher<S, L> dispatcher, final InetSocketAddress address,
 			final ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy,
 			final PipelineInitializer<S> initializer) {
-
+		super(executor);
 		this.dispatcher = Preconditions.checkNotNull(dispatcher);
 		this.address = Preconditions.checkNotNull(address);
 		this.strategyFactory = Preconditions.checkNotNull(connectStrategyFactory);
@@ -43,7 +44,7 @@ final class ReconnectPromise<S extends ProtocolSession<?>, L extends SessionList
 		this.initializer = Preconditions.checkNotNull(initializer);
 	}
 
-	// TODO rafactor
+	// FIXME: BUG-190: refactor
 
 	synchronized void connect() {
 		negotiationFinished.set(false);

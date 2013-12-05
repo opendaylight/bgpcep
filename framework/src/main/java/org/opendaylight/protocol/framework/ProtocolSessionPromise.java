@@ -12,6 +12,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
@@ -36,7 +37,8 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 	@GuardedBy("this")
 	private Future<?> pending;
 
-	ProtocolSessionPromise(final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap b) {
+	ProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap b) {
+		super(executor);
 		this.strategy = Preconditions.checkNotNull(strategy);
 		this.address = Preconditions.checkNotNull(address);
 		this.b = Preconditions.checkNotNull(b);
