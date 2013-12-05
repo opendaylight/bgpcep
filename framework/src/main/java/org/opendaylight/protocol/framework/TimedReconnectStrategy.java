@@ -37,7 +37,7 @@ import com.google.common.base.Preconditions;
  */
 @ThreadSafe
 public final class TimedReconnectStrategy implements ReconnectStrategy {
-	private static final Logger logger = LoggerFactory.getLogger(TimedReconnectStrategy.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TimedReconnectStrategy.class);
 	private final EventExecutor executor;
 	private final Long deadline, maxAttempts, maxSleep;
 	private final double sleepFactor;
@@ -69,7 +69,7 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 
 	@Override
 	public synchronized Future<Void> scheduleReconnect(final Throwable cause) {
-		logger.debug("Connection attempt failed", cause);
+		LOG.debug("Connection attempt failed", cause);
 
 		// Check if a reconnect attempt is scheduled
 		Preconditions.checkState(!this.scheduled);
@@ -97,13 +97,18 @@ public final class TimedReconnectStrategy implements ReconnectStrategy {
 
 		// Cap the sleep time to maxSleep
 		if (this.maxSleep != null && this.lastSleep > this.maxSleep) {
+			LOG.debug("Capped sleep time from {} to {}", this.lastSleep, this.maxSleep);
 			this.lastSleep = this.maxSleep;
 		}
+
+		this.attempts++;
 
 		// Check if the reconnect attempt is within the deadline
 		if (this.deadline != null && this.deadline <= now + TimeUnit.MILLISECONDS.toNanos(this.lastSleep)) {
 			return this.executor.newFailedFuture(new TimeoutException("Next reconnect would happen after deadline"));
 		}
+
+		LOG.debug("Sleeping for {} milliseconds", this.lastSleep);
 
 		// If we are not sleeping at all, return an already-succeeded future
 		if (this.lastSleep == 0) {
