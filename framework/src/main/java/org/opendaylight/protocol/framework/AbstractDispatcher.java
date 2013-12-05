@@ -18,6 +18,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
@@ -27,6 +28,8 @@ import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Dispatcher class for creating servers and clients. The idea is to first create servers and clients and the run the
@@ -52,6 +55,8 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 	private final EventLoopGroup workerGroup;
 
+	private final EventExecutor executor;
+
 	/**
 	 * Internally creates new instances of NioEventLoopGroup, might deplete system resources and result in Too many open files exception.
 	 *
@@ -59,13 +64,19 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 	 */
 	@Deprecated
 	protected AbstractDispatcher() {
-		this(new NioEventLoopGroup(),new NioEventLoopGroup());
+		this(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(),new NioEventLoopGroup());
 	}
 
 	protected AbstractDispatcher(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
-		this.bossGroup = bossGroup;
-		this.workerGroup = workerGroup;
+		this(GlobalEventExecutor.INSTANCE, bossGroup, workerGroup);
 	}
+
+	protected AbstractDispatcher(final EventExecutor executor, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+		this.bossGroup = Preconditions.checkNotNull(bossGroup);
+		this.workerGroup = Preconditions.checkNotNull(workerGroup);
+		this.executor = Preconditions.checkNotNull(executor);
+	}
+
 
 	/**
 	 * Creates server. Each server needs factories to pass their instances to client sessions.
@@ -84,7 +95,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 
 			@Override
 			protected void initChannel(final SocketChannel ch) {
-				initializer.initializeChannel(ch, new DefaultPromise<S>(GlobalEventExecutor.INSTANCE));
+				initializer.initializeChannel(ch, new DefaultPromise<S>(executor));
 			}
 		});
 		b.childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -107,7 +118,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 	 */
 	protected Future<S> createClient(final InetSocketAddress address, final ReconnectStrategy strategy, final PipelineInitializer<S> initializer) {
 		final Bootstrap b = new Bootstrap();
-		final ProtocolSessionPromise<S> p = new ProtocolSessionPromise<S>(address, strategy, b);
+		final ProtocolSessionPromise<S> p = new ProtocolSessionPromise<S>(executor, address, strategy, b);
 		b.group(this.workerGroup).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).handler(
 				new ChannelInitializer<SocketChannel>() {
 
@@ -134,7 +145,7 @@ public abstract class AbstractDispatcher<S extends ProtocolSession<?>, L extends
 	protected Future<Void> createReconnectingClient(final InetSocketAddress address, final ReconnectStrategyFactory connectStrategyFactory,
 			final ReconnectStrategy reestablishStrategy, final PipelineInitializer<S> initializer) {
 
-		final ReconnectPromise<S, L> p = new ReconnectPromise<S, L>(this, address, connectStrategyFactory, reestablishStrategy, initializer);
+		final ReconnectPromise<S, L> p = new ReconnectPromise<S, L>(GlobalEventExecutor.INSTANCE, this, address, connectStrategyFactory, reestablishStrategy, initializer);
 		p.connect();
 
 		return p;

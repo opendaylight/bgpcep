@@ -40,7 +40,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 
 	public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
 			final DefaultPromise<BGPSessionImpl> defaultPromise) {
-		super(new NioEventLoopGroup(), new NioEventLoopGroup());
+		super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
 		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
 		this.factory = Preconditions.checkNotNull(factory);
 	}
