@@ -26,15 +26,15 @@ public abstract class AbstractBGPObject implements BGPObject {
 
 	@Override
 	public BaseBGPObjectState currentState() {
-		return this.state;
+		return state;
 	}
 
 	@Override
-	public synchronized String toString() {
-		return addToStringAttributes(Objects.toStringHelper(this)).toString();
+	public synchronized final String toString(){
+		return this.addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
-	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+	protected ToStringHelper addToStringAttributes(ToStringHelper toStringHelper) {
 		toStringHelper.add("state", this.state);
 		return toStringHelper;
 	}
@@ -43,23 +43,23 @@ public abstract class AbstractBGPObject implements BGPObject {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.state == null) ? 0 : this.state.hashCode());
+		result = prime * result + ((state == null) ? 0 : state.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final AbstractBGPObject other = (AbstractBGPObject) obj;
-		if (this.state == null) {
+		AbstractBGPObject other = (AbstractBGPObject) obj;
+		if (state == null) {
 			if (other.state != null)
 				return false;
-		} else if (!this.state.equals(other.state))
+		} else if (!state.equals(other.state))
 			return false;
 		return true;
 	}
