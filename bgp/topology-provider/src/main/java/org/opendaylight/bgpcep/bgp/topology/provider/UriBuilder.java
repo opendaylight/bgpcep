@@ -30,7 +30,7 @@ final class UriBuilder {
 		sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
 	}
 
-	private UriBuilder add(final String name, final Object value) {
+	UriBuilder add(final String name, final Object value) {
 		if (value != null) {
 			sb.append('&').append(name).append('=').append(value.toString());
 		}
