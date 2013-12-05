@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_22a7400e",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/object/AbstractObjectWithTlvsParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2013-12-05T08:50:54Z",
+      "side": 1,
+      "message": "Rewrite to remove duplicate code:\n\nif (parser !\u003d null) {\n...\n} else {\nLOG.warn();\n}\n\nbyteOffset +\u003d ..;",
+      "revId": "cbb4af004caca4a55c207db007ff85692d34948d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
