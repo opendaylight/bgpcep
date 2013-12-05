@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
@@ -88,10 +90,23 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		this.timer = Preconditions.checkNotNull(timer);
 	}
 
+	private void writeMessage(final Object o) {
+		this.channel.writeAndFlush(o).addListener(new ChannelFutureListener() {
+			@Override
+			public void operationComplete(final ChannelFuture f) throws Exception {
+				if (f.isSuccess()) {
+					LOG.debug("Message {} sent to socket", o);
+				} else {
+					LOG.info("Failed to send message {}", o, f.cause());
+				}
+			}
+		});
+	}
+
 	@Override
 	protected void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
-		this.channel.writeAndFlush(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs()).setHoldTimer(this.localPref.getHoldTime()).setBgpIdentifier(
+		this.writeMessage(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs()).setHoldTimer(this.localPref.getHoldTime()).setBgpIdentifier(
 				this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
 		this.state = State.OpenSent;
 
@@ -101,7 +116,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 			public void run(final Timeout timeout) throws Exception {
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
-						BGPSessionNegotiator.this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(
+						BGPSessionNegotiator.this.writeMessage(new NotifyBuilder().setErrorCode(
 								BGPError.HOLD_TIMER_EXPIRED.getCode()).setErrorSubcode(BGPError.HOLD_TIMER_EXPIRED.getSubcode()).build());
 						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
 						BGPSessionNegotiator.this.state = State.Finished;
@@ -120,7 +135,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		case Idle:
 			final Notify fsmError = new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
 					BGPError.FSM_ERROR.getSubcode()).build();
-			this.channel.writeAndFlush(fsmError);
+			this.writeMessage(fsmError);
 		case OpenConfirm:
 			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);
@@ -141,7 +156,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 		// Catch-all for unexpected message
 		LOG.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
-		this.channel.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
+		this.writeMessage(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
 				BGPError.FSM_ERROR.getSubcode()).build());
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
 		this.state = State.Finished;
@@ -158,7 +173,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
 						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
 					this.remotePref = openObj;
-					this.channel.writeAndFlush(new KeepaliveBuilder().build());
+					this.writeMessage(new KeepaliveBuilder().build());
 					this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
 					this.state = State.OpenConfirm;
 					LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
@@ -168,7 +183,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		}
 		final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
 				BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
-		this.channel.writeAndFlush(ntf);
+		this.writeMessage(ntf);
 		negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", BGPError.forValue(
 				ntf.getErrorCode(), ntf.getErrorSubcode())));
 		this.state = State.Finished;
