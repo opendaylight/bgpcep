@@ -1,0 +1,44 @@
+/*
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.pcep.impl;
+
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+@ThreadSafe
+final class PeerRecord {
+	@GuardedBy("this")
+	private final Cache<Short, Short> pastIds;
+
+	@GuardedBy("this")
+	private Short lastId;
+
+	PeerRecord(final long idLifetimeSeconds, final Short lastId) {
+		// Note that the cache is limited to 255 entries -- which means we will always have
+		// a single entry available. That number will be the Last Recently Used ID.
+		pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS).maximumSize(255).build();
+		this.lastId = lastId;
+	}
+
+	synchronized Short allocId() {
+		Short id = lastId == null ? 0 : lastId;
+
+		while (pastIds.getIfPresent(id) != null) {
+			id = (short) ((id + 1) % 255);
+		}
+
+		pastIds.put(id, id);
+		lastId = id;
+		return id;
+	}
+}

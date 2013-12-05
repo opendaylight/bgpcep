@@ -210,6 +210,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 			if (msg instanceof Keepalive) {
 				this.localOK = true;
 				if (this.remoteOK) {
+					LOG.info("Channel {} completed negotiation", this.channel);
 					negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
 					this.state = State.Finished;
 				} else {

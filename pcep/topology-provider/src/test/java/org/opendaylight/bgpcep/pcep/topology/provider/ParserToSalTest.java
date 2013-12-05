@@ -111,8 +111,11 @@ public class ParserToSalTest {
 		doReturn(this.pipeline).when(this.clientListener).pipeline();
 		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
 		doReturn(true).when(this.clientListener).isActive();
-		final SocketAddress sa = new InetSocketAddress("127.0.0.1", 4189);
-		doReturn(sa).when(this.clientListener).remoteAddress();
+		final SocketAddress ra = new InetSocketAddress("127.0.0.1", 4189);
+		doReturn(ra).when(this.clientListener).remoteAddress();
+		final SocketAddress la = new InetSocketAddress("127.0.0.1", 30000);
+		doReturn(la).when(this.clientListener).localAddress();
+
 		doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
 		Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
