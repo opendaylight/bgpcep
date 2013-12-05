@@ -9,6 +9,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
 
 final class UriBuilder {
 	private final StringBuilder sb;
@@ -28,10 +30,25 @@ final class UriBuilder {
 		sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
 	}
 
-	UriBuilder add(final String name, final Object value) {
+	private UriBuilder add(final String name, final Object value) {
 		if (value != null) {
 			sb.append('&').append(name).append('=').append(value.toString());
 		}
+		return this;
+	}
+
+	UriBuilder add(final LinkCase link) {
+		add("local-", link.getLocalNodeDescriptors());
+		add("remote-", link.getRemoteNodeDescriptors());
+
+		final LinkDescriptors ld = link.getLinkDescriptors();
+		add("ipv4-iface", ld.getIpv4InterfaceAddress());
+		add("ipv4-neigh", ld.getIpv4NeighborAddress());
+		add("ipv6-iface", ld.getIpv6InterfaceAddress());
+		add("ipv6-neigh", ld.getIpv6NeighborAddress());
+		add("mt", ld.getMultiTopologyId());
+		add("local-id", ld.getLinkLocalIdentifier());
+		add("remote-id", ld.getLinkRemoteIdentifier());
 		return this;
 	}
 
