@@ -133,7 +133,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			}, getKeepAliveTimerValue(), TimeUnit.SECONDS);
 		}
 
-		LOG.debug("Session started.");
+		LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(), remoteOpen.getSessionId());
 	}
 
 	/**
@@ -250,6 +250,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	}
 
 	private synchronized void terminate(final TerminationReason reason) {
+		LOG.info("Local session termination : {}", reason);
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
 		this.sendMessage(new CloseBuilder().setCCloseMessage(
@@ -378,6 +379,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	}
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+		toStringHelper.add("channel", this.channel);
 		toStringHelper.add("localOpen", this.localOpen);
 		toStringHelper.add("remoteOpen", this.remoteOpen);
 		return toStringHelper;
