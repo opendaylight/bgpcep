@@ -36,20 +36,12 @@ module bgp-rib-impl {
     identity base-bgp-parser {
         base config:module-type;
         config:java-name-prefix BaseBGPParser;
+        config:provided-service bgpspi:extension;
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case base-bgp-parser {
             when "/config:modules/config:module/config:type = 'base-bgp-parser'";
-
-            container bgp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgpspi:extensions;
-                    }
-                }
-            }
         }
     }
 
@@ -177,21 +169,13 @@ module bgp-rib-impl {
 
     identity base-bgp-rib {
         base config:module-type;
+        config:provided-service ribspi:extension;
         config:java-name-prefix BaseBGPRIB;
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case base-bgp-rib {
             when "/config:modules/config:module/config:type = 'base-bgp-rib'";
-
-            container rib-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity ribspi:extensions;
-                    }
-                }
-            }
         }
     }
 

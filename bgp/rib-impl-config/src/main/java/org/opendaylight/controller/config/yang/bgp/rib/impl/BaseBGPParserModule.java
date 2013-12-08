@@ -10,7 +10,6 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 
 /**
  *
@@ -34,14 +33,6 @@ public final class BaseBGPParserModule extends org.opendaylight.controller.confi
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final BGPExtensionProviderActivator act = new BGPActivator();
-
-		act.start(getBgpExtensionsDependency());
-		return new AutoCloseable() {
-			@Override
-			public void close() {
-				act.stop();
-			}
-		};
+		return new BGPActivator();
 	}
 }

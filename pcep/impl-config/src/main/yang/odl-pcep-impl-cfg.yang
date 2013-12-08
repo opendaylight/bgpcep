@@ -36,41 +36,25 @@ module odl-pcep-impl-cfg {
 
     identity pcep-parser-base {
         base config:module-type;
+        config:provided-service spi:extension;
         config:java-name-prefix BasePCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-base {
             when "/config:modules/config:module/config:type = 'pcep-parser-base'";
-
-            container pcep-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity spi:extensions;
-                    }
-                }
-            }
         }
     }
 
     identity pcep-parser-crabbe-initiated {
         base config:module-type;
+        config:provided-service spi:extension;
         config:java-name-prefix CrabbeInitiatedPCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-crabbe-initiated {
             when "/config:modules/config:module/config:type = 'pcep-parser-crabbe-initiated'";
-
-            container pcep-extensions {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity spi:extensions;
-                    }
-                }
-            }
         }
     }
 

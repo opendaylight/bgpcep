@@ -9,6 +9,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 
 /**
@@ -36,10 +37,17 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
 		final class RIBExtensionProviderContextImplCloseable extends SimpleRIBExtensionProviderContext implements AutoCloseable {
 			@Override
 			public void close() {
-
+				for (RIBExtensionProviderActivator e : getExtensionDependency()) {
+					e.stopRIBExtensionProvider();;
+				}
 			}
 		}
 
-		return new RIBExtensionProviderContextImplCloseable();
+		final RIBExtensionProviderContextImplCloseable ret = new RIBExtensionProviderContextImplCloseable();
+		for (RIBExtensionProviderActivator e : getExtensionDependency()) {
+			e.startRIBExtensionProvider(ret);
+		}
+
+		return ret;
 	}
 }

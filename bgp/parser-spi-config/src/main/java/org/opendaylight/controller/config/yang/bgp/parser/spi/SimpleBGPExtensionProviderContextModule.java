@@ -9,6 +9,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.parser.spi;
 
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 
 /**
@@ -39,10 +40,16 @@ org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensio
 		final class SimpleBGPExtensionProviderContextAutoCloseable extends SimpleBGPExtensionProviderContext implements AutoCloseable {
 			@Override
 			public void close() {
-				// Do-nothing
+				for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
+					e.stop();
+				}
 			}
 		}
 
-		return new SimpleBGPExtensionProviderContextAutoCloseable();
+		final SimpleBGPExtensionProviderContextAutoCloseable ret = new SimpleBGPExtensionProviderContextAutoCloseable();
+		for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
+			e.start(ret);
+		}
+		return ret;
 	}
 }

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractPCEPExtensionProviderActivator implements PCEPExtensionProviderActivator {
+public abstract class AbstractPCEPExtensionProviderActivator implements AutoCloseable, PCEPExtensionProviderActivator {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPExtensionProviderActivator.class);
 
 	@GuardedBy("this")
@@ -47,5 +47,10 @@ public abstract class AbstractPCEPExtensionProviderActivator implements PCEPExte
 		}
 
 		this.registrations = null;
+	}
+
+	@Override
+	public final void close() {
+		stop();
 	}
 }

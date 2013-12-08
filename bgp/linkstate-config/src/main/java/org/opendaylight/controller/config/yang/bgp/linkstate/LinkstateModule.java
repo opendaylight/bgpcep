@@ -12,6 +12,7 @@ package org.opendaylight.controller.config.yang.bgp.linkstate;
 import org.opendaylight.protocol.bgp.linkstate.BGPActivator;
 import org.opendaylight.protocol.bgp.linkstate.RIBActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 
@@ -37,24 +38,10 @@ public final class LinkstateModule extends org.opendaylight.controller.config.ya
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final RIBExtensionProviderContext ribctx = getRibExtensionsDependency();
-		final RIBExtensionProviderActivator ribact;
-		if (ribctx != null) {
-			ribact = new RIBActivator();
-			ribact.startRIBExtensionProvider(ribctx);
-		} else {
-			ribact = null;
-		}
+		final class LinkstateExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
+			final BGPExtensionProviderActivator bgpact = new BGPActivator();
+			final RIBExtensionProviderActivator ribact = new RIBActivator();
 
-		final BGPExtensionProviderActivator bgpact;
-		if (getBgpExtensionsDependency() != null) {
-			bgpact = new BGPActivator();
-			bgpact.start(getBgpExtensionsDependency());
-		} else {
-			bgpact = null;
-		}
-
-		return new AutoCloseable() {
 			@Override
 			public void close() {
 				if (bgpact != null) {
@@ -64,6 +51,29 @@ public final class LinkstateModule extends org.opendaylight.controller.config.ya
 					ribact.stopRIBExtensionProvider();
 				}
 			}
-		};
+
+			@Override
+			public void startRIBExtensionProvider(
+					final RIBExtensionProviderContext context) {
+				ribact.startRIBExtensionProvider(context);
+			}
+
+			@Override
+			public void stopRIBExtensionProvider() {
+				ribact.stopRIBExtensionProvider();
+			}
+
+			@Override
+			public void start(final BGPExtensionProviderContext context) {
+				bgpact.start(context);
+			}
+
+			@Override
+			public void stop() {
+				bgpact.stop();
+			}
+		}
+
+		return new LinkstateExtension();
 	}
 }

@@ -30,29 +30,14 @@ module config-bgp-linkstate {
 
     identity bgp-linkstate {
         base config:module-type;
-//        config:provided-service bgpl:listener;
+        config:provided-service bgpspi:extension;
+        config:provided-service ribspi:extension;
         config:java-name-prefix Linkstate;
     }
 
     augment "/config:modules/config:module/config:configuration" {
         case bgp-linkstate {
             when "/config:modules/config:module/config:type = 'bgp-linkstate'";
-
-            container bgp-extensions {
-                uses config:service-ref {
-                    refine type {
-                        config:required-identity bgpspi:extensions;
-                    }
-                }
-            }
-
-            container rib-extensions {
-                uses config:service-ref {
-                    refine type {
-                        config:required-identity ribspi:extensions;
-                    }
-                }
-            }
         }
     }
 }

@@ -44,6 +44,14 @@ module config-bgp-parser-spi {
         config:java-class "org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext";
     }
 
+    identity extension {
+        description
+            "Service representing a BGP parser extension.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator";
+    }
+
     identity bgp-extensions-impl {
         base config:module-type;
         config:provided-service extensions;
@@ -53,6 +61,15 @@ module config-bgp-parser-spi {
     augment "/config:modules/config:module/config:configuration" {
         case bgp-extensions-impl {
             when "/config:modules/config:module/config:type = 'bgp-extensions-impl'";
+
+            list extension {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity extension;
+                    }
+                }
+            }
         }
     }
 }

@@ -34,14 +34,6 @@ public final class BaseBGPRIBModule extends org.opendaylight.controller.config.y
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final RIBActivator act = new RIBActivator();
-		act.startRIBExtensionProvider(getRibExtensionsDependency());
-
-		return new AutoCloseable() {
-			@Override
-			public void close() {
-				act.stopRIBExtensionProvider();
-			}
-		};
+		return new RIBActivator();
 	}
 }

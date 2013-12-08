@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractRIBExtensionProviderActivator implements RIBExtensionProviderActivator {
+public abstract class AbstractRIBExtensionProviderActivator implements AutoCloseable, RIBExtensionProviderActivator {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBExtensionProviderActivator.class);
 
 	@GuardedBy("this")
@@ -45,5 +45,10 @@ public abstract class AbstractRIBExtensionProviderActivator implements RIBExtens
 		}
 
 		this.registrations = null;
+	}
+
+	@Override
+	public final void close() {
+		stopRIBExtensionProvider();
 	}
 }

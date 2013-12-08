@@ -10,7 +10,6 @@
 package org.opendaylight.controller.config.yang.pcep.impl;
 
 import org.opendaylight.protocol.pcep.impl.Activator;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 
 /**
  *
@@ -30,13 +29,6 @@ public final class BasePCEPParserModule extends org.opendaylight.controller.conf
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final PCEPExtensionProviderActivator act = new Activator();
-		act.start(getPcepExtensionsDependency());
-		return new AutoCloseable() {
-			@Override
-			public void close() {
-				act.stop();
-			}
-		};
+		return new Activator();
 	}
 }

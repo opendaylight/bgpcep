@@ -44,6 +44,14 @@ module config-bgp-rib-spi {
         config:java-class "org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext";
     }
 
+    identity extension {
+        description
+            "Service representing a BGP RIB extension.";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator";
+    }
+
     identity bgp-rib-extensions-impl {
         base config:module-type;
         config:provided-service extensions;
@@ -53,6 +61,15 @@ module config-bgp-rib-spi {
     augment "/config:modules/config:module/config:configuration" {
         case bgp-rib-extensions-impl {
             when "/config:modules/config:module/config:type = 'bgp-rib-extensions-impl'";
+
+            list extension {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity extension;
+                    }
+                }
+            }
         }
     }
 

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
-public abstract class AbstractBGPExtensionProviderActivator implements BGPExtensionProviderActivator {
+public abstract class AbstractBGPExtensionProviderActivator implements AutoCloseable, BGPExtensionProviderActivator {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPExtensionProviderActivator.class);
 
 	@GuardedBy("this")
@@ -47,5 +47,10 @@ public abstract class AbstractBGPExtensionProviderActivator implements BGPExtens
 		}
 
 		this.registrations = null;
+	}
+
+	@Override
+	public final void close() {
+		stop();
 	}
 }
