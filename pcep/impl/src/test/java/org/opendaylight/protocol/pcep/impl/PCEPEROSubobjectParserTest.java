@@ -16,7 +16,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey32SubobjectParser;
@@ -63,7 +64,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
-		final EROIpPrefixSubobjectParser parser = new EROIpPrefixSubobjectParser();
+		final EROIpv4PrefixSubobjectParser parser = new EROIpv4PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
@@ -74,7 +75,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROIp6PrefixSubobject() throws PCEPDeserializerException {
-		final EROIpPrefixSubobjectParser parser = new EROIpPrefixSubobjectParser();
+		final EROIpv6PrefixSubobjectParser parser = new EROIpv6PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
 				new IpPrefixBuilder().setIpPrefix(
