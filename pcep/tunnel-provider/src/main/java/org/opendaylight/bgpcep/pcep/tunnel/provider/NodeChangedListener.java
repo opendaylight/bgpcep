@@ -245,14 +245,107 @@ public final class NodeChangedListener implements DataChangeListener {
 		trans.putOperationalData(linkForLsp(id), lb.build());
 	}
 
+	private final InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
+		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).toInstance();
+	}
+
+	private InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
+		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).toInstance();
+	}
+
 	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
 		final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
 		final Link l = (Link) trans.readOperationalData(li);
 		if (l != null) {
+			LOG.debug("Removing link {} (was {})", li, l);
 			trans.removeOperationalData(li);
 
-			// FIXME: BUG-195: clean up/garbage collect nodes/termination types
+			LOG.debug("Searching for orphan links/nodes");
+			final Topology t = (Topology) trans.readOperationalData(InstanceIdentifier.builder(this.target).toInstance());
+
+			NodeId srcNode = l.getSource().getSourceNode();
+			NodeId dstNode = l.getDestination().getDestNode();
+			TpId srcTp = l.getSource().getSourceTp();
+			TpId dstTp = l.getDestination().getDestTp();
+
+			boolean orphSrcNode = true, orphDstNode = true, orphDstTp = true, orphSrcTp = true;
+			for (final Link lw : t.getLink()) {
+				LOG.trace("Checking link {}", lw);
+
+				final NodeId sn = lw.getSource().getSourceNode();
+				final NodeId dn = lw.getDestination().getDestNode();
+				final TpId st = lw.getSource().getSourceTp();
+				final TpId dt = lw.getDestination().getDestTp();
+
+				// Source node checks
+				if (srcNode.equals(sn)) {
+					if (orphSrcNode) {
+						LOG.debug("Node {} held by source of link {}", srcNode, lw);
+						orphSrcNode = false;
+					}
+					if (orphSrcTp && srcTp.equals(st)) {
+						LOG.debug("TP {} held by source of link {}", srcTp, lw);
+						orphSrcTp = false;
+					}
+				}
+				if (srcNode.equals(dn)) {
+					if (orphSrcNode) {
+						LOG.debug("Node {} held by destination of link {}", srcNode, lw);
+						orphSrcNode = false;
+					}
+					if (orphSrcTp && srcTp.equals(dt)) {
+						LOG.debug("TP {} held by destination of link {}", srcTp, lw);
+						orphSrcTp = false;
+					}
+				}
+
+				// Destination node checks
+				if (dstNode.equals(sn)) {
+					if (orphDstNode) {
+						LOG.debug("Node {} held by source of link {}", dstNode, lw);
+						orphDstNode = false;
+					}
+					if (orphDstTp && dstTp.equals(st)) {
+						LOG.debug("TP {} held by source of link {}", dstTp, lw);
+						orphDstTp = false;
+					}
+				}
+				if (dstNode.equals(dn)) {
+					if (orphDstNode) {
+						LOG.debug("Node {} held by destination of link {}", dstNode, lw);
+						orphDstNode = false;
+					}
+					if (orphDstTp && dstTp.equals(dt)) {
+						LOG.debug("TP {} held by destination of link {}", dstTp, lw);
+						orphDstTp = false;
+					}
+				}
+			}
+
+			if (orphSrcNode && !orphSrcTp) {
+				LOG.warn("Orphan source node {} but not TP {}, retaining the node", srcNode, srcTp);
+				orphSrcNode = false;
+			}
+			if (orphDstNode && !orphDstTp) {
+				LOG.warn("Orphan destination node {} but not TP {}, retaining the node", dstNode, dstTp);
+				orphDstNode = false;
+			}
+
+			if (orphSrcNode) {
+				LOG.debug("Removing orphan node {}", srcNode);
+				trans.removeOperationalData(nodeIdentifier(srcNode));
+			} else if (orphSrcTp) {
+				LOG.debug("Removing orphan TP {} on node {}", srcTp, srcNode);
+				trans.removeOperationalData(tpIdentifier(srcNode, srcTp));
+			}
+			if (orphDstNode) {
+				LOG.debug("Removing orphan node {}", dstNode);
+				trans.removeOperationalData(nodeIdentifier(dstNode));
+			} else if (orphDstTp) {
+				LOG.debug("Removing orphan TP {} on node {}", dstTp, dstNode);
+				trans.removeOperationalData(tpIdentifier(dstNode, dstTp));
+			}
 		}
 	}
 
@@ -301,7 +394,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
-				// Nothing to do
+				LOG.trace("Topology change committed successfully");
 			}
 
 			@Override
