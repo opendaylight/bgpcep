@@ -54,7 +54,8 @@ import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubob
 import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.XROIpPrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROSRLGSubobjectParser;
@@ -182,15 +183,15 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 				new RROPathKeySubobjectParser());
 
 		final XROSubobjectHandlerRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
-		context.registerXROSubobjectParser(XROIpPrefixSubobjectParser.TYPE, new XROIpPrefixSubobjectParser());
-		context.registerXROSubobjectParser(XROIpPrefixSubobjectParser.TYPE6, new XROIpPrefixSubobjectParser());
+		context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, new XROIpv4PrefixSubobjectParser());
+		context.registerXROSubobjectParser(XROIpv6PrefixSubobjectParser.TYPE, new XROIpv6PrefixSubobjectParser());
 		context.registerXROSubobjectParser(XROAsNumberSubobjectParser.TYPE, new XROAsNumberSubobjectParser());
 		context.registerXROSubobjectParser(XROSRLGSubobjectParser.TYPE, new XROSRLGSubobjectParser());
 		context.registerXROSubobjectParser(XROUnnumberedInterfaceSubobjectParser.TYPE, new XROUnnumberedInterfaceSubobjectParser());
 		context.registerXROSubobjectParser(XROPathKey32SubobjectParser.TYPE, new XROPathKey32SubobjectParser());
 		context.registerXROSubobjectParser(XROPathKey128SubobjectParser.TYPE, new XROPathKey128SubobjectParser());
 
-		context.registerXROSubobjectSerializer(IpPrefixCase.class, new XROIpPrefixSubobjectParser());
+		context.registerXROSubobjectSerializer(IpPrefixCase.class, new XROIpv4PrefixSubobjectParser());
 		context.registerXROSubobjectSerializer(AsNumberCase.class, new XROAsNumberSubobjectParser());
 		context.registerXROSubobjectSerializer(SrlgCase.class, new XROSRLGSubobjectParser());
 		context.registerXROSubobjectSerializer(UnnumberedCase.class, new XROUnnumberedInterfaceSubobjectParser());

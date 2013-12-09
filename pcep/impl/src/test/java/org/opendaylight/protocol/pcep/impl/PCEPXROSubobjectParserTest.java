@@ -13,7 +13,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.XROIpPrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROSRLGSubobjectParser;
@@ -55,7 +56,7 @@ public class PCEPXROSubobjectParserTest {
 
 	@Test
 	public void testXROIp4PrefixSubobject() throws PCEPDeserializerException {
-		final XROIpPrefixSubobjectParser parser = new XROIpPrefixSubobjectParser();
+		final XROIpv4PrefixSubobjectParser parser = new XROIpv4PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(false);
 		subs.setAttribute(Attribute.Interface);
@@ -67,7 +68,7 @@ public class PCEPXROSubobjectParserTest {
 
 	@Test
 	public void testXROIp6PrefixSubobject() throws PCEPDeserializerException {
-		final XROIpPrefixSubobjectParser parser = new XROIpPrefixSubobjectParser();
+		final XROIpv6PrefixSubobjectParser parser = new XROIpv6PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		subs.setAttribute(Attribute.Node);
