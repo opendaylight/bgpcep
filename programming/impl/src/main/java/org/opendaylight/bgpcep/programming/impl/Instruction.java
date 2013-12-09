@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.programming.impl;
 import io.netty.util.Timeout;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
@@ -73,5 +74,24 @@ final class Instruction {
 
 	List<Instruction> getDependants() {
 		return dependants;
+	}
+
+	synchronized void clean() {
+		for (final Iterator<Instruction> it = dependencies.iterator(); it.hasNext(); ) {
+			final Instruction o = it.next();
+			synchronized (o) {
+				o.getDependants().remove(this);
+			}
+		}
+		dependencies.clear();
+
+		for (final Iterator<Instruction> it = dependants.iterator(); it.hasNext(); ) {
+			final Instruction o = it.next();
+
+			synchronized (o) {
+				o.getDependencies().remove(this);
+			}
+		}
+		dependants.clear();
 	}
 }

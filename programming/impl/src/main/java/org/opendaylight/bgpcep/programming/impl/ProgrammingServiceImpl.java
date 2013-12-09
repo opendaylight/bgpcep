@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.DeadOnArrival;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.DuplicateInstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
@@ -76,7 +77,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	private final NotificationProviderService notifs;
 	private final ExecutorService executor;
 	private final Timer timer;
-	private java.util.concurrent.Future<Void> thread;
+	private Future<Void> thread;
 	private ExecutorService exec;
 
 	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor, final Timer timer) {
@@ -86,11 +87,21 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	}
 
 	@Override
-	public java.util.concurrent.Future<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
+	public Future<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
 		return this.executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
 			@Override
 			public RpcResult<CancelInstructionOutput> call() {
 				return realCancelInstruction(input);
+			}
+		});
+	}
+
+	@Override
+	public Future<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
+		return this.executor.submit(new Callable<RpcResult<CleanInstructionsOutput>>() {
+			@Override
+			public RpcResult<CleanInstructionsOutput> call() throws Exception {
+				return realCleanInstructions(input);
 			}
 		});
 	}
@@ -119,6 +130,50 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 
 		cancelInstruction(i, null);
 		return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder().build());
+	}
+
+
+	private synchronized RpcResult<CleanInstructionsOutput> realCleanInstructions(final CleanInstructionsInput input) {
+		final List<InstructionId> failed = new ArrayList<>();
+
+		for (final InstructionId id : input.getId()) {
+			// Find the instruction
+			final Instruction i = this.insns.get(input.getId());
+			if (i == null) {
+				LOG.debug("Instruction {} not present in the graph", input.getId());
+				failed.add(id);
+				continue;
+			}
+
+			// Check its status
+			switch (i.getStatus()) {
+			case Cancelled:
+			case Failed:
+			case Successful:
+				break;
+			case Executing:
+			case Queued:
+			case Scheduled:
+			case Unknown:
+				LOG.debug("Instruction {} cannot be cleaned because of it's in state {}", id, i.getStatus());
+				failed.add(id);
+				continue;
+			}
+
+			// The instruction is in a terminal state, we need to just unlink
+			// it from its dependencies and dependants
+			i.clean();
+
+			insns.remove(i);
+			LOG.debug("Instruction {} cleaned successfully", id);
+		}
+
+		final CleanInstructionsOutputBuilder ob = new CleanInstructionsOutputBuilder();
+		if (!failed.isEmpty()) {
+			ob.setUnflushed(failed);
+		}
+
+		return SuccessfulRpcResult.create(ob.build());
 	}
 
 	@Override
@@ -424,11 +479,5 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	@Override
 	public void close() throws InterruptedException {
 		stop(CLOSE_TIMEOUT, TimeUnit.SECONDS);
-	}
-
-	@Override
-	public Future<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
-		// FIXME: BUG-219: implement this instruction
-		return null;
 	}
 }
