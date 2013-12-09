@@ -307,13 +307,11 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 						LOG.debug("PLSPID {} not known yet, looking for a symbolic name", id);
 
 						final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
-						final SymbolicPathName name = tlvs.getSymbolicPathName();
-						if (name == null) {
+						if (tlvs != null && tlvs.getSymbolicPathName() != null) {
+							this.lsps.put(id, tlvs.getSymbolicPathName());
+						} else {
 							LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
-							// FIXME: BUG-189
-							continue;
 						}
-						this.lsps.put(id, name);
 					}
 
 					final SymbolicPathName name = this.lsps.get(id);
