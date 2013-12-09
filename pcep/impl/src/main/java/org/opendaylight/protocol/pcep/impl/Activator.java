@@ -44,7 +44,8 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpv4PrefixSubobjectParser;
@@ -154,14 +155,14 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerEROSubobjectParser(EROAsNumberSubobjectParser.TYPE, new EROAsNumberSubobjectParser());
 		context.registerEROSubobjectParser(EROLabelSubobjectParser.TYPE, new EROLabelSubobjectParser(labelReg));
 		context.registerEROSubobjectParser(EROUnnumberedInterfaceSubobjectParser.TYPE, new EROUnnumberedInterfaceSubobjectParser());
-		context.registerEROSubobjectParser(EROPathKeySubobjectParser.TYPE, new EROPathKeySubobjectParser());
-		context.registerEROSubobjectParser(EROPathKeySubobjectParser.TYPE128, new EROPathKeySubobjectParser());
+		context.registerEROSubobjectParser(EROPathKey32SubobjectParser.TYPE, new EROPathKey32SubobjectParser());
+		context.registerEROSubobjectParser(EROPathKey128SubobjectParser.TYPE, new EROPathKey128SubobjectParser());
 
 		context.registerEROSubobjectSerializer(IpPrefixCase.class, new EROIpPrefixSubobjectParser());
 		context.registerEROSubobjectSerializer(AsNumberCase.class, new EROAsNumberSubobjectParser());
 		context.registerEROSubobjectSerializer(LabelCase.class, new EROLabelSubobjectParser(labelReg));
 		context.registerEROSubobjectSerializer(UnnumberedCase.class, new EROUnnumberedInterfaceSubobjectParser());
-		context.registerEROSubobjectSerializer(PathKeyCase.class, new EROPathKeySubobjectParser());
+		context.registerEROSubobjectSerializer(PathKeyCase.class, new EROPathKey32SubobjectParser());
 
 		final RROSubobjectHandlerRegistry rroSubReg = context.getRROSubobjectHandlerRegistry();
 		context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, new RROIpv4PrefixSubobjectParser());

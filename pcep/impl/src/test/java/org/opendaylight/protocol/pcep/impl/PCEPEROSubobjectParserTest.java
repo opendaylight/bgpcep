@@ -18,7 +18,8 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROExplicitExclusionRouteSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.EROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
@@ -108,7 +109,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROPathKey32Subobject() throws PCEPDeserializerException {
-		final EROPathKeySubobjectParser parser = new EROPathKeySubobjectParser();
+		final EROPathKey32SubobjectParser parser = new EROPathKey32SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
@@ -121,7 +122,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROPathKey128Subobject() throws PCEPDeserializerException {
-		final EROPathKeySubobjectParser parser = new EROPathKeySubobjectParser();
+		final EROPathKey128SubobjectParser parser = new EROPathKey128SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setLoose(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
