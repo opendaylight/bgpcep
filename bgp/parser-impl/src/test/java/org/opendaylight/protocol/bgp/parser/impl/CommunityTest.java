@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
@@ -27,20 +26,18 @@ public class CommunityTest {
 	}
 
 	@Test
-	@Ignore
-	// FIXME: BUG-178: range is not implemented
 	public void testOverflows() {
 		try {
 			CommunityUtil.create(10, -2);
 			fail("Semantics under range.");
 		} catch (final IllegalArgumentException e) {
-			assertEquals("Invalid semantics specified", e.getMessage());
+			assertEquals("Invalid range: -2, expected: [[0‥65535]].", e.getMessage());
 		}
 		try {
 			CommunityUtil.create(10, 65536);
 			fail("Semantics above range.");
 		} catch (final IllegalArgumentException e) {
-			assertEquals("Invalid semantics specified", e.getMessage());
+			assertEquals("Invalid range: 65536, expected: [[0‥65535]].", e.getMessage());
 		}
 	}
 
