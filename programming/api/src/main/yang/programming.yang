@@ -241,6 +241,27 @@ module programming {
 		}
 	}
 
+	rpc clean-instructions {
+		description
+			"Attempt to clean out a certain set of instructions.
+			Instructions flushed this way need to be in a terminal
+			state, e.g. Successful, Failed or Cancelled. Instructions
+			which were not cleaned are reported in the output of
+			this RPC.";
+		input {
+			leaf-list id {
+				type instruction-id;
+				min-elements 1;
+			}
+		}
+
+		output {
+			leaf-list unflushed {
+				type instruction-id;
+			}
+		}
+	}
+
 	identity submit-failure {
 		description
 			"The base identity of various reasons for an
@@ -314,6 +335,25 @@ module programming {
 						type instruction-id;
 					}
 				}
+			}
+		}
+	}
+
+	container instruction-queue {
+		list instructions {
+			leaf id {
+				type instruction-id;
+				mandatory true;
+			}
+			key id;
+
+			leaf status {
+				type instruction-status;
+				mandatory true;
+			}
+
+			container attributes {
+
 			}
 		}
 	}
