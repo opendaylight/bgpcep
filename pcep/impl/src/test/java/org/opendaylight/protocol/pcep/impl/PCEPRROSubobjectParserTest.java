@@ -14,7 +14,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
@@ -89,7 +90,7 @@ public class PCEPRROSubobjectParserTest {
 
 	@Test
 	public void testRROPathKey32Subobject() throws PCEPDeserializerException {
-		final RROPathKeySubobjectParser parser = new RROPathKeySubobjectParser();
+		final RROPathKey32SubobjectParser parser = new RROPathKey32SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
@@ -101,7 +102,7 @@ public class PCEPRROSubobjectParserTest {
 
 	@Test
 	public void testRROPathKey128Subobject() throws PCEPDeserializerException {
-		final RROPathKeySubobjectParser parser = new RROPathKeySubobjectParser();
+		final RROPathKey128SubobjectParser parser = new RROPathKey128SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,

@@ -49,7 +49,8 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubob
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.RROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.WavebandSwitchingLabelParser;
@@ -166,8 +167,8 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerRROSubobjectParser(RROIpPrefixSubobjectParser.TYPE6, new RROIpPrefixSubobjectParser());
 		context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, new RROLabelSubobjectParser(labelReg));
 		context.registerRROSubobjectParser(RROUnnumberedInterfaceSubobjectParser.TYPE, new RROUnnumberedInterfaceSubobjectParser());
-		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE, new RROPathKeySubobjectParser());
-		context.registerRROSubobjectParser(RROPathKeySubobjectParser.TYPE128, new RROPathKeySubobjectParser());
+		context.registerRROSubobjectParser(RROPathKey32SubobjectParser.TYPE, new RROPathKey32SubobjectParser());
+		context.registerRROSubobjectParser(RROPathKey128SubobjectParser.TYPE, new RROPathKey128SubobjectParser());
 
 		context.registerRROSubobjectSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCase.class,
@@ -180,7 +181,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 				new RROUnnumberedInterfaceSubobjectParser());
 		context.registerRROSubobjectSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobjects.subobject.type.PathKeyCase.class,
-				new RROPathKeySubobjectParser());
+				new RROPathKey32SubobjectParser());
 
 		final XROSubobjectHandlerRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
 		context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, new XROIpv4PrefixSubobjectParser());
