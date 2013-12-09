@@ -15,7 +15,8 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv6TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspDbVersionTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
@@ -157,7 +158,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
-		final LSPIdentifierTlvParser parser = new LSPIdentifierTlvParser();
+		final LSPIdentifierIpv4TlvParser parser = new LSPIdentifierIpv4TlvParser();
 		final Ipv4Builder afi = new Ipv4Builder();
 		afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
@@ -170,7 +171,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
-		final LSPIdentifierTlvParser parser = new LSPIdentifierTlvParser();
+		final LSPIdentifierIpv6TlvParser parser = new LSPIdentifierIpv6TlvParser();
 		final Ipv6Builder afi = new Ipv6Builder();
 		afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 				(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
