@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.impl.subobject.RROIpPrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROIpv4PrefixSubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.RROIpv6PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
@@ -51,7 +52,7 @@ public class PCEPRROSubobjectParserTest {
 
 	@Test
 	public void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
-		final RROIpPrefixSubobjectParser parser = new RROIpPrefixSubobjectParser();
+		final RROIpv4PrefixSubobjectParser parser = new RROIpv4PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setProtectionAvailable(true);
 		subs.setProtectionInUse(false);
@@ -63,7 +64,7 @@ public class PCEPRROSubobjectParserTest {
 
 	@Test
 	public void testRROIp6PrefixSubobject() throws PCEPDeserializerException {
-		final RROIpPrefixSubobjectParser parser = new RROIpPrefixSubobjectParser();
+		final RROIpv6PrefixSubobjectParser parser = new RROIpv6PrefixSubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setProtectionAvailable(false);
 		subs.setProtectionInUse(true);
