@@ -100,7 +100,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-			ExecutionException, TimeoutException {
+					ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -144,8 +144,8 @@ public class ParserToSalTest {
 				return null;
 			}
 		}, null);
-		Mockito.verify(this.mockedTransaction, Mockito.times(24)).commit();
-		Mockito.verify(this.mockedTransaction, Mockito.times(67)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(30)).commit();
+		Mockito.verify(this.mockedTransaction, Mockito.times(80)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 
