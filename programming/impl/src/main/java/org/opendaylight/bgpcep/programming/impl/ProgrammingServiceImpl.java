@@ -62,6 +62,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 
 public final class ProgrammingServiceImpl implements InstructionScheduler, ProgrammingService, AutoCloseable {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
@@ -75,19 +77,19 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	private final Deque<Instruction> readyQueue = new ArrayDeque<>();
 
 	private final NotificationProviderService notifs;
-	private final ExecutorService executor;
+	private final ListeningExecutorService executor;
 	private final Timer timer;
 	private Future<Void> thread;
 	private ExecutorService exec;
 
-	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ExecutorService executor, final Timer timer) {
+	public ProgrammingServiceImpl(final NotificationProviderService notifs, final ListeningExecutorService executor, final Timer timer) {
 		this.notifs = Preconditions.checkNotNull(notifs);
 		this.executor = Preconditions.checkNotNull(executor);
 		this.timer = Preconditions.checkNotNull(timer);
 	}
 
 	@Override
-	public Future<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
+	public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
 		return this.executor.submit(new Callable<RpcResult<CancelInstructionOutput>>() {
 			@Override
 			public RpcResult<CancelInstructionOutput> call() {
@@ -97,7 +99,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 	}
 
 	@Override
-	public Future<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
+	public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
 		return this.executor.submit(new Callable<RpcResult<CleanInstructionsOutput>>() {
 			@Override
 			public RpcResult<CleanInstructionsOutput> call() throws Exception {

@@ -9,7 +9,6 @@
  */
 package org.opendaylight.controller.config.yang.programming.impl;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.opendaylight.bgpcep.programming.impl.ProgrammingServiceImpl;
@@ -19,6 +18,9 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
+
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  *
@@ -45,7 +47,7 @@ org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSche
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final ExecutorService exec = Executors.newSingleThreadExecutor();
+		final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
 		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getNotificationServiceDependency(), exec, getTimerDependency());
 
