@@ -14,7 +14,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIpPrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.XROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROSRLGSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -114,7 +115,7 @@ public class PCEPXROSubobjectParserTest {
 
 	@Test
 	public void testXROPathKey32Subobject() throws PCEPDeserializerException {
-		final XROPathKeySubobjectParser parser = new XROPathKeySubobjectParser();
+		final XROPathKey32SubobjectParser parser = new XROPathKey32SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
@@ -127,7 +128,7 @@ public class PCEPXROSubobjectParserTest {
 
 	@Test
 	public void testXROPathKey128Subobject() throws PCEPDeserializerException {
-		final XROPathKeySubobjectParser parser = new XROPathKeySubobjectParser();
+		final XROPathKey128SubobjectParser parser = new XROPathKey128SubobjectParser();
 		final SubobjectsBuilder subs = new SubobjectsBuilder();
 		subs.setMandatory(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();

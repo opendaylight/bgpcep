@@ -22,23 +22,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 
 /**
- * Parser for {@link PathKeyt}
+ * Parser for {@link PathKey}
  */
-public class XROPathKeySubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
+public class XROPathKey128SubobjectParser implements XROSubobjectParser, XROSubobjectSerializer {
 
-	public static final int TYPE = 64;
-
-	public static final int TYPE128 = 65;
+	public static final int TYPE = 65;
 
 	private static final int PK_F_LENGTH = 2;
-	private static final int PCE_ID_F_LENGTH = 4;
 
 	private static final int PCE128_ID_F_LENGTH = 16;
 
 	private static final int PK_F_OFFSET = 0;
 	private static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
 
-	private static final int CONTENT_LENGTH = PCE_ID_F_OFFSET + PCE_ID_F_LENGTH;
 	private static final int CONTENT128_LENGTH = PCE_ID_F_OFFSET + PCE128_ID_F_LENGTH;
 
 	@Override
@@ -46,15 +42,11 @@ public class XROPathKeySubobjectParser implements XROSubobjectParser, XROSubobje
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-		byte[] pceId = null;
-		if (buffer.length == CONTENT_LENGTH) {
-			pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT_LENGTH);
-		} else if (buffer.length == CONTENT128_LENGTH) {
-			pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT128_LENGTH);
-		} else {
+		if (buffer.length != CONTENT128_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
-					+ CONTENT_LENGTH + ".");
+					+ CONTENT128_LENGTH + ".");
 		}
+		final byte[] pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT128_LENGTH);
 		final int pathKey = ByteArray.bytesToShort(Arrays.copyOfRange(buffer, PK_F_OFFSET, PCE_ID_F_OFFSET));
 		final SubobjectsBuilder builder = new SubobjectsBuilder();
 		builder.setMandatory(mandatory);
@@ -79,9 +71,5 @@ public class XROPathKeySubobjectParser implements XROSubobjectParser, XROSubobje
 	@Override
 	public int getType() {
 		return TYPE;
-	}
-
-	public int getType128() {
-		return TYPE128;
 	}
 }

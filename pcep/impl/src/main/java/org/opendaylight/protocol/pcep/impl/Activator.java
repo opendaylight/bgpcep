@@ -55,7 +55,8 @@ import org.opendaylight.protocol.pcep.impl.subobject.Type1LabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROIpPrefixSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.subobject.XROPathKeySubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey128SubobjectParser;
+import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROSRLGSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
@@ -186,14 +187,14 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerXROSubobjectParser(XROAsNumberSubobjectParser.TYPE, new XROAsNumberSubobjectParser());
 		context.registerXROSubobjectParser(XROSRLGSubobjectParser.TYPE, new XROSRLGSubobjectParser());
 		context.registerXROSubobjectParser(XROUnnumberedInterfaceSubobjectParser.TYPE, new XROUnnumberedInterfaceSubobjectParser());
-		context.registerXROSubobjectParser(XROPathKeySubobjectParser.TYPE, new XROPathKeySubobjectParser());
-		context.registerXROSubobjectParser(XROPathKeySubobjectParser.TYPE128, new XROPathKeySubobjectParser());
+		context.registerXROSubobjectParser(XROPathKey32SubobjectParser.TYPE, new XROPathKey32SubobjectParser());
+		context.registerXROSubobjectParser(XROPathKey128SubobjectParser.TYPE, new XROPathKey128SubobjectParser());
 
 		context.registerXROSubobjectSerializer(IpPrefixCase.class, new XROIpPrefixSubobjectParser());
 		context.registerXROSubobjectSerializer(AsNumberCase.class, new XROAsNumberSubobjectParser());
 		context.registerXROSubobjectSerializer(SrlgCase.class, new XROSRLGSubobjectParser());
 		context.registerXROSubobjectSerializer(UnnumberedCase.class, new XROUnnumberedInterfaceSubobjectParser());
-		context.registerXROSubobjectSerializer(PathKeyCase.class, new XROPathKeySubobjectParser());
+		context.registerXROSubobjectSerializer(PathKeyCase.class, new XROPathKey32SubobjectParser());
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
 		context.registerTlvParser(NoPathVectorTlvParser.TYPE, new NoPathVectorTlvParser());
