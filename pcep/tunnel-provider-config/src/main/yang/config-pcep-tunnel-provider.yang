@@ -32,7 +32,7 @@ module config-pcep-tunnel-provider {
             "Initial revision";
     }
 
-    identity pcep-tunnel-topology {
+    identity pcep-tunnel-topology-reference {
         description
             "Service representing a PCEP-enabled tunnel topology.";
 
@@ -40,15 +40,15 @@ module config-pcep-tunnel-provider {
         config:java-class "org.opendaylight.bgpcep.topology.TopologyReference";
     }
 
-    identity pcep-tunnel-topology-impl {
+    identity pcep-tunnel-topology-provider {
         base config:module-type;
-        config:provided-service pcep-tunnel-topology;
+        config:provided-service pcep-tunnel-topology-reference;
         config:java-name-prefix PCEPTunnelTopologyProvider;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-tunnel-topology-impl {
-            when "/config:modules/config:module/config:type = 'pcep-tunnel-topology-impl'";
+        case pcep-tunnel-topology-provider {
+            when "/config:modules/config:module/config:type = 'pcep-tunnel-topology-provider'";
 
             container data-provider {
                 uses config:service-ref {
@@ -81,7 +81,7 @@ module config-pcep-tunnel-provider {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity pceptopo:pcep-topology;
+                        config:required-identity pceptopo:pcep-topology-reference;
                     }
                 }
             }

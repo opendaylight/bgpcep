@@ -32,7 +32,7 @@ module config-pcep-topology-provider {
             "Initial revision";
     }
 
-    identity pcep-topology {
+    identity pcep-topology-reference {
         description
             "Service representing a PCEP-enabled topology.";
 
@@ -41,15 +41,15 @@ module config-pcep-topology-provider {
         config:java-class "org.opendaylight.bgpcep.topology.TopologyReference";
     }
 
-    identity pcep-topology-impl {
+    identity pcep-topology-provider {
         base config:module-type;
-        config:provided-service pcep-topology;
+        config:provided-service pcep-topology-reference;
         config:java-name-prefix PCEPTopologyProvider;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-topology-impl {
-            when "/config:modules/config:module/config:type = 'pcep-topology-impl'";
+        case pcep-topology-provider {
+            when "/config:modules/config:module/config:type = 'pcep-topology-provider'";
 
             container data-provider {
                 uses config:service-ref {
@@ -93,16 +93,14 @@ module config-pcep-topology-provider {
             }
 
             leaf listen-address {
-            // FIXME: change to inet:ip-address
+                // FIXME: change to inet:ip-address
                 type inet:ipv4-address;
-//                default "0.0.0.0";
-                mandatory true;
+                default "0.0.0.0";
             }
 
             leaf listen-port {
                 type inet:port-number;
-//                default 4189;
-                mandatory true;
+                default 4189;
             }
         }
     }
