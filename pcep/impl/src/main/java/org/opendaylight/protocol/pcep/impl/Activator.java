@@ -26,6 +26,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPExistingBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
@@ -240,8 +241,8 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
 				new PCEPEndPointsIpv4ObjectParser(tlvReg));
 		context.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, new PCEPBandwidthObjectParser(tlvReg));
-		context.registerObjectParser(PCEPBandwidthObjectParser.E_CLASS, PCEPBandwidthObjectParser.E_TYPE,
-				new PCEPBandwidthObjectParser(tlvReg));
+		context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE,
+				new PCEPExistingBandwidthObjectParser(tlvReg));
 		context.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, new PCEPMetricObjectParser(tlvReg));
 
 		context.registerObjectParser(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE,

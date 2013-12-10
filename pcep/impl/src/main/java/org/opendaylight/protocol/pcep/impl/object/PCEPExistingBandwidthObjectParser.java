@@ -13,13 +13,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Bandwidth}
  */
-public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
+public class PCEPExistingBandwidthObjectParser extends AbstractBandwidthParser {
 
 	public static final int CLASS = 5;
 
-	public static final int TYPE = 1;
+	public static final int TYPE = 2;
 
-	public PCEPBandwidthObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPExistingBandwidthObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 
