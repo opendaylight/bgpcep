@@ -27,7 +27,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -47,11 +49,32 @@ TopologyReference {
 	private final DataProviderService dataProvider;
 	private final Class<T> idClass;
 
-	protected AbstractTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId, final Class<T> idClass) {
+	protected AbstractTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId, final TopologyTypes types, final Class<T> idClass) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.locRibReference = Preconditions.checkNotNull(locRibReference);
-		this.topology = InstanceIdentifier.builder(Topology.class, new TopologyKey(Preconditions.checkNotNull(topologyId))).toInstance();
 		this.idClass = Preconditions.checkNotNull(idClass);
+
+		final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
+		this.topology = InstanceIdentifier.builder(Topology.class, tk).toInstance();
+
+		LOG.debug("Initiating topology builder from {} at {}", locRibReference, topology);
+
+		DataModificationTransaction t = dataProvider.beginTransaction();
+		Object o = t.readOperationalData(topology);
+		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", topology);
+
+		t.putOperationalData(topology, new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types).build());
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				LOG.trace("Change committed successfully");
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to initiate topology {} by listener {}", topology, AbstractTopologyBuilder.this);
+			}
+		});
 	}
 
 	public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {

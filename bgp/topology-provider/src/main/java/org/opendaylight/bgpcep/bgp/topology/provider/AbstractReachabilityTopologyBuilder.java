@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributesBuilder;
@@ -43,7 +44,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
 	protected AbstractReachabilityTopologyBuilder(final DataProviderService dataProvider, final LocRibReference locRibReference, final TopologyId topologyId,
 			final Class<T> idClass) {
-		super(dataProvider, locRibReference, topologyId, idClass);
+		super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build(), idClass);
 	}
 
 	private NodeId advertizingNode(final Attributes attrs) {
@@ -68,6 +69,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
 	private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId ni) {
 		final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
+		LOG.debug("Looking for pre-existing node at {}", nii);
 
 		if (trans.readOperationalData(nii) == null) {
 			LOG.debug("Create a new node at {}", nii);
