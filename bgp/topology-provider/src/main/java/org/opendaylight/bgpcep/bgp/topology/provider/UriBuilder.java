@@ -11,8 +11,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class UriBuilder {
+	private static final Logger LOG = LoggerFactory.getLogger(UriBuilder.class);
 	private final StringBuilder sb;
 
 	UriBuilder(final UriBuilder base, final String type) {
@@ -62,6 +65,8 @@ final class UriBuilder {
 
 	@Override
 	public final String toString() {
-		return sb.toString();
+		final String ret = sb.toString();
+		LOG.trace("New URI {}", ret);
+		return ret;
 	}
 }

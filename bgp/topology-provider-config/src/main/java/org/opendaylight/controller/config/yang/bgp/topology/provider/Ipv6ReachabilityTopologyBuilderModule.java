@@ -19,12 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv6ReachabilityTopologyBuilderModule
 {
+	private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
 	public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
@@ -46,6 +49,7 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendayligh
 		final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
 		final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 		final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
+		LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
 
 		final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
 			public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {

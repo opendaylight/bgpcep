@@ -74,6 +74,7 @@ TopologyReference {
 	@Override
 	public final void onLocRIBChange(final DataModification<InstanceIdentifier<?>, DataObject> trans,
 			final DataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
+		LOG.debug("Received data change {} event with transaction {}", event, trans);
 
 		final Set<InstanceIdentifier<T>> ids = new HashSet<>();
 		for (final InstanceIdentifier<?> i : event.getRemovedOperationalData()) {
@@ -104,7 +105,7 @@ TopologyReference {
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
-				// Nothing to do
+				LOG.trace("Change committed successfully");
 			}
 
 			@Override
@@ -116,6 +117,7 @@ TopologyReference {
 
 	@Override
 	public final void close() throws InterruptedException, ExecutionException {
+		LOG.info("Shutting down builder for {}", getInstanceIdentifier());
 		final DataModificationTransaction trans = this.dataProvider.beginTransaction();
 		trans.removeOperationalData(getInstanceIdentifier());
 		trans.commit().get();

@@ -19,6 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -26,6 +28,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule
 {
+	private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilderModule.class);
 
 	public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
@@ -47,6 +50,7 @@ public final class LinkstateTopologyBuilderModule extends org.opendaylight.contr
 		final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
 		final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 		final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
+		LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
 
 		final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
 			public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
