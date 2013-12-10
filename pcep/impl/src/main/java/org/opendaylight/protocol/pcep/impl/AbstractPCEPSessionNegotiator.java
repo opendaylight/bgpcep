@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,6 +223,13 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				return;
 			} else if (msg instanceof Pcerr) {
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((Pcerr) msg).getPcerrMessage();
+				if (err.getErrorType() == null) {
+					final ErrorObject obj = err.getErrors().get(0).getErrorObject();
+					LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
+					negotiationFailed(new RuntimeException("Unexpected error received from PCC."));
+					this.state = State.Idle;
+					return;
+				}
 				this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
 				if (this.localPrefs == null) {
 					sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
