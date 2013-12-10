@@ -14,7 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
@@ -36,13 +35,10 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 
 	@Override
 	public Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
-		final Tlvs tlvs = null;
 		final TlvsBuilder builder = new TlvsBuilder();
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
-			builder.setStateful((new StatefulBuilder().
-					setIncludeDbVersion(this.versioned).
-					setLspUpdateCapability(this.active).
-					addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()));
+			builder.setStateful((new StatefulBuilder().setIncludeDbVersion(this.versioned).setLspUpdateCapability(this.active).addAugmentation(
+					Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()));
 		}
 		final OpenBuilder oBuilder = new OpenBuilder();
 		oBuilder.setSessionId((short) sessionId);
@@ -52,7 +48,7 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		if (PCEPSessionProposalFactoryImpl.this.deadTimer != 0) {
 			oBuilder.setDeadTimer((short) PCEPSessionProposalFactoryImpl.this.deadTimer);
 		}
-		return oBuilder.setTlvs(tlvs).build();
+		return oBuilder.setTlvs(builder.build()).build();
 	}
 
 	public int getKeepAlive() {
