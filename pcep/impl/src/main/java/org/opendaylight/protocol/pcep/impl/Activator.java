@@ -22,7 +22,8 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParse
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
@@ -234,9 +235,10 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE,
 				new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, new PCEPNoPathObjectParser(tlvReg));
-		context.registerObjectParser(PCEPEndPointsObjectParser.CLASS, PCEPEndPointsObjectParser.TYPE, new PCEPEndPointsObjectParser(tlvReg));
-		context.registerObjectParser(PCEPEndPointsObjectParser.CLASS_6, PCEPEndPointsObjectParser.TYPE_6,
-				new PCEPEndPointsObjectParser(tlvReg));
+		context.registerObjectParser(PCEPEndPointsIpv4ObjectParser.CLASS, PCEPEndPointsIpv4ObjectParser.TYPE,
+				new PCEPEndPointsIpv4ObjectParser(tlvReg));
+		context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
+				new PCEPEndPointsIpv4ObjectParser(tlvReg));
 		context.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, new PCEPBandwidthObjectParser(tlvReg));
 		context.registerObjectParser(PCEPBandwidthObjectParser.E_CLASS, PCEPBandwidthObjectParser.E_TYPE,
 				new PCEPBandwidthObjectParser(tlvReg));
@@ -271,7 +273,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(tlvReg));
 		context.registerObjectSerializer(Rp.class, new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectSerializer(NoPath.class, new PCEPNoPathObjectParser(tlvReg));
-		context.registerObjectSerializer(EndpointsObj.class, new PCEPEndPointsObjectParser(tlvReg));
+		context.registerObjectSerializer(EndpointsObj.class, new PCEPEndPointsIpv4ObjectParser(tlvReg));
 		context.registerObjectSerializer(Bandwidth.class, new PCEPBandwidthObjectParser(tlvReg));
 		context.registerObjectSerializer(Metric.class, new PCEPMetricObjectParser(tlvReg));
 		context.registerObjectSerializer(Ero.class, new PCEPExplicitRouteObjectParser(eroSubReg));

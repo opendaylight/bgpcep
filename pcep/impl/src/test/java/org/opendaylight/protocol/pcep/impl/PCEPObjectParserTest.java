@@ -23,7 +23,8 @@ import org.opendaylight.protocol.pcep.impl.message.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv4ObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
@@ -319,7 +320,7 @@ public class PCEPObjectParserTest {
 		final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
 		final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
-		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
+		final PCEPEndPointsIpv4ObjectParser parser = new PCEPEndPointsIpv4ObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin");
 
 		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
@@ -341,7 +342,7 @@ public class PCEPObjectParserTest {
 		final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
-		final PCEPEndPointsObjectParser parser = new PCEPEndPointsObjectParser(this.tlvRegistry);
+		final PCEPEndPointsIpv6ObjectParser parser = new PCEPEndPointsIpv6ObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin");
 
 		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
