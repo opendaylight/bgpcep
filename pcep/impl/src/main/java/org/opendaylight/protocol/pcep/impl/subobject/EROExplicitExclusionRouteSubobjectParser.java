@@ -25,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.ExrsBuilder;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 
 public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
@@ -33,7 +32,6 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
-	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
 
 	private static final int TYPE_FLAG_F_OFFSET = 0;
 	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
@@ -131,18 +129,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 			final XROSubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject.getSubobjectType());
 
-			final byte[] valueBytes = serializer.serializeSubobject(subobject);
-
-			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
-
-			final byte typeBytes = (byte) (UnsignedBytes.checkedCast(serializer.getType()) | (subobject.isMandatory() ? 1 << 7 : 0));
-
-			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
-
-			bytes[0] = typeBytes;
-			bytes[1] = lengthBytes;
-			System.arraycopy(valueBytes, 0, bytes, SUB_HEADER_LENGTH, valueBytes.length);
-
+			final byte[] bytes = serializer.serializeSubobject(subobject);
 			finalLength += bytes.length;
 			result.add(bytes);
 		}

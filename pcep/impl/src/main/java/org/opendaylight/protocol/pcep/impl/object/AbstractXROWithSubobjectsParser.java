@@ -90,18 +90,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 			final XROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
-			final byte typeBytes = (byte) (UnsignedBytes.checkedCast(serializer.getType()) | (subobject.isMandatory() ? 1 << 7 : 0));
-
-			final byte[] valueBytes = serializer.serializeSubobject(subobject);
-
-			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
-
-			final byte[] bytes = new byte[valueBytes.length + SUB_HEADER_LENGTH];
-
-			bytes[0] = typeBytes;
-			bytes[1] = lengthBytes;
-			ByteArray.copyWhole(valueBytes, bytes, SUB_HEADER_LENGTH);
-
+			final byte[] bytes = serializer.serializeSubobject(subobject);
 			finalLength += bytes.length;
 			result.add(bytes);
 		}
