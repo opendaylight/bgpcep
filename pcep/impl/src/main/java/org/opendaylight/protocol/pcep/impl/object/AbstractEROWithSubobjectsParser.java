@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
@@ -90,16 +89,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
 
 			final EROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
-			final byte[] valueBytes = serializer.serializeSubobject(subobject);
-
-			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
-
-			final byte typeBytes = (byte) (UnsignedBytes.checkedCast(serializer.getType()) | (subobject.isLoose() ? 1 << 7 : 0));
-			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
-
-			bytes[0] = typeBytes;
-			bytes[1] = lengthBytes;
-			System.arraycopy(valueBytes, 0, bytes, SUB_HEADER_LENGTH, valueBytes.length);
+			final byte[] bytes = serializer.serializeSubobject(subobject);
 
 			finalLength += bytes.length;
 			result.add(bytes);

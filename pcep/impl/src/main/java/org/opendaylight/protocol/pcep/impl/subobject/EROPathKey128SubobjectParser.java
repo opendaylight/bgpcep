@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -65,7 +66,7 @@ public class EROPathKey128SubobjectParser implements EROSubobjectParser, EROSubo
 		final byte[] retBytes = new byte[PK_F_LENGTH + pceId.length];
 		System.arraycopy(ByteArray.shortToBytes((short) pathKey), 0, retBytes, PK_F_OFFSET, PK_F_LENGTH);
 		System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
-		return retBytes;
+		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
 
 	@Override

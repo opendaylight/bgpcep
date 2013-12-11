@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -66,7 +67,7 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
 		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-		return retBytes;
+		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
 
 	@Override

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -71,7 +72,7 @@ public class EROIpv4PrefixSubobjectParser implements EROSubobjectParser, EROSubo
 		final byte[] retBytes = new byte[CONTENT4_LENGTH];
 		ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, 0);
 		retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-		return retBytes;
+		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
 
 	@Override

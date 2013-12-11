@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -61,7 +62,7 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 		System.arraycopy(ByteArray.longToBytes(s.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
 				AS_NUMBER_LENGTH);
 
-		return retBytes;
+		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
 
 	@Override
