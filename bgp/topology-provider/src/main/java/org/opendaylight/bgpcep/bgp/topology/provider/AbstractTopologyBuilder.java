@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
@@ -55,7 +56,7 @@ TopologyReference {
 		this.idClass = Preconditions.checkNotNull(idClass);
 
 		final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
-		this.topology = InstanceIdentifier.builder(Topology.class, tk).toInstance();
+		this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).toInstance();
 
 		LOG.debug("Initiating topology builder from {} at {}", locRibReference, topology);
 
