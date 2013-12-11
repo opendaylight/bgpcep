@@ -154,7 +154,7 @@ TopologyReference {
 		try {
 			onLocRIBChange(trans, change);
 		} catch (final RuntimeException e) {
-			LOG.info("Data change {} was not completely propagated to listener {}", change, this, e);
+			LOG.warn("Data change {} was not completely propagated to listener {}", change, this, e);
 			return;
 		}
 
