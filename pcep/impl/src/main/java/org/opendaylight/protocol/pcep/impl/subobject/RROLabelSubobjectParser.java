@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import java.util.Arrays;
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
@@ -93,7 +94,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		reserved.set(G_FLAG_OFFSET, label.isGlobal());
 		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
 		retBytes[C_TYPE_F_OFFSET] = UnsignedBytes.checkedCast(parser.getType());
-		return retBytes;
+		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
 
 	@Override
