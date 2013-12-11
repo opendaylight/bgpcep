@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import java.util.Arrays;
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
@@ -96,7 +97,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		reserved.set(U_FLAG_OFFSET, label.isUniDirectional());
 		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
 		retBytes[C_TYPE_F_OFFSET] = UnsignedBytes.checkedCast(serializer.getType());
-		return retBytes;
+		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
 
 	@Override
