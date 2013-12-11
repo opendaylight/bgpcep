@@ -19,8 +19,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 
 /**
  *
@@ -51,7 +50,7 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		RibImplCloseable rib = new RibImplCloseable(getExtensionsDependency(), getDataProviderDependency());
+		RibImplCloseable rib = new RibImplCloseable(getRibId(), getExtensionsDependency(), getDataProviderDependency());
 		BGP bgp = getBgpDependency();
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
@@ -70,8 +69,8 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 	private static final class RibImplCloseable extends RIBImpl implements AutoCloseable {
 		private ListenerRegistration<BGPSessionListener> reg;
 
-		private RibImplCloseable(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
-			super(InstanceIdentifier.builder(LocRib.class).toInstance(), extensions, dps);
+		private RibImplCloseable(final RibId ribId, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+			super(ribId, extensions, dps);
 		}
 
 		@Override

@@ -566,7 +566,7 @@ module bgp-linkstate {
 		}
 	}
 
-	augment "/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+	augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
 		case linkstate-routes-case {
 			container linkstate-routes {
 				list linkstate-route {
