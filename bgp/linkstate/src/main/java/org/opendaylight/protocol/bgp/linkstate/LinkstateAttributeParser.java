@@ -90,7 +90,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	private static boolean verifyLink(final Set<Integer> keys) {
 		for (final Integer i : keys) {
 			if (!LINK_TLVS.contains(i)) {
-				LOG.warn("Invalid link attribute {}", i);
+				LOG.debug("Link attribute {} not found.", i);
 				return false;
 			}
 		}
@@ -100,7 +100,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	private static boolean verifyNode(final Set<Integer> keys) {
 		for (final Integer i : keys) {
 			if (!NODE_TLVS.contains(i)) {
-				LOG.warn("Invalid node attribute {}", i);
+				LOG.debug("Node attribute {} not found.", i);
 				return false;
 			}
 		}
@@ -110,7 +110,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	private static boolean verifyPrefix(final Set<Integer> keys) {
 		for (final Integer i : keys) {
 			if (!PREFIX_TLVS.contains(i)) {
-				LOG.warn("Invalid prefix attribute {}", i);
+				LOG.debug("Prefix attribute {} not found.", i);
 				return false;
 			}
 		}
