@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
@@ -72,15 +73,14 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 			throw new IllegalArgumentException("Unknown AbstractPrefix instance. Passed " + prefix.getClass() + ".");
 		}
 
-		if (prefix.getIpv4Prefix() != null) {
-			final byte[] retBytes = new byte[CONTENT4_LENGTH];
-			ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, IP_F_OFFSET);
-			retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-			retBytes[ATTRIBUTE4_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
-			return retBytes;
-		} else {
+		if (prefix.getIpv4Prefix() == null) {
 			return new XROIpv6PrefixSubobjectParser().serializeSubobject(subobject);
 		}
+		final byte[] retBytes = new byte[CONTENT4_LENGTH];
+		ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, IP_F_OFFSET);
+		retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
+		retBytes[ATTRIBUTE4_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
+		return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
 	}
 
 	@Override

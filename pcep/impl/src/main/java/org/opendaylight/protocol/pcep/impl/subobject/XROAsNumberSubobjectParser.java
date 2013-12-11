@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
@@ -56,7 +57,7 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 		final AsNumberSubobject obj = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
 		System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
 				AS_NUMBER_LENGTH);
-		return retBytes;
+		return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
 	}
 
 	@Override
