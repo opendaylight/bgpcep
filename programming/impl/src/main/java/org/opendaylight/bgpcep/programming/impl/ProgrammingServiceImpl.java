@@ -123,7 +123,7 @@ public final class ProgrammingServiceImpl implements InstructionScheduler, Progr
 		case Failed:
 		case Successful:
 		case Unknown:
-			LOG.debug("Instruction {} can no longer be cancelled due to status {}", input.getId());
+			LOG.debug("Instruction {} can no longer be cancelled due to status {}", input.getId(), i.getStatus());
 			return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder().setFailure(UncancellableInstruction.class).build());
 		case Queued:
 		case Scheduled:
