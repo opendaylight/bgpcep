@@ -197,28 +197,58 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final TopologyIdentifier topologyIdentifier, final LinkAttributes la) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.isis.link.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.isis.link.attributes.TedBuilder();
 
-		tb.setColor(la.getAdminGroup().getValue());
-		tb.setTeDefaultMetric(la.getTeMetric().getValue());
-		tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
-		tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
-		tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		if (la.getAdminGroup() != null) {
+			tb.setColor(la.getAdminGroup().getValue());
+		}
+		if (la.getTeMetric() != null) {
+			tb.setTeDefaultMetric(la.getTeMetric().getValue());
+		}
+		if (la.getUnreservedBandwidth() != null) {
+			tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+		}
+		if (la.getMaxLinkBandwidth() != null) {
+			tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+		}
+		if (la.getMaxReservableBandwidth() != null) {
+			tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		}
 
-		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1Builder().setIsisLinkAttributes(
-				new IsisLinkAttributesBuilder().setMultiTopologyId(topologyIdentifier.getValue().shortValue()).setTed(tb.build()).build()).build();
+		final IsisLinkAttributesBuilder ilab = new IsisLinkAttributesBuilder();
+		ilab.setTed(tb.build());
+		if (topologyIdentifier != null) {
+			ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
+		}
+
+		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1Builder().setIsisLinkAttributes(ilab.build()).build();
 	}
 
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1 ospfLinkAttributes(
 			final TopologyIdentifier topologyIdentifier, final LinkAttributes la) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.ospf.link.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.ospf.link.attributes.TedBuilder();
 
-		tb.setColor(la.getAdminGroup().getValue());
-		tb.setTeDefaultMetric(la.getTeMetric().getValue());
-		tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
-		tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
-		tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		if (la.getAdminGroup() != null) {
+			tb.setColor(la.getAdminGroup().getValue());
+		}
+		if (la.getTeMetric() != null) {
+			tb.setTeDefaultMetric(la.getTeMetric().getValue());
+		}
+		if (la.getUnreservedBandwidth() != null) {
+			tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+		}
+		if (la.getMaxLinkBandwidth() != null) {
+			tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+		}
+		if (la.getMaxReservableBandwidth() != null) {
+			tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		}
 
-		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1Builder().setOspfLinkAttributes(
-				new OspfLinkAttributesBuilder().setMultiTopologyId(topologyIdentifier.getValue().shortValue()).setTed(tb.build()).build()).build();
+		final OspfLinkAttributesBuilder ilab = new OspfLinkAttributesBuilder();
+		ilab.setTed(tb.build());
+		if (topologyIdentifier != null) {
+			ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
+		}
+
+		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1Builder().setOspfLinkAttributes(ilab.build()).build();
 	}
 
 	private void createLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkstateRoute value,
