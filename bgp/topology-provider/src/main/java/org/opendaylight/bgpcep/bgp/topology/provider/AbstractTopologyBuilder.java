@@ -95,6 +95,15 @@ TopologyReference {
 		return this.topology;
 	}
 
+	private void addIdentifier(final InstanceIdentifier<?> i, final String set, final Set<InstanceIdentifier<T>> out) {
+		final InstanceIdentifier<T> id = i.firstIdentifierOf(this.idClass);
+		if (id != null) {
+			out.add(id);
+		} else {
+			LOG.info("Identifier {} in {} set does not contain listening class {}, ignoring it", i, set, this.idClass);
+		}
+	}
+
 	@Override
 	public final void onLocRIBChange(final DataModification<InstanceIdentifier<?>, DataObject> trans,
 			final DataChangeEvent<InstanceIdentifier<?>, DataObject> event) {
@@ -102,13 +111,13 @@ TopologyReference {
 
 		final Set<InstanceIdentifier<T>> ids = new HashSet<>();
 		for (final InstanceIdentifier<?> i : event.getRemovedOperationalData()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
+			addIdentifier(i, "remove", ids);
 		}
 		for (final InstanceIdentifier<?> i : event.getUpdatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
+			addIdentifier(i, "update", ids);
 		}
 		for (final InstanceIdentifier<?> i : event.getCreatedOperationalData().keySet()) {
-			ids.add(Preconditions.checkNotNull(i.firstIdentifierOf(this.idClass)));
+			addIdentifier(i, "create", ids);
 		}
 
 		final Map<InstanceIdentifier<?>, DataObject> o = event.getOriginalOperationalData();
