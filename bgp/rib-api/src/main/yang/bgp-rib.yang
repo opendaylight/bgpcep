@@ -27,6 +27,10 @@ module bgp-rib {
                 reference "RFC4271";
         }
 
+	typedef rib-id {
+		type inet:uri;
+	}
+
 	grouping route {
 		container attributes {
 			uses bgp-msg:path-attributes;
@@ -76,8 +80,18 @@ module bgp-rib {
 		}
 	}
 
-	container loc-rib {
-		config false;
-		uses rib;
+	container bgp-rib {
+		list rib {
+			config false;
+
+			leaf id {
+				type rib-id;
+			}
+			key id;
+
+			container loc-rib {
+				uses rib;
+			}
+		}
 	}
 }

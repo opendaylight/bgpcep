@@ -5,6 +5,7 @@ module bgp-rib-impl {
     prefix "bgprib-impl";
 
     import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
+    import bgp-rib { prefix rib; revision-date 2013-09-25; }
     import config-bgp-rib { prefix bgprib; revision-date 2013-07-01; }
     import config-bgp-parser-spi { prefix bgpspi; revision-date 2013-11-15; }
     import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
@@ -232,6 +233,11 @@ module bgp-rib-impl {
                         config:required-identity mdsb:binding-data-broker;
                     }
                 }
+            }
+
+            leaf rib-id {
+                type rib:rib-id;
+                mandatory true;
             }
         }
     }

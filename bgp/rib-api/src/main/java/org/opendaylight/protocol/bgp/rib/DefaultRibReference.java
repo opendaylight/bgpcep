@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.bgp.rib;
 
 import org.opendaylight.protocol.concepts.DefaultInstanceReference;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  *
  */
-public class DefaultLocRibReference extends DefaultInstanceReference<LocRib> implements LocRibReference {
-	public DefaultLocRibReference(final InstanceIdentifier<LocRib> instanceIdentifier) {
+public class DefaultRibReference extends DefaultInstanceReference<Rib> implements RibReference {
+	public DefaultRibReference(final InstanceIdentifier<Rib> instanceIdentifier) {
 		super(instanceIdentifier);
 	}
 }

@@ -12,7 +12,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.protocol.bgp.rib.DefaultLocRibReference;
+import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -30,7 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -47,14 +50,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 @ThreadSafe
-public class RIBImpl extends DefaultLocRibReference {
+public class RIBImpl extends DefaultRibReference {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private static final Update EOR = new UpdateBuilder().build();
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
-	public RIBImpl(final InstanceIdentifier<LocRib> instanceIdentifier, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
-		super(instanceIdentifier);
+	public RIBImpl(final RibId ribId, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(ribId)).toInstance());
 		this.dps = Preconditions.checkNotNull(dps);
 		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, extensions);
 	}
@@ -63,7 +66,7 @@ public class RIBImpl extends DefaultLocRibReference {
 		final DataModificationTransaction trans = this.dps.beginTransaction();
 
 		if (EOR.equals(message)) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this,
 					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.markUptodate(trans, peer);
@@ -75,7 +78,7 @@ public class RIBImpl extends DefaultLocRibReference {
 
 		final WithdrawnRoutes wr = message.getWithdrawnRoutes();
 		if (wr != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this,
 					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.removeRoutes(
@@ -95,7 +98,7 @@ public class RIBImpl extends DefaultLocRibReference {
 		if (mpu != null) {
 			final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
 
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.removeRoutes(trans, peer, nlri);
 			} else {
@@ -105,7 +108,7 @@ public class RIBImpl extends DefaultLocRibReference {
 
 		final Nlri ar = message.getNlri();
 		if (ar != null) {
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans,
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this,
 					new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 			if (ari != null) {
 				ari.addRoutes(
@@ -126,7 +129,7 @@ public class RIBImpl extends DefaultLocRibReference {
 		if (mpr != null) {
 			final MpReachNlri nlri = mpr.getMpReachNlri();
 
-			final AdjRIBsIn ari = this.tables.getOrCreate(trans, new TablesKey(nlri.getAfi(), nlri.getSafi()));
+			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
 				ari.addRoutes(trans, peer, nlri, attrs);
 				if (message.equals(ari.endOfRib())) {

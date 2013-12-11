@@ -10,9 +10,10 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import java.util.Comparator;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 public interface AdjRIBsInFactory {
-	AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, Comparator<PathAttributes> comparator, TablesKey key);
+	AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, Comparator<PathAttributes> comparator, TablesKey key);
 }

@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.rib;
 
 import org.opendaylight.protocol.concepts.InstanceReference;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 
 /**
- * A reference to a LocRib instance.
+ * A reference to a Rib instance.
  */
-public interface LocRibReference extends InstanceReference<LocRib> {
+public interface RibReference extends InstanceReference<Rib> {
 
 }
