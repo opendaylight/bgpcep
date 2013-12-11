@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import java.util.Arrays;
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -79,7 +80,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
 		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-		return retBytes;
+		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
 
 	@Override

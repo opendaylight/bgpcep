@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
+import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -89,7 +90,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 		ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, IP_F_OFFSET);
 		retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS4_F_OFFSET);
-		return retBytes;
+		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
 
 	@Override

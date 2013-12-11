@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -61,7 +62,7 @@ public class RROPathKey128SubobjectParser implements RROSubobjectParser, RROSubo
 		final byte[] retBytes = new byte[PK_F_LENGTH + pceId.length];
 		System.arraycopy(ByteArray.shortToBytes((short) pathKey), 0, retBytes, PK_F_OFFSET, PK_F_LENGTH);
 		System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
-		return retBytes;
+		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
 
 	@Override

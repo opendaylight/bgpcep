@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
@@ -29,7 +28,6 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 
 	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
 	private static final int SUB_LENGTH_F_LENGTH = 1;
-	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
 
 	private static final int TYPE_FLAG_F_OFFSET = 0;
 	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
@@ -89,17 +87,7 @@ public abstract class AbstractRROWithSubobjectsParser implements ObjectParser, O
 
 			final RROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 
-			final byte[] valueBytes = serializer.serializeSubobject(subobject);
-
-			final byte[] bytes = new byte[SUB_HEADER_LENGTH + valueBytes.length];
-
-			final byte typeBytes = UnsignedBytes.checkedCast(serializer.getType());
-			final byte lengthBytes = UnsignedBytes.checkedCast(valueBytes.length + SUB_HEADER_LENGTH);
-
-			bytes[0] = typeBytes;
-			bytes[1] = lengthBytes;
-			System.arraycopy(valueBytes, 0, bytes, SUB_HEADER_LENGTH, valueBytes.length);
-
+			final byte[] bytes = serializer.serializeSubobject(subobject);
 			finalLength += bytes.length;
 			result.add(bytes);
 		}
