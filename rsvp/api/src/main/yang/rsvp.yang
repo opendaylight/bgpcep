@@ -33,29 +33,26 @@ module rsvp {
 	grouping attribute-filters {
 		leaf include-any {
 			type attribute-filter;
-			mandatory true;
 		}
 
 		leaf exclude-any {
 			type attribute-filter;
-			mandatory true;
 		}
 
 		leaf include-all {
 			type attribute-filter;
-			mandatory true;
 		}
 	}
 
 	grouping tunnel-attributes {
 		leaf hold-priority {
 			type uint8;
-			mandatory true;
+			default 0;
 		}
 
 		leaf setup-priority {
 			type uint8;
-			mandatory true;
+			default 0;
 		}
 
 		leaf local-protection-desired {
