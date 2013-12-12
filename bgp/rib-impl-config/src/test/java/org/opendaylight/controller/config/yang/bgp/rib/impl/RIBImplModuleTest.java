@@ -50,6 +50,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
+import com.google.common.collect.Lists;
+
 public class RIBImplModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "bgp-rib-impl";
@@ -156,7 +158,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "tcp-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null, executorModuleName,
 				"global-event-executor2");
 		mxBean.setTcpReconnectStrategy(reconnectStrategyON);
-		mxBean.setBgp(BGPImplModuleTest.createInstance(transaction, bgpModuleName, "bgp-impl1", "localhost", 1, sessionModuleName, dispatcherModuleName, threadgroupModuleName, ribExtensionsModuleName, extensionModuleName));
+		mxBean.setBgp(Lists.newArrayList(BGPImplModuleTest.createInstance(transaction, bgpModuleName, "bgp-impl1", "localhost", 1, sessionModuleName, dispatcherModuleName, threadgroupModuleName, ribExtensionsModuleName, extensionModuleName)));
 		mxBean.setExtensions(createRibExtensionsInstance(transaction, ribExtensionsModuleName, "rib-extensions-privider1"));
 		return nameCreated;
 	}

@@ -190,7 +190,7 @@ module bgp-rib-impl {
         case rib-impl {
             when "/config:modules/config:module/config:type = 'rib-impl'";
 
-            container bgp {
+            list bgp {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
