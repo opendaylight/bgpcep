@@ -9,6 +9,9 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -21,6 +24,8 @@ import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.LocRib;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
+import com.google.common.base.Preconditions;
 
 /**
  *
@@ -51,36 +56,41 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		RibImplCloseable rib = new RibImplCloseable(getExtensionsDependency(), getDataProviderDependency());
-		BGP bgp = getBgpDependency();
-		final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
+		final RibImplCloseable rib = new RibImplCloseable(getExtensionsDependency(), getDataProviderDependency());
 
-		ListenerRegistration<BGPSessionListener> reg = bgp
-				.registerUpdateListener(peer,
-						new ReconnectStrategyFactory() {
-					@Override
-					public ReconnectStrategy createReconnectStrategy() {
-						return getTcpReconnectStrategyDependency();
-					}
-				}, getSessionReconnectStrategyDependency());
-		rib.setListenerRegistration(reg);
+		final List<ListenerRegistration<BGPSessionListener>> regs = new ArrayList<>();
+		for (final BGP bgp : getBgpDependency()) {
+			final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
+
+			regs.add(Preconditions.checkNotNull(bgp
+					.registerUpdateListener(peer,
+							new ReconnectStrategyFactory() {
+						@Override
+						public ReconnectStrategy createReconnectStrategy() {
+							return getTcpReconnectStrategyDependency();
+						}
+					}, getSessionReconnectStrategyDependency())));
+		}
+		rib.setListenerRegistrations(regs);
 		return rib;
 	}
 
 	private static final class RibImplCloseable extends RIBImpl implements AutoCloseable {
-		private ListenerRegistration<BGPSessionListener> reg;
+		private List<ListenerRegistration<BGPSessionListener>> regs;
 
 		private RibImplCloseable(final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
 			super(InstanceIdentifier.builder(LocRib.class).toInstance(), extensions, dps);
 		}
 
 		@Override
-		public void close() throws Exception {
-			reg.close();
+		public void close() {
+			for (ListenerRegistration<BGPSessionListener> r : regs) {
+				r.close();
+			}
 		}
 
-		public void setListenerRegistration(final ListenerRegistration<BGPSessionListener> reg) {
-			this.reg = reg;
+		public void setListenerRegistrations(final List<ListenerRegistration<BGPSessionListener>> regs) {
+			this.regs = Preconditions.checkNotNull(regs);
 		}
 	}
 }
