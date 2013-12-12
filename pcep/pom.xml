@@ -32,6 +32,8 @@
         <module>tunnel-api</module>
         <module>tunnel-provider</module>
         <module>tunnel-provider-config</module>
+
+        <module>controller-config</module>
     </modules>
 
     <dependencyManagement>

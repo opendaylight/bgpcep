@@ -39,6 +39,8 @@
         <module>util</module>
         <module>update-api-config</module>
         <module>update-mock-config</module>
+
+        <module>controller-config</module>
     </modules>
 
     <dependencyManagement>
