@@ -17,11 +17,9 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
-import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelFailure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatusChangedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.UncancellableInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.DetailsBuilder;
@@ -36,21 +34,21 @@ import com.google.common.util.concurrent.SettableFuture;
 final class InstructionImpl implements Instruction {
 	private static final Logger LOG = LoggerFactory.getLogger(InstructionImpl.class);
 	private final List<InstructionImpl> dependants = new ArrayList<>();
-	private SettableFuture<ExecutionResult<Details>> executionFuture;
 	private final SettableFuture<Instruction> schedulingFuture;
 	private final List<InstructionImpl> dependencies;
-	private final NotificationProviderService notifs;
+	private final QueueInstruction queue;
 	private final InstructionId id;
-	private volatile InstructionStatus status = InstructionStatus.Queued;
+	private SettableFuture<ExecutionResult<Details>> executionFuture;
+	private InstructionStatus status = InstructionStatus.Queued;
 	private Details heldUpDetails;
 	private Timeout timeout;
 
-	InstructionImpl(final SettableFuture<Instruction> future, final InstructionId id, final List<InstructionImpl> dependencies, final Timeout timeout, final NotificationProviderService notifs) {
+	InstructionImpl(final QueueInstruction queue, final SettableFuture<Instruction> future, final InstructionId id, final List<InstructionImpl> dependencies, final Timeout timeout) {
 		this.schedulingFuture = Preconditions.checkNotNull(future);
-		this.id = Preconditions.checkNotNull(id);
 		this.dependencies = Preconditions.checkNotNull(dependencies);
 		this.timeout = Preconditions.checkNotNull(timeout);
-		this.notifs = Preconditions.checkNotNull(notifs);
+		this.queue = Preconditions.checkNotNull(queue);
+		this.id = Preconditions.checkNotNull(id);
 	}
 
 	InstructionId getId() {
@@ -67,7 +65,7 @@ final class InstructionImpl implements Instruction {
 		LOG.debug("Instruction {} transitioned to status {}", id, status);
 
 		// Send out a notification
-		this.notifs.publish(new InstructionStatusChangedBuilder().setId(id).setStatus(status).setDetails(details).build());
+		this.queue.instructionUpdated(status, details);
 
 		switch (status) {
 		case Cancelled:
