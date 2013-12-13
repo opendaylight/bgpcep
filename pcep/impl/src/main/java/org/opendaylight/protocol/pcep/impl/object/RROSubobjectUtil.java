@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.primitives.UnsignedBytes;
 
-public class RROSubobjectUtil {
+public final class RROSubobjectUtil {
 	private static final int HEADER_SIZE = 2;
 
 	private RROSubobjectUtil() {

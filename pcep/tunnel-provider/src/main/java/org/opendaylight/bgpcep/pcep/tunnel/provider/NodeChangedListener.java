@@ -245,7 +245,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		trans.putOperationalData(linkForLsp(id), lb.build());
 	}
 
-	private final InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
+	private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
 		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).toInstance();
 	}
 

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Starter class for testing.
  */
-public class Main {
+public final class Main {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 

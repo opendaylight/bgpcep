@@ -64,7 +64,7 @@ final class UriBuilder {
 	}
 
 	@Override
-	public final String toString() {
+	public String toString() {
 		final String ret = sb.toString();
 		LOG.trace("New URI {}", ret);
 		return ret;

@@ -29,7 +29,7 @@ import com.google.common.primitives.UnsignedBytes;
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
 	public static final int TYPE = 3;
 
-	private static final Logger logger = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
 
 	private static final int ERROR_SIZE = 2;
 
@@ -46,7 +46,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		}
 
 		final Notify ntf = (Notify) msg;
-		logger.trace("Started serializing Notification message: {}", ntf);
+		LOG.trace("Started serializing Notification message: {}", ntf);
 
 		final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];
 
@@ -59,7 +59,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		}
 
 		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-		logger.trace("Notification message serialized to: {}", Arrays.toString(ret));
+		LOG.trace("Notification message serialized to: {}", Arrays.toString(ret));
 		return ret;
 	}
 
@@ -75,7 +75,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		if (body == null) {
 			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
-		logger.trace("Started parsing of notification message: {}", Arrays.toString(body));
+		LOG.trace("Started parsing of notification message: {}", Arrays.toString(body));
 
 		if (body.length < ERROR_SIZE) {
 			throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
@@ -87,7 +87,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		if (body.length > ERROR_SIZE) {
 			data = ByteArray.subByte(body, ERROR_SIZE, body.length - ERROR_SIZE);
 		}
-		logger.trace("Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
+		LOG.trace("Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
 				Arrays.toString(data));
 		final NotifyBuilder builder = new NotifyBuilder().setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
 		if (data != null) {

@@ -124,7 +124,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		return stpb.build();
 	}
 
-	private final TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
+	private TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
 		// Order of preference: Unnumbered first, then IP
 		if (bs != null) {
 			final long id = UnsignedInteger.fromIntBits(ByteArray.bytesToInt(bs)).longValue();

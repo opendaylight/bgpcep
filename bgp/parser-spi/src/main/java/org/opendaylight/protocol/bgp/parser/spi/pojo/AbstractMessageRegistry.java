@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.primitives.UnsignedBytes;
 
 abstract class AbstractMessageRegistry implements MessageRegistry {
-	private static final Logger logger = LoggerFactory.getLogger(AbstractMessageRegistry.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageRegistry.class);
 
 	private static final byte[] MARKER;
 
@@ -32,7 +32,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 
 	static {
 		MARKER = new byte[MessageUtil.MARKER_LENGTH];
-		Arrays.fill(MARKER, (byte) 0xff);
+		Arrays.fill(MARKER, UnsignedBytes.MAX_VALUE);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 					+ (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
 		}
 
-		logger.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
+		LOG.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
 
 		final Notification msg = parseBody(messageType, msgBody, messageLength);
 		if (msg == null) {
@@ -79,14 +79,14 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 			throw new IllegalArgumentException("BGPMessage is mandatory.");
 		}
 
-		logger.trace("Serializing {}", message);
+		LOG.trace("Serializing {}", message);
 
 		final byte[] ret = serializeMessageImpl(message);
 		if (ret == null) {
 			throw new IllegalArgumentException("Unknown instance of BGPMessage. Passed " + message.getClass());
 		}
 
-		logger.trace("Serialized BGP message {}.", Arrays.toString(ret));
+		LOG.trace("Serialized BGP message {}.", Arrays.toString(ret));
 		return ret;
 	}
 }

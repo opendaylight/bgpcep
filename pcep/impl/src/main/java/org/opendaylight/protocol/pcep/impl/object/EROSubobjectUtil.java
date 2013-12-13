@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.primitives.UnsignedBytes;
 
-public class EROSubobjectUtil {
+public final class EROSubobjectUtil {
 
 	private static final int HEADER_SIZE = 2;
 

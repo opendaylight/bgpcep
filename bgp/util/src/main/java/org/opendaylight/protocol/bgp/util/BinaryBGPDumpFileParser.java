@@ -26,10 +26,8 @@ import com.google.common.primitives.UnsignedBytes;
  */
 @Immutable
 public final class BinaryBGPDumpFileParser {
-
-	private static final Logger logger = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BinaryBGPDumpFileParser.class);
 	private static final int MINIMAL_LENGTH = 19;
-
 	private static final int MARKER_LENGTH = 16;
 
 	private BinaryBGPDumpFileParser() {
@@ -78,7 +76,7 @@ public final class BinaryBGPDumpFileParser {
 			}
 
 		}
-		logger.info("Succesfully extracted {} messages", messages.size());
+		LOG.info("Succesfully extracted {} messages", messages.size());
 		return messages;
 	}
 }
