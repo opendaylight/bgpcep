@@ -37,11 +37,11 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
+			<artifactId>bgp-parser-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-parser-api</artifactId>
+			<artifactId>bgp-parser-spi</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -107,6 +107,11 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+            <scope>test</scope>
 		</dependency>
 	</dependencies>
 

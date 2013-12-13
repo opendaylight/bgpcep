@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
         <dependency>
