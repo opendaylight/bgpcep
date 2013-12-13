@@ -37,7 +37,7 @@ import com.google.common.base.Preconditions;
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
 
-	private static Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
 
 	/**
 	 * Size of the withdrawn_routes_length field, in bytes.

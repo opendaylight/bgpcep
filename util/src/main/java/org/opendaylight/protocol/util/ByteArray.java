@@ -445,7 +445,7 @@ public final class ByteArray {
 		return -1;
 	}
 
-	private static byte MASK_BITS[] = new byte[] { 0, -128, -64, -32, -16, -8, -4, -2 };
+	private static final byte MASK_BITS[] = new byte[] { 0, -128, -64, -32, -16, -8, -4, -2 };
 
 	public static byte[] maskBytes(final byte[] original, final int bits) {
 		if (original.length * Byte.SIZE < bits) {
