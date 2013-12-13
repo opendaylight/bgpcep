@@ -39,6 +39,14 @@ module config-programming-impl {
         case instruction-scheduler-impl {
             when "/config:modules/config:module/config:type = 'instruction-scheduler-impl'";
 
+            container data-provider {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsal:binding-data-broker;
+                    }
+                }
+            }
             container notification-service {
                 uses config:service-ref {
                     refine type {
