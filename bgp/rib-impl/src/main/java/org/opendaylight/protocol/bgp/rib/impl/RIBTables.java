@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -27,7 +28,7 @@ final class RIBTables {
 		return tables.get(key);
 	}
 
-	public synchronized AdjRIBsIn getOrCreate(final DataModificationTransaction trans, final TablesKey key) {
+	public synchronized AdjRIBsIn getOrCreate(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
 		if (tables.containsKey(key)) {
 			return tables.get(key);
 		}
@@ -37,7 +38,7 @@ final class RIBTables {
 			return null;
 		}
 
-		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, comparator, key));
+		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, rib, comparator, key));
 		tables.put(key, table);
 		return table;
 	}

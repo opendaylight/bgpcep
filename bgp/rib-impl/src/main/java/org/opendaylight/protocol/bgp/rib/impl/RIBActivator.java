@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
@@ -30,14 +31,14 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 		return Lists.newArrayList(
 				context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 					@Override
-					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
-						return new Ipv4AdjRIBsIn(trans, comparator, key);
+					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
+						return new Ipv4AdjRIBsIn(trans, rib, comparator, key);
 					}
 				}),
 				context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 					@Override
-					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
-						return new Ipv6AdjRIBsIn(trans, comparator, key);
+					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
+						return new Ipv6AdjRIBsIn(trans, rib, comparator, key);
 					}
 				}));
 	}

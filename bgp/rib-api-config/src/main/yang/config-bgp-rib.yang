@@ -32,7 +32,7 @@ module config-bgp-rib {
              registration of listeners.";
 
         base "config:service-type";
-        config:java-class "org.opendaylight.protocol.bgp.rib.LocRibReference";
+        config:java-class "org.opendaylight.protocol.bgp.rib.RibReference";
     }
 }
 

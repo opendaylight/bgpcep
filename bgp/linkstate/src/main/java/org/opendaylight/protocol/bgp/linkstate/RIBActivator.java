@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
@@ -27,8 +28,8 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 	protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
 		return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
 			@Override
-			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final Comparator<PathAttributes> comparator, final TablesKey key) {
-				return new LinkstateAdjRIBsIn(trans, comparator, key);
+			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
+				return new LinkstateAdjRIBsIn(trans, rib, comparator, key);
 			}
 		}));
 	}
