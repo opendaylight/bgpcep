@@ -8,21 +8,21 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.as4.bytes._case.As4BytesCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.multiprotocol._case.MultiprotocolCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 import com.google.common.collect.Lists;
 
@@ -39,20 +39,18 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
 	private final BGPSessionPreferences prefs;
 
-	public BGPSessionProposalImpl(final short holdTimer, final int as, final Ipv4Address bgpId) {
+	public BGPSessionProposalImpl(final short holdTimer, final int as, final Ipv4Address bgpId,
+			final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables) {
 		this.holdTimer = holdTimer;
 		this.as = as;
 		this.bgpId = bgpId;
 
-		// FIXME: BUG-199: the reference to linkstate should be moved to config subsystem!
 		final List<BgpParameters> tlvs = Lists.newArrayList();
-		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
-		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
-								LinkstateSubsequentAddressFamily.class).build()).build()).build());
+		for (final Entry<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> e : tables.entrySet()) {
+			tlvs.add(new BgpParametersBuilder().setCParameters(
+					new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+							new MultiprotocolCapabilityBuilder().setAfi(e.getKey()).setSafi(e.getValue()).build()).build()).build());
+		}
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new As4BytesCaseBuilder().setAs4BytesCapability(
 						new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) as)).build()).build()).build());

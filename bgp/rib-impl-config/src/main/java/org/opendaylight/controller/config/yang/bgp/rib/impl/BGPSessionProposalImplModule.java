@@ -9,6 +9,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,63 +19,60 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 /**
 *
 */
-public final class BGPSessionProposalImplModule
-		extends
+public final class BGPSessionProposalImplModule extends
 		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPSessionProposalImplModule {
 
-	public BGPSessionProposalImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+	public BGPSessionProposalImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
-	public BGPSessionProposalImplModule(
-			org.opendaylight.controller.config.api.ModuleIdentifier name,
-			org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			BGPSessionProposalImplModule oldModule,
-			java.lang.AutoCloseable oldInstance) {
+	public BGPSessionProposalImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+			final BGPSessionProposalImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
 	public void validate() {
 		super.validate();
-		JmxAttributeValidationException.checkNotNull(getBgpId(),
-				"value is not set.", bgpIdJmxAttribute);
-		JmxAttributeValidationException.checkCondition(
-				isValidIPv4Address(getBgpId()), "value " + getBgpId()
-						+ " is not valid IPv4 address", bgpIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getBgpId(), "value is not set.", this.bgpIdJmxAttribute);
+		JmxAttributeValidationException.checkCondition(isValidIPv4Address(getBgpId()),
+				"value " + getBgpId() + " is not valid IPv4 address", this.bgpIdJmxAttribute);
 
-		JmxAttributeValidationException.checkNotNull(getAsNumber(),
-				"value is not set.", asNumberJmxAttribute);
-		JmxAttributeValidationException.checkCondition(getAsNumber() >= 0,
-				"value must be greather than 0", asNumberJmxAttribute);
-		
-		JmxAttributeValidationException.checkNotNull(getHoldtimer(),
-				"value is not set.", holdtimerJmxAttribute);
-		JmxAttributeValidationException.checkCondition((getHoldtimer() == 0) || (getHoldtimer() >= 3),
-				"value must be 0 or 3 and more", holdtimerJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getAsNumber(), "value is not set.", this.asNumberJmxAttribute);
+		JmxAttributeValidationException.checkCondition(getAsNumber() >= 0, "value must be greather than 0", this.asNumberJmxAttribute);
+
+		JmxAttributeValidationException.checkNotNull(getHoldtimer(), "value is not set.", this.holdtimerJmxAttribute);
+		JmxAttributeValidationException.checkCondition((getHoldtimer() == 0) || (getHoldtimer() >= 3), "value must be 0 or 3 and more",
+				this.holdtimerJmxAttribute);
 	}
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		final Ipv4Address bgpId = new Ipv4Address(getBgpId());
-		final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(
-				getHoldtimer(), getAsNumber(), bgpId);
+		final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
+		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(getHoldtimer(), getAsNumber(), bgpId, tables);
 		return new BgpSessionProposalCloseable(bgpSessionProposal);
 	}
 
-	private static final class BgpSessionProposalCloseable implements
-			BGPSessionProposal, AutoCloseable {
+	private static final class BgpSessionProposalCloseable implements BGPSessionProposal, AutoCloseable {
 
 		private final BGPSessionProposalImpl inner;
 
-		public BgpSessionProposalCloseable(
-				BGPSessionProposalImpl bgpSessionProposal) {
+		public BgpSessionProposalCloseable(final BGPSessionProposalImpl bgpSessionProposal) {
 			this.inner = bgpSessionProposal;
 		}
 
@@ -84,13 +83,13 @@ public final class BGPSessionProposalImplModule
 
 		@Override
 		public BGPSessionPreferences getProposal() {
-			return inner.getProposal();
+			return this.inner.getProposal();
 		}
 	}
 
 	private boolean isValidIPv4Address(final String address) {
-		Pattern pattern = Pattern.compile(Ipv4Address.PATTERN_CONSTANTS.get(0));
-		Matcher matcher = pattern.matcher(address);
+		final Pattern pattern = Pattern.compile(Ipv4Address.PATTERN_CONSTANTS.get(0));
+		final Matcher matcher = pattern.matcher(address);
 		return matcher.matches();
 	}
 }

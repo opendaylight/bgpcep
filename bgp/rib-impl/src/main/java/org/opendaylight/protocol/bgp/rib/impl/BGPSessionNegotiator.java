@@ -25,8 +25,6 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -34,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +112,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 			public void run(final Timeout timeout) throws Exception {
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
-						BGPSessionNegotiator.this.writeMessage(new NotifyBuilder().setErrorCode(
-								BGPError.HOLD_TIMER_EXPIRED.getCode()).setErrorSubcode(BGPError.HOLD_TIMER_EXPIRED.getSubcode()).build());
+						BGPSessionNegotiator.this.writeMessage(new NotifyBuilder().setErrorCode(BGPError.HOLD_TIMER_EXPIRED.getCode()).setErrorSubcode(
+								BGPError.HOLD_TIMER_EXPIRED.getSubcode()).build());
 						negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
 						BGPSessionNegotiator.this.state = State.Finished;
 					}
@@ -156,8 +152,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 		// Catch-all for unexpected message
 		LOG.warn("Channel {} state {} unexpected message {}", this.channel, this.state, msg);
-		this.writeMessage(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(
-				BGPError.FSM_ERROR.getSubcode()).build());
+		this.writeMessage(new NotifyBuilder().setErrorCode(BGPError.FSM_ERROR.getCode()).setErrorSubcode(BGPError.FSM_ERROR.getSubcode()).build());
 		negotiationFailed(new BGPDocumentedException("Unexpected message", BGPError.FSM_ERROR));
 		this.state = State.Finished;
 	}
@@ -165,26 +160,19 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	private void handleOpen(final Open openObj) {
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
 		if (prefs != null && !prefs.isEmpty()) {
-			for (final BgpParameters param : openObj.getBgpParameters()) {
-				final CParameters cap = param.getCParameters();
-				// FIXME: BUG-199: the reference to linkstate should be moved to config subsystem!
-
-				if (cap instanceof MultiprotocolCase
-						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getAfi() == LinkstateAddressFamily.class
-						&& ((MultiprotocolCase) cap).getMultiprotocolCapability().getSafi() == LinkstateSubsequentAddressFamily.class) {
-					this.remotePref = openObj;
-					this.writeMessage(new KeepaliveBuilder().build());
-					this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
-					this.state = State.OpenConfirm;
-					LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
-					return;
-				}
+			if (prefs.containsAll(this.localPref.getParams())) {
+				this.remotePref = openObj;
+				this.writeMessage(new KeepaliveBuilder().build());
+				this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+				this.state = State.OpenConfirm;
+				LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+				return;
 			}
 		}
 		final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
 				BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
 		this.writeMessage(ntf);
-		negotiationFailed(new BGPDocumentedException("Linkstate capability is not configured on router. Check the configuration of BGP speaker.", BGPError.forValue(
+		negotiationFailed(new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.forValue(
 				ntf.getErrorCode(), ntf.getErrorSubcode())));
 		this.state = State.Finished;
 	}

@@ -12,6 +12,8 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -21,6 +23,12 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +97,11 @@ public final class Main {
 
 		final BGPSessionListener sessionListener = new TestingListener();
 
-		final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as.getValue().intValue(), new Ipv4Address("25.25.25.2"));
+		final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
+		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+
+		final BGPSessionProposalImpl prop = new BGPSessionProposalImpl(holdTimerValue, as.getValue().intValue(), new Ipv4Address("25.25.25.2"), tables);
 
 		final BGPSessionPreferences proposal = prop.getProposal();
 
