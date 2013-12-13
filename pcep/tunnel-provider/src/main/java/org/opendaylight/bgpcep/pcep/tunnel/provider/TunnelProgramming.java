@@ -10,8 +10,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.bgpcep.pcep.topology.spi.AbstractTopologyProgrammingExecutor;
-import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
+import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
@@ -32,8 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.FailureCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
@@ -211,9 +208,10 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	@Override
 	public ListenableFuture<RpcResult<PcepCreateP2pTunnelOutput>> pcepCreateP2pTunnel(final PcepCreateP2pTunnelInput input) {
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final PcepCreateP2pTunnelOutputBuilder b = new PcepCreateP2pTunnelOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 
 				final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
@@ -252,13 +250,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 							}
 						});
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final PcepCreateP2pTunnelOutputBuilder b = new PcepCreateP2pTunnelOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<PcepCreateP2pTunnelOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
@@ -272,9 +264,10 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	@Override
 	public ListenableFuture<RpcResult<PcepDestroyTunnelOutput>> pcepDestroyTunnel(final PcepDestroyTunnelInput input) {
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final PcepDestroyTunnelOutputBuilder b = new PcepDestroyTunnelOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 				final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
@@ -301,13 +294,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 							}
 						});
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final PcepDestroyTunnelOutputBuilder b = new PcepDestroyTunnelOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<PcepDestroyTunnelOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
@@ -315,9 +302,11 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 	@Override
 	public ListenableFuture<RpcResult<PcepUpdateTunnelOutput>> pcepUpdateTunnel(final PcepUpdateTunnelInput input) {
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final PcepUpdateTunnelOutputBuilder b = new PcepUpdateTunnelOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
+
 				final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 				final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
@@ -354,13 +343,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 							}
 						});
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final PcepUpdateTunnelOutputBuilder b = new PcepUpdateTunnelOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<PcepUpdateTunnelOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);

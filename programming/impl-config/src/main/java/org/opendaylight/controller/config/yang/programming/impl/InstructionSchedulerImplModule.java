@@ -12,13 +12,14 @@ package org.opendaylight.controller.config.yang.programming.impl;
 import java.util.concurrent.Executors;
 
 import org.opendaylight.bgpcep.programming.impl.ProgrammingServiceImpl;
-import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
+import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
+import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -68,8 +69,8 @@ org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSche
 			}
 
 			@Override
-			public Failure submitInstruction(final SubmitInstructionInput input, final InstructionExecutor executor) {
-				return inst.submitInstruction(input, executor);
+			public ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
+				return inst.scheduleInstruction(input);
 			}
 		}
 

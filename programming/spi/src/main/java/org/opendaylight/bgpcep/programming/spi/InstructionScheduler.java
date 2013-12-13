@@ -8,8 +8,21 @@
 package org.opendaylight.bgpcep.programming.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 public interface InstructionScheduler {
-	Failure submitInstruction(SubmitInstructionInput input, InstructionExecutor executor);
+	/**
+	 * Schedule a new instruction for execution. This method tries to enqueue
+	 * an instruction. It will return a Future which represents the scheduling
+	 * progress. When the future becomes successful, the requestor is expected
+	 * to start executing on the instruction, as specified by the {@link Instruction}
+	 * contract.
+	 * 
+	 * @param input Instruction scheduling information
+	 * @return Scheduling future.
+	 * 
+	 * @throws SchedulerException if a failure to schedule the instruction occurs.
+	 */
+	ListenableFuture<Instruction> scheduleInstruction(SubmitInstructionInput input) throws SchedulerException;
 }

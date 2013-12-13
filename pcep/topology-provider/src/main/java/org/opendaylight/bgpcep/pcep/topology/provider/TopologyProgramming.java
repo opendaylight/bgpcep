@@ -7,12 +7,9 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import org.opendaylight.bgpcep.pcep.topology.spi.AbstractTopologyProgrammingExecutor;
-import org.opendaylight.bgpcep.programming.spi.InstructionExecutor;
+import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.FailureCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.submit.instruction.output.result.failure._case.Failure;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.SubmitAddLspOutput;
@@ -51,18 +48,13 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		Preconditions.checkArgument(input.getNode() != null);
 		Preconditions.checkArgument(input.getName() != null);
 
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final SubmitAddLspOutputBuilder b = new SubmitAddLspOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			public ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				return TopologyProgramming.this.manager.realAddLsp(input);
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final SubmitAddLspOutputBuilder b = new SubmitAddLspOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<SubmitAddLspOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
@@ -73,18 +65,13 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		Preconditions.checkArgument(input.getNode() != null);
 		Preconditions.checkArgument(input.getName() != null);
 
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final SubmitRemoveLspOutputBuilder b = new SubmitRemoveLspOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				return TopologyProgramming.this.manager.realRemoveLsp(input);
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final SubmitRemoveLspOutputBuilder b = new SubmitRemoveLspOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<SubmitRemoveLspOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
@@ -95,18 +82,13 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		Preconditions.checkArgument(input.getNode() != null);
 		Preconditions.checkArgument(input.getName() != null);
 
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final SubmitUpdateLspOutputBuilder b = new SubmitUpdateLspOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				return TopologyProgramming.this.manager.realUpdateLsp(input);
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final SubmitUpdateLspOutputBuilder b = new SubmitUpdateLspOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<SubmitUpdateLspOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
@@ -120,18 +102,13 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		Preconditions.checkArgument(input.getArguments() != null);
 		Preconditions.checkArgument(input.getArguments().getOperational() != null);
 
-		final InstructionExecutor e = new AbstractTopologyProgrammingExecutor() {
+		final SubmitEnsureLspOperationalOutputBuilder b = new SubmitEnsureLspOperationalOutputBuilder();
+		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
-			protected ListenableFuture<OperationResult> executeImpl() {
+			protected ListenableFuture<OperationResult> invokeOperation() {
 				return TopologyProgramming.this.manager.realEnsureLspOperational(new EnsureLspOperationalInputBuilder(input).build());
 			}
-		};
-
-		final Failure f = this.scheduler.submitInstruction(input, e);
-		final SubmitEnsureLspOperationalOutputBuilder b = new SubmitEnsureLspOperationalOutputBuilder();
-		if (f != null) {
-			b.setResult(new FailureCaseBuilder().setFailure(f).build());
-		}
+		}));
 
 		final RpcResult<SubmitEnsureLspOperationalOutput> res = SuccessfulRpcResult.create(b.build());
 		return Futures.immediateFuture(res);
