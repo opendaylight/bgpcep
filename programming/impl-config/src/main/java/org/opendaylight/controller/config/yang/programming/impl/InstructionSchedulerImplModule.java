@@ -50,7 +50,7 @@ org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSche
 	public java.lang.AutoCloseable createInstance() {
 		final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getNotificationServiceDependency(), exec, getTimerDependency());
+		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency());
 
 		final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
 

@@ -340,7 +340,7 @@ module programming {
 	}
 
 	container instruction-queue {
-		list instructions {
+		list instruction {
 			leaf id {
 				type instruction-id;
 				mandatory true;
