@@ -108,7 +108,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<LspaBuild
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 		flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

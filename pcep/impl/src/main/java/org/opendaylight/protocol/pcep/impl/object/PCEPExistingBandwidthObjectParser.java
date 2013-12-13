@@ -7,7 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import java.util.Arrays;
+
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 
 /**
@@ -19,8 +22,19 @@ public class PCEPExistingBandwidthObjectParser extends AbstractBandwidthParser {
 
 	public static final int TYPE = 2;
 
+	private static final int BANDWIDTH_LENGTH = 4;
+
 	public PCEPExistingBandwidthObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
+	}
+
+	@Override
+	public byte[] serializeObject(final Object object) {
+		if (!(object instanceof Bandwidth)) {
+			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
+		}
+		final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

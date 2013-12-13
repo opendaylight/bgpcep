@@ -59,7 +59,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 			result[FLAGS_OFFSET] = 1;
 		}
 		ByteArray.copyWhole(bytes, result, FLAGS_OFFSET + 1);
-		return result;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), result);
 	}
 
 	@Override

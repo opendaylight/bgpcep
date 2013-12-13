@@ -73,7 +73,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 		final byte[] retBytes = new byte[SIZE];
 		retBytes[MAX_LSP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxLsp());
 		ByteArray.copyWhole(specObj.getMinBandwidth().getValue(), retBytes, MIN_BAND_F_OFFSET);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

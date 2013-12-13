@@ -37,19 +37,13 @@ abstract class AbstractMessageParser implements MessageParser, MessageSerializer
 	private static final int OT_FLAGS_MF_LENGTH = 1;
 	private static final int OBJ_LENGTH_F_LENGTH = 2;
 
-	private static final int OC_F_OFFSET = 0;
-	private static final int OT_FLAGS_MF_OFFSET = OC_F_OFFSET + OC_F_LENGTH;
-	private static final int OBJ_LENGTH_F_OFFSET = OT_FLAGS_MF_OFFSET + OT_FLAGS_MF_LENGTH;
-
 	private static final int OT_SF_LENGTH = 4;
 	private static final int FLAGS_SF_LENGTH = 4;
-
 	/*
 	 * offsets of fields inside of multi-field in bits
 	 */
 	private static final int OT_SF_OFFSET = 0;
 	private static final int FLAGS_SF_OFFSET = OT_SF_OFFSET + OT_SF_LENGTH;
-
 	/*
 	 * flags offsets inside multi-filed
 	 */
@@ -69,27 +63,7 @@ abstract class AbstractMessageParser implements MessageParser, MessageSerializer
 
 		final ObjectSerializer serializer = this.registry.getObjectSerializer(object);
 
-		final byte[] valueBytes = serializer.serializeObject(object);
-
-		final byte[] retBytes = new byte[COMMON_OBJECT_HEADER_LENGTH + valueBytes.length];
-
-		// objClass
-		retBytes[OC_F_OFFSET] = UnsignedBytes.checkedCast(serializer.getObjectClass());
-
-		// objType_flags multi-field
-		retBytes[OT_FLAGS_MF_OFFSET] = UnsignedBytes.checkedCast(serializer.getObjectType() << (Byte.SIZE - OT_SF_LENGTH));
-		if (object.isProcessingRule() != null && object.isProcessingRule()) {
-			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (P_FLAG_OFFSET) - 1;
-		}
-		if (object.isIgnore() != null && object.isIgnore()) {
-			retBytes[OT_FLAGS_MF_OFFSET] |= 1 << Byte.SIZE - (I_FLAG_OFFSET) - 1;
-		}
-
-		// objLength
-		System.arraycopy(ByteArray.intToBytes(valueBytes.length + COMMON_OBJECT_HEADER_LENGTH, OBJ_LENGTH_F_LENGTH), 0, retBytes,
-				OBJ_LENGTH_F_OFFSET, OBJ_LENGTH_F_LENGTH);
-
-		ByteArray.copyWhole(valueBytes, retBytes, COMMON_OBJECT_HEADER_LENGTH);
+		final byte[] retBytes = serializer.serializeObject(object);
 		return retBytes;
 	}
 

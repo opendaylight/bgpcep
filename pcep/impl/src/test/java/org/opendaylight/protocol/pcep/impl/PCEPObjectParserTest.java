@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -27,6 +26,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv4ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPEndPointsIpv6ObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPErrorObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExcludeRouteObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPExistingBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
@@ -149,7 +149,7 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().setStateful(
 				tlv1).setPredundancyGroupId(tlv3).setLspDbVersion(tlv2).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -163,7 +163,7 @@ public class PCEPObjectParserTest {
 		builder.setIgnore(false);
 		builder.setReason((short) 5);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -178,7 +178,7 @@ public class PCEPObjectParserTest {
 		builder.setMaxLsp((short) UnsignedBytes.toInt((byte) 0xf1));
 		builder.setMinBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -202,7 +202,7 @@ public class PCEPObjectParserTest {
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.SymbolicPathName("Med".getBytes())).build();
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.lsp.TlvsBuilder().setLspErrorCode(
 				tlv1).setSymbolicPathName(tlv2).build());
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -228,7 +228,7 @@ public class PCEPObjectParserTest {
 						new UnnumberedBuilder().setRouterId(0xffffffffL).setInterfaceId(0xffffffffL).build()).build()).build());
 		builder.setSubobjects(subs);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -256,9 +256,8 @@ public class PCEPObjectParserTest {
 						new UnnumberedBuilder().setRouterId(0x1245678L).setInterfaceId(0x9abcdef0L).build()).build()).build());
 		builder.setSubobjects(subs);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
-		// FIXME: BUG-130: fix Ipv6Serializers (getType)
-		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test
@@ -289,29 +288,35 @@ public class PCEPObjectParserTest {
 				false).build());
 		builder.setSubobjects(subs);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
-		// FIXME: BUG-130: fix Ipv6Serializers (getType)
-		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testBandwidthObject() throws IOException, PCEPDeserializerException {
 		final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser(this.tlvRegistry);
-		byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin");
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin");
 
 		final BandwidthBuilder builder = new BandwidthBuilder();
 		builder.setProcessingRule(true);
 		builder.setIgnore(true);
-		builder.setBandwidth(new Bandwidth(result));
+		builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
 
-		result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin");
+	@Test
+	public void testExistingBandwidthObject() throws IOException, PCEPDeserializerException {
+		final PCEPExistingBandwidthObjectParser parser = new PCEPExistingBandwidthObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin");
 
-		builder.setBandwidth(new Bandwidth(result));
+		final BandwidthBuilder builder = new BandwidthBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(true);
+		builder.setBandwidth(new Bandwidth(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -330,8 +335,7 @@ public class PCEPObjectParserTest {
 				new Ipv4Builder().setSourceIpv4Address(Ipv4Util.addressForBytes(srcIPBytes)).setDestinationIpv4Address(
 						Ipv4Util.addressForBytes(destIPBytes)).build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
-		System.out.println(Arrays.toString(parser.serializeObject(builder.build())));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -352,7 +356,7 @@ public class PCEPObjectParserTest {
 				new Ipv6Builder().setSourceIpv6Address(Ipv6Util.addressForBytes(srcIPBytes)).setDestinationIpv6Address(
 						Ipv6Util.addressForBytes(destIPBytes)).build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -367,7 +371,7 @@ public class PCEPObjectParserTest {
 		builder.setType((short) 1);
 		builder.setValue((short) 1);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPErrorObject3.bin");
@@ -376,7 +380,7 @@ public class PCEPObjectParserTest {
 		builder.setValue((short) 0);
 		builder.setTlvs(new TlvsBuilder().setReqMissing(new ReqMissingBuilder().setRequestId(new RequestId(0x00001155L)).build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -395,7 +399,7 @@ public class PCEPObjectParserTest {
 		builder.setSetupPriority((short) 0);
 		builder.setLocalProtectionDesired(false);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject2UpperBounds.bin");
@@ -407,7 +411,7 @@ public class PCEPObjectParserTest {
 		builder.setSetupPriority((short) 0xFF);
 		builder.setLocalProtectionDesired(true);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin");
@@ -419,7 +423,7 @@ public class PCEPObjectParserTest {
 		builder.setSetupPriority((short) 0x03);
 		builder.setLocalProtectionDesired(true);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -436,7 +440,7 @@ public class PCEPObjectParserTest {
 		builder.setMetricType((short) 1);
 		builder.setValue(new Float32(new byte[] { 0, 0, 0, 0 }));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPMetricObject2UpperBounds.bin");
@@ -446,7 +450,7 @@ public class PCEPObjectParserTest {
 		builder.setMetricType((short) 2);
 		builder.setValue(new Float32(new byte[] { (byte) 0x4f, (byte) 0x70, (byte) 0x00, (byte) 0x00 }));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -461,7 +465,7 @@ public class PCEPObjectParserTest {
 		builder.setNatureOfIssue((short) 1);
 		builder.setUnsatisfiedConstraints(true);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject2WithTLV.bin");
@@ -474,7 +478,7 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().setNoPathVector(
 				b.build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -489,7 +493,7 @@ public class PCEPObjectParserTest {
 		builder.setType((short) 0xff);
 		builder.setValue((short) 0xff);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject1WithTlv.bin");
@@ -499,7 +503,7 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.c.notification.TlvsBuilder().setOverloadDuration(
 				new OverloadDurationBuilder().setDuration(0xff0000a2L).build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -524,7 +528,7 @@ public class PCEPObjectParserTest {
 		builder.setPriority((short) 5);
 		builder.setRequestId(new RequestId(0xdeadbeefL));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPRPObject2.bin");
@@ -540,7 +544,7 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder().setOrder(
 				b.build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -557,7 +561,7 @@ public class PCEPObjectParserTest {
 		builder.setSrlgDiverse(false);
 		builder.setRequestsIds(Lists.newArrayList(new RequestId(0xFFL)));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 
 		result = ByteArray.fileToBytes("src/test/resources/PCEPSvecObject1_10ReqIDs.bin");
@@ -580,21 +584,21 @@ public class PCEPObjectParserTest {
 
 		builder.setRequestsIds(requestIDs);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testClassTypeObject() throws PCEPDeserializerException {
 		final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser(this.tlvRegistry);
-		final byte[] result = new byte[] { 0, 0, 0, (byte) 0x04 };
+		final byte[] result = new byte[] { (byte) 0x16, (byte) 0x12, (byte) 0x00, (byte) 0x08, 0, 0, 0, (byte) 0x04 };
 
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
 		builder.setProcessingRule(true);
 		builder.setIgnore(false);
 		builder.setClassType(new ClassType((short) 4));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -616,7 +620,7 @@ public class PCEPObjectParserTest {
 				new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x1234L)).build()).build()).build());
 		builder.setSubobjects(subs);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -633,21 +637,21 @@ public class PCEPObjectParserTest {
 				new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 })).build());
 		builder.setPathKeys(list);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException {
 		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
-		final byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
+		final byte[] result = new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
 
 		final SrpBuilder builder = new SrpBuilder();
 		builder.setProcessingRule(false);
 		builder.setIgnore(false);
 		builder.setOperationId(new SrpIdNumber(1L));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -661,7 +665,7 @@ public class PCEPObjectParserTest {
 		builder.setIgnore(false);
 		builder.setCode(new OfId(4));
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
@@ -678,7 +682,7 @@ public class PCEPObjectParserTest {
 		builder.setMinUtilization((short) 100);
 		builder.setOverBookingFactor((short) 99);
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 }

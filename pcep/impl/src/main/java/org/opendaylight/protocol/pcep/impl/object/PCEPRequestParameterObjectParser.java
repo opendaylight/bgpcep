@@ -167,7 +167,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		if (tlvs.length != 0) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

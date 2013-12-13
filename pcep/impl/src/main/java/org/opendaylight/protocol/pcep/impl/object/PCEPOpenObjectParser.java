@@ -33,7 +33,6 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for {@link Open}
  */
-
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
 
@@ -136,7 +135,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		if (tlvs.length != 0) {
 			ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
 		}
-		return bytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

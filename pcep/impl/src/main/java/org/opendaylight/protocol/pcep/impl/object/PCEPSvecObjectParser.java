@@ -115,7 +115,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 					* i + REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
 		}
 		assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

@@ -90,7 +90,7 @@ public class PCEPEndPointsIpv6ObjectParser extends AbstractObjectWithTlvsParser<
 		final byte[] retBytes = new byte[SRC6_F_LENGTH + DEST6_F_LENGTH];
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getSourceIpv6Address()), retBytes, SRC6_F_OFFSET);
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getDestinationIpv6Address()), retBytes, DEST6_F_OFFSET);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

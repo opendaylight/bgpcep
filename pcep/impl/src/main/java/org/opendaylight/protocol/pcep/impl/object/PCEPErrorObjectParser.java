@@ -80,7 +80,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 		}
 		retBytes[ET_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getType());
 		retBytes[EV_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getValue());
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

@@ -94,7 +94,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 		retBytes[TYPE_F_OFFSET] = UnsignedBytes.checkedCast(mObj.getMetricType());
 		System.arraycopy(mObj.getValue().getValue(), 0, retBytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
 		}
 		retBytes[NT_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getType());
 		retBytes[NV_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getValue());
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

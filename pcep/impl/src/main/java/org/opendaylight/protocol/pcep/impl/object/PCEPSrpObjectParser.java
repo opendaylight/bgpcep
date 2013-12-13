@@ -78,7 +78,7 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 		}
 		final byte[] retBytes = new byte[MIN_SIZE];
 		System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

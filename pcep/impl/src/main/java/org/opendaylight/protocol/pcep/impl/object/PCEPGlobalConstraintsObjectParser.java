@@ -75,7 +75,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 		retBytes[MAX_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxUtilization());
 		retBytes[MIN_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMinUtilization());
 		retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getOverBookingFactor());
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
 		retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(obj.getReason());
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

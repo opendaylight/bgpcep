@@ -60,7 +60,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 					+ bytes.length);
 		}
 		if (!header.isProcessingRule()) {
-			//LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
+			// LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
 			return null;
 		}
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
@@ -91,7 +91,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 		}
 		final byte[] retBytes = new byte[SIZE];
 		retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override

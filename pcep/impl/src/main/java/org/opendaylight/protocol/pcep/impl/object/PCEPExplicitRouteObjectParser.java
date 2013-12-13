@@ -49,7 +49,8 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 
 		assert !(ero.getSubobjects().isEmpty()) : "Empty Explicit Route Object.";
 
-		return serializeSubobject(ero.getSubobjects());
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
+				serializeSubobject(ero.getSubobjects()));
 	}
 
 	@Override

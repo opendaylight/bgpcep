@@ -123,7 +123,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		final int op = specObj.getOperational().getIntValue();
 		retBytes[3] |= (op & 7) << 4;
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {

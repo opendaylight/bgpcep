@@ -66,7 +66,7 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 		final Of specObj = (Of) object;
 		final byte[] retBytes = new byte[TLVS_OFFSET + 0];
 		ByteArray.copyWhole(ByteArray.shortToBytes(specObj.getCode().getValue().shortValue()), retBytes, OF_CODE_F_OFFSET);
-		return retBytes;
+		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
 
 	@Override
