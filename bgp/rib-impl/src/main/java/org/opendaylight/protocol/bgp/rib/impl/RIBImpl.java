@@ -17,6 +17,7 @@ import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
@@ -62,7 +63,8 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 	public RIBImpl(final RibId ribId, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
 		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
 		this.dps = Preconditions.checkNotNull(dps);
-		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, extensions);
+		// FIXME: how to get AS here
+		this.tables = new RIBTables(new BGPObjectComparator(new AsNumber(10L)), extensions);
 
 		LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -70,8 +72,7 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 		final Object o = t.readOperationalData(getInstanceIdentifier());
 		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", getInstanceIdentifier());
 
-		t.putOperationalData(getInstanceIdentifier(),
-				new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).build());
+		t.putOperationalData(getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).build());
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
@@ -129,10 +130,10 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 							peer,
 							new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
 									attrs.getCNextHop()).setAdvertizedRoutes(
-											new AdvertizedRoutesBuilder().setDestinationType(
-													new DestinationIpv4CaseBuilder().setDestinationIpv4(
-															new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
-															attrs);
+									new AdvertizedRoutesBuilder().setDestinationType(
+											new DestinationIpv4CaseBuilder().setDestinationIpv4(
+													new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
+							attrs);
 				} else {
 					LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 				}
@@ -207,7 +208,7 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 
 	@Override
 	public void close() throws InterruptedException, ExecutionException {
-		final DataModificationTransaction t = dps.beginTransaction();
+		final DataModificationTransaction t = this.dps.beginTransaction();
 		t.removeOperationalData(getInstanceIdentifier());
 		t.commit().get();
 	}
