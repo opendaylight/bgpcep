@@ -13,6 +13,7 @@ module bgp-rib-impl {
     import netty { prefix netty; revision-date 2013-11-19; }
     import reconnect-strategy { prefix rs; revision-date 2013-11-09; }
     import config { prefix config; revision-date 2013-04-05; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
     organization "Cisco Systems, Inc.";
 
@@ -76,7 +77,7 @@ module bgp-rib-impl {
 
             leaf as-number {
                 mandatory true;
-                type int32;
+                type inet:as-number;
             }
         }
     }
@@ -233,6 +234,11 @@ module bgp-rib-impl {
                         config:required-identity mdsb:binding-data-broker;
                     }
                 }
+            }
+            
+            leaf local-as {
+                type inet:as-number;
+                mandatory true;
             }
 
             leaf rib-id {
