@@ -227,8 +227,7 @@ public final class LinkstateNlriParser implements NlriParser {
 		throw new BGPParsingException("Router Id of invalid length " + value.length);
 	}
 
-	private static PrefixDescriptors parsePrefixDescriptors(final NodeIdentifier localDescriptor, final byte[] bytes, final boolean ipv4)
-			throws BGPParsingException {
+	private static PrefixDescriptors parsePrefixDescriptors(final byte[] bytes, final boolean ipv4) throws BGPParsingException {
 		int byteOffset = 0;
 		final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
 		while (byteOffset != bytes.length) {
@@ -343,10 +342,10 @@ public final class LinkstateNlriParser implements NlriParser {
 				parseLink(builder, ByteArray.subByte(nlri, byteOffset, restLength));
 				break;
 			case Ipv4Prefix:
-				builder.setPrefixDescriptors(parsePrefixDescriptors(localDescriptor, ByteArray.subByte(nlri, byteOffset, restLength), true));
+				builder.setPrefixDescriptors(parsePrefixDescriptors(ByteArray.subByte(nlri, byteOffset, restLength), true));
 				break;
 			case Ipv6Prefix:
-				builder.setPrefixDescriptors(parsePrefixDescriptors(localDescriptor, ByteArray.subByte(nlri, byteOffset, restLength), false));
+				builder.setPrefixDescriptors(parsePrefixDescriptors(ByteArray.subByte(nlri, byteOffset, restLength), false));
 				break;
 			case Node:
 				// node nlri is already parsed as it contains only the common fields for node and link nlri
