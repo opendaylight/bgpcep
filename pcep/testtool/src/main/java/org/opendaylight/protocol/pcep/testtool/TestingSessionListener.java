@@ -24,32 +24,32 @@ public class TestingSessionListener implements PCEPSessionListener {
 
 	public boolean up = false;
 
-	private static final Logger logger = LoggerFactory.getLogger(TestingSessionListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
 
 	public TestingSessionListener() {
 	}
 
 	@Override
 	public void onMessage(final PCEPSession session, final Message message) {
-		logger.debug("Received message: {}", message);
+		LOG.debug("Received message: {}", message);
 		this.messages.add(message);
 	}
 
 	@Override
 	public void onSessionUp(final PCEPSession session) {
-		logger.debug("Session up.");
+		LOG.debug("Session up.");
 		this.up = true;
 	}
 
 	@Override
 	public void onSessionDown(final PCEPSession session, final Exception e) {
-		logger.debug("Session down. Cause : {} or {}", e);
+		LOG.debug("Session down. Cause : {} or {}", e);
 		this.up = false;
 	}
 
 	@Override
 	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-		logger.debug("Session terminated. Cause : {}", cause);
+		LOG.debug("Session terminated. Cause : {}", cause);
 	}
 
 	public List<Message> messages() {

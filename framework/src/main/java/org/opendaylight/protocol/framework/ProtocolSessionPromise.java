@@ -37,7 +37,8 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 	@GuardedBy("this")
 	private Future<?> pending;
 
-	ProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address, final ReconnectStrategy strategy, final Bootstrap b) {
+	ProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address, final ReconnectStrategy strategy,
+			final Bootstrap b) {
 		super(executor);
 		this.strategy = Preconditions.checkNotNull(strategy);
 		this.address = Preconditions.checkNotNull(address);
@@ -61,7 +62,7 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 						LOG.debug("Promise {} connection resolved", lock);
 
 						// Triggered when a connection attempt is resolved.
-						Preconditions.checkState(ProtocolSessionPromise.this.pending == cf);
+						Preconditions.checkState(ProtocolSessionPromise.this.pending.equals(cf));
 
 						/*
 						 * The promise we gave out could have been cancelled,
@@ -81,14 +82,14 @@ final class ProtocolSessionPromise<S extends ProtocolSession<?>> extends Default
 						}
 
 						if (!cf.isSuccess()) {
-							LOG.info("Attempt to connect to connect to {} failed", address, cf.cause());
+							LOG.info("Attempt to connect to connect to {} failed", ProtocolSessionPromise.this.address, cf.cause());
 							final Future<Void> rf = ProtocolSessionPromise.this.strategy.scheduleReconnect(cf.cause());
 							rf.addListener(new FutureListener<Void>() {
 								@Override
 								public void operationComplete(final Future<Void> sf) {
 									synchronized (lock) {
 										// Triggered when a connection attempt is to be made.
-										Preconditions.checkState(ProtocolSessionPromise.this.pending == sf);
+										Preconditions.checkState(ProtocolSessionPromise.this.pending.equals(sf));
 
 										/*
 										 * The promise we gave out could have been cancelled,

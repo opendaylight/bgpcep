@@ -15,19 +15,21 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 /**
  *
  */
-public final class RIBExtensionsImplModule extends org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractRIBExtensionsImplModule
-{
+public final class RIBExtensionsImplModule extends org.opendaylight.controller.config.yang.bgp.rib.spi.AbstractRIBExtensionsImplModule {
 
-	public RIBExtensionsImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+	public RIBExtensionsImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
 	}
 
-	public RIBExtensionsImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final RIBExtensionsImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+	public RIBExtensionsImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final RIBExtensionsImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(identifier, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
-	public void validate(){
+	public void validate() {
 		super.validate();
 		// Add custom validation for module attributes here.
 	}
@@ -37,14 +39,14 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
 		final class RIBExtensionProviderContextImplCloseable extends SimpleRIBExtensionProviderContext implements AutoCloseable {
 			@Override
 			public void close() {
-				for (RIBExtensionProviderActivator e : getExtensionDependency()) {
-					e.stopRIBExtensionProvider();;
+				for (final RIBExtensionProviderActivator e : getExtensionDependency()) {
+					e.stopRIBExtensionProvider();
 				}
 			}
 		}
 
 		final RIBExtensionProviderContextImplCloseable ret = new RIBExtensionProviderContextImplCloseable();
-		for (RIBExtensionProviderActivator e : getExtensionDependency()) {
+		for (final RIBExtensionProviderActivator e : getExtensionDependency()) {
 			e.startRIBExtensionProvider(ret);
 		}
 

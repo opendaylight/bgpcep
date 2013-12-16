@@ -25,30 +25,30 @@ public class SimpleSessionListener implements PCEPSessionListener {
 
 	public List<Message> messages = Lists.newArrayList();
 
-	private static final Logger logger = LoggerFactory.getLogger(SimpleSessionListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
 	public SimpleSessionListener() {
 	}
 
 	@Override
 	public void onMessage(final PCEPSession session, final Message message) {
-		logger.debug("Received message: {}", message);
+		LOG.debug("Received message: {}", message);
 		this.messages.add(message);
 	}
 
 	@Override
 	public void onSessionUp(final PCEPSession session) {
-		logger.debug("Session up.");
+		LOG.debug("Session up.");
 	}
 
 	@Override
 	public void onSessionDown(final PCEPSession session, final Exception e) {
-		logger.debug("Session down with cause : {} or exception: {}", e);
+		LOG.debug("Session down with cause : {} or exception: {}", e);
 		session.close();
 	}
 
 	@Override
 	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-		logger.debug("Session terminated. Cause : {}", cause.toString());
+		LOG.debug("Session terminated. Cause : {}", cause.toString());
 	}
 }
