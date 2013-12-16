@@ -69,7 +69,7 @@ abstract class AbstractMessageRegistry implements MessageRegistry {
 		if (msg == null) {
 			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bs[MessageUtil.LENGTH_FIELD_LENGTH] });
 		}
-
+		LOG.debug("Message parsed: {}", msg);
 		return msg;
 	}
 

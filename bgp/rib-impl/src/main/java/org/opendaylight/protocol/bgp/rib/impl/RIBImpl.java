@@ -116,10 +116,10 @@ public class RIBImpl extends DefaultRibReference {
 						peer,
 						new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
 								attrs.getCNextHop()).setAdvertizedRoutes(
-										new AdvertizedRoutesBuilder().setDestinationType(
-												new DestinationIpv4CaseBuilder().setDestinationIpv4(
-														new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
-														attrs);
+								new AdvertizedRoutesBuilder().setDestinationType(
+										new DestinationIpv4CaseBuilder().setDestinationIpv4(
+												new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
+						attrs);
 			} else {
 				LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 			}
@@ -131,9 +131,10 @@ public class RIBImpl extends DefaultRibReference {
 
 			final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
 			if (ari != null) {
-				ari.addRoutes(trans, peer, nlri, attrs);
 				if (message.equals(ari.endOfRib())) {
 					ari.markUptodate(trans, peer);
+				} else {
+					ari.addRoutes(trans, peer, nlri, attrs);
 				}
 			} else {
 				LOG.debug("Not adding objects from unhandled NLRI {}", nlri);

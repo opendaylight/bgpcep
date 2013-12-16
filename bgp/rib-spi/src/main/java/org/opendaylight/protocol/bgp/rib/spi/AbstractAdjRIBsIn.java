@@ -133,7 +133,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	@GuardedBy("this")
 	private final Map<Peer, Boolean> peers = new HashMap<>();
 
-	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
+	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib,
+			final Comparator<PathAttributes> comparator, final TablesKey key) {
 		this.comparator = Preconditions.checkNotNull(comparator);
 		this.basePath = InstanceIdentifier.builder(rib.getInstanceIdentifier()).child(LocRib.class).child(Tables.class, key).toInstance();
 
@@ -150,7 +151,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
 		final Tables t = (Tables) trans.readOperationalData(this.basePath);
 		if (t == null || !uptodate.equals(t.isUptodate())) {
-			LOG.debug("Table {} switching uptodate to {}", uptodate);
+			LOG.debug("Table {} switching uptodate to {}", t, uptodate);
 			trans.putOperationalData(this.basePath, new TablesBuilder(t).setUptodate(uptodate).build());
 		}
 	}
