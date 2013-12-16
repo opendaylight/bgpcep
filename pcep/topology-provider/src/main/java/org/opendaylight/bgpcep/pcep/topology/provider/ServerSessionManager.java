@@ -262,12 +262,13 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			for (final Reports r : rpt.getReports()) {
 				final Lsp lsp = r.getLsp();
 
-				if (lsp.isSync() && !this.synced) {
+				if (!lsp.isSync() && !this.synced) {
 					// Update synchronization flag
 					this.synced = true;
 					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
 					trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
 					LOG.debug("Session {} achieved synchronized state", session);
+					return;
 				}
 
 				final Srp srp = r.getSrp();

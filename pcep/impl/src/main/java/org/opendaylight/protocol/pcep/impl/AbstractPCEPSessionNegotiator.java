@@ -201,7 +201,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	protected final synchronized void handleMessage(final Message msg) {
 		this.failTimer.cancel();
 
-		LOG.debug("Channel {} handling message in state {}", this.channel, this.state);
+		LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
 
 		switch (this.state) {
 		case Finished:

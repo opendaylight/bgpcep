@@ -148,7 +148,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-			ExecutionException, TimeoutException {
+					ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -197,9 +197,9 @@ public class ParserToSalTest {
 
 		}).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
-		manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(
-				NetworkTopology.class).child(Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance());
-		final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+		this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
+				Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance());
+		final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
 		this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
 
 		final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setLsp(
@@ -211,7 +211,7 @@ public class ParserToSalTest {
 
 	@After
 	public void tearDown() throws InterruptedException, ExecutionException {
-		manager.close();
+		this.manager.close();
 	}
 
 	@Test
@@ -220,6 +220,6 @@ public class ParserToSalTest {
 		this.session.handleMessage(this.rptmsg);
 		Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
-		Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
+		Mockito.verify(this.mockedTransaction, Mockito.times(2)).commit();
 	}
 }
