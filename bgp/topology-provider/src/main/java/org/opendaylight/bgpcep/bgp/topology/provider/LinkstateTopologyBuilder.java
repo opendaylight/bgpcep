@@ -92,8 +92,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilder.class);
 
 	public LinkstateTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
-		super(dataProvider, locRibReference, topologyId,
-				new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class, new TopologyTypes1Builder().build()).build(), LinkstateRoute.class);
+		super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
+				new TopologyTypes1Builder().build()).build(), LinkstateRoute.class);
 	}
 
 	private LinkId buildLinkId(final UriBuilder base, final LinkCase link) {
@@ -104,12 +104,15 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		return new NodeId(new UriBuilder(base, "node").add("", node).toString());
 	}
 
-	private TpId buildTpId(final UriBuilder base, final TopologyIdentifier topologyIdentifier, final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
-		return new TpId(new UriBuilder(base, "tp").add("mt", topologyIdentifier).add("ipv4", ipv4InterfaceIdentifier).add("ipv6", ipv6InterfaceIdentifier).add("id", bs).toString());
+	private TpId buildTpId(final UriBuilder base, final TopologyIdentifier topologyIdentifier,
+			final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
+		return new TpId(new UriBuilder(base, "tp").add("mt", topologyIdentifier).add("ipv4", ipv4InterfaceIdentifier).add("ipv6",
+				ipv6InterfaceIdentifier).add("id", bs).toString());
 	}
 
 	private TpId buildLocalTpId(final UriBuilder base, final LinkDescriptors linkDescriptors) {
-		return buildTpId(base, linkDescriptors.getMultiTopologyId(), linkDescriptors.getIpv4InterfaceAddress(), linkDescriptors.getIpv6InterfaceAddress(), linkDescriptors.getLinkLocalIdentifier());
+		return buildTpId(base, linkDescriptors.getMultiTopologyId(), linkDescriptors.getIpv4InterfaceAddress(),
+				linkDescriptors.getIpv6InterfaceAddress(), linkDescriptors.getLinkLocalIdentifier());
 	}
 
 	private TerminationPoint buildTp(final TpId id, final TerminationPointType type) {
@@ -118,13 +121,17 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		stpb.setTpId(id);
 
 		if (type != null) {
-			stpb.addAugmentation(TerminationPoint1.class, new TerminationPoint1Builder().setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder().setTerminationPointType(null).build()).build());
+			stpb.addAugmentation(
+					TerminationPoint1.class,
+					new TerminationPoint1Builder().setIgpTerminationPointAttributes(
+							new IgpTerminationPointAttributesBuilder().setTerminationPointType(null).build()).build());
 		}
 
 		return stpb.build();
 	}
 
-	private TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
+	private TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier,
+			final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
 		// Order of preference: Unnumbered first, then IP
 		if (bs != null) {
 			final long id = UnsignedInteger.fromIntBits(ByteArray.bytesToInt(bs)).longValue();
@@ -151,18 +158,21 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private TerminationPoint buildLocalTp(final UriBuilder base, final LinkDescriptors linkDescriptors) {
 		final TpId id = buildLocalTpId(base, linkDescriptors);
-		final TerminationPointType t = getTpType(linkDescriptors.getIpv4InterfaceAddress(), linkDescriptors.getIpv6InterfaceAddress(), linkDescriptors.getLinkLocalIdentifier());
+		final TerminationPointType t = getTpType(linkDescriptors.getIpv4InterfaceAddress(), linkDescriptors.getIpv6InterfaceAddress(),
+				linkDescriptors.getLinkLocalIdentifier());
 
 		return buildTp(id, t);
 	}
 
 	private TpId buildRemoteTpId(final UriBuilder base, final LinkDescriptors linkDescriptors) {
-		return buildTpId(base, linkDescriptors.getMultiTopologyId(), linkDescriptors.getIpv4NeighborAddress(), linkDescriptors.getIpv6NeighborAddress(), linkDescriptors.getLinkRemoteIdentifier());
+		return buildTpId(base, linkDescriptors.getMultiTopologyId(), linkDescriptors.getIpv4NeighborAddress(),
+				linkDescriptors.getIpv6NeighborAddress(), linkDescriptors.getLinkRemoteIdentifier());
 	}
 
 	private TerminationPoint buildRemoteTp(final UriBuilder base, final LinkDescriptors linkDescriptors) {
 		final TpId id = buildRemoteTpId(base, linkDescriptors);
-		final TerminationPointType t = getTpType(linkDescriptors.getIpv4NeighborAddress(), linkDescriptors.getIpv6NeighborAddress(), linkDescriptors.getLinkRemoteIdentifier());
+		final TerminationPointType t = getTpType(linkDescriptors.getIpv4NeighborAddress(), linkDescriptors.getIpv6NeighborAddress(),
+				linkDescriptors.getLinkRemoteIdentifier());
 
 		return buildTp(id, t);
 	}
@@ -219,7 +229,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
 		}
 
-		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1Builder().setIsisLinkAttributes(ilab.build()).build();
+		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpLinkAttributes1Builder().setIsisLinkAttributes(
+				ilab.build()).build();
 	}
 
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1 ospfLinkAttributes(
@@ -248,13 +259,14 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			ilab.setMultiTopologyId(topologyIdentifier.getValue().shortValue());
 		}
 
-		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1Builder().setOspfLinkAttributes(ilab.build()).build();
+		return new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpLinkAttributes1Builder().setOspfLinkAttributes(
+				ilab.build()).build();
 	}
 
-	private void createLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkstateRoute value,
-			final LinkCase l, final Attributes attributes) {
-		final LinkAttributes la =
-				((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getLinkAttributes();
+	private void createLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
+			final LinkstateRoute value, final LinkCase l, final Attributes attributes) {
+		final LinkAttributes la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase) attributes.getAugmentation(
+				Attributes1.class).getAttributeType()).getLinkAttributes();
 
 		final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
 		ilab.setMetric(la.getMetric().getValue());
@@ -339,8 +351,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				ab.build()).build();
 	}
 
-	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes(
-			final NodeAttributes na) {
+	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes() {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder();
 
 		final OspfNodeAttributesBuilder ab = new OspfNodeAttributesBuilder();
@@ -351,10 +362,10 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				ab.build()).build();
 	}
 
-	private void createNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkstateRoute value,
-			final NodeCase n, final Attributes attributes) {
-		final NodeAttributes na =
-				((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getNodeAttributes();
+	private void createNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
+			final LinkstateRoute value, final NodeCase n, final Attributes attributes) {
+		final NodeAttributes na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(
+				Attributes1.class).getAttributeType()).getNodeAttributes();
 
 		final List<IpAddress> ids = new ArrayList<>();
 		if (na.getIpv4RouterId() != null) {
@@ -382,7 +393,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			break;
 		case Ospf:
 			inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
-					ospfNodeAttributes(na));
+					ospfNodeAttributes());
 			break;
 		}
 
@@ -402,14 +413,14 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final UriBuilder base, final PrefixCase p) {
 		return nodeIdentifierBuilder(base, p.getAdvertisingNodeDescriptors()).augmentation(Node1.class).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-						org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
-						new PrefixKey(p.getIpReachabilityInformation())).toInstance();
+				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
+				new PrefixKey(p.getIpReachabilityInformation())).toInstance();
 	}
 
 	private void createPrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
 			final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
-		final PrefixAttributes pa =
-				((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase) attributes.getAugmentation(Attributes1.class).getAttributeType()).getPrefixAttributes();
+		final PrefixAttributes pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase) attributes.getAugmentation(
+				Attributes1.class).getAttributeType()).getPrefixAttributes();
 
 		final PrefixBuilder pb = new PrefixBuilder();
 		pb.setPrefix(p.getIpReachabilityInformation());

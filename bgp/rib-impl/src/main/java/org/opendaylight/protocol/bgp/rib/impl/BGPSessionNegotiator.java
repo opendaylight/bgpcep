@@ -159,15 +159,13 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 	private void handleOpen(final Open openObj) {
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
-		if (prefs != null && !prefs.isEmpty()) {
-			if (prefs.containsAll(this.localPref.getParams())) {
-				this.remotePref = openObj;
-				this.writeMessage(new KeepaliveBuilder().build());
-				this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
-				this.state = State.OpenConfirm;
-				LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
-				return;
-			}
+		if (prefs != null && !prefs.isEmpty() && prefs.containsAll(this.localPref.getParams())) {
+			this.remotePref = openObj;
+			this.writeMessage(new KeepaliveBuilder().build());
+			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+			this.state = State.OpenConfirm;
+			LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+			return;
 		}
 		final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
 				BGPError.UNSPECIFIC_OPEN_ERROR.getSubcode()).build();
