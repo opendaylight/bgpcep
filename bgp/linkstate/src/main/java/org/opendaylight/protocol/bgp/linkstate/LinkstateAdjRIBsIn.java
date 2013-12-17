@@ -58,7 +58,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
 
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -85,7 +85,10 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 		}
 	}
 
-	LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
+	private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
+
+	LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator,
+			final TablesKey key) {
 		super(trans, rib, comparator, key);
 	}
 
@@ -98,6 +101,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 	@Override
 	public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+		LOG.debug("Passed nlri {}", nlri);
 		final LinkstateDestination keys = ((DestinationLinkstateCase) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 		if (keys == null) {
 			LOG.debug("No destinations present in advertized routes");
@@ -158,7 +162,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 							}
 						}
 
-						return  b.build();
+						return b.build();
 					}
 
 					@Override
