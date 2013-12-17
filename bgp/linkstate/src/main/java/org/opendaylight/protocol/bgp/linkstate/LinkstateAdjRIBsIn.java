@@ -49,10 +49,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
+	private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
+
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
 	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
@@ -95,6 +99,12 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 	public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
 		final LinkstateDestination keys = ((DestinationLinkstateCase) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
+		if (keys == null) {
+			LOG.debug("No destinations present in advertized routes");
+			return;
+		}
+
+		LOG.debug("Iterating over route destinations {}", keys);
 
 		for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
 			LinkStateAttribute lsattr = null;
