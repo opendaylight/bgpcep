@@ -150,7 +150,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
 	private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
 		final Tables t = (Tables) trans.readOperationalData(this.basePath);
-		if (t == null || !uptodate.equals(t.isUptodate())) {
+		Preconditions.checkState(t != null);
+		if (!uptodate.equals(t.isUptodate())) {
 			LOG.debug("Table {} switching uptodate to {}", t, uptodate);
 			trans.putOperationalData(this.basePath, new TablesBuilder(t).setUptodate(uptodate).build());
 		}
