@@ -144,8 +144,8 @@ public class ParserToSalTest {
 				return null;
 			}
 		}, null);
-		Mockito.verify(this.mockedTransaction, Mockito.times(30)).commit();
-		Mockito.verify(this.mockedTransaction, Mockito.times(80)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(31)).commit();
+		Mockito.verify(this.mockedTransaction, Mockito.times(81)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 

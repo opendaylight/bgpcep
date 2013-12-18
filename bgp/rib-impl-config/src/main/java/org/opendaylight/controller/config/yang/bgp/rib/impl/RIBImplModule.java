@@ -9,6 +9,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -46,6 +48,8 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		super.validate();
 		JmxAttributeValidationException.checkNotNull(getExtensions(),
 				"is not set.", extensionsJmxAttribute);
+		//		JmxAttributeValidationException.checkNotNull(getRibId(),
+		//				"is not set.", ribIdJmxAttribute);
 	}
 
 	@Override
@@ -74,8 +78,12 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 		}
 
 		@Override
-		public void close() throws Exception {
-			reg.close();
+		public void close() throws InterruptedException, ExecutionException {
+			try {
+				super.close();
+			} finally {
+				reg.close();
+			}
 		}
 
 		public void setListenerRegistration(final ListenerRegistration<BGPSessionListener> reg) {
