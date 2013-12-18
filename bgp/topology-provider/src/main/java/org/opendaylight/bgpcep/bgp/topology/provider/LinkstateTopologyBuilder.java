@@ -207,20 +207,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final TopologyIdentifier topologyIdentifier, final LinkAttributes la) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.isis.link.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.isis.link.attributes.TedBuilder();
 
-		if (la.getAdminGroup() != null) {
-			tb.setColor(la.getAdminGroup().getValue());
-		}
-		if (la.getTeMetric() != null) {
-			tb.setTeDefaultMetric(la.getTeMetric().getValue());
-		}
-		if (la.getUnreservedBandwidth() != null) {
-			tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
-		}
-		if (la.getMaxLinkBandwidth() != null) {
-			tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
-		}
-		if (la.getMaxReservableBandwidth() != null) {
-			tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		if (la != null) {
+			if (la.getAdminGroup() != null) {
+				tb.setColor(la.getAdminGroup().getValue());
+			}
+			if (la.getTeMetric() != null) {
+				tb.setTeDefaultMetric(la.getTeMetric().getValue());
+			}
+			if (la.getUnreservedBandwidth() != null) {
+				tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+			}
+			if (la.getMaxLinkBandwidth() != null) {
+				tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+			}
+			if (la.getMaxReservableBandwidth() != null) {
+				tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+			}
 		}
 
 		final IsisLinkAttributesBuilder ilab = new IsisLinkAttributesBuilder();
@@ -237,20 +239,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final TopologyIdentifier topologyIdentifier, final LinkAttributes la) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.ospf.link.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.ospf.link.attributes.TedBuilder();
 
-		if (la.getAdminGroup() != null) {
-			tb.setColor(la.getAdminGroup().getValue());
-		}
-		if (la.getTeMetric() != null) {
-			tb.setTeDefaultMetric(la.getTeMetric().getValue());
-		}
-		if (la.getUnreservedBandwidth() != null) {
-			tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
-		}
-		if (la.getMaxLinkBandwidth() != null) {
-			tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
-		}
-		if (la.getMaxReservableBandwidth() != null) {
-			tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+		if (la != null) {
+			if (la.getAdminGroup() != null) {
+				tb.setColor(la.getAdminGroup().getValue());
+			}
+			if (la.getTeMetric() != null) {
+				tb.setTeDefaultMetric(la.getTeMetric().getValue());
+			}
+			if (la.getUnreservedBandwidth() != null) {
+				tb.setUnreservedBandwidth(unreservedBandwidthList(la.getUnreservedBandwidth()));
+			}
+			if (la.getMaxLinkBandwidth() != null) {
+				tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+			}
+			if (la.getMaxReservableBandwidth() != null) {
+				tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+			}
 		}
 
 		final OspfLinkAttributesBuilder ilab = new OspfLinkAttributesBuilder();
@@ -269,8 +273,10 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				Attributes1.class).getAttributeType()).getLinkAttributes();
 
 		final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
-		ilab.setMetric(la.getMetric().getValue());
-		ilab.setName(la.getLinkName());
+		if (la != null) {
+			ilab.setMetric(la.getMetric().getValue());
+			ilab.setName(la.getLinkName());
+		}
 
 		switch (value.getProtocolId()) {
 		case Direct:
@@ -327,11 +333,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1 isisNodeAttributes(
 			final NodeIdentifier node, final NodeAttributes na) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.TedBuilder();
-		if (na.getIpv4RouterId() != null) {
-			tb.setTeRouterIdIpv4(na.getIpv4RouterId());
-		}
-		if (na.getIpv6RouterId() != null) {
-			tb.setTeRouterIdIpv6(na.getIpv6RouterId());
+		if (na != null) {
+			if (na.getIpv4RouterId() != null) {
+				tb.setTeRouterIdIpv4(na.getIpv4RouterId());
+			}
+			if (na.getIpv6RouterId() != null) {
+				tb.setTeRouterIdIpv6(na.getIpv6RouterId());
+			}
 		}
 
 		final IsisNodeAttributesBuilder ab = new IsisNodeAttributesBuilder();
@@ -353,7 +361,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes(
 			final NodeAttributes na) {
-		// FIXME: write appropriate reason,why the parameter should be kept here although it is unused
+		// NodeAttributes parameter is passed in for consistency with ISIS factory.
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder();
 
 		final OspfNodeAttributesBuilder ab = new OspfNodeAttributesBuilder();
@@ -370,11 +378,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				Attributes1.class).getAttributeType()).getNodeAttributes();
 
 		final List<IpAddress> ids = new ArrayList<>();
-		if (na.getIpv4RouterId() != null) {
-			ids.add(new IpAddress(na.getIpv4RouterId()));
-		}
-		if (na.getIpv6RouterId() != null) {
-			ids.add(new IpAddress(na.getIpv6RouterId()));
+		if (na != null) {
+			if (na.getIpv4RouterId() != null) {
+				ids.add(new IpAddress(na.getIpv4RouterId()));
+			}
+			if (na.getIpv6RouterId() != null) {
+				ids.add(new IpAddress(na.getIpv6RouterId()));
+			}
 		}
 
 		final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
@@ -415,8 +425,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final UriBuilder base, final PrefixCase p) {
 		return nodeIdentifierBuilder(base, p.getAdvertisingNodeDescriptors()).augmentation(Node1.class).child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
-				new PrefixKey(p.getIpReachabilityInformation())).toInstance();
+						org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix.class,
+						new PrefixKey(p.getIpReachabilityInformation())).toInstance();
 	}
 
 	private void createPrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
@@ -426,7 +436,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		final PrefixBuilder pb = new PrefixBuilder();
 		pb.setPrefix(p.getIpReachabilityInformation());
-		pb.setMetric(pa.getPrefixMetric().getValue());
+		if (pa != null) {
+			pb.setMetric(pa.getPrefixMetric().getValue());
+		}
 
 		switch (value.getProtocolId()) {
 		case Direct:
@@ -436,10 +448,12 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		case Unknown:
 			break;
 		case Ospf:
-			pb.addAugmentation(
-					Prefix1.class,
-					new Prefix1Builder().setOspfPrefixAttributes(
-							new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress()).build()).build());
+			if (pa != null) {
+				pb.addAugmentation(
+						Prefix1.class,
+						new Prefix1Builder().setOspfPrefixAttributes(
+								new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress()).build()).build());
+			}
 			break;
 		}
 
