@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import java.util.concurrent.ExecutionException;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -33,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
@@ -50,16 +53,36 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 @ThreadSafe
-public class RIBImpl extends DefaultRibReference {
+public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private static final Update EOR = new UpdateBuilder().build();
 	private final DataProviderService dps;
 	private final RIBTables tables;
 
 	public RIBImpl(final RibId ribId, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
-		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(ribId)).toInstance());
+		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
 		this.dps = Preconditions.checkNotNull(dps);
 		this.tables = new RIBTables(BGPObjectComparator.INSTANCE, extensions);
+
+		LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
+
+		final DataModificationTransaction t = dps.beginTransaction();
+		final Object o = t.readOperationalData(getInstanceIdentifier());
+		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", getInstanceIdentifier());
+
+		t.putOperationalData(getInstanceIdentifier(),
+				new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).build());
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				LOG.trace("Change committed successfully");
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to initiate RIB {}", getInstanceIdentifier());
+			}
+		});
 	}
 
 	synchronized void updateTables(final BGPPeer peer, final Update message) {
@@ -106,10 +129,10 @@ public class RIBImpl extends DefaultRibReference {
 							peer,
 							new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
 									attrs.getCNextHop()).setAdvertizedRoutes(
-									new AdvertizedRoutesBuilder().setDestinationType(
-											new DestinationIpv4CaseBuilder().setDestinationIpv4(
-													new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
-							attrs);
+											new AdvertizedRoutesBuilder().setDestinationType(
+													new DestinationIpv4CaseBuilder().setDestinationIpv4(
+															new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
+															attrs);
 				} else {
 					LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 				}
@@ -180,5 +203,12 @@ public class RIBImpl extends DefaultRibReference {
 
 	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
 		return toStringHelper;
+	}
+
+	@Override
+	public void close() throws InterruptedException, ExecutionException {
+		final DataModificationTransaction t = dps.beginTransaction();
+		t.removeOperationalData(getInstanceIdentifier());
+		t.commit().get();
 	}
 }
