@@ -41,7 +41,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 	private RIBExtensionsImplModuleFactory messageFactory;
 
 	private SimpleBGPExtensionProviderContextModuleFactory extensionFactory;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPImplModuleFactory();
@@ -50,7 +50,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
 		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory, 
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory,
 				this.sessionFacotry, this.messageFactory, this.threadgropFactory, this.extensionFactory));
 	}
 
@@ -60,8 +60,8 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", null, sessionFacotry.getImplementationName(), 
-					dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), 
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", null, sessionFacotry.getImplementationName(),
+					dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(),
 					messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
@@ -152,7 +152,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		mxBean.setHost(host);
 		mxBean.setPort(port);
 		mxBean.setBgpProposal(BGPSessionProposalImplModuleTest.createInstance(transaction, sessionModuleName, "bgp-session1", 1, (short)30, "128.0.0.1"));
-		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher1", threadgroupModuleName, messageFactoryModuleName, extensionModuleName));
+		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher1"));
 		return nameCreated;
 	}
 
