@@ -17,7 +17,6 @@ import javax.management.ObjectName;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -120,8 +119,6 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		Mockito.doReturn(mockedService).when(mockedContext).getService(Matchers.any(ServiceReference.class));
 	}
 
-	// FIXME: make data broker operational, otherwise the test freezes
-	@Ignore
 	@Test
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
