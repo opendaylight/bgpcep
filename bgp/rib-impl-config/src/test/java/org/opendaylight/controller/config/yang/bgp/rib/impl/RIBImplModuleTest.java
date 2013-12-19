@@ -7,9 +7,16 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import java.io.Closeable;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+
 import java.math.BigDecimal;
-import java.util.Dictionary;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -17,10 +24,11 @@ import javax.management.ObjectName;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -39,12 +47,18 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
+import org.opendaylight.controller.config.yang.store.impl.YangParserWrapper;
+import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
+import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.core.api.data.DataProviderService;
+import org.opendaylight.controller.sal.core.api.model.SchemaServiceListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -52,6 +66,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
 
@@ -71,9 +86,23 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	private RuntimeMappingModuleFactory runtimeMappingFactory;
 	private HashMapDataStoreModuleFactory dataStroreFactory;
 
+	@Mock
+	private DataModificationTransaction mockedTransaction;
+
+	@Mock
+	private DataProviderService mockedDataProvider;
+
+	@Mock
+	private Future<RpcResult<TransactionStatus>> mockedFuture;
+
+	@Mock
+	private RpcResult<TransactionStatus> mockedResult;
+
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
+		MockitoAnnotations.initMocks(this);
+
 		this.factory = new RIBImplModuleFactory();
 		this.dataBrokerFactory = new DataBrokerImplModuleFactory();
 		this.bgpFactory = new BGPImplModuleFactory();
@@ -92,36 +121,54 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 				this.reconnectFactory, this.dataBrokerFactory, this.executorFactory, this.extensionFactory,
 				this.ribExtensionsFactory, this.domBrokerFactory, this.runtimeMappingFactory,
 				this.dataStroreFactory));
-		Mockito.doReturn(mockedServiceRegistration).when(mockedContext).registerService(
-				Matchers.any(String.class), Mockito.any(Closeable.class),
-				Mockito.any(Dictionary.class));
-		Mockito.doReturn(mockedServiceRegistration).when(mockedContext).registerService(
-				Matchers.any(Class.class), Mockito.any(Closeable.class),
-				Mockito.any(Dictionary.class));
-		Filter mockedFilter = Mockito.mock(Filter.class);
+
+		Filter mockedFilter = mock(Filter.class);
 		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
-		Mockito.doNothing().when(mockedContext).addServiceListener(Mockito.any(ServiceListener.class), Mockito.anyString());
+		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
 
-		Mockito.doNothing().when(mockedContext).addBundleListener(Mockito.any(BundleListener.class));
+		Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
 
 		Mockito.doReturn(new Bundle[]{}).when(mockedContext).getBundles();
 
 		Mockito.doReturn(new ServiceReference[]{}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
-		ServiceReference<?> mockedserviceReference = Mockito.mock(ServiceReference.class);
+		ServiceReference<?> mockedserviceReference = mock(ServiceReference.class);
 		Mockito.doReturn(new String()).when(mockedserviceReference).toString();
-		Mockito.doReturn(mockedserviceReference).when(mockedContext).getServiceReference(Matchers.any(Class.class));
+		Mockito.doReturn(mockedserviceReference).when(mockedContext).getServiceReference(any(Class.class));
 
-		DataProviderService mockedService = Mockito.mock(DataProviderService.class);
-		Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = Mockito.mock(Registration.class);
-		Mockito.doReturn(registration).when(mockedService).registerCommitHandler(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataCommitHandler.class));
-		Mockito.doReturn(mockedService).when(mockedContext).getService(Matchers.any(ServiceReference.class));
+		Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
+		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+				any(DataCommitHandler.class));
+		Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(any(ServiceReference.class));
+
+		Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
+		Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
+
+		Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
+		Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
+		Mockito.doReturn("testTransaction").when(mockedTransaction).getIdentifier();
+
+		Mockito.doReturn(mockedResult).when(mockedFuture).get();
+		Mockito.doReturn(true).when(mockedResult).isSuccessful();
+		Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
+
+		// FIXME This needs further mocking
 	}
 
-	// FIXME: make data broker operational, otherwise the test freezes
-	@Ignore
+	@Override
+	protected Map<Class, BundleContextServiceRegistrationHandler> getBundleContextServiceRegistrationHandlers() {
+		HashMap<Class,BundleContextServiceRegistrationHandler> classToRegistrationHandlerMap = Maps.newHashMap();
+		classToRegistrationHandlerMap.put(SchemaServiceListener.class, new BundleContextServiceRegistrationHandler() {
+			@Override
+			public void handleServiceRegistration(final Object o) {
+				SchemaServiceListener listener = (SchemaServiceListener) o;
+				listener.onGlobalContextUpdated(getMockedSchemaContext());
+			}
+		});
+		return classToRegistrationHandlerMap;
+	}
+
 	@Test
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
@@ -150,7 +197,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 					throws Exception {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
-		RIBImplModuleMXBean mxBean = transaction.newMBeanProxy(
+		RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(
 				nameCreated, RIBImplModuleMXBean.class);
 		ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "session-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null, executorModuleName,
 				"global-event-executor1");
@@ -209,5 +256,11 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		transaction.newMBeanProxy(
 				nameCreated, RIBExtensionsImplModuleMXBean.class);
 		return nameCreated;
+	}
+
+	public SchemaContext getMockedSchemaContext() {
+		List<String> paths = Arrays.asList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
+				"/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
+		return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
 	}
 }
