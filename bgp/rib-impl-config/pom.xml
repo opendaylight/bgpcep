@@ -82,6 +82,12 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+            <artifactId>yang-store-impl</artifactId>
+            <version>${controller.config.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
             <version>${controller.config.version}</version>
             <scope>test</scope>
