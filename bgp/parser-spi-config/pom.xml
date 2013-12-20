@@ -30,6 +30,37 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
       </dependency>
+       <!--test dependencies -->
+       <dependency>
+           <groupId>org.opendaylight.controller</groupId>
+           <artifactId>config-manager</artifactId>
+           <version>${controller.config.version}</version>
+           <scope>test</scope>
+           <type>test-jar</type>
+       </dependency>
+       <dependency>
+           <groupId>${project.groupId}</groupId>
+           <artifactId>mockito-configuration</artifactId>
+           <version>${project.version}</version>
+           <scope>test</scope>
+       </dependency>
+       <dependency>
+           <groupId>junit</groupId>
+           <artifactId>junit</artifactId>
+           <scope>test</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.opendaylight.controller</groupId>
+           <artifactId>config-manager</artifactId>
+           <version>${controller.config.version}</version>
+           <scope>test</scope>
+       </dependency>
+       <dependency>
+           <groupId>org.opendaylight.controller</groupId>
+           <artifactId>config-util</artifactId>
+           <version>${controller.config.version}</version>
+           <scope>test</scope>
+       </dependency>
    </dependencies>
 
    <build>

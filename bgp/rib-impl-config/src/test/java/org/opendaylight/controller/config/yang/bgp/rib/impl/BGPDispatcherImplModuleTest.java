@@ -35,7 +35,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 	private RIBExtensionsImplModuleFactory messageFactory;
 
 	private SimpleBGPExtensionProviderContextModuleFactory extensionFactory;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPDispatcherImplModuleFactory();
@@ -49,7 +49,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, this.threadgroupFactory.getImplementationName(), this.messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+		createInstance(transaction, this.factory.getImplementationName(), instanceName);
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -61,7 +61,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 	ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, this.threadgroupFactory.getImplementationName(), this.messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+		createInstance(transaction, this.factory.getImplementationName(), instanceName);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -71,34 +71,34 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String threadgropuModuleName, final String messageFactoryModuleName, final String extensionModuleName) throws InstanceAlreadyExistsException {
+                                            final String instanceName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, BGPDispatcherImplModuleMXBean.class);
-		mxBean.setBossGroup(createThreadgroupInstance(transaction, threadgropuModuleName, "boss-threadgroup", 10));
-		mxBean.setWorkerGroup(createThreadgroupInstance(transaction, threadgropuModuleName, "worker-threadgroup", 10));
-		mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction, extensionModuleName, "bgp-extensions"));
+		mxBean.setBossGroup(createThreadgroupInstance(transaction, "boss-threadgroup", 10));
+		mxBean.setWorkerGroup(createThreadgroupInstance(transaction, "worker-threadgroup", 10));
+		mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction, "bgp-extensions"));
 		return nameCreated;
 	}
 
 	public static ObjectName createThreadgroupInstance(
 			final ConfigTransactionJMXClient transaction,
-			final String moduleName, final String instanceName,
+			final String instanceName,
 			final Integer threadCount) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(moduleName,
+		ObjectName nameCreated = transaction.createModule(NettyThreadgroupModuleFactory.NAME,
 				instanceName);
 		NettyThreadgroupModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, NettyThreadgroupModuleMXBean.class);
 		mxBean.setThreadCount(threadCount);
 		return nameCreated;
 	}
-	
+
 	public static ObjectName createBgpExtensionsInstance(
 			final ConfigTransactionJMXClient transaction,
-			final String moduleName, final String instanceName)
+			final String instanceName)
 			throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(moduleName,
+		ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME,
 				instanceName);
 		transaction.newMBeanProxy(nameCreated,
 				SimpleBGPExtensionProviderContextModuleMXBean.class);
