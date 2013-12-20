@@ -8,39 +8,46 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
-import org.junit.After;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 
 public class ActivatorTest {
 
-	private final BGPActivator act = new BGPActivator();
-
 	@Test
 	public void testActivator() throws Exception {
+		final BGPActivator act = new BGPActivator();
 		final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
 
 		assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
 		assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));
 
-		this.act.start(context);
+		act.start(context);
 
 		assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
 		assertEquals(LinkstateSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry().classForFamily(71));
+
+		act.close();
 	}
 
-	@After
-	public void tearDown() {
-		try {
-			this.act.stop();
-		} catch (final Exception e) {
-			fail("This exception should not occurr.");
-		}
+	@Test
+	public void testRIBActivator() {
+		final RIBActivator ribAct = new RIBActivator();
+		final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
+
+		assertNull(context.getAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+
+		ribAct.startRIBExtensionProvider(context);
+
+		assertNotNull(context.getAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+
+		ribAct.close();
 	}
 }
