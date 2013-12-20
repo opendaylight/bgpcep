@@ -16,9 +16,11 @@ import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.DomainName;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.Ipv6InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
@@ -31,9 +33,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.PrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.link._case.LinkDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.CRouterIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.IsisNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.IsisPseudonodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.node._case.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.node._case.OspfNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoPseudonodeId;
@@ -78,6 +87,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.Prefix1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.link.attributes.OspfLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.OspfNodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.AbrBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.InternalBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -330,9 +342,19 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				new NodeKey(node)).child(TerminationPoint.class, key).build();
 	}
 
+	private List<Short> nodeMultiTopology(final List<TopologyIdentifier> list) {
+		final List<Short> ret = new ArrayList<>(list.size());
+		for (final TopologyIdentifier id : list) {
+			ret.add(id.getValue().shortValue());
+		}
+		return ret;
+	}
+
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IgpNodeAttributes1 isisNodeAttributes(
 			final NodeIdentifier node, final NodeAttributes na) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.TedBuilder();
+		final IsisNodeAttributesBuilder ab = new IsisNodeAttributesBuilder();
+
 		if (na != null) {
 			if (na.getIpv4RouterId() != null) {
 				tb.setTeRouterIdIpv4(na.getIpv4RouterId());
@@ -340,16 +362,17 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			if (na.getIpv6RouterId() != null) {
 				tb.setTeRouterIdIpv6(na.getIpv6RouterId());
 			}
+			if (na.getTopologyIdentifier() != null) {
+				ab.setMultiTopologyId(nodeMultiTopology(na.getTopologyIdentifier()));
+			}
 		}
 
-		final IsisNodeAttributesBuilder ab = new IsisNodeAttributesBuilder();
 		final CRouterIdentifier ri = node.getCRouterIdentifier();
-
-		if (ri instanceof IsisPseudonode) {
-			final IsisPseudonode pn = (IsisPseudonode) ri;
+		if (ri instanceof IsisPseudonodeCase) {
+			final IsisPseudonode pn = ((IsisPseudonodeCase) ri).getIsisPseudonode();
 			ab.setIso(new IsoBuilder().setIsoPseudonodeId(new IsoPseudonodeId(pn.toString())).build());
-		} else if (ri instanceof IsisNode) {
-			final IsisNode in = (IsisNode) ri;
+		} else if (ri instanceof IsisNodeCase) {
+			final IsisNode in = ((IsisNodeCase) ri).getIsisNode();
 			ab.setIso(new IsoBuilder().setIsoSystemId(new IsoSystemId(in.getIsoSystemId().toString())).build());
 		}
 
@@ -360,11 +383,44 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1 ospfNodeAttributes(
-			final NodeAttributes na) {
-		// NodeAttributes parameter is passed in for consistency with ISIS factory.
+			final NodeDescriptors node, final NodeAttributes na) {
 		final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder tb = new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.TedBuilder();
-
 		final OspfNodeAttributesBuilder ab = new OspfNodeAttributesBuilder();
+
+		if (na != null) {
+			if (na.getIpv4RouterId() != null) {
+				tb.setTeRouterIdIpv4(na.getIpv4RouterId());
+			}
+			if (na.getIpv6RouterId() != null) {
+				tb.setTeRouterIdIpv6(na.getIpv6RouterId());
+			}
+			if (na.getTopologyIdentifier() != null) {
+				ab.setMultiTopologyId(nodeMultiTopology(na.getTopologyIdentifier()));
+			}
+		}
+
+		final CRouterIdentifier ri = node.getCRouterIdentifier();
+		if (ri instanceof OspfPseudonodeCase) {
+			final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
+
+			ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
+			ab.setDrInterfaceId(UnsignedInteger.fromIntBits(ByteArray.bytesToInt(pn.getLanInterface().getValue())).longValue());
+		} else if (ri instanceof OspfNodeCase) {
+			final OspfNode in = ((OspfNodeCase) ri).getOspfNode();
+
+			// TODO: what should we do with in.getOspfRouterId()?
+
+			if (na != null) {
+				final NodeFlagBits nf = na.getNodeFlags();
+				if (nf != null) {
+					if (nf.isAbr()) {
+						ab.setRouterType(new AbrBuilder().setAbr(Boolean.TRUE).build());
+					} else if (!nf.isExternal()) {
+						ab.setRouterType(new InternalBuilder().setInternal(Boolean.TRUE).build());
+					}
+				}
+			}
+		}
 
 		ab.setTed(tb.build());
 
@@ -376,6 +432,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final LinkstateRoute value, final NodeCase n, final Attributes attributes) {
 		final NodeAttributes na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(
 				Attributes1.class).getAttributeType()).getNodeAttributes();
+		final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
 
 		final List<IpAddress> ids = new ArrayList<>();
 		if (na != null) {
@@ -385,9 +442,11 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			if (na.getIpv6RouterId() != null) {
 				ids.add(new IpAddress(na.getIpv6RouterId()));
 			}
+			if (na.getDynamicHostname() != null) {
+				inab.setName(new DomainName(na.getDynamicHostname()));
+			}
 		}
 
-		final IgpNodeAttributesBuilder inab = new IgpNodeAttributesBuilder();
 		if (!ids.isEmpty()) {
 			inab.setRouterId(ids);
 		}
@@ -405,7 +464,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			break;
 		case Ospf:
 			inab.addAugmentation(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.IgpNodeAttributes1.class,
-					ospfNodeAttributes(na));
+					ospfNodeAttributes(n.getNodeDescriptors(), na));
 			break;
 		}
 
