@@ -1,4 +1,3 @@
-// FileName: /Users/jmedved/Documents/ODL/Git-model/bgpcep/pcep/api/src/main/yang/pcep-types.yang
 module pcep-types {
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
