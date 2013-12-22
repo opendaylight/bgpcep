@@ -1,0 +1,291 @@
+module pcep-ietf-stateful {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful";
+	prefix "stateful";
+
+	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+	import pcep-message { prefix msg; revision-date 2013-10-07; }
+	import rsvp { prefix rsvp; revision-date 2013-08-20; }
+
+	organization "Cisco Systems, Inc.";
+	contact "Robert Varga <rovarga@cisco.com>";
+
+	description
+		"This module contains the data model of PCEP extensions defined
+		in draft-crabbe-pce-initiated-pce.
+
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2013-12-22" {
+		description
+			"Initial revision.";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05";
+	}
+
+	typedef operational-status {
+		type enumeration {
+			enum down {
+				value 0;
+			}
+			enum up {
+				value 1;
+			}
+			enum active {
+				value 2;
+			}
+			enum going-down {
+				value 3;
+			}
+			enum going-up {
+				value 4;
+			}
+		}
+	}
+
+	typedef plsp-id {
+		type uint32 {
+			range 0..1048576;
+		}
+	}
+
+	typedef srp-id-number {
+		type uint32 {
+			range 1..4294967294;
+		}
+	}
+
+	typedef symbolic-path-name {
+		type binary {
+			length 1..65535;
+		}
+	}
+
+	grouping lsp-identifiers-tlv {
+		description "LSP Identifiers TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
+		container lsp-identifiers {
+			uses pcep:tlv;
+			leaf lsp-id {
+				type rsvp:lsp-id;
+				mandatory true;
+			}
+
+			leaf tunnel-id {
+				type rsvp:tunnel-id;
+				mandatory true;
+			}
+
+			choice address-family {
+				case ipv4-case {
+					container ipv4 {
+						leaf ipv4-tunnel-sender-address {
+							type inet:ipv4-address;
+							mandatory true;
+						}
+						leaf ipv4-extended-tunnel-id {
+							type rsvp:ipv4-extended-tunnel-id;
+							mandatory true;
+						}
+					}
+				}
+				case ipv6-case {
+					container ipv6 {
+						leaf ipv6-tunnel-sender-address {
+							type inet:ipv6-address;
+							mandatory true;
+						}
+						leaf ipv6-extended-tunnel-id {
+							type rsvp:ipv6-extended-tunnel-id;
+							mandatory true;
+						}
+					}
+				}
+			}
+			// FIXME: add tunnel endpoint (from stateful-07)
+		}
+	}
+
+	grouping lsp-error-code-tlv {
+		description "LSP Error Code TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.3";
+		container lsp-error-code {
+			uses pcep:tlv;
+			leaf error-code {
+				type uint32;
+				mandatory true;
+			}
+		}
+	}
+
+	grouping rsvp-error-spec-tlv {
+		description "RSVP Error Spec TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.4";
+		container rsvp-error-spec {
+			uses pcep:tlv;
+			choice error-type {
+				case rsvp-case {
+					container rsvp-error {
+						uses rsvp:error-spec;
+					}
+				}
+				case user-case {
+					container user-error {
+						uses rsvp:user-error-spec;
+					}
+				}
+			}
+		}
+	}
+
+	grouping symbolic-path-name-tlv {
+		description "Symbolic Path Name TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
+		container symbolic-path-name {
+			uses pcep:tlv;
+			leaf path-name {
+				type symbolic-path-name;
+				mandatory true;
+			}
+		}
+	}
+
+	grouping lsp-object {
+		description "LSP Object";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+
+		container lsp {
+			uses pcep:object;
+			container "tlvs" {
+				uses lsp-error-code-tlv;
+
+				uses lsp-identifiers-tlv;
+
+				uses rsvp-error-spec-tlv;
+
+				uses symbolic-path-name-tlv;
+			}
+
+			leaf plsp-id {
+				type plsp-id;
+				mandatory true;
+			}
+
+			leaf delegate {
+				type boolean;
+				default false;
+			}
+
+			leaf sync {
+				type boolean;
+				default false;
+			}
+
+			leaf remove {
+				type boolean;
+				default false;
+			}
+
+			leaf administrative {
+				type boolean;
+				default false;
+			}
+
+			leaf operational {
+				type operational-status;
+				mandatory true;
+			}
+		}
+	}
+
+	grouping srp-object {
+		description "SRP Object";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.2";
+
+		container srp {
+			uses pcep:object;
+
+			leaf operation-id {
+				type srp-id-number;
+				mandatory true;
+			}
+
+			leaf flags {
+				type bits {
+					bit lsp-remove {
+						position 31;
+					}
+				}
+			}
+		}
+	}
+
+	grouping pcupd-message {
+		uses pcep:message;
+
+		container pcupd-message {
+			description "State Update Request Message";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.2";
+
+			uses pcep:message-header;
+
+			list updates {
+				uses srp-object;
+
+				uses pcep:lsp-object;
+
+				container path {
+					uses pcep:path-definition;
+				}
+			}
+		}
+	}
+
+	grouping pcrpt-message {
+		uses pcep:message;
+
+		container pcrpt-message {
+			description "State Report Message";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.1";
+
+			uses pcep:message-header;
+
+			list reports {
+				uses pcep:srp-object;
+
+				uses pcep:lsp-object;
+
+				container path {
+					uses pcep:path-definition;
+				}
+			}
+		}
+	}
+
+	notification pcupd {
+		uses pcupd-message;
+	}
+
+	notification pcrpt {
+		uses pcrpt-message;
+	}
+
+	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {
+		uses lsp-object;
+	}
+
+	augment "/msg:pcerr/msg:pcerr-message/msg:error-type" {
+		case stateful-case {
+			container stateful {
+				reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
+				uses srp-object;
+			}
+		}
+	}
+}
+

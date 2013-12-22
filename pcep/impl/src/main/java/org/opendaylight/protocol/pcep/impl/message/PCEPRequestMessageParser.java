@@ -14,6 +14,9 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -28,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
@@ -147,8 +149,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		if (p2p.getClassType() != null) {
 			buffer.writeBytes(serializeObject(p2p.getClassType()));
 		}
-		if (p2p.getLsp() != null) {
-			buffer.writeBytes(serializeObject(p2p.getLsp()));
+
+		final P2p1 stateful = p2p.getAugmentation(P2p1.class);
+		if (stateful != null && stateful.getLsp() != null) {
+			buffer.writeBytes(serializeObject(stateful.getLsp()));
 		}
 	}
 
@@ -311,7 +315,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 			case CtIn:
 				state = State.LspIn;
 				if (obj instanceof Lsp) {
-					builder.setLsp((Lsp) obj);
+					builder.addAugmentation(P2p1.class, new P2p1Builder().setLsp((Lsp)obj).build());
 					break;
 				}
 			case LspIn:
@@ -332,7 +336,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				&& builder.getBandwidth() != null
 				&& builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })).build()
-				&& builder.getReportedRoute().getRro() == null) {
+						&& builder.getReportedRoute().getRro() == null) {
 			errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
 			return null;
 		}

@@ -6,6 +6,7 @@ module network-topology-pcep {
 
 	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+	import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -76,11 +77,11 @@ module network-topology-pcep {
 
             list reported-lsps {
                 leaf name {
-                    type pcep:symbolic-path-name;
+                    type stateful:symbolic-path-name;
                 }
                 key name;
 
-                uses pcep:lsp-object;
+                uses stateful:lsp-object;
 
                 container path {
                     uses pcep:path-definition;
@@ -110,7 +111,7 @@ module network-topology-pcep {
         }
 
         leaf name {
-            type pcep:symbolic-path-name;
+            type stateful:symbolic-path-name;
             mandatory true;
         }
     }
@@ -185,7 +186,7 @@ module network-topology-pcep {
 
         container arguments {
             leaf operational {
-                type pcep:operational-status;
+                type stateful:operational-status;
                 mandatory true;
             }
         }

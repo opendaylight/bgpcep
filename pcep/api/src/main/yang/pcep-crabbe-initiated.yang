@@ -5,6 +5,7 @@ module pcep-crabbe-initiated {
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import pcep-message { prefix msg; revision-date 2013-10-07; }
+	import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -36,9 +37,9 @@ module pcep-crabbe-initiated {
 			uses pcep:message-header;
 
 			list requests {
-				uses pcep:srp-object;
+				uses stateful:srp-object;
 
-				uses pcep:lsp-object;
+				uses stateful:lsp-object;
 
 				uses pcep:endpoints-object;
 
