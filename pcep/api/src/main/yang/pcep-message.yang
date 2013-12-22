@@ -52,13 +52,5 @@ module pcep-message {
 	notification close {
 		uses pcep:close-message;
 	}
-
-	notification pcupd {
-		uses pcep:pcupd-message;
-	}
-
-	notification pcrpt {
-		uses pcep:pcrpt-message;
-	}
 }
 

@@ -51,12 +51,6 @@ module pcep-types {
 		}
 	}
 
-	typedef srp-id-number {
-		type uint32 {
-			range 1..4294967294;
-		}
-	}
-
 	typedef of-id {
 		type uint16;
 	}
@@ -815,28 +809,6 @@ module pcep-types {
 		}
 	}
 
-	grouping srp-object {
-		description "SRP Object";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.2";
-
-		container srp {
-			uses object;
-
-			leaf operation-id {
-				type srp-id-number;
-				mandatory true;
-			}
-
-			leaf flags {
-				type bits {
-					bit lsp-remove {
-						position 31;
-					}
-				}
-			}
-		}
-	}
-
 	grouping lsp-object {
 		description "LSP Object";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
@@ -1159,13 +1131,6 @@ module pcep-types {
 						uses open-object;
 					}
 				}
-
-				case stateful-case {
-					container stateful {
-						reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
-						uses srp-object;
-					}
-				}
 			}
 		}
 	}
@@ -1180,48 +1145,6 @@ module pcep-types {
 			uses message-header;
 
 			uses close-object;
-		}
-	}
-
-	grouping pcupd-message {
-		uses message;
-
-		container pcupd-message {
-			description "State Update Request Message";
-			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.2";
-
-			uses message-header;
-
-			list updates {
-				uses srp-object;
-
-				uses lsp-object;
-
-				container path {
-					uses path-definition;
-				}
-			}
-		}
-	}
-
-	grouping pcrpt-message {
-		uses message;
-
-		container pcrpt-message {
-			description "State Report Message";
-			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.1";
-
-			uses message-header;
-
-			list reports {
-				uses srp-object;
-
-				uses lsp-object;
-
-				container path {
-					uses path-definition;
-				}
-			}
 		}
 	}
 }
