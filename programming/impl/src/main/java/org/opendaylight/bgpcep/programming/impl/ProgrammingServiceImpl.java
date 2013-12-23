@@ -13,6 +13,7 @@ import io.netty.util.TimerTask;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -119,7 +120,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 		final DataModificationTransaction t = dataProvider.beginTransaction();
 		Preconditions.checkState(t.readOperationalData(qid) == null, "Conflicting instruction queue found");
 
-		t.putOperationalData(qid, new InstructionQueueBuilder().build());
+		t.putOperationalData(qid, new InstructionQueueBuilder().setInstruction(Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction>emptyList()).build());
 		t.commit();
 	}
 
