@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+@Deprecated
 public class ComplementaryTest {
 
 	@Test
