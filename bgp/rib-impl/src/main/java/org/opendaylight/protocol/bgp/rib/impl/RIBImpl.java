@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -37,6 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRibBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -71,7 +74,8 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", getInstanceIdentifier());
 
 		t.putOperationalData(getInstanceIdentifier(),
-				new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).build());
+				new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
+						new LocRibBuilder().setTables(Collections.<Tables>emptyList()).build()).build());
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
