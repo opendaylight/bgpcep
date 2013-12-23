@@ -11,6 +11,7 @@ import io.netty.util.concurrent.FutureListener;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -115,7 +116,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		private long requestId = 1;
 		private NodeId nodeId;
 
-		Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
+		private Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
 			final String pccId = createNodeId(address);
 			final Topology topo = (Topology) trans.readOperationalData(ServerSessionManager.this.topology);
 
@@ -163,6 +164,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final Tlvs tlvs = session.getRemoteTlvs();
 			final Stateful stateful = tlvs.getStateful();
 			if (stateful != null) {
+				this.pccBuilder.setReportedLsps(Collections.<ReportedLsps>emptyList());
 				this.pccBuilder.setStatefulTlv(new StatefulTlvBuilder(tlvs).build());
 				this.pccBuilder.setStateSync(PccSyncState.InitialResync);
 			}
@@ -176,7 +178,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			Futures.addCallback(f, new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
-					// Nothing to do
+					LOG.trace("Internal state for session {} updated successfully", session);
 				}
 
 				@Override
@@ -207,7 +209,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
-					// Nothing to do
+					LOG.trace("Internal state for session {} cleaned up successfully", session);
 				}
 
 				@Override
@@ -326,7 +328,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 				@Override
 				public void onSuccess(final RpcResult<TransactionStatus> result) {
-					// Nothing to do
+					LOG.trace("Internal state for session {} updated successfully", session);
 				}
 
 				@Override
@@ -410,12 +412,12 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-						new ArrayList<Node>()).build());
+										new ArrayList<Node>()).build());
 
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
-				// Nothing to do
+				LOG.trace("Topology {} created successfully", topology);
 			}
 
 			@Override
