@@ -16,11 +16,11 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder;
 
 /**
  * Parser for {@link PathKey}
@@ -38,7 +38,7 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
 	private static final int CONTENT_LENGTH = PCE_ID_F_OFFSET + PCE_ID_F_LENGTH;
 
 	@Override
-	public Subobjects parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -48,7 +48,7 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
 		}
 		final byte[] pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT_LENGTH);
 		final int pathKey = ByteArray.bytesToShort(Arrays.copyOfRange(buffer, PK_F_OFFSET, PCE_ID_F_OFFSET));
-		final SubobjectsBuilder builder = new SubobjectsBuilder();
+		final SubobjectBuilder builder = new SubobjectBuilder();
 		builder.setLoose(loose);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(pceId));
@@ -58,8 +58,8 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
 	}
 
 	@Override
-	public byte[] serializeSubobject(final Subobjects subobject) {
-		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
+	public byte[] serializeSubobject(final Subobject subobject) {
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
 		final int pathKey = pk.getPathKey().getValue();
 		final byte[] pceId = pk.getPceId().getBinary();
 		final byte[] retBytes = new byte[PK_F_LENGTH + pceId.length];

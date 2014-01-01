@@ -81,8 +81,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
@@ -240,27 +240,27 @@ public class PCEPValidatorTest {
 		final IroBuilder iroBuilder = new IroBuilder();
 		iroBuilder.setIgnore(false);
 		iroBuilder.setProcessingRule(false);
-		final List<Subobjects> iroSubs = Lists.newArrayList();
-		iroSubs.add(new SubobjectsBuilder().setSubobjectType(this.eroASSubobject).build());
-		iroBuilder.setSubobjects(iroSubs);
+		final List<Subobject> iroSubs = Lists.newArrayList();
+		iroSubs.add(new SubobjectBuilder().setSubobjectType(this.eroASSubobject).build());
+		iroBuilder.setSubobject(iroSubs);
 		this.iro = iroBuilder.build();
 
 		final EroBuilder eroBuilder = new EroBuilder();
 		eroBuilder.setIgnore(false);
 		eroBuilder.setProcessingRule(false);
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects> eroSubs = Lists.newArrayList();
-		eroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder().setSubobjectType(
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> eroSubs = Lists.newArrayList();
+		eroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setSubobjectType(
 				this.eroASSubobject).setLoose(false).build());
-		eroBuilder.setSubobjects(eroSubs);
+		eroBuilder.setSubobject(eroSubs);
 		this.ero = eroBuilder.build();
 
 		final RroBuilder rroBuilder = new RroBuilder();
 		rroBuilder.setIgnore(false);
 		rroBuilder.setProcessingRule(false);
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobjects> rroSubs = Lists.newArrayList();
-		rroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder().setSubobjectType(
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject> rroSubs = Lists.newArrayList();
+		rroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
 				this.rroUnnumberedSub).setProtectionAvailable(false).setProtectionInUse(false).build());
-		rroBuilder.setSubobjects(rroSubs);
+		rroBuilder.setSubobject(rroSubs);
 		this.rro = rroBuilder.build();
 
 		final OfBuilder ofBuilder = new OfBuilder();

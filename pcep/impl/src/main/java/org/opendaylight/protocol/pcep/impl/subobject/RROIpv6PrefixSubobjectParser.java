@@ -18,8 +18,8 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
@@ -50,11 +50,11 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 	private static final int LPIU_F_OFFSET = 6;
 
 	@Override
-	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
-		final SubobjectsBuilder builder = new SubobjectsBuilder();
+		final SubobjectBuilder builder = new SubobjectBuilder();
 		if (buffer.length != CONTENT_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
 		}
@@ -69,7 +69,7 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 	}
 
 	@Override
-	public byte[] serializeSubobject(final Subobjects subobject) {
+	public byte[] serializeSubobject(final Subobject subobject) {
 		if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
 			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
 					+ ". Needed IpPrefixCase.");

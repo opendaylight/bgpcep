@@ -30,9 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.PathKeyCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.LabelCaseBuilder;
@@ -69,7 +69,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
 		final EROIpv4PrefixSubobjectParser parser = new EROIpv4PrefixSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
 				new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
@@ -80,7 +80,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROIp6PrefixSubobject() throws PCEPDeserializerException {
 		final EROIpv6PrefixSubobjectParser parser = new EROIpv6PrefixSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
 				new IpPrefixBuilder().setIpPrefix(
 						new IpPrefix(Ipv6Util.prefixForBytes(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -94,7 +94,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROAsNumberSubobject() throws PCEPDeserializerException {
 		final EROAsNumberSubobjectParser parser = new EROAsNumberSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
 		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(asNumberBytes, 2), true));
@@ -104,7 +104,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROUnnumberedSubobject() throws PCEPDeserializerException {
 		final EROUnnumberedInterfaceSubobjectParser parser = new EROUnnumberedInterfaceSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
 				new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
@@ -115,7 +115,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROPathKey32Subobject() throws PCEPDeserializerException {
 		final EROPathKey32SubobjectParser parser = new EROPathKey32SubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
@@ -128,7 +128,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROPathKey128Subobject() throws PCEPDeserializerException {
 		final EROPathKey128SubobjectParser parser = new EROPathKey128SubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
@@ -142,7 +142,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROLabelSubobject() throws Exception {
 		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getLabelHandlerRegistry());
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new LabelCaseBuilder().setLabel(
 				new LabelBuilder().setUniDirectional(true).setLabelType(
@@ -156,7 +156,7 @@ public class PCEPEROSubobjectParserTest {
 	@Test
 	public void testEROEXRSSubobject() throws Exception {
 		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getXROSubobjectHandlerRegistry());
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs> list = Lists.newArrayList();
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder();

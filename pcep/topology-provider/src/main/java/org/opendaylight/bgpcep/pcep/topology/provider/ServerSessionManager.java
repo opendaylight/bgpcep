@@ -69,8 +69,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.topology.pcep.type.TopologyPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -166,7 +166,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final Tlvs tlvs = session.getRemoteTlvs();
 			final Stateful stateful = tlvs.getStateful();
 			if (stateful != null) {
-				this.pccBuilder.setReportedLsps(Collections.<ReportedLsps>emptyList());
+				this.pccBuilder.setReportedLsp(Collections.<ReportedLsp>emptyList());
 				this.pccBuilder.setStatefulTlv(new StatefulTlvBuilder(tlvs).build());
 				this.pccBuilder.setStateSync(PccSyncState.InitialResync);
 			}
@@ -247,9 +247,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			tearDown(session);
 		}
 
-		private InstanceIdentifier<ReportedLsps> lspIdentifier(final SymbolicPathName name) {
-			return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class).child(ReportedLsps.class,
-					new ReportedLspsKey(name.getPathName())).toInstance();
+		private InstanceIdentifier<ReportedLsp> lspIdentifier(final SymbolicPathName name) {
+			return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class).child(ReportedLsp.class,
+					new ReportedLspKey(name.getPathName())).toInstance();
 		}
 
 		@Override
@@ -443,8 +443,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure there is no such LSP
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
-				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsp> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsp.class, new ReportedLspKey(input.getName())).toInstance();
 		if (this.dataProvider.readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return Futures.immediateFuture(OPERATION_UNSENT);
@@ -486,9 +486,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists, we need it for PLSP-ID
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
-				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
-		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
+		final InstanceIdentifier<ReportedLsp> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsp.class, new ReportedLspKey(input.getName())).toInstance();
+		final ReportedLsp rep = (ReportedLsp) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return Futures.immediateFuture(OPERATION_UNSENT);
@@ -513,9 +513,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
-				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
-		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
+		final InstanceIdentifier<ReportedLsp> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsp.class, new ReportedLspKey(input.getName())).toInstance();
+		final ReportedLsp rep = (ReportedLsp) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return Futures.immediateFuture(OPERATION_UNSENT);
@@ -542,10 +542,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		// Make sure the LSP exists
-		final InstanceIdentifier<ReportedLsps> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
-				ReportedLsps.class, new ReportedLspsKey(input.getName())).toInstance();
+		final InstanceIdentifier<ReportedLsp> lsp = InstanceIdentifier.builder(l.topologyAugment).child(PathComputationClient.class).child(
+				ReportedLsp.class, new ReportedLspKey(input.getName())).toInstance();
 		LOG.debug("Checking if LSP {} has operational state {}", lsp, input.getArguments().getOperational());
-		final ReportedLsps rep = (ReportedLsps) this.dataProvider.readOperationalData(lsp);
+		final ReportedLsp rep = (ReportedLsp) this.dataProvider.readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return Futures.immediateFuture(OPERATION_UNSENT);

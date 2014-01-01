@@ -25,9 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobjects.subobject.type.PathKeyCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
@@ -57,7 +57,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
 		final RROIpv4PrefixSubobjectParser parser = new RROIpv4PrefixSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setProtectionAvailable(true);
 		subs.setProtectionInUse(false);
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
@@ -69,7 +69,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROIp6PrefixSubobject() throws PCEPDeserializerException {
 		final RROIpv6PrefixSubobjectParser parser = new RROIpv6PrefixSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setProtectionAvailable(false);
 		subs.setProtectionInUse(true);
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
@@ -84,7 +84,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROUnnumberedSubobject() throws PCEPDeserializerException {
 		final RROUnnumberedInterfaceSubobjectParser parser = new RROUnnumberedInterfaceSubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setProtectionAvailable(false);
 		subs.setProtectionInUse(true);
 		subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
@@ -96,7 +96,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROPathKey32Subobject() throws PCEPDeserializerException {
 		final RROPathKey32SubobjectParser parser = new RROPathKey32SubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
 		pBuilder.setPathKey(new PathKey(4660));
@@ -108,7 +108,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROPathKey128Subobject() throws PCEPDeserializerException {
 		final RROPathKey128SubobjectParser parser = new RROPathKey128SubobjectParser();
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
 				(byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
@@ -121,7 +121,7 @@ public class PCEPRROSubobjectParserTest {
 	@Test
 	public void testRROLabelSubobject() throws Exception {
 		final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getLabelHandlerRegistry());
-		final SubobjectsBuilder subs = new SubobjectsBuilder();
+		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setSubobjectType(new LabelCaseBuilder().setLabel(
 				new LabelBuilder().setUniDirectional(true).setGlobal(true).setLabelType(
 						new GeneralizedLabelCaseBuilder().setGeneralizedLabel(

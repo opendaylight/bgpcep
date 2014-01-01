@@ -18,8 +18,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.LabelCaseBuilder;
@@ -53,7 +53,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 	}
 
 	@Override
-	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -74,11 +74,11 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
 		builder.setGlobal(reserved.get(G_FLAG_OFFSET));
 		builder.setLabelType(parser.parseLabel(ByteArray.cutBytes(buffer, HEADER_LENGTH)));
-		return new SubobjectsBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
+		return new SubobjectBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
 	}
 
 	@Override
-	public byte[] serializeSubobject(final Subobjects subobject) {
+	public byte[] serializeSubobject(final Subobject subobject) {
 		final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
 		final LabelType l = label.getLabelType();
 		final LabelSerializer parser = this.registry.getLabelSerializer(l);

@@ -15,8 +15,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder;
@@ -44,7 +44,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 	private static final int LPIU_F_OFFSET = 6;
 
 	@Override
-	public Subobjects parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
@@ -53,7 +53,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 					+ CONTENT_LENGTH + ".");
 		}
 
-		final SubobjectsBuilder builder = new SubobjectsBuilder();
+		final SubobjectBuilder builder = new SubobjectBuilder();
 		final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, 0, FLAGS_F_LENGTH));
 		builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
 		builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
@@ -66,7 +66,7 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 	}
 
 	@Override
-	public byte[] serializeSubobject(final Subobjects subobject) {
+	public byte[] serializeSubobject(final Subobject subobject) {
 		if (!(subobject.getSubobjectType() instanceof UnnumberedCase)) {
 			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed UnnumberedCase.");

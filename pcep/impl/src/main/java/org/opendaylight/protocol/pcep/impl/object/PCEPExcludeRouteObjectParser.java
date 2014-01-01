@@ -42,7 +42,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setFlags(new Flags(UnsignedBytes.toInt(bytes[FLAGS_OFFSET]) != 0));
-		builder.setSubobjects(parseSubobjects(ByteArray.cutBytes(bytes, FLAGS_OFFSET + 1)));
+		builder.setSubobject(parseSubobjects(ByteArray.cutBytes(bytes, FLAGS_OFFSET + 1)));
 		return builder.build();
 	}
 
@@ -52,8 +52,8 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ExcludeRouteObject.");
 		}
 		final Xro obj = (Xro) object;
-		assert !(obj.getSubobjects().isEmpty()) : "Empty Excluded Route Object.";
-		final byte[] bytes = serializeSubobject(obj.getSubobjects());
+		assert !(obj.getSubobject().isEmpty()) : "Empty Excluded Route Object.";
+		final byte[] bytes = serializeSubobject(obj.getSubobject());
 		final byte[] result = new byte[FLAGS_OFFSET + 1 + bytes.length];
 		if (obj.getFlags().isFail()) {
 			result[FLAGS_OFFSET] = 1;

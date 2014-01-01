@@ -35,7 +35,7 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 		final EroBuilder builder = new EroBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setSubobjects(parseSubobjects(bytes));
+		builder.setSubobject(parseSubobjects(bytes));
 		return builder.build();
 	}
 
@@ -47,10 +47,10 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 		}
 		final Ero ero = ((Ero) object);
 
-		assert !(ero.getSubobjects().isEmpty()) : "Empty Explicit Route Object.";
+		assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
 
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
-				serializeSubobject(ero.getSubobjects()));
+				serializeSubobject(ero.getSubobject()));
 	}
 
 	@Override

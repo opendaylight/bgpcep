@@ -15,8 +15,8 @@ import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -44,14 +44,14 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 	private static final int CONTENT6_LENGTH = ATTRIBUTE6_OFFSET + ATTRIBUTE_LENGTH;
 
 	@Override
-	public Subobjects parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
 		if (buffer == null || buffer.length == 0) {
 			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
 		}
 		if (buffer.length != CONTENT6_LENGTH) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
 		}
-		final SubobjectsBuilder builder = new SubobjectsBuilder();
+		final SubobjectBuilder builder = new SubobjectBuilder();
 		builder.setMandatory(mandatory);
 		final int length = UnsignedBytes.toInt(buffer[PREFIX6_F_OFFSET]);
 		builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer[ATTRIBUTE6_OFFSET])));
@@ -62,7 +62,7 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 	}
 
 	@Override
-	public byte[] serializeSubobject(final Subobjects subobject) {
+	public byte[] serializeSubobject(final Subobject subobject) {
 		if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
 			throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
 					+ ". Needed IpPrefixCase.");

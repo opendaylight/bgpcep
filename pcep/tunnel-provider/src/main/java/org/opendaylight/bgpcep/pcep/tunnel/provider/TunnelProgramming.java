@@ -28,8 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutput;
@@ -188,12 +188,12 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 		final EroBuilder b = new EroBuilder();
 
 		if (!explicitHops.isEmpty()) {
-			final List<Subobjects> subobjs = new ArrayList<>(explicitHops.size());
+			final List<Subobject> subobjs = new ArrayList<>(explicitHops.size());
 			for (final ExplicitHops h : explicitHops) {
 
 				final ExplicitHops1 h1 = h.getAugmentation(ExplicitHops1.class);
 				if (h1 != null) {
-					final SubobjectsBuilder sb = new SubobjectsBuilder();
+					final SubobjectBuilder sb = new SubobjectBuilder();
 					sb.fieldsFrom(h1);
 					sb.setLoose(h.isLoose());
 					subobjs.add(sb.build());
@@ -201,7 +201,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 					LOG.debug("Ignoring unhandled explicit hop {}", h);
 				}
 			}
-			b.setSubobjects(subobjs);
+			b.setSubobject(subobjs);
 		}
 		return b.build();
 	}

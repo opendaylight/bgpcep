@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv6._case.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1Builder;
@@ -78,9 +78,9 @@ public final class NodeChangedListener implements DataChangeListener {
 		this.target = Preconditions.checkNotNull(target);
 	}
 
-	private static void categorizeIdentifier(final InstanceIdentifier<?> i, final Set<InstanceIdentifier<ReportedLsps>> changedLsps,
+	private static void categorizeIdentifier(final InstanceIdentifier<?> i, final Set<InstanceIdentifier<ReportedLsp>> changedLsps,
 			final Set<InstanceIdentifier<Node>> changedNodes) {
-		final InstanceIdentifier<ReportedLsps> li = i.firstIdentifierOf(ReportedLsps.class);
+		final InstanceIdentifier<ReportedLsp> li = i.firstIdentifierOf(ReportedLsp.class);
 		if (li == null) {
 			final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 			if (ni == null) {
@@ -93,7 +93,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		}
 	}
 
-	private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node, final Set<InstanceIdentifier<ReportedLsps>> lsps) {
+	private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node, final Set<InstanceIdentifier<ReportedLsp>> lsps) {
 		if (node == null) {
 			LOG.trace("Skipping null node", id);
 			return;
@@ -104,13 +104,13 @@ public final class NodeChangedListener implements DataChangeListener {
 			return;
 		}
 
-		for (final ReportedLsps l : pccnode.getPathComputationClient().getReportedLsps()) {
-			lsps.add(InstanceIdentifier.builder(id).augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsps.class,
+		for (final ReportedLsp l : pccnode.getPathComputationClient().getReportedLsp()) {
+			lsps.add(InstanceIdentifier.builder(id).augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsp.class,
 					l.getKey()).toInstance());
 		}
 	}
 
-	private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsps> i, final ReportedLsps lsp) {
+	private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsp> i, final ReportedLsp lsp) {
 		return new LinkId(i.firstKeyOf(Node.class, NodeKey.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
 	}
 
@@ -201,7 +201,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		return InstanceIdentifier.builder(this.target).child(Node.class, nb.getKey()).child(TerminationPoint.class, tpb.getKey()).toInstance();
 	}
 
-	private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+	private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
 
 		final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
@@ -253,7 +253,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).toInstance();
 	}
 
-	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsps> i, final ReportedLsps value) {
+	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
 		final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
 		final Link l = (Link) trans.readOperationalData(li);
@@ -353,7 +353,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	public void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
 		final DataModificationTransaction trans = this.dataProvider.beginTransaction();
 
-		final Set<InstanceIdentifier<ReportedLsps>> lsps = new HashSet<>();
+		final Set<InstanceIdentifier<ReportedLsp>> lsps = new HashSet<>();
 		final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
 
 		// Categorize reported identifiers
@@ -378,9 +378,9 @@ public final class NodeChangedListener implements DataChangeListener {
 		}
 
 		// We now have list of all affected LSPs. Walk them create/remove them
-		for (final InstanceIdentifier<ReportedLsps> i : lsps) {
-			final ReportedLsps oldValue = (ReportedLsps) o.get(i);
-			final ReportedLsps newValue = (ReportedLsps) n.get(i);
+		for (final InstanceIdentifier<ReportedLsp> i : lsps) {
+			final ReportedLsp oldValue = (ReportedLsp) o.get(i);
+			final ReportedLsp newValue = (ReportedLsp) n.get(i);
 
 			LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
 			if (oldValue != null) {

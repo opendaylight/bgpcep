@@ -87,7 +87,7 @@ module network-topology-pcep {
                 type pcc-sync-state;
             }
 
-            list reported-lsps {
+            list reported-lsp {
                 leaf name {
                     type stateful:symbolic-path-name;
                 }

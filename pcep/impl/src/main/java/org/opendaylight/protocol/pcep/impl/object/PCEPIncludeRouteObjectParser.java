@@ -15,8 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobjects;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.iro.SubobjectBuilder;
 
 import com.google.common.collect.Lists;
 
@@ -44,11 +44,11 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		final List<Subobjects> subs = Lists.newArrayList();
-		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects s : parseSubobjects(bytes)) {
-			subs.add(new SubobjectsBuilder().setSubobjectType(s.getSubobjectType()).build());
+		final List<Subobject> subs = Lists.newArrayList();
+		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject s : parseSubobjects(bytes)) {
+			subs.add(new SubobjectBuilder().setSubobjectType(s.getSubobjectType()).build());
 		}
-		builder.setSubobjects(subs);
+		builder.setSubobject(subs);
 		return builder.build();
 	}
 
@@ -59,12 +59,12 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 		}
 		final Iro iro = ((Iro) object);
 
-		assert !(iro.getSubobjects().isEmpty()) : "Empty Include Route Object.";
+		assert !(iro.getSubobject().isEmpty()) : "Empty Include Route Object.";
 
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobjects> subs = Lists.newArrayList();
+		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> subs = Lists.newArrayList();
 
-		for (final Subobjects s : iro.getSubobjects()) {
-			subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectsBuilder().setLoose(
+		for (final Subobject s : iro.getSubobject()) {
+			subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setLoose(
 					false).setSubobjectType(s.getSubobjectType()).build());
 		}
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));

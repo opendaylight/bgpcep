@@ -36,7 +36,7 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setSubobjects(parseSubobjects(bytes));
+		builder.setSubobject(parseSubobjects(bytes));
 		return builder.build();
 	}
 
@@ -47,9 +47,9 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 					+ ". Needed ReportedRouteObject.");
 		}
 		final Rro obj = (Rro) object;
-		assert !(obj.getSubobjects().isEmpty()) : "Empty Reported Route Object.";
+		assert !(obj.getSubobject().isEmpty()) : "Empty Reported Route Object.";
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
-				serializeSubobject(obj.getSubobjects()));
+				serializeSubobject(obj.getSubobject()));
 	}
 
 	@Override

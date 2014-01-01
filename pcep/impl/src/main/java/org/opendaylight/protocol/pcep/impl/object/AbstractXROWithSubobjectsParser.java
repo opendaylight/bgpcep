@@ -15,7 +15,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobjects;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 		this.subobjReg = Preconditions.checkNotNull(subobjReg);
 	}
 
-	protected List<Subobjects> parseSubobjects(final byte[] bytes) throws PCEPDeserializerException {
+	protected List<Subobject> parseSubobjects(final byte[] bytes) throws PCEPDeserializerException {
 		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory.");
 		}
@@ -50,7 +50,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 		int length;
 		int offset = 0;
 
-		final List<Subobjects> subs = Lists.newArrayList();
+		final List<Subobject> subs = Lists.newArrayList();
 
 		while (offset < bytes.length) {
 
@@ -70,7 +70,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 			soContentsBytes = ByteArray.subByte(bytes, offset, length - SO_CONTENTS_OFFSET);
 
 			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobjects sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, mandatory);
+			final Subobject sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, mandatory);
 			LOG.debug("Subobject was parsed. {}", sub);
 
 			subs.add(sub);
@@ -80,13 +80,13 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 		return subs;
 	}
 
-	protected final byte[] serializeSubobject(final List<Subobjects> subobjects) {
+	protected final byte[] serializeSubobject(final List<Subobject> subobjects) {
 
 		final List<byte[]> result = Lists.newArrayList();
 
 		int finalLength = 0;
 
-		for (final Subobjects subobject : subobjects) {
+		for (final Subobject subobject : subobjects) {
 
 			final XROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
 

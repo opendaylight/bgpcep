@@ -466,7 +466,7 @@ module pcep-types {
 				mandatory true;
 			}
 
-			list subobjects {
+			list subobject {
 				uses rsvp:exclude-route-subobjects;
 			}
 		}
@@ -480,7 +480,7 @@ module pcep-types {
 			// No possibility of TLVs
 			uses object;
 
-			list subobjects {
+			list subobject {
 				leaf loose {
 					type boolean;
 					mandatory true;
@@ -507,7 +507,7 @@ module pcep-types {
 			// No possibility of TLVs
 			uses object;
 
-			list subobjects {
+			list subobject {
 				uses rsvp:explicit-route-subobjects;
 			}
 		}
@@ -521,7 +521,7 @@ module pcep-types {
 			// No possibility of TLVs
 			uses object;
 
-			list subobjects {
+			list subobject {
 				uses rsvp:record-route-subobjects {
 					augment "subobject-type" {
 						case path-key-case {
