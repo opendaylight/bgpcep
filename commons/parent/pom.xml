@@ -417,6 +417,10 @@
                                         <outputBaseDir>target/site</outputBaseDir>
                                     </generator>
                                     <generator>
+                                        <codeGeneratorClass>org.opendaylight.yangtools.yang.wadl.generator.maven.WadlGenerator</codeGeneratorClass>
+                                        <outputBaseDir>target/site</outputBaseDir>
+                                    </generator>
+                                    <generator>
                                         <codeGeneratorClass>
                                             org.opendaylight.controller.config.yangjmxgenerator.plugin.JMXGenerator
                                         </codeGeneratorClass>
