@@ -87,6 +87,11 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 				public Set<BgpTableType> getAdvertisedTableTypes() {
 					return tts;
 				}
+
+				@Override
+				public byte[] getBgpId() {
+					return new byte[] { (byte) 127, 0, 0, 1 };
+				}
 			});
 		} else if (!(message instanceof Keepalive)) {
 			listener.onMessage(null, message);

@@ -33,13 +33,13 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 
 	private final short holdTimer;
 
-	private final int as;
+	private final AsNumber as;
 
 	private final Ipv4Address bgpId;
 
 	private final BGPSessionPreferences prefs;
 
-	public BGPSessionProposalImpl(final short holdTimer, final int as, final Ipv4Address bgpId,
+	public BGPSessionProposalImpl(final short holdTimer, final AsNumber as, final Ipv4Address bgpId,
 			final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables) {
 		this.holdTimer = holdTimer;
 		this.as = as;
@@ -52,8 +52,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 							new MultiprotocolCapabilityBuilder().setAfi(e.getKey()).setSafi(e.getValue()).build()).build()).build());
 		}
 		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new As4BytesCaseBuilder().setAs4BytesCapability(
-						new As4BytesCapabilityBuilder().setAsNumber(new AsNumber((long) as)).build()).build()).build());
+				new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build()).build()).build());
 		this.prefs = new BGPSessionPreferences(as, holdTimer, bgpId, tlvs);
 	}
 
@@ -72,7 +71,7 @@ public final class BGPSessionProposalImpl implements BGPSessionProposal {
 	/**
 	 * @return the as
 	 */
-	public int getAs() {
+	public AsNumber getAs() {
 		return this.as;
 	}
 

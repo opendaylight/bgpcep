@@ -35,6 +35,7 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
@@ -83,7 +84,7 @@ public class FSMTest {
 		tlvs.add(new BgpParametersBuilder().setCParameters(
 				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
 						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build());
-		final BGPSessionPreferences prefs = new BGPSessionPreferences(30, (short) 3, null, tlvs);
+		final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, null, tlvs);
 
 		final ChannelFuture f = mock(ChannelFuture.class);
 		doReturn(null).when(f).addListener(any(GenericFutureListener.class));

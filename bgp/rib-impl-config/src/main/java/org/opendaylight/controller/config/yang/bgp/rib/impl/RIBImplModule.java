@@ -23,6 +23,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 
 import com.google.common.base.Preconditions;
@@ -30,47 +31,41 @@ import com.google.common.base.Preconditions;
 /**
  *
  */
-public final class RIBImplModule
-extends
-org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
+public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
-	public RIBImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
+	public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
 			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(name, dependencyResolver);
 	}
 
-	public RIBImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final RIBImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+	public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final RIBImplModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(name, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
 	public void validate() {
 		super.validate();
-		JmxAttributeValidationException.checkNotNull(getExtensions(),
-				"is not set.", extensionsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getRibId(),
-				"is not set.", ribIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", this.extensionsJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", this.ribIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", this.localAsJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", this.localAsJmxAttribute);
 	}
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final RibImplCloseable rib = new RibImplCloseable(getRibId(), getExtensionsDependency(), getDataProviderDependency());
+		final RibImplCloseable rib = new RibImplCloseable(getRibId(), new AsNumber(getLocalAs()), getBgpId().getBytes(), getExtensionsDependency(), getDataProviderDependency());
 		final List<ListenerRegistration<BGPSessionListener>> regs = new ArrayList<>();
 		for (final BGP bgp : getBgpDependency()) {
 			final BGPPeer peer = new BGPPeer(rib, "peer-" + bgp.toString());
 
-			regs.add(Preconditions.checkNotNull(bgp
-					.registerUpdateListener(peer,
-							new ReconnectStrategyFactory() {
-						@Override
-						public ReconnectStrategy createReconnectStrategy() {
-							return getTcpReconnectStrategyDependency();
-						}
-					}, getSessionReconnectStrategyDependency())));
+			regs.add(Preconditions.checkNotNull(bgp.registerUpdateListener(peer, new ReconnectStrategyFactory() {
+				@Override
+				public ReconnectStrategy createReconnectStrategy() {
+					return getTcpReconnectStrategyDependency();
+				}
+			}, getSessionReconnectStrategyDependency())));
 		}
 		rib.setListenerRegistrations(regs);
 		return rib;
@@ -79,8 +74,9 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 	private static final class RibImplCloseable extends RIBImpl implements AutoCloseable {
 		private List<ListenerRegistration<BGPSessionListener>> regs;
 
-		private RibImplCloseable(final RibId ribId, final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
-			super(ribId, extensions, dps);
+		private RibImplCloseable(final RibId ribId, final AsNumber localAs, final byte[] bgpId,
+				final RIBExtensionConsumerContext extensions, final DataProviderService dps) {
+			super(ribId, localAs, bgpId, extensions, dps);
 		}
 
 		@Override
@@ -88,7 +84,7 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 			try {
 				super.close();
 			} finally {
-				for (ListenerRegistration<BGPSessionListener> r : regs) {
+				for (final ListenerRegistration<BGPSessionListener> r : this.regs) {
 					r.close();
 				}
 			}

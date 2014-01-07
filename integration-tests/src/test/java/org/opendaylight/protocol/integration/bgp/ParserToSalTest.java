@@ -38,6 +38,7 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -100,7 +101,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-			ExecutionException, TimeoutException {
+					ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -135,7 +136,7 @@ public class ParserToSalTest {
 		final RIBExtensionProviderContext ext = new SimpleRIBExtensionProviderContext();
 		new RIBActivator().startRIBExtensionProvider(ext);
 		new org.opendaylight.protocol.bgp.linkstate.RIBActivator().startRIBExtensionProvider(ext);
-		final RIBImpl rib = new RIBImpl(new RibId("testRib"), ext, this.providerService);
+		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new byte[] { (byte) 127, 0, 0, 1 }, ext, this.providerService);
 		final BGPPeer peer = new BGPPeer(rib, "peer-" + this.mock.toString());
 
 		this.mock.registerUpdateListener(peer, new ReconnectStrategyFactory() {

@@ -30,6 +30,7 @@ import org.opendaylight.protocol.framework.ProtocolSession;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -79,7 +80,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, 72, new Ipv4Address("127.0.0.2"), tables).getProposal();
+		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
 
 		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs);
 

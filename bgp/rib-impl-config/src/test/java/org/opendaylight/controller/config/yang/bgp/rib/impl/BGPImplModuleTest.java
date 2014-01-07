@@ -50,108 +50,111 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
 		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory,
-				this.sessionFacotry, this.messageFactory, this.threadgropFactory, this.extensionFactory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory, this.sessionFacotry, this.messageFactory, this.threadgropFactory, this.extensionFactory));
 	}
 
 	@Test
-	public void testValidationExceptionPortNotSet()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionPortNotSet() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", null, sessionFacotry.getImplementationName(),
-					dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(),
-					messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, "localhost", null,
+					this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+					this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+					this.extensionFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("Port value is not set."));
 		}
 	}
 
 	@Test
-	public void testValidationExceptionPortOutOfRange()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionPortOutOfRange() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", -1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, "localhost", -1,
+					this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+					this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+					this.extensionFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("is out of range (0-65535)."));
 		}
 	}
 
 	@Test
-	public void testValidationExceptionHostNotSet()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionHostNotSet() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, null, 1,
+					this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+					this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+					this.extensionFactory.getImplementationName());
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("Host value is not set."));
 		}
 	}
 
 	@Test
 	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+		final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, "localhost", 1,
+				this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+				this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+				this.extensionFactory.getImplementationName());
 		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 6, 0, 0);
 	}
 
 	@Test
-	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-	ConflictingVersionException, ValidationException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+	public void testReusingOldInstance() throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
+		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, "localhost", 1,
+				this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+				this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+				this.extensionFactory.getImplementationName());
 		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		transaction = this.configRegistryClient.createTransaction();
+		assertBeanCount(1, this.factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 0, 0, 6);
 	}
 
 	@Test
-	public void testReconfigure() throws InstanceAlreadyExistsException,
-	ConflictingVersionException, ValidationException,
-	InstanceNotFoundException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, "localhost", 1, sessionFacotry.getImplementationName(), dispactherFactory.getImplementationName(), threadgropFactory.getImplementationName(), messageFactory.getImplementationName(), this.extensionFactory.getImplementationName());
+	public void testReconfigure() throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException,
+			InstanceNotFoundException {
+		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, "localhost", 1,
+				this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(),
+				this.threadgropFactory.getImplementationName(), this.messageFactory.getImplementationName(),
+				this.extensionFactory.getImplementationName());
 		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		BGPImplModuleMXBean mxBean = transaction
-				.newMBeanProxy(transaction.lookupConfigBean(
-						factory.getImplementationName(),
-						instanceName), BGPImplModuleMXBean.class);
+		transaction = this.configRegistryClient.createTransaction();
+		assertBeanCount(1, this.factory.getImplementationName());
+		final BGPImplModuleMXBean mxBean = transaction.newMBeanProxy(
+				transaction.lookupConfigBean(this.factory.getImplementationName(), this.instanceName), BGPImplModuleMXBean.class);
 		mxBean.setPort(10);
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 0, 1, 5);
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String host, final Integer port, final String sessionModuleName, final String dispatcherModuleName, final String threadgroupModuleName, final String messageFactoryModuleName, final String extensionModuleName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		BGPImplModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, BGPImplModuleMXBean.class);
+			final String instanceName, final String host, final Integer port, final String sessionModuleName,
+			final String dispatcherModuleName, final String threadgroupModuleName, final String messageFactoryModuleName,
+			final String extensionModuleName) throws InstanceAlreadyExistsException {
+		final ObjectName nameCreated = transaction.createModule(moduleName, instanceName);
+		final BGPImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, BGPImplModuleMXBean.class);
 		mxBean.setHost(host);
 		mxBean.setPort(port);
-		mxBean.setBgpProposal(BGPSessionProposalImplModuleTest.createInstance(transaction, sessionModuleName, "bgp-session1", 1, (short)30, "128.0.0.1"));
+		mxBean.setBgpProposal(BGPSessionProposalImplModuleTest.createInstance(transaction, sessionModuleName, "bgp-session1", 1L,
+				(short) 30, "128.0.0.1"));
 		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher1"));
 		return nameCreated;
 	}
