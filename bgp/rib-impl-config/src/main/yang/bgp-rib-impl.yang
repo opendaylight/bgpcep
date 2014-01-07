@@ -76,7 +76,7 @@ module bgp-rib-impl {
 
             leaf as-number {
                 mandatory true;
-                type int32;
+                type uint32;
             }
         }
     }
@@ -233,6 +233,16 @@ module bgp-rib-impl {
                         config:required-identity mdsb:binding-data-broker;
                     }
                 }
+            }
+
+            leaf local-as {
+                type uint32;
+                mandatory true;
+            }
+
+            leaf bgp-id {
+                mandatory true;
+                type string;
             }
 
             leaf rib-id {

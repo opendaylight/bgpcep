@@ -28,152 +28,133 @@ public class BGPSessionProposalImplModuleTest extends AbstractConfigTest {
 	private final String instanceName = "bgp-session-prop";
 
 	private BGPSessionProposalImplModuleFactory factory;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPSessionProposalImplModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory));
 	}
-	
+
 	@Test
-	public void testValidationExceptionAsNumberNotSet()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionAsNumberNotSet() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, (short)180, "192.168.1.1");
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, null, (short) 180, "192.168.1.1");
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("AsNumber value is not set."));
 		}
 	}
-	
+
 	@Test
-	public void testValidationExceptionAsNumberMinValue()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionAsNumberMinValue() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1, (short)180, "192.168.1.1");
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, (long) 0, (short) 180, "192.168.1.1");
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("AsNumber value must be greather than 0"));
+		} catch (final ValidationException e) {
+			assertTrue(e.getMessage().contains("AsNumber value must be greater than 0"));
 		}
 	}
-	
+
 	@Test
-	public void testValidationExceptionHoldtimerNotSet()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionHoldtimerNotSet() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, null, "192.168.1.1");
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, null, "192.168.1.1");
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("Holdtimer value is not set."));
 		}
 	}
-	
+
 	@Test
-	public void testValidationExceptionHoldtimerMinValue()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionHoldtimerMinValue() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)2, "192.168.1.1");
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 2, "192.168.1.1");
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("Holdtimer value must be"));
 		}
 	}
-	
+
 	@Test
-	public void testValidationExceptionBgpIdNotSet()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionBgpIdNotSet() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)180, null);
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 180, null);
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("BgpId value is not set."));
 		}
 	}
-	
+
 	@Test
-	public void testValidationExceptionBgpIdNotIpv4()
-			throws InstanceAlreadyExistsException {
+	public void testValidationExceptionBgpIdNotIpv4() throws InstanceAlreadyExistsException {
 		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)180, "192.168.1.500");
+			final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+			createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 180, "192.168.1.500");
 			transaction.validateConfig();
 			fail();
-		} catch (ValidationException e) {
+		} catch (final ValidationException e) {
 			assertTrue(e.getMessage().contains("is not valid IPv4 address"));
 		}
 	}
-	
+
 	@Test
 	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)180, "192.168.1.1");
+		final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 180, "192.168.1.1");
 		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 1, 0, 0);
 	}
-	
+
 	@Test
-	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)180, "192.168.1.1");
+	public void testReusingOldInstance() throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
+		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 180, "192.168.1.1");
 		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		transaction = this.configRegistryClient.createTransaction();
+		assertBeanCount(1, this.factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 0, 0, 1);
 	}
 
 	@Test
-	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
+	public void testReconfigure() throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException,
 			InstanceNotFoundException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 1, (short)180, "192.168.1.1");
+		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 1L, (short) 180, "192.168.1.1");
 		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		BGPSessionProposalImplModuleMXBean mxBean = transaction
-				.newMBeanProxy(transaction.lookupConfigBean(
-						factory.getImplementationName(),
-						instanceName), BGPSessionProposalImplModuleMXBean.class);
+		transaction = this.configRegistryClient.createTransaction();
+		assertBeanCount(1, this.factory.getImplementationName());
+		final BGPSessionProposalImplModuleMXBean mxBean = transaction.newMBeanProxy(
+				transaction.lookupConfigBean(this.factory.getImplementationName(), this.instanceName),
+				BGPSessionProposalImplModuleMXBean.class);
 		mxBean.setBgpId("192.168.10.10");
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
+		final CommitStatus status = transaction.commit();
+		assertBeanCount(1, this.factory.getImplementationName());
 		assertStatus(status, 0, 1, 0);
 	}
-	
+
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final Integer asNumber, final Short holdtimer, final String bgpId) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		BGPSessionProposalImplModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, BGPSessionProposalImplModuleMXBean.class);
+			final String instanceName, final Long asNumber, final Short holdtimer, final String bgpId)
+			throws InstanceAlreadyExistsException {
+		final ObjectName nameCreated = transaction.createModule(moduleName, instanceName);
+		final BGPSessionProposalImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, BGPSessionProposalImplModuleMXBean.class);
 		mxBean.setAsNumber(asNumber);
 		mxBean.setBgpId(bgpId);
 		mxBean.setHoldtimer(holdtimer);
 		return nameCreated;
-		
+
 	}
 }

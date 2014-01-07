@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.List;
 
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 
@@ -17,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public final class BGPSessionPreferences {
 
-	private final int as;
+	private final AsNumber as;
 
 	private final int hold;
 
@@ -30,7 +31,7 @@ public final class BGPSessionPreferences {
 	 * 
 	 * @param prefs BGP Open message
 	 */
-	public BGPSessionPreferences(final int as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
+	public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
 		this.as = as;
 		this.hold = hold;
 		this.bgpId = bgpId;
@@ -42,7 +43,7 @@ public final class BGPSessionPreferences {
 	 * 
 	 * @return AS number
 	 */
-	public int getMyAs() {
+	public AsNumber getMyAs() {
 		return this.as;
 	}
 

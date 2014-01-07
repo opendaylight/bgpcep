@@ -18,6 +18,7 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -51,7 +52,8 @@ public final class BGPSessionProposalImplModule extends
 				"value " + getBgpId() + " is not valid IPv4 address", this.bgpIdJmxAttribute);
 
 		JmxAttributeValidationException.checkNotNull(getAsNumber(), "value is not set.", this.asNumberJmxAttribute);
-		JmxAttributeValidationException.checkCondition(getAsNumber() >= 0, "value must be greather than 0", this.asNumberJmxAttribute);
+		JmxAttributeValidationException.checkCondition(getAsNumber().intValue() > 0, "value must be greater than 0",
+				this.asNumberJmxAttribute);
 
 		JmxAttributeValidationException.checkNotNull(getHoldtimer(), "value is not set.", this.holdtimerJmxAttribute);
 		JmxAttributeValidationException.checkCondition((getHoldtimer() == 0) || (getHoldtimer() >= 3), "value must be 0 or 3 and more",
@@ -64,7 +66,7 @@ public final class BGPSessionProposalImplModule extends
 		final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
 		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-		final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(getHoldtimer(), getAsNumber(), bgpId, tables);
+		final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(getHoldtimer(), new AsNumber(getAsNumber()), bgpId, tables);
 		return new BgpSessionProposalCloseable(bgpSessionProposal);
 	}
 

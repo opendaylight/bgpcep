@@ -102,8 +102,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	@Override
 	protected void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
-		this.writeMessage(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs()).setHoldTimer(this.localPref.getHoldTime()).setBgpIdentifier(
-				this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
+		this.writeMessage(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs().getValue().intValue()).setHoldTimer(
+				this.localPref.getHoldTime()).setBgpIdentifier(this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
 		this.state = State.OpenSent;
 
 		final Object lock = this;

@@ -30,6 +30,7 @@ import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 
 public class BGPImplTest {
@@ -54,10 +55,9 @@ public class BGPImplTest {
 
 	@Test
 	public void testBgpImpl() throws Exception {
-		doReturn(new BGPSessionPreferences(0, 0, null, Collections.<BgpParameters> emptyList())).when(this.prop).getProposal();
+		doReturn(new BGPSessionPreferences(new AsNumber(0L), 0, null, Collections.<BgpParameters> emptyList())).when(this.prop).getProposal();
 		this.bgp = new BGPImpl(this.disp, new InetSocketAddress(InetAddress.getLoopbackAddress(), 2000), this.prop);
-		final ListenerRegistration<?> reg = this.bgp.registerUpdateListener(new SimpleSessionListener(),
-				new ReconnectStrategyFactory() {
+		final ListenerRegistration<?> reg = this.bgp.registerUpdateListener(new SimpleSessionListener(), new ReconnectStrategyFactory() {
 			@Override
 			public ReconnectStrategy createReconnectStrategy() {
 				return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000);

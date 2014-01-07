@@ -12,14 +12,15 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 public class ApiTest {
 
 	@Test
 	public void testBGPSessionPreferences() {
-		final BGPSessionPreferences sp = new BGPSessionPreferences(58, (short) 5, null, null);
+		final BGPSessionPreferences sp = new BGPSessionPreferences(new AsNumber(58L), (short) 5, null, null);
 		assertNull(sp.getBgpId());
 		assertEquals((short) 5, sp.getHoldTime());
-		assertEquals(58, sp.getMyAs());
+		assertEquals(new AsNumber(58L), sp.getMyAs());
 	}
 }

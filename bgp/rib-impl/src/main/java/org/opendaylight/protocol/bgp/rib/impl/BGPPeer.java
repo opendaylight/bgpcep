@@ -56,6 +56,8 @@ public final class BGPPeer implements BGPSessionListener, Peer {
 		for (final BgpTableType t : session.getAdvertisedTableTypes()) {
 			this.tables.add(new TablesKey(t.getAfi(), t.getSafi()));
 		}
+		this.rib.initTables(session.getBgpId());
+
 	}
 
 	private void cleanup() {

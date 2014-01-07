@@ -25,6 +25,7 @@ import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -111,6 +112,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private final Set<BgpTableType> tableTypes;
 
+	private final Ipv4Address bgpId;
+
 	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
@@ -151,6 +154,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 				}
 			}, this.keepAlive, TimeUnit.SECONDS);
 		}
+		this.bgpId = remoteOpen.getBgpIdentifier();
 	}
 
 	@Override
@@ -310,5 +314,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	public synchronized State getState() {
 		return this.state;
+	}
+
+	public byte[] getBgpId() {
+		return this.bgpId.getValue().getBytes();
 	}
 }

@@ -89,6 +89,11 @@ public class SynchronizationTest {
 				types.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
 				return types;
 			}
+
+			@Override
+			public byte[] getBgpId() {
+				return new byte[] { (byte) 127, 0, 0, 1 };
+			}
 		}, this.listener, types);
 	}
 
