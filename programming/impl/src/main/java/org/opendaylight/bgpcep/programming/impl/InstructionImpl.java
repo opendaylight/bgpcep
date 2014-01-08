@@ -7,14 +7,11 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelFailure;
@@ -26,10 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
+import javax.annotation.concurrent.GuardedBy;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 final class InstructionImpl implements Instruction {
 	private static final Logger LOG = LoggerFactory.getLogger(InstructionImpl.class);
@@ -218,7 +215,9 @@ final class InstructionImpl implements Instruction {
 			it.next().removeDependency(this);
 		}
 		dependants.clear();
-	}
+
+        this.queue.instructionRemoved();
+    }
 
 	synchronized ListenableFuture<ExecutionResult<Details>> ready() {
 		Preconditions.checkState(status == InstructionStatus.Queued);

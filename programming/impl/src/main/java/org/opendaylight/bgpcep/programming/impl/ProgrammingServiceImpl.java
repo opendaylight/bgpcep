@@ -7,20 +7,15 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
@@ -58,12 +53,15 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.SettableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public final class ProgrammingServiceImpl implements AutoCloseable, InstructionScheduler, ProgrammingService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
@@ -162,7 +160,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
 		for (final InstructionId id : input.getId()) {
 			// Find the instruction
-			final InstructionImpl i = this.insns.get(input.getId());
+			final InstructionImpl i = this.insns.get(id);
 			if (i == null) {
 				LOG.debug("Instruction {} not present in the graph", input.getId());
 				failed.add(id);
@@ -188,14 +186,12 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 			// it from its dependencies and dependants
 			i.clean();
 
-			insns.remove(i);
+            insns.remove(i);
 			LOG.debug("Instruction {} cleaned successfully", id);
 		}
 
 		final CleanInstructionsOutputBuilder ob = new CleanInstructionsOutputBuilder();
-		if (!failed.isEmpty()) {
-			ob.setUnflushed(failed);
-		}
+		ob.setUnflushed(failed);
 
 		return SuccessfulRpcResult.create(ob.build());
 	}
@@ -210,9 +206,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
 		// First things first: check the deadline
 		final Nanotime now = NanotimeUtil.currentTime();
-		final BigInteger left = input.getDeadline().getValue().subtract(now.getValue());
+        final BigInteger left = input.getDeadline().getValue().subtract(now.getValue());
 
-		if (left.compareTo(BigInteger.ZERO) <= 0) {
+        if (left.compareTo(BigInteger.ZERO) <= 0) {
 			LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
 			throw new SchedulerException("Instruction arrived after specified deadline", new FailureBuilder().setType(DeadOnArrival.class).build());
 		}
@@ -251,7 +247,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 		 *  and fail the operation.
 		 */
 		if (!unmet.isEmpty()) {
-			throw new SchedulerException("Instruction's dependecies are already unsuccessful", new FailureBuilder().setType(DeadOnArrival.class).setFailedPreconditions(unmet).build());
+			throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder().setType(DeadOnArrival.class).setFailedPreconditions(unmet).build());
 		}
 
 		/*
