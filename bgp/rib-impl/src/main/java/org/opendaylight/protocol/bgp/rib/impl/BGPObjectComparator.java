@@ -56,7 +56,8 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		// - we assume that all nexthops are accessible
 
 		// 2. prefer path with higher LOCAL_PREF
-		if (!o1.getLocalPref().equals(o2.getLocalPref())) {
+		if ((o1.getLocalPref() != null || o2.getLocalPref() != null)
+				&& (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
 			return o1.getLocalPref().getPref().compareTo(o2.getLocalPref().getPref());
 		}
 
@@ -87,7 +88,8 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		}
 
 		// 6. prefer the path with the lowest multi-exit discriminator (MED)
-		if (!o1.getMultiExitDisc().equals(o2.getMultiExitDisc())) {
+		if ((o1.getMultiExitDisc() != null || o2.getMultiExitDisc() != null)
+				&& (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
 			return o2.getMultiExitDisc().getMed().compareTo(o1.getMultiExitDisc().getMed());
 		}
 
