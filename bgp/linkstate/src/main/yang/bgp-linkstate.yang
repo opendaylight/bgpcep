@@ -363,7 +363,7 @@ module bgp-linkstate {
 	typedef isis-area-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
 		type binary {
-			length "20";
+			length "1..20";
 		}
 	}
 
