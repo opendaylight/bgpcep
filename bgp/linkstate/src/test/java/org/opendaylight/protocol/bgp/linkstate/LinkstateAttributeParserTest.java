@@ -77,7 +77,7 @@ public class LinkstateAttributeParserTest {
 
 		assertEquals("12K-2", ls.getDynamicHostname());
 		assertEquals(1, ls.getIsisAreaId().size());
-		assertArrayEquals(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 114 }, ls.getIsisAreaId().get(0).getValue());
+		assertArrayEquals(new byte[] { 114 }, ls.getIsisAreaId().get(0).getValue());
 		assertEquals("41.41.41.41", ls.getIpv4RouterId().getValue());
 	}
 }

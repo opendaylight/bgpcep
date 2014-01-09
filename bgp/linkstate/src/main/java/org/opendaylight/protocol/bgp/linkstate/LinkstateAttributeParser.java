@@ -291,9 +291,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 					LOG.debug("Parsed Node Name {}", builder.getDynamicHostname());
 					break;
 				case TlvCode.ISIS_AREA_IDENTIFIER:
-					final byte[] dest = new byte[20];
-					System.arraycopy(value, 0, dest, 20 - value.length, value.length);
-					final IsisAreaIdentifier ai = new IsisAreaIdentifier(dest);
+					final IsisAreaIdentifier ai = new IsisAreaIdentifier(value);
 					areaMembership.add(ai);
 					LOG.debug("Parsed AreaIdentifier {}", ai);
 					break;
