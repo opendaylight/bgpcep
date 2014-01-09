@@ -4,6 +4,7 @@ module network-topology-programming {
 	prefix "tp";
 
 	import network-topology { prefix nt; revision-date 2013-10-21; }
+	import odl-network-topology { prefix ont; revision-date 2014-01-13; }
 	import programming { prefix pgm; revision-date 2013-09-30; }
 
 	organization "Cisco Systems, Inc.";
@@ -30,7 +31,7 @@ module network-topology-programming {
 		uses pgm:submit-instruction-input;
 
 		leaf topology-id {
-			type nt:topology-id;
+			type ont:network-topology-ref;
 			mandatory true;
 		}
 	}

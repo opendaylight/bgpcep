@@ -8,9 +8,7 @@
 package org.opendaylight.bgpcep.programming.topology;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.TopologyInstructionInput;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import com.google.common.base.Preconditions;
@@ -23,8 +21,9 @@ public final class TopologyProgrammingUtil {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public static InstanceIdentifier<Topology> topologyForInput(final TopologyInstructionInput input) {
 		Preconditions.checkNotNull(input.getTopologyId());
-		return InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(input.getTopologyId())).toInstance();
+		return (InstanceIdentifier<Topology>) input.getTopologyId().getValue();
 	}
 }

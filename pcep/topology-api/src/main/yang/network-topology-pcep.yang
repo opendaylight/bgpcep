@@ -6,6 +6,7 @@ module network-topology-pcep {
 
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
+    import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
 
@@ -130,6 +131,12 @@ module network-topology-pcep {
         }
     }
 
+    grouping topology-id {
+        leaf topology-id {
+            type ont:network-topology-ref;
+        }
+    }
+
     grouping operation-result {
         leaf failure {
             type failure-type;
@@ -147,6 +154,7 @@ module network-topology-pcep {
     }
 
     grouping add-lsp-args {
+        uses topology-id;
         uses lsp-id;
 
         container arguments {
@@ -173,6 +181,7 @@ module network-topology-pcep {
     }
 
     grouping remove-lsp-args {
+        uses topology-id;
         uses lsp-id;
     }
 
@@ -186,6 +195,7 @@ module network-topology-pcep {
     }
 
     grouping update-lsp-args {
+        uses topology-id;
         uses lsp-id;
 
         container arguments {
@@ -210,6 +220,7 @@ module network-topology-pcep {
     }
 
     grouping ensure-lsp-operational-args {
+        uses topology-id;
         uses lsp-id;
 
         container arguments {
