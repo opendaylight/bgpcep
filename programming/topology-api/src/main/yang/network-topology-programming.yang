@@ -5,6 +5,7 @@ module network-topology-programming {
 
 	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import programming { prefix pgm; revision-date 2013-09-30; }
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -38,5 +39,25 @@ module network-topology-programming {
 	grouping topology-instruction-output {
 		uses pgm:submit-instruction-output;
 	}
+
+// TODO use these for topology routing as soon as Null pointer bug is fixed in md-sal
+// md-sal throws null pointer if these structures are outside of a yang module that defines routed rpcs
+/*
+    grouping topology-identifier {
+       leaf topology-identifier {
+            ext:context-reference "topology-context";
+            type topology-ref;
+        }
+    }
+
+    typedef topology-ref {
+        type instance-identifier;
+    }
+
+    identity topology-context {
+        description "Identity used to mark topology context. Used for routed rpcs";
+    }
+
+*/
 }
 

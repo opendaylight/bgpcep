@@ -34,6 +34,7 @@
         <module>tunnel-provider-config</module>
 
         <module>controller-config</module>
+        <!--<module>pcep-it</module>-->
     </modules>
 
     <dependencyManagement>

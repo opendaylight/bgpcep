@@ -4,9 +4,11 @@ module topology-tunnel-pcep-programming {
         prefix "ttpp";
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
-        import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
+    import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
 	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
 	import topology-tunnel-pcep { prefix ptp; revision-date 2013-08-20; }
+	import yang-ext {prefix ext; revision-date "2013-07-09";}
+
 
         organization "Cisco Systems, Inc.";
         contact "Robert Varga <rovarga@cisco.com>";
@@ -28,8 +30,26 @@ module topology-tunnel-pcep-programming {
                 reference "";
         }
 
+    // TODO remove tpology referencing structures from this module, should be in one place for pcep-tunnel-api and pcep-topology-api
+    grouping topology-identifier {
+       leaf topology-identifier {
+            ext:context-reference "topology-context";
+            type topology-ref;
+        }
+    }
+
+    typedef topology-ref {
+        type instance-identifier;
+    }
+
+    identity topology-context {
+        description "Identity used to mark topology context. Used for routed rpcs";
+    }
+
 	rpc pcep-create-p2p-tunnel {
 		input {
+			uses topology-identifier;
+
 			uses ttp:create-p2p-tunnel-input;
 
 			uses p2p:tunnel-p2p-path-cfg-attributes;
@@ -42,6 +62,8 @@ module topology-tunnel-pcep-programming {
 
 	rpc pcep-destroy-tunnel {
 		input {
+			uses topology-identifier;
+
 			uses ttp:destroy-tunnel-input;
 		}
 		output {
@@ -51,6 +73,8 @@ module topology-tunnel-pcep-programming {
 
 	rpc pcep-update-tunnel {
 		input {
+    		uses topology-identifier;
+
 			uses ttp:base-tunnel-input;
 
 			uses p2p:tunnel-p2p-path-cfg-attributes;
