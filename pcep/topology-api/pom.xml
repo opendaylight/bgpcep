@@ -39,7 +39,11 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.opendaylight.yangtools.model</groupId>
+            <artifactId>yang-ext</artifactId>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -54,6 +58,13 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            org.opendaylight.yang.gen.*,
+                            org.opendaylight.yangtools.yang.binding,
+                            org.opendaylight.yangtools.yang.binding.annotations,
+                            org.opendaylight.yangtools.yang.common,
+                            com.google.common.collect,
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
