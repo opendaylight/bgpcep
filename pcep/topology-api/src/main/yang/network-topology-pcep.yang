@@ -6,6 +6,7 @@ module network-topology-pcep {
 
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
+    import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
 
@@ -165,6 +166,7 @@ module network-topology-pcep {
 
     rpc add-lsp {
         input {
+            uses ont:network-topology-reference;
             uses add-lsp-args;
         }
         output {
@@ -178,6 +180,7 @@ module network-topology-pcep {
 
     rpc remove-lsp {
         input {
+            uses ont:network-topology-reference;
             uses remove-lsp-args;
         }
         output {
@@ -202,6 +205,7 @@ module network-topology-pcep {
 
     rpc update-lsp {
         input {
+            uses ont:network-topology-reference;
             uses update-lsp-args;
         }
         output {
@@ -226,6 +230,7 @@ module network-topology-pcep {
             operational status.";
 
         input {
+            uses ont:network-topology-reference;
             uses ensure-lsp-operational-args;
         }
         output {
