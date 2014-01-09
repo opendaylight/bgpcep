@@ -59,8 +59,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
@@ -77,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.link.attributes.IgpLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
@@ -321,8 +324,11 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		trans.putOperationalData(buildTpIdentifier(srcNode, srcTp.getKey()), srcTp);
 		trans.putOperationalData(buildTpIdentifier(dstNode, dstTp.getKey()), dstTp);
-		trans.putOperationalData(buildLinkIdentifier(base, l), lb.build());
-		LOG.debug("Created link {}", l);
+
+		final InstanceIdentifier<?> lid = buildLinkIdentifier(base, l);
+		final Link link = lb.build();
+		trans.putOperationalData(lid, link);
+		LOG.debug("Created link {} at {} for {}", link, lid, l);
 	}
 
 	private void removeLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkCase l) {
@@ -472,8 +478,10 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		nb.setNodeId(buildNodeId(base, n.getNodeDescriptors()));
 		nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(inab.build()).build());
 
-		trans.putOperationalData(nodeIdentifierBuilder(base, n.getNodeDescriptors()).toInstance(), nb.build());
-		LOG.debug("Created node {}", n);
+		final InstanceIdentifier<Node> nid = nodeIdentifierBuilder(base, n.getNodeDescriptors()).build();
+		final Node node = nb.build();
+		trans.putOperationalData(nid, node);
+		LOG.debug("Created node {} at {} for {}", node, nid, n);
 	}
 
 	private void removeNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final NodeCase n) {
@@ -516,8 +524,11 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			break;
 		}
 
-		trans.putOperationalData(prefixIdentifier(base, p), pb.build());
-		LOG.debug("Created prefix {}", p);
+
+		final Prefix pfx = pb.build();
+		final InstanceIdentifier<Prefix> pid = prefixIdentifier(base, p);
+		trans.putOperationalData(pid, pfx);
+		LOG.debug("Created prefix {} at {} for {}", pfx, pid, p);
 	}
 
 	private void removePrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final PrefixCase p) {
