@@ -49,6 +49,7 @@
         <yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
         <ietf.types.version>2010.09.24.2-SNAPSHOT</ietf.types.version>
         <ietf.topology.version>2013.10.21.0-SNAPSHOT</ietf.topology.version>
+        <yang-ext.version>2013.09.07.1-SNAPSHOT</yang-ext.version>
     </properties>
 
     <dependencyManagement>
@@ -199,6 +200,11 @@
                 <groupId>org.opendaylight.yangtools.model</groupId>
                 <artifactId>ietf-topology-ospf</artifactId>
                 <version>${ietf.topology.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.yangtools.model</groupId>
+                <artifactId>yang-ext</artifactId>
+                <version>${yang-ext.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
