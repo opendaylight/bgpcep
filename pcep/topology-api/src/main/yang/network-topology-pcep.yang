@@ -98,6 +98,8 @@ module network-topology-pcep {
                 container path {
                     uses pcep:path-definition;
                 }
+
+                uses lsp-metadata;
             }
         }
     }
@@ -134,6 +136,16 @@ module network-topology-pcep {
         }
     }
 
+    grouping lsp-metadata {
+
+        container metadata {
+            description
+                "Container for external metadata attached to the LSP. Contents of this container
+                are not propagated onto the router itself, so it is persisted only while the LSP
+                is present.";
+        }
+    }
+
     grouping add-lsp-args {
         uses lsp-id;
 
@@ -146,6 +158,8 @@ module network-topology-pcep {
             uses pcep:endpoints-object;
 
             uses pcep:path-definition;
+
+            uses lsp-metadata;
         }
     }
 
@@ -181,6 +195,8 @@ module network-topology-pcep {
             }
 
             uses pcep:path-definition;
+
+            uses lsp-metadata;
         }
     }
 
