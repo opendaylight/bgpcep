@@ -62,6 +62,11 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            *,
+                            org.opendaylight.yangtools.yang.binding.annotations,
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102,
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
