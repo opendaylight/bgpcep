@@ -9,6 +9,9 @@ module network-topology-pcep {
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
     import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
 
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+    //import network-topology-programming { prefix ntp; revision-date 2013-11-02; }
+
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
 
@@ -146,7 +149,24 @@ module network-topology-pcep {
         }
     }
 
+    grouping topology-identifier {
+       leaf topology-identifier {
+            ext:context-reference "topology-context";
+            type topology-ref;
+        }
+    }
+
+    typedef topology-ref {
+        type instance-identifier;
+    }
+
+    identity topology-context {
+        description "Identity used to mark topology context. Used for routed rpcs";
+    }
+
     grouping add-lsp-args {
+        uses topology-identifier;
+
         uses lsp-id;
 
         container arguments {
@@ -163,6 +183,7 @@ module network-topology-pcep {
         }
     }
 
+
     rpc add-lsp {
         input {
             uses add-lsp-args;
@@ -173,6 +194,8 @@ module network-topology-pcep {
     }
 
     grouping remove-lsp-args {
+        uses topology-identifier;
+
         uses lsp-id;
     }
 
@@ -186,6 +209,8 @@ module network-topology-pcep {
     }
 
     grouping update-lsp-args {
+        uses topology-identifier;
+
         uses lsp-id;
 
         container arguments {
@@ -210,6 +235,8 @@ module network-topology-pcep {
     }
 
     grouping ensure-lsp-operational-args {
+        uses topology-identifier;
+
         uses lsp-id;
 
         container arguments {

@@ -13,10 +13,13 @@ import org.opendaylight.bgpcep.pcep.tunnel.provider.PCEPTunnelTopologyProvider;
 import org.opendaylight.bgpcep.pcep.tunnel.provider.TunnelProgramming;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistration;
+import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.TopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.TopologyTunnelPcepProgrammingService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
@@ -45,8 +48,12 @@ public final class PCEPTunnelTopologyProviderModule extends org.opendaylight.con
 		final PCEPTunnelTopologyProvider ttp = PCEPTunnelTopologyProvider.create(getDataProviderDependency(), getSourceTopologyDependency().getInstanceIdentifier(), getTopologyId());
 		final NetworkTopologyPcepService ntps = getRpcRegistryDependency().getRpcService(NetworkTopologyPcepService.class);
 		final TunnelProgramming tp = new TunnelProgramming(getSchedulerDependency(), getDataProviderDependency(), ntps);
-		final RpcRegistration<TopologyTunnelPcepProgrammingService> reg =
-				getRpcRegistryDependency().addRpcImplementation(TopologyTunnelPcepProgrammingService.class, tp);
+
+        final BindingAwareBroker.RoutedRpcRegistration<TopologyTunnelPcepProgrammingService> reg =
+				getRpcRegistryDependency().addRoutedRpcImplementation(TopologyTunnelPcepProgrammingService.class, tp);
+        final InstanceIdentifier<Topology> topology =
+                InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(getTopologyId())).toInstance();
+        reg.registerPath(TopologyContext.class, topology);
 
 		final class TunnelTopologyReferenceCloseable extends DefaultTopologyReference implements AutoCloseable {
 			public TunnelTopologyReferenceCloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
