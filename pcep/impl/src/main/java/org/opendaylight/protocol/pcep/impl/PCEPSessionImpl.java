@@ -29,6 +29,7 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
@@ -133,7 +134,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			}, getKeepAliveTimerValue(), TimeUnit.SECONDS);
 		}
 
-		LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(), remoteOpen.getSessionId());
+		LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
+				remoteOpen.getSessionId());
 	}
 
 	/**
@@ -393,8 +395,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	@Override
 	public String getNodeIdentifier() {
-		if (this.remoteOpen.getTlvs() == null && this.remoteOpen.getTlvs().getPredundancyGroupId() != null) {
-			return new String(this.remoteOpen.getTlvs().getPredundancyGroupId().getIdentifier(), Charsets.UTF_8);
+		if (this.remoteOpen.getTlvs() == null && this.remoteOpen.getTlvs().getAugmentation(Tlvs2.class).getPredundancyGroupId() != null) {
+			return new String(this.remoteOpen.getTlvs().getAugmentation(Tlvs2.class).getPredundancyGroupId().getIdentifier(), Charsets.UTF_8);
 		}
 		return "";
 	}

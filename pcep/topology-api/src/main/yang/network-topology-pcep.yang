@@ -79,7 +79,7 @@ module network-topology-pcep {
             }
 
             container stateful-tlv {
-                uses pcep:stateful-capability-tlv;
+                uses stateful:stateful-capability-tlv;
             }
 
             leaf state-sync {

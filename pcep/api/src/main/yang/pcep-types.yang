@@ -129,50 +129,6 @@ module pcep-types {
 		}
 	}
 
-	grouping stateful-capability-tlv {
-		description "Stateful PCE Capability TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
-
-		container stateful {
-			uses tlv;
-
-			leaf lsp-update-capability {
-				type boolean;
-				default false;
-			}
-			leaf include-db-version {
-				type boolean;
-				default false;
-			}
-		}
-	}
-
-	grouping lsp-db-version-tlv {
-		description "LSP State Database Version TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
-
-		container lsp-db-version {
-			uses tlv;
-			leaf version {
-				type uint64;
-				mandatory true;
-			}
-		}
-	}
-
-	grouping predundancy-group-id-tlv {
-		description "PCE Redundancy Group Identifier TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
-
-		container predundancy-group-id {
-			uses tlv;
-			leaf identifier {
-				type binary;
-				mandatory true;
-			}
-		}
-	}
-
 	grouping of-list-tlv {
 		description "OF-List TLV";
 		reference "https://tools.ietf.org/html/rfc5541#section-2.1";
@@ -230,12 +186,6 @@ module pcep-types {
 			uses object;
 			container "tlvs" {
 				uses of-list-tlv;
-
-				uses stateful-capability-tlv;
-
-				uses predundancy-group-id-tlv;
-
-				uses lsp-db-version-tlv;
 			}
 
 			leaf version {
@@ -808,7 +758,7 @@ module pcep-types {
 			uses metric-object;
 		}
 		uses include-route-object;
-		
+
 		uses reported-route-object;
 
 		uses exclude-route-object;

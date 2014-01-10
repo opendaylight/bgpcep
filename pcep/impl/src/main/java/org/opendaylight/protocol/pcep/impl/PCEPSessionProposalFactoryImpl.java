@@ -12,10 +12,12 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.StatefulBuilder;
 
 public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactory {
 
@@ -37,8 +39,11 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 	public Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
 		final TlvsBuilder builder = new TlvsBuilder();
 		if (PCEPSessionProposalFactoryImpl.this.stateful) {
-			builder.setStateful((new StatefulBuilder().setIncludeDbVersion(this.versioned).setLspUpdateCapability(this.active).addAugmentation(
-					Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()));
+			builder.addAugmentation(
+					Tlvs2.class,
+					new Tlvs2Builder().setStateful(
+							new StatefulBuilder().setIncludeDbVersion(this.versioned).setLspUpdateCapability(this.active).addAugmentation(
+									Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()).build()).build();
 		}
 		final OpenBuilder oBuilder = new OpenBuilder();
 		oBuilder.setSessionId((short) sessionId);
