@@ -21,5 +21,4 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 */
 public class StatefulPCEPParserModuleFactory extends
 		org.opendaylight.controller.config.yang.pcep.impl.AbstractStatefulPCEPParserModuleFactory {
-
 }

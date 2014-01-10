@@ -260,6 +260,7 @@
                     </reportSet>
                 </reportSets>
             </plugin>
+            <!--  Bug-294 -->
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>

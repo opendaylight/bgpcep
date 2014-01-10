@@ -74,7 +74,6 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
 		regs.add(context.registerTlvParser(LspSymbolicNameTlvParser.TYPE, new LspSymbolicNameTlvParser()));
 		regs.add(context.registerTlvSerializer(SymbolicPathName.class, new LspSymbolicNameTlvParser()));
-
 		return regs;
 	}
 }
