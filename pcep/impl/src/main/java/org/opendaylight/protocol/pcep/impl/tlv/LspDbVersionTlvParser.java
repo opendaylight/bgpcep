@@ -13,9 +13,9 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersionBuilder;
 
 import com.google.common.primitives.UnsignedLong;
 
@@ -30,7 +30,8 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public LspDbVersion parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new LspDbVersionBuilder().setVersion(UnsignedLong.fromLongBits(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH))).bigIntegerValue()).build();
+		return new LspDbVersionBuilder().setVersion(
+				UnsignedLong.fromLongBits(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH))).bigIntegerValue()).build();
 	}
 
 	@Override

@@ -66,6 +66,19 @@ module pcep-ietf-stateful {
 		}
 	}
 
+	grouping lsp-db-version-tlv {
+		description "LSP State Database Version TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
+
+		container lsp-db-version {
+			uses pcep:tlv;
+			leaf version {
+				type uint64;
+				mandatory true;
+			}
+		}
+	}
+
 	grouping lsp-identifiers-tlv {
 		description "LSP Identifiers TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
@@ -107,7 +120,6 @@ module pcep-ietf-stateful {
 					}
 				}
 			}
-			// FIXME: add tunnel endpoint (from stateful-07)
 		}
 	}
 
@@ -143,6 +155,24 @@ module pcep-ietf-stateful {
 		}
 	}
 
+	grouping stateful-capability-tlv {
+		description "Stateful PCE Capability TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
+
+		container stateful {
+			uses pcep:tlv;
+
+			leaf lsp-update-capability {
+				type boolean;
+				default false;
+			}
+			leaf include-db-version {
+				type boolean;
+				default false;
+			}
+		}
+	}
+
 	grouping symbolic-path-name-tlv {
 		description "Symbolic Path Name TLV";
 		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
@@ -150,6 +180,19 @@ module pcep-ietf-stateful {
 			uses pcep:tlv;
 			leaf path-name {
 				type symbolic-path-name;
+				mandatory true;
+			}
+		}
+	}
+
+	grouping predundancy-group-id-tlv {
+		description "PCE Redundancy Group Identifier TLV";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
+
+		container predundancy-group-id {
+			uses pcep:tlv;
+			leaf identifier {
+				type binary;
 				mandatory true;
 			}
 		}
@@ -256,7 +299,7 @@ module pcep-ietf-stateful {
 			uses pcep:message-header;
 
 			list reports {
-				uses pcep:srp-object;
+				uses srp-object;
 
 				uses pcep:lsp-object;
 
@@ -275,7 +318,27 @@ module pcep-ietf-stateful {
 		uses pcrpt-message;
 	}
 
+	augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
+		uses lsp-db-version-tlv;
+
+		uses predundancy-group-id-tlv;
+
+		uses stateful-capability-tlv;
+	}
+
+	augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
+		uses lsp-db-version-tlv;
+
+		uses predundancy-group-id-tlv;
+
+		uses stateful-capability-tlv;
+	}
+
 	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {
+		uses lsp-object;
+	}
+
+	augment "/msg:pcrep/msg:pcrep-message/msg:replies" {
 		uses lsp-object;
 	}
 
@@ -288,4 +351,3 @@ module pcep-ietf-stateful {
 		}
 	}
 }
-

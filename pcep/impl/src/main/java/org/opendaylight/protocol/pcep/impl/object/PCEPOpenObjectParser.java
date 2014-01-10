@@ -13,18 +13,20 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.predundancy.group.id.tlv.PredundancyGroupId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.stateful.capability.tlv.Stateful;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,15 +106,29 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
 	@Override
 	public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
+		final Tlvs2Builder statefulBuilder = new Tlvs2Builder();
+		if (tbuilder.getAugmentation(Tlvs2.class) != null) {
+			final Tlvs2 t = tbuilder.getAugmentation(Tlvs2.class);
+			if (t.getLspDbVersion() != null) {
+				statefulBuilder.setLspDbVersion(t.getLspDbVersion());
+			}
+			if (t.getPredundancyGroupId() != null) {
+				statefulBuilder.setPredundancyGroupId(t.getPredundancyGroupId());
+			}
+			if (t.getClass() != null) {
+				statefulBuilder.setStateful(t.getStateful());
+			}
+		}
 		if (tlv instanceof OfList) {
 			tbuilder.setOfList((OfList) tlv);
 		} else if (tlv instanceof Stateful) {
-			tbuilder.setStateful((Stateful) tlv);
+			statefulBuilder.setStateful((Stateful) tlv);
 		} else if (tlv instanceof PredundancyGroupId) {
-			tbuilder.setPredundancyGroupId((PredundancyGroupId) tlv);
+			statefulBuilder.setPredundancyGroupId((PredundancyGroupId) tlv);
 		} else if (tlv instanceof LspDbVersion) {
-			tbuilder.setLspDbVersion((LspDbVersion) tlv);
+			statefulBuilder.setLspDbVersion((LspDbVersion) tlv);
 		}
+		tbuilder.addAugmentation(Tlvs2.class, statefulBuilder.build());
 	}
 
 	@Override
@@ -151,18 +167,22 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 			ofListBytes = serializeTlv(tlvs.getOfList());
 			finalLength += ofListBytes.length;
 		}
-		if (tlvs.getStateful() != null) {
-			statefulBytes = serializeTlv(tlvs.getStateful());
-			finalLength += statefulBytes.length;
+		if (tlvs.getAugmentation(Tlvs2.class) != null) {
+			final Tlvs2 statefulTlvs = tlvs.getAugmentation(Tlvs2.class);
+			if (statefulTlvs.getStateful() != null) {
+				statefulBytes = serializeTlv(statefulTlvs.getStateful());
+				finalLength += statefulBytes.length;
+			}
+			if (statefulTlvs.getPredundancyGroupId() != null) {
+				predundancyBytes = serializeTlv(statefulTlvs.getPredundancyGroupId());
+				finalLength += predundancyBytes.length;
+			}
+			if (statefulTlvs.getLspDbVersion() != null) {
+				lspDbBytes = serializeTlv(statefulTlvs.getLspDbVersion());
+				finalLength += lspDbBytes.length;
+			}
 		}
-		if (tlvs.getPredundancyGroupId() != null) {
-			predundancyBytes = serializeTlv(tlvs.getPredundancyGroupId());
-			finalLength += predundancyBytes.length;
-		}
-		if (tlvs.getLspDbVersion() != null) {
-			lspDbBytes = serializeTlv(tlvs.getLspDbVersion());
-			finalLength += lspDbBytes.length;
-		}
+
 		int offset = 0;
 		final byte[] result = new byte[finalLength];
 		if (ofListBytes != null) {
