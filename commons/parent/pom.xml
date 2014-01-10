@@ -240,6 +240,7 @@
                     </reportSet>
                 </reportSets>
             </plugin>
+            <!--  Bug-294 -->
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
@@ -404,10 +405,10 @@
                                             target/generated-sources/sal
                                         </outputBaseDir>
                                     </generator>
-                                    <generator>
+                                    <!-- generator>
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>
-                                    </generator>
+                                    </generator-->
                                     <generator>
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.wadl.generator.maven.WadlGenerator</codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>

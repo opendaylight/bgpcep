@@ -50,7 +50,7 @@ module pcep-crabbe-initiated {
 		}
 	}
 
-	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/msg:stateful" {
+	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful:stateful" {
 		leaf initiation {
 			type boolean;
 			default false;

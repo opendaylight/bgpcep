@@ -46,8 +46,20 @@ module odl-pcep-impl-cfg {
         }
     }
 
-    identity pcep-parser-crabbe-initiated {
+    identity pcep-parser-stateful {
         base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix StatefulPCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-stateful {
+            when "/config:modules/config:module/config:type = 'pcep-parser-stateful'";
+        }
+    }
+
+	identity pcep-parser-crabbe-initiated {
+		base config:module-type;
         config:provided-service spi:extension;
         config:java-name-prefix CrabbeInitiatedPCEPParser;
     }

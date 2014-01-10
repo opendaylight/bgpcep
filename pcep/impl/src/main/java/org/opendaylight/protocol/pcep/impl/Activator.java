@@ -15,10 +15,6 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
@@ -31,17 +27,14 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPIncludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLoadBalancingObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPLspObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPPathKeyObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROIpv4PrefixSubobjectParser;
@@ -66,18 +59,10 @@ import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey128SubobjectParse
 import org.opendaylight.protocol.pcep.impl.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROSRLGSubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.XROUnnumberedInterfaceSubobjectParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv6TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspDbVersionTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.PredundancyGroupTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
@@ -87,23 +72,10 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcntf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
@@ -119,7 +91,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
@@ -209,30 +180,14 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerTlvParser(ReqMissingTlvParser.TYPE, new ReqMissingTlvParser());
 		context.registerTlvParser(OFListTlvParser.TYPE, new OFListTlvParser());
 		context.registerTlvParser(OrderTlvParser.TYPE, new OrderTlvParser());
-		context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser());
-		context.registerTlvParser(LspSymbolicNameTlvParser.TYPE, new LspSymbolicNameTlvParser());
-		context.registerTlvParser(LSPIdentifierIpv4TlvParser.TYPE, new LSPIdentifierIpv4TlvParser());
-		context.registerTlvParser(LSPIdentifierIpv6TlvParser.TYPE, new LSPIdentifierIpv6TlvParser());
-		context.registerTlvParser(LspUpdateErrorTlvParser.TYPE, new LspUpdateErrorTlvParser());
-		context.registerTlvParser(RSVPErrorSpecTlvParser.TYPE, new RSVPErrorSpecTlvParser());
-		context.registerTlvParser(LspDbVersionTlvParser.TYPE, new LspDbVersionTlvParser());
-		context.registerTlvParser(PredundancyGroupTlvParser.TYPE, new PredundancyGroupTlvParser());
 
 		context.registerTlvSerializer(NoPathVector.class, new NoPathVectorTlvParser());
 		context.registerTlvSerializer(OverloadDuration.class, new OverloadedDurationTlvParser());
 		context.registerTlvSerializer(ReqMissing.class, new ReqMissingTlvParser());
 		context.registerTlvSerializer(OfList.class, new OFListTlvParser());
 		context.registerTlvSerializer(Order.class, new OrderTlvParser());
-		context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser());
-		context.registerTlvSerializer(SymbolicPathName.class, new LspSymbolicNameTlvParser());
-		context.registerTlvSerializer(LspIdentifiers.class, new LSPIdentifierIpv4TlvParser());
-		context.registerTlvSerializer(LspErrorCode.class, new LspUpdateErrorTlvParser());
-		context.registerTlvSerializer(RsvpErrorSpec.class, new RSVPErrorSpecTlvParser());
-		context.registerTlvSerializer(LspDbVersion.class, new LspDbVersionTlvParser());
-		context.registerTlvSerializer(PredundancyGroupId.class, new PredundancyGroupTlvParser());
 
 		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
-		context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(tlvReg));
 		context.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE,
 				new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, new PCEPNoPathObjectParser(tlvReg));
@@ -266,12 +221,9 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 
 		context.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE,
 				new PCEPGlobalConstraintsObjectParser(tlvReg));
-		context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg));
-		context.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(tlvReg));
 		context.registerObjectParser(PCEPExcludeRouteObjectParser.CLASS, PCEPExcludeRouteObjectParser.TYPE,
 				new PCEPExcludeRouteObjectParser(xroSubReg));
 
-		context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(tlvReg));
 		context.registerObjectSerializer(Rp.class, new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectSerializer(NoPath.class, new PCEPNoPathObjectParser(tlvReg));
 		context.registerObjectSerializer(EndpointsObj.class, new PCEPEndPointsIpv4ObjectParser(tlvReg));
@@ -292,30 +244,20 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectSerializer(Of.class, new PCEPObjectiveFunctionObjectParser(tlvReg));
 		context.registerObjectSerializer(ClassType.class, new PCEPClassTypeObjectParser(tlvReg));
 		context.registerObjectSerializer(Gc.class, new PCEPGlobalConstraintsObjectParser(tlvReg));
-		context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(tlvReg));
-		context.registerObjectSerializer(Srp.class, new PCEPSrpObjectParser(tlvReg));
 		context.registerObjectSerializer(Xro.class, new PCEPExcludeRouteObjectParser(xroSubReg));
 
 		context.registerMessageParser(PCEPOpenMessageParser.TYPE, new PCEPOpenMessageParser(objReg));
 		context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, new PCEPKeepAliveMessageParser(objReg));
-		context.registerMessageParser(PCEPReplyMessageParser.TYPE, new PCEPReplyMessageParser(objReg));
-		context.registerMessageParser(PCEPRequestMessageParser.TYPE, new PCEPRequestMessageParser(objReg));
 		context.registerMessageParser(PCEPErrorMessageParser.TYPE, new PCEPErrorMessageParser(objReg));
 		context.registerMessageParser(PCEPCloseMessageParser.TYPE, new PCEPCloseMessageParser(objReg));
-		context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE, new PCEPUpdateRequestMessageParser(objReg));
-		context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg));
 
 		context.registerMessageSerializer(
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open.class,
 				new PCEPOpenMessageParser(objReg));
 		context.registerMessageSerializer(Pcntf.class, new PCEPNotificationMessageParser(objReg));
 		context.registerMessageSerializer(Keepalive.class, new PCEPKeepAliveMessageParser(objReg));
-		context.registerMessageSerializer(Pcrep.class, new PCEPReplyMessageParser(objReg));
-		context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(objReg));
 		context.registerMessageSerializer(Pcerr.class, new PCEPErrorMessageParser(objReg));
 		context.registerMessageSerializer(Close.class, new PCEPCloseMessageParser(objReg));
-		context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg));
-		context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg));
 
 		return regs;
 	}
