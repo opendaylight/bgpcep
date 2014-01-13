@@ -12,8 +12,12 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NanotimeUtilTest {
+	private static final Logger LOG = LoggerFactory.getLogger(NanotimeUtilTest.class);
 
 	@Test
 	public void testCurrentTime() {
@@ -22,7 +26,12 @@ public class NanotimeUtilTest {
 	}
 
 	@Test
-	public void testNanoTime() {
-		System.out.println(NanotimeUtil.currentNanoTime());
+	public void testNanoTime() throws InterruptedException {
+		final Nanotime nt1 = NanotimeUtil.currentNanoTime();
+		Thread.sleep(1);
+		final Nanotime nt2 = NanotimeUtil.currentNanoTime();
+
+		LOG.debug("Times: {} {}", nt1, nt2);
+		assertTrue(nt1.getValue().compareTo(nt2.getValue()) < 0);
 	}
 }
