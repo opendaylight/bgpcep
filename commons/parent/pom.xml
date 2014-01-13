@@ -472,9 +472,16 @@
 
     <repositories>
         <repository>
-            <id>opendaylight-release</id>
-            <name>opendaylight-release</name>
-            <url>${nexusproxy}/repositories/opendaylight.release/</url>
+            <id>opendaylight-mirror</id>
+            <name>opendaylight-mirror</name>
+            <url>${nexusproxy}/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
         </repository>
         <repository>
             <id>opendaylight-snapshot</id>
@@ -485,9 +492,16 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>opendaylight-release</id>
-            <name>opendaylight-release</name>
-            <url>${nexusproxy}/repositories/opendaylight.release/</url>
+            <id>opendaylight-mirror</id>
+            <name>opendaylight-mirror</name>
+            <url>${nexusproxy}/groups/public/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
         </pluginRepository>
         <pluginRepository>
             <id>opendaylight-snapshot</id>
