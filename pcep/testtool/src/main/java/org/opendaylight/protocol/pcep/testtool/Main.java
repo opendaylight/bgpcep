@@ -26,7 +26,8 @@ public final class Main {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-	public static String usage = "DESCRIPTION:\n" + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
+	public static final String USAGE = "DESCRIPTION:\n"
+			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections "
 			+ "from PCCs.\n" + "USAGE:\n" + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
 			+ "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
 
@@ -68,8 +69,8 @@ public final class Main {
 	}
 
 	public static void main(final String[] args) throws Exception {
-		if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
-			System.out.println(Main.usage);
+		if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
+			System.err.println(Main.USAGE);
 			return;
 		}
 
