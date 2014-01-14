@@ -1,0 +1,46 @@
+<snapshot>
+	<required-capabilities>
+		<capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
+		<capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+		<capability>urn:opendaylight:params:xml:ns:yang:controller:programming:impl?module=config-programming-impl&amp;revision=2013-11-15</capability>
+		<capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=config-programming-spi&amp;revision=2013-11-15</capability>
+	</required-capabilities>
+	<configuration>
+
+		<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+			<modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+				<module>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:programming:impl">prefix:instruction-scheduler-impl</type>
+					<name>global-instruction-scheduler</name>
+					<data-provider>
+						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+						<name>binding-data-broker</name>
+					</data-provider>
+					<notification-service>
+						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-notification-service</type>
+						<name>binding-notification-broker</name>
+					</notification-service>
+					<rpc-registry>
+						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-rpc-registry</type>
+						<name>binding-rpc-broker</name>
+					</rpc-registry>
+					<timer>
+						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-timer</type>
+						<name>global-timer</name>
+					</timer>
+				</module>
+			</modules>
+
+			<services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+				<service>
+					<type xmlns:pgmspi="urn:opendaylight:params:xml:ns:yang:controller:programming:spi">pgmspi:instruction-scheduler</type>
+					<instance>
+						<name>global-instruction-scheduler</name>
+						<provider>/modules/module[type='instruction-scheduler-impl'][name='global-instruction-scheduler']</provider>
+					</instance>
+				</service>
+			</services>
+		</data>
+
+	</configuration>
+</snapshot>
