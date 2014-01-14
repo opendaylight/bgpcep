@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
@@ -90,7 +91,9 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -101,10 +104,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  *
  */
 final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable {
-	private static String createNodeId(final InetAddress addr) {
-		return "pcc://" + addr.getHostAddress();
-	}
-
 	private final class SessionListener implements PCEPSessionListener {
 		private final Map<SrpIdNumber, PCEPRequest> waitingRequests = new HashMap<>();
 		private final Map<SrpIdNumber, PCEPRequest> sendingRequests = new HashMap<>();
@@ -117,7 +116,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		private boolean synced = false;
 		private PCEPSession session;
 		private long requestId = 1;
-		private NodeId nodeId;
+		private TopologyNodeState nodeState;
 
 		private Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
 			final String pccId = createNodeId(address);
@@ -143,7 +142,6 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			trans.putOperationalData(nti, ret);
 			this.ownsTopology = true;
 			this.topologyNode = nti;
-			this.nodeId = id;
 			return ret;
 		}
 
@@ -194,15 +192,16 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				}
 			});
 
-			ServerSessionManager.this.nodes.put(this.nodeId, this);
+			this.nodeState = takeNodeState(topoNode.getNodeId(), this);
 			this.session = session;
 			LOG.info("Session with {} attached to topology node {}", session.getRemoteAddress(), topoNode.getNodeId());
 		}
 
 		@GuardedBy("this")
 		private void tearDown(final PCEPSession session) {
+			releaseNodeState(this.nodeState);
+			this.nodeState = null;
 			this.session = null;
-			ServerSessionManager.this.nodes.remove(this.nodeId);
 
 			final DataModificationTransaction trans = ServerSessionManager.this.dataProvider.beginTransaction();
 
@@ -275,6 +274,14 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					this.synced = true;
 					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
 					trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
+
+					// The node has completed synchronization, cleanup metadata no longer reported back
+					this.nodeState.cleanupExcept(Collections2.transform(this.lsps.values(), new Function<SymbolicPathName, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName>() {
+						@Override
+						public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName apply(final SymbolicPathName input) {
+							return input.getPathName();
+						}
+					}));
 					LOG.debug("Session {} achieved synchronized state", session);
 					return;
 				}
@@ -313,6 +320,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				if (lsp.isRemove()) {
 					final SymbolicPathName name = this.lsps.remove(id);
 					if (name != null) {
+						this.nodeState.removeLspMetadata(name.getPathName());
 						trans.removeOperationalData(lspIdentifier(new ReportedLspKey(name.getPathName())).build());
 					}
 
@@ -333,8 +341,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					rlb.setKey(new ReportedLspKey(this.lsps.get(id).getPathName()));
 
 					// If this is an unsolicited update. We need to make sure we retain the metadata already present
-					if (!solicited) {
-						rlb.setMetadata((Metadata) trans.readOperationalData(lspIdentifier(rlb.getKey()).child(Metadata.class).build()));
+					if (solicited) {
+						nodeState.setLspMetadata(rlb.getName(), rlb.getMetadata());
+					} else {
+						rlb.setMetadata(nodeState.getLspMetadata(rlb.getName()));
 					}
 
 					trans.putOperationalData(lspIdentifier(rlb.getKey()).build(), rlb.build());
@@ -406,11 +416,13 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 	};
 
+	private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 	private static final OperationResult OPERATION_NOACK = createOperationResult(FailureType.NoAck);
 	private static final OperationResult OPERATION_SUCCESS = createOperationResult(null);
 	private static final OperationResult OPERATION_UNSENT = createOperationResult(FailureType.Unsent);
 
 	private final Map<NodeId, SessionListener> nodes = new HashMap<>();
+	private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
 
@@ -430,7 +442,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-						new ArrayList<Node>()).build());
+										new ArrayList<Node>()).build());
 
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
@@ -443,6 +455,26 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				LOG.error("Failed to create topology {}", topology);
 			}
 		});
+	}
+
+	public void releaseNodeState(final TopologyNodeState nodeState) {
+		LOG.debug("Node {} unbound", nodeState.getNodeId());
+		nodes.remove(nodeState.getNodeId());
+		nodeState.released();
+	}
+
+	private synchronized TopologyNodeState takeNodeState(final NodeId id, final SessionListener sessionListener) {
+		LOG.debug("Node {} bound to listener {}", id, sessionListener);
+
+		TopologyNodeState ret = this.state.get(id);
+		if (ret == null) {
+			ret = new TopologyNodeState(id, DEFAULT_HOLD_STATE_NANOS);
+			this.state.put(id, ret);
+		}
+
+		this.nodes.put(id, sessionListener);
+		ret.taken();
+		return ret;
 	}
 
 	@Override
@@ -492,6 +524,10 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				return type;
 			}
 		};
+	}
+
+	private static String createNodeId(final InetAddress addr) {
+		return "pcc://" + addr.getHostAddress();
 	}
 
 	synchronized ListenableFuture<OperationResult> realRemoveLsp(final RemoveLspArgs input) {
