@@ -13,7 +13,7 @@ module pcep-ietf-stateful {
 
 	description
 		"This module contains the data model of PCEP extensions defined
-		in draft-crabbe-pce-initiated-pce.
+		in draft-ietf-pce-stateful-pce.
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -280,7 +280,7 @@ module pcep-ietf-stateful {
 			list updates {
 				uses srp-object;
 
-				uses pcep:lsp-object;
+				uses lsp-object;
 
 				container path {
 					uses pcep:path-definition;
@@ -301,7 +301,7 @@ module pcep-ietf-stateful {
 			list reports {
 				uses srp-object;
 
-				uses pcep:lsp-object;
+				uses lsp-object;
 
 				container path {
 					uses pcep:path-definition;
