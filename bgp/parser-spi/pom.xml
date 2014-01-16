@@ -29,16 +29,18 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-concepts</artifactId>
-		</dependency>
+        </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bgp-parser-api</artifactId>
-		</dependency>
+        </dependency>
+
+		<dependency>
+            <groupId>org.opendaylight.controller</groupId>
+			<artifactId>protocol-framework</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
