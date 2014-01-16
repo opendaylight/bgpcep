@@ -69,7 +69,7 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
         </dependency>
     </dependencies>

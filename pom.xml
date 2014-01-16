@@ -26,7 +26,6 @@
         <!-- Common infra -->
         <module>concepts</module>
         <module>framework</module>
-        <module>mockito-configuration</module>
         <module>util</module>
 
         <!-- Subsystems -->

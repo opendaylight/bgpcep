@@ -91,9 +91,10 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>mockito-configuration</artifactId>
-                <version>${project.version}</version>
+                <!-- FIXME: change to yangtools.version once it's 0.6.0 -->
+                <version>${yang.binding.version}</version>
                 <scope>test</scope>
             </dependency>
 
