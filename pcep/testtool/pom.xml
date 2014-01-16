@@ -38,9 +38,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>concepts</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>framework</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>protocol-framework</artifactId>
         </dependency>
 
         <dependency>

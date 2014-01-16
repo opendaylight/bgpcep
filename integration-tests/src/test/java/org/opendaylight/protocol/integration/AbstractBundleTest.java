@@ -62,6 +62,7 @@ public abstract class AbstractBundleTest {
 
 		ret.add(mavenBundle("org.javassist", "javassist", "3.17.1-GA"));
 		ret.add(mavenBundle("org.opendaylight.controller", "config-api", "0.2.3-SNAPSHOT"));
+		ret.add(mavenBundle("org.opendaylight.controller", "protocol-framework", "0.4.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-api", "1.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api", "1.0-SNAPSHOT"));
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl", "1.0-SNAPSHOT"));

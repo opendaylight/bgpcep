@@ -25,7 +25,6 @@
     <modules>
         <!-- Common infra -->
         <module>concepts</module>
-        <module>framework</module>
         <module>util</module>
 
         <!-- Subsystems -->
