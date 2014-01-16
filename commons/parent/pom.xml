@@ -91,9 +91,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>mockito-configuration</artifactId>
-                <version>${project.version}</version>
+                <version>${yangtools.version}</version>
                 <scope>test</scope>
             </dependency>
 
