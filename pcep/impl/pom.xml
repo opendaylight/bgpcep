@@ -34,11 +34,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>util</artifactId>
+        </dependency>
+
+		<dependency>
+            <groupId>org.opendaylight.controller</groupId>
+			<artifactId>protocol-framework</artifactId>
         </dependency>
 
         <dependency>
@@ -80,10 +81,8 @@
 			<artifactId>mockito-configuration</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>framework</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
+            <groupId>org.opendaylight.controller</groupId>
+			<artifactId>protocol-framework</artifactId>
 			<type>test-jar</type>
 		</dependency>
         <dependency>
