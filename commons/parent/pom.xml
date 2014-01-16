@@ -404,10 +404,11 @@
                                             target/generated-sources/sal
                                         </outputBaseDir>
                                     </generator>
-                                    <generator>
+                                    <!--  Bug-294 -->
+                                    <!-- generator>
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.unified.doc.generator.maven.DocumentationGeneratorImpl</codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>
-                                    </generator>
+                                    </generator-->
                                     <generator>
                                         <codeGeneratorClass>org.opendaylight.yangtools.yang.wadl.generator.maven.WadlGenerator</codeGeneratorClass>
                                         <outputBaseDir>target/site</outputBaseDir>

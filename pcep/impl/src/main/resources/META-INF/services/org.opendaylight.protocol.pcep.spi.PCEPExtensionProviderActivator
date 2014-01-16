@@ -1,2 +1,3 @@
 org.opendaylight.protocol.pcep.impl.Activator
 org.opendaylight.protocol.pcep.impl.CrabbeInitiatedActivator
+org.opendaylight.protocol.pcep.impl.StatefulActivator
