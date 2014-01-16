@@ -22,6 +22,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.google.common.base.Preconditions;
 
+@Deprecated
 public final class SSLUtil {
 
 	private SSLUtil() {
