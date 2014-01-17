@@ -27,8 +27,8 @@ public final class Main {
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 	public static final String USAGE = "DESCRIPTION:\n"
-			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections "
-			+ "from PCCs.\n" + "USAGE:\n" + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
+			+ "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
+			+ "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
 			+ "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
 
 			"\t-d, --deadtimer\n" + "\t\tin seconds, value of the desired deadtimer\n"
@@ -42,8 +42,6 @@ public final class Main {
 			"\t--stateful\n" + "\t\tpassive stateful\n\n" +
 
 			"\t--active\n" + "\t\tactive stateful (implies --stateful)\n\n" +
-
-			"\t--versioned\n" + "\t\tversioned stateful (implies --stateful)\n\n" +
 
 			"\t--instant\n"
 			+ "\t\tinstantiated stateful, <seconds> cleanup timeout (default value, if not included = 0) (implies --stateful)\n\n" +
@@ -79,7 +77,7 @@ public final class Main {
 		int deadTimerValue = 0;
 		boolean stateful = false;
 		boolean active = false;
-		boolean versioned = false;
+		final boolean versioned = false;
 		boolean instant = false;
 
 		int i = 0;
@@ -99,9 +97,6 @@ public final class Main {
 			} else if (args[i].equalsIgnoreCase("--active")) {
 				stateful = true;
 				active = true;
-			} else if (args[i].equalsIgnoreCase("--versioned")) {
-				stateful = true;
-				versioned = true;
 			} else if (args[i].equalsIgnoreCase("--instant")) {
 				stateful = true;
 				instant = true;
@@ -117,7 +112,7 @@ public final class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, versioned, instant);
+		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, instant);
 
 		final Open prefs = spf.getSessionProposal(address, 0);
 

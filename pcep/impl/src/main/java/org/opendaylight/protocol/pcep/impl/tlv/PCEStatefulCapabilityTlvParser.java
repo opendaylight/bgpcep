@@ -29,7 +29,6 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 	private static final int FLAGS_F_LENGTH = 4;
 
 	private static final int I_FLAG_OFFSET = 29;
-	private static final int S_FLAG_OFFSET = 30;
 	private static final int U_FLAG_OFFSET = 31;
 
 	@Override
@@ -41,17 +40,14 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >= "
 					+ FLAGS_F_LENGTH + ".");
 		}
-
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(buffer, 0, FLAGS_F_LENGTH));
 
 		final StatefulBuilder sb = new StatefulBuilder();
-		sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));
 		sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
 
 		if (flags.get(I_FLAG_OFFSET)) {
 			sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
 		}
-
 		return sb.build();
 	}
 
@@ -68,10 +64,7 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 		if (sfi != null) {
 			flags.set(I_FLAG_OFFSET, sfi.isInitiation());
 		}
-
 		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-		flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
-
 		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
 	}
 

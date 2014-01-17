@@ -23,15 +23,14 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 
 	private final int keepAlive, deadTimer;
 
-	private final boolean stateful, active, versioned, instant;
+	private final boolean stateful, active, instant;
 
 	public PCEPSessionProposalFactoryImpl(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
-			final boolean versioned, final boolean instant) {
+			final boolean instant) {
 		this.deadTimer = deadTimer;
 		this.keepAlive = keepAlive;
 		this.stateful = stateful;
 		this.active = active;
-		this.versioned = versioned;
 		this.instant = instant;
 	}
 
@@ -42,8 +41,8 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 			builder.addAugmentation(
 					Tlvs2.class,
 					new Tlvs2Builder().setStateful(
-							new StatefulBuilder().setIncludeDbVersion(this.versioned).setLspUpdateCapability(this.active).addAugmentation(
-									Stateful1.class, new Stateful1Builder().setInitiation(this.instant).build()).build()).build()).build();
+							new StatefulBuilder().setLspUpdateCapability(this.active).addAugmentation(Stateful1.class,
+									new Stateful1Builder().setInitiation(this.instant).build()).build()).build()).build();
 		}
 		final OpenBuilder oBuilder = new OpenBuilder();
 		oBuilder.setSessionId((short) sessionId);
@@ -72,8 +71,9 @@ public class PCEPSessionProposalFactoryImpl implements PCEPSessionProposalFactor
 		return this.active;
 	}
 
+	@Deprecated
 	public boolean isVersioned() {
-		return this.versioned;
+		return false;
 	}
 
 	public boolean isInstant() {

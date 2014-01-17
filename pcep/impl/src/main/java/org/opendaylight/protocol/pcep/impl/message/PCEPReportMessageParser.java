@@ -62,9 +62,7 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 			buffer.writeBytes(serializeObject(report.getLsp()));
 			final Path p = report.getPath();
 			if (p != null) {
-				if (p.getEro() != null) {
-					buffer.writeBytes(serializeObject(p.getEro()));
-				}
+				buffer.writeBytes(serializeObject(p.getEro()));
 				if (p.getLspa() != null) {
 					buffer.writeBytes(serializeObject(p.getLspa()));
 				}

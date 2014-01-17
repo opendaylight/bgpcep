@@ -48,7 +48,6 @@ public final class PCEPSessionProposalFactoryImplModule extends
 	public void validate() {
 		super.validate();
 		JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", this.activeJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getVersioned(), "value is not set.", this.versionedJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", this.initiatedJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", this.deadTimerValueJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", this.keepAliveTimerValueJmxAttribute);
@@ -59,7 +58,7 @@ public final class PCEPSessionProposalFactoryImplModule extends
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
 		}
-		if ((getActive() || getVersioned()) && !getStateful()) {
+		if (getActive() && !getStateful()) {
 			setStateful(true);
 		}
 		JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", this.statefulJmxAttribute);
@@ -67,7 +66,7 @@ public final class PCEPSessionProposalFactoryImplModule extends
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final PCEPSessionProposalFactoryImpl inner = new PCEPSessionProposalFactoryImpl(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getVersioned(), getInitiated());
+		final PCEPSessionProposalFactoryImpl inner = new PCEPSessionProposalFactoryImpl(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated());
 		return new PCEPSessionProposalFactoryCloseable(inner);
 	}
 
