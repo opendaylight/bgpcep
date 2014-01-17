@@ -9,12 +9,17 @@ package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.StatefulCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.Srps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.SrpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -33,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
-
-import com.google.common.collect.Lists;
 
 /**
  * Parser for {@link PcerrMessage}
@@ -66,6 +69,13 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			}
 		}
 
+		if (err.getErrorType() instanceof StatefulCase) {
+			final List<Srps> srps = ((StatefulCase) err.getErrorType()).getStateful().getSrps();
+			for (final Srps s : srps) {
+				buffer.writeBytes(serializeObject(s.getSrp()));
+			}
+		}
+
 		for (final Errors e : err.getErrors()) {
 			buffer.writeBytes(serializeObject(e.getErrorObject()));
 		}
@@ -85,8 +95,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			throw new PCEPDeserializerException("Error message is empty.");
 		}
 
-		final List<Rps> requestParameters = Lists.newArrayList();
-		final List<Errors> errorObjects = Lists.newArrayList();
+		final List<Rps> requestParameters = new ArrayList<>();
+		final List<Srps> srps = new ArrayList<>();
+		final List<Errors> errorObjects = new ArrayList<>();
 		final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
 		Object obj;
@@ -99,13 +110,18 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			state = State.ErrorIn;
 			objects.remove(0);
 		} else if (obj instanceof Rp) {
-			final Rp o = ((Rp) obj);
+			final Rp o = (Rp) obj;
 			if (o.isProcessingRule()) {
 				errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET));
 				return null;
 			}
 			requestParameters.add(new RpsBuilder().setRp(o).build());
 			state = State.RpIn;
+			objects.remove(0);
+		} else if (obj instanceof Srp) {
+			final Srp s = (Srp) obj;
+			srps.add(new SrpsBuilder().setSrp(s).build());
+			state = State.SrpIn;
 			objects.remove(0);
 		}
 
@@ -131,6 +147,14 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 					final Rp o = ((Rp) obj);
 					requestParameters.add(new RpsBuilder().setRp(o).build());
 					state = State.RpIn;
+					break;
+				}
+			case SrpIn:
+				state = State.Error;
+				if (obj instanceof Srp) {
+					final Srp o = ((Srp) obj);
+					srps.add(new SrpsBuilder().setSrp(o).build());
+					state = State.SrpIn;
 					break;
 				}
 			case Open:
@@ -175,7 +199,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	private enum State {
-		Init, ErrorIn, RpIn, Open, Error, OpenIn, End
+		Init, ErrorIn, RpIn, SrpIn, Open, Error, OpenIn, End
 	}
 
 	@Override

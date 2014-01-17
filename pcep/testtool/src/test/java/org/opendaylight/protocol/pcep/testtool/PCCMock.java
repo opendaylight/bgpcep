@@ -29,12 +29,8 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
 import com.google.common.base.Preconditions;
 
@@ -63,14 +59,8 @@ public class PCCMock<M, S extends ProtocolSession<M>, L extends SessionListener<
 	}
 
 	public static void main(final String[] args) throws Exception {
-		final TlvsBuilder builder = new TlvsBuilder();
-		builder.addAugmentation(
-				Tlvs2.class,
-				new Tlvs2Builder().setPredundancyGroupId(
-						new PredundancyGroupIdBuilder().setIdentifier(new byte[] { (byte) 127, (byte) 2, (byte) 3, (byte) 7 }).build()).build());
-
 		final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf = new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), new OpenBuilder().setKeepalive(
-				(short) 30).setDeadTimer((short) 120).setSessionId((short) 0).setTlvs(builder.build()).build(), 0);
+				(short) 30).setDeadTimer((short) 120).setSessionId((short) 0).build(), 0);
 
 		final PCCMock<Message, PCEPSessionImpl, PCEPSessionListener> pcc = new PCCMock<>(snf, new PCEPHandlerFactory(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry()), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE));
 

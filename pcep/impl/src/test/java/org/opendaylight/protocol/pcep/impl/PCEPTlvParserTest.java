@@ -17,7 +17,6 @@ import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv6TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspDbVersionTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
@@ -25,14 +24,11 @@ import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.PredundancyGroupTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
@@ -41,8 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
@@ -71,13 +65,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.TunnelId;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedLong;
 
 public class PCEPTlvParserTest {
 
-	private static final byte[] statefulBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02 };
-	private static final byte[] DbVersionBytes = { (byte) 0xff, (byte) 0x00, (byte) 0xff, (byte) 0xaa, (byte) 0xb2, (byte) 0xf5,
-			(byte) 0xf2, (byte) 0xcf };
+	private static final byte[] statefulBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01 };
 	private static final byte[] noPathVectorBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xa7 };
 	private static final byte[] overloadedBytes = { (byte) 0x7f, (byte) 0xff, (byte) 0xff, (byte) 0xff };
 	private static final byte[] symbolicNameBytes = { (byte) 0x4d, (byte) 0x65, (byte) 0x64, (byte) 0x20, (byte) 0x74, (byte) 0x65,
@@ -86,12 +77,15 @@ public class PCEPTlvParserTest {
 			(byte) 0x65 };
 	private static final byte[] lspUpdateErrorBytes = { (byte) 0x25, (byte) 0x68, (byte) 0x95, (byte) 0x03 };
 	private static final byte[] lspIdentifiers4Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
+			(byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x12, (byte) 0x34, (byte) 0x56,
+			(byte) 0x78 };
 	private static final byte[] lspIdentifiers6Bytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC,
 			(byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
 			(byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0xFF, (byte) 0xFF, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 			(byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x01,
-			(byte) 0x23, (byte) 0x45, (byte) 0x67 };
+			(byte) 0x23, (byte) 0x45, (byte) 0x67, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC,
+			(byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE,
+			(byte) 0xF0 };
 	private static final byte[] rsvpErrorBytes = { (byte) 0x06, (byte) 0x01, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 			(byte) 0x02, (byte) 0x92, (byte) 0x16, (byte) 0x02 };
 	private static final byte[] rsvpError6Bytes = { (byte) 0x06, (byte) 0x02, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
@@ -104,22 +98,13 @@ public class PCEPTlvParserTest {
 	private static final byte[] orderBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 			(byte) 0x01 };
 	private static final byte[] ofListBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
-	private static final byte[] predundancyBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 };
 
 	@Test
 	public void testStatefulTlv() throws PCEPDeserializerException {
 		final PCEStatefulCapabilityTlvParser parser = new PCEStatefulCapabilityTlvParser();
-		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.FALSE).setIncludeDbVersion(Boolean.TRUE).build();
+		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
 		assertEquals(tlv, parser.parseTlv(statefulBytes));
 		assertArrayEquals(statefulBytes, parser.serializeTlv(tlv));
-	}
-
-	@Test
-	public void testStateDbVersionTlv() throws PCEPDeserializerException {
-		final LspDbVersionTlvParser parser = new LspDbVersionTlvParser();
-		final LspDbVersion tlv = new LspDbVersionBuilder().setVersion(UnsignedLong.fromLongBits(0xFF00FFAAB2F5F2CFL).bigIntegerValue()).build();
-		assertEquals(tlv, parser.parseTlv(DbVersionBytes));
-		assertArrayEquals(DbVersionBytes, parser.serializeTlv(tlv));
 	}
 
 	@Test
@@ -163,6 +148,7 @@ public class PCEPTlvParserTest {
 		afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
 				(byte) 0x78 })));
+		afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(
 				new LspId(65535L)).setTunnelId(new TunnelId(4660)).build();
 		assertEquals(tlv, parser.parseTlv(lspIdentifiers4Bytes));
@@ -179,6 +165,9 @@ public class PCEPTlvParserTest {
 		afi.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
 				(byte) 0x78, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67,
 				(byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x67 })));
+		afi.setIpv6TunnelEndpointAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
+				(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
+				(byte) 0xBC, (byte) 0xDE, (byte) 0xF0 }));
 		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv6CaseBuilder().setIpv6(afi.build()).build()).setLspId(
 				new LspId(4660L)).setTunnelId(new TunnelId(65535)).build();
 		assertEquals(tlv, parser.parseTlv(lspIdentifiers6Bytes));
@@ -251,13 +240,5 @@ public class PCEPTlvParserTest {
 		final OfList tlv = new OfListBuilder().setCodes(ids).build();
 		assertEquals(tlv, parser.parseTlv(ofListBytes));
 		assertArrayEquals(ofListBytes, parser.serializeTlv(tlv));
-	}
-
-	@Test
-	public void testPredundancyTlv() throws PCEPDeserializerException {
-		final PredundancyGroupTlvParser parser = new PredundancyGroupTlvParser();
-		final PredundancyGroupId tlv = new PredundancyGroupIdBuilder().setIdentifier(predundancyBytes).build();
-		assertEquals(tlv, parser.parseTlv(predundancyBytes));
-		assertArrayEquals(predundancyBytes, parser.serializeTlv(tlv));
 	}
 }

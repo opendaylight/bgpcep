@@ -15,6 +15,9 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -31,6 +34,8 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 	private static final int FLAGS_SIZE = 4;
 
 	private static final int SRP_ID_SIZE = 4;
+
+	private static final int TLVS_OFFSET = FLAGS_SIZE + SRP_ID_SIZE;
 
 	private static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
@@ -63,7 +68,9 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
 	@Override
 	public void addTlv(final SrpBuilder builder, final Tlv tlv) {
-		// No tlvs defined
+		if (tlv instanceof SymbolicPathName) {
+			builder.setTlvs(new TlvsBuilder().setSymbolicPathName((SymbolicPathName) tlv).build());
+		}
 	}
 
 	@Override
@@ -72,13 +79,27 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
 		}
 		final Srp srp = (Srp) object;
+		final byte[] tlvs = serializeTlvs(srp.getTlvs());
 		final Long id = srp.getOperationId().getValue();
 		if (id == 0 || id == 0xFFFFFFFFL) {
 			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");
 		}
 		final byte[] retBytes = new byte[MIN_SIZE];
+		if (tlvs != null) {
+			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+		}
 		System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
+		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+	}
+
+	public byte[] serializeTlvs(final Tlvs tlvs) {
+		if (tlvs == null) {
+			return new byte[0];
+		} else if (tlvs.getSymbolicPathName() != null) {
+			return serializeTlv(tlvs.getSymbolicPathName());
+		}
+		return new byte[0];
 	}
 
 	@Override

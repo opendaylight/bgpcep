@@ -14,9 +14,6 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -148,11 +145,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		}
 		if (p2p.getClassType() != null) {
 			buffer.writeBytes(serializeObject(p2p.getClassType()));
-		}
-
-		final P2p1 stateful = p2p.getAugmentation(P2p1.class);
-		if (stateful != null && stateful.getLsp() != null) {
-			buffer.writeBytes(serializeObject(stateful.getLsp()));
 		}
 	}
 
@@ -313,12 +305,6 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 					break;
 				}
 			case CtIn:
-				state = State.LspIn;
-				if (obj instanceof Lsp) {
-					builder.addAugmentation(P2p1.class, new P2p1Builder().setLsp((Lsp)obj).build());
-					break;
-				}
-			case LspIn:
 				state = State.End;
 				break;
 			case End:
@@ -336,7 +322,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				&& builder.getBandwidth() != null
 				&& builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })).build()
-						&& builder.getReportedRoute().getRro() == null) {
+				&& builder.getReportedRoute().getRro() == null) {
 			errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
 			return null;
 		}
@@ -344,7 +330,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 	}
 
 	private enum State {
-		Init, ReportedIn, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, LspIn, End
+		Init, ReportedIn, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, End
 	}
 
 	private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {

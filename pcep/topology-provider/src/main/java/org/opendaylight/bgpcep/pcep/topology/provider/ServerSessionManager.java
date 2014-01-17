@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.UpdatesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
@@ -251,8 +250,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		}
 
 		private InstanceIdentifierBuilder<ReportedLsp> lspIdentifier(final ReportedLspKey key) {
-			return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class).child(ReportedLsp.class,
-					key);
+			return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class).child(ReportedLsp.class, key);
 		}
 
 		@Override
@@ -276,12 +274,15 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
 
 					// The node has completed synchronization, cleanup metadata no longer reported back
-					this.nodeState.cleanupExcept(Collections2.transform(this.lsps.values(), new Function<SymbolicPathName, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName>() {
-						@Override
-						public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName apply(final SymbolicPathName input) {
-							return input.getPathName();
-						}
-					}));
+					this.nodeState.cleanupExcept(Collections2.transform(
+							this.lsps.values(),
+							new Function<SymbolicPathName, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName>() {
+								@Override
+								public org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName apply(
+										final SymbolicPathName input) {
+									return input.getPathName();
+								}
+							}));
 					LOG.debug("Session {} achieved synchronized state", session);
 					return;
 				}
@@ -310,7 +311,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 							break;
 						case GoingDown:
 						case GoingUp:
-							// These are transitive states, so we don't have to do anything, as they will be followed up...
+							// These are transitive states, so we don't have to do anything, as they will be followed
+							// up...
 							break;
 						}
 					}
@@ -342,9 +344,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 					// If this is an unsolicited update. We need to make sure we retain the metadata already present
 					if (solicited) {
-						nodeState.setLspMetadata(rlb.getName(), rlb.getMetadata());
+						this.nodeState.setLspMetadata(rlb.getName(), rlb.getMetadata());
 					} else {
-						rlb.setMetadata(nodeState.getLspMetadata(rlb.getName()));
+						rlb.setMetadata(this.nodeState.getLspMetadata(rlb.getName()));
 					}
 
 					trans.putOperationalData(lspIdentifier(rlb.getKey()).build(), rlb.build());
@@ -382,7 +384,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			}
 		}
 
-		private synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId, final Metadata metadata) {
+		private synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId,
+				final Metadata metadata) {
 			final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 			final PCEPRequest req = new PCEPRequest(metadata);
 
@@ -442,7 +445,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-										new ArrayList<Node>()).build());
+						new ArrayList<Node>()).build());
 
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
@@ -459,7 +462,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	public void releaseNodeState(final TopologyNodeState nodeState) {
 		LOG.debug("Node {} unbound", nodeState.getNodeId());
-		nodes.remove(nodeState.getNodeId());
+		this.nodes.remove(nodeState.getNodeId());
 		nodeState.released();
 	}
 
@@ -509,7 +512,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		ib.setRequests(ImmutableList.of(rb.build()));
 
 		// Send the message
-		return l.sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), input.getArguments().getMetadata());
+		return l.sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
+				input.getArguments().getMetadata());
 	}
 
 	private static OperationResult createOperationResult(final FailureType type) {
@@ -549,7 +553,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 		// Build the request and send it
 		final RequestsBuilder rb = new RequestsBuilder();
-		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).setFlags(new Flags(Boolean.TRUE)).build());
+		rb.setSrp(new SrpBuilder().setOperationId(l.nextRequest()).setProcessingRule(Boolean.TRUE).build());
 		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(rep.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
@@ -583,7 +587,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ub.setUpdates(ImmutableList.of(rb.build()));
-		return l.sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(), input.getArguments().getMetadata());
+		return l.sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
+				input.getArguments().getMetadata());
 	}
 
 	synchronized ListenableFuture<OperationResult> realEnsureLspOperational(final EnsureLspOperationalInput input) {

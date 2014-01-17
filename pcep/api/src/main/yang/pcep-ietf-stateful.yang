@@ -66,22 +66,9 @@ module pcep-ietf-stateful {
 		}
 	}
 
-	grouping lsp-db-version-tlv {
-		description "LSP State Database Version TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.2";
-
-		container lsp-db-version {
-			uses pcep:tlv;
-			leaf version {
-				type uint64;
-				mandatory true;
-			}
-		}
-	}
-
 	grouping lsp-identifiers-tlv {
 		description "LSP Identifiers TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.1";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.1";
 		container lsp-identifiers {
 			uses pcep:tlv;
 			leaf lsp-id {
@@ -105,6 +92,10 @@ module pcep-ietf-stateful {
 							type rsvp:ipv4-extended-tunnel-id;
 							mandatory true;
 						}
+						leaf ipv4-tunnel-endpoint-address {
+							type inet:ipv4-address;
+							mandatory true;
+						}
 					}
 				}
 				case ipv6-case {
@@ -117,6 +108,10 @@ module pcep-ietf-stateful {
 							type rsvp:ipv6-extended-tunnel-id;
 							mandatory true;
 						}
+						leaf ipv6-tunnel-endpoint-address {
+							type inet:ipv6-address;
+							mandatory true;
+						}
 					}
 				}
 			}
@@ -125,7 +120,7 @@ module pcep-ietf-stateful {
 
 	grouping lsp-error-code-tlv {
 		description "LSP Error Code TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.3";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.3";
 		container lsp-error-code {
 			uses pcep:tlv;
 			leaf error-code {
@@ -137,7 +132,7 @@ module pcep-ietf-stateful {
 
 	grouping rsvp-error-spec-tlv {
 		description "RSVP Error Spec TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.4";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.4";
 		container rsvp-error-spec {
 			uses pcep:tlv;
 			choice error-type {
@@ -157,7 +152,7 @@ module pcep-ietf-stateful {
 
 	grouping stateful-capability-tlv {
 		description "Stateful PCE Capability TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.1";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.1.1";
 
 		container stateful {
 			uses pcep:tlv;
@@ -166,16 +161,12 @@ module pcep-ietf-stateful {
 				type boolean;
 				default false;
 			}
-			leaf include-db-version {
-				type boolean;
-				default false;
-			}
 		}
 	}
 
 	grouping symbolic-path-name-tlv {
 		description "Symbolic Path Name TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3.2";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3.2";
 		container symbolic-path-name {
 			uses pcep:tlv;
 			leaf path-name {
@@ -185,22 +176,9 @@ module pcep-ietf-stateful {
 		}
 	}
 
-	grouping predundancy-group-id-tlv {
-		description "PCE Redundancy Group Identifier TLV";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.1.3";
-
-		container predundancy-group-id {
-			uses pcep:tlv;
-			leaf identifier {
-				type binary;
-				mandatory true;
-			}
-		}
-	}
-
 	grouping lsp-object {
 		description "LSP Object";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3";
 
 		container lsp {
 			uses pcep:object;
@@ -248,22 +226,18 @@ module pcep-ietf-stateful {
 
 	grouping srp-object {
 		description "SRP Object";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.2";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.2";
 
 		container srp {
 			uses pcep:object;
 
+			container "tlvs" {
+				uses symbolic-path-name-tlv;
+			}
+
 			leaf operation-id {
 				type srp-id-number;
 				mandatory true;
-			}
-
-			leaf flags {
-				type bits {
-					bit lsp-remove {
-						position 31;
-					}
-				}
 			}
 		}
 	}
@@ -273,7 +247,7 @@ module pcep-ietf-stateful {
 
 		container pcupd-message {
 			description "State Update Request Message";
-			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.2";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.2";
 
 			uses pcep:message-header;
 
@@ -294,7 +268,7 @@ module pcep-ietf-stateful {
 
 		container pcrpt-message {
 			description "State Report Message";
-			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.1";
+			reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.1";
 
 			uses pcep:message-header;
 
@@ -319,34 +293,20 @@ module pcep-ietf-stateful {
 	}
 
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
-		uses lsp-db-version-tlv;
-
-		uses predundancy-group-id-tlv;
-
 		uses stateful-capability-tlv;
 	}
 
 	augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-		uses lsp-db-version-tlv;
-
-		uses predundancy-group-id-tlv;
-
 		uses stateful-capability-tlv;
 	}
 
-	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {
-		uses lsp-object;
-	}
-
-	augment "/msg:pcrep/msg:pcrep-message/msg:replies" {
-		uses lsp-object;
-	}
-
 	augment "/msg:pcerr/msg:pcerr-message/msg:error-type" {
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-6.3";
 		case stateful-case {
 			container stateful {
-				reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-6.3";
-				uses srp-object;
+				list srps {
+					uses srp-object;
+				}
 			}
 		}
 	}

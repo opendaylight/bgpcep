@@ -15,8 +15,6 @@ import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -109,12 +107,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		final Tlvs2Builder statefulBuilder = new Tlvs2Builder();
 		if (tbuilder.getAugmentation(Tlvs2.class) != null) {
 			final Tlvs2 t = tbuilder.getAugmentation(Tlvs2.class);
-			if (t.getLspDbVersion() != null) {
-				statefulBuilder.setLspDbVersion(t.getLspDbVersion());
-			}
-			if (t.getPredundancyGroupId() != null) {
-				statefulBuilder.setPredundancyGroupId(t.getPredundancyGroupId());
-			}
 			if (t.getClass() != null) {
 				statefulBuilder.setStateful(t.getStateful());
 			}
@@ -123,10 +115,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 			tbuilder.setOfList((OfList) tlv);
 		} else if (tlv instanceof Stateful) {
 			statefulBuilder.setStateful((Stateful) tlv);
-		} else if (tlv instanceof PredundancyGroupId) {
-			statefulBuilder.setPredundancyGroupId((PredundancyGroupId) tlv);
-		} else if (tlv instanceof LspDbVersion) {
-			statefulBuilder.setLspDbVersion((LspDbVersion) tlv);
 		}
 		tbuilder.addAugmentation(Tlvs2.class, statefulBuilder.build());
 	}
@@ -161,8 +149,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		int finalLength = 0;
 		byte[] ofListBytes = null;
 		byte[] statefulBytes = null;
-		byte[] predundancyBytes = null;
-		byte[] lspDbBytes = null;
 		if (tlvs.getOfList() != null) {
 			ofListBytes = serializeTlv(tlvs.getOfList());
 			finalLength += ofListBytes.length;
@@ -172,14 +158,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 			if (statefulTlvs.getStateful() != null) {
 				statefulBytes = serializeTlv(statefulTlvs.getStateful());
 				finalLength += statefulBytes.length;
-			}
-			if (statefulTlvs.getPredundancyGroupId() != null) {
-				predundancyBytes = serializeTlv(statefulTlvs.getPredundancyGroupId());
-				finalLength += predundancyBytes.length;
-			}
-			if (statefulTlvs.getLspDbVersion() != null) {
-				lspDbBytes = serializeTlv(statefulTlvs.getLspDbVersion());
-				finalLength += lspDbBytes.length;
 			}
 		}
 
@@ -192,14 +170,6 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		if (statefulBytes != null) {
 			ByteArray.copyWhole(statefulBytes, result, offset);
 			offset += statefulBytes.length;
-		}
-		if (lspDbBytes != null) {
-			ByteArray.copyWhole(lspDbBytes, result, offset);
-			offset += lspDbBytes.length;
-		}
-		if (predundancyBytes != null) {
-			ByteArray.copyWhole(predundancyBytes, result, offset);
-			offset += predundancyBytes.length;
 		}
 		return result;
 	}

@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,16 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.P2p1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
@@ -322,10 +317,9 @@ public class PCEPValidatorTest {
 		b.setKeepalive((short) 30);
 		b.setDeadTimer((short) 120);
 		b.setSessionId((short) 1);
-		final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).setIncludeDbVersion(Boolean.TRUE).build();
-		final LspDbVersion tlv2 = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(0x80L)).build();
+		final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
 		b.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-				Tlvs2.class, new Tlvs2Builder().setStateful(tlv1).setLspDbVersion(tlv2).build()).build());
+				Tlvs2.class, new Tlvs2Builder().setStateful(tlv1).build()).build());
 		builder.setOpen(b.build());
 
 		assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(),
@@ -389,7 +383,6 @@ public class PCEPValidatorTest {
 		rBuilder1.setRp(this.rpTrue);
 		final P2pBuilder p2pBuilder = new P2pBuilder();
 		p2pBuilder.setEndpointsObj(this.endpoints);
-		p2pBuilder.addAugmentation(P2p1.class, new P2p1Builder().setLsp(this.lsp).build());
 		p2pBuilder.setMetrics(Lists.newArrayList(this.metrics));
 		p2pBuilder.setIro(this.iro);
 		rBuilder1.setSegmentComputation(new SegmentComputationBuilder().setP2p(p2pBuilder.build()).build());

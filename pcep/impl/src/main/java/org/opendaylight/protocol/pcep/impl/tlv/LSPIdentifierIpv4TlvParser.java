@@ -38,7 +38,7 @@ public class LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 	private static final int LSP_ID_F_LENGTH = 2;
 	private static final int TUNNEL_ID_F_LENGTH = 2;
 
-	private static final int V4_LENGTH = 12;
+	private static final int V4_LENGTH = 16;
 
 	@Override
 	public LspIdentifiers parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
@@ -58,8 +58,9 @@ public class LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 		position += TUNNEL_ID_F_LENGTH;
 		builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position,
 				EX_TUNNEL_ID4_F_LENGTH))));
-		final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
 		position += EX_TUNNEL_ID4_F_LENGTH;
+		builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position, IP4_F_LENGTH)));
+		final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
 		return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
 	}
 
@@ -85,6 +86,8 @@ public class LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 		ByteArray.copyWhole(ByteArray.intToBytes(lsp.getTunnelId().getValue(), TUNNEL_ID_F_LENGTH), bytes, offset);
 		offset += TUNNEL_ID_F_LENGTH;
 		ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()), bytes, offset);
+		offset += EX_TUNNEL_ID4_F_LENGTH;
+		ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()), bytes, offset);
 		return bytes;
 	}
 

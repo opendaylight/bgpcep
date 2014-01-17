@@ -19,11 +19,9 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv6TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspDbVersionTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.PredundancyGroupTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -31,11 +29,9 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.predundancy.group.id.tlv.PredundancyGroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
@@ -67,8 +63,6 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(tlvReg)));
 		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(tlvReg)));
 
-		regs.add(context.registerTlvParser(LspDbVersionTlvParser.TYPE, new LspDbVersionTlvParser()));
-		regs.add(context.registerTlvSerializer(LspDbVersion.class, new LspDbVersionTlvParser()));
 		regs.add(context.registerTlvParser(LSPIdentifierIpv4TlvParser.TYPE, new LSPIdentifierIpv4TlvParser()));
 		regs.add(context.registerTlvParser(LSPIdentifierIpv6TlvParser.TYPE, new LSPIdentifierIpv6TlvParser()));
 		regs.add(context.registerTlvSerializer(LspIdentifiers.class, new LSPIdentifierIpv4TlvParser()));
@@ -80,8 +74,6 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
 		regs.add(context.registerTlvParser(LspSymbolicNameTlvParser.TYPE, new LspSymbolicNameTlvParser()));
 		regs.add(context.registerTlvSerializer(SymbolicPathName.class, new LspSymbolicNameTlvParser()));
-		regs.add(context.registerTlvParser(PredundancyGroupTlvParser.TYPE, new PredundancyGroupTlvParser()));
-		regs.add(context.registerTlvSerializer(PredundancyGroupId.class, new PredundancyGroupTlvParser()));
 
 		return regs;
 	}
