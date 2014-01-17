@@ -16,9 +16,11 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
+import org.opendaylight.protocol.pcep.impl.StatefulActivator;
+
 /**
-*
-*/
+ *
+ */
 public final class StatefulPCEPParserModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractStatefulPCEPParserModule {
 
 	public StatefulPCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
@@ -34,13 +36,7 @@ public final class StatefulPCEPParserModule extends org.opendaylight.controller.
 	}
 
 	@Override
-	protected void customValidation() {
-		// Add custom validation for module attributes here.
-	}
-
-	@Override
 	public java.lang.AutoCloseable createInstance() {
-		// TODO:implement
-		throw new java.lang.UnsupportedOperationException("Unimplemented stub method");
+		return new StatefulActivator();
 	}
 }
