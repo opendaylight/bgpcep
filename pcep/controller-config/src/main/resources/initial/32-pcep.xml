@@ -21,10 +21,12 @@
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-base</name>
 					</extension>
+                    <!--
 					<extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-stateful</name>
 					</extension>
+					-->
 					<extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-crabbe-initiated</name>
@@ -34,10 +36,12 @@
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-base</type>
 					<name>pcep-parser-base</name>
 				</module>
+                <!--
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-stateful</type>
 					<name>pcep-parser-stateful</name>
 				</module>
+				-->
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-crabbe-initiated</type>
 					<name>pcep-parser-crabbe-initiated</name>
@@ -111,10 +115,12 @@
 						<name>pcep-parser-crabbe-initiated</name>
 						<provider>/config/modules/module[name='pcep-parser-crabbe-initiated']/instance[name='pcep-parser-crabbe-initiated']</provider>
 					</instance>
+                    <!--
 					<instance>
 						<name>pcep-parser-stateful</name>
 						<provider>/config/modules/module[name='pcep-parser-stateful']/instance[name='pcep-parser-stateful']</provider>
 					</instance>
+					-->
 				</service>
 				<service>
 					<type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
