@@ -1,44 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<parent>
-		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>commons.parent</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>commons.parent</artifactId>
         <version>0.3.0-SNAPSHOT</version>
         <relativePath>../commons/parent</relativePath>
-	</parent>
+    </parent>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>concepts</artifactId>
-	<description>Basic protocol concepts</description>
-	<packaging>bundle</packaging>
-	<name>${project.artifactId}</name>
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
+    <artifactId>concepts</artifactId>
+    <description>Basic protocol concepts</description>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>util</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
         </dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
-		 <!--
+         <!--
             FIXME: this is in support of the generated code. This should not
                    be here, but the plugin should bring it in.
         -->
@@ -65,24 +71,24 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-	</dependencies>
+    </dependencies>
 
-	<build>
+    <build>
         <plugins>
-			<plugin>
+            <plugin>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>yang-maven-plugin</artifactId>
             </plugin>
             <plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,83 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<parent>
-		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>protocol-parent</artifactId>
-		<version>0.1</version>
-	</parent>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>protocol-parent</artifactId>
+        <version>0.1</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>concepts</artifactId>
-	<description>Basic protocol concepts</description>
-	<packaging>bundle</packaging>
-	<version>1.0</version>
-	<name>${project.artifactId}</name>
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>concepts</artifactId>
+    <description>Basic protocol concepts</description>
+    <packaging>bundle</packaging>
+    <version>1.0</version>
+    <name>${project.artifactId}</name>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>util</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>2.0.1</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${maven.bundle.version}</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-						<Import-Package>
-							org.opendaylight.protocol.concepts,
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven.bundle.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Import-Package>
+                            org.opendaylight.protocol.concepts,
                             org.opendaylight.protocol.util,
                             com.google.common.base,
                             com.google.common.collect,
                             com.google.common.net,
                             com.google.common.primitives,
                             com.google.guava;
-							javax.management,
-							org.slf4j.*,
-							io.netty.channel,
-						</Import-Package>
-						<Export-Package>
+                            javax.management,
+                            org.slf4j.*,
+                            io.netty.channel,
+                        </Import-Package>
+                        <Export-Package>
                             org.opendaylight.protocol.concepts,
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
-				<configuration>
-					<configLocation>build/checkstyle/checkstyle-checker-api.xml</configLocation>
-					<outputDirectory>${basedir}/target/checkstyle/report</outputDirectory>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.version}</version>
+                <configuration>
+                    <configLocation>build/checkstyle/checkstyle-checker-api.xml</configLocation>
+                    <outputDirectory>${basedir}/target/checkstyle/report</outputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-	<distributionManagement>
-		<site>
-			<id>${project.artifactId}</id>
-			<name>NPS-CONCEPTS Module site</name>
-			<url>${basedir}/target/site/${project.artifactId}</url>
-		</site>
-	</distributionManagement>
+    <distributionManagement>
+        <site>
+            <id>${project.artifactId}</id>
+            <name>NPS-CONCEPTS Module site</name>
+            <url>${basedir}/target/site/${project.artifactId}</url>
+        </site>
+    </distributionManagement>
 
 </project>
