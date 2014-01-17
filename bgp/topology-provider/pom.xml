@@ -1,48 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<parent>
-		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>bgp-parent</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
-	</parent>
+    <modelVersion>4.0.0</modelVersion>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>bgp-parent</artifactId>
+        <version>0.3.0-SNAPSHOT</version>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>bgp-topology-provider</artifactId>
-	<description>BGP Topology Provider</description>
-	<packaging>bundle</packaging>
-	<name>${project.artifactId}</name>
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
+    <artifactId>bgp-topology-provider</artifactId>
+    <description>BGP Topology Provider</description>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-rib-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-linkstate</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>topology-api</artifactId>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-linkstate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>topology-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.opendaylight.yangtools.model</groupId>
@@ -62,13 +68,13 @@
         </dependency>
 
         <!-- Test dependencies -->
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>mockito-configuration</artifactId>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mockito-configuration</artifactId>
         </dependency>
-	</dependencies>
+    </dependencies>
 
-	<build>
+    <build>
         <plugins>
            <plugin>
                <groupId>org.apache.felix</groupId>
@@ -80,6 +86,6 @@
                    </instructions>
                </configuration>
            </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 </project>

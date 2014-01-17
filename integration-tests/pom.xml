@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<parent>
-		<groupId>org.opendaylight.bgpcep</groupId>
-		<artifactId>commons.parent</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>commons.parent</artifactId>
         <version>0.3.0-SNAPSHOT</version>
         <relativePath>../commons/parent</relativePath>
-	</parent>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>integration-tests</artifactId>
-	<description>BGPCEP integration tests</description>
-	<packaging>jar</packaging>
-	<name>${project.artifactId}</name>
-	<prerequisites>
-		<maven>3.0.4</maven>
-	</prerequisites>
+    <artifactId>integration-tests</artifactId>
+    <description>BGPCEP integration tests</description>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
     <properties>
         <exam.version>3.3.0</exam.version>
@@ -25,58 +31,58 @@
         <felix.version>4.2.1</felix.version>
     </properties>
 
-	<dependencies>
+    <dependencies>
         <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-parser-mock</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-rib-mock</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-        <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-testtool</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-mock</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>pcep-testtool</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-rib-mock</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-testtool</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-testtool</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-			<groupId>${project.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>programming-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>programming-tunnel-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>topology-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>topology-segment-routing</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>topology-tunnel-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -109,11 +115,11 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
             <scope>test</scope>
-		</dependency>
+        </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
@@ -144,11 +150,11 @@
             <version>${felix.version}</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>mockito-configuration</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mockito-configuration</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
