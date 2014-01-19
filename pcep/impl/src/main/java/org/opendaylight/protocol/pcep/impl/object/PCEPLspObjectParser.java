@@ -12,6 +12,8 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
@@ -49,6 +51,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 	private static final int REMOVE_FLAG_OFFSET = 13;
 	private static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
 	private static final int OPERATIONAL_OFFSET = 9;
+	private static final int CREATE_FLAG_OFFSET = 8;
 
 	public PCEPLspObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
@@ -70,6 +73,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		builder.setSync(flags.get(SYNC_FLAG_OFFSET));
 		builder.setRemove(flags.get(REMOVE_FLAG_OFFSET));
 		builder.setAdministrative(flags.get(ADMINISTRATIVE_FLAG_OFFSET));
+		builder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(flags.get(CREATE_FLAG_OFFSET)).build());
 		short s = 0;
 		s |= flags.get(OPERATIONAL_OFFSET + 2) ? 1 : 0;
 		s |= (flags.get(OPERATIONAL_OFFSET + 1) ? 1 : 0) << 1;
@@ -119,6 +123,9 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		}
 		if (specObj.isAdministrative()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
+		}
+		if (specObj.getAugmentation(Lsp1.class).isCreate()) {
+			retBytes[3] |= 1 << (Byte.SIZE - (CREATE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
 		final int op = specObj.getOperational().getIntValue();
 		retBytes[3] |= (op & 7) << 4;

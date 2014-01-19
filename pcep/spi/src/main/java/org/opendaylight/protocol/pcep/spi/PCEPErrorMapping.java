@@ -111,7 +111,6 @@ public final class PCEPErrorMapping {
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 9), PCEPErrors.ERO_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 10), PCEPErrors.SRP_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 11), PCEPErrors.LSP_IDENTIFIERS_TLV_MISSING);
-		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 12), PCEPErrors.DB_VERSION_TLV_MISSING);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 13), PCEPErrors.LSP_CLEANUP_TLV_MISSING);
 		this.fillIn(new PCEPErrorIdentifier((short) 6, (short) 14), PCEPErrors.SYMBOLIC_PATH_NAME_MISSING);
@@ -143,9 +142,11 @@ public final class PCEPErrorMapping {
 
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 1), PCEPErrors.UPDATE_REQ_FOR_NON_LSP);
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 2), PCEPErrors.UPDATE_REQ_FOR_NO_STATEFUL);
-		// TODO: replace with actual values by IANA
 		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 3), PCEPErrors.UNKNOWN_PLSP_ID);
-		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.LSP_LIMIT_EXCEEDED);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 4), PCEPErrors.RESOURCE_LIMIT_EXCEEDED);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 6), PCEPErrors.LSP_LIMIT_EXCEEDED);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 7), PCEPErrors.DELEGATION_NON_REVOKABLE);
+		this.fillIn(new PCEPErrorIdentifier((short) 19, (short) 8), PCEPErrors.NON_ZERO_PLSPID);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 1), PCEPErrors.CANNOT_PROCESS_STATE_REPORT);
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 2), PCEPErrors.LSP_DB_VERSION_MISMATCH);
@@ -153,6 +154,10 @@ public final class PCEPErrorMapping {
 		this.fillIn(new PCEPErrorIdentifier((short) 20, (short) 5), PCEPErrors.CANNOT_COMPLETE_STATE_SYNC);
 
 		this.fillIn(new PCEPErrorIdentifier((short) 23, (short) 1), PCEPErrors.USED_SYMBOLIC_PATH_NAME);
+
+		this.fillIn(new PCEPErrorIdentifier((short) 24, (short) 1), PCEPErrors.LSP_UNACC_INST_PARAMS);
+		this.fillIn(new PCEPErrorIdentifier((short) 24, (short) 2), PCEPErrors.LSP_INTERNAL_ERROR);
+		this.fillIn(new PCEPErrorIdentifier((short) 24, (short) 3), PCEPErrors.LSP_RSVP_ERROR);
 	}
 
 	private void fillIn(final PCEPErrorIdentifier identifier, final PCEPErrors error) {

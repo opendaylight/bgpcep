@@ -34,7 +34,11 @@ import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProvide
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -270,6 +274,7 @@ public class PCEPValidatorTest {
 		srpBuilder.setIgnore(false);
 		srpBuilder.setProcessingRule(false);
 		srpBuilder.setOperationId(new SrpIdNumber(1L));
+		srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(false).build());
 		this.srp = srpBuilder.build();
 
 		final LspBuilder lspBuilder = new LspBuilder();
@@ -282,6 +287,7 @@ public class PCEPValidatorTest {
 		lspBuilder.setSync(false);
 		lspBuilder.setRemove(false);
 		lspBuilder.setTlvs(new TlvsBuilder().build());
+		lspBuilder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
 		this.lsp = lspBuilder.build();
 
 		final Ipv4Builder afi = new Ipv4Builder();
