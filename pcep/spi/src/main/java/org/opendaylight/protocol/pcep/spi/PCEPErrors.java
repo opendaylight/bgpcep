@@ -141,10 +141,6 @@ public enum PCEPErrors {
 	 */
 	LSP_IDENTIFIERS_TLV_MISSING,
 	/**
-	 * LSP-DB-VERSION TLV missing.
-	 */
-	DB_VERSION_TLV_MISSING,
-	/**
 	 * Reception of an object with P flag not set although the P flag must be set according to this specification.
 	 */
 	P_FLAG_NOT_SET,
@@ -214,7 +210,19 @@ public enum PCEPErrors {
 	 * A PCE indicates to a PCC that it has exceeded the resource limit allocated for its state, and thus it cannot
 	 * accept and process its LSP State Report message.
 	 */
+	RESOURCE_LIMIT_EXCEEDED,
+	/**
+	 * PCE-initiated LSP limit reached
+	 */
 	LSP_LIMIT_EXCEEDED,
+	/**
+	 * Delegation for PCE-initiated LSP cannot be revoked
+	 */
+	DELEGATION_NON_REVOKABLE,
+	/**
+	 * Non-zero PLSP-ID in LSP initiation request
+	 */
+	NON_ZERO_PLSPID,
 	/**
 	 * A PCE indicates to a PCC that it can not process (an otherwise valid) LSP State Report. The PCEP-ERROR Object is
 	 * followed by the LSP Object that identifies the LSP.
@@ -235,5 +243,17 @@ public enum PCEPErrors {
 	/**
 	 * SYMBOLIC-PATH-NAME in use
 	 */
-	USED_SYMBOLIC_PATH_NAME
+	USED_SYMBOLIC_PATH_NAME,
+	/**
+	 * LSP instantiation error: Unacceptable instantiation parameters
+	 */
+	LSP_UNACC_INST_PARAMS,
+	/**
+	 * LSP instantiation error: Internal error
+	 */
+	LSP_INTERNAL_ERROR,
+	/**
+	 * LSP instantiation error: RSVP signaling error
+	 */
+	LSP_RSVP_ERROR
 }

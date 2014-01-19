@@ -51,6 +51,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
@@ -190,6 +194,7 @@ public class PCEPObjectParserTest {
 		builder.setDelegate(false);
 		builder.setRemove(true);
 		builder.setSync(false);
+		builder.addAugmentation(Lsp1.class, new Lsp1Builder().setCreate(false).build());
 		builder.setOperational(OperationalStatus.GoingDown);
 		builder.setPlspId(new PlspId(0x12345L));
 
@@ -640,12 +645,13 @@ public class PCEPObjectParserTest {
 	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException {
 		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
-		final byte[] result = new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, 0, 0, 0, 0, (byte) 0x01 };
+		final byte[] result = new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01 };
 
 		final SrpBuilder builder = new SrpBuilder();
 		builder.setProcessingRule(false);
 		builder.setIgnore(false);
 		builder.setOperationId(new SrpIdNumber(1L));
+		builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));

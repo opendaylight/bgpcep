@@ -12,7 +12,7 @@ module pcep-crabbe-initiated {
 
 	description
 		"This module contains the data model of PCEP extensions defined
-		in draft-crabbe-pce-initiated-pce.
+		in draft-ietf-pce-pce-initiated-lsp.
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -24,7 +24,7 @@ module pcep-crabbe-initiated {
 	revision "2013-11-26" {
 		description
 			"Initial revision.";
-		reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00";
 	}
 
 	grouping pcinitiate-message {
@@ -32,7 +32,7 @@ module pcep-crabbe-initiated {
 
 		container pcinitiate-message {
 			description "LSP Initiate Message";
-			reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-02#section-5.1";
+			reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.1";
 
 			uses pcep:message-header;
 
@@ -50,7 +50,40 @@ module pcep-crabbe-initiated {
 		}
 	}
 
+	augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:srp" {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.2";
+		leaf remove {
+			type boolean;
+			default false;
+		}
+	}
+
+	augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:srp" {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.2";
+		leaf remove {
+			type boolean;
+			default false;
+		}
+	}
+
+	augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:lsp" {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
+		leaf create {
+			type boolean;
+			default false;
+		}
+	}
+
+	augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:lsp" {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
+		leaf create {
+			type boolean;
+			default false;
+		}
+	}
+
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/msg:stateful" {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
 		leaf initiation {
 			type boolean;
 			default false;
@@ -61,4 +94,3 @@ module pcep-crabbe-initiated {
 		uses pcinitiate-message;
 	}
 }
-
