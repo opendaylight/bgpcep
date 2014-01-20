@@ -8,7 +8,7 @@ module network-topology-pcep {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
-    import pcep-ietf-stateful { prefix stateful; revision-date 2013-12-22; }
+    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";

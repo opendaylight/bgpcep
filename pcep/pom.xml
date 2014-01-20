@@ -28,6 +28,7 @@
         <module>api</module>
         <module>api-config</module>
         <module>ietf-stateful02</module>
+        <module>ietf-stateful07</module>
         <module>impl</module>
         <module>impl-config</module>
         <module>spi</module>
@@ -76,9 +77,14 @@
                 <artifactId>pcep-spi-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
-             <dependency>
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-ietf-stateful02</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-ietf-stateful07</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
