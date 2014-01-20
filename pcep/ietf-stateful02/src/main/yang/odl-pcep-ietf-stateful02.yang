@@ -40,9 +40,15 @@ module odl-pcep-ietf-stateful02 {
 		}
 	}
 
+	typedef node-identifier {
+		type binary {
+			length 1..65535;
+		}
+	}
+
 	grouping lsp-db-version-tlv {
 		description "LSP State Database Version TLV";
-		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.1.2";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.3";
 
 		container lsp-db-version {
 			uses pcep:tlv;
@@ -53,57 +59,14 @@ module odl-pcep-ietf-stateful02 {
 		}
 	}
 
-	grouping lsp-identifiers-tlv {
-		description "LSP Identifiers TLV";
-		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.2";
-		container lsp-identifiers {
+	grouping node-identifier-tlv {
+		description "Node Identifier TLV";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.1.3";
+
+		container node-identifier {
 			uses pcep:tlv;
-			leaf lsp-id {
-				type rsvp:lsp-id;
-				mandatory true;
-			}
-
-			leaf tunnel-id {
-				type rsvp:tunnel-id;
-				mandatory true;
-			}
-
-			choice address-family {
-				case ipv4-case {
-					container ipv4 {
-						leaf ipv4-tunnel-sender-address {
-							type inet:ipv4-address;
-							mandatory true;
-						}
-						leaf ipv4-extended-tunnel-id {
-							type rsvp:ipv4-extended-tunnel-id;
-							mandatory true;
-						}
-					}
-				}
-				case ipv6-case {
-					container ipv6 {
-						leaf ipv6-tunnel-sender-address {
-							type inet:ipv6-address;
-							mandatory true;
-						}
-						leaf ipv6-extended-tunnel-id {
-							type rsvp:ipv6-extended-tunnel-id;
-							mandatory true;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	grouping lsp-error-code-tlv {
-		description "LSP Error Code TLV";
-		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.3";
-		container lsp-error-code {
-			uses pcep:tlv;
-			leaf error-code {
-				type uint32;
+			leaf node-id {
+				type node-identifier;
 				mandatory true;
 			}
 		}
@@ -111,7 +74,7 @@ module odl-pcep-ietf-stateful02 {
 
 	grouping rsvp-error-spec-tlv {
 		description "RSVP Error Spec TLV";
-		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.4";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.2";
 		container rsvp-error-spec {
 			uses pcep:tlv;
 			choice error-type {
@@ -167,10 +130,6 @@ module odl-pcep-ietf-stateful02 {
 			uses pcep:object;
 			container "tlvs" {
 				uses lsp-db-version-tlv;
-
-				uses lsp-error-code-tlv;
-
-				uses lsp-identifiers-tlv;
 
 				uses rsvp-error-spec-tlv;
 
@@ -252,14 +211,14 @@ module odl-pcep-ietf-stateful02 {
 
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
 		uses stateful-capability-tlv;
-
-		uses lsp-db-version-tlv;
+		
+		uses node-identifier-tlv;
 	}
 
 	augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
 		uses stateful-capability-tlv;
-
-		uses lsp-db-version-tlv;
+		
+		uses node-identifier-tlv;
 	}
 
 	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {

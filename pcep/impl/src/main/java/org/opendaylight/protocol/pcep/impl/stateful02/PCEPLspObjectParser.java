@@ -16,8 +16,6 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.Tlvs;
@@ -79,11 +77,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 
 	@Override
 	public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-		if (tlv instanceof LspErrorCode) {
-			builder.setLspErrorCode((LspErrorCode) tlv);
-		} else if (tlv instanceof LspIdentifiers) {
-			builder.setLspIdentifiers((LspIdentifiers) tlv);
-		} else if (tlv instanceof RsvpErrorSpec) {
+		if (tlv instanceof RsvpErrorSpec) {
 			builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
 		} else if (tlv instanceof SymbolicPathName) {
 			builder.setSymbolicPathName((SymbolicPathName) tlv);
@@ -127,19 +121,9 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 			return new byte[0];
 		}
 		int finalLength = 0;
-		byte[] lspErrBytes = null;
-		byte[] lspIdBytes = null;
 		byte[] rsvpErrBytes = null;
 		byte[] symbBytes = null;
 		byte[] dbvBytes = null;
-		if (tlvs.getLspErrorCode() != null) {
-			lspErrBytes = serializeTlv(tlvs.getLspErrorCode());
-			finalLength += lspErrBytes.length;
-		}
-		if (tlvs.getLspIdentifiers() != null) {
-			lspIdBytes = serializeTlv(tlvs.getLspIdentifiers());
-			finalLength += lspIdBytes.length;
-		}
 		if (tlvs.getRsvpErrorSpec() != null) {
 			rsvpErrBytes = serializeTlv(tlvs.getRsvpErrorSpec());
 			finalLength += rsvpErrBytes.length;
@@ -154,14 +138,6 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		}
 		int offset = 0;
 		final byte[] result = new byte[finalLength];
-		if (lspErrBytes != null) {
-			ByteArray.copyWhole(lspErrBytes, result, offset);
-			offset += lspErrBytes.length;
-		}
-		if (lspIdBytes != null) {
-			ByteArray.copyWhole(lspIdBytes, result, offset);
-			offset += lspIdBytes.length;
-		}
 		if (rsvpErrBytes != null) {
 			ByteArray.copyWhole(rsvpErrBytes, result, offset);
 			offset += rsvpErrBytes.length;
