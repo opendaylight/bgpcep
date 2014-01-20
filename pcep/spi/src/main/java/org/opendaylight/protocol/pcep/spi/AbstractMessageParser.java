@@ -5,20 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.message;
+package org.opendaylight.protocol.pcep.spi;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.spi.MessageParser;
-import org.opendaylight.protocol.pcep.spi.MessageSerializer;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
-import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;
-import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;

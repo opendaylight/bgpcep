@@ -5,14 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.object;
+package org.opendaylight.protocol.pcep.spi;
 
-import org.opendaylight.protocol.pcep.spi.ObjectParser;
-import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.TlvParser;
-import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
