@@ -1,4 +1,4 @@
-module draft-crabbe-pce-stateful-pce-02 {
+module odl-pcep-ietf-stateful02 {
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep:crabbe:stateful:02";
 	prefix "stateful02";
@@ -13,7 +13,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	description
 		"This module contains the data model of PCEP extensions defined
-		in draft-crabbe-pce-stateful-pce.
+		in draft-ietf-pce-stateful-pce.
 
 		Copyright (c)2014 Cisco Systems, Inc. All rights reserved.
 
@@ -25,7 +25,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 	revision "2014-01-10" {
 		description
 			"Initial revision.";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02";
 	}
 
 	typedef plsp-id {
@@ -42,7 +42,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping lsp-db-version-tlv {
 		description "LSP State Database Version TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.1.2";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.1.2";
 
 		container lsp-db-version {
 			uses pcep:tlv;
@@ -55,7 +55,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping lsp-identifiers-tlv {
 		description "LSP Identifiers TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.2";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.2";
 		container lsp-identifiers {
 			uses pcep:tlv;
 			leaf lsp-id {
@@ -99,7 +99,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping lsp-error-code-tlv {
 		description "LSP Error Code TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.3";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.3";
 		container lsp-error-code {
 			uses pcep:tlv;
 			leaf error-code {
@@ -111,7 +111,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping rsvp-error-spec-tlv {
 		description "RSVP Error Spec TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.4";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.4";
 		container rsvp-error-spec {
 			uses pcep:tlv;
 			choice error-type {
@@ -131,7 +131,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping stateful-capability-tlv {
 		description "Stateful PCE Capability TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.1.1";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.1.1";
 
 		container stateful {
 			uses pcep:tlv;
@@ -149,7 +149,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping symbolic-path-name-tlv {
 		description "Symbolic Path Name TLV";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2.1";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.1";
 		container symbolic-path-name {
 			uses pcep:tlv;
 			leaf path-name {
@@ -161,7 +161,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 	grouping lsp-object {
 		description "LSP Object";
-		reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-7.2";
+		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2";
 
 		container lsp {
 			uses pcep:object;
@@ -209,7 +209,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 		container pcupd-message {
 			description "State Update Request Message";
-			reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.2";
+			reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-6.2";
 
 			uses pcep:message-header;
 
@@ -228,7 +228,7 @@ module draft-crabbe-pce-stateful-pce-02 {
 
 		container pcrpt-message {
 			description "State Report Message";
-			reference "http://tools.ietf.org/html/draft-crabbe-pce-stateful-pce-02#section-6.1";
+			reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-6.1";
 
 			uses pcep:message-header;
 

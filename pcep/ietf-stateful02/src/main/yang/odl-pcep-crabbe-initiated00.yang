@@ -1,11 +1,11 @@
- module draft-crabbe-pce-pce-initiated-lsp-00 {
+module odl-pcep-crabbe-initiated00 {
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep:crabbe:initiated:00";
 	prefix "initiated00";
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import pcep-message { prefix msg; revision-date 2013-10-07; }
-	import draft-crabbe-pce-stateful-pce-02 { prefix stateful02; revision-date 2014-01-10 ;}
+	import odl-pcep-ietf-stateful02 { prefix stateful02; revision-date 2014-01-10 ;}
 
 	organization "Cisco Systems, Inc.";
 	contact "Dana Kutenicsova <dkutenic@cisco.com>";
