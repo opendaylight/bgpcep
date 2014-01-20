@@ -1,0 +1,73 @@
+ module draft-crabbe-pce-pce-initiated-lsp-00 {
+	yang-version 1;
+	namespace "urn:opendaylight:params:xml:ns:yang:pcep:crabbe:initiated:00";
+	prefix "initiated00";
+
+	import pcep-types { prefix pcep; revision-date 2013-10-05; }
+	import pcep-message { prefix msg; revision-date 2013-10-07; }
+	import draft-crabbe-pce-stateful-pce-02 { prefix stateful02; revision-date 2014-01-10 ;}
+
+	organization "Cisco Systems, Inc.";
+	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+
+	description
+		"This module contains the data model of PCEP extensions defined
+		in draft-crabbe-pce-pce-initiated-lsp-00.
+
+		Copyright (c)2014 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
+
+	revision "2014-01-13" {
+		description
+			"Initial revision.";
+		reference "https://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-00";
+	}
+
+	grouping pcinitiate-message {
+		uses pcep:message;
+
+		container pcinitiate-message {
+			description "LSP Initiate Message";
+			reference "http://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-00#section-5.1";
+
+			uses pcep:message-header;
+
+			list requests {
+				uses pcep:endpoints-object;
+
+				uses pcep:explicit-route-object;
+
+				uses pcep:lsp-attributes;
+			}
+		}
+	}
+
+	grouping lsp-cleanup-tlv {
+		description "LSP Cleanup TLV";
+		reference "http://tools.ietf.org/html/draft-crabbe-pce-pce-initiated-lsp-00#section-6.2.1";
+		container lsp-cleanup {
+			uses pcep:tlv;
+			leaf timeout {
+				type uint32 {
+					range 0..4294967295;
+				}
+				mandatory true;
+			}
+		}
+	}
+
+	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful02:stateful" {
+		leaf initiation {
+			type boolean;
+			default false;
+		}
+	}
+
+	notification pcinitiate {
+		uses pcinitiate-message;
+	}
+}
