@@ -70,6 +70,8 @@ public class AbstractPcepOsgiTest {
 				mavenBundle("org.opendaylight.bgpcep", "pcep-topology-api").versionAsInProject(), //
 				mavenBundle("org.opendaylight.bgpcep", "pcep-tunnel-api").versionAsInProject(), //
 				mavenBundle("org.opendaylight.bgpcep", "pcep-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful02").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful07").versionAsInProject(), //
 				mavenBundle("org.opendaylight.bgpcep", "topology-api").versionAsInProject(), //
 				mavenBundle("org.opendaylight.bgpcep", "topology-tunnel-api").versionAsInProject(), //
 				mavenBundle("org.opendaylight.bgpcep", "programming-topology-api").versionAsInProject(), //

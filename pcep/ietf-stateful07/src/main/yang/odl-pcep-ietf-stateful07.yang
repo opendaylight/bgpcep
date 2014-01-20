@@ -1,4 +1,4 @@
-module pcep-ietf-stateful {
+module odl-pcep-ietf-stateful07 {
 	yang-version 1;
 	namespace "urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful";
 	prefix "stateful";
@@ -25,7 +25,7 @@ module pcep-ietf-stateful {
 	revision "2013-12-22" {
 		description
 			"Initial revision.";
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07";
 	}
 
 	typedef operational-status {
