@@ -52,12 +52,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -81,6 +82,11 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 			builder.setObjectType(Preconditions.checkNotNull(createObject(key)));
 
 			return builder.build();
+		}
+
+		@Override
+		protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+			return toStringHelper.add("lsattr", lsattr);
 		}
 	}
 
@@ -110,6 +116,8 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 		LOG.debug("Iterating over route destinations {}", keys);
 
 		for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {
+			LOG.debug("Processing route key {}", key);
+
 			LinkStateAttribute lsattr = null;
 			final PathAttributes1 pa = attributes.getAugmentation(PathAttributes1.class);
 			if (pa != null) {

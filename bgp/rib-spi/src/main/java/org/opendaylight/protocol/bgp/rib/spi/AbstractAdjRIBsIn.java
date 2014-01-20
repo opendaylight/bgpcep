@@ -33,6 +33,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
@@ -49,6 +51,15 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		}
 
 		protected abstract D getDataObject(I key);
+
+		@Override
+		public final String toString() {
+			return addToStringAttributes(Objects.toStringHelper(this)).toString();
+		}
+
+		protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+			return toStringHelper.add("attributes", attributes);
+		}
 	}
 
 	/**
@@ -175,6 +186,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
 	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
+		LOG.debug("Adding state {} for {} peer {}", data, id, peer);
+
 		RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
 		if (e == null) {
 			e = new RIBEntry(id);
