@@ -27,6 +27,7 @@
     <modules>
         <module>api</module>
         <module>api-config</module>
+        <module>parsers</module>
         <module>impl</module>
         <module>impl-config</module>
         <module>spi</module>
