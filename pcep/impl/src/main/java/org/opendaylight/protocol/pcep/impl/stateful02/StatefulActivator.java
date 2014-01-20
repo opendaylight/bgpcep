@@ -15,12 +15,14 @@ import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 	@Override
@@ -35,9 +37,20 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 				new PCEPReportMessageParser(context.getObjectHandlerRegistry())));
 		regs.add(context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(context.getObjectHandlerRegistry())));
 
+		regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, new PCEPReplyMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcrep.class, new PCEPReplyMessageParser(context.getObjectHandlerRegistry())));
+
+		regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE,
+				new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
+
 		regs.add(context.registerObjectParser(PCEPLspObjectParser.TYPE, PCEPLspObjectParser.CLASS,
 				new PCEPLspObjectParser(context.getTlvHandlerRegistry())));
 		regs.add(context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(context.getTlvHandlerRegistry())));
+
+		regs.add(context.registerObjectParser(PCEPOpenObjectParser.TYPE, PCEPOpenObjectParser.CLASS,
+				new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
+		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
 
 		regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
 		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
@@ -45,16 +58,11 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 		regs.add(context.registerTlvParser(LspDbVersionTlvParser.TYPE, new LspDbVersionTlvParser()));
 		regs.add(context.registerTlvSerializer(LspDbVersion.class, new LspDbVersionTlvParser()));
 
-		regs.add(context.registerTlvParser(LspUpdateErrorTlvParser.TYPE, new LspUpdateErrorTlvParser()));
-		regs.add(context.registerTlvSerializer(LspErrorCode.class, new LspUpdateErrorTlvParser()));
+		regs.add(context.registerTlvParser(NodeIdentifierTlvParser.TYPE, new NodeIdentifierTlvParser()));
+		regs.add(context.registerTlvSerializer(NodeIdentifier.class, new NodeIdentifierTlvParser()));
 
 		regs.add(context.registerTlvParser(LspSymbolicNameTlvParser.TYPE, new LspSymbolicNameTlvParser()));
 		regs.add(context.registerTlvSerializer(SymbolicPathName.class, new LspSymbolicNameTlvParser()));
-
-		regs.add(context.registerTlvParser(LspIdentifierIpv4TlvParser.TYPE, new LspIdentifierIpv4TlvParser()));
-		regs.add(context.registerTlvSerializer(LspIdentifiers.class, new LspIdentifierIpv4TlvParser()));
-
-		regs.add(context.registerTlvParser(LspIdentifierIpv6TlvParser.TYPE, new LspIdentifierIpv6TlvParser()));
 
 		regs.add(context.registerTlvParser(RSVPErrorSpecTlvParser.TYPE, new RSVPErrorSpecTlvParser()));
 		regs.add(context.registerTlvSerializer(RsvpErrorSpec.class, new RSVPErrorSpecTlvParser()));

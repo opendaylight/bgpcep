@@ -1,21 +1,23 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
+package org.opendaylight.protocol.pcep.impl.stateful02;
 
-package org.opendaylight.protocol.pcep.impl.object;
-
+import org.opendaylight.protocol.pcep.impl.object.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.impl.object.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
@@ -110,11 +112,16 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 			if (t.getStateful() != null) {
 				statefulBuilder.setStateful(t.getStateful());
 			}
+			if (t.getNodeIdentifier() != null) {
+				statefulBuilder.setNodeIdentifier(t.getNodeIdentifier());
+			}
 		}
 		if (tlv instanceof OfList) {
 			tbuilder.setOfList((OfList) tlv);
 		} else if (tlv instanceof Stateful) {
 			statefulBuilder.setStateful((Stateful) tlv);
+		} else if (tlv instanceof NodeIdentifier) {
+			statefulBuilder.setNodeIdentifier((NodeIdentifier) tlv);
 		}
 		tbuilder.addAugmentation(Tlvs2.class, statefulBuilder.build());
 	}
@@ -149,6 +156,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		int finalLength = 0;
 		byte[] ofListBytes = null;
 		byte[] statefulBytes = null;
+		byte[] nodeIdBytes = null;
 		if (tlvs.getOfList() != null) {
 			ofListBytes = serializeTlv(tlvs.getOfList());
 			finalLength += ofListBytes.length;
@@ -158,6 +166,10 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 			if (statefulTlvs.getStateful() != null) {
 				statefulBytes = serializeTlv(statefulTlvs.getStateful());
 				finalLength += statefulBytes.length;
+			}
+			if (statefulTlvs.getNodeIdentifier() != null) {
+				nodeIdBytes = serializeTlv(statefulTlvs.getNodeIdentifier());
+				finalLength += nodeIdBytes.length;
 			}
 		}
 
@@ -170,6 +182,10 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		if (statefulBytes != null) {
 			ByteArray.copyWhole(statefulBytes, result, offset);
 			offset += statefulBytes.length;
+		}
+		if (nodeIdBytes != null) {
+			ByteArray.copyWhole(nodeIdBytes, result, offset);
+			offset += nodeIdBytes.length;
 		}
 		return result;
 	}
