@@ -36,7 +36,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
-abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
+public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
