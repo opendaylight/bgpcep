@@ -16,7 +16,7 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import org.opendaylight.protocol.pcep.impl.StatefulActivator;
+import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 
 /**
  *
