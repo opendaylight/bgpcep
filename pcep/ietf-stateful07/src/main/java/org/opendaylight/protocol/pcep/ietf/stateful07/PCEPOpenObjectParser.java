@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.pcep.impl.object;
+package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -15,6 +15,9 @@ import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
@@ -103,9 +106,19 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
 	@Override
 	public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
+		final Tlvs2Builder statefulBuilder = new Tlvs2Builder();
+		if (tbuilder.getAugmentation(Tlvs2.class) != null) {
+			final Tlvs2 t = tbuilder.getAugmentation(Tlvs2.class);
+			if (t.getStateful() != null) {
+				statefulBuilder.setStateful(t.getStateful());
+			}
+		}
 		if (tlv instanceof OfList) {
 			tbuilder.setOfList((OfList) tlv);
+		} else if (tlv instanceof Stateful) {
+			statefulBuilder.setStateful((Stateful) tlv);
 		}
+		tbuilder.addAugmentation(Tlvs2.class, statefulBuilder.build());
 	}
 
 	@Override
@@ -135,14 +148,30 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 		if (tlvs == null) {
 			return new byte[0];
 		}
+		int finalLength = 0;
 		byte[] ofListBytes = null;
+		byte[] statefulBytes = null;
 		if (tlvs.getOfList() != null) {
 			ofListBytes = serializeTlv(tlvs.getOfList());
+			finalLength += ofListBytes.length;
 		}
-		byte[] result = new byte[0];
+		if (tlvs.getAugmentation(Tlvs2.class) != null) {
+			final Tlvs2 statefulTlvs = tlvs.getAugmentation(Tlvs2.class);
+			if (statefulTlvs.getStateful() != null) {
+				statefulBytes = serializeTlv(statefulTlvs.getStateful());
+				finalLength += statefulBytes.length;
+			}
+		}
+
+		int offset = 0;
+		final byte[] result = new byte[finalLength];
 		if (ofListBytes != null) {
-			result = new byte[ofListBytes.length];
-			ByteArray.copyWhole(ofListBytes, result, 0);
+			ByteArray.copyWhole(ofListBytes, result, offset);
+			offset += ofListBytes.length;
+		}
+		if (statefulBytes != null) {
+			ByteArray.copyWhole(statefulBytes, result, offset);
+			offset += statefulBytes.length;
 		}
 		return result;
 	}
