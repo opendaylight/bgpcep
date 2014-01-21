@@ -8,11 +8,10 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.TreeMap;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -29,12 +28,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.MplsProtocolMask;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.RouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.link.state.UnreservedBandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.prefix.state.IgpBitsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttributeBuilder;
@@ -46,6 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
@@ -56,7 +59,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -74,76 +76,83 @@ public class LinkstateAttributeParser implements AttributeParser {
 
 	private static final int LENGTH_SIZE = 2;
 
-	private static final Set<Short> NODE_TLVS = Sets.newHashSet(TlvCode.MULTI_TOPOLOGY_ID, TlvCode.NODE_FLAG_BITS, TlvCode.NODE_OPAQUE,
-			TlvCode.DYNAMIC_HOSTNAME, TlvCode.ISIS_AREA_IDENTIFIER, TlvCode.LOCAL_IPV4_ROUTER_ID, TlvCode.LOCAL_IPV6_ROUTER_ID);
+	private final NlriType getNlriType(final PathAttributesBuilder pab) {
+		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
+		if (mpr != null && mpr.getMpReachNlri() != null) {
+			final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
+			if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
+				for (CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase)dt).getDestinationLinkstate().getCLinkstateDestination()) {
+					return d.getNlriType();
+				}
+			}
+		} else {
+			LOG.debug("No MP_REACH attribute present");
+		}
 
-	private static final Set<Short> LINK_TLVS = Sets.newHashSet(TlvCode.LOCAL_IPV4_ROUTER_ID, TlvCode.LOCAL_IPV6_ROUTER_ID,
-			TlvCode.REMOTE_IPV4_ROUTER_ID, TlvCode.REMOTE_IPV6_ROUTER_ID, TlvCode.ADMIN_GROUP, TlvCode.MAX_BANDWIDTH,
-			TlvCode.MAX_RESERVABLE_BANDWIDTH, TlvCode.UNRESERVED_BANDWIDTH, TlvCode.TE_METRIC, TlvCode.LINK_PROTECTION_TYPE,
-			TlvCode.MPLS_PROTOCOL, TlvCode.METRIC, TlvCode.SHARED_RISK_LINK_GROUP, TlvCode.LINK_OPAQUE, TlvCode.LINK_NAME);
+		final PathAttributes2 mpu = pab.getAugmentation(PathAttributes2.class);
+		if (mpu != null && mpu.getMpUnreachNlri() != null) {
+			final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
+			if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
+				for (CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase)dt).getDestinationLinkstate().getCLinkstateDestination()) {
+					return d.getNlriType();
+				}
+			}
+		} else {
+			LOG.debug("No MP_UNREACH attribute present");
+		}
 
-	private static final Set<Short> PREFIX_TLVS = Sets.newHashSet(TlvCode.IGP_FLAGS, TlvCode.ROUTE_TAG, TlvCode.EXTENDED_ROUTE_TAG,
-			TlvCode.PREFIX_METRIC, TlvCode.FORWARDING_ADDRESS, TlvCode.PREFIX_OPAQUE);
+		return null;
+	}
 
 	@Override
 	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPParsingException {
-		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(bytes)).build();
+		final NlriType type = getNlriType(builder);
+		if (type == null) {
+			LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
+			return;
+		}
+
+		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(type, bytes)).build();
 		builder.addAugmentation(PathAttributes1.class, a);
 	}
 
-	private static boolean verifyLink(final Set<Short> keys) {
-		for (final Short i : keys) {
-			if (!LINK_TLVS.contains(i)) {
-				LOG.debug("Link attribute {} not found.", i);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean verifyNode(final Set<Short> keys) {
-		for (final Short i : keys) {
-			if (!NODE_TLVS.contains(i)) {
-				LOG.debug("Node attribute {} not found.", i);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean verifyPrefix(final Set<Short> keys) {
-		for (final Short i : keys) {
-			if (!PREFIX_TLVS.contains(i)) {
-				LOG.debug("Prefix attribute {} not found.", i);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private static LinkstatePathAttribute parseLinkState(final byte[] bytes) throws BGPParsingException {
-		final Map<Short, ByteList> map = new HashMap<>();
+	private static LinkstatePathAttribute parseLinkState(final NlriType nlri, final byte[] bytes) throws BGPParsingException {
+		final Map<Short, ByteList> map = new TreeMap<>();
 		int byteOffset = 0;
 		while (byteOffset != bytes.length) {
-			final short type = ByteArray.bytesToShort(ByteArray.subByte(bytes, byteOffset, TYPE_LENGTH));
+			final Short type = ByteArray.bytesToShort(ByteArray.subByte(bytes, byteOffset, TYPE_LENGTH));
 			byteOffset += TYPE_LENGTH;
 			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
 			byteOffset += LENGTH_SIZE;
 			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
-			final ByteList values = map.containsKey(type) ? map.get(type) : new ByteList();
+
+			// TODO: does the specification allow for a TLV to occur multiple times? If so, provide a reference to
+			// that section and replace this comment which description of what we are doing here.
+			ByteList values = map.get(type);
+			if (value == null) {
+				values = new ByteList();
+			}
+
 			values.add(value);
 			map.put(type, values);
 			byteOffset += length;
 		}
 		final LinkstatePathAttributeBuilder builder = new LinkstatePathAttributeBuilder();
-		if (verifyLink(map.keySet())) {
-			builder.setLinkStateAttribute(parseLinkAttributes(map));
-		} else if (verifyNode(map.keySet())) {
-			builder.setLinkStateAttribute(parseNodeAttributes(map));
-		} else if (verifyPrefix(map.keySet())) {
+
+		switch (nlri) {
+		case Ipv4Prefix:
+		case Ipv6Prefix:
 			builder.setLinkStateAttribute(parsePrefixAttributes(map));
+			return builder.build();
+		case Link:
+			builder.setLinkStateAttribute(parseLinkAttributes(map));
+			return builder.build();
+		case Node:
+			builder.setLinkStateAttribute(parseNodeAttributes(map));
+			return builder.build();
 		}
-		return builder.build();
+
+		throw new IllegalStateException("Unhandled NLRI type " + nlri);
 	}
 
 	/**
@@ -246,7 +255,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 					LOG.debug("Parsed Link Name : {}", name);
 					break;
 				default:
-					throw new BGPParsingException("Link Attribute not recognized, type: " + entry.getKey());
+					LOG.warn("TLV {} is not a valid link attribute, ignoring it", entry.getKey());
 				}
 			}
 		}
@@ -261,7 +270,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @return {@link LinkStateAttribute}
 	 * @throws BGPParsingException if a node attribute is not recognized
 	 */
-	private static LinkStateAttribute parseNodeAttributes(final Map<Short, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parseNodeAttributes(final Map<Short, ByteList> attributes) {
 		final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
 		final List<IsisAreaIdentifier> areaMembership = Lists.newArrayList();
 		final NodeAttributesBuilder builder = new NodeAttributesBuilder();
@@ -306,13 +315,14 @@ public class LinkstateAttributeParser implements AttributeParser {
 					LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
 					break;
 				default:
-					throw new BGPParsingException("Node Attribute not recognized, type: " + entry.getKey());
+					LOG.warn("TLV {} is not a valid node attribute, ignoring it", entry.getKey());
 				}
 			}
 		}
+		LOG.trace("Finished parsing Node Attributes.");
+
 		builder.setTopologyIdentifier(topologyMembership);
 		builder.setIsisAreaId(areaMembership);
-		LOG.trace("Finished parsing Node Attributes.");
 		return new NodeAttributesCaseBuilder().setNodeAttributes(builder.build()).build();
 	}
 
@@ -323,7 +333,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @return {@link LinkStateAttribute}
 	 * @throws BGPParsingException if some prefix attributes is not recognized
 	 */
-	private static LinkStateAttribute parsePrefixAttributes(final Map<Short, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parsePrefixAttributes(final Map<Short, ByteList> attributes) {
 		final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
 		final List<RouteTag> routeTags = Lists.newArrayList();
 		final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
@@ -375,11 +385,10 @@ public class LinkstateAttributeParser implements AttributeParser {
 					LOG.trace("Parsed FWD Address: {}", fwdAddress);
 					break;
 				case TlvCode.PREFIX_OPAQUE:
-					final byte[] opaque = value;
-					LOG.trace("Parsed Opaque value: {}", Arrays.toString(opaque));
+					LOG.debug("Parsed Opaque value: {}, not preserving it", ByteArray.bytesToHexString(value));
 					break;
 				default:
-					throw new BGPParsingException("Prefix Attribute not recognized, type: " + entry.getKey());
+					LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", entry.getKey());
 				}
 			}
 		}
