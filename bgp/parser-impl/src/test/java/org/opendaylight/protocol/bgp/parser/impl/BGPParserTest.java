@@ -856,12 +856,10 @@ public class BGPParserTest {
 		final List<Segments> asPath = Lists.newArrayList();
 
 		final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
-				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+				new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
 		final RemoteNodeDescriptorsBuilder rndBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
-				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+				new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
 		final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
 		clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
@@ -877,30 +875,30 @@ public class BGPParserTest {
 		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
 				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
-								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+						new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(
+								new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
 				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
 				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
-								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+						new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(
+								new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
 				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
 		clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
 				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
-								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+						new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(
+								new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
 		clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
 				new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
 		linkstates.add(clBuilder.build());
@@ -971,7 +969,7 @@ public class BGPParserTest {
 		04 <- next hop length
 		19 19 19 01 - nexthop (25.25.25.1)
 		00 <- reserved
-		
+
 		00 01 <- NLRI type (1 - nodeNLRI)
 		00 31 <- NLRI length (49)
 		03 <- ProtocolID - OSPF
@@ -1060,8 +1058,8 @@ public class BGPParserTest {
 				new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
 		final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-				new DomainIdentifier(new byte[] { (byte) 0x19, (byte) 0x19, (byte) 0x19, (byte) 0x01 })).setAreaId(
-				new AreaIdentifier(new byte[] { 0, 0, 0, 0 }));
+				new DomainIdentifier(0x19191901L)).setAreaId(
+						new AreaIdentifier(0L));
 
 		final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
 		clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
@@ -1071,16 +1069,16 @@ public class BGPParserTest {
 		final List<CLinkstateDestination> linkstates = Lists.newArrayList();
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
 				new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-						new OspfPseudonodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).setLanInterface(
-								new OspfInterfaceIdentifier(new byte[] { 0x0b, 0x0b, 0x0b, 0x03 })).build()).build()).build());
+						new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(
+								new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 3, 3, 3, 4 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(new byte[] { 1, 1, 1, 2 }).build()).build()).build());
+				new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
 		linkstates.add(clBuilder.build());
 
 		final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();

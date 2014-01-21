@@ -15,7 +15,6 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.DomainName;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -102,7 +101,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedInteger;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilder.class);
@@ -121,9 +119,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private TpId buildTpId(final UriBuilder base, final TopologyIdentifier topologyIdentifier,
-			final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
+			final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Long id) {
 		return new TpId(new UriBuilder(base, "tp").add("mt", topologyIdentifier).add("ipv4", ipv4InterfaceIdentifier).add("ipv6",
-				ipv6InterfaceIdentifier).add("id", bs).toString());
+				ipv6InterfaceIdentifier).add("id", id).toString());
 	}
 
 	private TpId buildLocalTpId(final UriBuilder base, final LinkDescriptors linkDescriptors) {
@@ -147,10 +145,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private TerminationPointType getTpType(final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier,
-			final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final byte[] bs) {
+			final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Long id) {
 		// Order of preference: Unnumbered first, then IP
-		if (bs != null) {
-			final long id = UnsignedInteger.fromIntBits(ByteArray.bytesToInt(bs)).longValue();
+		if (id != null) {
 			LOG.debug("Unnumbered termination point type: {}", id);
 			return new UnnumberedBuilder().setUnnumberedId(id).build();
 		}
@@ -416,7 +413,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
 
 			ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
-			ab.setDrInterfaceId(UnsignedInteger.fromIntBits(ByteArray.bytesToInt(pn.getLanInterface().getValue())).longValue());
+			ab.setDrInterfaceId(pn.getLanInterface().getValue());
 		} else if (ri instanceof OspfNodeCase) {
 			final OspfNode in = ((OspfNodeCase) ri).getOspfNode();
 

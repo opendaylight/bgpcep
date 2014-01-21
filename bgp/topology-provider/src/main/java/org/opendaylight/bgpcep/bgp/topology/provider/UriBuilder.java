@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
@@ -23,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.UnsignedBytes;
-import com.google.common.primitives.UnsignedInteger;
 
 final class UriBuilder {
 	private static final Logger LOG = LoggerFactory.getLogger(UriBuilder.class);
@@ -71,12 +69,8 @@ final class UriBuilder {
 		if (ld.getMultiTopologyId() != null) {
 			add("mt", ld.getMultiTopologyId().getValue());
 		}
-		if (ld.getLinkLocalIdentifier() != null) {
-			add("local-id", UnsignedInteger.fromIntBits(ByteArray.bytesToInt(ld.getLinkLocalIdentifier())));
-		}
-		if (ld.getLinkRemoteIdentifier() != null) {
-			add("remote-id", UnsignedInteger.fromIntBits(ByteArray.bytesToInt(ld.getLinkRemoteIdentifier())));
-		}
+		add("local-id", ld.getLinkLocalIdentifier());
+		add("remote-id", ld.getLinkRemoteIdentifier());
 		return this;
 	}
 
@@ -103,10 +97,10 @@ final class UriBuilder {
 			final IsisPseudonode r = ((IsisPseudonodeCase)routerIdentifier).getIsisPseudonode();
 			return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' + r.getPsn();
 		} else if (routerIdentifier instanceof OspfNodeCase) {
-			return ByteArray.bytesToHexString(((OspfNodeCase)routerIdentifier).getOspfNode().getOspfRouterId());
+			return ((OspfNodeCase)routerIdentifier).getOspfNode().getOspfRouterId().toString();
 		} else if (routerIdentifier instanceof OspfPseudonodeCase) {
 			final OspfPseudonode r = ((OspfPseudonodeCase)routerIdentifier).getOspfPseudonode();
-			return ByteArray.bytesToHexString(r.getOspfRouterId()) + ':' + ByteArray.bytesToHexString(r.getLanInterface().getValue());
+			return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
 		} else {
 			LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
 			return routerIdentifier.toString();
@@ -118,10 +112,10 @@ final class UriBuilder {
 			add(prefix + "as", node.getAsNumber().getValue());
 		}
 		if (node.getDomainId() != null) {
-			add(prefix + "domain", ByteArray.bytesToHexString(node.getDomainId().getValue()));
+			add(prefix + "domain", node.getDomainId().getValue());
 		}
 		if (node.getAreaId() != null) {
-			add(prefix + "area", ByteArray.bytesToHexString(node.getAreaId().getValue()));
+			add(prefix + "area", node.getAreaId().getValue());
 		}
 		add(prefix + "router", formatRouterIdentifier(node.getCRouterIdentifier()));
 		return this;

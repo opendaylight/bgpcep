@@ -125,16 +125,12 @@ module bgp-linkstate {
 
 	typedef domain-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
+		type uint32;
 	}
 
 	typedef area-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
+		type uint32;
 	}
 
 	typedef ipv4-interface-identifier {
@@ -149,9 +145,7 @@ module bgp-linkstate {
 
 	typedef ospf-interface-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type binary {
-			length "4";
-		}
+		type uint32;
 	}
 
 	typedef topology-identifier {
@@ -186,9 +180,7 @@ module bgp-linkstate {
 	grouping ospf-router-identifier {
 		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
 		leaf ospf-router-id {
-			type binary {
-				length "4";
-			}
+			type uint32;
 			mandatory true;
 		}
 	}
@@ -251,14 +243,10 @@ module bgp-linkstate {
 	grouping link-lr-identifiers {
 		reference "http://tools.ietf.org/html/rfc5307";
 		leaf link-local-identifier {
-			type binary {
-				length "4";
-			}
+			type uint32;
 		}
 		leaf link-remote-identifier {
-			type binary {
-				length "4";
-			}
+			type uint32;
 		}
 	}
 

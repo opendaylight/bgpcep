@@ -18,6 +18,9 @@ import java.util.BitSet;
 
 import org.apache.commons.codec.binary.Hex;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedInteger;
+
 /**
  * 
  * Util class for methods working with byte array.
@@ -475,5 +478,18 @@ public final class ByteArray {
 			--i;
 		}
 		return Arrays.copyOf(bytes, i + 1);
+	}
+
+	public static UnsignedInteger bytesToUint32(final byte[] bytes) {
+		Preconditions.checkArgument(bytes.length == Integer.SIZE / Byte.SIZE);
+		return UnsignedInteger.fromIntBits(bytesToInt(bytes));
+	}
+
+	public static byte[] uint32ToBytes(final UnsignedInteger uint) {
+		return intToBytes(uint.intValue());
+	}
+
+	public static byte[] uint32ToBytes(final long uint) {
+		return uint32ToBytes(UnsignedInteger.valueOf(uint));
 	}
 }

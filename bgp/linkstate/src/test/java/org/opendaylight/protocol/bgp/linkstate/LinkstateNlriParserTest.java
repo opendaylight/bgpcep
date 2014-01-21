@@ -87,7 +87,7 @@ public class LinkstateNlriParserTest {
 
 		final LocalNodeDescriptors nodeD = dest.getLocalNodeDescriptors();
 		assertEquals(new AsNumber(72L), nodeD.getAsNumber());
-		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), nodeD.getDomainId());
+		assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
 		assertEquals(
 				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
@@ -120,7 +120,7 @@ public class LinkstateNlriParserTest {
 
 		final LocalNodeDescriptors local = dest.getLocalNodeDescriptors();
 		assertEquals(new AsNumber(72L), local.getAsNumber());
-		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), local.getDomainId());
+		assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
 		assertEquals(
 				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
@@ -128,7 +128,7 @@ public class LinkstateNlriParserTest {
 										(byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
 		final RemoteNodeDescriptors remote = dest.getRemoteNodeDescriptors();
 		assertEquals(new AsNumber(72L), remote.getAsNumber());
-		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), remote.getDomainId());
+		assertEquals(new DomainIdentifier(0x28282828L), remote.getDomainId());
 		assertEquals(
 				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
@@ -162,7 +162,7 @@ public class LinkstateNlriParserTest {
 
 		final LocalNodeDescriptors local = dest.getLocalNodeDescriptors();
 		assertEquals(new AsNumber(72L), local.getAsNumber());
-		assertEquals(new DomainIdentifier(new byte[] { (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28 }), local.getDomainId());
+		assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
 		assertEquals(
 				new IsisNodeCaseBuilder().setIsisNode(
 						new IsisNodeBuilder().setIsoSystemId(
