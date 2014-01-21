@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.tlv;
+package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import java.util.BitSet;
 
@@ -13,8 +13,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -28,7 +26,6 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 
 	private static final int FLAGS_F_LENGTH = 4;
 
-	private static final int I_FLAG_OFFSET = 29;
 	private static final int U_FLAG_OFFSET = 31;
 
 	@Override
@@ -44,10 +41,6 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 
 		final StatefulBuilder sb = new StatefulBuilder();
 		sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
-
-		if (flags.get(I_FLAG_OFFSET)) {
-			sb.addAugmentation(Stateful1.class, new Stateful1Builder().setInitiation(Boolean.TRUE).build());
-		}
 		return sb.build();
 	}
 
@@ -60,10 +53,6 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 
-		final Stateful1 sfi = sct.getAugmentation(Stateful1.class);
-		if (sfi != null) {
-			flags.set(I_FLAG_OFFSET, sfi.isInitiation());
-		}
 		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
 		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
 	}

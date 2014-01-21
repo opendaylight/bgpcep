@@ -27,12 +27,12 @@
     <modules>
         <module>api</module>
         <module>api-config</module>
-        <module>ietf-stateful07</module>
         <module>impl</module>
         <module>impl-config</module>
         <module>spi</module>
         <module>spi-config</module>
         <module>ietf-stateful02</module>
+        <module>ietf-stateful07</module>
         <module>testtool</module>
         <module>topology-api</module>
         <module>topology-spi</module>
