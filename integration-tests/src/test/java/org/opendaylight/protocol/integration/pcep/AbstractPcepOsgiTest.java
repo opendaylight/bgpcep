@@ -55,6 +55,7 @@ public class AbstractPcepOsgiTest {
 
 				pcepModules(), //
 				systemProperty("osgi.bundles.defaultStartLevel").value("4"),
+				systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
 
 				TestHelper.mdSalCoreBundles(),
 
