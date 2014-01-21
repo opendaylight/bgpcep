@@ -11,6 +11,14 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
+/**
+ * Common interface for attribute parser implementation.
+ */
 public interface AttributeParser {
-	void parseAttribute(final byte[] bytes, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
+	/**
+	 * @param body encoded attribute body
+	 * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type
+	 *                is numerically lower than this attribute's type.
+	 */
+	void parseAttribute(final byte[] body, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
 }
