@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl.message;
+package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import io.netty.buffer.ByteBuf;
 
@@ -17,6 +17,10 @@ import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.StatefulCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.Srps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.SrpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -58,12 +62,21 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		if (err.getErrors() == null || err.getErrors().isEmpty()) {
 			throw new IllegalArgumentException("Errors should not be empty.");
 		}
+
 		if (err.getErrorType() instanceof RequestCase) {
 			final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
 			for (final Rps r : rps) {
 				buffer.writeBytes(serializeObject(r.getRp()));
 			}
 		}
+
+		if (err.getErrorType() instanceof StatefulCase) {
+			final List<Srps> srps = ((StatefulCase) err.getErrorType()).getStateful().getSrps();
+			for (final Srps s : srps) {
+				buffer.writeBytes(serializeObject(s.getSrp()));
+			}
+		}
+
 		for (final Errors e : err.getErrors()) {
 			buffer.writeBytes(serializeObject(e.getErrorObject()));
 		}
@@ -82,7 +95,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 		if (objects.isEmpty()) {
 			throw new PCEPDeserializerException("Error message is empty.");
 		}
+
 		final List<Rps> requestParameters = new ArrayList<>();
+		final List<Srps> srps = new ArrayList<>();
 		final List<Errors> errorObjects = new ArrayList<>();
 		final PcerrMessageBuilder b = new PcerrMessageBuilder();
 
@@ -104,7 +119,13 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 			requestParameters.add(new RpsBuilder().setRp(o).build());
 			state = State.RpIn;
 			objects.remove(0);
+		} else if (obj instanceof Srp) {
+			final Srp s = (Srp) obj;
+			srps.add(new SrpsBuilder().setSrp(s).build());
+			state = State.SrpIn;
+			objects.remove(0);
 		}
+
 		while (!objects.isEmpty()) {
 			obj = objects.get(0);
 
@@ -127,6 +148,14 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 					final Rp o = ((Rp) obj);
 					requestParameters.add(new RpsBuilder().setRp(o).build());
 					state = State.RpIn;
+					break;
+				}
+			case SrpIn:
+				state = State.Error;
+				if (obj instanceof Srp) {
+					final Srp o = ((Srp) obj);
+					srps.add(new SrpsBuilder().setSrp(o).build());
+					state = State.SrpIn;
 					break;
 				}
 			case Open:
@@ -171,7 +200,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	}
 
 	private enum State {
-		Init, ErrorIn, RpIn, Open, Error, OpenIn, End
+		Init, ErrorIn, RpIn, SrpIn, Open, Error, OpenIn, End
 	}
 
 	@Override

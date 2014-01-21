@@ -5,24 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPReportMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.message.PCEPUpdateRequestMessageParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPLspObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
-import org.opendaylight.protocol.pcep.impl.object.PCEPSrpObjectParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv4TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LSPIdentifierIpv6TlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspSymbolicNameTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.LspUpdateErrorTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.impl.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
@@ -36,8 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public final class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
@@ -50,10 +35,6 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		regs.add(context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg)));
 		regs.add(context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg)));
 		regs.add(context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg)));
-		regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, new PCEPReplyMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcrep.class, new PCEPReplyMessageParser(objReg)));
-		regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE, new PCEPRequestMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(objReg)));
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
 		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg)));

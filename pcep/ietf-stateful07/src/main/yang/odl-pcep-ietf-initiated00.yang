@@ -82,7 +82,7 @@ module odl-pcep-ietf-initiated00 {
 		}
 	}
 
-	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/msg:stateful" {
+	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful:stateful" {
 		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
 		leaf initiation {
 			type boolean;
