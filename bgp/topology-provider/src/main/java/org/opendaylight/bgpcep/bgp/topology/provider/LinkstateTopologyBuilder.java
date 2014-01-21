@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.DomainName;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeFlagBits;
@@ -322,8 +323,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		lb.setSource(new SourceBuilder().setSourceNode(srcNode).setSourceTp(srcTp.getTpId()).build());
 		lb.setDestination(new DestinationBuilder().setDestNode(dstNode).setDestTp(dstTp.getTpId()).build());
 
-		trans.putOperationalData(buildTpIdentifier(srcNode, srcTp.getKey()), srcTp);
-		trans.putOperationalData(buildTpIdentifier(dstNode, dstTp.getKey()), dstTp);
+		final InstanceIdentifier<TerminationPoint> stpId = buildTpIdentifier(srcNode, srcTp.getKey());
+		trans.putOperationalData(stpId, srcTp);
+		LOG.debug("Created TP {} at {} as link source", srcTp, stpId);
+
+		final InstanceIdentifier<TerminationPoint> dtpId = buildTpIdentifier(dstNode, dstTp.getKey());
+		trans.putOperationalData(dtpId, dstTp);
+		LOG.debug("Created TP {} at {} as link destination", dstTp, dtpId);
 
 		final InstanceIdentifier<?> lid = buildLinkIdentifier(base, l);
 		final Link link = lb.build();
@@ -502,7 +508,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				Attributes1.class).getAttributeType()).getPrefixAttributes();
 
 		final PrefixBuilder pb = new PrefixBuilder();
-		pb.setPrefix(p.getIpReachabilityInformation());
+		final IpPrefix ippfx = p.getIpReachabilityInformation();
+		pb.setKey(new PrefixKey(ippfx));
+		pb.setPrefix(ippfx);
 		if (pa != null) {
 			pb.setMetric(pa.getPrefixMetric().getValue());
 		}
