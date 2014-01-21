@@ -91,9 +91,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 			@Override
 			public void operationComplete(final ChannelFuture f) throws Exception {
 				if (f.isSuccess()) {
-					LOG.debug("Message {} sent to socket", o);
+					LOG.trace("Message {} sent to socket", o);
 				} else {
 					LOG.info("Failed to send message {}", o, f.cause());
+					negotiationFailed(f.cause());
 				}
 			}
 		});
