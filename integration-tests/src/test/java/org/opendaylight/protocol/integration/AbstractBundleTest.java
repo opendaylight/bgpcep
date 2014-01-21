@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,11 +43,14 @@ public abstract class AbstractBundleTest {
 	abstract protected Collection<String> prerequisiteBundles();
 	abstract protected Collection<String> requiredBundles();
 
+    // TODO refactor integration test (unite this code with pcep it/create common pax-exam testing suite in controller)
+
 	private List<Option> coreBundles() {
 		final List<Option> ret = new ArrayList<>();
 
 		ret.add(mavenBundle("com.google.guava", "guava").versionAsInProject());
 		ret.add(mavenBundle("commons-codec", "commons-codec").versionAsInProject());
+        ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
 
 		ret.add(TestHelper.getNettyBundles());
 		ret.add(TestHelper.getLoggingBundles());
@@ -61,7 +65,6 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.controller", "protocol-framework").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api").versionAsInProject());
-		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-config").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "xtend-lib-osgi").versionAsInProject());
