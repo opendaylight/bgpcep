@@ -222,6 +222,6 @@ public class ParserToSalTest {
 		this.session.handleMessage(this.rptmsg);
 		Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
-		Mockito.verify(this.mockedTransaction, Mockito.times(2)).commit();
+		Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
 	}
 }
