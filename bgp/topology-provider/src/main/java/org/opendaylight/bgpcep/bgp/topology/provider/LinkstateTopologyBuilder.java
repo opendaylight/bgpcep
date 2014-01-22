@@ -10,7 +10,9 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.opendaylight.controller.md.sal.common.api.data.DataModification;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -57,8 +59,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.Destination;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
@@ -104,6 +108,7 @@ import com.google.common.collect.Lists;
 
 public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilder.class);
+	private final Set<NodeId> impliedNodes = new HashSet<>();
 
 	public LinkstateTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
 		super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
@@ -280,6 +285,38 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				ilab.build()).build();
 	}
 
+	private void ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId id) {
+		final InstanceIdentifier<Node> nid = InstanceIdentifier.builder(getInstanceIdentifier()).child(
+				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
+				new NodeKey(id)).build();
+		if (trans.readOperationalData(nid) == null) {
+			createImpliedNode(trans, nid, id, new ArrayList<TerminationPoint>());
+		} else {
+			LOG.debug("Node {} is already present at {}", id, nid);
+		}
+	}
+
+	private void createImpliedNode(final DataModification<InstanceIdentifier<?>, DataObject> trans,
+			final InstanceIdentifier<Node> nid, final NodeId id, final List<TerminationPoint> tp) {
+		final Node node = new NodeBuilder().setKey(new NodeKey(id)).setNodeId(id).setTerminationPoint(tp).build();
+		trans.putOperationalData(nid, node);
+		impliedNodes.add(id);
+		LOG.debug("Created an implied node {} at {}", node, nid);
+	}
+
+	private void removeImpliedNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId id) {
+		if (impliedNodes.contains(id)) {
+			final InstanceIdentifier<Node> nid = InstanceIdentifier.builder(getInstanceIdentifier()).child(
+					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
+					new NodeKey(id)).build();
+			trans.removeOperationalData(nid);
+			impliedNodes.remove(id);
+			LOG.debug("Removed implied node {} from {}", id, nid);
+		} else {
+			LOG.debug("Node {} is advertised, not removing it");
+		}
+	}
+
 	private void createLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
 			final LinkstateRoute value, final LinkCase l, final Attributes attributes) {
 		final LinkAttributes la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase) attributes.getAugmentation(
@@ -313,12 +350,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		lb.addAugmentation(Link1.class, new Link1Builder().setIgpLinkAttributes(ilab.build()).build());
 
 		final NodeId srcNode = buildNodeId(base, l.getLocalNodeDescriptors());
+		LOG.debug("Link {} implies source node {}", l, srcNode);
+
 		final NodeId dstNode = buildNodeId(base, l.getRemoteNodeDescriptors());
+		LOG.debug("Link {} implies destination node {}", l, dstNode);
+
 		final TerminationPoint srcTp = buildLocalTp(base, l.getLinkDescriptors());
+		LOG.debug("Link {} implies source TP {}", l, srcTp);
+
 		final TerminationPoint dstTp = buildRemoteTp(base, l.getLinkDescriptors());
+		LOG.debug("Link {} implies destination TP {}", l, dstTp);
 
 		lb.setSource(new SourceBuilder().setSourceNode(srcNode).setSourceTp(srcTp.getTpId()).build());
 		lb.setDestination(new DestinationBuilder().setDestNode(dstNode).setDestTp(dstTp.getTpId()).build());
+
+		ensureNodePresent(trans, srcNode);
+		ensureNodePresent(trans, dstNode);
 
 		final InstanceIdentifier<TerminationPoint> stpId = buildTpIdentifier(srcNode, srcTp.getKey());
 		trans.putOperationalData(stpId, srcTp);
@@ -336,6 +383,69 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private void removeLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkCase l) {
 		trans.removeOperationalData(buildLinkIdentifier(base, l));
+		LOG.debug("Removed link {}", l);
+
+		final NodeId srcNode = buildNodeId(base, l.getLocalNodeDescriptors());
+		final NodeId dstNode = buildNodeId(base, l.getRemoteNodeDescriptors());
+		final TpId srcTp = buildLocalTpId(base, l.getLinkDescriptors());
+		final TpId dstTp = buildLocalTpId(base, l.getLinkDescriptors());
+		LOG.debug("Cleaning up {}/{} and {}/{}", srcNode, srcTp, dstNode, dstTp);
+
+		/*
+		 * This is ugly, but needed: we need to walk all the links and see if they reference
+		 * any of the termination points. If they do not, we remove them.
+		 */
+		int stp = 0, dtp = 0, sn = 0, dn = 0;
+		final List<Link> links = ((Topology) trans.readOperationalData(getInstanceIdentifier())).getLink();
+		for (final Link wlk : links) {
+			final org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.Source s = wlk.getSource();
+			if (srcNode.equals(s.getSourceNode())) {
+				sn++;
+			}
+			if (dstNode.equals(s.getSourceNode())) {
+				dn++;
+			}
+			if (srcTp.equals(s.getSourceTp())) {
+				stp++;
+			}
+			if (dstTp.equals(s.getSourceTp())) {
+				dtp++;
+			}
+
+			final Destination d = wlk.getDestination();
+			if (srcNode.equals(d.getDestNode())) {
+				sn++;
+			}
+			if (dstNode.equals(d.getDestNode())) {
+				dn++;
+			}
+			if (srcTp.equals(d.getDestTp())) {
+				stp++;
+			}
+			if (dstTp.equals(d.getDestTp())) {
+				dtp++;
+			}
+		}
+
+		LOG.debug("References found {}/{} and {}/{}", sn, stp, dn, dtp);
+		if (stp == 0) {
+			removeTp(trans, srcNode, srcTp);
+		}
+		if (dtp == 0) {
+			removeTp(trans, dstNode, dstTp);
+		}
+		if (sn == 0) {
+			removeImpliedNode(trans, srcNode);
+		}
+		if (dn == 0) {
+			removeImpliedNode(trans, dstNode);
+		}
+	}
+
+	private void removeTp(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId node, final TpId tp) {
+		final InstanceIdentifier<TerminationPoint> tpId = buildTpIdentifier(node, new TerminationPointKey(tp));
+		trans.removeOperationalData(tpId);
+		LOG.debug("Removed TP {} from {}", tp, tpId);
 	}
 
 	private InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nodeIdentifierBuilder(
@@ -479,16 +589,36 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		final NodeBuilder nb = new NodeBuilder();
 		nb.setNodeId(buildNodeId(base, n.getNodeDescriptors()));
+		nb.setKey(new NodeKey(nb.getNodeId()));
 		nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(inab.build()).build());
 
 		final InstanceIdentifier<Node> nid = nodeIdentifierBuilder(base, n.getNodeDescriptors()).build();
+		if (impliedNodes.contains(nb.getNodeId())) {
+			LOG.debug("Implied node {} became advertized, promoting it", nb.getNodeId());
+
+			final Node in = (Node)trans.readOperationalData(nid);
+			nb.setTerminationPoint(in.getTerminationPoint());
+			impliedNodes.remove(nb.getNodeId());
+		} else {
+			nb.setTerminationPoint(new ArrayList<TerminationPoint>());
+		}
+
 		final Node node = nb.build();
 		trans.putOperationalData(nid, node);
 		LOG.debug("Created node {} at {} for {}", node, nid, n);
 	}
 
 	private void removeNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final NodeCase n) {
-		trans.removeOperationalData(nodeIdentifierBuilder(base, n.getNodeDescriptors()).toInstance());
+		final InstanceIdentifier<Node> nid = nodeIdentifierBuilder(base, n.getNodeDescriptors()).build();
+		final Node node = (Node)trans.readOperationalData(nid);
+		if (node != null) {
+			trans.removeOperationalData(nid);
+
+			if (!node.getTerminationPoint().isEmpty()) {
+				LOG.debug("Node {} at {} has termination points, creating an implied node", node.getNodeId(), nid);
+				createImpliedNode(trans, nid, node.getNodeId(), node.getTerminationPoint());
+			}
+		}
 	}
 
 	private InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix> prefixIdentifier(
