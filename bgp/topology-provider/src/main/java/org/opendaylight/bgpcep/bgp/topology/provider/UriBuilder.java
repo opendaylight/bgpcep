@@ -76,13 +76,14 @@ final class UriBuilder {
 
 	private final String isoId(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < bytes.length - 1; i++) {
-			sb.append(UnsignedBytes.toInt(bytes[i]));
-			sb.append('.');
-		}
-
-		sb.append(UnsignedBytes.toInt(bytes[bytes.length - 1]));
+		sb.append(UnsignedBytes.toInt(bytes[0]));
+		sb.append(UnsignedBytes.toInt(bytes[1]));
+		sb.append('.');
+		sb.append(UnsignedBytes.toInt(bytes[2]));
+		sb.append(UnsignedBytes.toInt(bytes[3]));
+		sb.append('.');
+		sb.append(UnsignedBytes.toInt(bytes[4]));
+		sb.append(UnsignedBytes.toInt(bytes[5]));
 		return sb.toString();
 	}
 
