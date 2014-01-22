@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.object.type.LinkCase;
@@ -76,13 +77,11 @@ final class UriBuilder {
 
 	private final String isoId(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < bytes.length - 1; i++) {
-			sb.append(UnsignedBytes.toInt(bytes[i]));
-			sb.append('.');
-		}
-
-		sb.append(UnsignedBytes.toInt(bytes[bytes.length - 1]));
+		sb.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
+		sb.append('.');
+		sb.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
+		sb.append('.');
+		sb.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
 		return sb.toString();
 	}
 
@@ -95,7 +94,8 @@ final class UriBuilder {
 			return isoId(((IsisNodeCase)routerIdentifier).getIsisNode().getIsoSystemId().getValue());
 		} else if (routerIdentifier instanceof IsisPseudonodeCase) {
 			final IsisPseudonode r = ((IsisPseudonodeCase)routerIdentifier).getIsisPseudonode();
-			return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' + r.getPsn();
+			return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' +
+					Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
 		} else if (routerIdentifier instanceof OspfNodeCase) {
 			return ((OspfNodeCase)routerIdentifier).getOspfNode().getOspfRouterId().toString();
 		} else if (routerIdentifier instanceof OspfPseudonodeCase) {
