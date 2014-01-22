@@ -159,6 +159,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			LOG.debug("Peer {} resolved to topology node {}", peerAddress, topoNode);
 
 			// Our augmentation in the topology node
+			this.synced = false;
 			this.pccBuilder = new PathComputationClientBuilder();
 			this.pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
 
@@ -169,12 +170,19 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					this.pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
 					this.pccBuilder.setStatefulTlv(new StatefulTlvBuilder().setStateful(stateful).build());
 					this.pccBuilder.setStateSync(PccSyncState.InitialResync);
+				} else {
+					LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
 				}
+			} else {
+				LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
 			}
 
 			this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
 			this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).augmentation(Node1.class).toInstance();
-			trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
+			final Node1 ta = topologyAugmentBuilder.build();
+
+			trans.putOperationalData(this.topologyAugment, ta);
+			LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
 
 			// All set, commit the modifications
 			final ListenableFuture<RpcResult<TransactionStatus>> f = JdkFutureAdapters.listenInPoolThread(trans.commit());
@@ -271,7 +279,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 					// Update synchronization flag
 					this.synced = true;
 					this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-					trans.putOperationalData(this.topologyAugment, this.topologyAugmentBuilder.build());
+					final Node1 ta = this.topologyAugmentBuilder.build();
+					trans.putOperationalData(this.topologyAugment, ta);
+					LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
 
 					// The node has completed synchronization, cleanup metadata no longer reported back
 					this.nodeState.cleanupExcept(Collections2.transform(
@@ -284,7 +294,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 								}
 							}));
 					LOG.debug("Session {} achieved synchronized state", session);
-					return;
+					continue;
 				}
 
 				final ReportedLspBuilder rlb = new ReportedLspBuilder(r);
@@ -445,7 +455,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
 						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
 								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-						new ArrayList<Node>()).build());
+										new ArrayList<Node>()).build());
 
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
