@@ -88,6 +88,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		private InstanceIdentifier<?> getName() {
 			if (this.name == null) {
 				this.name = identifierForKey(AbstractAdjRIBsIn.this.basePath, this.key);
+				LOG.trace("Entry {} grew key {}", this, this.name);
 			}
 			return this.name;
 		}
@@ -107,6 +108,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
+				LOG.trace("Elected new state for {}: {}", getName(), candidate);
 				transaction.putOperationalData(getName(), candidate.getDataObject(this.key));
 				this.currentState = candidate;
 			}
@@ -120,8 +122,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
 			} else {
-				LOG.trace("Final candidate disappeared, removing entry {}", this.name);
-				transaction.removeOperationalData(this.name);
+				LOG.trace("Final candidate disappeared, removing entry {}", getName());
+				transaction.removeOperationalData(getName());
 			}
 
 			return this.candidates.isEmpty();
