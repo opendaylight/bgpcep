@@ -124,6 +124,9 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			for (final Node n : topo.getNode()) {
 				LOG.debug("Matching topology node {} to id {}", n, pccId);
 				if (n.getNodeId().getValue().equals(pccId)) {
+					this.topologyNode =
+							InstanceIdentifier.builder(ServerSessionManager.this.topology).child(Node.class, n.getKey()).toInstance();
+					LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
 					return n;
 				}
 			}
@@ -139,6 +142,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 			final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
 			trans.putOperationalData(nti, ret);
+			LOG.debug("Created topology node {} for id {} at {}", ret, pccId, nti);
 			this.ownsTopology = true;
 			this.topologyNode = nti;
 			return ret;
