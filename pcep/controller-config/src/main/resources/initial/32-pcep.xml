@@ -23,11 +23,11 @@
 					</extension>
 					<extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-						<name>pcep-parser-stateful</name>
+						<name>pcep-parser-ietf-stateful07</name>
 					</extension>
 					<extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
-						<name>pcep-parser-crabbe-initiated</name>
+						<name>pcep-parser-ietf-initiated00</name>
 					</extension>
 				</module>
 				<module>
@@ -35,12 +35,12 @@
 					<name>pcep-parser-base</name>
 				</module>
 				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-stateful</type>
-					<name>pcep-parser-stateful</name>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-stateful07</type>
+					<name>pcep-parser-ietf-stateful07</name>
 				</module>
 				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-crabbe-initiated</type>
-					<name>pcep-parser-crabbe-initiated</name>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-initiated00</type>
+					<name>pcep-parser-ietf-initiated00</name>
 				</module>
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
@@ -108,12 +108,12 @@
 						<provider>/config/modules/module[name='pcep-parser-base']/instance[name='pcep-parser-base']</provider>
 					</instance>
 					<instance>
-						<name>pcep-parser-crabbe-initiated</name>
-						<provider>/config/modules/module[name='pcep-parser-crabbe-initiated']/instance[name='pcep-parser-crabbe-initiated']</provider>
+						<name>pcep-parser-ietf-initiated00</name>
+						<provider>/config/modules/module[name='pcep-parser-ietf-initiated00']/instance[name='pcep-parser-ietf-initiated00']</provider>
 					</instance>
 					<instance>
-						<name>pcep-parser-stateful</name>
-						<provider>/config/modules/module[name='pcep-parser-stateful']/instance[name='pcep-parser-stateful']</provider>
+						<name>pcep-parser-ietf-stateful07</name>
+						<provider>/config/modules/module[name='pcep-parser-ietf-stateful07']/instance[name='pcep-parser-ietf-stateful07']</provider>
 					</instance>
 				</service>
 				<service>

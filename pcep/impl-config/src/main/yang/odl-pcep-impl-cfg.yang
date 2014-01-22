@@ -46,27 +46,27 @@ module odl-pcep-impl-cfg {
         }
     }
 
-    identity pcep-parser-stateful {
+    identity pcep-parser-ietf-stateful07 {
         base config:module-type;
         config:provided-service spi:extension;
-        config:java-name-prefix StatefulPCEPParser;
+        config:java-name-prefix IetfStateful07PCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-stateful {
-            when "/config:modules/config:module/config:type = 'pcep-parser-stateful'";
+        case pcep-parser-ietf-stateful07 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-stateful07'";
         }
     }
 
-	identity pcep-parser-crabbe-initiated {
+	identity pcep-parser-ietf-initiated00 {
 		base config:module-type;
         config:provided-service spi:extension;
-        config:java-name-prefix CrabbeInitiatedPCEPParser;
+        config:java-name-prefix IetfInitiated00PCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case pcep-parser-crabbe-initiated {
-            when "/config:modules/config:module/config:type = 'pcep-parser-crabbe-initiated'";
+        case pcep-parser-ietf-initiated00 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
         }
     }
 
