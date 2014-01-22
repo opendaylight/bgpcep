@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
+import com.google.common.primitives.UnsignedInteger;
 
 public final class LinkstateNlriParser implements NlriParser {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
@@ -118,8 +119,8 @@ public final class LinkstateNlriParser implements NlriParser {
 			LOG.trace("Parsing Link Descriptor: {}", Arrays.toString(value));
 			switch (type) {
 			case TlvCode.LINK_LR_IDENTIFIERS:
-				builder.setLinkLocalIdentifier(ByteArray.subByte(value, 0, 4));
-				builder.setLinkRemoteIdentifier(ByteArray.subByte(value, 4, 4));
+				builder.setLinkLocalIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 0, 4)).longValue());
+				builder.setLinkRemoteIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 4, 4)).longValue());
 				LOG.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
 						builder.getLinkRemoteIdentifier());
 				break;
@@ -176,11 +177,11 @@ public final class LinkstateNlriParser implements NlriParser {
 				LOG.debug("Parsed {}", asnumber);
 				break;
 			case TlvCode.BGP_LS_ID:
-				bgpId = new DomainIdentifier(value);
+				bgpId = new DomainIdentifier(UnsignedInteger.fromIntBits(ByteArray.bytesToInt(value)).longValue());
 				LOG.debug("Parsed {}", bgpId);
 				break;
 			case TlvCode.AREA_ID:
-				ai = new AreaIdentifier(value);
+				ai = new AreaIdentifier(UnsignedInteger.fromIntBits(ByteArray.bytesToInt(value)).longValue());
 				LOG.debug("Parsed area identifier {}", ai);
 				break;
 			case TlvCode.IGP_ROUTER_ID:
@@ -216,13 +217,13 @@ public final class LinkstateNlriParser implements NlriParser {
 			}
 		}
 		if (value.length == 4) {
-			return new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteArray.subByte(value, 0, 4)).build()).build();
+			return new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteArray.bytesToUint32(value).longValue()).build()).build();
 		}
 		if (value.length == 8) {
 			final byte[] o = ByteArray.subByte(value, 0, 4);
-			final OspfInterfaceIdentifier a = new OspfInterfaceIdentifier(ByteArray.subByte(value, 4, 4));
+			final OspfInterfaceIdentifier a = new OspfInterfaceIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 4, 4)).longValue());
 			return new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-					new OspfPseudonodeBuilder().setOspfRouterId(o).setLanInterface(a).build()).build();
+					new OspfPseudonodeBuilder().setOspfRouterId(ByteArray.bytesToUint32(o).longValue()).setLanInterface(a).build()).build();
 		}
 		throw new BGPParsingException("Router Id of invalid length " + value.length);
 	}
@@ -429,17 +430,17 @@ public final class LinkstateNlriParser implements NlriParser {
 		if (descriptors.getAsNumber() != null) {
 			buffer.writeShort(TlvCode.AS_NUMBER);
 			buffer.writeShort(length);
-			buffer.writeBytes(ByteArray.longToBytes(descriptors.getAsNumber().getValue(), length));
+			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getAsNumber().getValue()));
 		}
 		if (descriptors.getDomainId() != null) {
 			buffer.writeShort(TlvCode.BGP_LS_ID);
 			buffer.writeShort(length);
-			buffer.writeBytes(descriptors.getDomainId().getValue());
+			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getDomainId().getValue()));
 		}
 		if (descriptors.getAreaId() != null) {
 			buffer.writeShort(TlvCode.AREA_ID);
 			buffer.writeShort(length);
-			buffer.writeBytes(descriptors.getAreaId().getValue());
+			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getAreaId().getValue()));
 		}
 		if (descriptors.getCRouterIdentifier() != null) {
 			final byte[] value = serializeRouterId(descriptors.getCRouterIdentifier());
@@ -461,24 +462,22 @@ public final class LinkstateNlriParser implements NlriParser {
 			ByteArray.copyWhole(isis.getIsIsRouterIdentifier().getIsoSystemId().getValue(), bytes, 0);
 			bytes[6] = UnsignedBytes.checkedCast((isis.getPsn() != null) ? isis.getPsn() : 0);
 		} else if (routerId instanceof OspfNodeCase) {
-			bytes = ((OspfNodeCase) routerId).getOspfNode().getOspfRouterId();
+			bytes = ByteArray.uint32ToBytes(((OspfNodeCase) routerId).getOspfNode().getOspfRouterId());
 		} else if (routerId instanceof OspfPseudonodeCase) {
 			final OspfPseudonode node = ((OspfPseudonodeCase) routerId).getOspfPseudonode();
-			bytes = new byte[node.getOspfRouterId().length + node.getLanInterface().getValue().length];
-			ByteArray.copyWhole(node.getOspfRouterId(), bytes, 0);
-			ByteArray.copyWhole(node.getLanInterface().getValue(), bytes, node.getOspfRouterId().length);
+			bytes = new byte[2 * Integer.SIZE / Byte.SIZE];
+			ByteArray.copyWhole(ByteArray.uint32ToBytes(node.getOspfRouterId()), bytes, 0);
+			ByteArray.copyWhole(ByteArray.uint32ToBytes(node.getLanInterface().getValue()), bytes, Integer.SIZE / Byte.SIZE);
 		}
 		return bytes;
 	}
 
 	private static void serializeLinkDescriptors(final ByteBuf buffer, final LinkDescriptors descriptors) {
 		if (descriptors.getLinkLocalIdentifier() != null && descriptors.getLinkRemoteIdentifier() != null) {
-			final byte[] localId = descriptors.getLinkLocalIdentifier();
-			final byte[] remoteId = descriptors.getLinkRemoteIdentifier();
 			buffer.writeShort(TlvCode.LINK_LR_IDENTIFIERS);
-			buffer.writeShort(localId.length + remoteId.length);
-			buffer.writeBytes(localId);
-			buffer.writeBytes(remoteId);
+			buffer.writeShort(8);
+			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getLinkLocalIdentifier()).intValue());
+			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getLinkRemoteIdentifier()).intValue());
 		}
 		if (descriptors.getIpv4InterfaceAddress() != null) {
 			final byte[] ipv4Address = Ipv4Util.bytesForAddress(descriptors.getIpv4InterfaceAddress());
