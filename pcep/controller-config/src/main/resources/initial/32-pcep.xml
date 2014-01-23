@@ -21,26 +21,44 @@
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-base</name>
 					</extension>
-					<extension>
+                    <!-- Only one pair of stateful & initiated parsers can be loaded at a time -->
+					<!--extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-ietf-stateful07</name>
 					</extension>
 					<extension>
 						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
 						<name>pcep-parser-ietf-initiated00</name>
+					</extension-->
+					<extension>
+						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+						<name>pcep-parser-ietf-stateful02</name>
 					</extension>
-				</module>
+					<extension>
+						<type xmlns:pcepspi="urn:opendaylight:params:xml:ns:yang:controller:pcep:spi">pcepspi:extension</type>
+						<name>pcep-parser-crabbe-initiated00</name>
+					</extension>
+                </module>
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-base</type>
 					<name>pcep-parser-base</name>
 				</module>
-				<module>
+                <!-- Only one pair of stateful & initiated parsers can be loaded at a time -->
+				<!--module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-stateful07</type>
 					<name>pcep-parser-ietf-stateful07</name>
 				</module>
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-initiated00</type>
 					<name>pcep-parser-ietf-initiated00</name>
+				</module-->
+            	<module>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-stateful02</type>
+					<name>pcep-parser-ietf-stateful02</name>
+				</module>
+				<module>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-crabbe-initiated00</type>
+					<name>pcep-parser-crabbe-initiated00</name>
 				</module>
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-session-proposal-factory-impl</type>
@@ -107,14 +125,23 @@
 						<name>pcep-parser-base</name>
 						<provider>/config/modules/module[name='pcep-parser-base']/instance[name='pcep-parser-base']</provider>
 					</instance>
-					<instance>
+                     <!-- Only one pair of stateful & initiated parsers can be loaded at a time -->
+					<!--instance>
 						<name>pcep-parser-ietf-initiated00</name>
 						<provider>/config/modules/module[name='pcep-parser-ietf-initiated00']/instance[name='pcep-parser-ietf-initiated00']</provider>
 					</instance>
 					<instance>
 						<name>pcep-parser-ietf-stateful07</name>
 						<provider>/config/modules/module[name='pcep-parser-ietf-stateful07']/instance[name='pcep-parser-ietf-stateful07']</provider>
-					</instance>
+					</instance-->
+                    <instance>
+                        <name>pcep-parser-crabbe-initiated00</name>
+                        <provider>/config/modules/module[name='pcep-parser-crabbe-initiated00']/instance[name='pcep-parser-crabbe-initiated00']</provider>
+                    </instance>
+                    <instance>
+                        <name>pcep-parser-ietf-stateful02</name>
+                        <provider>/config/modules/module[name='pcep-parser-ietf-stateful02']/instance[name='pcep-parser-ietf-stateful02']</provider>
+                    </instance>
 				</service>
 				<service>
 					<type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
