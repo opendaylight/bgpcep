@@ -228,6 +228,13 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID, PATHNAME> i
 		tearDown(session);
 	}
 
+	@Override
+	public void close() {
+		if (session != null) {
+			session.close(TerminationReason.Unknown);
+		}
+	}
+
 	protected InstanceIdentifierBuilder<PathComputationClient> pccIdentifier() {
 		return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class);
 	}
