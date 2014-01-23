@@ -8,7 +8,6 @@ module network-topology-pcep {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2013-10-05; }
-    import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -18,16 +17,16 @@ module network-topology-pcep {
         exposes the LSPs for which a particular node is the head end.
 
         This module exposes three programming instructions,add-lsp,
-             remove-lsp and update-lsp, which map to actively-stateful PCEP
-                 operations using PCInitiate and PCUpd messages to initiate,
-             destroy and udpate LSP configuration. The lifecycle of these
-                 instructions follows draft-crabbe-pce-pce-initiated-lsp and
-                 draft-ietf-pce-stateful-pce, completing execution once the head-end
-                 router has acknowledged operation success. Should the router become
-                 disconnected, the instruction resolve to Cancelled if the message
-                 has not been sent into the TCP socket, or Failed it they have.
+        remove-lsp and update-lsp, which map to actively-stateful PCEP
+        operations using PCInitiate and PCUpd messages to initiate,
+        destroy and udpate LSP configuration. The lifecycle of these
+        instructions follows draft-crabbe-pce-pce-initiated-lsp and
+        draft-ietf-pce-stateful-pce, completing execution once the head-end
+        router has acknowledged operation success. Should the router become
+        disconnected, the instruction resolve to Cancelled if the message
+        has not been sent into the TCP socket, or Failed it they have.
 
-                 Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
 
     revision "2013-10-24" {
         description
@@ -76,25 +75,22 @@ module network-topology-pcep {
                     data plane addresses.";
 
                 type inet:ip-address;
-                mandatory true;
             }
 
             container stateful-tlv {
-                uses stateful:stateful-capability-tlv;
+
             }
 
             leaf state-sync {
-                when "../stateful-tlv";
                 type pcc-sync-state;
+                when "../stateful-tlv";
             }
 
             list reported-lsp {
                 leaf name {
-                    type stateful:symbolic-path-name;
+                    type string;
                 }
                 key name;
-
-                uses stateful:lsp-object;
 
                 container path {
                     uses pcep:path-definition;
@@ -126,7 +122,7 @@ module network-topology-pcep {
         }
 
         leaf name {
-            type stateful:symbolic-path-name;
+            type string;
             mandatory true;
         }
     }
@@ -217,10 +213,7 @@ module network-topology-pcep {
         uses lsp-id;
 
         container arguments {
-            leaf operational {
-                type stateful:operational-status;
-                mandatory true;
-            }
+
         }
     }
 
