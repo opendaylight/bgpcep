@@ -14,15 +14,14 @@ import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-final class TopologyNodeState {
-	private final Map<SymbolicPathName, Metadata> metadata = new HashMap<>();
+final class TopologyNodeState<PATHNAME> {
+	private final Map<PATHNAME, Metadata> metadata = new HashMap<>();
 	private final long holdStateNanos;
 	private final NodeId nodeId;
 	private long lastReleased = 0;
@@ -37,11 +36,11 @@ final class TopologyNodeState {
 		return nodeId;
 	}
 
-	public synchronized Metadata getLspMetadata(final SymbolicPathName name) {
+	public synchronized Metadata getLspMetadata(final PATHNAME name) {
 		return metadata.get(name);
 	}
 
-	public synchronized void setLspMetadata(final SymbolicPathName name, final Metadata value) {
+	public synchronized void setLspMetadata(final PATHNAME name, final Metadata value) {
 		if (value == null) {
 			metadata.remove(name);
 		} else {
@@ -49,12 +48,12 @@ final class TopologyNodeState {
 		}
 	}
 
-	public synchronized void removeLspMetadata(final SymbolicPathName name) {
+	public synchronized void removeLspMetadata(final PATHNAME name) {
 		metadata.remove(name);
 	}
 
-	public synchronized void cleanupExcept(final Collection<SymbolicPathName> values) {
-		final Iterator<SymbolicPathName> it = metadata.keySet().iterator();
+	public synchronized void cleanupExcept(final Collection<PATHNAME> values) {
+		final Iterator<PATHNAME> it = metadata.keySet().iterator();
 		while (it.hasNext()) {
 			if (!values.contains(it.next())) {
 				it.remove();
