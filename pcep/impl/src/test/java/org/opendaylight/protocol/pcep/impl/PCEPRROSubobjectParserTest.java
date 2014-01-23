@@ -19,7 +19,7 @@ import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey128SubobjectParse
 import org.opendaylight.protocol.pcep.impl.subobject.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.RROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -120,14 +120,18 @@ public class PCEPRROSubobjectParserTest {
 
 	@Test
 	public void testRROLabelSubobject() throws Exception {
-		final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getLabelHandlerRegistry());
-		final SubobjectBuilder subs = new SubobjectBuilder();
-		subs.setSubobjectType(new LabelCaseBuilder().setLabel(
-				new LabelBuilder().setUniDirectional(true).setGlobal(true).setLabelType(
-						new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
-								new GeneralizedLabelBuilder().setGeneralizedLabel(
-										new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }).build()).build()).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(labelBytes, 2)));
-		assertArrayEquals(labelBytes, parser.serializeSubobject(subs.build()));
+		final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+		try (Activator a = new Activator()) {
+			a.start(ctx);
+			final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
+			final SubobjectBuilder subs = new SubobjectBuilder();
+			subs.setSubobjectType(new LabelCaseBuilder().setLabel(
+					new LabelBuilder().setUniDirectional(true).setGlobal(true).setLabelType(
+							new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
+									new GeneralizedLabelBuilder().setGeneralizedLabel(
+											new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }).build()).build()).build()).build());
+			assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(labelBytes, 2)));
+			assertArrayEquals(labelBytes, parser.serializeSubobject(subs.build()));
+		}
 	}
 }

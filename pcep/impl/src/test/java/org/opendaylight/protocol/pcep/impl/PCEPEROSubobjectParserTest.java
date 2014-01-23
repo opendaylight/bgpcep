@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.subobject.EROAsNumberSubobjectParser;
@@ -23,7 +24,7 @@ import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey128SubobjectParse
 import org.opendaylight.protocol.pcep.impl.subobject.EROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.impl.subobject.EROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -65,6 +66,16 @@ public class PCEPEROSubobjectParserTest {
 	private static final byte[] labelBytes = { (byte) 0x83, (byte) 0x08, (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25,
 			(byte) 0xFF };
 	private static final byte[] exrsBytes = { (byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
+
+	private SimplePCEPExtensionProviderContext ctx;
+	private Activator act;
+
+	@Before
+	public void setUp() {
+		this.ctx = new SimplePCEPExtensionProviderContext();
+		this.act = new Activator();
+		this.act.start(this.ctx);
+	}
 
 	@Test
 	public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
@@ -141,7 +152,8 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROLabelSubobject() throws Exception {
-		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getLabelHandlerRegistry());
+		final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(this.ctx.getLabelHandlerRegistry());
+
 		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new LabelCaseBuilder().setLabel(
@@ -155,7 +167,7 @@ public class PCEPEROSubobjectParserTest {
 
 	@Test
 	public void testEROEXRSSubobject() throws Exception {
-		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getXROSubobjectHandlerRegistry());
+		final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(this.ctx.getXROSubobjectHandlerRegistry());
 		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs> list = Lists.newArrayList();
