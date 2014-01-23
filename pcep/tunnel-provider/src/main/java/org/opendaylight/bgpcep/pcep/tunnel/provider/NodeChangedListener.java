@@ -17,6 +17,7 @@ import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.ReportedLsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
@@ -62,6 +63,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
@@ -202,9 +204,10 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
-
 		final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
-		final AddressFamily af = value.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
+		final ReportedLsp1 rl = value.getAugmentation(ReportedLsp1.class);
+
+		final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
 		/*
 		 * We are trying to ensure we have source and destination nodes.
@@ -222,15 +225,15 @@ public final class NodeChangedListener implements DataChangeListener {
 			throw new IllegalArgumentException("Unsupported address family: " + af.getImplementedInterface());
 		}
 
-		final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni, value.getLsp().isDelegate());
-		final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
-
 		final Link1Builder lab = new Link1Builder(value.getPath().getLspa());
-		lab.setAdministrativeStatus(value.getLsp().isAdministrative() ? AdministrativeStatus.Active : AdministrativeStatus.Inactive);
 		lab.setBandwidth(value.getPath().getBandwidth().getBandwidth());
 		lab.setClassType(value.getPath().getClassType().getClassType());
-		lab.setSymbolicPathName(value.getName());
-		lab.setOperationalStatus(value.getLsp().getOperational());
+		lab.setSymbolicPathName(new SymbolicPathName(value.getName().getBytes(Charsets.UTF_8)));
+
+		final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
+		final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().isDelegate());;
+		lab.setOperationalStatus(rl.getLsp().getOperational());
+		lab.setAdministrativeStatus(rl.getLsp().isAdministrative() ? AdministrativeStatus.Active : AdministrativeStatus.Inactive);
 
 		final LinkId id = linkIdForLsp(i, value);
 		final LinkBuilder lb = new LinkBuilder();
@@ -405,7 +408,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final NodeId node,
-			final SymbolicPathName name) {
+			final String name) {
 		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
 	}
 }
