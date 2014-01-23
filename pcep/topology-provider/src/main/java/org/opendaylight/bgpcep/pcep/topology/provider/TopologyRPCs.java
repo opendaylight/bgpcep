@@ -39,7 +39,7 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 
 	@Override
 	public Future<RpcResult<AddLspOutput>> addLsp(final AddLspInput input) {
-		return Futures.transform(manager.realAddLsp(input), new Function<OperationResult, RpcResult<AddLspOutput>>() {
+		return Futures.transform(manager.addLsp(input), new Function<OperationResult, RpcResult<AddLspOutput>>() {
 			@Override
 			public RpcResult<AddLspOutput> apply(final OperationResult input) {
 				return SuccessfulRpcResult.create(new AddLspOutputBuilder(input).build());
@@ -49,7 +49,7 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 
 	@Override
 	public Future<RpcResult<RemoveLspOutput>> removeLsp(final RemoveLspInput input) {
-		return Futures.transform(manager.realRemoveLsp(input), new Function<OperationResult, RpcResult<RemoveLspOutput>>() {
+		return Futures.transform(manager.removeLsp(input), new Function<OperationResult, RpcResult<RemoveLspOutput>>() {
 			@Override
 			public RpcResult<RemoveLspOutput> apply(final OperationResult input) {
 				return SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input).build());
@@ -59,7 +59,7 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 
 	@Override
 	public Future<RpcResult<UpdateLspOutput>> updateLsp(final UpdateLspInput input) {
-		return Futures.transform(manager.realUpdateLsp(input), new Function<OperationResult, RpcResult<UpdateLspOutput>>() {
+		return Futures.transform(manager.updateLsp(input), new Function<OperationResult, RpcResult<UpdateLspOutput>>() {
 			@Override
 			public RpcResult<UpdateLspOutput> apply(final OperationResult input) {
 				return SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input).build());
@@ -69,7 +69,7 @@ final class TopologyRPCs implements NetworkTopologyPcepService {
 
 	@Override
 	public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
-		return Futures.transform(manager.realEnsureLspOperational(input), new Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>() {
+		return Futures.transform(manager.ensureLspOperational(input), new Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>() {
 			@Override
 			public RpcResult<EnsureLspOperationalOutput> apply(final OperationResult input) {
 				return SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input).build());
