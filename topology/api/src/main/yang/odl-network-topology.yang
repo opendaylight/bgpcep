@@ -3,7 +3,6 @@ module odl-network-topology {
 	namespace "urn:opendaylight:params:xml:ns:yang:network:topology";
 	prefix "ont";
 
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import yang-ext {prefix ext; revision-date "2013-07-09"; }
 
