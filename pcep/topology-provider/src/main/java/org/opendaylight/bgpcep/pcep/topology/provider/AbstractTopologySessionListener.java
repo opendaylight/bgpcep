@@ -36,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.PathComputationClientBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -54,7 +56,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public abstract class AbstractTopologySessionListener<SRPID, PLSPID, PATHNAME> implements PCEPSessionListener, TopologySessionListener {
+public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements PCEPSessionListener, TopologySessionListener {
 	protected static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
 		private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
@@ -68,22 +70,22 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID, PATHNAME> i
 			return this.version;
 		}
 	};
-	protected static final Pcerr UNHANDLED_MESSAGE_ERROR = new PcerrBuilder().setPcerrMessage(
+	private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+	private static final Pcerr UNHANDLED_MESSAGE_ERROR = new PcerrBuilder().setPcerrMessage(
 			new PcerrMessageBuilder().setErrorType(null).build()).build();
 
-	private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
 
 	// FIXME: make this private
 	protected final ServerSessionManager serverSessionManager;
 
 	private final Map<SRPID, PCEPRequest> waitingRequests = new HashMap<>();
 	private final Map<SRPID, PCEPRequest> sendingRequests = new HashMap<>();
-	private final Map<PLSPID, PATHNAME> lsps = new HashMap<>();
+	private final Map<PLSPID, String> lsps = new HashMap<>();
 	private InstanceIdentifier<Node> topologyNode;
 	private InstanceIdentifier<Node1> topologyAugment;
 	private PathComputationClientBuilder pccBuilder;
 	private Node1Builder topologyAugmentBuilder;
-	private TopologyNodeState<PATHNAME> nodeState;
+	private TopologyNodeState nodeState;
 	private boolean ownsTopology = false;
 	private boolean synced = false;
 	private PCEPSession session;
@@ -229,6 +231,30 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID, PATHNAME> i
 	}
 
 	@Override
+	public final synchronized void onMessage(final PCEPSession session, final Message message) {
+		final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
+
+		if (onMessage(trans, message)) {
+			LOG.info("Unhandled message {} on session {}", message, session);
+			session.sendMessage(UNHANDLED_MESSAGE_ERROR);
+			return;
+		}
+
+		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+			@Override
+			public void onSuccess(final RpcResult<TransactionStatus> result) {
+				LOG.trace("Internal state for session {} updated successfully", session);
+			}
+
+			@Override
+			public void onFailure(final Throwable t) {
+				LOG.error("Failed to update internal state for session {}, closing it", session, t);
+				session.close(TerminationReason.Unknown);
+			}
+		});
+	}
+
+	@Override
 	public void close() {
 		if (session != null) {
 			session.close(TerminationReason.Unknown);
@@ -289,26 +315,36 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID, PATHNAME> i
 		LOG.debug("Session {} achieved synchronized state", session);
 	}
 
-	protected final synchronized void addLsp(final PLSPID id, final PATHNAME name) {
+	protected final InstanceIdentifierBuilder<ReportedLsp> lspIdentifier(final String name) {
+		return pccIdentifier().child(ReportedLsp.class, new ReportedLspKey(name));
+	}
+
+	protected final synchronized void addLsp(final PLSPID id, final String name) {
 		Preconditions.checkState(lsps.containsKey(id) == false);
 		lsps.put(id, name);
 	}
 
-	protected final synchronized PATHNAME getLsp(final PLSPID id) {
+	protected final synchronized String getLsp(final PLSPID id) {
 		return lsps.get(id);
 	}
 
-	protected final synchronized PATHNAME removeLsp(final PLSPID id) {
-		return lsps.remove(id);
+	protected final synchronized void removeLsp(final DataModificationTransaction trans, final PLSPID id) {
+		final String name = lsps.remove(id);
+		if (name != null) {
+			trans.removeOperationalData(lspIdentifier(name).build());
+		}
+
+		LOG.debug("LSP {} removed", name);
 	}
 
-	protected final synchronized Metadata getLspMetadata(final PATHNAME name) {
+	protected final synchronized Metadata getLspMetadata(final String name) {
 		return this.nodeState.getLspMetadata(name);
 	}
 
-	protected final synchronized void updateLspMetadata(final PATHNAME name, final Metadata metadata) {
+	protected final synchronized void updateLspMetadata(final String name, final Metadata metadata) {
 		this.nodeState.setLspMetadata(name, metadata);
 	}
 
 	abstract protected void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
+	abstract protected boolean onMessage(DataModificationTransaction trans, Message message);
 }
