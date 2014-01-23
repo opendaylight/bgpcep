@@ -42,7 +42,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
@@ -104,9 +104,15 @@ public class PCEPObjectParserTest {
 
 	private TlvHandlerRegistry tlvRegistry;
 
+	private SimplePCEPExtensionProviderContext ctx;
+	private Activator act;
+
 	@Before
-	public void setUp() throws Exception {
-		this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
+	public void setUp() {
+		this.ctx = new SimplePCEPExtensionProviderContext();
+		this.act = new Activator();
+		this.act.start(this.ctx);
+		this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
 	}
 
 	@Test
@@ -159,7 +165,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testERObject() throws Exception {
-		final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getEROSubobjectHandlerRegistry());
+		final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPExplicitRouteObject1PackOfSubobjects.bin");
 
 		final EroBuilder builder = new EroBuilder();
@@ -185,7 +191,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testIRObject() throws Exception {
-		final PCEPIncludeRouteObjectParser parser = new PCEPIncludeRouteObjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getEROSubobjectHandlerRegistry());
+		final PCEPIncludeRouteObjectParser parser = new PCEPIncludeRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPIncludeRouteObject1PackOfSubobjects.bin");
 		final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
@@ -213,7 +219,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testRRObject() throws Exception {
-		final PCEPReportedRouteObjectParser parser = new PCEPReportedRouteObjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getRROSubobjectHandlerRegistry());
+		final PCEPReportedRouteObjectParser parser = new PCEPReportedRouteObjectParser(this.ctx.getRROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPReportedRouteObject1PackOfSubobjects.bin");
 		final byte[] ip6PrefixBytes = { (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
@@ -543,7 +549,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testExcludeRouteObject() throws Exception {
-		final PCEPExcludeRouteObjectParser parser = new PCEPExcludeRouteObjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getXROSubobjectHandlerRegistry());
+		final PCEPExcludeRouteObjectParser parser = new PCEPExcludeRouteObjectParser(this.ctx.getXROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPExcludeRouteObject.1.bin");
 
 		final XroBuilder builder = new XroBuilder();
@@ -565,7 +571,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testPathKeyObject() throws Exception {
-		final PCEPPathKeyObjectParser parser = new PCEPPathKeyObjectParser(ServiceLoaderPCEPExtensionProviderContext.create().getEROSubobjectHandlerRegistry());
+		final PCEPPathKeyObjectParser parser = new PCEPPathKeyObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPPathKeyObject.bin");
 
 		final PathKeyBuilder builder = new PathKeyBuilder();
