@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +73,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
@@ -225,7 +227,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 				final AddLspInputBuilder ab = new AddLspInputBuilder();
 				ab.setNode(Preconditions.checkNotNull(supportingNode(sn)));
-				ab.setName(Preconditions.checkNotNull(input.getSymbolicPathName()));
+				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(Preconditions.checkNotNull(input.getSymbolicPathName()).getValue())).toString());
 
 				// The link has to be non-existent
 				final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
@@ -282,7 +284,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				Preconditions.checkState(node != null);
 
 				final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
-				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(link.getAugmentation(Link1.class).getSymbolicPathName().getValue())).toString());
 				ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
 
 				return Futures.transform(
@@ -321,7 +323,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				Preconditions.checkState(node != null);
 
 				final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
+				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(link.getAugmentation(Link1.class).getSymbolicPathName().getValue())).toString());
 				ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
 
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
