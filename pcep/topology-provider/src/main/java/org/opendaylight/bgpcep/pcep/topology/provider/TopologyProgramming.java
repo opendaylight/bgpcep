@@ -52,7 +52,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
 			protected ListenableFuture<OperationResult> invokeOperation() {
-				return TopologyProgramming.this.manager.realAddLsp(input);
+				return TopologyProgramming.this.manager.addLsp(input);
 			}
 		}));
 
@@ -69,7 +69,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
 			protected ListenableFuture<OperationResult> invokeOperation() {
-				return TopologyProgramming.this.manager.realRemoveLsp(input);
+				return TopologyProgramming.this.manager.removeLsp(input);
 			}
 		}));
 
@@ -86,7 +86,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
 			@Override
 			protected ListenableFuture<OperationResult> invokeOperation() {
-				return TopologyProgramming.this.manager.realUpdateLsp(input);
+				return TopologyProgramming.this.manager.updateLsp(input);
 			}
 		}));
 
@@ -108,7 +108,7 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 			protected ListenableFuture<OperationResult> invokeOperation() {
 				EnsureLspOperationalInputBuilder ensureLspOperationalInputBuilder = new EnsureLspOperationalInputBuilder();
 				ensureLspOperationalInputBuilder.fieldsFrom(input);
-				return TopologyProgramming.this.manager.realEnsureLspOperational(ensureLspOperationalInputBuilder.build());
+				return TopologyProgramming.this.manager.ensureLspOperational(ensureLspOperationalInputBuilder.build());
 			}
 		}));
 
