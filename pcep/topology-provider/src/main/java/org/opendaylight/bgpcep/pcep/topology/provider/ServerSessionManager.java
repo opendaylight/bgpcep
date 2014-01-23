@@ -47,7 +47,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  *
  */
-final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable {
+final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs {
 	private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
 	private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -109,10 +109,11 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	@Override
 	public PCEPSessionListener getSessionListener() {
-		return new TopologySessionListener(this);
+		return new Stateful07TopologySessionListener(this);
 	}
 
-	synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+	@Override
+	public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
 		// Get the listener corresponding to the node
 		final TopologySessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
@@ -123,7 +124,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		return l.addLsp(input);
 	}
 
-	synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+	@Override
+	public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
 		// Get the listener corresponding to the node
 		final TopologySessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
@@ -134,7 +136,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		return l.removeLsp(input);
 	}
 
-	synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+	@Override
+	public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
 		// Get the listener corresponding to the node
 		final TopologySessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
@@ -145,7 +148,8 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		return l.updateLsp(input);
 	}
 
-	synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+	@Override
+	public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
 		// Get the listener corresponding to the node
 		final TopologySessionListener l = this.nodes.get(input.getNode());
 		if (l == null) {
