@@ -20,8 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import com.google.common.base.Preconditions;
 
 @ThreadSafe
-final class TopologyNodeState<PATHNAME> {
-	private final Map<PATHNAME, Metadata> metadata = new HashMap<>();
+final class TopologyNodeState {
+	private final Map<String, Metadata> metadata = new HashMap<>();
 	private final long holdStateNanos;
 	private final NodeId nodeId;
 	private long lastReleased = 0;
@@ -36,11 +36,11 @@ final class TopologyNodeState<PATHNAME> {
 		return nodeId;
 	}
 
-	public synchronized Metadata getLspMetadata(final PATHNAME name) {
+	public synchronized Metadata getLspMetadata(final String name) {
 		return metadata.get(name);
 	}
 
-	public synchronized void setLspMetadata(final PATHNAME name, final Metadata value) {
+	public synchronized void setLspMetadata(final String name, final Metadata value) {
 		if (value == null) {
 			metadata.remove(name);
 		} else {
@@ -48,12 +48,12 @@ final class TopologyNodeState<PATHNAME> {
 		}
 	}
 
-	public synchronized void removeLspMetadata(final PATHNAME name) {
+	public synchronized void removeLspMetadata(final String name) {
 		metadata.remove(name);
 	}
 
-	public synchronized void cleanupExcept(final Collection<PATHNAME> values) {
-		final Iterator<PATHNAME> it = metadata.keySet().iterator();
+	public synchronized void cleanupExcept(final Collection<String> values) {
+		final Iterator<String> it = metadata.keySet().iterator();
 		while (it.hasNext()) {
 			if (!values.contains(it.next())) {
 				it.remove();
