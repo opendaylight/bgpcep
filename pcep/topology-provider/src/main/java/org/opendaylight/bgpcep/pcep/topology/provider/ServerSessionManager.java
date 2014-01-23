@@ -52,7 +52,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 	private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
 	private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
-	private final Map<NodeId, TopologyNodeState<?>> state = new HashMap<>();
+	private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
 
@@ -87,19 +87,18 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 		});
 	}
 
-	public void releaseNodeState(final TopologyNodeState<?> nodeState) {
+	public void releaseNodeState(final TopologyNodeState nodeState) {
 		LOG.debug("Node {} unbound", nodeState.getNodeId());
 		this.nodes.remove(nodeState.getNodeId());
 		nodeState.released();
 	}
 
-	synchronized <T> TopologyNodeState<T> takeNodeState(final NodeId id, final TopologySessionListener sessionListener) {
+	synchronized TopologyNodeState takeNodeState(final NodeId id, final TopologySessionListener sessionListener) {
 		LOG.debug("Node {} bound to listener {}", id, sessionListener);
 
-		@SuppressWarnings("unchecked")
-		TopologyNodeState<T> ret = (TopologyNodeState<T>) this.state.get(id);
+		TopologyNodeState ret = this.state.get(id);
 		if (ret == null) {
-			ret = new TopologyNodeState<T>(id, DEFAULT_HOLD_STATE_NANOS);
+			ret = new TopologyNodeState(id, DEFAULT_HOLD_STATE_NANOS);
 			this.state.put(id, ret);
 		}
 
