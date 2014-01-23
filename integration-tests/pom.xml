@@ -208,12 +208,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>mockito-configuration</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-topology-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -379,7 +373,6 @@
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
