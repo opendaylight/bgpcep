@@ -34,7 +34,6 @@ import org.osgi.framework.BundleException;
 @ExamReactorStrategy(PerMethod.class)
 public abstract class AbstractBundleTest {
 	private static final String GROUP = "org.opendaylight.bgpcep";
-	private static final String VERSION = "0.3.0-SNAPSHOT";
 
 	@Inject
 	BundleContext ctx;
@@ -90,11 +89,11 @@ public abstract class AbstractBundleTest {
 		final List<Option> options = coreBundles();
 
 		for (final String s : prerequisiteBundles()) {
-			options.add(mavenBundle(GROUP, s, VERSION));
+			options.add(mavenBundle(GROUP, s).versionAsInProject());
 		}
 
 		for (final String s : requiredBundles()) {
-			options.add(mavenBundle(GROUP, s, VERSION));
+			options.add(mavenBundle(GROUP, s).versionAsInProject());
 		}
 
 		options.addAll(Arrays.asList(junitBundles()));
