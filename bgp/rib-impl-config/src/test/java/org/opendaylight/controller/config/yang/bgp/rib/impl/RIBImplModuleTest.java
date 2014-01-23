@@ -130,19 +130,48 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 		Mockito.doReturn(new ServiceReference[]{}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
-		ServiceReference<?> mockedserviceReference = mock(ServiceReference.class);
-		Mockito.doReturn(new String()).when(mockedserviceReference).toString();
-		Mockito.doReturn(mockedserviceReference).when(mockedContext).getServiceReference(any(Class.class));
+		ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
+
+		ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
+		
+		
+		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+
+		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+
+		Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
+
+		Mockito.doReturn(new Bundle[]{}).when(mockedContext).getBundles();
+
+		Mockito.doReturn(new ServiceReference[]{}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+
+		//mockedDataProvider = mock(DataProviderService.class);
+
+
+		Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
+		Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
+		//
+		Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
+		Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
+
+		Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
+
+		//Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
+		Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+
 
 		Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
 		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
 				any(DataCommitHandler.class));
-		Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(any(ServiceReference.class));
-
+		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+				any(DataCommitHandler.class));
+		
 		Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
 		Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
 		Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
+		Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
+
 		Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
 		Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
 
