@@ -159,6 +159,7 @@ public class TestHelper {
                 mavenBundle(YANGTOOLS_MODELS, "ietf-inet-types").versionAsInProject(), // //
                 mavenBundle(YANGTOOLS_MODELS, "ietf-yang-types").versionAsInProject(), // //
                 mavenBundle(YANGTOOLS_MODELS, "opendaylight-l2-types").versionAsInProject(), // //
+                mavenBundle(YANGTOOLS_MODELS, "ietf-topology").versionAsInProject(), // //
                 mavenBundle(CONTROLLER_MODELS, "model-inventory").versionAsInProject());
     }
 

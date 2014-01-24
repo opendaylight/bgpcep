@@ -100,7 +100,9 @@ final class TopologyProgramming implements NetworkTopologyPcepProgrammingService
 		Preconditions.checkArgument(input.getNode() != null);
 		Preconditions.checkArgument(input.getName() != null);
 		Preconditions.checkArgument(input.getArguments() != null);
-		Preconditions.checkArgument(input.getArguments().getOperational() != null);
+
+		// FIXME: can we validate this early?
+		//Preconditions.checkArgument(input.getArguments().getOperational() != null);
 
 		final SubmitEnsureLspOperationalOutputBuilder b = new SubmitEnsureLspOperationalOutputBuilder();
 		b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
