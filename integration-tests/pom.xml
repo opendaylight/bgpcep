@@ -34,21 +34,6 @@
         <maven>3.0.4</maven>
     </prerequisites>
 
-    <repositories>
-        <repository>
-            <id>opendaylight-mirror</id>
-            <name>opendaylight-mirror</name>
-            <url>${nexusproxy}/groups/public/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </repository>
-    </repositories>
-
     <properties>
         <exam.version>3.3.0</exam.version>
         <url.version>1.6.0</url.version>
@@ -59,8 +44,6 @@
         <logback-classic.version>1.0.9</logback-classic.version>
         <moxy.controller.version>2.5.0</moxy.controller.version>
     </properties>
-
-
 
     <build>
         <plugins>
