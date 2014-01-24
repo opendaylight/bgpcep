@@ -21,7 +21,7 @@ import org.junit.Test;
 public class BGPHexFileParserTest {
 
 	public static final String hexDumpFileName = "/bgp_hex.txt";
-	private final String fileNameInvalid = "/BgpMessage_Hex_InvalidLength";
+	private final String fileNameInvalid = "/BgpMessage_Hex_InvalidLength.bin";
 	private final int expectedSize = 25;
 
 	@Test

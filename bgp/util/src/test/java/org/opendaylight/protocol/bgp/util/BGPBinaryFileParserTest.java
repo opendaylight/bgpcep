@@ -25,7 +25,7 @@ public class BGPBinaryFileParserTest {
 
 	@Test
 	public void testCorrectExtraction() throws IOException {
-		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages");
+		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages.bin");
 
 		assertThat(parsedMessages.size(), is(43));
 
@@ -49,8 +49,9 @@ public class BGPBinaryFileParserTest {
 	private List<byte[]> extractFromFile(final String fileName) throws IOException {
 		final InputStream is = BGPBinaryFileParserTest.class.getResourceAsStream(fileName);
 		assertNotNull("File not found - " + fileName);
-		if (is == null)
+		if (is == null) {
 			throw new IOException("Failed to get resource " + fileName);
+		}
 
 		final ByteArrayOutputStream bis = new ByteArrayOutputStream();
 		final byte[] data = new byte[1000];
@@ -75,7 +76,7 @@ public class BGPBinaryFileParserTest {
 	 */
 	@Test
 	public void testCorruptedHeader() throws IOException {
-		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header");
+		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header.bin");
 		assertEquals(42, parsedMessages.size());
 	}
 
