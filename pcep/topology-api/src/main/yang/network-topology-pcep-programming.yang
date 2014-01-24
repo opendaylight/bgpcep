@@ -24,7 +24,12 @@ module network-topology-pcep-programming {
         disconnected, the instruction resolve to Cancelled if the message
         has not been sent into the TCP socket, or Failed it they have.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
 
 	revision "2013-11-06" {
 		description

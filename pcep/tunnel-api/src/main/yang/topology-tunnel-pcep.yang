@@ -19,7 +19,12 @@ module topology-tunnel-pcep {
 		"This module contains the PCEP extensions to base tunnel
 		topology model.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.";
+		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+
+		This program and the accompanying materials are made available
+		under the terms of the Eclipse Public License v1.0 which
+		accompanies this distribution, and is available at
+		http://www.eclipse.org/legal/epl-v10.html";
 
 	revision "2013-08-20" {
 		description
