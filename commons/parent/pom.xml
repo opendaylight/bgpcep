@@ -39,6 +39,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <nexusproxy>http://nexus.opendaylight.org/content</nexusproxy>
+        <sitedeploy>dav:http://nexus.opendaylight.org/content/sites/site</sitedeploy>
 
         <commonscodec.version>1.7</commonscodec.version>
         <guava.version>14.0.1</guava.version>
@@ -304,9 +305,10 @@
             <id>opendaylight-snapshot</id>
             <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
         </snapshotRepository>
+        <!-- Site deployment -->
         <site>
-            <id>wiki.opendaylight.org</id>
-            <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main/site</url>
+            <id>website</id>
+            <url>${sitedeploy}</url>
         </site>
     </distributionManagement>
 
@@ -524,6 +526,12 @@
             <id>opendaylight-snapshot</id>
             <name>opendaylight-snapshot</name>
             <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
     </repositories>
 
@@ -544,6 +552,12 @@
             <id>opendaylight-snapshot</id>
             <name>opendaylight-snapshot</name>
             <url>${nexusproxy}/repositories/opendaylight.snapshot/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 
