@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +18,9 @@ import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepCreateP2pTunnelInput1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.AddressFamily;
@@ -52,7 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.TopologyTunnelPcepProgrammingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.ExplicitHops1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.Link1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev130820.SupportingNode1;
@@ -73,7 +74,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
@@ -227,19 +227,23 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
 				final AddLspInputBuilder ab = new AddLspInputBuilder();
 				ab.setNode(Preconditions.checkNotNull(supportingNode(sn)));
-				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(Preconditions.checkNotNull(input.getSymbolicPathName()).getValue())).toString());
+				ab.setName(input.getSymbolicPathName());
 
 				// The link has to be non-existent
 				final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
 				Preconditions.checkState(t.readOperationalData(lii) == null);
 
 				final ArgumentsBuilder args = new ArgumentsBuilder();
-				args.setAdministrative(input.getAdministrativeStatus() == AdministrativeStatus.Active);
 				args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
 				args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
 				args.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(buildAddressFamily(sp, dp)).build());
 				args.setEro(buildEro(input.getExplicitHops()));
 				args.setLspa(new LspaBuilder(input).build());
+
+				final PcepCreateP2pTunnelInput1 ia = input.getAugmentation(PcepCreateP2pTunnelInput1.class);
+				if (ia != null) {
+					args.setAdministrative(ia.getAdministrativeStatus() == AdministrativeStatus.Active);
+				}
 
 				ab.setArguments(args.build());
 
@@ -284,7 +288,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				Preconditions.checkState(node != null);
 
 				final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
-				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(link.getAugmentation(Link1.class).getSymbolicPathName().getValue())).toString());
+				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
 				ab.setNode(node.getSupportingNode().get(0).getKey().getNodeRef());
 
 				return Futures.transform(
@@ -323,16 +327,19 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 				Preconditions.checkState(node != null);
 
 				final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-				ab.setName(Charsets.UTF_8.decode(ByteBuffer.wrap(link.getAugmentation(Link1.class).getSymbolicPathName().getValue())).toString());
+				ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
 				ab.setNode(Preconditions.checkNotNull(supportingNode(node)));
 
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.update.lsp.args.ArgumentsBuilder();
-
-				args.setAdministrative(input.getAdministrativeStatus() == AdministrativeStatus.Active);
 				args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
 				args.setClassType(new ClassTypeBuilder().setClassType(input.getClassType()).build());
 				args.setEro(buildEro(input.getExplicitHops()));
 				args.setLspa(new LspaBuilder(input).build());
+
+				final PcepUpdateTunnelInput1 ia = input.getAugmentation(PcepUpdateTunnelInput1.class);
+				if (ia != null) {
+					args.setAdministrative(ia.getAdministrativeStatus() == AdministrativeStatus.Active);
+				}
 
 				ab.setArguments(args.build());
 
