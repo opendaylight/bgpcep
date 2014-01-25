@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
@@ -19,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 
 /**
@@ -36,10 +38,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 
 	private final byte[] id2;
 
-	public BGPObjectComparator(final AsNumber ourAs, final byte[] id1, final byte[] id2) {
+	public BGPObjectComparator(final AsNumber ourAs, final Ipv4Address localId, final byte[] remoteId) {
 		this.ourAS = ourAs;
-		this.id1 = id1;
-		this.id2 = id2;
+		this.id1 = InetAddresses.forString(localId.getValue()).getAddress();
+		this.id2 = Preconditions.checkNotNull(remoteId);
 	}
 
 	@Override
