@@ -15,7 +15,8 @@ public final class PcepImplBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
 		return Lists.newArrayList("concepts", "pcep-api", "pcep-spi", "pcep-ietf-stateful02", "pcep-ietf-stateful07", "pcep-topology-api",
-				"rsvp-api", "programming-api", "programming-topology-api", "topology-api", "util");
+				"pcep-tunnel-api", "rsvp-api", "programming-api", "programming-topology-api", "topology-api", "topology-tunnel-api",
+				"programming-tunnel-api", "util");
 	}
 
 	@Override

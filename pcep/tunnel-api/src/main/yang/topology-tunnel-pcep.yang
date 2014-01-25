@@ -6,7 +6,6 @@ module topology-tunnel-pcep {
 
 	import network-topology { prefix nt; revision-date 2013-10-21; }
 	import network-concepts { prefix netc; revision-date 2013-11-25; }
-	import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import rsvp { prefix rsvp; revision-date 2013-08-20; }
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
@@ -30,14 +29,6 @@ module topology-tunnel-pcep {
 		description
 			"Initial revision.";
 		reference "";
-	}
-
-	typedef administrative-status {
-		type enumeration {
-			enum active;
-			enum inactive;
-		}
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-05#section-7.3";
 	}
 
 	grouping topology-tunnel-pcep-type {
@@ -76,9 +67,9 @@ module topology-tunnel-pcep {
 	}
 
 	grouping tunnel-pcep-link-cfg-attributes {
-		leaf administrative-status {
-			type administrative-status;
-		}
+        leaf symbolic-path-name {
+            type string;
+        }
 
 		leaf class-type {
 			type pcep:class-type;
@@ -88,30 +79,16 @@ module topology-tunnel-pcep {
 			type netc:bandwidth;
 		}
 
-        leaf symbolic-path-name {
-            type stateful:symbolic-path-name;
-        }
-
         uses rsvp:tunnel-attributes;
 	}
 
 	grouping tunnel-pcep-link-oper-attributes {
-		leaf operational-status {
-			type stateful:operational-status;
-			config false;
-		}
+
 	}
 
 	grouping tunnel-pcep-path-attributes {
-		leaf administrative-status {
-			type administrative-status;
-		}
 
-		leaf operational-status {
-			type stateful:operational-status;
-			config false;
-		}
-	}
+    }
 
 	augment "/nt:network-topology/nt:topology/nt:link" {
 		when "../../tunnel-types/pcep-tunnel";
