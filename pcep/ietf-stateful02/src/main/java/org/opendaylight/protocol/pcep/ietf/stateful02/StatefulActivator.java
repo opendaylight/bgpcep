@@ -44,11 +44,11 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 				new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
 		regs.add(context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(PCEPLspObjectParser.TYPE, PCEPLspObjectParser.CLASS,
+		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE,
 				new PCEPLspObjectParser(context.getTlvHandlerRegistry())));
 		regs.add(context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(context.getTlvHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(PCEPOpenObjectParser.TYPE, PCEPOpenObjectParser.CLASS,
+		regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE,
 				new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
 		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
 

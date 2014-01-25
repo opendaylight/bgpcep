@@ -33,8 +33,8 @@ public final class SimpleObjectHandlerRegistry implements ObjectHandlerRegistry 
 	}
 
 	public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
-		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
-		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
+		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illagal object class %s", objectClass);
+		Preconditions.checkArgument(objectType >= 0 && objectType <= 15, "Illegal object type %s", objectType);
 		return this.handlers.registerParser(createKey(objectClass, objectType), parser);
 	}
 
