@@ -14,6 +14,7 @@
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-rib-impl&amp;revision=2013-04-09</capability>
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-types&amp;revision=2013-09-19</capability>
 	</required-capabilities>
 	<configuration>
 
@@ -51,6 +52,12 @@
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-rib</type>
 					<name>base-bgp-rib</name>
 				</module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>bgp-table-type-impl</name>
+                    <afi xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp-types">prefix:address-family</afi>
+                    <safi xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp-types">prefix:subsequent-address-family</safi>
+                </module>
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate">prefix:bgp-linkstate</type>
 					<name>bgp-linkstate</name>
@@ -71,6 +78,14 @@
 						<name>global-worker-group</name>
 					</worker-group>
 				</module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
+                    <name>bgp-peer</name>
+                    <host>10.25.2.27</host>
+                    <port>179</port>
+                    <bgp-identifier>10.25.2.9</bgp-identifier>
+                    <holdtimer>180</holdtimer>
+                </module>
 			</modules>
 
 			<services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -92,6 +107,13 @@
 						<provider>/modules/module[type='bgp-linkstate'][name='bgp-linkstate']</provider>
 					</instance>
 				</service>
+                 <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                    <instance>
+                        <name>global-bgp-table-type</name>
+                        <provider>/modules/module[type='bgp-table-type'][name='global-bgp-table-type']</provider>
+                    </instance>
+                </service>
 				<service>
 					<type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
 					<instance>
@@ -117,6 +139,13 @@
 						<provider>/modules/module[type='bgp-dispatcher-impl'][name='global-bgp-dispatcher']</provider>
 					</instance>
 				</service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
+                    <instance>
+                        <name>global-rib-instance</name>
+                        <provider>/modules/module[type='bgp-rib-instance'][name='global-rib-instance']</provider>
+                    </instance>
+                </service>
 			</services>
 		</data>
 

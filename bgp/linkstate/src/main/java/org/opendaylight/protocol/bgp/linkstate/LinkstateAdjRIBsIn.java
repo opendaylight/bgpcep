@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import java.util.Comparator;
-
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
@@ -61,7 +59,7 @@ import com.google.common.base.Preconditions;
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -95,9 +93,8 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
 
-	LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator,
-			final TablesKey key) {
-		super(trans, rib, comparator, key);
+	LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+		super(trans, rib, key);
 	}
 
 	@Override

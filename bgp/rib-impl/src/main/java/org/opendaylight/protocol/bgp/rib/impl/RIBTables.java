@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +26,9 @@ final class RIBTables {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBTables.class);
 
 	private final Map<TablesKey, AdjRIBsIn> tables = new HashMap<>();
-	private final Comparator<PathAttributes> comparator;
 	private final RIBExtensionConsumerContext registry;
 
-	RIBTables(final Comparator<PathAttributes> comparator, final RIBExtensionConsumerContext extensions) {
-		this.comparator = Preconditions.checkNotNull(comparator);
+	RIBTables(final RIBExtensionConsumerContext extensions) {
 		this.registry = Preconditions.checkNotNull(extensions);
 	}
 
@@ -53,7 +49,7 @@ final class RIBTables {
 			return null;
 		}
 
-		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, rib, this.comparator, key));
+		final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, rib, key));
 		LOG.debug("Table {} created for key {}", table, key);
 		this.tables.put(key, table);
 		return table;

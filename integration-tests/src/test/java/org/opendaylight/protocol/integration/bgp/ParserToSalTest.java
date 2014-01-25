@@ -7,7 +7,11 @@
  */
 package org.opendaylight.protocol.integration.bgp;
 
+import io.netty.util.concurrent.GlobalEventExecutor;
+
+import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -28,17 +32,23 @@ import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
+import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,6 +74,15 @@ public class ParserToSalTest {
 
 	@Mock
 	DataProviderService providerService;
+
+	@Mock
+	BGPDispatcher dispatcher;
+
+	@Mock
+	ReconnectStrategyFactory tcpStrategyFactory;
+
+	@Mock
+	ReconnectStrategy sessionStrategy;
 
 	@Before
 	public void setUp() throws Exception {
@@ -101,7 +120,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException, TimeoutException {
+			ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -129,6 +148,10 @@ public class ParserToSalTest {
 			}
 
 		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
+
+		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(dispatcher).
+		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class),
+				Mockito.any(BGPSessionListener.class), Mockito.eq(tcpStrategyFactory), Mockito.eq(sessionStrategy));
 	}
 
 	@Test
@@ -136,18 +159,15 @@ public class ParserToSalTest {
 		final RIBExtensionProviderContext ext = new SimpleRIBExtensionProviderContext();
 		new RIBActivator().startRIBExtensionProvider(ext);
 		new org.opendaylight.protocol.bgp.linkstate.RIBActivator().startRIBExtensionProvider(ext);
-		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new byte[] { (byte) 127, 0, 0, 1 }, ext, this.providerService);
-		final BGPPeer peer = new BGPPeer(rib, "peer-" + this.mock.toString());
+		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), ext,
+				this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, Collections.<BgpTableType>emptyList());
+		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib);
 
-		this.mock.registerUpdateListener(peer, new ReconnectStrategyFactory() {
-			@Override
-			public ReconnectStrategy createReconnectStrategy() {
-				return null;
-			}
-		}, null);
-		Mockito.verify(this.mockedTransaction, Mockito.times(31)).commit();
-		Mockito.verify(this.mockedTransaction, Mockito.times(81)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataObject.class));
+		try (ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer)) {
+			Mockito.verify(this.mockedTransaction, Mockito.times(31)).commit();
+			Mockito.verify(this.mockedTransaction, Mockito.times(81)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+					Matchers.any(DataObject.class));
+		}
 	}
 
 	private Collection<byte[]> fixMessages(final Collection<byte[]> bgpMessages) {
