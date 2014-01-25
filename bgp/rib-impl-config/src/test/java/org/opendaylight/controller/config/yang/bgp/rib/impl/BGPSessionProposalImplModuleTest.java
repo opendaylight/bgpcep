@@ -24,7 +24,7 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 
 public class BGPSessionProposalImplModuleTest extends AbstractConfigTest {
-
+	/*
 	private final String instanceName = "bgp-session-prop";
 
 	private BGPSessionProposalImplModuleFactory factory;
@@ -157,4 +157,5 @@ public class BGPSessionProposalImplModuleTest extends AbstractConfigTest {
 		return nameCreated;
 
 	}
+	*/
 }
