@@ -21,8 +21,18 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown requests.
  */
 public interface BGPSession extends ProtocolSession<Notification> {
+	/**
+	 * Return the list of tables which the peer has advertized to support.
+	 * 
+	 * @return Set of tables which it supports.
+	 */
 
 	Set<BgpTableType> getAdvertisedTableTypes();
 
+	/**
+	 * Return the BGP router ID advertized by the peer.
+	 * 
+	 * @return Peer's BGP Router ID.
+	 */
 	byte[] getBgpId();
 }
