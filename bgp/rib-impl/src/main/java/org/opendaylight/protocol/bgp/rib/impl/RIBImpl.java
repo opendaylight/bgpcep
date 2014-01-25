@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -16,14 +17,21 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.framework.ReconnectStrategy;
+import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4CaseBuilder;
@@ -52,27 +60,37 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 
 @ThreadSafe
-public class RIBImpl extends DefaultRibReference implements AutoCloseable {
+public final class RIBImpl extends DefaultRibReference implements AutoCloseable, RIB {
 	private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
 	private static final Update EOR = new UpdateBuilder().build();
+	private final ReconnectStrategyFactory tcpStrategyFactory;
+	private final ReconnectStrategy sessionStrategy;
+	private final BGPDispatcher dispatcher;
 	private final DataProviderService dps;
-	private RIBTables tables;
 	private final RIBExtensionConsumerContext extensions;
 	private final AsNumber localAs;
-	private final byte[] localBgpId;
+	private final Ipv4Address bgpIdentifier;
+	private final byte[] bgpId;
+	private RIBTables tables;
 
-	public RIBImpl(final RibId ribId, final AsNumber localAs, final byte[] localBgpId, final RIBExtensionConsumerContext extensions,
+	public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
+			final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final ReconnectStrategy sessionStrategy,
 			final DataProviderService dps) {
 		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
 		this.dps = Preconditions.checkNotNull(dps);
-		this.extensions = extensions;
+		this.extensions = Preconditions.checkNotNull(extensions);
 		this.localAs = Preconditions.checkNotNull(localAs);
-		this.localBgpId = localBgpId;
+		this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
+		this.bgpId = InetAddresses.forString(localBgpId.getValue()).getAddress();
+		this.dispatcher = Preconditions.checkNotNull(dispatcher);
+		this.sessionStrategy = Preconditions.checkNotNull(sessionStrategy);
+		this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
 
 		LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
@@ -98,10 +116,10 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 	}
 
 	synchronized void initTables(final byte[] remoteBgpId) {
-		this.tables = new RIBTables(new BGPObjectComparator(this.localAs, this.localBgpId, remoteBgpId), this.extensions);
 	}
 
-	synchronized void updateTables(final BGPPeer peer, final Update message) {
+	@Override
+	public synchronized void updateTables(final Peer peer, final Update message) {
 		final DataModificationTransaction trans = this.dps.beginTransaction();
 
 		if (!EOR.equals(message)) {
@@ -196,7 +214,8 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 		});
 	}
 
-	synchronized void clearTable(final BGPPeer peer, final TablesKey key) {
+	@Override
+	public synchronized void clearTable(final Peer peer, final TablesKey key) {
 		final AdjRIBsIn ari = this.tables.get(key);
 		if (ari != null) {
 			final DataModificationTransaction trans = this.dps.beginTransaction();
@@ -230,5 +249,41 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 		final DataModificationTransaction t = this.dps.beginTransaction();
 		t.removeOperationalData(getInstanceIdentifier());
 		t.commit().get();
+	}
+
+	@Override
+	public AsNumber getLocalAs() {
+		return localAs;
+	}
+
+	@Override
+	public Ipv4Address getBgpIdentifier() {
+		return bgpIdentifier;
+	}
+
+	@Override
+	public List<? extends BgpTableType> getLocalTables() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void initTables(final Peer bgpPeer, final byte[] bgpId) {
+		this.tables = new RIBTables(new BGPObjectComparator(this.localAs, this.bgpId, bgpId), this.extensions);
+	}
+
+	@Override
+	public ReconnectStrategyFactory getTcpStrategyFactory() {
+		return tcpStrategyFactory;
+	}
+
+	@Override
+	public ReconnectStrategy getSessionStrategy() {
+		return sessionStrategy;
+	}
+
+	@Override
+	public BGPDispatcher getDispatcher() {
+		return dispatcher;
 	}
 }
