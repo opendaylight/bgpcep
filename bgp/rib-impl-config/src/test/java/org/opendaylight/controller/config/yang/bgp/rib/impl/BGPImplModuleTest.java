@@ -27,7 +27,7 @@ import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModu
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 
 public class BGPImplModuleTest extends AbstractConfigTest {
-
+	/*
 	private final String instanceName = "bgp-impl1";
 
 	private BGPImplModuleFactory factory;
@@ -158,5 +158,5 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher1"));
 		return nameCreated;
 	}
-
+	*/
 }

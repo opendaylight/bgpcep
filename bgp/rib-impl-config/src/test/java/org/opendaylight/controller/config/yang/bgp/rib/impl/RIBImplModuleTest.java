@@ -50,20 +50,19 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.core.api.data.DataProviderService;
-import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-
-import com.google.common.collect.Lists;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
 	private static final String INSTANCE_NAME = "bgp-rib-impl";
@@ -72,8 +71,6 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	private RIBImplModuleFactory factory;
 	private DataBrokerImplModuleFactory dataBrokerFactory;
 	private TimedReconnectStrategyModuleFactory reconnectFactory;
-	private BGPImplModuleFactory bgpFactory;
-	private BGPSessionProposalImplModuleFactory sessionFacotry;
 	private BGPDispatcherImplModuleFactory dispactherFactory;
 	private NettyThreadgroupModuleFactory threadgropFactory;
 	private GlobalEventExecutorModuleFactory executorFactory;
@@ -102,10 +99,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 		this.factory = new RIBImplModuleFactory();
 		this.dataBrokerFactory = new DataBrokerImplModuleFactory();
-		this.bgpFactory = new BGPImplModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
 		this.dispactherFactory = new BGPDispatcherImplModuleFactory();
-		this.sessionFacotry = new BGPSessionProposalImplModuleFactory();
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
 		this.reconnectFactory = new TimedReconnectStrategyModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
@@ -114,7 +109,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		this.runtimeMappingFactory = new RuntimeMappingModuleFactory();
 		this.dataStroreFactory = new HashMapDataStoreModuleFactory();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory,
-				this.dispactherFactory, this.sessionFacotry, this.threadgropFactory, this.bgpFactory,
+				this.dispactherFactory, this.threadgropFactory,
 				this.reconnectFactory, this.dataBrokerFactory, this.executorFactory, this.extensionFactory,
 				this.ribExtensionsFactory, this.domBrokerFactory, this.runtimeMappingFactory,
 				this.dataStroreFactory));
@@ -133,8 +128,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
 		ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
-		
-		
+
+
 		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
 		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
@@ -165,7 +160,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 				any(DataCommitHandler.class));
 		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
 				any(DataCommitHandler.class));
-		
+
 		Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
 		Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
@@ -202,10 +197,9 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), INSTANCE_NAME, this.dataBrokerFactory.getImplementationName(),
-				this.reconnectFactory.getImplementationName(), this.executorFactory.getImplementationName(), this.bgpFactory.getImplementationName(),
-				this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(), this.threadgropFactory.getImplementationName(),
-				this.extensionFactory.getImplementationName(), this.ribExtensionsFactory.getImplementationName(), this.domBrokerFactory.getImplementationName(),
-				this.dataStroreFactory.getImplementationName());
+				this.reconnectFactory.getImplementationName(), this.executorFactory.getImplementationName(), this.dispactherFactory.getImplementationName(),
+				this.threadgropFactory.getImplementationName(), this.extensionFactory.getImplementationName(), this.ribExtensionsFactory.getImplementationName(),
+				this.domBrokerFactory.getImplementationName(), this.dataStroreFactory.getImplementationName());
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		Thread.sleep(2000);
@@ -219,8 +213,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String bindingDataModuleName, final String reconnectModueName, final String executorModuleName, final String bgpModuleName,
-			final String sessionModuleName, final String dispatcherModuleName, final String threadgroupModuleName, final String extensionModuleName,
+			final String instanceName, final String bindingDataModuleName, final String reconnectModueName, final String executorModuleName,
+			final String dispatcherModuleName, final String threadgroupModuleName, final String extensionModuleName,
 			final String ribExtensionsModuleName, final String domBrokerModuleName, final String dataStroreModuleName)
 					throws Exception {
 		ObjectName nameCreated = transaction.createModule(
@@ -234,11 +228,11 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "tcp-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null, executorModuleName,
 				"global-event-executor2");
 		mxBean.setTcpReconnectStrategy(reconnectStrategyON);
-		mxBean.setBgp(Lists.newArrayList(BGPImplModuleTest.createInstance(transaction, bgpModuleName, "bgp-impl1", "localhost", 1, sessionModuleName, dispatcherModuleName, threadgroupModuleName, ribExtensionsModuleName, extensionModuleName)));
+		//mxBean.setBgp(Lists.newArrayList(BGPImplModuleTest.createInstance(transaction, bgpModuleName, "bgp-impl1", "localhost", 1, sessionModuleName, dispatcherModuleName, threadgroupModuleName, ribExtensionsModuleName, extensionModuleName)));
 		mxBean.setExtensions(createRibExtensionsInstance(transaction, ribExtensionsModuleName, "rib-extensions-privider1"));
 		mxBean.setRibId(new RibId("test"));
 		mxBean.setLocalAs(5000L);
-		mxBean.setBgpId("192.168.1.1");
+		mxBean.setBgpId(new Ipv4Address("192.168.1.1"));
 		return nameCreated;
 	}
 
