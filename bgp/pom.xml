@@ -48,13 +48,12 @@
         <module>rib-spi-config</module>
         <module>rib-impl</module>
         <module>rib-impl-config</module>
-        <module>testtool</module>
         <module>rib-mock</module>
+        <module>testtool</module>
         <module>topology-provider</module>
         <module>topology-provider-config</module>
         <module>util</module>
         <module>update-api-config</module>
-        <module>update-mock-config</module>
 
         <module>controller-config</module>
     </modules>
