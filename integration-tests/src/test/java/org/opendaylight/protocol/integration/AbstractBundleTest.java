@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ public abstract class AbstractBundleTest {
 
 		ret.add(mavenBundle("com.google.guava", "guava").versionAsInProject());
 		ret.add(mavenBundle("commons-codec", "commons-codec").versionAsInProject());
+		ret.add(mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject());
 
 		ret.add(TestHelper.getNettyBundles());
 		ret.add(TestHelper.getLoggingBundles());
@@ -53,6 +55,18 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.yangtools", "concepts").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-impl").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-model-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-model-util").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-parser-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-parser-impl").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-generator-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-generator-spi").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-generator-util").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-generator-impl").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-model-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-type-provider").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-inet-types").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-topology").versionAsInProject());
 
@@ -60,11 +74,20 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.controller", "config-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "protocol-framework").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-core-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-core-spi").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-config").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-util").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-broker-impl").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-impl").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-util").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "xtend-lib-osgi").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools.thirdparty", "antlr4-runtime-osgi-nohead").versionAsInProject());
+
+		ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
 
 		return ret;
 	}

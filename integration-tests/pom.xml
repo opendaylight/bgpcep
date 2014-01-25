@@ -37,7 +37,6 @@
     <properties>
         <exam.version>3.3.0</exam.version>
         <url.version>1.6.0</url.version>
-        <felix.version>4.2.1</felix.version>
         <antlr.version>4.0</antlr.version>
         <yang-concepts.version>0.1.1-SNAPSHOT</yang-concepts.version>
         <xtend-lib-osgi.version>2.4.3</xtend-lib-osgi.version>
@@ -296,6 +295,11 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-broker-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>protocol-framework</artifactId>
         </dependency>
         <dependency>
@@ -356,6 +360,12 @@
             <version>3.8.1.v20120830-144521</version>
             <scope>test</scope>
         </dependency>
+        <!--dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <version>4.2.1</version>
+            <scope>test</scope>
+        </dependency-->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
