@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- vi: set et smarttab sw=4 tabstop=4: -->
 <!--
-      Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+    Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
 
- This program and the accompanying materials are made available under the
- terms of the Eclipse Public License v1.0 which accompanies this distribution,
- and is available at http://www.eclipse.org/legal/epl-v10.html
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v1.0 which accompanies this distribution,
+    and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <snapshot>
-	<required-capabilities>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:bgp-linkstate?module=bgp-linkstate&amp;revision=2013-11-25</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:bgp-types?module=bgp-types&amp;revision=2013-09-19</capability>
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi?module=config-bgp-parser-spi&amp;revision=2013-11-15</capability>
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=config-bgp-rib-spi&amp;revision=2013-11-15</capability>
 		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-rib-impl&amp;revision=2013-04-09</capability>
@@ -70,7 +72,26 @@
 						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
 						<name>global-worker-group</name>
 					</worker-group>
-				</module>
+                </module>
+
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv4-unicast</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv4-address-family</afi>
+                    <safi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:unicast-subsequent-address-family</safi>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>ipv6-unicast</name>
+                    <afi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:ipv6-address-family</afi>
+                    <safi xmlns:bgp="urn:opendaylight:params:xml:ns:yang:bgp-types">bgp:unicast-subsequent-address-family</safi>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type-impl</type>
+                    <name>linkstate</name>
+                    <afi xmlns:linkstate="urn:opendaylight:params:xml:ns:yang:bgp-linkstate">linkstate:linkstate-address-family</afi>
+                    <safi xmlns:linkstate="urn:opendaylight:params:xml:ns:yang:bgp-linkstate">linkstate:linkstate-subsequent-address-family</safi>
+                </module>
 			</modules>
 
 			<services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -92,6 +113,21 @@
 						<provider>/modules/module[type='bgp-linkstate'][name='bgp-linkstate']</provider>
 					</instance>
 				</service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                    <instance>
+                        <name>ipv4-unicast</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv4-unicast']</provider>
+                    </instance>
+                    <instance>
+                        <name>ipv6-unicast</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='ipv6-unicast']</provider>
+                    </instance>
+                    <instance>
+                        <name>linkstate</name>
+                        <provider>/modules/module[type='bgp-table-type-impl'][name='linkstate']</provider>
+                    </instance>
+                </service>
 				<service>
 					<type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extension</type>
 					<instance>
