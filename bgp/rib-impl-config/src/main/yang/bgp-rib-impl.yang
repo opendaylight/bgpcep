@@ -4,11 +4,13 @@ module bgp-rib-impl {
     namespace "urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl";
     prefix "bgprib-impl";
 
-    import bgp-listener { prefix bgpl; revision-date 2013-04-09; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
     import bgp-rib { prefix rib; revision-date 2013-09-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
     import config-bgp-rib { prefix bgprib; revision-date 2013-07-01; }
     import config-bgp-parser-spi { prefix bgpspi; revision-date 2013-11-15; }
     import config-bgp-rib-spi { prefix ribspi; revision-date 2013-11-15; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import opendaylight-md-sal-binding {prefix mdsb; revision-date 2013-10-28; }
     import netty { prefix netty; revision-date 2013-11-19; }
     import reconnect-strategy { prefix rs; revision-date 2013-11-09; }
@@ -43,41 +45,6 @@ module bgp-rib-impl {
     augment "/config:modules/config:module/config:configuration" {
         case base-bgp-parser {
             when "/config:modules/config:module/config:type = 'base-bgp-parser'";
-        }
-    }
-
-    identity bgp-proposal {
-        description
-            "Service representing a BGP proposal.";
-
-        base "config:service-type";
-        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal";
-    }
-
-    identity bgp-proposal-impl {
-        base config:module-type;
-        config:provided-service bgp-proposal;
-        config:java-name-prefix BGPSessionProposalImpl;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bgp-proposal-impl {
-            when "/config:modules/config:module/config:type = 'bgp-proposal-impl'";
-
-            leaf holdtimer {
-                type int16;
-                default 180;
-            }
-
-            leaf bgp-id {
-                mandatory true;
-                type string;
-            }
-
-            leaf as-number {
-                mandatory true;
-                type uint32;
-            }
         }
     }
 
@@ -128,46 +95,6 @@ module bgp-rib-impl {
         }
     }
 
-    identity bgp-impl {
-        base config:module-type;
-        config:provided-service bgpl:listener;
-        config:java-name-prefix BGPImpl;
-    }
-
-    augment "/config:modules/config:module/config:configuration" {
-        case bgp-impl {
-            when "/config:modules/config:module/config:type = 'bgp-impl'";
-
-            container bgp-dispatcher {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgp-dispatcher;
-                    }
-                }
-            }
-
-            container bgp-proposal {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgp-proposal;
-                    }
-                }
-            }
-
-            leaf host {
-                 mandatory true;
-                 type string;
-            }
-
-            leaf port {
-                 type uint16;
-                 default 179;
-            }
-        }
-    }
-
     identity base-bgp-rib {
         base config:module-type;
         config:provided-service ribspi:extension;
@@ -180,9 +107,104 @@ module bgp-rib-impl {
         }
     }
 
+    identity rib-instance {
+        description
+            "Service representing a RIB instance";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.RIB";
+    }
+
+    identity bgp-peer {
+        description
+            "BGP peer instance.";
+
+        base config:module-type;
+        config:java-name-prefix BGPPeer;
+    }
+
+    identity bgp-table-type {
+        description
+            "Service representing a AFI/SAFI pair";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType";
+    }
+
+    identity bgp-table-type-impl {
+        description
+            "Simple provider for bgp-table-type.";
+
+        base config:module-type;
+        config:java-name-prefix BGPTableTypeImpl;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-table-type-impl {
+            when "/config:modules/config:module/config:type = 'bgp-table-type-impl'";
+
+            leaf afi {
+                type identityref {
+                    base bgp-t:address-family;
+                }
+                mandatory true;
+            }
+            leaf safi {
+                type identityref {
+                    base bgp-t:subsequent-address-family;
+                }
+                mandatory true;
+            }
+        }
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-peer {
+            when "/config:modules/config:module/config:type = 'bgp-peer'";
+
+            leaf host {
+                type inet:host;
+                mandatory true;
+            }
+
+            leaf port {
+                 type inet:port-number;
+                 default 179;
+            }
+
+            leaf bgp-identifier {
+                type inet:ipv4-address;
+            }
+
+            leaf holdtimer {
+                type int16;
+                default 180;
+            }
+
+            list advertized-table {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-table-type;
+                    }
+                }
+            }
+
+            container rib {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rib-instance;
+                    }
+                }
+            }
+        }
+    }
+
     identity rib-impl {
         base config:module-type;
         config:provided-service bgprib:rib;
+        config:provided-service rib-instance;
         config:java-name-prefix RIBImpl;
     }
 
@@ -190,20 +212,20 @@ module bgp-rib-impl {
         case rib-impl {
             when "/config:modules/config:module/config:type = 'rib-impl'";
 
-            list bgp {
-                uses config:service-ref {
-                    refine type {
-                        mandatory true;
-                        config:required-identity bgpl:listener;
-                    }
-                }
-            }
-
             container extensions {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
                         config:required-identity ribspi:consumer-extensions;
+                    }
+                }
+            }
+
+            container bgp-dispatcher {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-dispatcher;
                     }
                 }
             }
@@ -244,10 +266,20 @@ module bgp-rib-impl {
             leaf bgp-id {
            		description "Our local BGP identifier. Needed by best selection path attribute.";
                 mandatory true;
-                type string;
+                type inet:ipv4-address;
+            }
+
+            list local-table {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity bgp-table-type;
+                    }
+                }
             }
 
             leaf rib-id {
+                description "Identifier of this RIB in local data store.";
                 type rib:rib-id;
                 mandatory true;
             }

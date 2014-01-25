@@ -11,5 +11,5 @@ package org.opendaylight.protocol.bgp.rib.spi;
  * Marker interface identifying a BGP peer.
  */
 public interface Peer {
-
+	String getName();
 }
