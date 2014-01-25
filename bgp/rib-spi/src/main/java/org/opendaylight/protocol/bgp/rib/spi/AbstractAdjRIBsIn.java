@@ -93,10 +93,10 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			return this.name;
 		}
 
-		private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial) {
+		private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial, final Comparator<PathAttributes> comparator) {
 			RIBEntryData<I, D> newState = initial;
 			for (final RIBEntryData<I, D> s : this.candidates.values()) {
-				if (newState == null || AbstractAdjRIBsIn.this.comparator.compare(newState.attributes, s.attributes) > 0) {
+				if (newState == null || comparator.compare(newState.attributes, s.attributes) > 0) {
 					newState = s;
 				}
 			}
@@ -118,7 +118,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			final RIBEntryData<I, D> data = this.candidates.remove(peer);
 			LOG.trace("Removed data {}", data);
 
-			final RIBEntryData<I, D> candidate = findCandidate(null);
+			final RIBEntryData<I, D> candidate = findCandidate(null, peer.getComparator());
 			if (candidate != null) {
 				electCandidate(transaction, candidate);
 			} else {
@@ -131,12 +131,11 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
 		synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
 			this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
-			electCandidate(transaction, findCandidate(state));
+			electCandidate(transaction, findCandidate(state, peer.getComparator()));
 		}
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBsIn.class);
-	private final Comparator<PathAttributes> comparator;
 	private final InstanceIdentifier<Tables> basePath;
 	private final Update eor;
 
@@ -146,9 +145,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	@GuardedBy("this")
 	private final Map<Peer, Boolean> peers = new HashMap<>();
 
-	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib,
-			final Comparator<PathAttributes> comparator, final TablesKey key) {
-		this.comparator = Preconditions.checkNotNull(comparator);
+	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
 		this.basePath = InstanceIdentifier.builder(rib.getInstanceIdentifier()).child(LocRib.class).child(Tables.class, key).toInstance();
 
 		this.eor = new UpdateBuilder().setPathAttributes(
