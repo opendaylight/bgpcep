@@ -24,12 +24,6 @@
 		<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
 			<modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
 				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-proposal-impl</type>
-					<name>example-bgp-proposal</name>
-					<as-number>64496</as-number>
-					<bgp-id>192.0.2.2</bgp-id>
-				</module>
-				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:reconnectstrategy">prefix:timed-reconnect-strategy</type>
 					<name>example-reconnect-strategy</name>
 					<min-sleep>1000</min-sleep>
@@ -43,16 +37,26 @@
 				</module>
 				<!--module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-impl</type>
-					<name>example-bgp-peer</name>
-					<bgp-dispatcher>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher</type>
-						<name>global-bgp-dispatcher</name>
-					</bgp-dispatcher>
-					<bgp-proposal>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-proposal</type>
-						<name>example-bgp-proposal</name>
-					</bgp-proposal>
-					<host>route-reflector.example.org</host>
+                    <name>example-bgp-peer</name>
+                    <host>route-reflector.example.org</host>
+                    <bgp-identifier>192.0.2.1</bgp-identifier>
+                    <holdtimer>180</holdtimer>
+                    <rib>
+						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+						<name>example-bgp-rib</name>
+                    </rib>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv4-unicast</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-unicast</name>
+                    </advertized-table>
+                    <advertized-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>linkstate</name>
+                    </advertized-table>
 				</module-->
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
@@ -60,10 +64,18 @@
 					<rib-id>example-bgp-rib</rib-id>
 					<local-as>64496</local-as>
 					<bgp-id>192.0.2.2</bgp-id>
-					<!--bgp>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:listener">prefix:listener</type>
-						<name>example-bgp-peer</name>
-					</bgp-->
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv4-unicast</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>ipv6-unicast</name>
+                    </local-table>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>linkstate</name>
+                    </local-table>
 					<extensions>
 						<type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
 						<name>global-rib-extensions</name>
@@ -123,20 +135,6 @@
 			</modules>
 
 			<services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-proposal</type>
-					<instance>
-						<name>example-bgp-proposal</name>
-						<provider>/config/modules/module[name='bgp-proposal-impl']/instance[name='example-bgp-proposal']</provider>
-					</instance>
-				</service>
-				<!--service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:listener">prefix:listener</type>
-					<instance>
-						<name>example-bgp-peer</name>
-									<provider>/config/modules/module[name='bgp-impl']/instance[name='example-bgp-peer']</provider>
-					</instance>
-				</service-->
 				<service>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:reconnectstrategy">prefix:reconnect-strategy</type>
 					<instance>
