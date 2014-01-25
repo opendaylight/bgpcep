@@ -60,10 +60,14 @@
 					<rib-id>example-bgp-rib</rib-id>
 					<local-as>64496</local-as>
 					<bgp-id>192.0.2.2</bgp-id>
-					<!--bgp>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:listener">prefix:listener</type>
-						<name>example-bgp-peer</name>
-					</bgp-->
+					<bgp>
+						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:dispatcher">prefix:dispatcher</type>
+						<name>global-bgp-dispatcher</name>
+					</bgp>
+                    <local-table>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
+                        <name>local-bgp-table-type</name>
+                    </local-table>
 					<extensions>
 						<type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
 						<name>global-rib-extensions</name>
