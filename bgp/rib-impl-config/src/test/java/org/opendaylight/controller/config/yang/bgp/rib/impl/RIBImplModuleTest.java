@@ -50,13 +50,13 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.core.api.data.DataProviderService;
-import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -66,14 +66,13 @@ import org.osgi.framework.ServiceReference;
 import com.google.common.collect.Lists;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
+	/*
 	private static final String INSTANCE_NAME = "bgp-rib-impl";
 	private static final String TRANSACTION_NAME = "testTransaction";
 
 	private RIBImplModuleFactory factory;
 	private DataBrokerImplModuleFactory dataBrokerFactory;
 	private TimedReconnectStrategyModuleFactory reconnectFactory;
-	private BGPImplModuleFactory bgpFactory;
-	private BGPSessionProposalImplModuleFactory sessionFacotry;
 	private BGPDispatcherImplModuleFactory dispactherFactory;
 	private NettyThreadgroupModuleFactory threadgropFactory;
 	private GlobalEventExecutorModuleFactory executorFactory;
@@ -102,10 +101,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 		this.factory = new RIBImplModuleFactory();
 		this.dataBrokerFactory = new DataBrokerImplModuleFactory();
-		this.bgpFactory = new BGPImplModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
 		this.dispactherFactory = new BGPDispatcherImplModuleFactory();
-		this.sessionFacotry = new BGPSessionProposalImplModuleFactory();
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
 		this.reconnectFactory = new TimedReconnectStrategyModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
@@ -133,8 +130,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
 		ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
-		
-		
+
+
 		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
 		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
@@ -165,7 +162,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 				any(DataCommitHandler.class));
 		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
 				any(DataCommitHandler.class));
-		
+
 		Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
 		Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
@@ -293,4 +290,5 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 				"/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
 		return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
 	}
+	*/
 }
