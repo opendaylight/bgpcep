@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -349,8 +348,8 @@ public class BGPParserTest {
 		final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
-		final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new byte[] { 1, 2, 3, 4 }),
-				new ClusterIdentifier(new byte[] { 5, 6, 7, 8 }));
+		final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
+				new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
 
 		// check path attributes
 
@@ -367,8 +366,8 @@ public class BGPParserTest {
 		paBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed((long) 0).build());
 		assertEquals(paBuilder.getMultiExitDisc(), attrs.getMultiExitDisc());
 
-		paBuilder.setOriginatorId(new byte[] { 127, 0, 0, 1 });
-		assertArrayEquals(paBuilder.getOriginatorId(), attrs.getOriginatorId());
+		paBuilder.setOriginatorId(new Ipv4Address("127.0.0.1"));
+		assertEquals(paBuilder.getOriginatorId(), attrs.getOriginatorId());
 
 		paBuilder.setClusterId(clusters);
 		assertEquals(paBuilder.getClusterId(), attrs.getClusterId());

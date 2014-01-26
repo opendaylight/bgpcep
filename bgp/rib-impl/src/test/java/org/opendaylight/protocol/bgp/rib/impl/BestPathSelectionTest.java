@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
@@ -41,7 +42,7 @@ import com.google.common.collect.Lists;
 public class BestPathSelectionTest {
 
 	private final BGPObjectComparator comparator = new BGPObjectComparator(new AsNumber(40L), new byte[] { (byte) 192, (byte) 150, 20, 38 }, new byte[] {
-			(byte) 192, (byte) 150, 20, 38 });
+		(byte) 192, (byte) 150, 20, 38 });
 
 	private PathAttributes attr1;
 	private PathAttributes attr2;
@@ -66,8 +67,8 @@ public class BestPathSelectionTest {
 		asBuilder2.setSegments(segs);
 
 		final List<ClusterIdentifier> clusters = new ArrayList<>();
-		clusters.add(new ClusterIdentifier(new byte[4]));
-		clusters.add(new ClusterIdentifier(new byte[4]));
+		clusters.add(new ClusterIdentifier(new Ipv4Address("0.0.0.0")));
+		clusters.add(new ClusterIdentifier(new Ipv4Address("0.0.0.0")));
 
 		final PathAttributesBuilder builder = new PathAttributesBuilder();
 		builder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());

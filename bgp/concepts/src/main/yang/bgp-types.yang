@@ -70,9 +70,7 @@ module bgp-types {
 
 	typedef cluster-identifier {
 		reference "http://tools.ietf.org/html/rfc4456#section-8";
-		type binary {
-			length "4";
-		}
+		type inet:ipv4-address;
 	}
 
 	typedef short-as-number {

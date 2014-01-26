@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public final class OriginatorIdAttributeParser implements AttributeParser {
@@ -21,6 +22,6 @@ public final class OriginatorIdAttributeParser implements AttributeParser {
 			throw new IllegalArgumentException("Length of byte array for ORIGINATOR_ID should be " + ORIGINATOR_LENGTH + ", but is "
 					+ bytes.length);
 		}
-		builder.setOriginatorId(bytes);
+		builder.setOriginatorId(Ipv4Util.addressForBytes(bytes));
 	}
 }

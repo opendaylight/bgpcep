@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.InetAddresses;
 
 /**
  * This comparator is intended to implement BGP Best Path Selection algorithm, as described at
@@ -121,10 +122,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		byte[] oid1 = this.id1;
 		byte[] oid2 = this.id2;
 		if (o1.getOriginatorId() != null) {
-			oid1 = o1.getOriginatorId();
+			oid1 = InetAddresses.forString(o1.getOriginatorId().getValue()).getAddress();
 		}
 		if (o2.getOriginatorId() != null) {
-			oid2 = o2.getOriginatorId();
+			oid2 = InetAddresses.forString(o2.getOriginatorId().getValue()).getAddress();
 		}
 		if (!Arrays.equals(oid1, oid2)) {
 			return compareByteArrays(oid1, oid2);

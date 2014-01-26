@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -26,7 +27,7 @@ public final class ClusterIdAttributeParser implements AttributeParser {
 		final List<ClusterIdentifier> list = Lists.newArrayList();
 		int i = 0;
 		while (i < bytes.length) {
-			list.add(new ClusterIdentifier(ByteArray.subByte(bytes, i, CLUSTER_LENGTH)));
+			list.add(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.subByte(bytes, i, CLUSTER_LENGTH))));
 			i += CLUSTER_LENGTH;
 		}
 

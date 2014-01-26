@@ -113,9 +113,7 @@ module bgp-message {
 			uses bgp-t:extended-community;
 		}
 		leaf originator-id {
-			type binary {
-				length "4";
-			}
+			type inet:ipv4-address;
 		}
 		leaf-list cluster-id {
 			type bgp-t:cluster-identifier;
