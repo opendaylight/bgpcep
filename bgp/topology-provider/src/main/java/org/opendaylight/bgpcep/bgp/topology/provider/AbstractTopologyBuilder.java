@@ -74,7 +74,7 @@ TopologyReference {
 
 			@Override
 			public void onFailure(final Throwable t) {
-				LOG.error("Failed to initiate topology {} by listener {}", topology, AbstractTopologyBuilder.this);
+				LOG.error("Failed to initiate topology {} by listener {}", topology, AbstractTopologyBuilder.this, t);
 			}
 		});
 	}
