@@ -105,6 +105,12 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
+            <artifactId>yang-test</artifactId>
+            <version>${controller.config.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
             <version>${controller.config.version}</version>
             <scope>test</scope>
@@ -125,6 +131,25 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netconf-monitoring</artifactId>
             <version>${controller.config.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>netconf-client</artifactId>
+            <version>${controller.config.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>netconf-util</artifactId>
+            <version>${controller.config.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>netconf-util</artifactId>
+            <version>${controller.config.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
