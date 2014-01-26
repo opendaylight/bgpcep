@@ -69,6 +69,7 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.yangtools", "binding-type-provider").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-inet-types").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools.model", "ietf-topology").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.yangtools.model", "yang-ext").versionAsInProject());
 
 		ret.add(mavenBundle("org.javassist", "javassist").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "config-api").versionAsInProject());
