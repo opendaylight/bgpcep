@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
@@ -73,6 +74,7 @@ public final class BGPSessionProposalImplModule extends
 		final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
 		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+		tables.put(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
 		final BGPSessionProposalImpl bgpSessionProposal = new BGPSessionProposalImpl(getHoldtimer(), new AsNumber(getAsNumber()), bgpId, tables);
 		return new BgpSessionProposalCloseable(bgpSessionProposal);
 	}

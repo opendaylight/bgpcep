@@ -160,7 +160,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 	private void handleOpen(final Open openObj) {
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
-		if (prefs != null && !prefs.isEmpty() && prefs.containsAll(this.localPref.getParams())) {
+		if (prefs != null && !prefs.isEmpty()) {
+			if (!prefs.containsAll(this.localPref.getParams())) {
+				LOG.info("Open message unacceptable. Check the configuration of BGP speaker.");
+			}
 			this.remotePref = openObj;
 			this.writeMessage(new KeepaliveBuilder().build());
 			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
