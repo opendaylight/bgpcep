@@ -62,7 +62,6 @@
         <surefire.version>2.15</surefire.version>
 
         <yangtools.version>0.6.0-SNAPSHOT</yangtools.version>
-        <yang.binding.version>0.6.0-SNAPSHOT</yang.binding.version>
 
         <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
         <ietf.types.version>2010.09.24.2-SNAPSHOT</ietf.types.version>
@@ -100,8 +99,7 @@
             <dependency>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>mockito-configuration</artifactId>
-                <!-- FIXME: change to yangtools.version once it's 0.6.0 -->
-                <version>${yang.binding.version}</version>
+                <version>${yangtools.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -154,7 +152,7 @@
             <dependency>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>yang-binding</artifactId>
-                <version>${yang.binding.version}</version>
+                <version>${yangtools.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.yangtools</groupId>
@@ -485,7 +483,7 @@
                         <dependency>
                             <groupId>org.opendaylight.yangtools</groupId>
                             <artifactId>maven-sal-api-gen-plugin</artifactId>
-                            <version>${yang.binding.version}</version>
+                            <version>${yangtools.version}</version>
                             <type>jar</type>
                         </dependency>
                     <dependency>
