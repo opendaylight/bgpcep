@@ -68,9 +68,9 @@
         <yang-ext.version>2013.09.07.3</yang-ext.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.4.0-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.0-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.2.3</controller.config.version>
+        <controller.framework.version>0.4.0</controller.framework.version>
+        <controller.mdsal.version>1.0</controller.mdsal.version>
     </properties>
 
     <dependencyManagement>
