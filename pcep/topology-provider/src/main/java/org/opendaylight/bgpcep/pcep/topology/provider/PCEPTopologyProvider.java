@@ -51,10 +51,10 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 
 	public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address,
 			final InstructionScheduler scheduler, final DataProviderService dataService, final RpcProviderRegistry rpcRegistry,
-			final InstanceIdentifier<Topology> topology)
+			final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory)
 					throws InterruptedException, ExecutionException {
 
-		final ServerSessionManager manager = new ServerSessionManager(dataService, topology);
+		final ServerSessionManager manager = new ServerSessionManager(dataService, topology, listenerFactory);
 		final ChannelFuture f = dispatcher.createServer(address, manager);
 		f.get();
 

@@ -15,7 +15,6 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -56,8 +55,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class Stateful02TopologySessionListener extends AbstractTopologySessionListener<PlspId, PlspId> implements PCEPSessionListener {
-	private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+public class Stateful02TopologySessionListener extends AbstractTopologySessionListener<PlspId, PlspId> {
+	private static final Logger LOG = LoggerFactory.getLogger(Stateful02TopologySessionListener.class);
 
 	/**
 	 * @param serverSessionManager
