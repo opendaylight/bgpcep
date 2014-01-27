@@ -102,6 +102,16 @@
                         <name>global-timer</name>
                     </timer>
                 </module>
+
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful02</type>
+                    <name>global</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful07</type>
+                    <name>global</name>
+                </module>
+
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-provider</type>
                     <name>pcep-topology</name>
@@ -121,6 +131,10 @@
                         <type xmlns:pgmspi="urn:opendaylight:params:xml:ns:yang:controller:programming:spi">pgmspi:instruction-scheduler</type>
                         <name>global-instruction-scheduler</name>
                     </scheduler>
+                    <stateful-plugin>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful</type>
+                        <name>stateful07</name>
+                    </stateful-plugin>
                     <topology-id>pcep-topology</topology-id>
                 </module>
             </modules>
@@ -175,6 +189,17 @@
                     <instance>
                         <name>pcep-topology</name>
                         <provider>/config/modules/module[name='pcep-topology-provider']/instance[name='pcep-topology']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">pcep:pcep-topology-stateful</type>
+                    <instance>
+                        <name>stateful02</name>
+                        <provider>/config/modules/module[name='pcep-topology-stateful02']/instance[name='global']</provider>
+                    </instance>
+                    <instance>
+                        <name>stateful07</name>
+                        <provider>/config/modules/module[name='pcep-topology-stateful07']/instance[name='global']</provider>
                     </instance>
                 </service>
             </services>
