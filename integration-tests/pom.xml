@@ -39,7 +39,6 @@
         <url.version>1.6.0</url.version>
         <antlr.version>4.0</antlr.version>
         <xtend-lib-osgi.version>2.4.3</xtend-lib-osgi.version>
-        <logback-classic.version>1.0.9</logback-classic.version>
         <moxy.controller.version>2.5.0</moxy.controller.version>
     </properties>
 
@@ -100,8 +99,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback-classic.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>

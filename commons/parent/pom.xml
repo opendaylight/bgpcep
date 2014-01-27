@@ -69,6 +69,8 @@
 
         <!-- Controller artifacts -->
         <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
+        <controller.framework.version>0.4.0-SNAPSHOT</controller.framework.version>
+        <controller.mdsal.version>1.0-SNAPSHOT</controller.mdsal.version>
     </properties>
 
     <dependencyManagement>
@@ -166,12 +168,12 @@
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>protocol-framework</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>${controller.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>protocol-framework</artifactId>
-                <version>0.4.0-SNAPSHOT</version>
+                <version>${controller.framework.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
@@ -188,28 +190,28 @@
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${controller.mdsal.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-config</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${controller.mdsal.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-broker-impl</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${controller.mdsal.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-util</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${controller.mdsal.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-broker-impl</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${controller.mdsal.version}</version>
                 <scope>test</scope>
             </dependency>
 
