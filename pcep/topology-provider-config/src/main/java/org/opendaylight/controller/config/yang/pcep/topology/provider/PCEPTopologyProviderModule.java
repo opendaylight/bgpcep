@@ -59,13 +59,13 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 	}
 
 	private InetAddress listenAddress() {
-		final IpAddress a = new IpAddress(getListenAddress());
+		final IpAddress a = getListenAddress();
 		if (a.getIpv4Address() != null) {
 			return InetAddresses.forString(a.getIpv4Address().getValue());
 		} else if (a.getIpv6Address() != null) {
 			return InetAddresses.forString(a.getIpv6Address().getValue());
 		} else {
-			throw new IllegalArgumentException("Address " + a + " not supported ");
+			throw new IllegalArgumentException("Address " + a + " not supported");
 		}
 	}
 

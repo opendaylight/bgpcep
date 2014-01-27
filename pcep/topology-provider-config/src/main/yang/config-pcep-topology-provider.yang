@@ -93,8 +93,7 @@ module config-pcep-topology-provider {
             }
 
             leaf listen-address {
-                // FIXME: change to inet:ip-address
-                type inet:ipv4-address;
+                type inet:ip-address;
                 default "0.0.0.0";
             }
 
