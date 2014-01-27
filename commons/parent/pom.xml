@@ -61,12 +61,14 @@
         <slf4j.version>1.7.2</slf4j.version>
         <surefire.version>2.15</surefire.version>
 
-        <yangtools.version>0.6.0-SNAPSHOT</yangtools.version>
+        <!-- YANG tools ertifacts -->
+        <yangtools.version>0.6.1</yangtools.version>
+        <ietf.types.version>2010.09.24.3</ietf.types.version>
+        <ietf.topology.version>2013.10.21.1</ietf.topology.version>
+        <yang-ext.version>2013.09.07.3</yang-ext.version>
 
+        <!-- Controller artifacts -->
         <controller.config.version>0.2.3-SNAPSHOT</controller.config.version>
-        <ietf.types.version>2010.09.24.2-SNAPSHOT</ietf.types.version>
-        <ietf.topology.version>2013.10.21.0-SNAPSHOT</ietf.topology.version>
-        <yang-ext.version>2013.09.07.2-SNAPSHOT</yang-ext.version>
     </properties>
 
     <dependencyManagement>
