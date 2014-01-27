@@ -53,12 +53,14 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
 	private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
+	private final TopologySessionListenerFactory listenerFactory;
 	private final InstanceIdentifier<Topology> topology;
 	private final DataProviderService dataProvider;
 
-	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology) {
+	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory) {
 		this.dataProvider = Preconditions.checkNotNull(dataProvider);
 		this.topology = Preconditions.checkNotNull(topology);
+		this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
 
 		// Make sure the topology does not exist
 		final Object c = dataProvider.readOperationalData(topology);
@@ -109,7 +111,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
 	@Override
 	public PCEPSessionListener getSessionListener() {
-		return new Stateful07TopologySessionListener(this);
+		return listenerFactory.createTopologySessionListener(this);
 	}
 
 	@Override
