@@ -597,7 +597,11 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			LOG.debug("Implied node {} became advertized, promoting it", nb.getNodeId());
 
 			final Node in = (Node)trans.readOperationalData(nid);
-			nb.setTerminationPoint(in.getTerminationPoint());
+			if (in == null) {
+				LOG.warn("Node {} is implied but does not exist in MD-SAL, losing termination points!", nid);
+			} else {
+				nb.setTerminationPoint(in.getTerminationPoint());
+			}
 			impliedNodes.remove(nb.getNodeId());
 		} else {
 			nb.setTerminationPoint(new ArrayList<TerminationPoint>());

@@ -123,15 +123,17 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 			}
 
 			final PathAttributes attrs = message.getPathAttributes();
-			final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
-			if (mpu != null) {
-				final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
+			if (attrs != null) {
+				final PathAttributes2 mpu = attrs.getAugmentation(PathAttributes2.class);
+				if (mpu != null) {
+					final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
 
-				final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
-				if (ari != null) {
-					ari.removeRoutes(trans, peer, nlri);
-				} else {
-					LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
+					final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
+					if (ari != null) {
+						ari.removeRoutes(trans, peer, nlri);
+					} else {
+						LOG.debug("Not removing objects from unhandled NLRI {}", nlri);
+					}
 				}
 			}
 
@@ -140,33 +142,35 @@ public class RIBImpl extends DefaultRibReference implements AutoCloseable {
 				final AdjRIBsIn ari = this.tables.getOrCreate(trans, this,
 						new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
 				if (ari != null) {
-					ari.addRoutes(
-							trans,
-							peer,
-							new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setCNextHop(
-									attrs.getCNextHop()).setAdvertizedRoutes(
-									new AdvertizedRoutesBuilder().setDestinationType(
-											new DestinationIpv4CaseBuilder().setDestinationIpv4(
-													new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build()).build(),
-							attrs);
+					final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+							new AdvertizedRoutesBuilder().setDestinationType(
+									new DestinationIpv4CaseBuilder().setDestinationIpv4(
+											new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
+					if (attrs != null) {
+						b.setCNextHop(attrs.getCNextHop());
+					}
+
+					ari.addRoutes(trans, peer, b.build(), attrs);
 				} else {
 					LOG.debug("Not adding objects from unhandled IPv4 Unicast");
 				}
 			}
 
-			final PathAttributes1 mpr = message.getPathAttributes().getAugmentation(PathAttributes1.class);
-			if (mpr != null) {
-				final MpReachNlri nlri = mpr.getMpReachNlri();
+			if (attrs != null) {
+				final PathAttributes1 mpr = attrs.getAugmentation(PathAttributes1.class);
+				if (mpr != null) {
+					final MpReachNlri nlri = mpr.getMpReachNlri();
 
-				final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
-				if (ari != null) {
-					if (message.equals(ari.endOfRib())) {
-						ari.markUptodate(trans, peer);
+					final AdjRIBsIn ari = this.tables.getOrCreate(trans, this, new TablesKey(nlri.getAfi(), nlri.getSafi()));
+					if (ari != null) {
+						if (message.equals(ari.endOfRib())) {
+							ari.markUptodate(trans, peer);
+						} else {
+							ari.addRoutes(trans, peer, nlri, attrs);
+						}
 					} else {
-						ari.addRoutes(trans, peer, nlri, attrs);
+						LOG.debug("Not adding objects from unhandled NLRI {}", nlri);
 					}
-				} else {
-					LOG.debug("Not adding objects from unhandled NLRI {}", nlri);
 				}
 			}
 		} else {
