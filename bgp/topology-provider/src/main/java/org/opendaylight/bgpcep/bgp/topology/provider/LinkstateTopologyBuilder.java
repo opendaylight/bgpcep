@@ -125,8 +125,18 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private TpId buildTpId(final UriBuilder base, final TopologyIdentifier topologyIdentifier,
 			final Ipv4InterfaceIdentifier ipv4InterfaceIdentifier, final Ipv6InterfaceIdentifier ipv6InterfaceIdentifier, final Long id) {
-		return new TpId(new UriBuilder(base, "tp").add("mt", topologyIdentifier).add("ipv4", ipv4InterfaceIdentifier).add("ipv6",
-				ipv6InterfaceIdentifier).add("id", id).toString());
+		final UriBuilder b = new UriBuilder(base, "tp");
+		if (topologyIdentifier != null) {
+			b.add("mt", topologyIdentifier.getValue());
+		}
+		if (ipv4InterfaceIdentifier != null) {
+			b.add("ipv4", ipv4InterfaceIdentifier.getValue());
+		}
+		if (ipv6InterfaceIdentifier != null) {
+			b.add("ipv6", ipv6InterfaceIdentifier.getValue());
+		}
+
+		return new TpId(b.add("id", id).toString());
 	}
 
 	private TpId buildLocalTpId(final UriBuilder base, final LinkDescriptors linkDescriptors) {
