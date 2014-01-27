@@ -56,6 +56,8 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 				"is not set.", listenAddressJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getListenPort(),
 				"is not set.", listenPortJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(),
+				"is not set.", statefulPluginJmxAttribute);
 	}
 
 	private InetAddress listenAddress() {
@@ -76,7 +78,7 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 		try {
 			return PCEPTopologyProvider.create(getDispatcherDependency(), address,
-					getSchedulerDependency(), getDataProviderDependency(), getRpcRegistryDependency(), topology);
+					getSchedulerDependency(), getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency());
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
 			throw new RuntimeException("Failed to instantiate provider", e);
