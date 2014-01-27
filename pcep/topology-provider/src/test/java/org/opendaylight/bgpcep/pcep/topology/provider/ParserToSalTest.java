@@ -150,7 +150,7 @@ public class ParserToSalTest {
 
 			@Override
 			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException, TimeoutException {
+			ExecutionException, TimeoutException {
 				return null;
 			}
 		}).when(this.mockedTransaction).commit();
@@ -200,7 +200,7 @@ public class ParserToSalTest {
 		}).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
 		this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
-				Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance());
+				Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
 		final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
 		this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
 
