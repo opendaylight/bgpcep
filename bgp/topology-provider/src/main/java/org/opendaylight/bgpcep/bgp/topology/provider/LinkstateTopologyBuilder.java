@@ -392,8 +392,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private void removeLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkCase l) {
-		trans.removeOperationalData(buildLinkIdentifier(base, l));
-		LOG.debug("Removed link {}", l);
+		final InstanceIdentifier<?> lid = buildLinkIdentifier(base, l);
+		trans.removeOperationalData(lid);
+		LOG.debug("Removed link {}", lid);
 
 		final NodeId srcNode = buildNodeId(base, l.getLocalNodeDescriptors());
 		final NodeId dstNode = buildNodeId(base, l.getRemoteNodeDescriptors());
@@ -626,6 +627,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		final InstanceIdentifier<Node> nid = nodeIdentifierBuilder(base, n.getNodeDescriptors()).build();
 		final Node node = (Node)trans.readOperationalData(nid);
 		if (node != null) {
+			LOG.debug("Removed node {}", nid);
 			trans.removeOperationalData(nid);
 
 			if (!node.getTerminationPoint().isEmpty()) {
@@ -681,7 +683,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private void removePrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final PrefixCase p) {
-		trans.removeOperationalData(prefixIdentifier(base, p));
+		final InstanceIdentifier<Prefix> pid = prefixIdentifier(base, p);
+		trans.removeOperationalData(pid);
+		LOG.debug("Removed prefix {}");
 	}
 
 	@Override
