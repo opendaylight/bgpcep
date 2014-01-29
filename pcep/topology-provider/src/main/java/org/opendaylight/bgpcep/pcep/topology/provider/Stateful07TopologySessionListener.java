@@ -182,7 +182,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.fieldsFrom(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setTlvs(
+		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setPlspId(new PlspId(0L)).setTlvs(
 				new TlvsBuilder().setSymbolicPathName(
 						new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
 

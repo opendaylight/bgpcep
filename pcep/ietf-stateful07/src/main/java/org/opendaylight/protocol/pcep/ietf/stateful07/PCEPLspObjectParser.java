@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Parser for {@link Lsp}
  */
@@ -106,6 +108,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		final byte[] tlvs = serializeTlvs(specObj.getTlvs());
 		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
+		Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
 		final int lspID = specObj.getPlspId().getValue().intValue();
 		retBytes[0] = (byte) (lspID >> 12);
 		retBytes[1] = (byte) (lspID >> 4);
