@@ -488,11 +488,11 @@
                             <version>${yangtools.version}</version>
                             <type>jar</type>
                         </dependency>
-                    <dependency>
-                        <groupId>org.opendaylight.controller</groupId>
-                        <artifactId>yang-jmx-generator-plugin</artifactId>
-                        <version>${controller.config.version}</version>
-                    </dependency>
+                        <dependency>
+                            <groupId>org.opendaylight.controller</groupId>
+                            <artifactId>yang-jmx-generator-plugin</artifactId>
+                            <version>${controller.config.version}</version>
+                        </dependency>
                     </dependencies>
                 </plugin>
 
