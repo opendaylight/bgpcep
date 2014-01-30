@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_1041ca0a",
+        "filename": "bgp/controller-config/src/main/resources/initial/31-bgp.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 84
+      },
+      "writtenOn": "2014-01-30T08:32:00Z",
+      "side": 1,
+      "message": "This configuration is unfinished, will cause the distribution fail to start",
+      "revId": "d9b5005561e59de95b71d241032baaa3d96a5243",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da6255ed_d04e923a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/RIBImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 84
+      },
+      "writtenOn": "2014-01-30T08:32:00Z",
+      "side": 1,
+      "message": "return null;",
+      "revId": "d9b5005561e59de95b71d241032baaa3d96a5243",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
