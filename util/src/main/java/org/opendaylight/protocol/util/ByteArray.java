@@ -22,9 +22,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
 
 /**
- * 
  * Util class for methods working with byte array.
- * 
  */
 public final class ByteArray {
 	private ByteArray() {
@@ -472,6 +470,12 @@ public final class ByteArray {
 		return bytes;
 	}
 
+	/**
+	 * Trims zeros from the beginning of the byte array.
+	 * 
+	 * @param bytes
+	 * @return byte array without leading zeros.
+	 */
 	public static byte[] trim(final byte[] bytes) {
 		int i = bytes.length - 1;
 		while (i >= 0 && bytes[i] == 0) {
@@ -480,15 +484,33 @@ public final class ByteArray {
 		return Arrays.copyOf(bytes, i + 1);
 	}
 
+	/**
+	 * Converts given byte array to unsigned Integer.
+	 * 
+	 * @param bytes byte array to be converted to unsigned Integer.
+	 * @return uint
+	 */
 	public static UnsignedInteger bytesToUint32(final byte[] bytes) {
 		Preconditions.checkArgument(bytes.length == Integer.SIZE / Byte.SIZE);
 		return UnsignedInteger.fromIntBits(bytesToInt(bytes));
 	}
 
+	/**
+	 * Converts uint to byte array.
+	 * 
+	 * @param uint to be converted to byte array
+	 * @return byte array
+	 */
 	public static byte[] uint32ToBytes(final UnsignedInteger uint) {
 		return intToBytes(uint.intValue());
 	}
 
+	/**
+	 * Converts uint as long to byte array.
+	 * 
+	 * @param uint to be converted to byte array
+	 * @return byte array
+	 */
 	public static byte[] uint32ToBytes(final long uint) {
 		return uint32ToBytes(UnsignedInteger.valueOf(uint));
 	}

@@ -35,6 +35,13 @@ public final class Ipv4Util {
 
 	public static final int IP4_LENGTH = 4;
 
+	/**
+	 * Converts byte array to Inet4Address.
+	 * 
+	 * @param bytes to be converted
+	 * @return InetAddress instance
+	 * @throws IllegalArgumentException if {@link UnknownHostException} is thrown.
+	 */
 	private static InetAddress getAddress(final byte[] bytes) {
 		try {
 			return Inet4Address.getByAddress(bytes);
@@ -43,16 +50,34 @@ public final class Ipv4Util {
 		}
 	}
 
+	/**
+	 * Converts byte array to Ipv4Address.
+	 * 
+	 * @param bytes to be converted to Ipv4Address
+	 * @return Ipv4Address
+	 */
 	public static Ipv4Address addressForBytes(final byte[] bytes) {
 		return new Ipv4Address(InetAddresses.toAddrString(getAddress(bytes)));
 	}
 
+	/**
+	 * Converts Ipv4Address to byte array.
+	 * 
+	 * @param address Ipv4Address to be converted
+	 * @return byte array
+	 */
 	public static byte[] bytesForAddress(final Ipv4Address address) {
 		final InetAddress a = InetAddresses.forString(address.getValue());
 		Preconditions.checkArgument(a instanceof Inet4Address);
 		return a.getAddress();
 	}
 
+	/**
+	 * Converts Ipv4Prefix to byte array.
+	 * 
+	 * @param prefix Ipv4Prefix to be converted
+	 * @return byte array
+	 */
 	public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
 		final String p = prefix.getValue();
 		final int sep = p.indexOf('/');
@@ -62,6 +87,13 @@ public final class Ipv4Util {
 		return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
 	}
 
+	/**
+	 * Creates an Ipv4Prefix object from given byte array.
+	 * 
+	 * @param bytes IPv4 address
+	 * @param length prefix length
+	 * @return Ipv4Prefix object
+	 */
 	public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, IP4_LENGTH);
@@ -69,11 +101,16 @@ public final class Ipv4Util {
 		return new Ipv4Prefix(InetAddresses.toAddrString(a) + '/' + length);
 	}
 
+	/**
+	 * Creates a list of Ipv4 Prefixes from given byte array.
+	 * 
+	 * @param bytes to be converted to List of Ipv4Prefixes.
+	 * @return List<Ipv4Prefix>
+	 */
 	public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
 		if (bytes.length == 0) {
 			return Collections.emptyList();
 		}
-
 		final List<Ipv4Prefix> list = Lists.newArrayList();
 		int byteOffset = 0;
 		while (byteOffset < bytes.length) {
@@ -86,6 +123,12 @@ public final class Ipv4Util {
 		return list;
 	}
 
+	/**
+	 * Obtains prefix length from given prefix.
+	 * 
+	 * @param prefix
+	 * @return prefix length
+	 */
 	public static int getPrefixLength(final IpPrefix prefix) {
 		String p = "";
 		if (prefix.getIpv4Prefix() != null) {

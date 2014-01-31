@@ -7,14 +7,26 @@
  */
 package org.opendaylight.protocol.util;
 
+/**
+ * Util class for storing various util values as constants.
+ */
 public final class Values {
 
 	private Values() {
 	}
 
+	/**
+	 * Maximum unsigned Short value.
+	 */
 	public static final int UNSIGNED_SHORT_MAX_VALUE = 65535;
 
+	/**
+	 * Maximum unsigned Byte value.
+	 */
 	public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 
+	/**
+	 * Maximum nsigned Byte value in hex.
+	 */
 	public static final int BYTE_MAX_VALUE_BYTES = 0xFF;
 }
