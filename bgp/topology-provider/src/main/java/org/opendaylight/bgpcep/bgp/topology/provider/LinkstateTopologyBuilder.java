@@ -647,13 +647,18 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private void createPrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
 			final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
-		final PrefixAttributes pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase) attributes.getAugmentation(
-				Attributes1.class).getAttributeType()).getPrefixAttributes();
+		final IpPrefix ippfx = p.getIpReachabilityInformation();
+		if (ippfx == null) {
+			LOG.warn("IP reachability not present in prefix {} route {}, skipping it", p, value);
+			return;
+		}
 
 		final PrefixBuilder pb = new PrefixBuilder();
-		final IpPrefix ippfx = p.getIpReachabilityInformation();
 		pb.setKey(new PrefixKey(ippfx));
 		pb.setPrefix(ippfx);
+
+		final PrefixAttributes pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase) attributes.getAugmentation(
+				Attributes1.class).getAttributeType()).getPrefixAttributes();
 		if (pa != null) {
 			pb.setMetric(pa.getPrefixMetric().getValue());
 		}
