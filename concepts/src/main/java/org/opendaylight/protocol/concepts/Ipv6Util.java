@@ -33,6 +33,13 @@ public final class Ipv6Util {
 
 	public static final int IPV6_LENGTH = 16;
 
+	/**
+	 * Converts byte array to Inet6Address.
+	 * 
+	 * @param bytes to be converted
+	 * @return InetAddress instance
+	 * @throws IllegalArgumentException if {@link UnknownHostException} is thrown.
+	 */
 	private static InetAddress getAddress(final byte[] bytes) {
 		try {
 			return Inet6Address.getByAddress(bytes);
@@ -41,16 +48,34 @@ public final class Ipv6Util {
 		}
 	}
 
+	/**
+	 * Converts byte array to Ipv6Address.
+	 * 
+	 * @param bytes to be converted to Ipv6Address
+	 * @return Ipv6Address
+	 */
 	public static Ipv6Address addressForBytes(final byte[] bytes) {
 		return new Ipv6Address(InetAddresses.toAddrString(getAddress(bytes)));
 	}
 
+	/**
+	 * Converts Ipv6Address to byte array.
+	 * 
+	 * @param address Ipv6Address to be converted
+	 * @return byte array
+	 */
 	public static byte[] bytesForAddress(final Ipv6Address address) {
 		final InetAddress a = InetAddresses.forString(address.getValue());
 		Preconditions.checkArgument(a instanceof Inet6Address);
 		return a.getAddress();
 	}
 
+	/**
+	 * Converts Ipv6Prefix to byte array.
+	 * 
+	 * @param prefix Ipv6Prefix to be converted
+	 * @return byte array
+	 */
 	public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
 		final String p = prefix.getValue();
 		final int sep = p.indexOf('/');
@@ -60,6 +85,13 @@ public final class Ipv6Util {
 		return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
 	}
 
+	/**
+	 * Creates an Ipv6Prefix object from given byte array.
+	 * 
+	 * @param bytes IPv6 address
+	 * @param length prefix length
+	 * @return Ipv6Prefix object
+	 */
 	public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
 		Preconditions.checkArgument(length <= bytes.length * Byte.SIZE);
 		final byte[] tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
@@ -67,6 +99,12 @@ public final class Ipv6Util {
 		return new Ipv6Prefix(InetAddresses.toAddrString(a) + '/' + length);
 	}
 
+	/**
+	 * Creates a list of Ipv6 Prefixes from given byte array.
+	 * 
+	 * @param bytes to be converted to List of Ipv6Prefixes.
+	 * @return List<Ipv6Prefix>
+	 */
 	public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
 		if (bytes.length == 0) {
 			return Collections.emptyList();

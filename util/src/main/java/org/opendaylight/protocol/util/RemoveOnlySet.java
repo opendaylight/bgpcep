@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+@Deprecated
 public class RemoveOnlySet<E> implements Set<E> {
 	private final Set<E> set;
 
@@ -34,56 +35,56 @@ public class RemoveOnlySet<E> implements Set<E> {
 
 	@Override
 	public void clear() {
-		set.clear();
+		this.set.clear();
 	}
 
 	@Override
 	public boolean contains(final Object o) {
-		return set.contains(o);
+		return this.set.contains(o);
 	}
 
 	@Override
 	public boolean containsAll(final Collection<?> c) {
-		return set.containsAll(c);
+		return this.set.containsAll(c);
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return set.isEmpty();
+		return this.set.isEmpty();
 	}
 
 	@Override
 	public Iterator<E> iterator() {
-		return set.iterator();
+		return this.set.iterator();
 	}
 
 	@Override
 	public boolean remove(final Object o) {
-		return set.remove(o);
+		return this.set.remove(o);
 	}
 
 	@Override
 	public boolean removeAll(final Collection<?> c) {
-		return set.removeAll(c);
+		return this.set.removeAll(c);
 	}
 
 	@Override
 	public boolean retainAll(final Collection<?> c) {
-		return set.retainAll(c);
+		return this.set.retainAll(c);
 	}
 
 	@Override
 	public int size() {
-		return set.size();
+		return this.set.size();
 	}
 
 	@Override
 	public Object[] toArray() {
-		return set.toArray();
+		return this.set.toArray();
 	}
 
 	@Override
 	public <T> T[] toArray(final T[] a) {
-		return set.toArray(a);
+		return this.set.toArray(a);
 	}
 }
