@@ -121,28 +121,28 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		private synchronized void addLink(final LinkId id, final boolean isRemote) {
 			if (isRemote) {
-				remote.add(id);
+				this.remote.add(id);
 			} else {
-				local.add(id);
+				this.local.add(id);
 			}
 		}
 
 		private synchronized boolean removeLink(final LinkId id, final boolean isRemote) {
 			final boolean removed;
 			if (isRemote) {
-				removed = remote.remove(id);
+				removed = this.remote.remove(id);
 			} else {
-				removed = local.remove(id);
+				removed = this.local.remove(id);
 			}
 			if (!removed) {
-				LOG.warn("Removed non-reference link {} from TP {} isRemote {}", tp.getTpId(), id, isRemote);
+				LOG.warn("Removed non-reference link {} from TP {} isRemote {}", this.tp.getTpId(), id, isRemote);
 			}
 
-			return local.isEmpty() && remote.isEmpty();
+			return this.local.isEmpty() && this.remote.isEmpty();
 		}
 
 		private TerminationPoint getTp() {
-			return tp;
+			return this.tp;
 		}
 	}
 
@@ -154,8 +154,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		NodeBuilder nb;
 
 		private NodeHolder(final NodeId id) {
-			inab = new IgpNodeAttributesBuilder();
-			nb = new NodeBuilder().setKey(new NodeKey(id)).setNodeId(id);
+			this.inab = new IgpNodeAttributesBuilder();
+			this.nb = new NodeBuilder().setKey(new NodeKey(id)).setNodeId(id);
 		}
 
 		/**
@@ -185,28 +185,29 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			}
 
 			// Re-generate termination points
-			nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(tps.values(), new Function<TpHolder, TerminationPoint>() {
-				@Override
-				public TerminationPoint apply(final TpHolder input) {
-					return input.getTp();
-				}
-			})));
+			this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(),
+					new Function<TpHolder, TerminationPoint>() {
+						@Override
+						public TerminationPoint apply(final TpHolder input) {
+							return input.getTp();
+						}
+					})));
 
 			// Re-generate prefixes
-			inab.setPrefix(Lists.newArrayList(prefixes.values()));
+			this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));
 
 			// Write the node out
-			final Node n = nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(inab.build()).build()).build();
+			final Node n = this.nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build()).build();
 			trans.putOperationalData(nid, n);
 			LOG.debug("Created node {} at {}", n, nid);
 			return false;
 		}
 
 		private synchronized void removeTp(final TpId tp, final LinkId link, final boolean isRemote) {
-			final TpHolder h = tps.get(tp);
+			final TpHolder h = this.tps.get(tp);
 			if (h != null) {
 				if (h.removeLink(link, isRemote)) {
-					tps.remove(tp);
+					this.tps.remove(tp);
 					LOG.debug("Removed TP {}", tp);
 				}
 			} else {
@@ -215,39 +216,39 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		}
 
 		private void addTp(final TerminationPoint tp, final LinkId link, final boolean isRemote) {
-			TpHolder h = tps.get(tp.getTpId());
+			TpHolder h = this.tps.get(tp.getTpId());
 			if (h == null) {
 				h = new TpHolder(tp);
-				tps.put(tp.getTpId(), h);
+				this.tps.put(tp.getTpId(), h);
 			}
 
 			h.addLink(link, isRemote);
 		}
 
 		private void addPrefix(final Prefix pfx) {
-			prefixes.put(pfx.getKey(), pfx);
+			this.prefixes.put(pfx.getKey(), pfx);
 		}
 
 		private void removePrefix(final PrefixCase p) {
-			prefixes.remove(new PrefixKey(p.getIpReachabilityInformation()));
+			this.prefixes.remove(new PrefixKey(p.getIpReachabilityInformation()));
 		}
 
 		private void unadvertized() {
-			inab = new IgpNodeAttributesBuilder();
-			nb = new NodeBuilder().setKey(nb.getKey()).setNodeId(nb.getNodeId());
-			advertized = false;
-			LOG.debug("Node {} is unadvertized", nb.getNodeId());
+			this.inab = new IgpNodeAttributesBuilder();
+			this.nb = new NodeBuilder().setKey(this.nb.getKey()).setNodeId(this.nb.getNodeId());
+			this.advertized = false;
+			LOG.debug("Node {} is unadvertized", this.nb.getNodeId());
 		}
 
 		private void advertized(final NodeBuilder nb, final IgpNodeAttributesBuilder inab) {
 			this.nb = Preconditions.checkNotNull(nb);
 			this.inab = Preconditions.checkNotNull(inab);
-			advertized = true;
+			this.advertized = true;
 			LOG.debug("Node {} is advertized", nb.getNodeId());
 		}
 
 		private Object getNodeId() {
-			return nb.getNodeId();
+			return this.nb.getNodeId();
 		}
 	}
 
@@ -440,19 +441,19 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private NodeHolder getNode(final NodeId id) {
-		if (nodes.containsKey(id)) {
+		if (this.nodes.containsKey(id)) {
 			LOG.debug("Node {} is already present", id);
-			return nodes.get(id);
+			return this.nodes.get(id);
 		}
 
 		final NodeHolder ret = new NodeHolder(id);
-		nodes.put(id, ret);
+		this.nodes.put(id, ret);
 		return ret;
 	}
 
 	private void putNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeHolder holder) {
 		if (holder.syncState(trans)) {
-			nodes.remove(holder.getNodeId());
+			this.nodes.remove(holder.getNodeId());
 		}
 	}
 
@@ -525,9 +526,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		LOG.debug("Created link {} at {} for {}", link, lid, l);
 	}
 
-	private void removeTp(final DataModification<InstanceIdentifier<?>, DataObject> trans,
-			final NodeId node, final TpId tp, final LinkId link, final boolean isRemote) {
-		final NodeHolder nh = nodes.get(node);
+	private void removeTp(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId node, final TpId tp,
+			final LinkId link, final boolean isRemote) {
+		final NodeHolder nh = this.nodes.get(node);
 		if (nh != null) {
 			nh.removeTp(tp, link, isRemote);
 			putNode(trans, nh);
@@ -690,7 +691,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private void removeNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final NodeCase n) {
 		final NodeId id = buildNodeId(base, n.getNodeDescriptors());
-		final NodeHolder nh = nodes.get(id);
+		final NodeHolder nh = this.nodes.get(id);
 		if (nh != null) {
 			nh.unadvertized();
 			putNode(trans, nh);
@@ -729,7 +730,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 				pb.addAugmentation(
 						Prefix1.class,
 						new Prefix1Builder().setOspfPrefixAttributes(
-								new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress()).build()).build());
+								new OspfPrefixAttributesBuilder().setForwardingAddress(pa.getOspfForwardingAddress().getIpv4Address()).build()).build());
 			}
 			break;
 		}
@@ -748,7 +749,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 	private void removePrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final PrefixCase p) {
 		final NodeId node = buildNodeId(base, p.getAdvertisingNodeDescriptors());
-		final NodeHolder nh = nodes.get(node);
+		final NodeHolder nh = this.nodes.get(node);
 		if (nh != null) {
 			nh.removePrefix(p);
 			LOG.debug("Removed prefix {}", p);
