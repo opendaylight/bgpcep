@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_23124162",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-02-03T22:23:07Z",
+      "side": 1,
+      "message": "is there a specific reason why IPv6 cannot occur here?",
+      "revId": "fae89e59af3471f9c04c1622d85ee5475a061578",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
