@@ -525,7 +525,7 @@ module bgp-linkstate {
 			type netc:igp-metric;
 		}
 		leaf ospf-forwarding-address {
-			type inet:ipv4-address;
+			type inet:ip-address;
 		}
 	}
 
