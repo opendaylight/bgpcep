@@ -76,11 +76,17 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
 
+/**
+ * Parser and serializer for Linkstate NLRI.
+ */
 public final class LinkstateNlriParser implements NlriParser {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 	private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
 	private static final int PROTOCOL_ID_LENGTH = 1;
 	private static final int IDENTIFIER_LENGTH = 8;
+	private static final int LINK_IDENTIFIER_LENGTH = 4;
+	private static final int ISO_SYSTEM_ID_LENGTH = 6;
+	private static final int PSN_LENGTH = 1;
 
 	private static final int TYPE_LENGTH = 2;
 	private static final int LENGTH_SIZE = 2;
@@ -119,8 +125,9 @@ public final class LinkstateNlriParser implements NlriParser {
 			LOG.trace("Parsing Link Descriptor: {}", Arrays.toString(value));
 			switch (type) {
 			case TlvCode.LINK_LR_IDENTIFIERS:
-				builder.setLinkLocalIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 0, 4)).longValue());
-				builder.setLinkRemoteIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 4, 4)).longValue());
+				builder.setLinkLocalIdentifier(ByteArray.bytesToUint32(ByteArray.subByte(value, 0, LINK_IDENTIFIER_LENGTH)).longValue());
+				builder.setLinkRemoteIdentifier(ByteArray.bytesToUint32(
+						ByteArray.subByte(value, LINK_IDENTIFIER_LENGTH, LINK_IDENTIFIER_LENGTH)).longValue());
 				LOG.debug("Parsed link local {} remote {} Identifiers.", builder.getLinkLocalIdentifier(),
 						builder.getLinkRemoteIdentifier());
 				break;
@@ -200,24 +207,26 @@ public final class LinkstateNlriParser implements NlriParser {
 	}
 
 	private static CRouterIdentifier parseRouterId(final byte[] value) throws BGPParsingException {
-		if (value.length == 6) {
+		if (value.length == ISO_SYSTEM_ID_LENGTH) {
 			return new IsisNodeCaseBuilder().setIsisNode(
-					new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
+					new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, ISO_SYSTEM_ID_LENGTH))).build()).build();
 		}
-		if (value.length == 7) {
-			if (value[6] == 0) {
+		if (value.length == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH) {
+			if (value[ISO_SYSTEM_ID_LENGTH] == 0) {
 				LOG.warn("PSN octet is 0. Ignoring System ID.");
 				return new IsisNodeCaseBuilder().setIsisNode(
-						new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build()).build();
+						new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(ByteArray.subByte(value, 0, ISO_SYSTEM_ID_LENGTH))).build()).build();
 			} else {
 				final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
-						new IsoSystemIdentifier(ByteArray.subByte(value, 0, 6))).build();
+						new IsoSystemIdentifier(ByteArray.subByte(value, 0, ISO_SYSTEM_ID_LENGTH))).build();
 				return new IsisPseudonodeCaseBuilder().setIsisPseudonode(
-						new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn((short) UnsignedBytes.toInt(value[6])).build()).build();
+						new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn(
+								(short) UnsignedBytes.toInt(value[ISO_SYSTEM_ID_LENGTH])).build()).build();
 			}
 		}
 		if (value.length == 4) {
-			return new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteArray.bytesToUint32(value).longValue()).build()).build();
+			return new OspfNodeCaseBuilder().setOspfNode(
+					new OspfNodeBuilder().setOspfRouterId(ByteArray.bytesToUint32(value).longValue()).build()).build();
 		}
 		if (value.length == 8) {
 			final byte[] o = ByteArray.subByte(value, 0, 4);
@@ -256,7 +265,7 @@ public final class LinkstateNlriParser implements NlriParser {
 			case TlvCode.IP_REACHABILITY:
 				IpPrefix prefix = null;
 				final int prefixLength = UnsignedBytes.toInt(value[0]);
-				final int size = prefixLength / 8 + ((prefixLength % 8 == 0) ? 0 : 1);
+				final int size = prefixLength / Byte.SIZE + ((prefixLength % Byte.SIZE == 0) ? 0 : 1);
 				if (size != value.length - 1) {
 					LOG.debug("Expected length {}, actual length {}.", size, value.length - 1);
 					throw new BGPParsingException("Illegal length of IP reachability TLV: " + (value.length - 1));
@@ -281,9 +290,9 @@ public final class LinkstateNlriParser implements NlriParser {
 	/**
 	 * Parses common parts for Link State Nodes, Links and Prefixes, that includes protocol ID and identifier tlv.
 	 * 
-	 * @param nlri
-	 * @return BGPLinkMP or BGPNodeMP
-	 * @throws BGPParsingException
+	 * @param nlri as byte array
+	 * @return {@link CLinkstateDestination}
+	 * @throws BGPParsingException if parsing was unsuccessful
 	 */
 	private List<CLinkstateDestination> parseNlri(final byte[] nlri) throws BGPParsingException {
 		if (nlri.length == 0) {
@@ -373,6 +382,9 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	@Override
 	public void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
+		if (nlri.length == 0) {
+			return;
+		}
 		final List<CLinkstateDestination> dst = parseNlri(nlri);
 
 		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
@@ -381,6 +393,12 @@ public final class LinkstateNlriParser implements NlriParser {
 		NlriUtil.parseNextHop(nextHop, builder);
 	}
 
+	/**
+	 * Serializes Linkstate NLRI to byte array. We need this as NLRI serves as a key in upper layers.
+	 * 
+	 * @param destination Linkstate NLRI to be serialized
+	 * @return byte array
+	 */
 	public static byte[] serializeNlri(final CLinkstateDestination destination) {
 		final ByteBuf finalBuffer = Unpooled.buffer();
 		finalBuffer.writeShort(destination.getNlriType().getIntValue());
@@ -457,7 +475,7 @@ public final class LinkstateNlriParser implements NlriParser {
 			final IsisNode isis = ((IsisNodeCase) routerId).getIsisNode();
 			bytes = isis.getIsoSystemId().getValue();
 		} else if (routerId instanceof IsisPseudonodeCase) {
-			bytes = new byte[6 + 1];
+			bytes = new byte[ISO_SYSTEM_ID_LENGTH + PSN_LENGTH];
 			final IsisPseudonode isis = ((IsisPseudonodeCase) routerId).getIsisPseudonode();
 			ByteArray.copyWhole(isis.getIsIsRouterIdentifier().getIsoSystemId().getValue(), bytes, 0);
 			bytes[6] = UnsignedBytes.checkedCast((isis.getPsn() != null) ? isis.getPsn() : 0);
@@ -475,7 +493,7 @@ public final class LinkstateNlriParser implements NlriParser {
 	private static void serializeLinkDescriptors(final ByteBuf buffer, final LinkDescriptors descriptors) {
 		if (descriptors.getLinkLocalIdentifier() != null && descriptors.getLinkRemoteIdentifier() != null) {
 			buffer.writeShort(TlvCode.LINK_LR_IDENTIFIERS);
-			buffer.writeShort(8);
+			buffer.writeShort(LINK_IDENTIFIER_LENGTH);
 			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getLinkLocalIdentifier()).intValue());
 			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getLinkRemoteIdentifier()).intValue());
 		}

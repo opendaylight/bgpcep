@@ -63,9 +63,9 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
- * Parser for Link State information.
+ * Parser for Link State Path Attribute.
  * 
- * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-03">BGP-LS draft</a>
+ * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-04">BGP-LS draft</a>
  */
 public class LinkstateAttributeParser implements AttributeParser {
 	// TODO: replace with actual values by IANA
@@ -77,12 +77,18 @@ public class LinkstateAttributeParser implements AttributeParser {
 
 	private static final int LENGTH_SIZE = 2;
 
-	private final NlriType getNlriType(final PathAttributesBuilder pab) {
+	private static final int ROUTE_TAG_LENGTH = 4;
+
+	private static final int EXTENDED_ROUTE_TAG_LENGTH = 8;
+
+	private static final int SRLG_LENGTH = 4;
+
+	private NlriType getNlriType(final PathAttributesBuilder pab) {
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
 		if (mpr != null && mpr.getMpReachNlri() != null) {
 			final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
 			if (dt instanceof DestinationLinkstateCase) {
-				for (CLinkstateDestination d : ((DestinationLinkstateCase)dt).getDestinationLinkstate().getCLinkstateDestination()) {
+				for (final CLinkstateDestination d : ((DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
 					return d.getNlriType();
 				}
 			}
@@ -94,7 +100,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 		if (mpu != null && mpu.getMpUnreachNlri() != null) {
 			final DestinationType dt = mpu.getMpUnreachNlri().getWithdrawnRoutes().getDestinationType();
 			if (dt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) {
-				for (CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase)dt).getDestinationLinkstate().getCLinkstateDestination()) {
+				for (final CLinkstateDestination d : ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) dt).getDestinationLinkstate().getCLinkstateDestination()) {
 					return d.getNlriType();
 				}
 			}
@@ -161,9 +167,8 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * 
 	 * @param attributes key is the tlv type and value is the value of the tlv
 	 * @return {@link LinkStateAttribute}
-	 * @throws BGPParsingException if a link attribute is not recognized
 	 */
-	private static LinkStateAttribute parseLinkAttributes(final Map<Short, ByteList> attributes) throws BGPParsingException {
+	private static LinkStateAttribute parseLinkAttributes(final Map<Short, ByteList> attributes) {
 
 		final LinkAttributesBuilder builder = new LinkAttributesBuilder();
 		for (final Entry<Short, ByteList> entry : attributes.entrySet()) {
@@ -222,7 +227,8 @@ public class LinkstateAttributeParser implements AttributeParser {
 				case TlvCode.LINK_PROTECTION_TYPE:
 					final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[0]));
 					if (lpt == null) {
-						throw new BGPParsingException("Link Protection Type not recognized: " + UnsignedBytes.toInt(value[0]));
+						LOG.warn("Link Protection Type not recognized: {}", UnsignedBytes.toInt(value[0]));
+						break;
 					}
 					builder.setLinkProtection(lpt);
 					LOG.debug("Parsed Link Protection Type {}", lpt);
@@ -240,8 +246,8 @@ public class LinkstateAttributeParser implements AttributeParser {
 					int i = 0;
 					final List<SrlgId> sharedRiskLinkGroups = Lists.newArrayList();
 					while (i != value.length) {
-						sharedRiskLinkGroups.add(new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(value, i, 4))));
-						i += 4;
+						sharedRiskLinkGroups.add(new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(value, i, SRLG_LENGTH))));
+						i += SRLG_LENGTH;
 					}
 					builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
 					LOG.debug("Parsed Shared Risk Link Groups {}", Arrays.toString(sharedRiskLinkGroups.toArray()));
@@ -269,7 +275,6 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * 
 	 * @param attributes key is the tlv type and value is the value of the tlv
 	 * @return {@link LinkStateAttribute}
-	 * @throws BGPParsingException if a node attribute is not recognized
 	 */
 	private static LinkStateAttribute parseNodeAttributes(final Map<Short, ByteList> attributes) {
 		final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
@@ -291,7 +296,8 @@ public class LinkstateAttributeParser implements AttributeParser {
 				case TlvCode.NODE_FLAG_BITS:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
 					builder.setNodeFlags(new NodeFlagBits(flags[0], flags[1], flags[2], flags[3]));
-					LOG.debug("Parsed External bit {}, area border router {}.", flags[2], flags[3]);
+					LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.", flags[0], flags[1],
+							flags[2], flags[3]);
 					break;
 				case TlvCode.NODE_OPAQUE:
 					LOG.debug("Ignoring opaque value: {}.", Arrays.toString(value));
@@ -332,58 +338,58 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * 
 	 * @param attributes key is the tlv type and value are the value bytes of the tlv
 	 * @return {@link LinkStateAttribute}
-	 * @throws BGPParsingException if some prefix attributes is not recognized
 	 */
 	private static LinkStateAttribute parsePrefixAttributes(final Map<Short, ByteList> attributes) {
 		final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
 		final List<RouteTag> routeTags = Lists.newArrayList();
 		final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
 		for (final Entry<Short, ByteList> entry : attributes.entrySet()) {
-			LOG.debug("Prefix attribute TLV {}", entry.getKey());
+			LOG.trace("Prefix attribute TLV {}", entry.getKey());
 			for (final byte[] value : entry.getValue().getBytes()) {
 				switch (entry.getKey()) {
 				case TlvCode.IGP_FLAGS:
 					final boolean[] flags = ByteArray.parseBits(value[0]);
 					final boolean upDownBit = flags[2];
 					builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
-					LOG.trace("Parsed IGP flag (up/down bit) : {}", upDownBit);
+					LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
 					break;
 				case TlvCode.ROUTE_TAG:
 					int offset = 0;
 					while (offset != value.length) {
-						final RouteTag routeTag = new RouteTag(ByteArray.subByte(value, offset, 4));
+						final RouteTag routeTag = new RouteTag(ByteArray.subByte(value, offset, ROUTE_TAG_LENGTH));
 						routeTags.add(routeTag);
-						LOG.trace("Parsed Route Tag: {}", routeTag);
-						offset += 4;
+						LOG.debug("Parsed Route Tag: {}", routeTag);
+						offset += ROUTE_TAG_LENGTH;
 					}
 					break;
 				case TlvCode.EXTENDED_ROUTE_TAG:
 					offset = 0;
 					while (offset != value.length) {
-						final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(value);
+						final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.subByte(value, offset, EXTENDED_ROUTE_TAG_LENGTH));
 						exRouteTags.add(exRouteTag);
-						LOG.trace("Parsed Extended Route Tag: {}", exRouteTag);
-						offset += 4;
+						LOG.debug("Parsed Extended Route Tag: {}", exRouteTag);
+						offset += EXTENDED_ROUTE_TAG_LENGTH;
 					}
 					break;
 				case TlvCode.PREFIX_METRIC:
 					final IgpMetric metric = new IgpMetric(ByteArray.bytesToLong(value));
 					builder.setPrefixMetric(metric);
-					LOG.trace("Parsed Metric: {}", metric);
+					LOG.debug("Parsed Metric: {}", metric);
 					break;
 				case TlvCode.FORWARDING_ADDRESS:
 					IpAddress fwdAddress = null;
 					switch (value.length) {
-					case 4:
+					case Ipv4Util.IP4_LENGTH:
 						fwdAddress = new IpAddress(Ipv4Util.addressForBytes(value));
 						break;
-					case 16:
+					case Ipv6Util.IPV6_LENGTH:
 						fwdAddress = new IpAddress(Ipv6Util.addressForBytes(value));
 						break;
 					default:
 						LOG.debug("Ignoring unsupported forwarding address length {}", value.length);
 					}
-					LOG.trace("Parsed FWD Address: {}", fwdAddress);
+					builder.setOspfForwardingAddress(fwdAddress);
+					LOG.debug("Parsed FWD Address: {}", fwdAddress);
 					break;
 				case TlvCode.PREFIX_OPAQUE:
 					LOG.debug("Parsed Opaque value: {}, not preserving it", ByteArray.bytesToHexString(value));
@@ -393,7 +399,7 @@ public class LinkstateAttributeParser implements AttributeParser {
 				}
 			}
 		}
-		LOG.debug("Finished parsing Prefix Attributes.");
+		LOG.trace("Finished parsing Prefix Attributes.");
 		builder.setRouteTags(routeTags);
 		builder.setExtendedTags(exRouteTags);
 		return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
