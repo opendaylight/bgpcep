@@ -168,14 +168,20 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			final InstanceIdentifier<Node> nid = InstanceIdentifier.builder(getInstanceIdentifier()).child(
 					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
 					nb.getKey()).build();
+
+			/*
+			 * Transaction's putOperationalData() does a merge. Force it onto a replace
+			 * by removing the data. If we decide to remove the node -- we just skip the put.
+			 */
+			trans.removeOperationalData(nid);
+
 			if (!advertized) {
 				if (tps.isEmpty() && prefixes.isEmpty()) {
 					LOG.debug("Removing unadvertized unused node {}", nb.getNodeId());
-					trans.removeOperationalData(nid);
 					return true;
 				}
 
-				LOG.debug("Node {} is still implied by {} TPs and {} prefixes", tps.size(), prefixes.size());
+				LOG.debug("Node {} is still implied by {} TPs and {} prefixes", nb.getNodeId(), tps.size(), prefixes.size());
 			}
 
 			// Re-generate termination points
@@ -499,17 +505,22 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		final NodeHolder snh = getNode(srcNode);
 		snh.addTp(srcTp, lb.getLinkId(), false);
-		putNode(trans, snh);
 		LOG.debug("Created TP {} as link source", srcTp);
+		putNode(trans, snh);
 
 		final NodeHolder dnh = getNode(dstNode);
 		dnh.addTp(dstTp, lb.getLinkId(), true);
-		putNode(trans, dnh);
 		LOG.debug("Created TP {} as link destination", dstTp);
+		putNode(trans, dnh);
 
 		final InstanceIdentifier<?> lid = buildLinkIdentifier(base, lb.getLinkId());
 		final Link link = lb.build();
 
+		/*
+		 * Transaction's putOperationalData() does a merge. Force it onto a replace
+		 * by removing the data.
+		 */
+		trans.removeOperationalData(lid);
 		trans.putOperationalData(lid, link);
 		LOG.debug("Created link {} at {} for {}", link, lid, l);
 	}
