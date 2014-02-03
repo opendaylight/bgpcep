@@ -23,14 +23,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 import com.google.common.collect.Lists;
 
+/**
+ * Activator for registering Linkstate AFI/SAFI to RIB.
+ */
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 	@Override
 	protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-		return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
-			@Override
-			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final Comparator<PathAttributes> comparator, final TablesKey key) {
-				return new LinkstateAdjRIBsIn(trans, rib, comparator, key);
-			}
-		}));
+		return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+				new AdjRIBsInFactory() {
+					@Override
+					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib,
+							final Comparator<PathAttributes> comparator, final TablesKey key) {
+						return new LinkstateAdjRIBsIn(trans, rib, comparator, key);
+					}
+				}));
 	}
 }
