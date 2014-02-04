@@ -7,6 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+/**
+ * A single instance of a collection of extensions for use by consumers. This
+ * provides access to the various BGP-related registries. The registries are
+ * read-only and are populated by extension producers.
+ */
 public interface BGPExtensionConsumerContext {
 	AddressFamilyRegistry getAddressFamilyRegistry();
 	AttributeRegistry getAttributeRegistry();
