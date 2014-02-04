@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -38,4 +39,11 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
 	AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
 	AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
+
+	/**
+	 * Get the context-wide cache for a particular object type.
+	 * 
+	 * @return An object cache instance.
+	 */
+	ReferenceCache getReferenceCache();
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -18,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterSerializer;
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
@@ -25,7 +28,42 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
+import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext implements BGPExtensionProviderContext {
+	public static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
+
+	private final AtomicReference<Cache<Object, Object>> cacheRef;
+	private final ReferenceCache referenceCache = new ReferenceCache() {
+		@Override
+		public <T> T getSharedReference(final T object) {
+			final Cache<Object, Object> cache = cacheRef.get();
+
+			@SuppressWarnings("unchecked")
+			final T ret = (T) cache.getIfPresent(object);
+			if (ret == null) {
+				cache.put(object, object);
+				return object;
+			}
+
+			return ret;
+		}
+	};
+	private final int maximumCachedObjects;
+
+	public SimpleBGPExtensionProviderContext() {
+		this(DEFAULT_MAXIMUM_CACHED_OBJECTS);
+	}
+
+	public SimpleBGPExtensionProviderContext(final int maximumCachedObjects) {
+		this.maximumCachedObjects = maximumCachedObjects;
+
+		final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
+		cacheRef = new AtomicReference<Cache<Object,Object>>(cache);
+	}
+
 	@Override
 	public AutoCloseable registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
 		return afiReg.registerAddressFamily(clazz, number);
@@ -85,5 +123,22 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 	@Override
 	public AutoCloseable registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz, final int number) {
 		return safiReg.registerSubsequentAddressFamily(clazz, number);
+	}
+
+	@Override
+	public ReferenceCache getReferenceCache() {
+		return referenceCache;
+	}
+
+	public final synchronized int getMaximumCachedObjects() {
+		return maximumCachedObjects;
+	}
+
+	public final synchronized void setMaximumCachedObjects(final int maximumCachedObjects) {
+		Preconditions.checkArgument(maximumCachedObjects >= 0);
+
+		Cache<Object, Object> newCache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
+		newCache.putAll(cacheRef.get().asMap());
+		cacheRef.set(newCache);
 	}
 }
