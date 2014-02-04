@@ -55,9 +55,9 @@ module programming {
 		on a directed acyclic graph of instructions which places limits
 		on which interim states may be visited while the system
 		transitions from a state measured at a point in time into the
-		intented state. The graph may be expanded to include new nodes,
-		allowing for submitting futher submissions in a manner
-		consistent with optimistic prediction of future state.
+		intended state. The graph may be expanded to include new nodes,
+		allowing for futher submissions in a manner consistent with
+		optimistic prediction of future state.
 
 		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
