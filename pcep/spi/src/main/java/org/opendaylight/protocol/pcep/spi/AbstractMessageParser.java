@@ -57,7 +57,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 	protected byte[] serializeObject(final Object object) {
 		if (object == null) {
-			throw new IllegalArgumentException("Null object passed.");
+			return new byte[] {};
 		}
 		final ObjectSerializer serializer = this.registry.getObjectSerializer(object);
 		return serializer.serializeObject(object);
