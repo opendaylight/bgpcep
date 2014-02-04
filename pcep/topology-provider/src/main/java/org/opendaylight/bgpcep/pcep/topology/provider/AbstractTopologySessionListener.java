@@ -71,10 +71,9 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 			return this.version;
 		}
 	};
-	private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 	private static final Pcerr UNHANDLED_MESSAGE_ERROR = new PcerrBuilder().setPcerrMessage(
 			new PcerrMessageBuilder().setErrorType(null).build()).build();
-
 
 	// FIXME: make this private
 	protected final ServerSessionManager serverSessionManager;
@@ -106,8 +105,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		for (final Node n : topo.getNode()) {
 			LOG.debug("Matching topology node {} to id {}", n, pccId);
 			if (n.getNodeId().getValue().equals(pccId)) {
-				this.topologyNode =
-						InstanceIdentifier.builder(this.serverSessionManager.getTopology()).child(Node.class, n.getKey()).toInstance();
+				this.topologyNode = InstanceIdentifier.builder(this.serverSessionManager.getTopology()).child(Node.class, n.getKey()).toInstance();
 				LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
 				return n;
 			}
@@ -153,7 +151,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 		this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
 		this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).augmentation(Node1.class).toInstance();
-		final Node1 ta = topologyAugmentBuilder.build();
+		final Node1 ta = this.topologyAugmentBuilder.build();
 
 		trans.putOperationalData(this.topologyAugment, ta);
 		LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
@@ -257,8 +255,8 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 	@Override
 	public void close() {
-		if (session != null) {
-			session.close(TerminationReason.Unknown);
+		if (this.session != null) {
+			this.session.close(TerminationReason.Unknown);
 		}
 	}
 
@@ -298,17 +296,16 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return req.getFuture();
 	}
 
-
-	protected final synchronized void updateLsp(final DataModificationTransaction trans, final PLSPID id, String name, final ReportedLspBuilder rlb, final boolean solicited) {
+	protected final synchronized void updateLsp(final DataModificationTransaction trans, final PLSPID id, String name,
+			final ReportedLspBuilder rlb, final boolean solicited) {
 		if (name == null) {
-			name = lsps.get(id);
+			name = this.lsps.get(id);
 			if (name == null) {
 				LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
 				return;
 			}
 		}
-		lsps.put(id, name);
-
+		this.lsps.put(id, name);
 
 		Preconditions.checkState(name != null);
 		rlb.setKey(new ReportedLspKey(name));
@@ -338,7 +335,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 		// The node has completed synchronization, cleanup metadata no longer reported back
 		this.nodeState.cleanupExcept(this.lsps.values());
-		LOG.debug("Session {} achieved synchronized state", session);
+		LOG.debug("Session {} achieved synchronized state", this.session);
 	}
 
 	protected final InstanceIdentifierBuilder<ReportedLsp> lspIdentifier(final String name) {
@@ -346,7 +343,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	}
 
 	protected final synchronized void removeLsp(final DataModificationTransaction trans, final PLSPID id) {
-		final String name = lsps.remove(id);
+		final String name = this.lsps.remove(id);
 		if (name != null) {
 			trans.removeOperationalData(lspIdentifier(name).build());
 		}
@@ -355,5 +352,6 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	}
 
 	abstract protected void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
+
 	abstract protected boolean onMessage(DataModificationTransaction trans, Message message);
 }

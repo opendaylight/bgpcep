@@ -178,7 +178,7 @@ module odl-pcep-impl-cfg {
 
             leaf initiated {
                 type boolean;
-                default false;
+                default true;
             }
 
             leaf stateful {
