@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.ietf.stateful02.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.crabbe.initiated00.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
@@ -22,6 +22,9 @@ import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProvide
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.lsp.cleanup.tlv.LspCleanupBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
@@ -57,8 +60,11 @@ public class PCEPObjectParserTest {
 		final Tlvs2Builder statBuilder = new Tlvs2Builder();
 		statBuilder.setStateful(tlv1);
 
+		final Tlvs1Builder cleanupBuilder = new Tlvs1Builder();
+		cleanupBuilder.setLspCleanup(new LspCleanupBuilder().setTimeout(180L).build());
+
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-				Tlvs2.class, statBuilder.build()).build());
+				Tlvs2.class, statBuilder.build()).addAugmentation(Tlvs1.class, cleanupBuilder.build()).build());
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
