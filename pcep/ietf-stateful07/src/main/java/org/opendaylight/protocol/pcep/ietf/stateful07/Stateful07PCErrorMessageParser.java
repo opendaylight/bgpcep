@@ -43,11 +43,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link PcerrMessage}
  */
-public class PCEPErrorMessageParser extends AbstractMessageParser {
+public class Stateful07PCErrorMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 6;
 
-	public PCEPErrorMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful07PCErrorMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 

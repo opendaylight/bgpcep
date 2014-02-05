@@ -28,10 +28,10 @@ public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProvide
 		regs.add(context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
-		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Srp.class, new PCEPSrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(Initiated00LspObjectParser.CLASS, Initiated00LspObjectParser.TYPE, new Initiated00LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Lsp.class, new Initiated00LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(InitiatedSrpObjectParser.CLASS, InitiatedSrpObjectParser.TYPE, new InitiatedSrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Srp.class, new InitiatedSrpObjectParser(tlvReg)));
 
 		regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
 		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));

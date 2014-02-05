@@ -14,10 +14,10 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.ietf.initiated00.PCEPLspObjectParser;
-import org.opendaylight.protocol.pcep.ietf.initiated00.PCEPSrpObjectParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPLspaObjectParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.ietf.initiated00.Initiated00LspObjectParser;
+import org.opendaylight.protocol.pcep.ietf.initiated00.InitiatedSrpObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspaObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Statful07OpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
@@ -56,7 +56,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
-		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
+		final Statful07OpenObjectParser parser = new Statful07OpenObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
 
 		final OpenBuilder builder = new OpenBuilder();
@@ -81,7 +81,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
-		final PCEPLspObjectParser parser = new PCEPLspObjectParser(this.tlvRegistry);
+		final Initiated00LspObjectParser parser = new Initiated00LspObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
 
 		final LspBuilder builder = new LspBuilder();
@@ -106,7 +106,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testLspaObject() throws IOException, PCEPDeserializerException {
-		final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+		final Stateful07LspaObjectParser parser = new Stateful07LspaObjectParser(this.tlvRegistry);
 		final LspaBuilder builder = new LspaBuilder();
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin");
 
@@ -125,7 +125,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException {
-		final PCEPSrpObjectParser parser = new PCEPSrpObjectParser(this.tlvRegistry);
+		final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(this.tlvRegistry);
 		final byte[] result = new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01 };
 
 		final SrpBuilder builder = new SrpBuilder();
