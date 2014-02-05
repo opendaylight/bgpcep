@@ -28,8 +28,9 @@ public final class MultiRegistry<K, V> {
 		// Put this value into candidates, then put it into the the current
 		// map, if it does not have a key -- this is to prevent unnecessary
 		// churn by replacing an already-present mapping.
-		candidates.put(key, value);
-		current.putIfAbsent(key, value);
+		this.candidates.put(key, value);
+		this.current.putIfAbsent(key, value);
+		// this.current.put(key, value);
 
 		final Object lock = this;
 		return new AbstractRegistration() {
@@ -45,13 +46,13 @@ public final class MultiRegistry<K, V> {
 					// the mapping. If there are candidates, then attempt to
 					// replace it -- but only if it has pointed to the removed
 					// value in the first place.
-					candidates.remove(key, value);
+					MultiRegistry.this.candidates.remove(key, value);
 
-					final List<V> values = candidates.get(key);
+					final List<V> values = MultiRegistry.this.candidates.get(key);
 					if (values.isEmpty()) {
-						current.remove(key);
+						MultiRegistry.this.current.remove(key);
 					} else {
-						current.replace(key, value, values.get(0));
+						MultiRegistry.this.current.replace(key, value, values.get(0));
 					}
 				}
 			}
@@ -59,6 +60,6 @@ public final class MultiRegistry<K, V> {
 	}
 
 	public V get(final K key) {
-		return current.get(key);
+		return this.current.get(key);
 	}
 }
