@@ -14,9 +14,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionProposalFactoryImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
@@ -112,7 +112,7 @@ public final class Main {
 			deadTimerValue = keepAliveValue * 4;
 		}
 
-		final PCEPSessionProposalFactory spf = new PCEPSessionProposalFactoryImpl(deadTimerValue, keepAliveValue, stateful, active, instant);
+		final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant);
 
 		final Open prefs = spf.getSessionProposal(address, 0);
 
