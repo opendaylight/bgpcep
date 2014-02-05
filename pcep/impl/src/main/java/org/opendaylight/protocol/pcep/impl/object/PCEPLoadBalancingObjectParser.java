@@ -15,7 +15,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.load.balancing.object.LoadBalancingBuilder;
 
@@ -58,11 +57,6 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 		builder.setMaxLsp((short) UnsignedBytes.toInt(bytes[MAX_LSP_F_OFFSET]));
 		builder.setMinBandwidth(new Bandwidth(ByteArray.subByte(bytes, MIN_BAND_F_OFFSET, MIN_BAND_F_LENGTH)));
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final LoadBalancingBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override
