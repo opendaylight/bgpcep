@@ -23,12 +23,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
+
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageParser.class);
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
@@ -60,6 +64,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 			return new byte[] {};
 		}
 		final ObjectSerializer serializer = this.registry.getObjectSerializer(object);
+		LOG.trace("Choosen serializer {}", serializer);
 		return serializer.serializeObject(object);
 	}
 

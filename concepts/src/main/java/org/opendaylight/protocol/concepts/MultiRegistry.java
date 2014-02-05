@@ -84,6 +84,6 @@ public final class MultiRegistry<K, V> {
 	}
 
 	public V get(final K key) {
-		return current.get(key);
+		return this.current.get(key);
 	}
 }
