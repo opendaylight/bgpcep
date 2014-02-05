@@ -40,16 +40,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-spi</artifactId>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-ietf-stateful07</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-ietf-stateful02</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
