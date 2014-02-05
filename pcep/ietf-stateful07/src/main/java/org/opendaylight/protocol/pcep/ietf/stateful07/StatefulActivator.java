@@ -31,18 +31,18 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
-		regs.add(context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE, new PCEPUpdateRequestMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg)));
-		regs.add(context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg)));
+		regs.add(context.registerMessageParser(Stateful07PCUpdateRequestMessageParser.TYPE, new Stateful07PCUpdateRequestMessageParser(objReg)));
+		regs.add(context.registerMessageSerializer(Pcupd.class, new Stateful07PCUpdateRequestMessageParser(objReg)));
+		regs.add(context.registerMessageParser(Stateful07PCReportMessageParser.TYPE, new Stateful07PCReportMessageParser(objReg)));
+		regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful07PCReportMessageParser(objReg)));
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
-		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Srp.class, new PCEPSrpObjectParser(tlvReg)));
-		regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(Stateful07LspObjectParser.CLASS, Stateful07LspObjectParser.TYPE, new Stateful07LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Lsp.class, new Stateful07LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(Stateful07SrpObjectParser.CLASS, Stateful07SrpObjectParser.TYPE, new Stateful07SrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Srp.class, new Stateful07SrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(Statful07OpenObjectParser.CLASS, Statful07OpenObjectParser.TYPE, new Statful07OpenObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Open.class, new Statful07OpenObjectParser(tlvReg)));
 
 		regs.add(context.registerTlvParser(LSPIdentifierIpv4TlvParser.TYPE, new LSPIdentifierIpv4TlvParser()));
 		regs.add(context.registerTlvParser(LSPIdentifierIpv6TlvParser.TYPE, new LSPIdentifierIpv6TlvParser()));

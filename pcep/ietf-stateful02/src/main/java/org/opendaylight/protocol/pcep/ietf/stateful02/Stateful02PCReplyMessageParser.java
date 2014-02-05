@@ -49,11 +49,11 @@ import com.google.common.collect.Lists;
 /**
  * Parser for {@link Pcrep}
  */
-public class PCEPReplyMessageParser extends AbstractMessageParser {
+public class Stateful02PCReplyMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 4;
 
-	public PCEPReplyMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful02PCReplyMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
