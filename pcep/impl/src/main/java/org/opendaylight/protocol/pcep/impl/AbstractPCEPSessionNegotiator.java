@@ -75,6 +75,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
+	private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
 	private final Timer timer;
 
@@ -91,8 +92,6 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	private Open remotePrefs;
 
 	private volatile boolean localOK, openRetry, remoteOK;
-
-	private final Keepalive keepalive = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
 	protected AbstractPCEPSessionNegotiator(final Timer timer, final Promise<PCEPSessionImpl> promise, final Channel channel) {
 		super(promise, channel);
@@ -251,7 +250,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
 				final Open open = o.getOpen();
 				if (isProposalAcceptable(open)) {
-					this.channel.writeAndFlush(this.keepalive);
+					this.channel.writeAndFlush(KEEPALIVE);
 					this.remotePrefs = open;
 					this.remoteOK = true;
 					if (this.localOK) {
