@@ -13,7 +13,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.Gc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.GcBuilder;
 
@@ -59,11 +58,6 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 		builder.setMaxUtilization((short) UnsignedBytes.toInt(bytes[MAX_UTIL_F_OFFSET]));
 		builder.setOverBookingFactor((short) UnsignedBytes.toInt(bytes[OVER_BOOKING_FACTOR_F_OFFSET]));
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final GcBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

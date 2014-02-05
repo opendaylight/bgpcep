@@ -15,7 +15,6 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
 import org.slf4j.Logger;
@@ -79,11 +78,6 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 			return new UnknownObject(PCEPErrors.INVALID_CT, obj);
 		}
 		return obj;
-	}
-
-	@Override
-	public void addTlv(final ClassTypeBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

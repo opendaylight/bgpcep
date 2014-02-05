@@ -17,7 +17,6 @@ import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4CaseBuilder;
@@ -70,11 +69,6 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
 		b.setDestinationIpv4Address((Ipv4Util.addressForBytes(ByteArray.subByte(bytes, DEST4_F_OFFSET, DEST4_F_LENGTH))));
 		builder.setAddressFamily(new Ipv4CaseBuilder().setIpv4(b.build()).build());
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final EndpointsObjBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

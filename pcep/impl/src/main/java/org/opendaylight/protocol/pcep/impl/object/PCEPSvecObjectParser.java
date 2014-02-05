@@ -18,7 +18,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
 
@@ -89,11 +88,6 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 		builder.setSrlgDiverse(flags.get(S_FLAG_OFFSET));
 		builder.setRequestsIds(requestIDs);
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final SvecBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override

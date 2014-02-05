@@ -17,7 +17,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
 
@@ -76,11 +75,6 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 		builder.setMetricType((short) UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]));
 		builder.setValue(new Float32(ByteArray.subByte(bytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH)));
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final MetricBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override
