@@ -29,20 +29,20 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE,
-				new PCEPUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageParser(Stateful02PCUpdateRequestMessageParser.TYPE,
+				new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcupd.class, new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(PCEPReportMessageParser.TYPE,
-				new PCEPReportMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageParser(Stateful02PCReportMessageParser.TYPE,
+				new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, new PCEPReplyMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcrep.class, new PCEPReplyMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageParser(Stateful02PCReplyMessageParser.TYPE, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcrep.class, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE,
-				new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcreq.class, new PCEPRequestMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageParser(Statefule02PCRequestMessageParser.TYPE,
+				new Statefule02PCRequestMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcreq.class, new Statefule02PCRequestMessageParser(context.getObjectHandlerRegistry())));
 
 		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE,
 				new PCEPLspObjectParser(context.getTlvHandlerRegistry())));

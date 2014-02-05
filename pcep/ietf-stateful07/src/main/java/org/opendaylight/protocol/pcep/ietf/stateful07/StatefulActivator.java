@@ -31,10 +31,10 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		final List<AutoCloseable> regs = new ArrayList<>();
 
 		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
-		regs.add(context.registerMessageParser(PCEPUpdateRequestMessageParser.TYPE, new PCEPUpdateRequestMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcupd.class, new PCEPUpdateRequestMessageParser(objReg)));
-		regs.add(context.registerMessageParser(PCEPReportMessageParser.TYPE, new PCEPReportMessageParser(objReg)));
-		regs.add(context.registerMessageSerializer(Pcrpt.class, new PCEPReportMessageParser(objReg)));
+		regs.add(context.registerMessageParser(Stateful07PCUpdateRequestMessageParser.TYPE, new Stateful07PCUpdateRequestMessageParser(objReg)));
+		regs.add(context.registerMessageSerializer(Pcupd.class, new Stateful07PCUpdateRequestMessageParser(objReg)));
+		regs.add(context.registerMessageParser(Stateful07PCReportMessageParser.TYPE, new Stateful07PCReportMessageParser(objReg)));
+		regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful07PCReportMessageParser(objReg)));
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
 		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg)));
