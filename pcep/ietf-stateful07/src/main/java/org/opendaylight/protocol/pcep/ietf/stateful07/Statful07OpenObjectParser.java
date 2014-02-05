@@ -35,8 +35,8 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for {@link Open}
  */
-public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
+public class Statful07OpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+	private static final Logger LOG = LoggerFactory.getLogger(Statful07OpenObjectParser.class);
 
 	public static final int CLASS = 1;
 
@@ -71,7 +71,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
 	private static final int PCEP_VERSION = 1;
 
-	public PCEPOpenObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Statful07OpenObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 

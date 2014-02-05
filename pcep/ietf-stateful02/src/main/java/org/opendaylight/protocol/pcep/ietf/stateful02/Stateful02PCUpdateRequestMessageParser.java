@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.ietf.stateful07;
+package org.opendaylight.protocol.pcep.ietf.stateful02;
 
 import io.netty.buffer.ByteBuf;
 
@@ -15,15 +15,14 @@ import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.PcupdMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.Updates;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.UpdatesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcupd.message.pcupd.message.updates.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcupdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.PcupdMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.Updates;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.UpdatesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
@@ -39,11 +38,11 @@ import com.google.common.collect.Lists;
 /**
  * Parser for {@link Pcupd}
  */
-public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
+public class Stateful02PCUpdateRequestMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 11;
 
-	public PCEPUpdateRequestMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful02PCUpdateRequestMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
@@ -56,7 +55,6 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 		final Pcupd msg = (Pcupd) message;
 		final List<Updates> updates = msg.getPcupdMessage().getUpdates();
 		for (final Updates update : updates) {
-			buffer.writeBytes(serializeObject(update.getSrp()));
 			buffer.writeBytes(serializeObject(update.getLsp()));
 			final Path p = update.getPath();
 			if (p != null) {
@@ -104,13 +102,6 @@ public class PCEPUpdateRequestMessageParser extends AbstractMessageParser {
 
 	private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
 		final UpdatesBuilder builder = new UpdatesBuilder();
-		if (objects.get(0) instanceof Srp) {
-			builder.setSrp((Srp) objects.get(0));
-			objects.remove(0);
-		} else {
-			errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
-			return null;
-		}
 		if (objects.get(0) instanceof Lsp) {
 			builder.setLsp((Lsp) objects.get(0));
 			objects.remove(0);
