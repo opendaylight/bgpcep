@@ -14,7 +14,6 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.Tlvs;
@@ -62,11 +61,6 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setReason((short) UnsignedBytes.toInt(bytes[REASON_F_OFFSET]));
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final CCloseBuilder builder, final Tlv tlv) {
-		// No tlvs defined
 	}
 
 	@Override
