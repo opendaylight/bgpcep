@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -23,6 +23,7 @@ import org.opendaylight.protocol.pcep.ietf.initiated00.PcinitiateMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
+import org.opendaylight.protocol.pcep.impl.Activator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
