@@ -113,20 +113,22 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		retBytes[0] = (byte) (lspID >> 12);
 		retBytes[1] = (byte) (lspID >> 4);
 		retBytes[2] = (byte) (lspID << 4);
-		if (specObj.isDelegate()) {
+		if (specObj.isDelegate() != null && specObj.isDelegate()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isRemove()) {
+		if (specObj.isRemove() != null && specObj.isRemove()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isSync()) {
+		if (specObj.isSync() != null && specObj.isSync()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isAdministrative()) {
+		if (specObj.isAdministrative() != null && specObj.isAdministrative()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		final int op = specObj.getOperational().getIntValue();
-		retBytes[3] |= (op & 7) << 4;
+		if (specObj.getOperational() != null) {
+			final int op = specObj.getOperational().getIntValue();
+			retBytes[3] |= (op & 7) << 4;
+		}
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
