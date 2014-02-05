@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
@@ -77,12 +78,13 @@ public final class CommunitiesParser {
 
 	/**
 	 * Parse known Community, if unknown, a new one will be created.
+	 * @param refCache
 	 * 
 	 * @param bytes byte array to be parsed
 	 * @return new Community
 	 * @throws BGPDocumentedException
 	 */
-	static Community parseCommunity(final byte[] bytes) throws BGPDocumentedException {
+	static Community parseCommunity(final ReferenceCache refCache, final byte[] bytes) throws BGPDocumentedException {
 		if (bytes.length != COMMUNITY_LENGTH) {
 			throw new BGPDocumentedException("Community with wrong length: " + bytes.length, BGPError.OPT_ATTR_ERROR);
 		}
@@ -93,7 +95,7 @@ public final class CommunitiesParser {
 		} else if (Arrays.equals(bytes, NO_EXPORT_SUBCONFED)) {
 			return CommunityUtil.NO_EXPORT_SUBCONFED;
 		}
-		return CommunityUtil.create((ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH))),
+		return CommunityUtil.create(refCache, ByteArray.bytesToLong(Arrays.copyOfRange(bytes, 0, AS_NUMBER_LENGTH)),
 				ByteArray.bytesToInt(Arrays.copyOfRange(bytes, AS_NUMBER_LENGTH, AS_NUMBER_LENGTH + AS_NUMBER_LENGTH)));
 	}
 
@@ -105,7 +107,7 @@ public final class CommunitiesParser {
 	 * @throws BGPDocumentedException if the type is not recognized
 	 */
 	@VisibleForTesting
-	public static ExtendedCommunities parseExtendedCommunity(final byte[] bytes) throws BGPDocumentedException {
+	public static ExtendedCommunities parseExtendedCommunity(final ReferenceCache refCache, final byte[] bytes) throws BGPDocumentedException {
 		final int type = UnsignedBytes.toInt(bytes[0]);
 		final int subType = UnsignedBytes.toInt(bytes[1]);
 		final byte[] value = ByteArray.subByte(bytes, TYPE_LENGTH, bytes.length - TYPE_LENGTH);

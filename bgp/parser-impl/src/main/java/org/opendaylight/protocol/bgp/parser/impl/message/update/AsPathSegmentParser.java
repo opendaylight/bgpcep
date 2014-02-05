@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
@@ -53,22 +54,26 @@ public final class AsPathSegmentParser {
 		}
 	}
 
-	static List<AsSequence> parseAsSequence(final int count, final byte[] bytes) {
+	static List<AsSequence> parseAsSequence(final ReferenceCache refCache, final int count, final byte[] bytes) {
 		final List<AsSequence> coll = new ArrayList<>();
 		int byteOffset = 0;
 		for (int i = 0; i < count; i++) {
-			coll.add(new AsSequenceBuilder().setAs(
-					new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH)))).build());
+			coll.add(
+					refCache.getSharedReference(
+							new AsSequenceBuilder().setAs(
+									refCache.getSharedReference(
+											new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH))))).build()));
 			byteOffset += AS_NUMBER_LENGTH;
 		}
 		return coll;
 	}
 
-	static List<AsNumber> parseAsSet(final int count, final byte[] bytes) {
+	static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final byte[] bytes) {
 		final List<AsNumber> coll = new ArrayList<>();
 		int byteOffset = 0;
 		for (int i = 0; i < count; i++) {
-			coll.add(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH))));
+			coll.add(refCache.getSharedReference(
+					new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, byteOffset, AS_NUMBER_LENGTH)))));
 			byteOffset += AS_NUMBER_LENGTH;
 		}
 		return coll;

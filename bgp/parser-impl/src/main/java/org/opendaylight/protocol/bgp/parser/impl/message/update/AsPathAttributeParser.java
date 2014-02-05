@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
@@ -27,11 +28,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public final class AsPathAttributeParser implements AttributeParser {
 	public static final int TYPE = 2;
+	private final ReferenceCache refCache;
+
+	public AsPathAttributeParser(final ReferenceCache refCache) {
+		this.refCache = Preconditions.checkNotNull(refCache);
+	}
 
 	/**
 	 * Parses AS_PATH from bytes.
@@ -41,7 +48,7 @@ public final class AsPathAttributeParser implements AttributeParser {
 	 * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
 	 * @throws BGPParsingException
 	 */
-	private static AsPath parseAsPath(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	private static AsPath parseAsPath(final ReferenceCache refCache, final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
 		int byteOffset = 0;
 		final List<Segments> ases = Lists.newArrayList();
 		boolean isSequence = false;
@@ -57,13 +64,13 @@ public final class AsPathAttributeParser implements AttributeParser {
 			byteOffset += AsPathSegmentParser.LENGTH_SIZE;
 
 			if (segmentType == SegmentType.AS_SEQUENCE) {
-				final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(count,
+				final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
 				ases.add(new SegmentsBuilder().setCSegment(
 						new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
 				isSequence = true;
 			} else {
-				final List<AsNumber> list = AsPathSegmentParser.parseAsSet(count,
+				final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count,
 						ByteArray.subByte(bytes, byteOffset, count * AsPathSegmentParser.AS_NUMBER_LENGTH));
 				ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
 
@@ -79,6 +86,6 @@ public final class AsPathAttributeParser implements AttributeParser {
 
 	@Override
 	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
-		builder.setAsPath(parseAsPath(bytes));
+		builder.setAsPath(parseAsPath(refCache, bytes));
 	}
 }

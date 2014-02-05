@@ -22,6 +22,8 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParse
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteList;
+import org.opendaylight.protocol.util.NoopReferenceCache;
+import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
@@ -58,6 +60,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import com.google.common.collect.Maps;
 
 public class ComplementaryTest {
+
+	private final ReferenceCache ref = NoopReferenceCache.getInstance();
 
 	@Test
 	public void testBGPParameter() {
@@ -124,7 +128,7 @@ public class ComplementaryTest {
 	public void testCommunitiesParser() {
 		ExtendedCommunities as = null;
 		try {
-			as = CommunitiesParser.parseExtendedCommunity(new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 });
+			as = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -140,7 +144,7 @@ public class ComplementaryTest {
 		assertEquals(0, as.getCommType().intValue());
 
 		try {
-			as = CommunitiesParser.parseExtendedCommunity(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 });
+			as = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -153,7 +157,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities rtc = null;
 		try {
-			rtc = CommunitiesParser.parseExtendedCommunity(new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 });
+			rtc = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -170,7 +174,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities roc = null;
 		try {
-			roc = CommunitiesParser.parseExtendedCommunity(new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 });
+			roc = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -187,7 +191,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities sec = null;
 		try {
-			sec = CommunitiesParser.parseExtendedCommunity(new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 });
+			sec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -205,7 +209,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities oec = null;
 		try {
-			oec = CommunitiesParser.parseExtendedCommunity(new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 });
+			oec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -217,7 +221,7 @@ public class ComplementaryTest {
 		assertEquals(3, oec.getCommType().intValue());
 
 		try {
-			oec = CommunitiesParser.parseExtendedCommunity(new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 });
+			oec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 });
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -229,7 +233,7 @@ public class ComplementaryTest {
 		assertEquals(43, oec.getCommType().intValue());
 
 		try {
-			CommunitiesParser.parseExtendedCommunity(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 });
+			CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 });
 			fail("Exception should have occured.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Could not parse Extended Community type: 11", e.getMessage());

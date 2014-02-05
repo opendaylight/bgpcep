@@ -13,14 +13,16 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
+import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 
 public class CommunityTest {
+	final CommunityUtil util = new CommunityUtil(NoopReferenceCache.getInstance());
 
 	@Test
 	public void testCommunity() {
-		CommunityUtil.create(10, 222);
-		final Community c = CommunityUtil.create(12, 12);
+		util.create(10, 222);
+		final Community c = util.create(12, 12);
 		assertEquals(12, c.getAsNumber().getValue().intValue());
 		assertEquals(12, c.getSemantics().intValue());
 	}
@@ -28,13 +30,13 @@ public class CommunityTest {
 	@Test
 	public void testOverflows() {
 		try {
-			CommunityUtil.create(10, -2);
+			util.create(10, -2);
 			fail("Semantics under range.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Invalid range: -2, expected: [[0‥65535]].", e.getMessage());
 		}
 		try {
-			CommunityUtil.create(10, 65536);
+			util.create(10, 65536);
 			fail("Semantics above range.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Invalid range: 65536, expected: [[0‥65535]].", e.getMessage());
@@ -43,13 +45,13 @@ public class CommunityTest {
 
 	@Test
 	public void testToString() {
-		final Community c = CommunityUtil.create(10, 222);
+		final Community c = util.create(10, 222);
 		assertNotNull(c.toString());
 	}
 
 	@Test
 	public void testValueOf() {
-		final Community comm = CommunityUtil.valueOf("12:50");
+		final Community comm = util.valueOf("12:50");
 		assertEquals(12, comm.getAsNumber().getValue().intValue());
 		assertEquals(50, comm.getSemantics().intValue());
 	}

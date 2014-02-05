@@ -74,18 +74,18 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
 		final AttributeRegistry attrReg = context.getAttributeRegistry();
 		regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser()));
-		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser()));
+		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser(context.getReferenceCache())));
 		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser()));
 		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser()));
 		regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser()));
 		regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser()));
-		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser()));
-		regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser()));
+		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser(context.getReferenceCache())));
+		regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser(context.getReferenceCache())));
 		regs.add(context.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser()));
 		regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser()));
 		regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(nlriReg)));
 		regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(nlriReg)));
-		regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser()));
+		regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser(context.getReferenceCache())));
 		regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
 		regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
 

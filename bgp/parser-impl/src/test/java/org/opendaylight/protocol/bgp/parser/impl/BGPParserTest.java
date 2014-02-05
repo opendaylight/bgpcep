@@ -28,6 +28,7 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -224,7 +225,7 @@ public class BGPParserTest {
 		comms.add((Communities) CommunityUtil.NO_EXPORT);
 		comms.add((Communities) CommunityUtil.NO_ADVERTISE);
 		comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
-		comms.add((Communities) CommunityUtil.create(0xFFFF, 0xFF10));
+		comms.add((Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
 
 		final UpdateBuilder builder = new UpdateBuilder();
 
