@@ -89,7 +89,9 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 		return bytes;
 	}
 
-	public abstract void addTlv(final T builder, final Tlv tlv);
+	protected void addTlv(final T builder, final Tlv tlv) {
+		// FIXME: No TLVs by default, fallback to augments
+	}
 
 	protected static int getPadding(final int length, final int padding) {
 		return (padding - (length % padding)) % padding;
