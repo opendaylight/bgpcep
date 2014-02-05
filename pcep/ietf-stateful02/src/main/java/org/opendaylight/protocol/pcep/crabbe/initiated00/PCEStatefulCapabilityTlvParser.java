@@ -68,10 +68,12 @@ public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSeria
 		if (sfi != null) {
 			flags.set(I_FLAG_OFFSET, sfi.isInitiation());
 		}
-
-		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-		flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
-
+		if (sct.isLspUpdateCapability() != null && sct.isLspUpdateCapability()) {
+			flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+		}
+		if (sct.isIncludeDbVersion() != null && sct.isIncludeDbVersion()) {
+			flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
+		}
 		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
 	}
 

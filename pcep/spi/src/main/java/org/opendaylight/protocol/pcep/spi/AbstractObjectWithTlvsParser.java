@@ -71,6 +71,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 	protected final byte[] serializeTlv(final Tlv tlv) {
 
 		final TlvSerializer serializer = this.tlvReg.getTlvSerializer(tlv);
+		LOG.trace("Choosen serializer {}", serializer);
 
 		final byte[] typeBytes = ByteArray.intToBytes(serializer.getType(), TLV_TYPE_F_LENGTH);
 
