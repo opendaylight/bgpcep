@@ -100,16 +100,16 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 		retBytes[0] = (byte) (lspID >> 12);
 		retBytes[1] = (byte) (lspID >> 4);
 		retBytes[2] = (byte) (lspID << 4);
-		if (specObj.isDelegate()) {
+		if (specObj.isDelegate() != null && specObj.isDelegate()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isRemove()) {
+		if (specObj.isRemove() != null && specObj.isRemove()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isSync()) {
+		if (specObj.isSync() != null && specObj.isSync()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.isOperational()) {
+		if (specObj.isOperational() != null && specObj.isOperational()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (OPERATIONAL_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
