@@ -59,6 +59,10 @@ module odl-pcep-crabbe-initiated00 {
 			}
 		}
 	}
+	
+	augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
+		uses lsp-cleanup-tlv;
+	}
 
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful02:stateful" {
 		leaf initiation {
