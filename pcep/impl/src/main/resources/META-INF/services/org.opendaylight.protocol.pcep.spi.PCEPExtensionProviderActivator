@@ -5,5 +5,3 @@
 # accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 org.opendaylight.protocol.pcep.impl.Activator
-org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator
-org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator
