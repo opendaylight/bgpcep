@@ -105,7 +105,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		for (final Reports r : rpt.getReports()) {
 			final Lsp lsp = r.getLsp();
 
-			if (!lsp.isSync()) {
+			if (!lsp.isSync() && (lsp.getPlspId() == null || lsp.getPlspId().getValue() == 0)) {
 				stateSynchronizationAchieved(trans);
 				continue;
 			}
