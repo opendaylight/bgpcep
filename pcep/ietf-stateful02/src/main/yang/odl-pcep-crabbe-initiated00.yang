@@ -70,6 +70,10 @@ module odl-pcep-crabbe-initiated00 {
 			default false;
 		}
 	}
+	
+	augment "/pcinitiate/pcinitiate-message/requests/lspa/tlvs" {
+		uses stateful02:symbolic-path-name-tlv;
+	}
 
 	notification pcinitiate {
 		uses pcinitiate-message;
