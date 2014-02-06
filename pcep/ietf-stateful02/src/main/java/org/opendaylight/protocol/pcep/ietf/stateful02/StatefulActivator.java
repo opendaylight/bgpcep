@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
@@ -51,6 +52,10 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
 		regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE,
 				new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
 		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
+
+		regs.add(context.registerObjectParser(PCEPLspaObjectParser.CLASS, PCEPLspaObjectParser.TYPE,
+				new PCEPLspaObjectParser(context.getTlvHandlerRegistry())));
+		regs.add(context.registerObjectSerializer(Lspa.class, new PCEPLspaObjectParser(context.getTlvHandlerRegistry())));
 
 		regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
 		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
