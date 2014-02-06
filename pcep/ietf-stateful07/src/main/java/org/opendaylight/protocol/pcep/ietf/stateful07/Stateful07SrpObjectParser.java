@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Srp}
  */
-public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
+public final class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
 
 	public static final int CLASS = 33;
 
@@ -41,7 +41,7 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
 	private static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
-	public PCEPSrpObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful07SrpObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 

@@ -19,9 +19,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
-import org.opendaylight.protocol.pcep.ietf.initiated00.PcinitiateMessageParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPReportMessageParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEPUpdateRequestMessageParser;
+import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00PCInitiateMessageParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.Activator;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
@@ -501,7 +501,7 @@ public class PCEPValidatorTest {
 			a.start(this.ctx);
 			byte[] result = ByteArray.fileToBytes("src/test/resources/PCUpd.2.bin");
 
-			final PCEPUpdateRequestMessageParser parser = new PCEPUpdateRequestMessageParser(this.ctx.getObjectHandlerRegistry());
+			final Stateful07PCUpdateRequestMessageParser parser = new Stateful07PCUpdateRequestMessageParser(this.ctx.getObjectHandlerRegistry());
 
 			final PcupdMessageBuilder builder = new PcupdMessageBuilder();
 
@@ -542,7 +542,7 @@ public class PCEPValidatorTest {
 			a.start(this.ctx);
 			byte[] result = ByteArray.fileToBytes("src/test/resources/PCRpt.1.bin");
 
-			final PCEPReportMessageParser parser = new PCEPReportMessageParser(this.ctx.getObjectHandlerRegistry());
+			final Stateful07PCReportMessageParser parser = new Stateful07PCReportMessageParser(this.ctx.getObjectHandlerRegistry());
 
 			final PcrptMessageBuilder builder = new PcrptMessageBuilder();
 
@@ -613,7 +613,7 @@ public class PCEPValidatorTest {
 			a.start(this.ctx);
 			final byte[] result = ByteArray.fileToBytes("src/test/resources/Pcinit.bin");
 
-			final PcinitiateMessageParser parser = new PcinitiateMessageParser(this.ctx.getObjectHandlerRegistry());
+			final CInitiated00PCInitiateMessageParser parser = new CInitiated00PCInitiateMessageParser(this.ctx.getObjectHandlerRegistry());
 
 			final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
 			final RequestsBuilder rBuilder = new RequestsBuilder();
