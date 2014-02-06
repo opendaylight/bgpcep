@@ -23,18 +23,18 @@ public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProvide
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerMessageParser(PcinitiateMessageParser.TYPE,
-				new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageParser(CInitiated00PCInitiateMessageParser.TYPE,
+				new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
+		regs.add(context.registerMessageSerializer(Pcinitiate.class, new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
 
 		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
-		regs.add(context.registerObjectParser(PCEPLspObjectParser.CLASS, PCEPLspObjectParser.TYPE, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Lsp.class, new PCEPLspObjectParser(tlvReg)));
-		regs.add(context.registerObjectParser(PCEPSrpObjectParser.CLASS, PCEPSrpObjectParser.TYPE, new PCEPSrpObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Srp.class, new PCEPSrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE, new CInitiated00LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg)));
+		regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE, new CInitiated00SrpObjectParser(tlvReg)));
+		regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg)));
 
-		regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
-		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
+		regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE, new CInitiated00StatefulCapabilityTlvParser()));
+		regs.add(context.registerTlvSerializer(Stateful.class, new CInitiated00StatefulCapabilityTlvParser()));
 
 		return regs;
 	}

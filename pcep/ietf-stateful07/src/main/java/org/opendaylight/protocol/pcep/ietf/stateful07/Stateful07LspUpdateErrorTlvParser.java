@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link LspErrorCode}
  */
-public class LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
+public class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 20;
 
