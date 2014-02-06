@@ -14,45 +14,70 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+/**
+ * A registry which allows multiple values for a particular key. One of those
+ * is considered the best and returned as the representative.
+ * 
+ * When selecting the candidate, we evaluate the order of insertion, picking the
+ * value inserted first, but then we look at all the other candidates and if there
+ * is one which is a subclass of the first one, we select that one.
+ *
+ * @param <K> key type
+ * @param <V> value type
+ */
 @ThreadSafe
 public final class MultiRegistry<K, V> {
+	private static final Logger LOG = LoggerFactory.getLogger(MultiRegistry.class);
 	private final ConcurrentMap<K, V> current = new ConcurrentHashMap<>();
 
 	@GuardedBy("this")
 	private final ListMultimap<K, V> candidates = ArrayListMultimap.create();
 
+	@GuardedBy("this")
+	private void updateCurrent(final K key) {
+		final List<V> values = candidates.get(key);
+
+		// Simple case: no candidates
+		if (values.isEmpty()) {
+			current.remove(key);
+			return;
+		}
+
+		V best = values.get(0);
+		for (V v : values) {
+			final Class<?> vc = v.getClass();
+			final Class<?> bc = best.getClass();
+			if (bc.isAssignableFrom(vc)) {
+				LOG.debug("{} is superclass of {}, preferring the latter", bc, vc);
+				best = v;
+			} else if (vc.isAssignableFrom(bc)) {
+				LOG.debug("{} is subclass of {}, preferring the former", bc, vc);
+			} else {
+				LOG.debug("{} and {} are not related, keeping the former", bc, vc);
+			}
+		}
+
+		LOG.debug("New best value {}", best);
+		current.put(key, best);
+	}
+
 	public synchronized AbstractRegistration register(final K key, final V value) {
-		// Put this value into candidates, then put it into the the current
-		// map, if it does not have a key -- this is to prevent unnecessary
-		// churn by replacing an already-present mapping.
 		candidates.put(key, value);
-		current.putIfAbsent(key, value);
+		updateCurrent(key);
 
 		final Object lock = this;
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
 				synchronized (lock) {
-					// The delete sequencing is a bit more complex, as we want
-					// to prevent churn and we do not want the user to see
-					// the current map without a mapping as long as a candidate
-					// exists. To achieve this, we remove the entry from
-					// candidates and then check if the list of candidates for
-					// this key has become empty. If it has, we just remove
-					// the mapping. If there are candidates, then attempt to
-					// replace it -- but only if it has pointed to the removed
-					// value in the first place.
 					candidates.remove(key, value);
-
-					final List<V> values = candidates.get(key);
-					if (values.isEmpty()) {
-						current.remove(key);
-					} else {
-						current.replace(key, value, values.get(0));
-					}
+					updateCurrent(key);
 				}
 			}
 		};
