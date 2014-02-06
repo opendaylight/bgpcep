@@ -234,6 +234,10 @@ module odl-pcep-ietf-stateful02 {
 		uses lsp-object;
 	}
 	
+	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:lspa/msg:tlvs" {
+		uses symbolic-path-name-tlv;
+	}
+	
 	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp" {
 		uses lsp-object;
 	}
