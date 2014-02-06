@@ -14,6 +14,8 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful02.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful02.PCEPLspaObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
@@ -27,8 +29,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
 public class PCEPObjectParserTest {
 
@@ -68,6 +74,37 @@ public class PCEPObjectParserTest {
 		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
 		// ByteArray.cutBytes(result, 4)));
 		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testLspaObjectWithTlv() throws IOException, PCEPDeserializerException {
+		final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin");
+
+		final LspaBuilder builder = new LspaBuilder();
+		builder.setIgnore(false);
+		builder.setProcessingRule(false);
+		builder.setIncludeAny(new AttributeFilter(0l));
+		builder.setExcludeAny(new AttributeFilter(0l));
+		builder.setIncludeAll(new AttributeFilter(0l));
+		builder.setSetupPriority((short) 0);
+		builder.setHoldPriority((short) 0);
+		builder.setLocalProtectionDesired(false);
+
+		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName(new byte[] {
+						(byte) 0x4d, (byte) 0x65, (byte) 0x64, (byte) 0x20, (byte) 0x74, (byte) 0x65, (byte) 0x73, (byte) 0x74,
+						(byte) 0x20, (byte) 0x6f, (byte) 0x66, (byte) 0x20, (byte) 0x73, (byte) 0x79, (byte) 0x6d, (byte) 0x62,
+						(byte) 0x6f, (byte) 0x6c, (byte) 0x69, (byte) 0x63, (byte) 0x20, (byte) 0x6e, (byte) 0x61, (byte) 0x6d, (byte) 0x65 })).build();
+
+		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder().addAugmentation(
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class,
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder().setSymbolicPathName(
+						tlv).build()).build());
+		// Tlvs container does not contain toString
+		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+		// ByteArray.cutBytes(result, 4)));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test

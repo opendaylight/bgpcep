@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.ReportedLsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.StatefulTlv1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.StatefulTlv1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.LspBuilder;
@@ -34,7 +35,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.UpdatesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
@@ -98,7 +102,8 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 		for (final Reports r : rpt.getReports()) {
 			final Lsp lsp = r.getLsp();
 
-			if (!lsp.isSync()) {
+			final PlspId id = lsp.getPlspId();
+			if (!lsp.isSync() && (id == null || id.getValue() == 0)) {
 				stateSynchronizationAchieved(trans);
 				continue;
 			}
@@ -107,19 +112,16 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 			rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder().setLsp(r.getLsp()).build());
 			boolean solicited = false;
 
-			final PlspId id = lsp.getPlspId();
 			if (id.getValue() != 0) {
 				solicited = true;
 
-				if (lsp.isOperational()) {
-					final PCEPRequest req = removeRequest(id);
-					if (req != null) {
-						LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.isOperational());
-						rlb.setMetadata(req.getMetadata());
-						req.setResult(OperationResults.SUCCESS);
-					} else {
-						LOG.warn("Request ID {} not found in outstanding DB", id);
-					}
+				final PCEPRequest req = removeRequest(id);
+				if (req != null) {
+					LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.isOperational());
+					rlb.setMetadata(req.getMetadata());
+					req.setResult(OperationResults.SUCCESS);
+				} else {
+					LOG.warn("Request ID {} not found in outstanding DB", id);
 				}
 			}
 
@@ -157,9 +159,16 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 			return OperationResults.UNSENT.future();
 		}
 
+		final SymbolicPathNameBuilder name = new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes()));
+
 		// Build the request
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.fieldsFrom(input.getArguments());
+		rb.setLspa(new LspaBuilder().setTlvs(
+				new TlvsBuilder().addAugmentation(
+						org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class,
+						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder().setSymbolicPathName(
+								name.build()).build()).build()).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
 		ib.setRequests(ImmutableList.of(rb.build()));
