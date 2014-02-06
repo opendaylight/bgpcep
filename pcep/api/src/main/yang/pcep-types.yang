@@ -492,6 +492,9 @@ module pcep-types {
 		container lspa {
 			uses object;
 			uses rsvp:tunnel-attributes;
+			container "tlvs" {
+			
+			}
 		}
 	}
 

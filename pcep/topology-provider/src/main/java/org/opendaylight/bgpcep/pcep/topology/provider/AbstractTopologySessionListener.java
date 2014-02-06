@@ -299,6 +299,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 				return;
 			}
 		}
+		LOG.debug("Saved LSP {} with name {}", id, name);
 		this.lsps.put(id, name);
 
 		Preconditions.checkState(name != null);
@@ -311,6 +312,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 			rlb.setMetadata(this.nodeState.getLspMetadata(name));
 		}
 
+		LOG.debug("Updating LSP to MD-SAL {}", rlb.build());
 		trans.putOperationalData(lspIdentifier(name).build(), rlb.build());
 	}
 
