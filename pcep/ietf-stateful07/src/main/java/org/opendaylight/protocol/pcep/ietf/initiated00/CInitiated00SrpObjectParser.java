@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Srp}
  */
-public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
+public final class CInitiated00SrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
 
 	public static final int CLASS = 33;
 
@@ -46,7 +46,7 @@ public final class PCEPSrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
 	private static final int REMOVE_FLAG = 31;
 
-	public PCEPSrpObjectParser(final TlvHandlerRegistry tlvReg) {
+	public CInitiated00SrpObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 

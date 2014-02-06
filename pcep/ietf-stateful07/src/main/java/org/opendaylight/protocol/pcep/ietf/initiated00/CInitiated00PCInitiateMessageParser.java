@@ -38,11 +38,11 @@ import com.google.common.collect.Lists;
 /**
  * Parser for {@link Pcinitiate}
  */
-public class PcinitiateMessageParser extends AbstractMessageParser {
+public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 12;
 
-	public PcinitiateMessageParser(final ObjectHandlerRegistry registry) {
+	public CInitiated00PCInitiateMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 

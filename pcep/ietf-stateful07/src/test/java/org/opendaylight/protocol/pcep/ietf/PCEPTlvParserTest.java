@@ -13,12 +13,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.ietf.stateful07.LSPIdentifierIpv4TlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.LSPIdentifierIpv6TlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.LspSymbolicNameTlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.LspUpdateErrorTlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.PCEStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful07.RSVPErrorSpecTlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LSPIdentifierIpv4TlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LSPIdentifierIpv6TlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspSymbolicNameTlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspUpdateErrorTlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07StatefulCapabilityTlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
@@ -74,7 +74,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testStatefulTlv() throws PCEPDeserializerException {
-		final PCEStatefulCapabilityTlvParser parser = new PCEStatefulCapabilityTlvParser();
+		final Stateful07StatefulCapabilityTlvParser parser = new Stateful07StatefulCapabilityTlvParser();
 		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
 		assertEquals(tlv, parser.parseTlv(statefulBytes));
 		assertArrayEquals(statefulBytes, parser.serializeTlv(tlv));
@@ -82,7 +82,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testSymbolicNameTlv() throws PCEPDeserializerException {
-		final LspSymbolicNameTlvParser parser = new LspSymbolicNameTlvParser();
+		final Stateful07LspSymbolicNameTlvParser parser = new Stateful07LspSymbolicNameTlvParser();
 		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName("Med test of symbolic name".getBytes())).build();
 		assertEquals(tlv, parser.parseTlv(symbolicNameBytes));
@@ -91,7 +91,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testLspErrorCodeTlv() throws PCEPDeserializerException {
-		final LspUpdateErrorTlvParser parser = new LspUpdateErrorTlvParser();
+		final Stateful07LspUpdateErrorTlvParser parser = new Stateful07LspUpdateErrorTlvParser();
 		final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
 		assertEquals(tlv, parser.parseTlv(lspUpdateErrorBytes));
 		assertArrayEquals(lspUpdateErrorBytes, parser.serializeTlv(tlv));
@@ -99,7 +99,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
-		final LSPIdentifierIpv4TlvParser parser = new LSPIdentifierIpv4TlvParser();
+		final Stateful07LSPIdentifierIpv4TlvParser parser = new Stateful07LSPIdentifierIpv4TlvParser();
 		final Ipv4Builder afi = new Ipv4Builder();
 		afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		afi.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56,
@@ -113,7 +113,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
-		final LSPIdentifierIpv6TlvParser parser = new LSPIdentifierIpv6TlvParser();
+		final Stateful07LSPIdentifierIpv6TlvParser parser = new Stateful07LSPIdentifierIpv6TlvParser();
 		final Ipv6Builder afi = new Ipv6Builder();
 		afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 				(byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0xF0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9A,
@@ -132,7 +132,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
-		final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
+		final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
 		final RsvpErrorBuilder builder = new RsvpErrorBuilder();
 		builder.setNode(new IpAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 })));
 		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
@@ -145,7 +145,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
-		final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
+		final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
 		final RsvpErrorBuilder builder = new RsvpErrorBuilder();
 		builder.setNode(new IpAddress(Ipv6Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78,
 				(byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x9a,
@@ -160,7 +160,7 @@ public class PCEPTlvParserTest {
 
 	@Test
 	public void testUserErrorSpecTlv() throws PCEPDeserializerException {
-		final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
+		final Stateful07RSVPErrorSpecTlvParser parser = new Stateful07RSVPErrorSpecTlvParser();
 		final UserErrorBuilder builder = new UserErrorBuilder();
 		builder.setEnterprise(new EnterpriseNumber(12345L));
 		builder.setSubOrg((short) 5);

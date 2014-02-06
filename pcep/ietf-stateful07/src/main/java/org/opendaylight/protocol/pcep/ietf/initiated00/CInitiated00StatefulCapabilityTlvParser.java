@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Stateful}
  */
-public final class PCEStatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
+public final class CInitiated00StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 16;
 

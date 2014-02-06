@@ -37,7 +37,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for {@link RsvpErrorSpec}
  */
-public final class RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
+public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 21;
 
