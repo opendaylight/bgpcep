@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link LspIdentifiers}
  */
-public class LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
+public class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 18;
 
@@ -73,7 +73,7 @@ public class LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 		final AddressFamily afi = lsp.getAddressFamily();
 
 		if (afi.getImplementedInterface().equals(Ipv6Case.class)) {
-			return new LSPIdentifierIpv6TlvParser().serializeTlv(tlv);
+			return new Stateful07LSPIdentifierIpv6TlvParser().serializeTlv(tlv);
 		}
 
 		final byte[] bytes = new byte[V4_LENGTH];
