@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import java.util.BitSet;
 
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
@@ -18,41 +18,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 /**
  * Parser for {@link Lsp}
  */
-public class CInitiated00LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public final class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
 
-	public static final int CLASS = 32;
-
-	public static final int TYPE = 1;
-
-	/*
-	 * offset of TLVs offset of other fields are not defined as constants
-	 * because of non-standard mapping of bits
-	 */
-	private static final int TLVS_OFFSET = 4;
-
-	/*
-	 * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
-	 */
-	private static final int DELEGATE_FLAG_OFFSET = 15;
-	private static final int SYNC_FLAG_OFFSET = 14;
-	private static final int REMOVE_FLAG_OFFSET = 13;
-	private static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
-	private static final int OPERATIONAL_OFFSET = 9;
 	private static final int CREATE_FLAG_OFFSET = 8;
 
 	public CInitiated00LspObjectParser(final TlvHandlerRegistry tlvReg) {
@@ -85,19 +61,6 @@ public class CInitiated00LspObjectParser extends AbstractObjectWithTlvsParser<Tl
 		parseTlvs(b, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		builder.setTlvs(b.build());
 		return builder.build();
-	}
-
-	@Override
-	public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-		if (tlv instanceof LspErrorCode) {
-			builder.setLspErrorCode((LspErrorCode) tlv);
-		} else if (tlv instanceof LspIdentifiers) {
-			builder.setLspIdentifiers((LspIdentifiers) tlv);
-		} else if (tlv instanceof RsvpErrorSpec) {
-			builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
-		} else if (tlv instanceof SymbolicPathName) {
-			builder.setSymbolicPathName((SymbolicPathName) tlv);
-		}
 	}
 
 	@Override
@@ -135,61 +98,5 @@ public class CInitiated00LspObjectParser extends AbstractObjectWithTlvsParser<Tl
 		}
 		ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
-	}
-
-	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs == null) {
-			return new byte[0];
-		}
-		int finalLength = 0;
-		byte[] lspErrBytes = null;
-		byte[] lspIdBytes = null;
-		byte[] rsvpErrBytes = null;
-		byte[] symbBytes = null;
-		if (tlvs.getLspErrorCode() != null) {
-			lspErrBytes = serializeTlv(tlvs.getLspErrorCode());
-			finalLength += lspErrBytes.length;
-		}
-		if (tlvs.getLspIdentifiers() != null) {
-			lspIdBytes = serializeTlv(tlvs.getLspIdentifiers());
-			finalLength += lspIdBytes.length;
-		}
-		if (tlvs.getRsvpErrorSpec() != null) {
-			rsvpErrBytes = serializeTlv(tlvs.getRsvpErrorSpec());
-			finalLength += rsvpErrBytes.length;
-		}
-		if (tlvs.getSymbolicPathName() != null) {
-			symbBytes = serializeTlv(tlvs.getSymbolicPathName());
-			finalLength += symbBytes.length;
-		}
-		int offset = 0;
-		final byte[] result = new byte[finalLength];
-		if (lspErrBytes != null) {
-			ByteArray.copyWhole(lspErrBytes, result, offset);
-			offset += lspErrBytes.length;
-		}
-		if (lspIdBytes != null) {
-			ByteArray.copyWhole(lspIdBytes, result, offset);
-			offset += lspIdBytes.length;
-		}
-		if (rsvpErrBytes != null) {
-			ByteArray.copyWhole(rsvpErrBytes, result, offset);
-			offset += rsvpErrBytes.length;
-		}
-		if (symbBytes != null) {
-			ByteArray.copyWhole(symbBytes, result, offset);
-			offset += symbBytes.length;
-		}
-		return result;
-	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
 	}
 }

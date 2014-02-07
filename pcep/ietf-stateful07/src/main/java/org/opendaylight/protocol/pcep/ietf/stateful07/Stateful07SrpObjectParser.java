@@ -27,19 +27,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Srp}
  */
-public final class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
+public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
 
 	public static final int CLASS = 33;
 
 	public static final int TYPE = 1;
 
-	private static final int FLAGS_SIZE = 4;
+	protected static final int FLAGS_SIZE = 4;
 
-	private static final int SRP_ID_SIZE = 4;
+	protected static final int SRP_ID_SIZE = 4;
 
-	private static final int TLVS_OFFSET = FLAGS_SIZE + SRP_ID_SIZE;
+	protected static final int TLVS_OFFSET = FLAGS_SIZE + SRP_ID_SIZE;
 
-	private static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
+	protected static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
 	public Stateful07SrpObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);

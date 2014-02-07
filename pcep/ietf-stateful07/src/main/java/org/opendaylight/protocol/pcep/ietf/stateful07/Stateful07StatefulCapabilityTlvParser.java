@@ -20,13 +20,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Stateful}
  */
-public final class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
+public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 16;
 
-	private static final int FLAGS_F_LENGTH = 4;
+	protected static final int FLAGS_F_LENGTH = 4;
 
-	private static final int U_FLAG_OFFSET = 31;
+	protected static final int U_FLAG_OFFSET = 31;
 
 	@Override
 	public Stateful parseTlv(final byte[] buffer) throws PCEPDeserializerException {
