@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 /**
  * Parser for {@link LspIdentifiers}
  */
-public class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
+public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 18;
 

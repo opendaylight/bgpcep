@@ -43,16 +43,16 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 	 * offset of TLVs offset of other fields are not defined as constants
 	 * because of non-standard mapping of bits
 	 */
-	private static final int TLVS_OFFSET = 4;
+	protected static final int TLVS_OFFSET = 4;
 
 	/*
 	 * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
 	 */
-	private static final int DELEGATE_FLAG_OFFSET = 15;
-	private static final int SYNC_FLAG_OFFSET = 14;
-	private static final int REMOVE_FLAG_OFFSET = 13;
-	private static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
-	private static final int OPERATIONAL_OFFSET = 9;
+	protected static final int DELEGATE_FLAG_OFFSET = 15;
+	protected static final int SYNC_FLAG_OFFSET = 14;
+	protected static final int REMOVE_FLAG_OFFSET = 13;
+	protected static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
+	protected static final int OPERATIONAL_OFFSET = 9;
 
 	public Stateful07LspObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);

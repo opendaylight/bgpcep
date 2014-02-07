@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
 /**
  * Parser for {@link Pcrpt}
  */
-public class Stateful07PCReportMessageParser extends AbstractMessageParser {
+public final class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 10;
 

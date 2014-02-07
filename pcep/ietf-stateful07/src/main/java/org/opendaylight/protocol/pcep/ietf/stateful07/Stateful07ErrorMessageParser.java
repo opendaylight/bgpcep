@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -43,9 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link PcerrMessage}
  */
-public class Stateful07ErrorMessageParser extends AbstractMessageParser {
-
-	public static final int TYPE = 6;
+public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
 
 	public Stateful07ErrorMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
@@ -201,10 +199,5 @@ public class Stateful07ErrorMessageParser extends AbstractMessageParser {
 
 	private enum State {
 		Init, ErrorIn, RpIn, SrpIn, Open, Error, OpenIn, End
-	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
 	}
 }
