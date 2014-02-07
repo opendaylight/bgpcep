@@ -148,12 +148,12 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	}
 
 	@Override
-	public int getObjectType() {
+	public final int getObjectType() {
 		return TYPE;
 	}
 
 	@Override
-	public int getObjectClass() {
+	public final int getObjectClass() {
 		return CLASS;
 	}
 }

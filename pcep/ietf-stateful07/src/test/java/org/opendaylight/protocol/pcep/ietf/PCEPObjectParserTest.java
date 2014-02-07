@@ -30,6 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
@@ -41,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
@@ -69,11 +72,11 @@ public class PCEPObjectParserTest {
 
 		final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
 
-		final Tlvs2Builder statBuilder = new Tlvs2Builder();
+		final Tlvs1Builder statBuilder = new Tlvs1Builder();
 		statBuilder.setStateful(tlv1);
 
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-				Tlvs2.class, statBuilder.build()).build());
+				Tlvs1.class, statBuilder.build()).build());
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
@@ -110,16 +113,28 @@ public class PCEPObjectParserTest {
 		final LspaBuilder builder = new LspaBuilder();
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin");
 
-		builder.setIgnore(true);
-		builder.setProcessingRule(true);
+		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName(new byte[] {
+						(byte) 0x4d, (byte) 0x65, (byte) 0x64, (byte) 0x20, (byte) 0x74, (byte) 0x65, (byte) 0x73, (byte) 0x74,
+						(byte) 0x20, (byte) 0x6f, (byte) 0x66, (byte) 0x20, (byte) 0x73, (byte) 0x79, (byte) 0x6d, (byte) 0x62,
+						(byte) 0x6f, (byte) 0x6c, (byte) 0x69, (byte) 0x63, (byte) 0x20, (byte) 0x6e, (byte) 0x61, (byte) 0x6d, (byte) 0x65 })).build();
+
+		builder.setIgnore(false);
+		builder.setProcessingRule(false);
 		builder.setExcludeAny(new AttributeFilter(0x20A1FEE3L));
 		builder.setIncludeAny(new AttributeFilter(0x1A025CC7L));
 		builder.setIncludeAll(new AttributeFilter(0x2BB66532L));
 		builder.setHoldPriority((short) 0x02);
 		builder.setSetupPriority((short) 0x03);
 		builder.setLocalProtectionDesired(true);
+		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder().addAugmentation(
+				Tlvs2.class, new Tlvs2Builder().setSymbolicPathName(tlv).build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
+		// Tlvs container does not contain toString
+		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4));
+		assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs2.class).getSymbolicPathName());
+		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
+		// 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
