@@ -35,29 +35,28 @@ import com.google.common.net.InetAddresses;
 /**
  *
  */
-public final class PCEPTopologyProviderModule extends org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule
-{
+public final class PCEPTopologyProviderModule extends
+		org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderModule.class);
 
-	public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+	public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
 		super(identifier, dependencyResolver);
 	}
 
-	public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final PCEPTopologyProviderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+	public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final PCEPTopologyProviderModule oldModule,
+			final java.lang.AutoCloseable oldInstance) {
 		super(identifier, dependencyResolver, oldModule, oldInstance);
 	}
 
 	@Override
-	public void validate(){
+	public void validate() {
 		super.validate();
-		JmxAttributeValidationException.checkNotNull(getTopologyId(),
-				"is not set.", topologyIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getListenAddress(),
-				"is not set.", listenAddressJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getListenPort(),
-				"is not set.", listenPortJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(),
-				"is not set.", statefulPluginJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", this.topologyIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenAddress(), "is not set.", this.listenAddressJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenPort(), "is not set.", this.listenPortJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), "is not set.", this.statefulPluginJmxAttribute);
 	}
 
 	private InetAddress listenAddress() {
@@ -73,12 +72,12 @@ public final class PCEPTopologyProviderModule extends org.opendaylight.controlle
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final InstanceIdentifier<Topology> topology =
-				InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(getTopologyId())).toInstance();
+		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+				new TopologyKey(getTopologyId())).toInstance();
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
 		try {
-			return PCEPTopologyProvider.create(getDispatcherDependency(), address,
-					getSchedulerDependency(), getDataProviderDependency(), getRpcRegistryDependency(), topology, getStatefulPluginDependency());
+			return PCEPTopologyProvider.create(getDispatcherDependency(), address, getSchedulerDependency(), getDataProviderDependency(),
+					getRpcRegistryDependency(), topology, getStatefulPluginDependency());
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
 			throw new RuntimeException("Failed to instantiate provider", e);

@@ -342,18 +342,18 @@
             <version>${url.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>equinoxSDK381</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <version>3.8.1.v20120830-144521</version>
             <scope>test</scope>
-        </dependency>
-        <!--dependency>
+        </dependency-->
+        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
             <version>4.2.1</version>
             <scope>test</scope>
-        </dependency-->
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
