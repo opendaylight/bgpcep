@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00PCInitiateMessageParser;
+import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
@@ -50,8 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
@@ -223,6 +223,7 @@ public class PCEPValidatorTest {
 		lspaBuilder.setExcludeAny(new AttributeFilter(0L));
 		lspaBuilder.setIncludeAll(new AttributeFilter(0L));
 		lspaBuilder.setIncludeAny(new AttributeFilter(0L));
+		lspaBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder().build());
 		this.lspa = lspaBuilder.build();
 
 		final BandwidthBuilder bBuilder = new BandwidthBuilder();
@@ -336,7 +337,7 @@ public class PCEPValidatorTest {
 			b.setSessionId((short) 1);
 			final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
 			b.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-					Tlvs2.class, new Tlvs2Builder().setStateful(tlv1).build()).build());
+					Tlvs1.class, new Tlvs1Builder().setStateful(tlv1).build()).build());
 			builder.setOpen(b.build());
 
 			assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(),

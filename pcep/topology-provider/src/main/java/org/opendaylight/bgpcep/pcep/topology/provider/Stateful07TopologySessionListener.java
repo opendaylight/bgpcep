@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.StatefulTlv1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.StatefulTlv1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
@@ -80,13 +80,13 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		final InetAddress peerAddress = session.getRemoteAddress();
 
 		final Tlvs tlvs = session.getRemoteTlvs();
-		final Tlvs2 tlv = tlvs.getAugmentation(Tlvs2.class);
-		if (tlv != null) {
-			final Stateful stateful = tlv.getStateful();
+		if (tlvs != null && tlvs.getAugmentation(Tlvs1.class) != null) {
+			final Stateful stateful = tlvs.getAugmentation(Tlvs1.class).getStateful();
 			if (stateful != null) {
 				pccBuilder.setReportedLsp(Collections.<ReportedLsp> emptyList());
 				pccBuilder.setStateSync(PccSyncState.InitialResync);
-				pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class, new StatefulTlv1Builder(tlv).build()).build());
+				pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(StatefulTlv1.class,
+						new StatefulTlv1Builder(tlvs.getAugmentation(Tlvs1.class)).build()).build());
 			} else {
 				LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
 			}
@@ -181,7 +181,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.fieldsFrom(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setPlspId(new PlspId(0L)).setTlvs(
+		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setPlspId(
+				new PlspId(0L)).setTlvs(
 				new TlvsBuilder().setSymbolicPathName(
 						new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
 
