@@ -13,8 +13,8 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.ietf.stateful02.PCEPOpenObjectParser;
-import org.opendaylight.protocol.pcep.ietf.stateful02.PCEPLspaObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02OpenObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspaObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
@@ -47,7 +47,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
-		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
+		final Stateful02OpenObjectParser parser = new Stateful02OpenObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
 
 		final OpenBuilder builder = new OpenBuilder();
@@ -78,7 +78,7 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testLspaObjectWithTlv() throws IOException, PCEPDeserializerException {
-		final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+		final Stateful02LspaObjectParser parser = new Stateful02LspaObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin");
 
 		final LspaBuilder builder = new LspaBuilder();

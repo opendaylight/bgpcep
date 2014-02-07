@@ -15,92 +15,93 @@ import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcrpt;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcrptBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcupd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.PcrptMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.pcrpt.message.Reports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.pcrpt.message.ReportsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.pcrpt.message.reports.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcrpt.message.pcrpt.message.reports.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.PcupdMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.Updates;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.UpdatesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 
 import com.google.common.collect.Lists;
 
 /**
- * Parser for {@link Pcrpt}
+ * Parser for {@link Pcupd}
  */
-public class PCEPReportMessageParser extends AbstractMessageParser {
+public class Stateful02PCUpdateRequestMessageParser extends AbstractMessageParser {
 
-	public static final int TYPE = 10;
+	public static final int TYPE = 11;
 
-	public PCEPReportMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful02PCUpdateRequestMessageParser(final ObjectHandlerRegistry registry) {
 		super(registry);
 	}
 
 	@Override
 	public void serializeMessage(final Message message, final ByteBuf buffer) {
-		if (!(message instanceof Pcrpt)) {
-			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-					+ ". Nedded PcrptMessage.");
+		if (!(message instanceof Pcupd)) {
+			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
+					+ ". Nedded PcupdMessage.");
 		}
-		final Pcrpt msg = (Pcrpt) message;
-		final List<Reports> reports = msg.getPcrptMessage().getReports();
-		for (final Reports report : reports) {
-			buffer.writeBytes(serializeObject(report.getLsp()));
-			final Path p = report.getPath();
+		final Pcupd msg = (Pcupd) message;
+		final List<Updates> updates = msg.getPcupdMessage().getUpdates();
+		for (final Updates update : updates) {
+			buffer.writeBytes(serializeObject(update.getLsp()));
+			final Path p = update.getPath();
 			if (p != null) {
-				if (p.getEro() != null) {
-					buffer.writeBytes(serializeObject(p.getEro()));
-				}
+				buffer.writeBytes(serializeObject(p.getEro()));
 				if (p.getLspa() != null) {
 					buffer.writeBytes(serializeObject(p.getLspa()));
 				}
 				if (p.getBandwidth() != null) {
 					buffer.writeBytes(serializeObject(p.getBandwidth()));
 				}
-				if (p.getRro() != null) {
-					buffer.writeBytes(serializeObject(p.getRro()));
-				}
 				if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
 					for (final Metrics m : p.getMetrics()) {
 						buffer.writeBytes(serializeObject(m.getMetric()));
 					}
+				}
+				if (p.getIro() != null) {
+					buffer.writeBytes(serializeObject(p.getIro()));
 				}
 			}
 		}
 	}
 
 	@Override
-	public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+	protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
 		if (objects == null) {
 			throw new IllegalArgumentException("Passed list can't be null.");
 		}
 		if (objects.isEmpty()) {
-			throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
+			throw new PCEPDeserializerException("Pcup message cannot be empty.");
 		}
 
-		final List<Reports> reports = Lists.newArrayList();
+		final List<Updates> updateRequests = Lists.newArrayList();
 
 		while (!objects.isEmpty()) {
-			final Reports report = getValidReports(objects, errors);
-			if (reports != null) {
-				reports.add(report);
+			final Updates update = getValidUpdates(objects, errors);
+			if (update != null) {
+				updateRequests.add(update);
 			}
 		}
-		return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
+		if (!objects.isEmpty()) {
+			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+		}
+		return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
 	}
 
-	private Reports getValidReports(final List<Object> objects, final List<Message> errors) {
-		final ReportsBuilder builder = new ReportsBuilder();
+	private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+		final UpdatesBuilder builder = new UpdatesBuilder();
 		if (objects.get(0) instanceof Lsp) {
 			builder.setLsp((Lsp) objects.get(0));
 			objects.remove(0);
@@ -110,13 +111,20 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 		}
 		if (!objects.isEmpty()) {
 			final PathBuilder pBuilder = new PathBuilder();
+			if (objects.get(0) instanceof Ero) {
+				pBuilder.setEro((Ero) objects.get(0));
+				objects.remove(0);
+			} else {
+				errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+				return null;
+			}
 			parsePath(objects, pBuilder);
 			builder.setPath(pBuilder.build());
 		}
 		return builder.build();
 	}
 
-	private void parsePath(final List<Object> objects, final PathBuilder builder) {
+	private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 		Object obj;
 		State state = State.Init;
@@ -124,37 +132,31 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 			obj = objects.get(0);
 			switch (state) {
 			case Init:
-				state = State.EroIn;
-				if (obj instanceof Ero) {
-					builder.setEro((Ero) obj);
-					break;
-				}
-			case EroIn:
 				state = State.LspaIn;
 				if (obj instanceof Lspa) {
-					builder.setLspa((Lspa) obj);
+					pBuilder.setLspa((Lspa) obj);
 					break;
 				}
 			case LspaIn:
 				state = State.BandwidthIn;
 				if (obj instanceof Bandwidth) {
-					builder.setBandwidth((Bandwidth) obj);
+					pBuilder.setBandwidth((Bandwidth) obj);
 					break;
 				}
 			case BandwidthIn:
-				state = State.RroIn;
-				if (obj instanceof Rro) {
-					builder.setRro((Rro) obj);
-					break;
-				}
-			case RroIn:
 				state = State.MetricIn;
 				if (obj instanceof Metric) {
 					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.RroIn;
+					state = State.BandwidthIn;
 					break;
 				}
 			case MetricIn:
+				state = State.IroIn;
+				if (obj instanceof Iro) {
+					pBuilder.setIro((Iro) obj);
+					break;
+				}
+			case IroIn:
 				state = State.End;
 				break;
 			case End:
@@ -165,12 +167,12 @@ public class PCEPReportMessageParser extends AbstractMessageParser {
 			}
 		}
 		if (!pathMetrics.isEmpty()) {
-			builder.setMetrics(pathMetrics);
+			pBuilder.setMetrics(pathMetrics);
 		}
 	}
 
 	private enum State {
-		Init, EroIn, LspaIn, BandwidthIn, RroIn, MetricIn, End
+		Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
 	}
 
 	@Override

@@ -30,7 +30,7 @@ import com.google.common.primitives.UnsignedBytes;
 /**
  * Parser for {@link Lspa}
  */
-public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public class Stateful02LspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
 	public static final int CLASS = 9;
 
@@ -62,7 +62,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	private static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
 	private static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1;
 
-	public PCEPLspaObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful02LspaObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 

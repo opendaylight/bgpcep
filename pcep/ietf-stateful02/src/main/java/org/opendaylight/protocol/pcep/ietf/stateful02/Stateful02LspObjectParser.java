@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Lsp}
  */
-public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
 	public static final int CLASS = 32;
 
@@ -49,7 +49,7 @@ public class PCEPLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilde
 	private static final int REMOVE_FLAG_OFFSET = 12;
 	private static final int OPERATIONAL_FLAG_OFFSET = 13;
 
-	public PCEPLspObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful02LspObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
 	}
 
