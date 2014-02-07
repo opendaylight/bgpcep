@@ -9,9 +9,8 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvParser;
-import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
@@ -22,14 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Stateful}
  */
-public final class CInitiated00StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
-
-	public static final int TYPE = 16;
-
-	private static final int FLAGS_F_LENGTH = 4;
+public final class CInitiated00StatefulCapabilityTlvParser extends Stateful07StatefulCapabilityTlvParser {
 
 	private static final int I_FLAG_OFFSET = 29;
-	private static final int U_FLAG_OFFSET = 31;
 
 	@Override
 	public Stateful parseTlv(final byte[] buffer) throws PCEPDeserializerException {
@@ -66,10 +60,5 @@ public final class CInitiated00StatefulCapabilityTlvParser implements TlvParser,
 		}
 		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
 		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
-	}
-
-	@Override
-	public int getType() {
-		return TYPE;
 	}
 }
