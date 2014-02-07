@@ -116,7 +116,7 @@ public class PCEPObjectParserTest {
 	}
 
 	@Test
-	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
+	public void testOpenObjectWOTLV() throws PCEPDeserializerException, IOException {
 		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
 		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
 
@@ -355,6 +355,7 @@ public class PCEPObjectParserTest {
 		builder.setHoldPriority((short) 0);
 		builder.setSetupPriority((short) 0);
 		builder.setLocalProtectionDesired(false);
+		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder().build());
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));

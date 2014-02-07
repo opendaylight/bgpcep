@@ -309,6 +309,14 @@ module odl-pcep-ietf-stateful07 {
 			}
 		}
 	}
+	
+	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:lspa/msg:tlvs" {
+		uses symbolic-path-name-tlv;
+	}
+	
+	augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:lspa/msg:tlvs" {
+		uses symbolic-path-name-tlv;
+	}
 
 	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp" {
 		uses lsp-object;
