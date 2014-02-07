@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link SymbolicPathName}
  */
-public class LspSymbolicNameTlvParser implements TlvParser, TlvSerializer {
+public class Stateful02LspSymbolicNameTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 17;
 
