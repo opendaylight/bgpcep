@@ -135,7 +135,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
 	}
 
-	private Replies getValidReply(final List<Object> objects, final List<Message> errors) {
+	protected Replies getValidReply(final List<Object> objects, final List<Message> errors) {
 		if (!(objects.get(0) instanceof Rp)) {
 			errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
 			return null;
@@ -171,7 +171,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		return new RepliesBuilder().setRp(rp).setResult(res).build();
 	}
 
-	private void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
+	protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 
 		Object obj;
@@ -218,7 +218,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		builder.setMetrics(pathMetrics);
 	}
 
-	private void parsePath(final PathsBuilder builder, final List<Object> objects) {
+	protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
 		final List<Metrics> pathMetrics = Lists.newArrayList();
 
 		Object obj;

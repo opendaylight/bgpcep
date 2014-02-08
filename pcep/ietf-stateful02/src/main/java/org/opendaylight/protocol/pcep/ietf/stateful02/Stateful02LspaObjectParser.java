@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Lspa}
  */
-public class Stateful02LspaObjectParser extends PCEPLspaObjectParser {
+public final class Stateful02LspaObjectParser extends PCEPLspaObjectParser {
 
 	public Stateful02LspaObjectParser(final TlvHandlerRegistry tlvReg) {
 		super(tlvReg);
