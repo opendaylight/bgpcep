@@ -72,10 +72,8 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
 				Tlvs2.class, statBuilder.build()).addAugmentation(Tlvs1.class, cleanupBuilder.build()).build());
 
-		// FIXME: fix inititated stateful
-		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
-		// ByteArray.cutBytes(result, 4)));
-		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 
 	@Test

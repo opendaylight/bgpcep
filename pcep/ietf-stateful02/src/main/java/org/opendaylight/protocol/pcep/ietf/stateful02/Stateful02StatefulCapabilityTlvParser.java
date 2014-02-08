@@ -17,14 +17,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
-public final class Stateful02StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
+public class Stateful02StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 16;
 
-	private static final int FLAGS_F_LENGTH = 4;
+	protected static final int FLAGS_F_LENGTH = 4;
 
-	private static final int S_FLAG_OFFSET = 30;
-	private static final int U_FLAG_OFFSET = 31;
+	protected static final int S_FLAG_OFFSET = 30;
+	protected static final int U_FLAG_OFFSET = 31;
 
 	@Override
 	public Stateful parseTlv(final byte[] buffer) throws PCEPDeserializerException {

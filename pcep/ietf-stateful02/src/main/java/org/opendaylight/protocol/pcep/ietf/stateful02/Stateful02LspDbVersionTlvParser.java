@@ -22,7 +22,7 @@ import com.google.common.primitives.UnsignedLong;
 /**
  * Parser for {@link LspDbVersion}
  */
-public class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSerializer {
+public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
 	public static final int TYPE = 23;
 

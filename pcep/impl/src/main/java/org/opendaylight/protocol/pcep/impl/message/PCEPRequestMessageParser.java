@@ -105,7 +105,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		}
 	}
 
-	private void serializeP2P(final ByteBuf buffer, final P2p p2p) {
+	protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
 		if (p2p.getEndpointsObj() != null) {
 			buffer.writeBytes(serializeObject(p2p.getEndpointsObj()));
 		}
@@ -224,7 +224,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
 	}
 
-	private SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
+	protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
 			final Rp rp) {
 		final List<Metrics> metrics = Lists.newArrayList();
 
