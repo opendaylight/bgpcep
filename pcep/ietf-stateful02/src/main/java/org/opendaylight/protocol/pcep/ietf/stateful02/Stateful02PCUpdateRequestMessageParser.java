@@ -38,7 +38,7 @@ import com.google.common.collect.Lists;
 /**
  * Parser for {@link Pcupd}
  */
-public class Stateful02PCUpdateRequestMessageParser extends AbstractMessageParser {
+public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 11;
 
