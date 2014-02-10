@@ -114,6 +114,14 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 			rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder(r).build());
 			boolean solicited = false;
 
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
+			final String name;
+			if (tlvs != null && tlvs.getSymbolicPathName() != null) {
+				name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
+			} else {
+				name = null;
+			}
+
 			final Srp srp = r.getSrp();
 			if (srp != null) {
 				final SrpIdNumber id = srp.getOperationId();
@@ -124,7 +132,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 					case Active:
 					case Down:
 					case Up:
-						final PCEPRequest req = removeRequest(id);
+						final PCEPRequest req = removeRequest(name);
 						if (req != null) {
 							LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
 							rlb.setMetadata(req.getMetadata());
@@ -144,14 +152,6 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
 			final PlspId id = lsp.getPlspId();
 			if (!lsp.isRemove()) {
-				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
-				final String name;
-				if (tlvs != null && tlvs.getSymbolicPathName() != null) {
-					name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
-				} else {
-					name = null;
-				}
-
 				updateLsp(trans, id, name, rlb, solicited);
 				LOG.debug("LSP {} updated", lsp);
 			} else {
@@ -190,7 +190,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		ib.setRequests(ImmutableList.of(rb.build()));
 
 		// Send the message
-		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
+		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), input.getName(),
 				input.getArguments().getMetadata());
 	}
 
@@ -214,7 +214,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
 		ib.setRequests(ImmutableList.of(rb.build()));
-		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
+		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rep.getName(), null);
 	}
 
 	@Override
@@ -239,8 +239,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ub.setUpdates(ImmutableList.of(rb.build()));
-		return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
-				input.getArguments().getMetadata());
+		return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rep.getName(), input.getArguments().getMetadata());
 	}
 
 	@Override
