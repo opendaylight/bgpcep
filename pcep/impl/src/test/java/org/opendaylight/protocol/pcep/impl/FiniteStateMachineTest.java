@@ -22,6 +22,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.List;
@@ -96,6 +97,8 @@ public class FiniteStateMachineTest {
 		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
 		doReturn(true).when(this.clientListener).isActive();
 		doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
+		doReturn(InetSocketAddress.createUnresolved("127.0.0.1", 4189)).when(this.clientListener).remoteAddress();
+		doReturn(InetSocketAddress.createUnresolved("127.0.0.1", 4189)).when(this.clientListener).localAddress();
 		this.openmsg = new OpenBuilder().setOpenMessage(
 				new OpenMessageBuilder().setOpen(
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setDeadTimer(
@@ -149,9 +152,9 @@ public class FiniteStateMachineTest {
 								new SessionBuilder().setOpen(
 										new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
 												(short) 1).build()).build()).build()).setErrors(
-														Arrays.asList(new ErrorsBuilder().setErrorObject(
-																new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
-																		maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+						Arrays.asList(new ErrorsBuilder().setErrorObject(
+								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
+										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 
 	/**
