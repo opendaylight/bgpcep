@@ -73,8 +73,8 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	// FIXME: make this private
 	protected final ServerSessionManager serverSessionManager;
 
-	private final Map<SRPID, PCEPRequest> waitingRequests = new HashMap<>();
-	private final Map<SRPID, PCEPRequest> sendingRequests = new HashMap<>();
+	private final Map<String, PCEPRequest> waitingRequests = new HashMap<>();
+	private final Map<String, PCEPRequest> sendingRequests = new HashMap<>();
 	private final Map<PLSPID, String> lsps = new HashMap<>();
 	private InstanceIdentifier<Node> topologyNode;
 	private InstanceIdentifier<Node1> topologyAugment;
@@ -198,14 +198,14 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		});
 
 		// Clear all requests which have not been sent to the peer: they result in cancellation
-		for (final Entry<SRPID, PCEPRequest> e : this.sendingRequests.entrySet()) {
+		for (final Entry<String, PCEPRequest> e : this.sendingRequests.entrySet()) {
 			LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
 			e.getValue().setResult(OperationResults.UNSENT);
 		}
 		this.sendingRequests.clear();
 
 		// CLear all requests which have not been acked by the peer: they result in failure
-		for (final Entry<SRPID, PCEPRequest> e : this.waitingRequests.entrySet()) {
+		for (final Entry<String, PCEPRequest> e : this.waitingRequests.entrySet()) {
 			LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
 			e.getValue().setResult(OperationResults.NOACK);
 		}
@@ -258,11 +258,11 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class);
 	}
 
-	protected final synchronized PCEPRequest removeRequest(final SRPID id) {
+	protected final synchronized PCEPRequest removeRequest(final String id) {
 		return this.waitingRequests.remove(id);
 	}
 
-	private synchronized void messageSendingComplete(final SRPID requestId, final io.netty.util.concurrent.Future<Void> future) {
+	private synchronized void messageSendingComplete(final String requestId, final io.netty.util.concurrent.Future<Void> future) {
 		final PCEPRequest req = this.sendingRequests.remove(requestId);
 
 		if (future.isSuccess()) {
@@ -273,7 +273,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		}
 	}
 
-	protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SRPID requestId,
+	protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final String requestId,
 			final Metadata metadata) {
 		final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 		final PCEPRequest req = new PCEPRequest(metadata);
