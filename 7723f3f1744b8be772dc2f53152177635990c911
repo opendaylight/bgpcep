@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da6255ed_7811ff50",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful02TopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-02-11T14:49:09Z",
+      "side": 1,
+      "message": "Here\u0027s another thing we can do: if we have PlspId, then we should try and look up the tunnel name in our map, as once the LSP is reported the SymbolicPathName TLV is optional.",
+      "revId": "7723f3f1744b8be772dc2f53152177635990c911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
