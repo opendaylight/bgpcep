@@ -350,4 +350,11 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	abstract protected void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
 
 	abstract protected boolean onMessage(DataModificationTransaction trans, Message message);
+
+	protected String lookupLspName(final PLSPID id) {
+		if (id == null) {
+			throw new IllegalArgumentException("ID parameter null.");
+		}
+		return this.lsps.get(id);
+	}
 }
