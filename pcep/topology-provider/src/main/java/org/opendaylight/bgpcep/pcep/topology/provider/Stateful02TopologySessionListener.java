@@ -59,7 +59,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public class Stateful02TopologySessionListener extends AbstractTopologySessionListener<PlspId, PlspId> {
+public class Stateful02TopologySessionListener extends AbstractTopologySessionListener<String, PlspId> {
 	private static final Logger LOG = LoggerFactory.getLogger(Stateful02TopologySessionListener.class);
 
 	/**
@@ -108,6 +108,14 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 				continue;
 			}
 
+			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
+			final String name;
+			if (tlvs != null && tlvs.getSymbolicPathName() != null) {
+				name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
+			} else {
+				name = lookupLspName(id);
+			}
+
 			final ReportedLspBuilder rlb = new ReportedLspBuilder();
 			rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder().setLsp(r.getLsp()).build());
 			boolean solicited = false;
@@ -115,7 +123,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 			if (id.getValue() != 0) {
 				solicited = true;
 
-				final PCEPRequest req = removeRequest(id);
+				final PCEPRequest req = removeRequest(name);
 				if (req != null) {
 					LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.isOperational());
 					rlb.setMetadata(req.getMetadata());
@@ -126,14 +134,6 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 			}
 
 			if (!lsp.isRemove()) {
-				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
-				final String name;
-				if (tlvs != null && tlvs.getSymbolicPathName() != null) {
-					name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
-				} else {
-					name = null;
-				}
-
 				updateLsp(trans, id, name, rlb, solicited);
 				LOG.debug("LSP {} updated", lsp);
 			} else {
@@ -174,7 +174,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 		ib.setRequests(ImmutableList.of(rb.build()));
 
 		// Send the message
-		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), new PlspId(0L),
+		return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), input.getName(),
 				input.getArguments().getMetadata());
 	}
 
@@ -197,7 +197,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		final PcupdMessageBuilder ib = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ib.setUpdates(ImmutableList.of(rb.build()));
-		return sendMessage(new PcupdBuilder().setPcupdMessage(ib.build()).build(), ra.getLsp().getPlspId(), null);
+		return sendMessage(new PcupdBuilder().setPcupdMessage(ib.build()).build(), rep.getName(), null);
 	}
 
 	@Override
@@ -221,8 +221,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ub.setUpdates(ImmutableList.of(rb.build()));
-		return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), ra.getLsp().getPlspId(),
-				input.getArguments().getMetadata());
+		return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rep.getName(), input.getArguments().getMetadata());
 	}
 
 	@Override
