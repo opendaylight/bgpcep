@@ -67,7 +67,7 @@
 
         <!-- Controller artifacts -->
         <controller.config.version>0.2.4-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.4.1-SNAPSHOT</controller.framework.version>
+        <controller.framework.version>0.5.0-SNAPSHOT</controller.framework.version>
         <controller.mdsal.version>1.1-SNAPSHOT</controller.mdsal.version>
     </properties>
 
