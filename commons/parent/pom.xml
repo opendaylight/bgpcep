@@ -104,14 +104,15 @@
                 <version>${yangtools.version}</version>
                 <scope>test</scope>
             </dependency>
+            
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- Supporting Libraries -->
+            
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -199,8 +200,7 @@
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-broker-impl</artifactId>
                 <version>${controller.mdsal.version}</version>
-                <scope>test</scope>
-            </dependency>
+                </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-util</artifactId>
@@ -210,7 +210,6 @@
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-broker-impl</artifactId>
                 <version>${controller.mdsal.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- Models -->
