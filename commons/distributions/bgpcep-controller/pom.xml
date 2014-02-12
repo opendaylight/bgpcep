@@ -1003,11 +1003,6 @@
                 <artifactId>commons.httpclient</artifactId>
                 <version>${commons.httpclient.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.opendaylight.controller</groupId>
-                <artifactId>sanitytest</artifactId>
-                <version>${controller.version}</version>
-            </dependency>
 
             <!-- equinox http service bridge -->
             <dependency>
@@ -1074,6 +1069,21 @@
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-common-impl</artifactId>
+                <version>${controller.mdsal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>sal-binding-api</artifactId>
+                <version>${controller.mdsal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>sal-binding-config</artifactId>
+                <version>${controller.mdsal.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>sal-binding-broker-impl</artifactId>
                 <version>${controller.mdsal.version}</version>
             </dependency>
             <dependency>
@@ -1715,12 +1725,32 @@
                 </dependency>
                 <dependency>
                     <groupId>org.opendaylight.controller</groupId>
+                    <artifactId>sal-broker-impl</artifactId>
+                    <version>${controller.mdsal.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.opendaylight.controller</groupId>
                     <artifactId>sal-common-api</artifactId>
                     <version>${controller.mdsal.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.opendaylight.controller</groupId>
                     <artifactId>sal-common-impl</artifactId>
+                    <version>${controller.mdsal.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.opendaylight.controller</groupId>
+                    <artifactId>sal-binding-api</artifactId>
+                    <version>${controller.mdsal.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.opendaylight.controller</groupId>
+                    <artifactId>sal-binding-config</artifactId>
+                    <version>${controller.mdsal.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.opendaylight.controller</groupId>
+                    <artifactId>sal-binding-broker-impl</artifactId>
                     <version>${controller.mdsal.version}</version>
                 </dependency>
                 <dependency>
@@ -1791,6 +1821,11 @@
                 <dependency>
                     <groupId>org.opendaylight.yangtools.model</groupId>
                     <artifactId>ietf-topology</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.opendaylight.controller</groupId>      
+                    <artifactId>sal-binding-util</artifactId>       
+                    <version>1.1-SNAPSHOT</version>     
                 </dependency>
                 <dependency>
                     <groupId>org.opendaylight.controller.md</groupId>
@@ -1958,6 +1993,11 @@
                     <artifactId>threadpool-config-api</artifactId>
                     <version>${controller.config.version}</version>
                 </dependency>
+                <dependency>        
+                    <groupId>org.opendaylight.controller</groupId>      
+                    <artifactId>netty-config-api</artifactId>       
+                    <version>${controller.config.version}</version>        
+                </dependency>
                 <dependency>
                     <groupId>org.opendaylight.controller</groupId>
                     <artifactId>threadpool-config-impl</artifactId>
@@ -1979,7 +2019,11 @@
                     <version>${controller.config.version}</version>
                 </dependency>
 
-                <!-- yangtools dependencies I'm pretty sure we can trim -->
+                <dependency>
+                    <groupId>org.opendaylight.yangtools</groupId>
+                    <artifactId>yang-binding</artifactId>
+                <version>${yangtools.version}</version>
+                </dependency>
                 <dependency>
                     <groupId>org.opendaylight.yangtools</groupId>
                     <artifactId>binding-type-provider</artifactId>
@@ -2635,6 +2679,10 @@
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
             <artifactId>jettison</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
