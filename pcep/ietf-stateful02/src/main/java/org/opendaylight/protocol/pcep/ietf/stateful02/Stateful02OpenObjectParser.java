@@ -54,8 +54,8 @@ public class Stateful02OpenObjectParser extends PCEPOpenObjectParser {
 		if (tlvs == null) {
 			return new byte[0];
 		}
-		super.serializeTlvs(tlvs);
-		int finalLength = 0;
+		final byte[] prev = super.serializeTlvs(tlvs);
+		int finalLength = prev.length;
 		byte[] statefulBytes = null;
 		byte[] nodeIdBytes = null;
 		if (tlvs.getAugmentation(Tlvs2.class) != null) {
@@ -70,8 +70,9 @@ public class Stateful02OpenObjectParser extends PCEPOpenObjectParser {
 			}
 		}
 
-		int offset = 0;
 		final byte[] result = new byte[finalLength];
+		ByteArray.copyWhole(prev, result, 0);
+		int offset = prev.length;
 		if (statefulBytes != null) {
 			ByteArray.copyWhole(statefulBytes, result, offset);
 			offset += statefulBytes.length;
