@@ -48,8 +48,8 @@ public final class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 		if (tlvs == null) {
 			return new byte[0];
 		}
-		super.serializeTlvs(tlvs);
-		int finalLength = 0;
+		final byte[] prev = super.serializeTlvs(tlvs);
+		int finalLength = prev.length;
 		byte[] nameBytes = null;
 		if (tlvs.getAugmentation(Tlvs2.class) != null) {
 			final Tlvs2 nameTlvs = tlvs.getAugmentation(Tlvs2.class);
@@ -58,8 +58,9 @@ public final class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 				finalLength += nameBytes.length;
 			}
 		}
-		int offset = 0;
 		final byte[] result = new byte[finalLength];
+		ByteArray.copyWhole(prev, result, 0);
+		int offset = prev.length;
 		if (nameBytes != null) {
 			ByteArray.copyWhole(nameBytes, result, offset);
 			offset += nameBytes.length;
