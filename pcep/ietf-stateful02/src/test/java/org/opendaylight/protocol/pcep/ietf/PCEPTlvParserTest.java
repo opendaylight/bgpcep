@@ -10,15 +10,20 @@ package org.opendaylight.protocol.pcep.ietf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.math.BigInteger;
+
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspDbVersionTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspSymbolicNameTlvParser;
-import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02RSVPErrorSpecTlvParser;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
@@ -45,6 +50,8 @@ public class PCEPTlvParserTest {
 	private static final byte[] userErrorBytes = { (byte) 0xc2, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x30, (byte) 0x39,
 			(byte) 0x05, (byte) 0x09, (byte) 0x00, (byte) 0x26, (byte) 0x75, (byte) 0x73, (byte) 0x65, (byte) 0x72, (byte) 0x20,
 			(byte) 0x64, (byte) 0x65, (byte) 0x73, (byte) 0x63 };
+	private static final byte[] lspDbBytes = { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+			(byte) 0xb4 };
 
 	@Test
 	public void testStatefulTlv() throws PCEPDeserializerException {
@@ -102,5 +109,14 @@ public class PCEPTlvParserTest {
 		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new UserCaseBuilder().setUserError(builder.build()).build()).build();
 		assertEquals(tlv, parser.parseTlv(userErrorBytes));
 		assertArrayEquals(userErrorBytes, parser.serializeTlv(tlv));
+	}
+
+	@Test
+	public void testLspDbVersionTlv() throws PCEPDeserializerException {
+		final Stateful02LspDbVersionTlvParser parser = new Stateful02LspDbVersionTlvParser();
+		final LspDbVersion tlv = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(180L)).build();
+		assertEquals(tlv, parser.parseTlv(lspDbBytes));
+		assertArrayEquals(lspDbBytes, parser.serializeTlv(tlv));
+
 	}
 }
