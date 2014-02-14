@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02SessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,15 +66,15 @@ public final class PCEPSessionProposalFactoryImplModule extends
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final Stateful07SessionProposalFactory inner = new Stateful07SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated());
+		final Stateful02SessionProposalFactory inner = new Stateful02SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated());
 		return new PCEPSessionProposalFactoryCloseable(inner);
 	}
 
 	private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
 
-		private final Stateful07SessionProposalFactory inner;
+		private final Stateful02SessionProposalFactory inner;
 
-		public PCEPSessionProposalFactoryCloseable(final Stateful07SessionProposalFactory inner) {
+		public PCEPSessionProposalFactoryCloseable(final Stateful02SessionProposalFactory inner) {
 			this.inner = inner;
 		}
 
