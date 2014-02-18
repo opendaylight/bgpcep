@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
@@ -75,6 +76,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 	private final Map<SRPID, PCEPRequest> waitingRequests = new HashMap<>();
 	private final Map<SRPID, PCEPRequest> sendingRequests = new HashMap<>();
+	private final Map<String, ReportedLsp> lspData = new HashMap<>();
 	private final Map<PLSPID, String> lsps = new HashMap<>();
 	private InstanceIdentifier<Node> topologyNode;
 	private InstanceIdentifier<Node1> topologyAugment;
@@ -82,7 +84,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	private Node1Builder topologyAugmentBuilder;
 	private TopologyNodeState nodeState;
 	private boolean ownsTopology = false;
-	private boolean synced = false;
+	private boolean synced = false, dirty;
 	private PCEPSession session;
 
 	protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
@@ -228,9 +230,25 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	public final synchronized void onMessage(final PCEPSession session, final Message message) {
 		final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
 
+		dirty = false;
+
 		if (onMessage(trans, message)) {
 			LOG.info("Unhandled message {} on session {}", message, session);
 			return;
+		}
+
+		if (dirty) {
+			LOG.debug("Internal state changed, forcing sync");
+			this.pccBuilder.setReportedLsp(Lists.newArrayList(lspData.values()));
+			this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.build());
+			final Node1 ta = this.topologyAugmentBuilder.build();
+
+			//trans.removeOperationalData(this.topologyAugment);
+			trans.putOperationalData(this.topologyAugment, ta);
+			LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
+			dirty = false;
+		} else {
+			LOG.debug("State has not changed, skipping sync");
 		}
 
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
@@ -313,8 +331,9 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 			rlb.setMetadata(this.nodeState.getLspMetadata(name));
 		}
 
-		LOG.debug("Updating LSP to MD-SAL {}", rlb.build());
-		trans.putOperationalData(lspIdentifier(name).build(), rlb.build());
+		LOG.debug("LSP {} forcing update to MD-SAL", name);
+		dirty = true;
+		lspData .put(name, rlb.build());
 	}
 
 	protected final synchronized void stateSynchronizationAchieved(final DataModificationTransaction trans) {
@@ -325,10 +344,8 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 		// Update synchronization flag
 		this.synced = true;
-		this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.setStateSync(PccSyncState.Synchronized).build());
-		final Node1 ta = this.topologyAugmentBuilder.build();
-		trans.putOperationalData(this.topologyAugment, ta);
-		LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
+		this.pccBuilder.setStateSync(PccSyncState.Synchronized).build();
+		this.dirty = true;
 
 		// The node has completed synchronization, cleanup metadata no longer reported back
 		this.nodeState.cleanupExcept(this.lsps.values());
@@ -341,11 +358,9 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 	protected final synchronized void removeLsp(final DataModificationTransaction trans, final PLSPID id) {
 		final String name = this.lsps.remove(id);
-		if (name != null) {
-			trans.removeOperationalData(lspIdentifier(name).build());
-		}
-
+		dirty = true;
 		LOG.debug("LSP {} removed", name);
+		lspData.remove(name);
 	}
 
 	abstract protected void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
