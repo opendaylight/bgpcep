@@ -304,6 +304,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 		Preconditions.checkState(name != null);
 		rlb.setKey(new ReportedLspKey(name));
+		rlb.setName(name);
 
 		// If this is an unsolicited update. We need to make sure we retain the metadata already present
 		if (solicited) {
