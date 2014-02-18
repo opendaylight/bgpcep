@@ -215,7 +215,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).setOperational(Boolean.TRUE).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 
