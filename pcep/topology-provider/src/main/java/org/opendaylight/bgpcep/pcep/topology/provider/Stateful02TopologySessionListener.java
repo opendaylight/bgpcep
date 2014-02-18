@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Arguments1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PlspId;
@@ -215,7 +216,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).setOperational(input.getArguments().getAugmentation(Arguments2.class).isOperational()).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 
