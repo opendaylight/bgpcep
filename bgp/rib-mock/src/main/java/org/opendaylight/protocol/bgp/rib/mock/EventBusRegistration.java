@@ -54,7 +54,7 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 
 	@Subscribe
 	public void onMessage(final Notification message) {
-		sendMessage(this.listener, message);
+		sendMessage(this.getListener(), message);
 	}
 
 	@Override
