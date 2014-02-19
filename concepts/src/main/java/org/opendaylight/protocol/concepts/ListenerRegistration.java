@@ -22,7 +22,8 @@ import com.google.common.base.Preconditions;
  */
 @ThreadSafe
 public abstract class ListenerRegistration<T extends EventListener> extends AbstractRegistration {
-	protected final T listener;
+
+	private final T listener;
 
 	protected ListenerRegistration(final T listener) {
 		this.listener = Preconditions.checkNotNull(listener);
