@@ -9,7 +9,7 @@ package org.opendaylight.protocol.concepts;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.net.UnknownHostException;
@@ -28,20 +28,20 @@ public class IPAddressesAndPrefixesTest {
 
 	@Test
 	public void test3() {
-		assertTrue("123.123.123.123".equals(new Ipv4Address("123.123.123.123").getValue()));
-		assertTrue("2001::1".equals(new Ipv6Address("2001::1").getValue()));
+		assertEquals("123.123.123.123", new Ipv4Address("123.123.123.123").getValue());
+		assertEquals("2001::1", new Ipv6Address("2001::1").getValue());
 	}
 
 	@Test
 	public void test4() throws UnknownHostException {
-		assertTrue(new IpPrefix(new Ipv4Prefix("123.123.123.123")).getIpv4Prefix() != null);
-		assertTrue(new IpPrefix(new Ipv6Prefix("2001::1")).getIpv6Prefix() != null);
+		assertNotNull(new IpPrefix(new Ipv4Prefix("123.123.123.123")).getIpv4Prefix());
+		assertNotNull(new IpPrefix(new Ipv6Prefix("2001::1")).getIpv6Prefix());
 	}
 
 	@Test
 	public void test5() {
-		assertTrue("123.123.123.123/24".equals(new Ipv4Prefix("123.123.123.123/24").getValue()));
-		assertTrue("2001::1/120".equals(new Ipv6Prefix("2001::1/120").getValue()));
+		assertEquals("123.123.123.123/24", new Ipv4Prefix("123.123.123.123/24").getValue());
+		assertEquals("2001::1/120", new Ipv6Prefix("2001::1/120").getValue());
 	}
 
 	@Test
@@ -69,6 +69,18 @@ public class IPAddressesAndPrefixesTest {
 	}
 
 	@Test
+	public void testAddress6ForBytes() {
+		final byte[] bytes = new byte[] { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+		assertEquals(new Ipv6Address("2001::1"), Ipv6Util.addressForBytes(bytes));
+		try {
+			Ipv6Util.addressForBytes(new byte[] { 22, 44, 66, 18, 88, 33 });
+			fail();
+		} catch (final IllegalArgumentException e) {
+			assertEquals("Failed to construct IPv6 address", e.getMessage());
+		}
+	}
+
+	@Test
 	public void testPrefixList4ForBytes() {
 		final byte[] bytes = new byte[] { 22, (byte) 172, (byte) 168, 3, 8, 12, 32, (byte) 192, (byte) 168, 35, 100 };
 		final List<Ipv4Prefix> prefs = Ipv4Util.prefixListForBytes(bytes);
@@ -78,9 +90,16 @@ public class IPAddressesAndPrefixesTest {
 	}
 
 	@Test
+	public void testBytesForAddress() {
+		assertArrayEquals(new byte[] { 12, 58, (byte) 201, 99  }, Ipv4Util.bytesForAddress(new Ipv4Address("12.58.201.99")));
+		assertArrayEquals(new byte[] { 0x20, (byte) 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01  }, Ipv6Util.bytesForAddress(new Ipv6Address("2001::1")));
+	}
+
+	@Test
 	public void testPrefix6ForBytes() {
 		final byte[] bytes = new byte[] { 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02 };
 		assertEquals(new Ipv6Prefix("2001:db8:1:2::/64"), Ipv6Util.prefixForBytes(bytes, 64));
+		assertArrayEquals(new byte[] {0x20, (byte) 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  0x40 }, Ipv6Util.bytesForPrefix(new Ipv6Prefix("2001:db8:1:2::/64")));
 	}
 
 	@Test
@@ -89,7 +108,8 @@ public class IPAddressesAndPrefixesTest {
 		prefs.add(new Ipv6Prefix("2001:db8:1:2::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1:1::/64"));
 		prefs.add(new Ipv6Prefix("2001:db8:1::/64"));
-
+		assertEquals(prefs,
+				Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64"), new Ipv6Prefix("2001:db8:1::/64")));
 	}
 
 	@Test
