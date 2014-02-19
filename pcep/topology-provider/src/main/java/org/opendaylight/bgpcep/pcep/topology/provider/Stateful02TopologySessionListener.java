@@ -207,7 +207,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
 		final ReportedLsp rep = this.serverSessionManager.readOperationalData(lsp);
 		if (rep == null) {
-			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+			LOG.warn("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return OperationResults.UNSENT.future();
 		}
 
@@ -229,7 +229,9 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
 		Boolean op = null;
 		final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
-		if (aa != null) {
+		if (aa == null) {
+			LOG.warn("Operational status not present in MD-SAL.");
+		} else {
 			op = aa.isOperational();
 		}
 
