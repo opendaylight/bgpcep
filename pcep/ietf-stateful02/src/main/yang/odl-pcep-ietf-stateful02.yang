@@ -252,6 +252,12 @@ module odl-pcep-ietf-stateful02 {
 		}
 	}
 
+	augment "/topo:update-lsp/topo:input/topo:arguments" {
+		leaf operational {
+			type boolean;
+		}
+	}
+
 	typedef administrative-status {
 		type enumeration {
 			enum active;

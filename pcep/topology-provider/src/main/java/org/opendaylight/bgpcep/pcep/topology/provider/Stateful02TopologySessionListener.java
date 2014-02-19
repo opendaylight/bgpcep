@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Arguments1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PlspId;
@@ -206,7 +207,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
 		final ReportedLsp rep = this.serverSessionManager.readOperationalData(lsp);
 		if (rep == null) {
-			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+			LOG.warn("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return OperationResults.UNSENT.future();
 		}
 
@@ -215,7 +216,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).setOperational(input.getArguments().getAugmentation(Arguments2.class).isOperational()).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 
@@ -228,7 +229,9 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
 		Boolean op = null;
 		final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
-		if (aa != null) {
+		if (aa == null) {
+			LOG.warn("Operational status not present in MD-SAL.");
+		} else {
 			op = aa.isOperational();
 		}
 
