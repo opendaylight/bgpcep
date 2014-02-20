@@ -7,19 +7,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,23 +38,33 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.core.api.data.DataProviderService;
-import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
+import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.google.common.collect.Lists;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Future;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
-	private static final String INSTANCE_NAME = "bgp-rib-impl";
+	private static final String INSTANCE_NAME = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
 	private static final String TRANSACTION_NAME = "testTransaction";
 
 	private RIBImplModuleFactory factory;
@@ -202,7 +200,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), INSTANCE_NAME, this.dataBrokerFactory.getImplementationName(),
-				this.reconnectFactory.getImplementationName(), this.executorFactory.getImplementationName(), this.bgpFactory.getImplementationName(),
+				this.reconnectFactory.getImplementationName(), this.bgpFactory.getImplementationName(),
 				this.sessionFacotry.getImplementationName(), this.dispactherFactory.getImplementationName(), this.threadgropFactory.getImplementationName(),
 				this.extensionFactory.getImplementationName(), this.ribExtensionsFactory.getImplementationName(), this.domBrokerFactory.getImplementationName(),
 				this.dataStroreFactory.getImplementationName());
@@ -210,7 +208,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		CommitStatus status = transaction.commit();
 		Thread.sleep(2000);
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 16, 0, 0);
+		assertStatus(status, 15, 0, 0);
 	}
 
 	@After
@@ -219,20 +217,18 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String bindingDataModuleName, final String reconnectModueName, final String executorModuleName, final String bgpModuleName,
-			final String sessionModuleName, final String dispatcherModuleName, final String threadgroupModuleName, final String extensionModuleName,
-			final String ribExtensionsModuleName, final String domBrokerModuleName, final String dataStroreModuleName)
+                                            final String instanceName, final String bindingDataModuleName, final String reconnectModueName, final String bgpModuleName,
+                                            final String sessionModuleName, final String dispatcherModuleName, final String threadgroupModuleName, final String extensionModuleName,
+                                            final String ribExtensionsModuleName, final String domBrokerModuleName, final String dataStroreModuleName)
 					throws Exception {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(
 				nameCreated, RIBImplModuleMXBean.class);
-		ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "session-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null, executorModuleName,
-				"global-event-executor1");
+		ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "session-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null);
 		mxBean.setSessionReconnectStrategy(reconnectObjectName);
 		mxBean.setDataProvider(createDataBrokerInstance(transaction, bindingDataModuleName, "data-broker-impl", domBrokerModuleName, dataStroreModuleName));
-		ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "tcp-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null, executorModuleName,
-				"global-event-executor2");
+		ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "tcp-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null);
 		mxBean.setTcpReconnectStrategy(reconnectStrategyON);
 		mxBean.setBgp(Lists.newArrayList(BGPImplModuleTest.createInstance(transaction, bgpModuleName, "bgp-impl1", "localhost", 1, sessionModuleName, dispatcherModuleName, threadgroupModuleName, ribExtensionsModuleName, extensionModuleName)));
 		mxBean.setExtensions(createRibExtensionsInstance(transaction, ribExtensionsModuleName, "rib-extensions-privider1"));

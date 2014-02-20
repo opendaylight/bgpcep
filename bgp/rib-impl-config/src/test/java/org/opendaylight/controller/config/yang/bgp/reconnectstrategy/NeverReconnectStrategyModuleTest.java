@@ -7,13 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -27,9 +20,16 @@ import org.opendaylight.controller.config.yang.reconnectstrategy.AbstractNeverRe
 import org.opendaylight.controller.config.yang.reconnectstrategy.NeverReconnectStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.NeverReconnectStrategyModuleMXBean;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 
-	private final String instanceName = "never";
+	private final String instanceName = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
 
 	private NeverReconnectStrategyModuleFactory factory;
 	
@@ -49,7 +49,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, null, this.executorFactory.getImplementationName());
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, null);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -63,7 +63,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 		try {
 			ConfigTransactionJMXClient transaction = configRegistryClient
 					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1, this.executorFactory.getImplementationName());
+			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1);
 			transaction.validateConfig();
 			fail();
 		} catch (ValidationException e) {
@@ -75,7 +75,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void testCreateBean() throws Exception {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500);
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
@@ -87,7 +87,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 			ConflictingVersionException, ValidationException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -102,7 +102,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 			InstanceNotFoundException {
 		ConfigTransactionJMXClient transaction = configRegistryClient
 				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500, this.executorFactory.getImplementationName());
+		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500);
 		transaction.commit();
 		transaction = configRegistryClient.createTransaction();
 		assertBeanCount(1, factory.getImplementationName());
@@ -118,14 +118,13 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	public static ObjectName createInstance(
 			final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final Integer timeout,
-			final String eventexecutorModuleName) throws InstanceAlreadyExistsException {
+			final String instanceName, final Integer timeout) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		NeverReconnectStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, NeverReconnectStrategyModuleMXBean.class);
 		mxBean.setTimeout(timeout);
-		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, eventexecutorModuleName, "global-event-executor1"));
+		mxBean.setExecutor(GlobalEventExecutorUtil.createOrGetInstance(transaction));
 		return nameCreated;
 	}
 
