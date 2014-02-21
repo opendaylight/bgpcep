@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.protocol.pcep.spi.AbstractPCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
 
-public class Stateful07SessionProposalFactory extends AbstractPCEPSessionProposalFactory {
+public class Stateful07SessionProposalFactory extends BasePCEPSessionProposalFactory {
 
 	private final boolean stateful, active, instant;
 
@@ -46,11 +46,6 @@ public class Stateful07SessionProposalFactory extends AbstractPCEPSessionProposa
 
 	public boolean isActive() {
 		return this.active;
-	}
-
-	@Deprecated
-	public boolean isVersioned() {
-		return false;
 	}
 
 	public boolean isInstant() {
