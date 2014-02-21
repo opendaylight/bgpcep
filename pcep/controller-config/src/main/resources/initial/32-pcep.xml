@@ -15,7 +15,8 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=config-pcep-spi&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider?module=config-pcep-topology-provider&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=config-programming-spi&amp;revision=2013-11-15</capability>
-
+	<capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg?module=odl-pcep-ietf-stateful02-cfg&amp;revision=2014-02-21</capability>
+	<capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2014-02-21</capability>
     </required-capabilities>
     <configuration>
 
@@ -79,6 +80,14 @@
                     <name>global-pcep-session-proposal-factory</name>
                 </module>
                 <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-session-proposal-factory-stateful07</type>
+                    <name>stateful07-prop</name>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-session-proposal-factory-stateful02</type>
+                    <name>stateful02-prop</name>
+                </module>
+                <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-dispatcher-impl</type>
                     <name>global-pcep-dispatcher</name>
                     <pcep-extensions>
@@ -87,7 +96,7 @@
                     </pcep-extensions>
                     <pcep-session-proposal-factory>
                         <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
-                        <name>global-pcep-session-proposal-factory</name>
+                        <name>stateful07-proposal</name>
                     </pcep-session-proposal-factory>
                     <boss-group>
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
@@ -173,10 +182,15 @@
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-session-proposal-factory</type>
                     <instance>
-                        <name>global-pcep-session-proposal-factory</name>
-                        <provider>/config/modules/module[name='pcep-session-proposal-factory-impl']/instance[name='global-pcep-session-proposal-factory']</provider>
+                        <name>stateful07-proposal</name>
+                        <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful07']/instance[name='stateful07-prop']</provider>
+                    </instance>
+                    <instance>
+                        <name>stateful02-proposal</name>
+                        <provider>/config/modules/module[name='pcep-session-proposal-factory-stateful02']/instance[name='stateful02-prop']</provider>
                     </instance>
                 </service>
+
                 <service>
                     <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-dispatcher</type>
                     <instance>

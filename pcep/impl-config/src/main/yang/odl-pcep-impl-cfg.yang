@@ -175,26 +175,6 @@ module odl-pcep-impl-cfg {
                 type uint16;
                 default 30;
             }
-
-            leaf initiated {
-                type boolean;
-                default true;
-            }
-
-            leaf stateful {
-                type boolean;
-                default true;
-            }
-
-            leaf active {
-                type boolean;
-                default true;
-            }
-
-            leaf versioned {
-                type boolean;
-                default false;
-            }
         }
     }
 }

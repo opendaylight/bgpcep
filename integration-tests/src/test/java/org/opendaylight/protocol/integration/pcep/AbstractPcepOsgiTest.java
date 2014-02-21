@@ -67,21 +67,22 @@ public class AbstractPcepOsgiTest {
 
 	private Option pcepModules() {
 		return new DefaultCompositeOption(mavenBundle("org.opendaylight.yangtools.model", "ietf-topology").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-topology-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-tunnel-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-impl").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-spi").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful02").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful07").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "topology-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "topology-tunnel-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "programming-topology-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "programming-tunnel-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "concepts").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "util").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "rsvp-api").versionAsInProject(), //
-		mavenBundle("org.opendaylight.bgpcep", "programming-api").versionAsInProject());
+				mavenBundle("org.opendaylight.bgpcep", "pcep-topology-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-tunnel-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-api-config").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-impl").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-spi").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful02").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful07").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "topology-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "topology-tunnel-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "programming-topology-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "programming-tunnel-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "concepts").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "util").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "rsvp-api").versionAsInProject(), //
+				mavenBundle("org.opendaylight.bgpcep", "programming-api").versionAsInProject());
 	}
 
 	abstract class AbstractTestProvider implements BindingAwareProvider {
