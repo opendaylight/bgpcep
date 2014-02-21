@@ -165,7 +165,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 				nameCreated, PCEPDispatcherImplModuleMXBean.class);
 		mxBean.setPcepSessionProposalFactory(PCEPSessionProposalFactoryImplModuleTest
 				.createInstance(transaction, sessionFactoryImplName,
-						"pcep-proposal", 0, 0, true, true, true, true));
+						"pcep-proposal", 0, 0));
 		mxBean.setMaxUnknownMessages(maxUnknownMessages);
 		mxBean.setBossGroup(createThreadGroupInstance(transaction,
 				threadGroupFactoryImplName, "boss-group", 10));
