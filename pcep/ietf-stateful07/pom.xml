@@ -37,10 +37,18 @@
             <artifactId>concepts</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-api</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-api-config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-spi</artifactId>
         </dependency>

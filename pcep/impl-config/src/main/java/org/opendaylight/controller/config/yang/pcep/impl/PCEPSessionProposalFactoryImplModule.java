@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02SessionProposalFactory;
+import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public final class PCEPSessionProposalFactoryImplModule extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
+org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModule {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionProposalFactoryImplModule.class);
 
@@ -45,10 +45,7 @@ public final class PCEPSessionProposalFactoryImplModule extends
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
-		JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", this.activeJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", this.initiatedJmxAttribute);
+	public void customValidation() {
 		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", this.deadTimerValueJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", this.keepAliveTimerValueJmxAttribute);
 		if (getKeepAliveTimerValue() != 0) {
@@ -58,23 +55,19 @@ public final class PCEPSessionProposalFactoryImplModule extends
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
 		}
-		if (getActive() && !getStateful()) {
-			setStateful(true);
-		}
-		JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", this.statefulJmxAttribute);
 	}
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		final Stateful02SessionProposalFactory inner = new Stateful02SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated());
+		final BasePCEPSessionProposalFactory inner = new BasePCEPSessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue());
 		return new PCEPSessionProposalFactoryCloseable(inner);
 	}
 
 	private static final class PCEPSessionProposalFactoryCloseable implements PCEPSessionProposalFactory, AutoCloseable {
 
-		private final Stateful02SessionProposalFactory inner;
+		private final BasePCEPSessionProposalFactory inner;
 
-		public PCEPSessionProposalFactoryCloseable(final Stateful02SessionProposalFactory inner) {
+		public PCEPSessionProposalFactoryCloseable(final BasePCEPSessionProposalFactory inner) {
 			this.inner = inner;
 		}
 
