@@ -37,8 +37,7 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 	public byte[] serializeTlv(final Tlv tlv) {
 		Preconditions.checkNotNull(tlv, "LspDbVersionTlv is mandatory.");
 		final LspDbVersion lsp = (LspDbVersion) tlv;
-		final byte[] array = ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH);
-		return array;
+		return ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH);
 	}
 
 	@Override
