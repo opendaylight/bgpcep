@@ -149,7 +149,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	 */
 	private void sendErrorMessage(final PCEPErrors value) {
 
-		this.channel.writeAndFlush(Util.createErrorMessage(value, null));
+		this.sendMessage(Util.createErrorMessage(value, null));
 	}
 
 	private void scheduleFailTimer() {
@@ -189,7 +189,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		this.localPrefs = getInitialProposal();
 		final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
 				new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
-		this.channel.writeAndFlush(m);
+		this.sendMessage(m);
 		this.state = State.OpenWait;
 		scheduleFailTimer();
 
@@ -236,7 +236,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					this.state = State.Finished;
 					return;
 				}
-				this.channel.writeAndFlush(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
+				this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build());
 				if (!this.remoteOK) {
 					this.state = State.OpenWait;
 				}
@@ -250,7 +250,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage o = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open) msg).getOpenMessage();
 				final Open open = o.getOpen();
 				if (isProposalAcceptable(open)) {
-					this.channel.writeAndFlush(KEEPALIVE);
+					this.sendMessage(KEEPALIVE);
 					this.remotePrefs = open;
 					this.remoteOK = true;
 					if (this.localOK) {
@@ -279,7 +279,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					return;
 				}
 
-				this.channel.writeAndFlush(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
+				this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
 
 				this.openRetry = true;
 				this.state = this.localOK ? State.OpenWait : State.KeepWait;
