@@ -7,13 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -22,6 +15,13 @@ import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest {
 
@@ -108,7 +108,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 	}
 
 	@Test
-	public void testStatefulAfterCommitted() throws InstanceAlreadyExistsException, InstanceNotFoundException {
+	public void testStatefulAfterCommitted() throws InstanceAlreadyExistsException, InstanceNotFoundException, ValidationException, ConflictingVersionException {
 		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 400, 100, false, true, true, true);
 		transaction.validateConfig();
