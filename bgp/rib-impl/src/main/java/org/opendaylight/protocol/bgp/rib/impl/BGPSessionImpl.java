@@ -319,8 +319,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	}
 
 	@Override
-	public final byte[] getBgpId() {
-		return this.bgpId.getValue().getBytes();
+	public final Ipv4Address getBgpId() {
+		return this.bgpId;
 	}
 
 	@Override
