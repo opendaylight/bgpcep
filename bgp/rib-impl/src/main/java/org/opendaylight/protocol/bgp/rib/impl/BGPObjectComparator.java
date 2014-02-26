@@ -34,10 +34,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 	private final byte[] localId, remoteId;
 	private final AsNumber ourAS;
 
-	public BGPObjectComparator(final AsNumber ourAs, final Ipv4Address localId, final byte[] remoteId) {
+	public BGPObjectComparator(final AsNumber ourAs, final Ipv4Address localId, final Ipv4Address remoteId) {
 		this.ourAS = Preconditions.checkNotNull(ourAs);
 		this.localId = InetAddresses.forString(localId.getValue()).getAddress();
-		this.remoteId = Preconditions.checkNotNull(remoteId);
+		this.remoteId = InetAddresses.forString(remoteId.getValue()).getAddress();
 	}
 
 	@Override
