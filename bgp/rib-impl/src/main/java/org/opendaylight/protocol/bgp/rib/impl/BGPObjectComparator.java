@@ -31,17 +31,13 @@ import com.google.common.net.InetAddresses;
  * @param <T> Actual object state reference
  */
 final class BGPObjectComparator implements Comparator<PathAttributes> {
-
+	private final byte[] localId, remoteId;
 	private final AsNumber ourAS;
 
-	private final byte[] id1;
-
-	private final byte[] id2;
-
 	public BGPObjectComparator(final AsNumber ourAs, final Ipv4Address localId, final byte[] remoteId) {
-		this.ourAS = ourAs;
-		this.id1 = InetAddresses.forString(localId.getValue()).getAddress();
-		this.id2 = Preconditions.checkNotNull(remoteId);
+		this.ourAS = Preconditions.checkNotNull(ourAs);
+		this.localId = InetAddresses.forString(localId.getValue()).getAddress();
+		this.remoteId = Preconditions.checkNotNull(remoteId);
 	}
 
 	@Override
@@ -52,7 +48,7 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		if (o2 == null) {
 			return -1;
 		}
-		if (o1.equals(o2) && Arrays.equals(this.id1, this.id2)) {
+		if (o1.equals(o2) && Arrays.equals(this.localId, this.remoteId)) {
 			return 0;
 		}
 		// 1. prefer path with accessible nexthop
@@ -121,8 +117,8 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		// The router ID is the highest IP address on the router, with preference given to loopback addresses.
 		// If a path contains route reflector (RR) attributes, the originator ID is substituted for the router ID in the
 		// path selection process.
-		byte[] oid1 = this.id1;
-		byte[] oid2 = this.id2;
+		byte[] oid1 = this.localId;
+		byte[] oid2 = this.remoteId;
 		if (o1.getOriginatorId() != null) {
 			oid1 = InetAddresses.forString(o1.getOriginatorId().getValue()).getAddress();
 		}
