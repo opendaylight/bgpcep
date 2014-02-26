@@ -23,6 +23,7 @@ import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
@@ -102,7 +103,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 							new MultiprotocolCapabilityBuilder(t).build()).build()).build());
 		}
 
+		// Remote AS number defaults to our local AS
+		final AsNumber remoteAs;
+		if (getRemoteAs() != null) {
+			remoteAs = new AsNumber(getRemoteAs());
+		} else {
+			remoteAs = r.getLocalAs();
+		}
+
 		return new BGPPeer(peerName(getHost()), createAddress(),
-				new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), r);
+				new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
 	}
 }

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser;
 import java.util.Set;
 
 import org.opendaylight.protocol.framework.ProtocolSession;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
@@ -35,4 +36,11 @@ public interface BGPSession extends ProtocolSession<Notification> {
 	 * @return Peer's BGP Router ID.
 	 */
 	byte[] getBgpId();
+
+	/**
+	 * Return the AS number which the peer advertizes.
+	 * 
+	 * @return Peer's AS Number
+	 */
+	AsNumber getAsNumber();
 }

@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -93,6 +94,11 @@ public class SynchronizationTest {
 			@Override
 			public byte[] getBgpId() {
 				return new byte[] { (byte) 127, 0, 0, 1 };
+			}
+
+			@Override
+			public AsNumber getAsNumber() {
+				return new AsNumber(30L);
 			}
 		}, this.listener, types);
 	}

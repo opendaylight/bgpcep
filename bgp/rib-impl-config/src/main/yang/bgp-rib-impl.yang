@@ -189,6 +189,13 @@ module bgp-rib-impl {
                 }
             }
 
+            leaf remote-as {
+                description
+                    "Expected remote AS number. If not present, it is assumed
+                    to be the same as our local AS number.";
+                type uint32;
+            }
+
             container rib {
                 uses config:service-ref {
                     refine type {
@@ -257,13 +264,13 @@ module bgp-rib-impl {
             }
 
             leaf local-as {
-            	description "Our local AS number. Needed by best selection path attribute.";
+                description "Our local AS number. Needed by best selection path attribute.";
                 type uint32;
                 mandatory true;
             }
 
             leaf bgp-id {
-           		description "Our local BGP identifier. Needed by best selection path attribute.";
+                description "Our local BGP identifier. Needed by best selection path attribute.";
                 mandatory true;
                 type inet:ipv4-address;
             }
