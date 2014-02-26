@@ -13,12 +13,12 @@ import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
+import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import com.google.common.eventbus.Subscribe;
  * This class has @Subscribe annotated methods which receive events from {@link EventBus} . Events are produced by
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
-final class EventBusRegistration extends ListenerRegistration<BGPSessionListener> {
+final class EventBusRegistration extends AbstractListenerRegistration<BGPSessionListener> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EventBusRegistration.class);
 
@@ -54,7 +54,7 @@ final class EventBusRegistration extends ListenerRegistration<BGPSessionListener
 
 	@Subscribe
 	public void onMessage(final Notification message) {
-		sendMessage(this.getListener(), message);
+		sendMessage(this.getInstance(), message);
 	}
 
 	@Override

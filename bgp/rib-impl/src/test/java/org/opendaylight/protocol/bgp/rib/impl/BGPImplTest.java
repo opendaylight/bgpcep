@@ -26,12 +26,12 @@ import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.NeverReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 
 public class BGPImplTest {
 
@@ -63,7 +63,7 @@ public class BGPImplTest {
 				return new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000);
 			}
 		}, new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, 5000));
-		assertEquals(SimpleSessionListener.class, reg.getListener().getClass());
+		assertEquals(SimpleSessionListener.class, reg.getInstance().getClass());
 	}
 
 	@After
