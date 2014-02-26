@@ -41,8 +41,7 @@ import com.google.common.collect.Lists;
  */
 public class BestPathSelectionTest {
 
-	private final BGPObjectComparator comparator = new BGPObjectComparator(new AsNumber(40L), new Ipv4Address("192.150.20.38"), new byte[] {
-		(byte) 192, (byte) 150, 20, 38 });
+	private final BGPObjectComparator comparator = new BGPObjectComparator(new AsNumber(40L), new Ipv4Address("192.150.20.38"), new Ipv4Address("192.150.20.38"));
 
 	private PathAttributes attr1;
 	private PathAttributes attr2;
