@@ -16,22 +16,25 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiator;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.base.Preconditions;
 
 public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
 	private final BGPSessionPreferences initialPrefs;
+	private final AsNumber remoteAs;
 	private final Timer timer;
 
-	public BGPSessionNegotiatorFactory(final Timer timer, final BGPSessionPreferences initialPrefs) {
+	public BGPSessionNegotiatorFactory(final Timer timer, final BGPSessionPreferences initialPrefs, final AsNumber remoteAs) {
 		this.timer = Preconditions.checkNotNull(timer);
 		this.initialPrefs = Preconditions.checkNotNull(initialPrefs);
+		this.remoteAs = Preconditions.checkNotNull(remoteAs);
 	}
 
 	@Override
 	public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
 			final Channel channel, final Promise<BGPSessionImpl> promise) {
-		return new BGPSessionNegotiator(this.timer, promise, channel, this.initialPrefs, factory.getSessionListener());
+		return new BGPSessionNegotiator(this.timer, promise, channel, this.initialPrefs, remoteAs, factory.getSessionListener());
 	}
 }

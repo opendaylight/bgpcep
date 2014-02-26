@@ -159,7 +159,7 @@ public class ParserToSalTest {
 		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
 		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(dispatcher).
-		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class),
+		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class), Mockito.any(AsNumber.class),
 				Mockito.any(BGPSessionListener.class), Mockito.eq(tcpStrategyFactory), Mockito.eq(sessionStrategy));
 
 		ext = new SimpleRIBExtensionProviderContext();
@@ -179,7 +179,7 @@ public class ParserToSalTest {
 	private void runTestWithTables(final List<BgpTableType> tables) {
 		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), ext,
 				this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
-		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib);
+		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib.getLocalAs(), rib);
 
 		ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
 		reg.close();
