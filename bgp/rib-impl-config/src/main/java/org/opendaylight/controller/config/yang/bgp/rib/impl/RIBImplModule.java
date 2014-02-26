@@ -27,11 +27,11 @@ import org.opendaylight.protocol.bgp.rib.impl.BGP;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 
 import com.google.common.base.Preconditions;
 

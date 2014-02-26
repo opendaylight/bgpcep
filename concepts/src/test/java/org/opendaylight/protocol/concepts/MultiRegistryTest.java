@@ -8,9 +8,6 @@
 package org.opendaylight.protocol.concepts;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.EventListener;
 
 import org.junit.Test;
 
@@ -40,18 +37,4 @@ public class MultiRegistryTest {
 		assertEquals(Integer.valueOf(5), registry.get('c'));
 	}
 
-	@Test
-	public void testRegistration() {
-		EventListener list1 = new EventListener() {
-		};
-		SimpleListenerRegistration<EventListener> holder = new SimpleListenerRegistration<EventListener>(list1);
-
-		assertEquals(list1, holder.getListener());
-		assertEquals(1, holder.listeners.size());
-
-		holder.removeRegistration();
-
-		assertEquals(0, holder.listeners.size());
-		assertNotNull(holder.getListener());
-	}
 }
