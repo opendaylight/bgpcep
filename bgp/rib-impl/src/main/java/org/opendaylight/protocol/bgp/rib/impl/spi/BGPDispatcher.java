@@ -15,6 +15,7 @@ import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * Dispatcher class for creating BGP clients.
@@ -29,9 +30,9 @@ public interface BGPDispatcher {
 	 * @param listener BGP message listener
 	 * @return Future promising a client session
 	 */
-	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
-			final ReconnectStrategy strategy);
+	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
+			BGPSessionListener listener, ReconnectStrategy strategy);
 
-	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, BGPSessionListener listener,
-			ReconnectStrategyFactory connectStrategyFactory, final ReconnectStrategy reestablishStrategy);
+	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
+			BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory, ReconnectStrategy reestablishStrategy);
 }

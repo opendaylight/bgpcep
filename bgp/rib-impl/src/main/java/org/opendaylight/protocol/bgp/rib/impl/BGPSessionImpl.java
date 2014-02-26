@@ -19,12 +19,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
@@ -58,8 +60,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
 
 	private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
-
-	private static int holdTimerValue = DEFAULT_HOLD_TIMER_VALUE;
 
 	/**
 	 * Internal session state.
@@ -108,10 +108,11 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	@GuardedBy("this")
 	private State state = State.OpenConfirm;
 
-	private final int keepAlive;
 
 	private final Set<BgpTableType> tableTypes;
-
+	private final int holdTimerValue;
+	private final int keepAlive;
+	private final AsNumber asNumber;
 	private final Ipv4Address bgpId;
 
 	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen) {
@@ -119,7 +120,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
 		this.keepAlive = remoteOpen.getHoldTimer() / 3;
-		holdTimerValue = remoteOpen.getHoldTimer();
+		this.holdTimerValue = remoteOpen.getHoldTimer();
+		this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
 
 		final Set<TablesKey> tts = Sets.newHashSet();
 		final Set<BgpTableType> tats = Sets.newHashSet();
@@ -316,7 +318,13 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		return this.state;
 	}
 
-	public byte[] getBgpId() {
+	@Override
+	public final byte[] getBgpId() {
 		return this.bgpId.getValue().getBytes();
+	}
+
+	@Override
+	public final AsNumber getAsNumber() {
+		return this.asNumber;
 	}
 }
