@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 
 /**
  * BGP interface. At this time it only supports listening to changes seen by the backing device, typically a network

@@ -15,9 +15,10 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionProposal;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
 
 import com.google.common.base.Preconditions;
 
@@ -40,7 +41,7 @@ public class BGPImpl implements BGP, Closeable {
 	@Override
 	public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener, final ReconnectStrategyFactory tcpStrategyFactory, final ReconnectStrategy sessionStrategy) {
 		final Future<Void> s = this.dispatcher.createReconnectingClient(address, this.proposal.getProposal(), listener, tcpStrategyFactory, sessionStrategy);
-		return new ListenerRegistration<BGPSessionListener>(listener) {
+		return new AbstractListenerRegistration<BGPSessionListener>(listener) {
 			@Override
 			protected void removeRegistration() {
 				s.cancel(true);
