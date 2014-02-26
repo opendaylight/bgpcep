@@ -88,7 +88,8 @@ public class FSMTest {
 
 		final ChannelFuture f = mock(ChannelFuture.class);
 		doReturn(null).when(f).addListener(any(GenericFutureListener.class));
-		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new SimpleSessionListener());
+		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE),
+				this.speakerListener, prefs, new AsNumber(30L), new SimpleSessionListener());
 		doAnswer(new Answer<Object>() {
 			@Override
 			public Object answer(final InvocationOnMock invocation) {

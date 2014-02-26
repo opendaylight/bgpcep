@@ -20,11 +20,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
@@ -65,12 +67,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(BGPSessionNegotiator.class);
-	private final BGPSessionListener listener;
-	private final Timer timer;
 	private final BGPSessionPreferences localPref;
-
-	@GuardedBy("this")
-	private Open remotePref;
+	private final BGPSessionListener listener;
+	private final AsNumber remoteAs;
+	private final Timer timer;
 
 	@GuardedBy("this")
 	private State state = State.Idle;
@@ -79,10 +79,11 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	private BGPSessionImpl session;
 
 	public BGPSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
-			final BGPSessionPreferences initialPrefs, final BGPSessionListener listener) {
+			final BGPSessionPreferences initialPrefs, final AsNumber remoteAs, final BGPSessionListener listener) {
 		super(promise, channel);
 		this.listener = Preconditions.checkNotNull(listener);
 		this.localPref = Preconditions.checkNotNull(initialPrefs);
+		this.remoteAs = Preconditions.checkNotNull(remoteAs);
 		this.timer = Preconditions.checkNotNull(timer);
 	}
 
@@ -158,17 +159,29 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		this.state = State.Finished;
 	}
 
+	private static Notify buildErrorNotify(final BGPError err) {
+		return new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode()).build();
+	}
+
 	private void handleOpen(final Open openObj) {
+		final AsNumber as = AsNumberUtil.advertizedAsNumber(openObj);
+		if (!this.remoteAs.equals(as)) {
+			LOG.info("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
+			this.writeMessage(buildErrorNotify(BGPError.BAD_PEER_AS));
+			negotiationFailed(new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS));
+			this.state = State.Finished;
+			return;
+		}
+
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
 		if (prefs != null && !prefs.isEmpty()) {
 			if (!prefs.containsAll(this.localPref.getParams())) {
 				LOG.info("Open message unacceptable. Check the configuration of BGP speaker.");
 			}
-			this.remotePref = openObj;
 			this.writeMessage(new KeepaliveBuilder().build());
-			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, this.remotePref);
+			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, openObj);
 			this.state = State.OpenConfirm;
-			LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, this.remotePref);
+			LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
 			return;
 		}
 		final Notify ntf = new NotifyBuilder().setErrorCode(BGPError.UNSPECIFIC_OPEN_ERROR.getCode()).setErrorSubcode(
@@ -176,6 +189,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		this.writeMessage(ntf);
 		negotiationFailed(new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.forValue(
 				ntf.getErrorCode(), ntf.getErrorSubcode())));
+
 		this.state = State.Finished;
 	}
 

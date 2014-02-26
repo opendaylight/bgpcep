@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -51,10 +52,10 @@ public final class BGPPeer implements BGPSessionListener, Peer, AutoCloseable {
 	private BGPSession session;
 
 	public BGPPeer(final String name, final InetSocketAddress address, final BGPSessionPreferences prefs,
-			final RIB rib) {
+			final AsNumber remoteAs, final RIB rib) {
 		this.rib = Preconditions.checkNotNull(rib);
 		this.name = Preconditions.checkNotNull(name);
-		cf = rib.getDispatcher().createReconnectingClient(address, prefs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategy());
+		cf = rib.getDispatcher().createReconnectingClient(address, prefs, remoteAs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategy());
 	}
 
 	@Override

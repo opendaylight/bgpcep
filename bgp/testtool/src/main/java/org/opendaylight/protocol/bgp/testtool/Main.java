@@ -108,7 +108,7 @@ public final class Main {
 		LOG.debug("{} {} {}", address, sessionListener, proposal);
 
 		final InetSocketAddress addr = address;
-		m.dispatcher.createClient(addr, proposal, sessionListener,
+		m.dispatcher.createClient(addr, proposal, as, sessionListener,
 				new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
 	}
 }

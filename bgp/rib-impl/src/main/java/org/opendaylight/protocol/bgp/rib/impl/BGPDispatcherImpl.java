@@ -24,6 +24,7 @@ import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
  * Implementation of BGPDispatcher.
@@ -40,8 +41,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
 	@Override
 	public Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
-			final BGPSessionListener listener, final ReconnectStrategy strategy) {
-		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+			final AsNumber remoteAs, final BGPSessionListener listener, final ReconnectStrategy strategy) {
+		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences, remoteAs);
 		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
 			public BGPSessionListener getSessionListener() {
@@ -60,10 +61,10 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
 	@Override
 	public Future<Void> createReconnectingClient(final InetSocketAddress address,
-			final BGPSessionPreferences preferences, final BGPSessionListener listener,
-			final ReconnectStrategyFactory connectStrategyFactory,
+			final BGPSessionPreferences preferences, final AsNumber remoteAs,
+			final BGPSessionListener listener, final ReconnectStrategyFactory connectStrategyFactory,
 			final ReconnectStrategy reestablishStrategy) {
-		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences);
+		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences, remoteAs);
 		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
 			public BGPSessionListener getSessionListener() {
