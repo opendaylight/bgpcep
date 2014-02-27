@@ -218,8 +218,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 	@After
 	public void closeAllModules() throws Exception {
-		// FIXME: re-activate once test succeed
-		// super.destroyAllConfigBeans();
+		super.destroyAllConfigBeans();
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
