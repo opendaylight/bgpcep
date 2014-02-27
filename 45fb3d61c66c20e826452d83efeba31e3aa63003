@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba57610f_7779dafb",
+        "filename": "commons/parent/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-02-27T14:37:31Z",
+      "side": 1,
+      "message": "I don\u0027t think we need these here. Please keep them in distribution...",
+      "revId": "45fb3d61c66c20e826452d83efeba31e3aa63003",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
