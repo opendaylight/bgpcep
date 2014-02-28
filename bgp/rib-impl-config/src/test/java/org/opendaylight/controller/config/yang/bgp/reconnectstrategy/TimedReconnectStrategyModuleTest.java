@@ -7,6 +7,14 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.math.BigDecimal;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -20,15 +28,6 @@ import org.opendaylight.controller.config.yang.reconnectstrategy.AbstractTimedRe
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleMXBean;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-import java.math.BigDecimal;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "timed";
@@ -41,7 +40,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new TimedReconnectStrategyModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, executorFactory));
 	}
 

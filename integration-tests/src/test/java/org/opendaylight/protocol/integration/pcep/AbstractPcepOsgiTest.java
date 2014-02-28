@@ -13,12 +13,10 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import javax.inject.Inject;
-
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
-import org.opendaylight.protocol.integration.TestHelper;
+import org.opendaylight.controller.test.sal.binding.it.TestHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.RpcService;
 import org.ops4j.pax.exam.Configuration;
@@ -27,9 +25,10 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.BundleContext;
 
+//FIXME: merge with org.opendaylight.controller.test.sal.binding.it.AbstractTest ?
 public class AbstractPcepOsgiTest {
 	@Inject
-	@Filter(timeout = 60 * 1000)
+	@Filter(timeout = 120 * 1000)
 	BindingAwareBroker broker;
 	@Inject
 	BundleContext bundleContext;
@@ -53,16 +52,27 @@ public class AbstractPcepOsgiTest {
 	@Configuration
 	public Option[] config() {
 		return options(
-				TestHelper.getLoggingBundles(), //
+				//TestHelper.getLoggingBundles(), //
 
 				pcepModules(), //
 				systemProperty("osgi.bundles.defaultStartLevel").value("4"),
 				systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
 
-				TestHelper.mdSalCoreBundles(),
+                mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(), //
+                mavenBundle("org.slf4j", "log4j-over-slf4j").versionAsInProject(), //
+                mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(), //
+                mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
+                mavenBundle("org.openexi", "nagasena").versionAsInProject(),
 
-				TestHelper.bindingAwareSalBundles(), TestHelper.configMinumumBundles(), TestHelper.baseModelBundles(),
-				TestHelper.flowCapableModelBundles(), TestHelper.junitAndMockitoBundles());
+
+                TestHelper.mdSalCoreBundles(),
+
+                TestHelper.bindingAwareSalBundles(),
+                TestHelper.configMinumumBundles(),
+                TestHelper.baseModelBundles(),
+                TestHelper.flowCapableModelBundles(),
+                TestHelper.junitAndMockitoBundles()
+        );
 	}
 
 	private Option pcepModules() {

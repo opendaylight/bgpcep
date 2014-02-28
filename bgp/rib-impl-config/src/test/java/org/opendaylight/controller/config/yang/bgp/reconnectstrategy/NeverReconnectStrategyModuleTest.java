@@ -7,6 +7,12 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -20,13 +26,6 @@ import org.opendaylight.controller.config.yang.reconnectstrategy.AbstractNeverRe
 import org.opendaylight.controller.config.yang.reconnectstrategy.NeverReconnectStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.NeverReconnectStrategyModuleMXBean;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
@@ -39,7 +38,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new NeverReconnectStrategyModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, executorFactory));
 	}
 

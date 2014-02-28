@@ -10,17 +10,23 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Lists;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Future;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -46,7 +52,6 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
-import org.opendaylight.controller.config.yang.store.impl.YangParserWrapper;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
@@ -57,15 +62,16 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.model.api.Module;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
+import org.opendaylight.yangtools.yang.model.parser.api.YangModelParser;
+import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-
-import com.google.common.collect.Lists;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
 	private static final String INSTANCE_NAME = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
@@ -189,9 +195,9 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
 		if (serviceType.equals(SchemaServiceListener.class)) {
 			return new BundleContextServiceRegistrationHandler() {
-				@Override
-				public void handleServiceRegistration(final Object o) {
-					SchemaServiceListener listener = (SchemaServiceListener) o;
+                @Override
+                public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
+					SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
 					listener.onGlobalContextUpdated(getMockedSchemaContext());
 				}
 			};
@@ -275,10 +281,17 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		return nameCreated;
 	}
 
-	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction)
-			throws InstanceAlreadyExistsException, InstanceNotFoundException {
-		ObjectName nameCreated = transaction.lookupConfigBean("runtime-generated-mapping", "runtime-mapping-singleton");
-		return nameCreated;
+	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
+
+        try {
+            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+        } catch (InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+            } catch (InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
 	}
 
 	public static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
@@ -293,6 +306,25 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	public SchemaContext getMockedSchemaContext() {
 		List<String> paths = Arrays.asList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
 				"/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
-		return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
+        YangModelParser parser = new YangParserImpl();
+        Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(paths)));
+        return parser.resolveSchemaContext(new HashSet<>(inputStreamModuleMap.values()));
 	}
+
+    // TODO move back to AbstractConfigTest
+    private static Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
+        final Collection<InputStream> resources = new ArrayList<>();
+        List<String> failedToFind = new ArrayList<>();
+        for (String path : paths) {
+            InputStream resourceAsStream = RIBImplModuleTest.class.getResourceAsStream(path);
+            if (resourceAsStream == null) {
+                failedToFind.add(path);
+            } else {
+                resources.add(resourceAsStream);
+            }
+        }
+        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+
+        return resources;
+    }
 }

@@ -35,7 +35,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new Stateful07PCEPSessionProposalFactoryModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory));
 	}
 
 	@Test

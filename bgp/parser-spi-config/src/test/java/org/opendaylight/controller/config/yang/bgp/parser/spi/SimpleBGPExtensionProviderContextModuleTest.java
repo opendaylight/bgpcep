@@ -18,7 +18,8 @@ public class SimpleBGPExtensionProviderContextModuleTest extends AbstractConfigT
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new SimpleBGPExtensionProviderContextModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
+                new SimpleBGPExtensionProviderContextModuleFactory()));
     }
 
 
