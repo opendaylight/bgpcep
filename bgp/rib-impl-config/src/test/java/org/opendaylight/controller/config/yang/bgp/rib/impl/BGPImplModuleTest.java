@@ -50,7 +50,7 @@ public class BGPImplModuleTest extends AbstractConfigTest {
 		this.threadgropFactory = new NettyThreadgroupModuleFactory();
 		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.dispactherFactory, this.sessionFacotry, this.messageFactory, this.threadgropFactory, this.extensionFactory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory, this.dispactherFactory, this.sessionFacotry, this.messageFactory, this.threadgropFactory, this.extensionFactory));
 	}
 
 	@Test

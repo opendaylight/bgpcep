@@ -32,7 +32,7 @@ public class BGPSessionProposalImplModuleTest extends AbstractConfigTest {
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPSessionProposalImplModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory));
 	}
 
 	@Test

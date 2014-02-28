@@ -12,11 +12,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -34,7 +32,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "timed";
 	
-	private final String EXECUTOR_INSTANCE_NAME = "global-event-executor-insatnce"; 
+	private final String EXECUTOR_INSTANCE_NAME = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
 
 	private TimedReconnectStrategyModuleFactory factory;
 
@@ -44,7 +42,7 @@ public class TimedReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new TimedReconnectStrategyModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, executorFactory));
 	}
 

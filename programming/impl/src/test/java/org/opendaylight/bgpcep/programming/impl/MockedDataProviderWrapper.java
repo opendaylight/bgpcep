@@ -7,8 +7,20 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.concurrent.Future;
 import org.mockito.Matchers;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -22,19 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instructions;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import java.util.List;
-import java.util.concurrent.Future;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 final class MockedDataProviderWrapper {
 
@@ -139,7 +138,7 @@ final class MockedDataProviderWrapper {
 				.firstIdentifierOf(Instruction.class);
 		assertNotNull(instanceId);
 
-		InstanceIdentifier.PathArgument instructionPathArg = instanceId.getPathArguments().get(1);
+		InstanceIdentifier.PathArgument instructionPathArg = Lists.newArrayList(instanceId.getPathArguments()).get(1);
 		assertTrue(instructionPathArg instanceof InstanceIdentifier.IdentifiableItem);
 		InstructionKey expectedKey = new InstructionKey(expectedId);
 		assertEquals(expectedKey, ((InstanceIdentifier.IdentifiableItem<?, ?>) instructionPathArg).getKey());

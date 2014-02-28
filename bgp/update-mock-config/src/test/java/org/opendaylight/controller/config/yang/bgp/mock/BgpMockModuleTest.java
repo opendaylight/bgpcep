@@ -36,7 +36,7 @@ public class BgpMockModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new BgpMockModuleFactory();
 		this.eventBusFactory = new EventBusModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				this.factory, this.eventBusFactory));
 	}
 	

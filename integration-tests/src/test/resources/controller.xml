@@ -145,7 +145,7 @@
                                 binding:binding-broker-osgi-registry
                             </type>
                             <instance>
-                                <name>ref_binding-broker-impl</name>
+                                <name>binding-broker-impl</name>
                                 <provider>
                                     /config/modules/module[name='binding-broker-impl']/instance[name='binding-broker-impl']
                                 </provider>

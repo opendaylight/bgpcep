@@ -32,7 +32,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new PCEPSessionProposalFactoryImplModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 	}
 
 	@Test
-	public void testStatefulAfterCommitted() throws InstanceAlreadyExistsException, InstanceNotFoundException {
+	public void testStatefulAfterCommitted() throws Exception {
 		ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
 		createInstance(transaction, this.factory.getImplementationName(), this.instanceName, 400, 100, false, true, true, true);
 		transaction.validateConfig();
