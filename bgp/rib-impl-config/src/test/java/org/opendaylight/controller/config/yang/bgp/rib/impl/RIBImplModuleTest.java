@@ -269,10 +269,17 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		return nameCreated;
 	}
 
-	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction)
-			throws InstanceAlreadyExistsException, InstanceNotFoundException {
-		ObjectName nameCreated = transaction.lookupConfigBean("runtime-generated-mapping", "runtime-mapping-singleton");
-		return nameCreated;
+	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
+
+        try {
+            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+        } catch (InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+            } catch (InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
 	}
 
 	public static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
