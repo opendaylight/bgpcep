@@ -50,7 +50,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
 		this.extensionsFactory = new SimplePCEPExtensionProviderContextModuleFactory();
 		this.timerFactory = new HashedWheelTimerModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, sessionFactory, threadgroupFactory, extensionsFactory,
 				timerFactory));
 	}

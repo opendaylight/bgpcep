@@ -39,7 +39,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new NeverReconnectStrategyModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, executorFactory));
 	}
 
@@ -125,7 +125,7 @@ public class NeverReconnectStrategyModuleTest extends AbstractConfigTest {
 		NeverReconnectStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
 				nameCreated, NeverReconnectStrategyModuleMXBean.class);
 		mxBean.setTimeout(timeout);
-		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, eventexecutorModuleName, "global-event-executor1"));
+		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, eventexecutorModuleName, GlobalEventExecutorModuleFactory.SINGLETON_NAME));
 		return nameCreated;
 	}
 

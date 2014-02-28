@@ -39,7 +39,7 @@ public class ReconnectImmediatelyStrategyModuleTest extends AbstractConfigTest {
 	public void setUp() throws Exception {
 		this.factory = new ReconnectImmediatelyStrategyModuleFactory();
 		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
 				factory, executorFactory));
 	}
 
@@ -128,7 +128,7 @@ public class ReconnectImmediatelyStrategyModuleTest extends AbstractConfigTest {
 				.newMBeanProxy(nameCreated,
 						ReconnectImmediatelyStrategyModuleMXBean.class);
 		mxBean.setTimeout(timeout);
-		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, executorModuleName, "global-event-executor"));
+		mxBean.setExecutor(GlobalEventExecutorUtil.createInstance(transaction, executorModuleName, GlobalEventExecutorModuleFactory.SINGLETON_NAME));
 		return nameCreated;
 	}
 

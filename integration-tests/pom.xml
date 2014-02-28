@@ -143,12 +143,6 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>yang-store-impl</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-persister-impl</artifactId>
             <version>${controller.config.version}</version>
             <scope>test</scope>
@@ -359,5 +353,22 @@
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-it</artifactId>
+            <version>${controller.mdsal.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>org.opendaylight.controller</groupId>
+          <artifactId>netconf-client</artifactId>
+          <version>${controller.config.version}</version>
+          <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
+
 </project>
