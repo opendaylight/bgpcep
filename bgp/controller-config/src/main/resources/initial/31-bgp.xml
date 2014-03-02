@@ -64,7 +64,11 @@
 					<bgp-extensions>
 						<type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extensions</type>
 						<name>global-bgp-extensions</name>
-					</bgp-extensions>
+                    </bgp-extensions>
+                    <timer>
+						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-timer</type>
+						<name>global-timer</name>
+                    </timer>
 					<boss-group>
 						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-threadgroup</type>
 						<name>global-boss-group</name>

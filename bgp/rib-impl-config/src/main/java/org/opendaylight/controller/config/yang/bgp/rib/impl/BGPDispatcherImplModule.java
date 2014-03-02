@@ -41,14 +41,9 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplMo
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
-	}
-
-	@Override
 	public java.lang.AutoCloseable createInstance() {
 		final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
-		return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(),
+		return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getTimerDependency(),
 				getBossGroupDependency(), getWorkerGroupDependency());
 	}
 }
