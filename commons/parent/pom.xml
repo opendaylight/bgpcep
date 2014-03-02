@@ -187,6 +187,11 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
+                <artifactId>netty-timer-config</artifactId>
+                <version>${controller.config.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-api</artifactId>
                 <version>${controller.mdsal.version}</version>
             </dependency>

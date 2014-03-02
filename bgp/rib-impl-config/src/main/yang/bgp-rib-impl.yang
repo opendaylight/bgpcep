@@ -75,6 +75,15 @@ module bgp-rib-impl {
                 }
             }
 
+            container timer {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity netty:netty-timer;
+                    }
+                }
+            }
+
             container boss-group {
                 uses config:service-ref {
                     refine type {

@@ -45,6 +45,7 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreModuleMXBean;
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
+import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.store.impl.YangParserWrapper;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
@@ -82,6 +83,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 	private DomBrokerImplModuleFactory domBrokerFactory;
 	private RuntimeMappingModuleFactory runtimeMappingFactory;
 	private HashMapDataStoreModuleFactory dataStroreFactory;
+	private HashedWheelTimerModuleFactory hwtFactory;
 
 	@Mock
 	private DataModificationTransaction mockedTransaction;
@@ -111,6 +113,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		this.domBrokerFactory = new DomBrokerImplModuleFactory();
 		this.runtimeMappingFactory = new RuntimeMappingModuleFactory();
 		this.dataStroreFactory = new HashMapDataStoreModuleFactory();
+		this.hwtFactory = new HashedWheelTimerModuleFactory();
 
 		List<ModuleFactory> moduleFactories = getModuleFactories();
 		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
@@ -182,7 +185,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 				this.dispactherFactory, this.threadgroupFactory,
 				this.reconnectFactory, this.dataBrokerFactory, this.executorFactory, this.extensionFactory,
 				this.ribExtensionsFactory, this.domBrokerFactory, this.runtimeMappingFactory,
-				this.dataStroreFactory);
+				this.dataStroreFactory, this.hwtFactory);
 	}
 
 	@Override
@@ -213,7 +216,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 		CommitStatus status = transaction.commit();
 		Thread.sleep(2000);
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 13, 0, 0);
+		assertStatus(status, 14, 0, 0);
 	}
 
 	@After
@@ -276,15 +279,15 @@ public class RIBImplModuleTest extends AbstractConfigTest {
 
 	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
 
-        try {
-            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-        } catch (InstanceNotFoundException e) {
-            try {
-                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-            } catch (InstanceAlreadyExistsException e1) {
-                throw new IllegalStateException(e1);
-            }
-        }
+		try {
+			return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+		} catch (InstanceNotFoundException e) {
+			try {
+				return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
+			} catch (InstanceAlreadyExistsException e1) {
+				throw new IllegalStateException(e1);
+			}
+		}
 	}
 
 	public static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
