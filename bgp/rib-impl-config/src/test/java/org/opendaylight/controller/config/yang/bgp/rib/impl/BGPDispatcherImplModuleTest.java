@@ -23,6 +23,8 @@ import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtension
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
+import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
+import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 
 public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
@@ -36,13 +38,17 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
 	private SimpleBGPExtensionProviderContextModuleFactory extensionFactory;
 
+	private HashedWheelTimerModuleFactory hwtFactory;
+
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new BGPDispatcherImplModuleFactory();
 		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
 		this.messageFactory = new RIBExtensionsImplModuleFactory();
 		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, threadgroupFactory, messageFactory, extensionFactory));
+		this.hwtFactory = new HashedWheelTimerModuleFactory();
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+				this.factory, threadgroupFactory, messageFactory, extensionFactory, hwtFactory));
 	}
 
 	@Test
@@ -53,7 +59,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		transaction.validateConfig();
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 4, 0, 0);
+		assertStatus(status, 5, 0, 0);
 	}
 
 	@Test
@@ -67,11 +73,11 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		assertBeanCount(1, factory.getImplementationName());
 		CommitStatus status = transaction.commit();
 		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 0, 4);
+		assertStatus(status, 0, 0, 5);
 	}
 
 	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-                                            final String instanceName) throws InstanceAlreadyExistsException {
+			final String instanceName) throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(
 				moduleName, instanceName);
 		BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
@@ -79,6 +85,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		mxBean.setBossGroup(createThreadgroupInstance(transaction, "boss-threadgroup", 10));
 		mxBean.setWorkerGroup(createThreadgroupInstance(transaction, "worker-threadgroup", 10));
 		mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction, "bgp-extensions"));
+		mxBean.setTimer(createTimerInstance(transaction, ""));
 		return nameCreated;
 	}
 
@@ -94,10 +101,20 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 		return nameCreated;
 	}
 
+	public static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction, final String instanceName)
+			throws InstanceAlreadyExistsException {
+		ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME,
+				instanceName);
+		HashedWheelTimerModuleMXBean mxBean = transaction.newMBeanProxy(
+				nameCreated, HashedWheelTimerModuleMXBean.class);
+		return nameCreated;
+
+	}
+
 	public static ObjectName createBgpExtensionsInstance(
 			final ConfigTransactionJMXClient transaction,
 			final String instanceName)
-			throws InstanceAlreadyExistsException {
+					throws InstanceAlreadyExistsException {
 		ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME,
 				instanceName);
 		transaction.newMBeanProxy(nameCreated,

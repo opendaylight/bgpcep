@@ -39,8 +39,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	public void customValidation() {
 		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", this.extensionsJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", this.ribIdJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", this.localAsJmxAttribute);
