@@ -42,6 +42,7 @@ public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message
 
 		final ByteBuf body = Unpooled.buffer();
 		final MessageSerializer serializer = this.registry.getMessageSerializer(msg);
+		LOG.trace("Choosen serializer {}", serializer);
 		serializer.serializeMessage(msg, body);
 
 		final int msgLength = body.readableBytes() + PCEPMessageConstants.COMMON_HEADER_LENGTH;
