@@ -13,7 +13,6 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:impl?module=odl-pcep-impl-cfg&amp;revision=2013-06-27</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=config-pcep-spi&amp;revision=2013-11-15</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider?module=config-pcep-topology-provider&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=config-programming-spi&amp;revision=2013-11-15</capability>
 
     </required-capabilities>
@@ -102,41 +101,6 @@
                         <name>global-timer</name>
                     </timer>
                 </module>
-
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful02</type>
-                    <name>global</name>
-                </module>
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful07</type>
-                    <name>global</name>
-                </module>
-
-                <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-provider</type>
-                    <name>pcep-topology</name>
-                    <data-provider>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
-                        <name>binding-data-broker</name>
-                    </data-provider>
-                    <dispatcher>
-                        <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep">pcep:pcep-dispatcher</type>
-                        <name>global-pcep-dispatcher</name>
-                    </dispatcher>
-                    <rpc-registry>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-rpc-registry</type>
-                        <name>binding-rpc-broker</name>
-                    </rpc-registry>
-                    <scheduler>
-                        <type xmlns:pgmspi="urn:opendaylight:params:xml:ns:yang:controller:programming:spi">pgmspi:instruction-scheduler</type>
-                        <name>global-instruction-scheduler</name>
-                    </scheduler>
-                    <stateful-plugin>
-                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">prefix:pcep-topology-stateful</type>
-                        <name>stateful07</name>
-                    </stateful-plugin>
-                    <topology-id>pcep-topology</topology-id>
-                </module>
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
@@ -182,24 +146,6 @@
                     <instance>
                         <name>global-pcep-dispatcher</name>
                         <provider>/config/modules/module[name='pcep-dispatcher-impl']/instance[name='global-pcep-dispatcher']</provider>
-                    </instance>
-                </service>
-                <service>
-                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">pcep:pcep-topology-reference</type>
-                    <instance>
-                        <name>pcep-topology</name>
-                        <provider>/config/modules/module[name='pcep-topology-provider']/instance[name='pcep-topology']</provider>
-                    </instance>
-                </service>
-                <service>
-                    <type xmlns:pcep="urn:opendaylight:params:xml:ns:yang:controller:pcep:topology:provider">pcep:pcep-topology-stateful</type>
-                    <instance>
-                        <name>stateful02</name>
-                        <provider>/config/modules/module[name='pcep-topology-stateful02']/instance[name='global']</provider>
-                    </instance>
-                    <instance>
-                        <name>stateful07</name>
-                        <provider>/config/modules/module[name='pcep-topology-stateful07']/instance[name='global']</provider>
                     </instance>
                 </service>
             </services>
