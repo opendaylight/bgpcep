@@ -16,10 +16,12 @@ import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
 import com.google.common.primitives.UnsignedBytes;
@@ -126,12 +128,31 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {
-		return new byte[0];
+		if (tlvs == null) {
+			return new byte[0];
+		}
+		byte[] vsTlvBytes = null;
+		if (tlvs.getVsTlv() != null) {
+			vsTlvBytes = serializeTlv(tlvs.getVsTlv());
+		}
+		byte[] result = new byte[0];
+		if (vsTlvBytes != null) {
+			result = new byte[vsTlvBytes.length];
+			ByteArray.copyWhole(vsTlvBytes, result, 0);
+		}
+		return result;
+	}
+
+	@Override
+	protected void addTlv(TlvsBuilder builder, Tlv tlv) {
+		if (tlv instanceof VsTlv) {
+			builder.setVsTlv((VsTlv) tlv);
+		}
 	}
 
 	@Override
 	public int getObjectType() {
-		return TYPE;
+	        return TYPE;
 	}
 
 	@Override
