@@ -236,7 +236,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
-
+		pb.fieldsFrom(input.getArguments());
+		rb.setPath(pb.build());
 		final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ub.setUpdates(ImmutableList.of(rb.build()));
 		return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
