@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_cd3d9dbd",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-03-05T13:24:57Z",
+      "side": 1,
+      "message": "We should either create a \"tlv-enabled-object\" grouping, or drop this lonely line.",
+      "revId": "c064f908406e2bed353240fdc6a07e1c23ff0ce5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
