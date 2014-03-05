@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_8a2b0b94",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-03-05T12:23:36Z",
+      "side": 1,
+      "message": "Whitespace!",
+      "revId": "f9755984a1d196d82a205c6c06b20349a15935ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_6a18d784",
+        "filename": "pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/object/PCEPLspaObjectParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-03-05T12:23:36Z",
+      "side": 1,
+      "message": "Whitespace!",
+      "revId": "f9755984a1d196d82a205c6c06b20349a15935ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a5c5d37_4a1d1373",
+        "filename": "pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/AbstractVendorSpecificTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-03-05T12:23:36Z",
+      "side": 1,
+      "message": "Whitespaces!",
+      "revId": "f9755984a1d196d82a205c6c06b20349a15935ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
