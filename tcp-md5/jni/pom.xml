@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2013 Robert Varga. All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>tcpmd5-parent</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>tcpmd5-jni</artifactId>
+    <description>Native support for RFC2385-enabled TCP sockets</description>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
+
+    <properties>
+        <nar.groupId>com.github.maven-nar</nar.groupId>
+        <nar.version>3.0.0</nar.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Testing dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Export-Package>
+                            org.opendaylight.bgpcep.jni
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Let eclipse know about the generated sources -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>target/nar/nar-generated</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>${nar.groupId}</groupId>
+                <artifactId>nar-maven-plugin</artifactId>
+                <version>${nar.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <c/>
+                    <libraries>
+                        <library>
+                            <type>jni</type>
+                            <narSystemPackage>org.opendaylight.bgpcep.tcpmd5.jni</narSystemPackage>
+                            <linkCPP>false</linkCPP>
+                        </library>
+                    </libraries>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>nar-validate</goal>
+                            <goal>nar-download</goal>
+                            <goal>nar-unpack</goal>
+                            <goal>nar-assembly</goal>
+                            <goal>nar-system-generate</goal>
+                            <goal>nar-resources</goal>
+                            <goal>nar-javah</goal>
+                            <goal>nar-compile</goal>
+                            <goal>nar-package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>${nar.groupId}</groupId>
+                                        <artifactId>nar-maven-plugin</artifactId>
+                                        <versionRange>${nar.version}</versionRange>
+                                        <goals>
+                                            <goal>nar-assembly</goal>
+                                            <goal>nar-compile</goal>
+                                            <goal>nar-download</goal>
+                                            <goal>nar-gnu-configure</goal>
+                                            <goal>nar-gnu-make</goal>
+                                            <goal>nar-gnu-process</goal>
+                                            <goal>nar-gnu-resources</goal>
+                                            <goal>nar-javah</goal>
+                                            <goal>nar-process-libraries</goal>
+                                            <goal>nar-resources</goal>
+                                            <goal>nar-system-generate</goal>
+                                            <goal>nar-testCompile</goal>
+                                            <goal>nar-testDownload</goal>
+                                            <goal>nar-testUnpack</goal>
+                                            <goal>nar-unpack</goal>
+                                            <goal>nar-validate</goal>
+                                            <goal>nar-vcproj</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>imagej.thirdparty</id>
+            <url>http://maven.imagej.net/content/repositories/thirdparty</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <site>
+            <id>${project.artifactId}</id>
+            <name>TCPMD5-JNI Module site</name>
+            <url>${basedir}/target/site/${project.artifactId}</url>
+        </site>
+    </distributionManagement>
+</project>
