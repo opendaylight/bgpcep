@@ -119,6 +119,11 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 			final ReportedLspBuilder rlb = new ReportedLspBuilder();
 			rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder().setLsp(r.getLsp()).build());
+			if (r.getPath() != null) {
+				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
+				pb.fieldsFrom(r.getPath());
+				rlb.setPath(pb.build());
+			}
 			boolean solicited = false;
 
 			if (id.getValue() != 0) {
