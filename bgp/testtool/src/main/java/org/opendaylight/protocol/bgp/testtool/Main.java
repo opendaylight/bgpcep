@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.net.InetAddress;
@@ -62,7 +63,8 @@ public final class Main {
 	private static final int RECONNECT_MILLIS = 5000;
 
 	private Main() throws Exception {
-		this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+		this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(),
+				new HashedWheelTimer(), new NioEventLoopGroup(), new NioEventLoopGroup());
 	}
 
 	public static void main(final String[] args) throws Exception {

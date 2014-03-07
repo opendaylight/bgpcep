@@ -30,7 +30,6 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -114,7 +113,7 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
 		transaction.validateConfig();
 		final CommitStatus status = transaction.commit();
 		assertBeanCount(1, BGPPeerModuleFactory.NAME);
-		assertStatus(status, 15, 0, 0);
+		assertStatus(status, 16, 0, 0);
 	}
 
 	@Override
@@ -138,7 +137,7 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
 		assertBeanCount(1, BGPPeerModuleFactory.NAME);
 		status = transaction.commit();
 		assertBeanCount(1, BGPPeerModuleFactory.NAME);
-		assertStatus(status, 0, 0, 15);
+		assertStatus(status, 0, 0, 16);
 	}
 
 	@Test
@@ -154,6 +153,6 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
 		mxBean.setPort(new PortNumber(10));
 		status = transaction.commit();
 		assertBeanCount(1, BGPPeerModuleFactory.NAME);
-		assertStatus(status, 0, 1, 14);
+		assertStatus(status, 0, 1, 15);
 	}
 }

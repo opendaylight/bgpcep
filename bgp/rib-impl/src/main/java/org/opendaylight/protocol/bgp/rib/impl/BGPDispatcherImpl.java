@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
@@ -26,16 +25,18 @@ import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Implementation of BGPDispatcher.
  */
 public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, AutoCloseable {
-	private final Timer timer = new HashedWheelTimer();
-
 	private final BGPHandlerFactory hf;
+	private final Timer timer;
 
-	public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
+	public BGPDispatcherImpl(final MessageRegistry messageRegistry, final Timer timer, final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
 		super(bossGroup, workerGroup);
+		this.timer = Preconditions.checkNotNull(timer);
 		this.hf = new BGPHandlerFactory(messageRegistry);
 	}
 
