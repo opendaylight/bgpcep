@@ -70,7 +70,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
@@ -159,7 +159,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 				org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.subobject.subobject.type.PathKeyCase.class,
 				new RROPathKey32SubobjectParser());
 
-		final XROSubobjectHandlerRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
+		final XROSubobjectRegistry xroSubReg = context.getXROSubobjectHandlerRegistry();
 		context.registerXROSubobjectParser(XROIpv4PrefixSubobjectParser.TYPE, new XROIpv4PrefixSubobjectParser());
 		context.registerXROSubobjectParser(XROIpv6PrefixSubobjectParser.TYPE, new XROIpv6PrefixSubobjectParser());
 		context.registerXROSubobjectParser(XROAsNumberSubobjectParser.TYPE, new XROAsNumberSubobjectParser());
