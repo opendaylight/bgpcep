@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.spi.pojo;
+package org.opendaylight.protocol.bgp.parser.spi;
 
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
