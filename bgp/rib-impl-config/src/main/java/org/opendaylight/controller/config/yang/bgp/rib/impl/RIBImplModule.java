@@ -43,10 +43,10 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", this.extensionsJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", this.ribIdJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", this.localAsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", this.localAsJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", this.bgpIdJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", this.tcpReconnectStrategyJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", this.sessionReconnectStrategyJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", this.sessionReconnectStrategyJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", this.localTableJmxAttribute);
 	}
 
 	@Override

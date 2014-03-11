@@ -7,10 +7,11 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -69,239 +71,283 @@ import org.osgi.framework.ServiceReference;
 import com.google.common.collect.Lists;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
-	private static final String INSTANCE_NAME = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
-	private static final String TRANSACTION_NAME = "testTransaction";
+    private static final String INSTANCE_NAME = "rib-impl";
+    private static final String FACTORY_NAME = RIBImplModuleFactory.NAME;
+    private static final String TRANSACTION_NAME = "testTransaction";
 
-	private RIBImplModuleFactory factory;
-	private DataBrokerImplModuleFactory dataBrokerFactory;
-	private TimedReconnectStrategyModuleFactory reconnectFactory;
-	private BGPDispatcherImplModuleFactory dispactherFactory;
-	private NettyThreadgroupModuleFactory threadgroupFactory;
-	private GlobalEventExecutorModuleFactory executorFactory;
-	private SimpleBGPExtensionProviderContextModuleFactory extensionFactory;
-	private RIBExtensionsImplModuleFactory ribExtensionsFactory;
-	private DomBrokerImplModuleFactory domBrokerFactory;
-	private RuntimeMappingModuleFactory runtimeMappingFactory;
-	private HashMapDataStoreModuleFactory dataStroreFactory;
-	private HashedWheelTimerModuleFactory hwtFactory;
+    private static final String RIB_ID = "test";
+    private static final String BGP_ID = "192.168.1.1";
 
-	@Mock
-	private DataModificationTransaction mockedTransaction;
+    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-impl";
+    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy";
+    private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-impl";
+    private static final String DOM_BROKER_INSTANCE_NAME = "data-broker-impl";
+    private static final String DATA_STORE_INSTANCE_NAME = "data-store-impl";
+    private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
 
-	@Mock
-	private DataProviderService mockedDataProvider;
+    @Mock
+    private DataModificationTransaction mockedTransaction;
 
-	@Mock
-	private Future<RpcResult<TransactionStatus>> mockedFuture;
+    @Mock
+    private DataProviderService mockedDataProvider;
 
-	@Mock
-	private RpcResult<TransactionStatus> mockedResult;
+    @Mock
+    private Future<RpcResult<TransactionStatus>> mockedFuture;
 
-	@SuppressWarnings("unchecked")
-	@Before
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
+    @Mock
+    private RpcResult<TransactionStatus> mockedResult;
 
-		this.factory = new RIBImplModuleFactory();
-		this.dataBrokerFactory = new DataBrokerImplModuleFactory();
-		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		this.dispactherFactory = new BGPDispatcherImplModuleFactory();
-		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
-		this.reconnectFactory = new TimedReconnectStrategyModuleFactory();
-		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		this.ribExtensionsFactory = new RIBExtensionsImplModuleFactory();
-		this.domBrokerFactory = new DomBrokerImplModuleFactory();
-		this.runtimeMappingFactory = new RuntimeMappingModuleFactory();
-		this.dataStroreFactory = new HashMapDataStoreModuleFactory();
-		this.hwtFactory = new HashedWheelTimerModuleFactory();
+    @SuppressWarnings("unchecked")
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
 
-		List<ModuleFactory> moduleFactories = getModuleFactories();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
-				.toArray(new ModuleFactory[moduleFactories.size()])));
+        List<ModuleFactory> moduleFactories = getModuleFactories();
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
+                .toArray(new ModuleFactory[moduleFactories.size()])));
 
-		Filter mockedFilter = mock(Filter.class);
-		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        Filter mockedFilter = mock(Filter.class);
+        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
-		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
 
-		Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
 
-		Mockito.doReturn(new Bundle[]{}).when(mockedContext).getBundles();
+        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-		Mockito.doReturn(new ServiceReference[]{}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
+                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
-		ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
+        ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
-		ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
+        ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
 
+        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
-		Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
 
-		Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
 
-		Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-		Mockito.doReturn(new Bundle[]{}).when(mockedContext).getBundles();
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
+                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
-		Mockito.doReturn(new ServiceReference[]{}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        // mockedDataProvider = mock(DataProviderService.class);
 
-		//mockedDataProvider = mock(DataProviderService.class);
+        Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
+        Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
+        //
+        Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
+        Mockito.doReturn(dataProviderServiceReference).when(mockedContext)
+                .getServiceReference(DataProviderService.class);
 
+        Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
 
-		Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
-		Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
-		//
-		Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-		Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
+        // Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
+        Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-		Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
+        Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
+        Mockito.doReturn(registration).when(mockedDataProvider)
+                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
+        Mockito.doReturn(registration).when(mockedDataProvider)
+                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
 
-		//Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
-		Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+        Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
+        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
+        Mockito.doNothing().when(mockedTransaction)
+                .putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
+        Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
 
-		Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-				any(DataCommitHandler.class));
-		Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-				any(DataCommitHandler.class));
+        Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
+        Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
 
-		Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
-		Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
+        Mockito.doReturn(mockedResult).when(mockedFuture).get();
+        Mockito.doReturn(true).when(mockedResult).isSuccessful();
+        Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
+    }
 
-		Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
-		Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
+    protected List<ModuleFactory> getModuleFactories() {
+        return Lists.newArrayList(new RIBImplModuleFactory(), new DataBrokerImplModuleFactory(),
+                new GlobalEventExecutorModuleFactory(), new BGPDispatcherImplModuleFactory(),
+                new NettyThreadgroupModuleFactory(), new TimedReconnectStrategyModuleFactory(),
+                new SimpleBGPExtensionProviderContextModuleFactory(), new RIBExtensionsImplModuleFactory(),
+                new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
+                new HashMapDataStoreModuleFactory(), new HashedWheelTimerModuleFactory());
+    }
 
-		Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
-		Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
+    @Override
+    protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(
+            final Class<?> serviceType) {
+        if (serviceType.equals(SchemaServiceListener.class)) {
+            return new BundleContextServiceRegistrationHandler() {
+                @Override
+                public void handleServiceRegistration(final Object o) {
+                    SchemaServiceListener listener = (SchemaServiceListener) o;
+                    listener.onGlobalContextUpdated(getMockedSchemaContext());
+                }
+            };
+        }
 
-		Mockito.doReturn(mockedResult).when(mockedFuture).get();
-		Mockito.doReturn(true).when(mockedResult).isSuccessful();
-		Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
-	}
+        return super.getBundleContextServiceRegistrationHandler(serviceType);
+    }
 
-	protected List<ModuleFactory> getModuleFactories() {
-		return Lists.newArrayList(this.factory,
-				this.dispactherFactory, this.threadgroupFactory,
-				this.reconnectFactory, this.dataBrokerFactory, this.executorFactory, this.extensionFactory,
-				this.ribExtensionsFactory, this.domBrokerFactory, this.runtimeMappingFactory,
-				this.dataStroreFactory, this.hwtFactory);
-	}
+    @Test
+    public void testValidationExceptionRibIdNotSet() throws Exception {
+        try {
+            createInstance(null, 500L, new Ipv4Address(BGP_ID));
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("RibId is not set."));
+        }
+    }
 
-	@Override
-	protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
-		if (serviceType.equals(SchemaServiceListener.class)) {
-			return new BundleContextServiceRegistrationHandler() {
-				@Override
-				public void handleServiceRegistration(final Object o) {
-					SchemaServiceListener listener = (SchemaServiceListener) o;
-					listener.onGlobalContextUpdated(getMockedSchemaContext());
-				}
-			};
-		}
+    @Test
+    public void testValidationExceptionLocalAsNotSet() throws Exception {
+        try {
+            createInstance(new RibId(RIB_ID), null, new Ipv4Address(BGP_ID));
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("LocalAs is not set."));
+        }
+    }
 
-		return super.getBundleContextServiceRegistrationHandler(serviceType);
-	}
+    @Test
+    public void testValidationExceptionBgpIdNotSet() throws Exception {
+        try {
+            createInstance(new RibId(RIB_ID), 500L, null);
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("BgpId is not set."));
+        }
+    }
 
-	@Test
-	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), INSTANCE_NAME,
-				this.dataBrokerFactory.getImplementationName(), this.reconnectFactory.getImplementationName(),
-				this.executorFactory.getImplementationName(), this.dispactherFactory.getImplementationName(),
-				this.ribExtensionsFactory.getImplementationName(), this.domBrokerFactory.getImplementationName(),
-				this.dataStroreFactory.getImplementationName());
-		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		Thread.sleep(2000);
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 14, 0, 0);
-	}
+    @Test
+    public void testCreateBean() throws Exception {
+        CommitStatus status = createInstance();
+        Thread.sleep(2000);
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 14, 0, 0);
+    }
 
-	@After
-	public void closeAllModules() throws Exception {
-		super.destroyAllConfigBeans();
-	}
+    @Test
+    public void testReusingOldInstance() throws Exception {
+        createInstance();
+        Thread.sleep(2000);
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 0, 14);
+    }
 
-	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String bindingDataModuleName, final String reconnectModueName,
-			final String executorModuleName, final String dispatcherModuleName, final String ribExtensionsModuleName,
-			final String domBrokerModuleName, final String dataStroreModuleName)
-					throws Exception {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(
-				nameCreated, RIBImplModuleMXBean.class);
-		ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "session-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null);
-		mxBean.setSessionReconnectStrategy(reconnectObjectName);
-		mxBean.setDataProvider(createDataBrokerInstance(transaction, bindingDataModuleName, "data-broker-impl", domBrokerModuleName, dataStroreModuleName));
-		ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, reconnectModueName, "tcp-reconnect-strategy", 100, 1000L, new BigDecimal(1.0), 5000L, 2000L, null);
-		mxBean.setTcpReconnectStrategy(reconnectStrategyON);
-		mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction, dispatcherModuleName, "bgp-dispatcher"));
-		mxBean.setExtensions(createRibExtensionsInstance(transaction, ribExtensionsModuleName, "rib-extensions-privider1"));
-		mxBean.setRibId(new RibId("test"));
-		mxBean.setLocalAs(5000L);
-		mxBean.setBgpId(new Ipv4Address("192.168.1.1"));
-		return nameCreated;
-	}
+    @Test
+    public void testReconfigure() throws Exception {
+        createInstance();
+        Thread.sleep(2000);
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        final RIBImplModuleMXBean mxBean = transaction.newMBeanProxy(
+                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), RIBImplModuleMXBean.class);
+        mxBean.setLocalAs(100L);
+        final CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 1, 13);
+    }
 
-	public static ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String domBrokerModuleName, final String dataStroreModuleName) throws
-			InstanceAlreadyExistsException, InstanceNotFoundException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		DataBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, DataBrokerImplModuleMXBean.class);
-		mxBean.setDomBroker(createDomBrokerInstance(transaction, domBrokerModuleName, "dom-broker1", dataStroreModuleName));
-		mxBean.setMappingService(lookupMappingServiceInstance(transaction));
-		return nameCreated;
-	}
+    @After
+    public void closeAllModules() throws Exception {
+        super.destroyAllConfigBeans();
+    }
 
-	public static ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName, final String dataStroreModuleName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		DomBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, DomBrokerImplModuleMXBean.class);
-		mxBean.setDataStore(createDataStoreInstance(transaction, dataStroreModuleName, "has-map-data-strore-instance"));
-		return nameCreated;
-	}
+    private CommitStatus createInstance() throws Exception {
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createInstance(transaction);
+        return transaction.commit();
+    }
 
-	public static ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		transaction.newMBeanProxy(
-				nameCreated, HashMapDataStoreModuleMXBean.class);
-		return nameCreated;
-	}
+    private CommitStatus createInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId)
+            throws Exception {
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createInstance(transaction, ribId, localAs, bgpId);
+        return transaction.commit();
+    }
 
-	public static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
+    private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final RibId ribId,
+            final Long localAs, final Ipv4Address bgpId) throws Exception {
+        ObjectName nameCreated = transaction.createModule(RIBImplModuleFactory.NAME, INSTANCE_NAME);
+        RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
+        ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction,
+                SESSION_RS_INSTANCE_NAME);
+        mxBean.setSessionReconnectStrategy(reconnectObjectName);
+        mxBean.setDataProvider(createDataBrokerInstance(transaction));
+        ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction,
+                TCP_RS_INSTANCE_NAME);
+        mxBean.setTcpReconnectStrategy(reconnectStrategyON);
+        mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
+        mxBean.setExtensions(createRibExtensionsInstance(transaction));
+        mxBean.setRibId(ribId);
+        mxBean.setLocalAs(localAs);
+        mxBean.setBgpId(bgpId);
+        return nameCreated;
+    }
 
-		try {
-			return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-		} catch (InstanceNotFoundException e) {
-			try {
-				return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-			} catch (InstanceAlreadyExistsException e1) {
-				throw new IllegalStateException(e1);
-			}
-		}
-	}
+    public static ObjectName createInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+        return createInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID));
+    }
 
-	public static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		transaction.newMBeanProxy(
-				nameCreated, RIBExtensionsImplModuleMXBean.class);
-		return nameCreated;
-	}
+    private static ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException, InstanceNotFoundException {
+        ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
+        DataBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
+        mxBean.setDomBroker(createDomBrokerInstance(transaction));
+        mxBean.setMappingService(lookupMappingServiceInstance(transaction));
+        return nameCreated;
+    }
 
-	public SchemaContext getMockedSchemaContext() {
-		List<String> paths = Arrays.asList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
-				"/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
-		return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
-	}
+    private static ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+        DomBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
+        mxBean.setDataStore(createDataStoreInstance(transaction));
+        return nameCreated;
+    }
+
+    private static ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(HashMapDataStoreModuleFactory.NAME, DATA_STORE_INSTANCE_NAME);
+        transaction.newMBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
+        return nameCreated;
+    }
+
+    private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
+
+        try {
+            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME,
+                    RuntimeMappingModuleFactory.SINGLETON_NAME);
+        } catch (InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME,
+                        RuntimeMappingModuleFactory.SINGLETON_NAME);
+            } catch (InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
+    }
+
+    private static ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME,
+                RIB_EXTENSIONS_INSTANCE_NAME);
+        transaction.newMBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
+        return nameCreated;
+    }
+
+    public SchemaContext getMockedSchemaContext() {
+        List<String> paths = Arrays.asList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
+                "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang",
+                "/META-INF/yang/bgp-types.yang");
+        return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
+    }
 }
