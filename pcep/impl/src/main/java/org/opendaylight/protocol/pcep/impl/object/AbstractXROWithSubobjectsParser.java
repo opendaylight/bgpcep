@@ -12,8 +12,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.slf4j.Logger;
@@ -35,9 +34,9 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
 	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
 
-	private final XROSubobjectHandlerRegistry subobjReg;
+	private final XROSubobjectRegistry subobjReg;
 
-	protected AbstractXROWithSubobjectsParser(final XROSubobjectHandlerRegistry subobjReg) {
+	protected AbstractXROWithSubobjectsParser(final XROSubobjectRegistry subobjReg) {
 		this.subobjReg = Preconditions.checkNotNull(subobjReg);
 	}
 
@@ -70,31 +69,30 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 			soContentsBytes = ByteArray.subByte(bytes, offset, length - SO_CONTENTS_OFFSET);
 
 			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobject sub = this.subobjReg.getSubobjectParser(type).parseSubobject(soContentsBytes, mandatory);
-			LOG.debug("Subobject was parsed. {}", sub);
-
-			subs.add(sub);
-
+			final Subobject sub = this.subobjReg.parseSubobject(type, soContentsBytes, mandatory);
+			if (sub == null) {
+				LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
+			} else {
+				LOG.debug("Subobject was parsed. {}", sub);
+				subs.add(sub);
+			}
 			offset += soContentsBytes.length;
 		}
 		return subs;
 	}
 
 	protected final byte[] serializeSubobject(final List<Subobject> subobjects) {
-
 		final List<byte[]> result = Lists.newArrayList();
-
 		int finalLength = 0;
-
 		for (final Subobject subobject : subobjects) {
-
-			final XROSubobjectSerializer serializer = this.subobjReg.getSubobjectSerializer(subobject.getSubobjectType());
-
-			final byte[] bytes = serializer.serializeSubobject(subobject);
-			finalLength += bytes.length;
-			result.add(bytes);
+			final byte[] bytes = this.subobjReg.serializeSubobject(subobject);
+			if (bytes == null) {
+				LOG.warn("Could not find serializer for subobject type: {}. Skipping subobject.", subobject.getSubobjectType());
+			} else  {
+				finalLength += bytes.length;
+				result.add(bytes);
+			}
 		}
-
 		final byte[] resultBytes = new byte[finalLength];
 		int byteOffset = 0;
 		for (final byte[] b : result) {
