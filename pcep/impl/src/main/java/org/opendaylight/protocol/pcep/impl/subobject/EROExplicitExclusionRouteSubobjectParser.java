@@ -13,9 +13,7 @@ import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
@@ -37,9 +35,9 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
 	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
 
-	private final XROSubobjectHandlerRegistry registry;
+	private final XROSubobjectRegistry registry;
 
-	public EROExplicitExclusionRouteSubobjectParser(final XROSubobjectHandlerRegistry registry) {
+	public EROExplicitExclusionRouteSubobjectParser(final XROSubobjectRegistry registry) {
 		this.registry = registry;
 	}
 
@@ -109,9 +107,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
 			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
 
-			final XROSubobjectParser parser = this.registry.getSubobjectParser(type);
-
-			subs.add(parser.parseSubobject(soContentsBytes, mandatory));
+			subs.add(this.registry.parseSubobject(type, soContentsBytes, mandatory));
 
 			offset += length;
 		}
@@ -127,9 +123,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 
 		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject subobject : subobjects) {
 
-			final XROSubobjectSerializer serializer = this.registry.getSubobjectSerializer(subobject.getSubobjectType());
-
-			final byte[] bytes = serializer.serializeSubobject(subobject);
+			final byte[] bytes = this.registry.serializeSubobject(subobject);
 			finalLength += bytes.length;
 			result.add(bytes);
 		}
