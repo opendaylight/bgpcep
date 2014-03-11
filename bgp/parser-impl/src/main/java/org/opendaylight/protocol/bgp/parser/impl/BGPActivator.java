@@ -35,6 +35,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.MultiExitDiscrim
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -42,7 +43,6 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
