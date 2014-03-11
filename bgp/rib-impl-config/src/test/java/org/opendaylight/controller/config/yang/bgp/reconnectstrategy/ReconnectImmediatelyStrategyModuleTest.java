@@ -7,128 +7,103 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.config.api.ConflictingVersionException;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
-import org.opendaylight.controller.config.yang.reconnectstrategy.AbstractReconnectImmediatelyStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.ReconnectImmediatelyStrategyModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.ReconnectImmediatelyStrategyModuleMXBean;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 public class ReconnectImmediatelyStrategyModuleTest extends AbstractConfigTest {
 
-	private final String instanceName = GlobalEventExecutorModuleFactory.SINGLETON_NAME;
+    private static final String INSTANCE_NAME = "reconnect-immediately-strategy-impl";
+    private static final String FACTORY_NAME = ReconnectImmediatelyStrategyModuleFactory.NAME;
 
-	private ReconnectImmediatelyStrategyModuleFactory factory;
+    @Before
+    public void setUp() throws Exception {
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+                new ReconnectImmediatelyStrategyModuleFactory(), new GlobalEventExecutorModuleFactory()));
+    }
 
-	private GlobalEventExecutorModuleFactory executorFactory;
+    @Test
+    public void testValidationExceptionTimeoutNotSet() throws Exception {
+        try {
+            createInstance(null);
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("Timeout value is not set."));
+        }
+    }
 
-	@Before
-	public void setUp() throws Exception {
-		this.factory = new ReconnectImmediatelyStrategyModuleFactory();
-		this.executorFactory = new GlobalEventExecutorModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
-				factory, executorFactory));
-	}
+    @Test
+    public void testValidationExceptionTimeoutMinValue() throws Exception {
+        try {
+            createInstance(-1);
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("is less than 0"));
+        }
+    }
 
-	@Test
-	public void testValidationExceptionTimeoutNotSet()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, null);
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("Timeout value is not set."));
-		}
-	}
+    @Test
+    public void testCreateBean() throws Exception {
+        final CommitStatus status = createInstance();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 2, 0, 0);
+    }
 
-	@Test
-	public void testValidationExceptionTimeoutMinValue()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(), instanceName, -1);
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("is less than 0"));
-		}
-	}
+    @Test
+    public void testReusingOldInstance() throws Exception {
+        createInstance();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        final CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 0, 2);
+    }
 
-	@Test
-	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500);
-		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 2, 0, 0);
-	}
+    @Test
+    public void testReconfigure() throws Exception {
+        createInstance();
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        final ReconnectImmediatelyStrategyModuleMXBean mxBean = transaction.newMBeanProxy(
+                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+                ReconnectImmediatelyStrategyModuleMXBean.class);
+        mxBean.setTimeout(200);
+        final CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 1, 1);
+    }
 
-	@Test
-	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 100);
-		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 0, 2);
-	}
+    private CommitStatus createInstance() throws Exception {
+        return createInstance(500);
+    }
 
-	@Test
-	public void testReconfigure() throws InstanceAlreadyExistsException,
-			ConflictingVersionException, ValidationException,
-			InstanceNotFoundException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName, 500);
-		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		ReconnectImmediatelyStrategyModuleMXBean mxBean = transaction
-				.newMBeanProxy(transaction.lookupConfigBean(
-						AbstractReconnectImmediatelyStrategyModuleFactory.NAME,
-						instanceName),
-						ReconnectImmediatelyStrategyModuleMXBean.class);
-		mxBean.setTimeout(200);
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 1, 1);
-	}
+    private CommitStatus createInstance(final Integer timeout) throws Exception {
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createInstance(transaction, timeout);
+        return transaction.commit();
+    }
 
-	public static ObjectName createInstance(
-			final ConfigTransactionJMXClient transaction,
-			final String moduleName,
-			final String instanceName, final Integer timeout) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		ReconnectImmediatelyStrategyModuleMXBean mxBean = transaction
-				.newMBeanProxy(nameCreated,
-						ReconnectImmediatelyStrategyModuleMXBean.class);
-		mxBean.setTimeout(timeout);
-		mxBean.setExecutor(GlobalEventExecutorUtil.createOrGetInstance(transaction));
-		return nameCreated;
-	}
+    private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Integer timeout)
+            throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final ReconnectImmediatelyStrategyModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
+                ReconnectImmediatelyStrategyModuleMXBean.class);
+        mxBean.setTimeout(timeout);
+        mxBean.setExecutor(GlobalEventExecutorUtil.create(transaction));
+        return nameCreated;
+    }
 
 }
