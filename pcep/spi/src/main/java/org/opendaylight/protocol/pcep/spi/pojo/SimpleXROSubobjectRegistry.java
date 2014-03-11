@@ -8,16 +8,18 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleXROSubobjectHandlerRegistry implements XROSubobjectHandlerRegistry {
+public final class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
 	private final HandlerRegistry<DataContainer, XROSubobjectParser, XROSubobjectSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
@@ -31,13 +33,21 @@ public final class SimpleXROSubobjectHandlerRegistry implements XROSubobjectHand
 	}
 
 	@Override
-	public XROSubobjectParser getSubobjectParser(final int subobjectType) {
-		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
-		return this.handlers.getParser(subobjectType);
+	public Subobject parseSubobject(int type, byte[] buffer, boolean mandatory) throws PCEPDeserializerException {
+		Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
+		final XROSubobjectParser parser = this.handlers.getParser(type);
+		if (parser == null) {
+			return null;
+		}
+		return parser.parseSubobject(buffer, mandatory);
 	}
 
 	@Override
-	public XROSubobjectSerializer getSubobjectSerializer(final SubobjectType subobject) {
-		return this.handlers.getSerializer(subobject.getImplementedInterface());
+	public byte[] serializeSubobject(Subobject subobject) {
+		final XROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
+		if (serializer == null) {
+			return null;
+		}
+		return serializer.serializeSubobject(subobject);
 	}
 }

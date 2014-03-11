@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.XROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -30,7 +30,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 
 	private static final int FLAGS_OFFSET = 3;
 
-	public PCEPExcludeRouteObjectParser(final XROSubobjectHandlerRegistry registry) {
+	public PCEPExcludeRouteObjectParser(final XROSubobjectRegistry registry) {
 		super(registry);
 	}
 
