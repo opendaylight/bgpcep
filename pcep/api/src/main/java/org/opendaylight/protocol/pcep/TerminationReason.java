@@ -14,8 +14,8 @@ import com.google.common.collect.Maps;
 public enum TerminationReason {
 	Unknown((short) 1), ExpDeadtimer((short) 2), MalformedMsg((short) 3), TooManyUnknownReqRep((short) 4), TooManyUnknownMsg((short) 5);
 
-	short value;
-	static Map<Short, TerminationReason> valueMap;
+	private short value;
+	private static Map<Short, TerminationReason> valueMap;
 
 	static {
 		valueMap = Maps.newHashMap();
