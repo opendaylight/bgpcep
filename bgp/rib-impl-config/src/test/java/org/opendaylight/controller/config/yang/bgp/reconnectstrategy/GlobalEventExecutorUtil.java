@@ -7,25 +7,27 @@
  */
 package org.opendaylight.controller.config.yang.bgp.reconnectstrategy;
 
-import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
-import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 
+import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
+
 public class GlobalEventExecutorUtil {
 
-	public static ObjectName createOrGetInstance(
-            final ConfigTransactionJMXClient transaction)
-			throws InstanceAlreadyExistsException {
-        ObjectName on;
+    public static ObjectName create(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         try {
-            on =  transaction.lookupConfigBean(GlobalEventExecutorModuleFactory.NAME, GlobalEventExecutorModuleFactory.SINGLETON_NAME);
+            return transaction.lookupConfigBean(GlobalEventExecutorModuleFactory.NAME,
+                    GlobalEventExecutorModuleFactory.SINGLETON_NAME);
         } catch (InstanceNotFoundException e) {
-            on = transaction.createModule(GlobalEventExecutorModuleFactory.NAME, GlobalEventExecutorModuleFactory.SINGLETON_NAME);
+            try {
+                return transaction.createModule(GlobalEventExecutorModuleFactory.NAME,
+                        GlobalEventExecutorModuleFactory.SINGLETON_NAME);
+            } catch (InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
         }
-		return on;
-	}
+    }
 
 }

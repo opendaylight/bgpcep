@@ -12,8 +12,6 @@ import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.config.api.ConflictingVersionException;
-import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -28,97 +26,79 @@ import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModul
 
 public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
-	private final String instanceName = "bgp-message-fct";
+    private static final String INSTANCE_NAME = "bgp-message-fct";
+    private static final String FACTORY_NAME = BGPDispatcherImplModuleFactory.NAME;
 
-	private BGPDispatcherImplModuleFactory factory;
+    private static final String TIMER_INSTANCE_NAME = "timer-impl";
+    private static final String BGP_EXTENSION_INSTANCE_NAME = "bgp-extension-impl";
+    private static final String BOSS_TG_INSTANCE_NAME = "boss-threadgroup-impl";
+    private static final String WORKER_TG_INSTANCE_NAME = "worker-threadgroup-impl";
 
-	private NettyThreadgroupModuleFactory threadgroupFactory;
+    @Before
+    public void setUp() throws Exception {
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+                new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
+                new RIBExtensionsImplModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(),
+                new HashedWheelTimerModuleFactory()));
+    }
 
-	private RIBExtensionsImplModuleFactory messageFactory;
+    @Test
+    public void testCreateBean() throws Exception {
+        CommitStatus status = createInstance();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 5, 0, 0);
+    }
 
-	private SimpleBGPExtensionProviderContextModuleFactory extensionFactory;
+    @Test
+    public void testReusingOldInstance() throws Exception {
+        createInstance();
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 0, 5);
+    }
 
-	private HashedWheelTimerModuleFactory hwtFactory;
+    private CommitStatus createInstance() throws Exception {
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createInstance(transaction);
+        return transaction.commit();
+    }
 
-	@Before
-	public void setUp() throws Exception {
-		this.factory = new BGPDispatcherImplModuleFactory();
-		this.threadgroupFactory = new NettyThreadgroupModuleFactory();
-		this.messageFactory = new RIBExtensionsImplModuleFactory();
-		this.extensionFactory = new SimpleBGPExtensionProviderContextModuleFactory();
-		this.hwtFactory = new HashedWheelTimerModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
-				this.factory, threadgroupFactory, messageFactory, extensionFactory, hwtFactory));
-	}
+    public static ObjectName createInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
+                BGPDispatcherImplModuleMXBean.class);
+        mxBean.setBossGroup(createThreadgroupInstance(transaction, BOSS_TG_INSTANCE_NAME, 10));
+        mxBean.setWorkerGroup(createThreadgroupInstance(transaction, WORKER_TG_INSTANCE_NAME, 10));
+        mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction));
+        mxBean.setTimer(createTimerInstance(transaction));
+        return nameCreated;
+    }
 
-	@Test
-	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName);
-		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 5, 0, 0);
-	}
+    private static ObjectName createThreadgroupInstance(final ConfigTransactionJMXClient transaction,
+            final String instanceName, final Integer threadCount) throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(NettyThreadgroupModuleFactory.NAME, instanceName);
+        NettyThreadgroupModuleMXBean mxBean = transaction
+                .newMBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
+        mxBean.setThreadCount(threadCount);
+        return nameCreated;
+    }
 
-	@Test
-	public void testReusingOldInstance() throws InstanceAlreadyExistsException,
-	ConflictingVersionException, ValidationException {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(), instanceName);
-		transaction.commit();
-		transaction = configRegistryClient.createTransaction();
-		assertBeanCount(1, factory.getImplementationName());
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 0, 0, 5);
-	}
+    private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
+        transaction.newMBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
+        return nameCreated;
 
-	public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
-			final String instanceName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(
-				moduleName, instanceName);
-		BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, BGPDispatcherImplModuleMXBean.class);
-		mxBean.setBossGroup(createThreadgroupInstance(transaction, "boss-threadgroup", 10));
-		mxBean.setWorkerGroup(createThreadgroupInstance(transaction, "worker-threadgroup", 10));
-		mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction, "bgp-extensions"));
-		mxBean.setTimer(createTimerInstance(transaction, ""));
-		return nameCreated;
-	}
+    }
 
-	public static ObjectName createThreadgroupInstance(
-			final ConfigTransactionJMXClient transaction,
-			final String instanceName,
-			final Integer threadCount) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(NettyThreadgroupModuleFactory.NAME,
-				instanceName);
-		NettyThreadgroupModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, NettyThreadgroupModuleMXBean.class);
-		mxBean.setThreadCount(threadCount);
-		return nameCreated;
-	}
-
-	public static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction, final String instanceName)
-			throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME,
-				instanceName);
-		HashedWheelTimerModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, HashedWheelTimerModuleMXBean.class);
-		return nameCreated;
-
-	}
-
-	public static ObjectName createBgpExtensionsInstance(
-			final ConfigTransactionJMXClient transaction,
-			final String instanceName)
-					throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME,
-				instanceName);
-		transaction.newMBeanProxy(nameCreated,
-				SimpleBGPExtensionProviderContextModuleMXBean.class);
-		return nameCreated;
-	}
+    private static ObjectName createBgpExtensionsInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME,
+                BGP_EXTENSION_INSTANCE_NAME);
+        transaction.newMBeanProxy(nameCreated, SimpleBGPExtensionProviderContextModuleMXBean.class);
+        return nameCreated;
+    }
 }
