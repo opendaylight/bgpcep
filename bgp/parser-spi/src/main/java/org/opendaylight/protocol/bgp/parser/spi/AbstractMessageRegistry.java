@@ -5,15 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser.spi.pojo;
+package org.opendaylight.protocol.bgp.parser.spi;
 
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
@@ -21,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.UnsignedBytes;
 
-abstract class AbstractMessageRegistry implements MessageRegistry {
+public abstract class AbstractMessageRegistry implements MessageRegistry {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageRegistry.class);
 
 	private static final byte[] MARKER;
