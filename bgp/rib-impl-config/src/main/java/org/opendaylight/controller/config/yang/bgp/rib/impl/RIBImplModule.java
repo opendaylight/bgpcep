@@ -57,6 +57,11 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 			public ReconnectStrategy createReconnectStrategy() {
 				return getTcpReconnectStrategyDependency();
 			}
-		}, getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
+		}, new ReconnectStrategyFactory() {
+			@Override
+			public ReconnectStrategy createReconnectStrategy() {
+				return getSessionReconnectStrategyDependency();
+			}
+		}, getDataProviderDependency(), getLocalTableDependency());
 	}
 }
