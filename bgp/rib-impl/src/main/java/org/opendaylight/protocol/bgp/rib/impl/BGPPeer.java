@@ -55,18 +55,18 @@ public final class BGPPeer implements BGPSessionListener, Peer, AutoCloseable {
 			final AsNumber remoteAs, final RIB rib) {
 		this.rib = Preconditions.checkNotNull(rib);
 		this.name = Preconditions.checkNotNull(name);
-		cf = rib.getDispatcher().createReconnectingClient(address, prefs, remoteAs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategy());
+		this.cf = rib.getDispatcher().createReconnectingClient(address, prefs, remoteAs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategyFactory());
 	}
 
 	@Override
 	public synchronized void close() {
-		if (cf != null) {
-			cf.cancel(true);
-			if (session != null) {
-				session.close();
-				session = null;
+		if (this.cf != null) {
+			this.cf.cancel(true);
+			if (this.session != null) {
+				this.session.close();
+				this.session = null;
 			}
-			cf = null;
+			this.cf = null;
 		}
 	}
 
@@ -84,7 +84,7 @@ public final class BGPPeer implements BGPSessionListener, Peer, AutoCloseable {
 		LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
 		this.session = session;
-		this.comparator = new BGPObjectComparator(rib.getLocalAs(), rib.getBgpIdentifier(), session.getBgpId());
+		this.comparator = new BGPObjectComparator(this.rib.getLocalAs(), this.rib.getBgpIdentifier(), session.getBgpId());
 
 		for (final BgpTableType t : session.getAdvertisedTableTypes()) {
 			final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
@@ -130,7 +130,7 @@ public final class BGPPeer implements BGPSessionListener, Peer, AutoCloseable {
 
 	@Override
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override

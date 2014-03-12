@@ -45,7 +45,6 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -91,7 +90,7 @@ public class ParserToSalTest {
 	ReconnectStrategyFactory tcpStrategyFactory;
 
 	@Mock
-	ReconnectStrategy sessionStrategy;
+	ReconnectStrategyFactory sessionStrategy;
 
 	@Before
 	public void setUp() throws Exception {
@@ -158,26 +157,26 @@ public class ParserToSalTest {
 
 		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(dispatcher).
+		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).
 		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class), Mockito.any(AsNumber.class),
-				Mockito.any(BGPSessionListener.class), Mockito.eq(tcpStrategyFactory), Mockito.eq(sessionStrategy));
+				Mockito.any(BGPSessionListener.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy));
 
-		ext = new SimpleRIBExtensionProviderContext();
-		baseact = new RIBActivator();
-		lsact = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
+		this.ext = new SimpleRIBExtensionProviderContext();
+		this.baseact = new RIBActivator();
+		this.lsact = new org.opendaylight.protocol.bgp.linkstate.RIBActivator();
 
-		baseact.startRIBExtensionProvider(ext);
-		lsact.startRIBExtensionProvider(ext);
+		this.baseact.startRIBExtensionProvider(this.ext);
+		this.lsact.startRIBExtensionProvider(this.ext);
 	}
 
 	@After
 	public void tearDown() {
-		lsact.close();
-		baseact.close();
+		this.lsact.close();
+		this.baseact.close();
 	}
 
 	private void runTestWithTables(final List<BgpTableType> tables) {
-		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), ext,
+		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext,
 				this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
 		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib.getLocalAs(), rib);
 

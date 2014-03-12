@@ -53,9 +53,9 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 		return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
-				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
 				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(slf, ch, promise));
-				ch.pipeline().addLast(hf.getEncoders());
+				ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
 			}
 		});
 	}
@@ -64,7 +64,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 	public Future<Void> createReconnectingClient(final InetSocketAddress address,
 			final BGPSessionPreferences preferences, final AsNumber remoteAs,
 			final BGPSessionListener listener, final ReconnectStrategyFactory connectStrategyFactory,
-			final ReconnectStrategy reestablishStrategy) {
+			final ReconnectStrategyFactory reestablishStrategyFactory) {
 		final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences, remoteAs);
 		final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
 			@Override
@@ -73,12 +73,12 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 			}
 		};
 
-		return super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategy, new PipelineInitializer<BGPSessionImpl>() {
+		return super.createReconnectingClient(address, connectStrategyFactory, reestablishStrategyFactory.createReconnectStrategy(), new PipelineInitializer<BGPSessionImpl>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
-				ch.pipeline().addLast(hf.getDecoders());
+				ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
 				ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(slf, ch, promise));
-				ch.pipeline().addLast(hf.getEncoders());
+				ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
 			}
 		});
 	}
