@@ -34,5 +34,5 @@ public interface BGPDispatcher {
 			BGPSessionListener listener, ReconnectStrategy strategy);
 
 	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-			BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory, ReconnectStrategy reestablishStrategy);
+			BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory, ReconnectStrategyFactory reestablishStrategyFactory);
 }
