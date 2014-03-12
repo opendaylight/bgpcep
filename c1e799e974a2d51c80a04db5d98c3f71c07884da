@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_d6e3ea03",
+        "filename": "commons/distributions/bgpcep-controller/src/main/resources/configuration/config.ini",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-03-12T15:43:47Z",
+      "side": 1,
+      "message": "Okay... this needs some thinking. How can we have this file automatically track pom.xml, such that we don\u0027t break when release happens?",
+      "revId": "c1e799e974a2d51c80a04db5d98c3f71c07884da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
