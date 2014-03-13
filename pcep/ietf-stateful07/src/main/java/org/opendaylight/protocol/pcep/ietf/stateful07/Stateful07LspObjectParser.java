@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
@@ -54,7 +54,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 	protected static final int ADMINISTRATIVE_FLAG_OFFSET = 12;
 	protected static final int OPERATIONAL_OFFSET = 9;
 
-	public Stateful07LspObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful07LspObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

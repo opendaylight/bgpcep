@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful02;
 
 import java.math.BigInteger;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -37,7 +38,7 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 	public byte[] serializeTlv(final Tlv tlv) {
 		Preconditions.checkNotNull(tlv, "LspDbVersionTlv is mandatory.");
 		final LspDbVersion lsp = (LspDbVersion) tlv;
-		return ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH));
 	}
 
 	@Override
