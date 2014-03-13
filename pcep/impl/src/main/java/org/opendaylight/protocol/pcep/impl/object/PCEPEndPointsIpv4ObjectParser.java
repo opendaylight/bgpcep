@@ -12,7 +12,7 @@ import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -45,7 +45,7 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
 	private static final int SRC4_F_OFFSET = 0;
 	private static final int DEST4_F_OFFSET = SRC4_F_OFFSET + SRC4_F_LENGTH;
 
-	public PCEPEndPointsIpv4ObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPEndPointsIpv4ObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02OpenObjectParser;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1Builder;
@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class PCEPOpenObjectParser extends Stateful02OpenObjectParser {
 
-	public PCEPOpenObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPOpenObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

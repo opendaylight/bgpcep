@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -21,7 +22,7 @@ public final class LSPCleanupTlvParser implements TlvParser, TlvSerializer {
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		return ByteArray.intToBytes(((LspCleanup) tlv).getTimeout().intValue());
+		return TlvUtil.formatTlv(TYPE, ByteArray.intToBytes(((LspCleanup) tlv).getTimeout().intValue()));
 	}
 
 	@Override

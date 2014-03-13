@@ -69,7 +69,7 @@ import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
@@ -174,7 +174,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerXROSubobjectSerializer(UnnumberedCase.class, new XROUnnumberedInterfaceSubobjectParser());
 		context.registerXROSubobjectSerializer(PathKeyCase.class, new XROPathKey32SubobjectParser());
 
-		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
+		final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
 		context.registerTlvParser(NoPathVectorTlvParser.TYPE, new NoPathVectorTlvParser());
 		context.registerTlvParser(OverloadedDurationTlvParser.TYPE, new OverloadedDurationTlvParser());
 		context.registerTlvParser(ReqMissingTlvParser.TYPE, new ReqMissingTlvParser());

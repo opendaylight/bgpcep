@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -68,7 +69,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 		for (int i = 0; i < size; i++) {
 			ByteArray.copyWhole(ByteArray.shortToBytes(ofCodes.get(i).getValue().shortValue()), retBytes, i * OF_CODE_ELEMENT_LENGTH);
 		}
-		return retBytes;
+		return TlvUtil.formatTlv(TYPE, retBytes);
 	}
 
 	@Override
