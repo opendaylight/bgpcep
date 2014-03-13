@@ -22,7 +22,7 @@ import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -46,7 +46,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	private final SimpleMessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
 	private final SimpleObjectHandlerRegistry objReg = new SimpleObjectHandlerRegistry();
 	private final SimpleEROSubobjectHandlerRegistry eroSubReg = new SimpleEROSubobjectHandlerRegistry();
-	private final SimpleRROSubobjectHandlerRegistry rroSubReg = new SimpleRROSubobjectHandlerRegistry();
+	private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
 	private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
 	private final SimpleTlvRegistry tlvReg = new SimpleTlvRegistry();
 
@@ -71,7 +71,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	}
 
 	@Override
-	public final RROSubobjectHandlerRegistry getRROSubobjectHandlerRegistry() {
+	public final RROSubobjectRegistry getRROSubobjectHandlerRegistry() {
 		return this.rroSubReg;
 	}
 

@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
@@ -24,7 +24,7 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 
 	public static final int TYPE = 1;
 
-	public PCEPReportedRouteObjectParser(final RROSubobjectHandlerRegistry subobjReg) {
+	public PCEPReportedRouteObjectParser(final RROSubobjectRegistry subobjReg) {
 		super(subobjReg);
 	}
 

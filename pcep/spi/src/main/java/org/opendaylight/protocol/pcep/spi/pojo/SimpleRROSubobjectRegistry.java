@@ -8,27 +8,23 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.SubobjectType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleRROSubobjectHandlerRegistry implements RROSubobjectHandlerRegistry {
+public final class SimpleRROSubobjectRegistry implements RROSubobjectRegistry {
 	private final HandlerRegistry<DataContainer, RROSubobjectParser, RROSubobjectSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
 		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
 		return this.handlers.registerParser(subobjectType, parser);
-	}
-
-	@Override
-	public RROSubobjectParser getSubobjectParser(final int subobjectType) {
-		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
-		return this.handlers.getParser(subobjectType);
 	}
 
 	public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
@@ -37,7 +33,21 @@ public final class SimpleRROSubobjectHandlerRegistry implements RROSubobjectHand
 	}
 
 	@Override
-	public RROSubobjectSerializer getSubobjectSerializer(final SubobjectType subobject) {
-		return this.handlers.getSerializer(subobject.getImplementedInterface());
+	public Subobject parseSubobject(int type, byte[] buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
+		final RROSubobjectParser parser = this.handlers.getParser(type);
+		if (parser == null) {
+			return null;
+		}
+		return parser.parseSubobject(buffer);
+	}
+
+	@Override
+	public byte[] serializeSubobject(Subobject subobject) {
+		final RROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
+		if (serializer == null) {
+			return null;
+		}
+		return serializer.serializeSubobject(subobject);
 	}
 }
