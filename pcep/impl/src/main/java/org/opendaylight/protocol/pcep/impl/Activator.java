@@ -68,7 +68,7 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.RROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
@@ -138,7 +138,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerEROSubobjectSerializer(UnnumberedCase.class, new EROUnnumberedInterfaceSubobjectParser());
 		context.registerEROSubobjectSerializer(PathKeyCase.class, new EROPathKey32SubobjectParser());
 
-		final RROSubobjectHandlerRegistry rroSubReg = context.getRROSubobjectHandlerRegistry();
+		final RROSubobjectRegistry rroSubReg = context.getRROSubobjectHandlerRegistry();
 		context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, new RROIpv4PrefixSubobjectParser());
 		context.registerRROSubobjectParser(RROIpv6PrefixSubobjectParser.TYPE, new RROIpv6PrefixSubobjectParser());
 		context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, new RROLabelSubobjectParser(labelReg));
