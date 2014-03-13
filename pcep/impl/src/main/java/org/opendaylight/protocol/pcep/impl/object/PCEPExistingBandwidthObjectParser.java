@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 
@@ -25,7 +25,7 @@ public class PCEPExistingBandwidthObjectParser extends AbstractBandwidthParser {
 
 	private static final int BANDWIDTH_LENGTH = 4;
 
-	public PCEPExistingBandwidthObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPExistingBandwidthObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

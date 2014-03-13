@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -46,7 +46,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 	 */
 	private static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
-	public PCEPCloseObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPCloseObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

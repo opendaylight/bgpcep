@@ -36,7 +36,7 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
 		}
 		final ReqMissing req = (ReqMissing) tlv;
-		return ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersion;
@@ -49,7 +49,7 @@ public final class Stateful02LspObjectParser extends AbstractObjectWithTlvsParse
 	private static final int REMOVE_FLAG_OFFSET = 12;
 	private static final int OPERATIONAL_FLAG_OFFSET = 13;
 
-	public Stateful02LspObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful02LspObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

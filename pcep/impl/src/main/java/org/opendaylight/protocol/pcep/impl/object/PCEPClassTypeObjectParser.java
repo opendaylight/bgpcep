@@ -11,7 +11,7 @@ import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -47,7 +47,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 	 */
 	private static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
 
-	public PCEPClassTypeObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPClassTypeObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

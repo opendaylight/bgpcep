@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
-public interface TlvHandlerRegistry {
-	TlvParser getTlvParser(int tlvType);
-	TlvSerializer getTlvSerializer(Tlv tlv);
+public interface TlvRegistry {
+	Tlv parseTlv(final int type, final byte[] buffer) throws PCEPDeserializerException;
+	byte[] serializeTlv(final Tlv tlv);
 }

@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
@@ -18,7 +18,7 @@ abstract class AbstractBandwidthParser extends AbstractObjectWithTlvsParser<Band
 
 	private static final int BANDWIDTH_F_LENGTH = 4;
 
-	AbstractBandwidthParser(final TlvHandlerRegistry tlvReg) {
+	AbstractBandwidthParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

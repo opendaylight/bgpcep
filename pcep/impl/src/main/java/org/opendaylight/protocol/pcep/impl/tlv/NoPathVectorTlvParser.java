@@ -66,7 +66,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 		flags.set(UNKNOWN_SRC, tlv.getFlags().isUnknownSource());
 		flags.set(UNKNOWN_DEST, tlv.getFlags().isUnknownDestination());
 		flags.set(PCE_UNAVAILABLE, tlv.getFlags().isPceUnavailable());
-		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
 
 	@Override
