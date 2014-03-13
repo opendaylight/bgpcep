@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -54,7 +55,7 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
 		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
 
 		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
 
 	@Override

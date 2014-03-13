@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 
 import java.util.BitSet;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -66,7 +67,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 		flags.set(UNKNOWN_SRC, tlv.getFlags().isUnknownSource());
 		flags.set(UNKNOWN_DEST, tlv.getFlags().isUnknownDestination());
 		flags.set(PCE_UNAVAILABLE, tlv.getFlags().isPceUnavailable());
-		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -56,7 +56,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 	 */
 	private static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
 
-	public PCEPSvecObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPSvecObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
@@ -27,7 +27,7 @@ public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProvide
 				new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
 		regs.add(context.registerMessageSerializer(Pcinitiate.class, new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
 
-		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
+		final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
 		regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE, new CInitiated00LspObjectParser(tlvReg)));
 		regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg)));
 		regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE, new CInitiated00SrpObjectParser(tlvReg)));

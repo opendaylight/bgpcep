@@ -13,7 +13,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
@@ -30,7 +30,7 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 
 	private static final int REMOVE_FLAG = 31;
 
-	public CInitiated00SrpObjectParser(final TlvHandlerRegistry tlvReg) {
+	public CInitiated00SrpObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

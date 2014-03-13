@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import org.opendaylight.protocol.pcep.impl.object.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -33,7 +34,7 @@ public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvS
 			throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
 		}
 		final SymbolicPathName spn = (SymbolicPathName) tlv;
-		return spn.getPathName().getValue();
+		return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
 	}
 
 	@Override

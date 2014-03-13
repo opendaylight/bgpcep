@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1Builder;
@@ -31,7 +31,7 @@ public final class CInitiated00LspObjectParser extends Stateful07LspObjectParser
 
 	private static final int CREATE_FLAG_OFFSET = 8;
 
-	public CInitiated00LspObjectParser(final TlvHandlerRegistry tlvReg) {
+	public CInitiated00LspObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

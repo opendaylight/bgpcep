@@ -41,7 +41,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectPars
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -102,7 +102,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 public class PCEPObjectParserTest {
 
-	private TlvHandlerRegistry tlvRegistry;
+	private TlvRegistry tlvRegistry;
 
 	private SimplePCEPExtensionProviderContext ctx;
 	private Activator act;

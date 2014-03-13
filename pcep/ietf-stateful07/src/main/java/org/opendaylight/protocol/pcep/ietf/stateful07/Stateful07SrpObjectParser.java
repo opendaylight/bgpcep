@@ -12,7 +12,7 @@ import java.util.Arrays;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
@@ -41,7 +41,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
 	protected static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
-	public Stateful07SrpObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful07SrpObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 
