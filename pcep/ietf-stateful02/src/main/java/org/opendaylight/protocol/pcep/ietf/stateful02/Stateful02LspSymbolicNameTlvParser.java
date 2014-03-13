@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful02;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -33,7 +34,7 @@ public final class Stateful02LspSymbolicNameTlvParser implements TlvParser, TlvS
 			throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
 		}
 		final SymbolicPathName spn = (SymbolicPathName) tlv;
-		return spn.getPathName().getValue();
+		return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
 	}
 
 	@Override

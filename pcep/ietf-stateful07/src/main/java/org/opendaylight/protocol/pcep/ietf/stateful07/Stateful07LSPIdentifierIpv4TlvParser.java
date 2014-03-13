@@ -11,6 +11,7 @@ import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -88,7 +89,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 		ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()), bytes, offset);
 		offset += EX_TUNNEL_ID4_F_LENGTH;
 		ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()), bytes, offset);
-		return bytes;
+		return TlvUtil.formatTlv(TYPE, bytes);
 	}
 
 	@Override

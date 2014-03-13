@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
@@ -36,7 +36,7 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 		regs.add(context.registerMessageParser(Stateful07PCReportMessageParser.TYPE, new Stateful07PCReportMessageParser(objReg)));
 		regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful07PCReportMessageParser(objReg)));
 
-		final TlvHandlerRegistry tlvReg = context.getTlvHandlerRegistry();
+		final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
 		regs.add(context.registerObjectParser(Stateful07LspObjectParser.CLASS, Stateful07LspObjectParser.TYPE, new Stateful07LspObjectParser(tlvReg)));
 		regs.add(context.registerObjectSerializer(Lsp.class, new Stateful07LspObjectParser(tlvReg)));
 		regs.add(context.registerObjectParser(Stateful07SrpObjectParser.CLASS, Stateful07SrpObjectParser.TYPE, new Stateful07SrpObjectParser(tlvReg)));

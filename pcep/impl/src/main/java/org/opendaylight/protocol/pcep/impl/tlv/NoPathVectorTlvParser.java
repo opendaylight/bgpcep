@@ -12,6 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -66,7 +67,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 		flags.set(UNKNOWN_SRC, tlv.getFlags().isUnknownSource());
 		flags.set(UNKNOWN_DEST, tlv.getFlags().isUnknownDestination());
 		flags.set(PCE_UNAVAILABLE, tlv.getFlags().isPceUnavailable());
-		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
 
 	@Override

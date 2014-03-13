@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -36,7 +37,7 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
 		}
 		final ReqMissing req = (ReqMissing) tlv;
-		return ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
 	}
 
 	@Override

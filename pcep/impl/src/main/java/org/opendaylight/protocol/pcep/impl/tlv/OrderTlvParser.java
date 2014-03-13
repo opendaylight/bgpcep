@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
@@ -43,7 +44,7 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getDelete(), ORDR_DEL_LENGTH), bytes, offset);
 		offset += ORDR_DEL_LENGTH;
 		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
-		return bytes;
+		return TlvUtil.formatTlv(TYPE, bytes);
 	}
 
 	@Override

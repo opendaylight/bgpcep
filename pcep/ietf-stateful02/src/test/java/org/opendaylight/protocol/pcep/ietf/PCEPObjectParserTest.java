@@ -18,7 +18,7 @@ import org.opendaylight.protocol.pcep.crabbe.initiated00.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspaObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1;
@@ -40,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class PCEPObjectParserTest {
 
-	private TlvHandlerRegistry tlvRegistry;
+	private TlvRegistry tlvRegistry;
 
 	@Before
 	public void setUp() throws Exception {

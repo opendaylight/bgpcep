@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
@@ -35,7 +36,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("OverloadedTlv is mandatory.");
 		}
 		final OverloadDuration odt = (OverloadDuration) tlv;
-		return ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH));
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -94,10 +95,10 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
 		if (rsvp.getErrorType().getImplementedInterface().equals(RsvpCase.class)) {
 			final RsvpCase r = (RsvpCase) rsvp.getErrorType();
-			return serializeRsvp(r.getRsvpError());
+			return TlvUtil.formatTlv(TYPE, serializeRsvp(r.getRsvpError()));
 		} else {
 			final UserCase u = (UserCase) rsvp.getErrorType();
-			return serializerUserError(u.getUserError());
+			return TlvUtil.formatTlv(TYPE, serializerUserError(u.getUserError()));
 		}
 	}
 
@@ -126,7 +127,7 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 		final byte descLen = UnsignedBytes.checkedCast(desc.length);
 		// if we have any subobjects, place the implementation here
 		final byte[] bytes = new byte[2 + ENTERPRISE_F_LENGTH + SUB_ORG_F_LENGTH + USER_VALUE_F_LENGTH + ERR_DESCR_LENGTH_F_LENGTH
-				+ desc.length];
+		                              + desc.length];
 		bytes[0] = UnsignedBytes.checkedCast(USER_ERROR_CLASS_NUM);
 		bytes[1] = UnsignedBytes.checkedCast(USER_ERROR_CLASS_TYPE);
 		int offset = 2;
