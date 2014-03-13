@@ -21,5 +21,5 @@ public interface PCEPExtensionConsumerContext {
 
 	XROSubobjectRegistry getXROSubobjectHandlerRegistry();
 
-	TlvHandlerRegistry getTlvHandlerRegistry();
+	TlvRegistry getTlvHandlerRegistry();
 }

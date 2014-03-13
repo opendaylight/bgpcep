@@ -14,7 +14,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -92,7 +92,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
 	private static final int E_FLAG_OFFSET = 20;
 
-	public PCEPRequestParameterObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 
