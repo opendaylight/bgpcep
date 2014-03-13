@@ -46,7 +46,6 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.concepts.ListenerRegistration;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -91,7 +90,7 @@ public class ParserToSalTest {
 	ReconnectStrategyFactory tcpStrategyFactory;
 
 	@Mock
-	ReconnectStrategy sessionStrategy;
+	ReconnectStrategyFactory sessionStrategy;
 
 	@Before
 	public void setUp() throws Exception {
@@ -158,9 +157,9 @@ public class ParserToSalTest {
 
 		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(dispatcher).
+		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).
 		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class), Mockito.any(AsNumber.class),
-				Mockito.any(BGPSessionListener.class), Mockito.eq(tcpStrategyFactory), Mockito.eq(sessionStrategy));
+				Mockito.any(BGPSessionListener.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy));
 
 		this.ext = new SimpleRIBExtensionProviderContext();
 		this.baseact = new RIBActivator();

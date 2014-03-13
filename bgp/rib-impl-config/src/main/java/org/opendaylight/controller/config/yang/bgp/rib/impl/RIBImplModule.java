@@ -18,16 +18,6 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.concepts.ListenerRegistration;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-
-import com.google.common.base.Preconditions;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
-import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
@@ -61,11 +51,7 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 	@Override
 	public java.lang.AutoCloseable createInstance() {
 		return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpId(), getExtensionsDependency(),
-				getBgpDispatcherDependency(), new ReconnectStrategyFactory() {
-			@Override
-			public ReconnectStrategy createReconnectStrategy() {
-				return getTcpReconnectStrategyDependency();
-			}
-		}, getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
+				getBgpDispatcherDependency(), getTcpReconnectStrategyDependency()
+				,  getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
 	}
 }

@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -71,7 +70,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 	private static final Update EOR = new UpdateBuilder().build();
 	private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 	private final ReconnectStrategyFactory tcpStrategyFactory;
-	private final ReconnectStrategy sessionStrategy;
+	private final ReconnectStrategyFactory sessionStrategyFactory;
 	private final BGPDispatcher dispatcher;
 	private final DataProviderService dps;
 	private final AsNumber localAs;
@@ -80,14 +79,14 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 	private final RIBTables tables;
 
 	public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
-			final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final ReconnectStrategy sessionStrategy,
+			final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory, final ReconnectStrategyFactory sessionStrategyFactory,
 			final DataProviderService dps, final List<BgpTableType> localTables) {
 		super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
 		this.dps = Preconditions.checkNotNull(dps);
 		this.localAs = Preconditions.checkNotNull(localAs);
 		this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
 		this.dispatcher = Preconditions.checkNotNull(dispatcher);
-		this.sessionStrategy = Preconditions.checkNotNull(sessionStrategy);
+		this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
 		this.tcpStrategyFactory = Preconditions.checkNotNull(tcpStrategyFactory);
 		this.localTables = ImmutableList.copyOf(localTables);
 		this.tables = new RIBTables(extensions);
@@ -105,7 +104,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
 		for (BgpTableType t : localTables) {
 			final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-			if (tables.create(trans, this, key) == null) {
+			if (this.tables.create(trans, this, key) == null) {
 				LOG.debug("Did not create local table for unhandled table type {}", t);
 			}
 		}
@@ -258,32 +257,32 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
 	@Override
 	public AsNumber getLocalAs() {
-		return localAs;
+		return this.localAs;
 	}
 
 	@Override
 	public Ipv4Address getBgpIdentifier() {
-		return bgpIdentifier;
+		return this.bgpIdentifier;
 	}
 
 	@Override
 	public List<? extends BgpTableType> getLocalTables() {
-		return localTables;
+		return this.localTables;
 	}
 
 	@Override
 	public ReconnectStrategyFactory getTcpStrategyFactory() {
-		return tcpStrategyFactory;
+		return this.tcpStrategyFactory;
 	}
 
 	@Override
-	public ReconnectStrategy getSessionStrategy() {
-		return sessionStrategy;
+	public ReconnectStrategyFactory getSessionStrategyFactory() {
+		return this.sessionStrategyFactory;
 	}
 
 	@Override
 	public BGPDispatcher getDispatcher() {
-		return dispatcher;
+		return this.dispatcher;
 	}
 
 	@Override
