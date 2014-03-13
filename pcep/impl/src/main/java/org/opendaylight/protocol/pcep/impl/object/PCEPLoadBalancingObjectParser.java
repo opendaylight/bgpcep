@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -39,7 +39,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 
 	private static final int SIZE = MIN_BAND_F_OFFSET + MIN_BAND_F_LENGTH;
 
-	public PCEPLoadBalancingObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPLoadBalancingObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

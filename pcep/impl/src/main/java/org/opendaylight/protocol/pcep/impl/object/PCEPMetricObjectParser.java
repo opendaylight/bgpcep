@@ -12,7 +12,7 @@ import java.util.BitSet;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -53,7 +53,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 
 	private static final int SIZE = METRIC_VALUE_F_OFFSET + METRIC_VALUE_F_LENGTH;
 
-	public PCEPMetricObjectParser(final TlvHandlerRegistry tlvReg) {
+	public PCEPMetricObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

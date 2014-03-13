@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import java.util.Arrays;
+
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
@@ -24,9 +26,9 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 
 	protected static final int PADDED_TO = 4;
 
-	private final TlvHandlerRegistry tlvReg;
+	private final TlvRegistry tlvReg;
 
-	protected AbstractObjectWithTlvsParser(final TlvHandlerRegistry tlvReg) {
+	protected AbstractObjectWithTlvsParser(final TlvRegistry tlvReg) {
 		this.tlvReg = Preconditions.checkNotNull(tlvReg);
 	}
 
@@ -56,45 +58,29 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 			final byte[] tlvBytes = ByteArray.subByte(bytes, byteOffset, length);
 
 			LOG.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
-			final TlvParser parser = this.tlvReg.getTlvParser(type);
-			if (parser != null) {
-				final Tlv tlv = parser.parseTlv(tlvBytes);
-				LOG.trace("Tlv was parsed. {}", tlv);
-				addTlv(builder, tlv);
-			} else {
-				LOG.warn("Unknown TLV received. Type {}. Ignoring it.", type);
-			}
+			final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
+			LOG.trace("Tlv was parsed. {}", tlv);
+			addTlv(builder, tlv);
 			byteOffset += length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO);
 		}
 	}
 
 	protected final byte[] serializeTlv(final Tlv tlv) {
-
-		final TlvSerializer serializer = this.tlvReg.getTlvSerializer(tlv);
-		LOG.trace("Choosen serializer {}", serializer);
-
-		final byte[] typeBytes = ByteArray.intToBytes(serializer.getType(), TLV_TYPE_F_LENGTH);
-
-		final byte[] valueBytes = serializer.serializeTlv(tlv);
-
-		final byte[] lengthBytes = ByteArray.intToBytes(valueBytes.length, TLV_LENGTH_F_LENGTH);
-
-		final byte[] bytes = new byte[TLV_HEADER_LENGTH + valueBytes.length + getPadding(TLV_HEADER_LENGTH + valueBytes.length, PADDED_TO)];
-
-		int byteOffset = 0;
-		System.arraycopy(typeBytes, 0, bytes, byteOffset, TLV_TYPE_F_LENGTH);
-		byteOffset += TLV_TYPE_F_LENGTH;
-		System.arraycopy(lengthBytes, 0, bytes, byteOffset, TLV_LENGTH_F_LENGTH);
-		byteOffset += TLV_LENGTH_F_LENGTH;
-		System.arraycopy(valueBytes, 0, bytes, byteOffset, valueBytes.length);
-		return bytes;
+		Preconditions.checkNotNull(tlv, "PCEP TLV is mandatory.");
+		LOG.trace("Serializing PCEP TLV {}", tlv);
+		final byte[] ret = this.tlvReg.serializeTlv(tlv);
+		if (ret == null) {
+			LOG.warn("TLV serializer for type {} could not be found.", tlv);
+		}
+		LOG.trace("Serialized PCEP TLV {}.", Arrays.toString(ret));
+		return ret;
 	}
 
 	protected void addTlv(final T builder, final Tlv tlv) {
 		// FIXME: No TLVs by default, fallback to augments
 	}
 
-	protected static int getPadding(final int length, final int padding) {
+	public static int getPadding(final int length, final int padding) {
 		return (padding - (length % padding)) % padding;
 	}
 }

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07StatefulCapabilityTlvParser;
+import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Stateful1;
@@ -59,6 +60,6 @@ public final class CInitiated00StatefulCapabilityTlvParser extends Stateful07Sta
 			flags.set(I_FLAG_OFFSET, sfi.isInitiation());
 		}
 		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-		return ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
 }

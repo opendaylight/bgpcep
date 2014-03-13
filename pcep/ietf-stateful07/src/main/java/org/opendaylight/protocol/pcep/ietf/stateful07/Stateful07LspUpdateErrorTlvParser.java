@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -35,7 +36,7 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 			throw new IllegalArgumentException("LspErrorCodeTlv is mandatory.");
 		}
 		final LspErrorCode lsp = (LspErrorCode) tlv;
-		return ByteArray.longToBytes(lsp.getErrorCode(), UPDATE_ERR_CODE_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getErrorCode(), UPDATE_ERR_CODE_LENGTH));
 	}
 
 	@Override

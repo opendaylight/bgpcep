@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
-import org.opendaylight.protocol.pcep.spi.TlvHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
 
-	public Stateful07OpenObjectParser(final TlvHandlerRegistry tlvReg) {
+	public Stateful07OpenObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 

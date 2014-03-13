@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import org.opendaylight.protocol.concepts.Ipv6Util;
+import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -81,7 +82,7 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6ExtendedTunnelId()), bytes, offset);
 		offset += EX_TUNNEL_ID6_F_LENGTH;
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelEndpointAddress()), bytes, offset);
-		return bytes;
+		return TlvUtil.formatTlv(TYPE, bytes);
 	}
 
 	@Override

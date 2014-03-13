@@ -11,6 +11,7 @@ import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
+import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -94,10 +95,10 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
 		if (rsvp.getErrorType().getImplementedInterface().equals(RsvpCase.class)) {
 			final RsvpCase r = (RsvpCase) rsvp.getErrorType();
-			return serializeRsvp(r.getRsvpError());
+			return TlvUtil.formatTlv(TYPE, serializeRsvp(r.getRsvpError()));
 		} else {
 			final UserCase u = (UserCase) rsvp.getErrorType();
-			return serializerUserError(u.getUserError());
+			return TlvUtil.formatTlv(TYPE, serializerUserError(u.getUserError()));
 		}
 	}
 

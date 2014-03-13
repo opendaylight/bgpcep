@@ -35,7 +35,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 			throw new IllegalArgumentException("OverloadedTlv is mandatory.");
 		}
 		final OverloadDuration odt = (OverloadDuration) tlv;
-		return ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH);
+		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH));
 	}
 
 	@Override
