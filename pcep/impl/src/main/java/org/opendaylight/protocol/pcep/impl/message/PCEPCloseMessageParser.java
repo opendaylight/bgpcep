@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
@@ -30,7 +30,7 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 7;
 
-	public PCEPCloseMessageParser(final ObjectHandlerRegistry registry) {
+	public PCEPCloseMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 

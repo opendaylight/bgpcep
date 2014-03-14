@@ -13,7 +13,7 @@ public interface PCEPExtensionConsumerContext {
 
 	MessageHandlerRegistry getMessageHandlerRegistry();
 
-	ObjectHandlerRegistry getObjectHandlerRegistry();
+	ObjectRegistry getObjectHandlerRegistry();
 
 	EROSubobjectRegistry getEROSubobjectHandlerRegistry();
 

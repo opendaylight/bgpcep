@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
 public class PcinitiateMessageParser extends AbstractMessageParser {
 	public static final int TYPE = 12;
 
-	public PcinitiateMessageParser(final ObjectHandlerRegistry registry) {
+	public PcinitiateMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 
