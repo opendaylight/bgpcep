@@ -48,6 +48,7 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("com.google.guava", "guava").versionAsInProject());
 		ret.add(mavenBundle("commons-codec", "commons-codec").versionAsInProject());
 		ret.add(mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject());
+		ret.add(mavenBundle("commons-io", "commons-io").versionAsInProject());
 
 		ret.add(TestHelper.getNettyBundles());
 		ret.add(TestHelper.getLoggingBundles());
