@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.KeepaliveMessage;
@@ -27,7 +27,7 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 	private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 	public static final int TYPE = 2;
 
-	public PCEPKeepAliveMessageParser(final ObjectHandlerRegistry registry) {
+	public PCEPKeepAliveMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 

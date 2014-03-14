@@ -53,9 +53,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 	private static final int P_FLAG_OFFSET = 6;
 	private static final int I_FLAG_OFFSET = 7;
 
-	private final ObjectHandlerRegistry registry;
+	private final ObjectRegistry registry;
 
-	protected AbstractMessageParser(final ObjectHandlerRegistry registry) {
+	protected AbstractMessageParser(final ObjectRegistry registry) {
 		this.registry = Preconditions.checkNotNull(registry);
 	}
 
@@ -63,9 +63,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		if (object == null) {
 			return new byte[] {};
 		}
-		final ObjectSerializer serializer = this.registry.getObjectSerializer(object);
-		LOG.trace("Choosen serializer {}", serializer);
-		return serializer.serializeObject(object);
+		return this.registry.serializeObject(object);
 	}
 
 	private List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
@@ -103,11 +101,10 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
 			offset += objLength - COMMON_OBJECT_HEADER_LENGTH;
 
-			final ObjectParser parser = Preconditions.checkNotNull(this.registry.getObjectParser(objClass, objType));
 			final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
 			// parseObject is required to return null for P=0 errored objects
-			final Object o = parser.parseObject(header, bytesToPass);
+			final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
 			if (o != null) {
 				objs.add(o);
 			}
@@ -131,9 +128,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 				new PcerrMessageBuilder().setErrorType(
 						new RequestCaseBuilder().setRequest(
 								new RequestBuilder().setRps(Lists.newArrayList(new RpsBuilder().setRp(rp).build())).build()).build()).setErrors(
-						Arrays.asList(new ErrorsBuilder().setErrorObject(
-								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
-										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+										Arrays.asList(new ErrorsBuilder().setErrorObject(
+												new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
+														maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
 	}
 
 	protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;

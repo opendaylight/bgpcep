@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Replies1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Replies1Builder;
@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
  */
 public final class Stateful02PCReplyMessageParser extends PCEPReplyMessageParser {
 
-	public Stateful02PCReplyMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful02PCReplyMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 
