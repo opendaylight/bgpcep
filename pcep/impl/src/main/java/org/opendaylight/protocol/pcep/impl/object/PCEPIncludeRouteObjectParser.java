@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
@@ -30,7 +30,7 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 
 	public static final int TYPE = 1;
 
-	public PCEPIncludeRouteObjectParser(final EROSubobjectHandlerRegistry subobjReg) {
+	public PCEPIncludeRouteObjectParser(final EROSubobjectRegistry subobjReg) {
 		super(subobjReg);
 	}
 

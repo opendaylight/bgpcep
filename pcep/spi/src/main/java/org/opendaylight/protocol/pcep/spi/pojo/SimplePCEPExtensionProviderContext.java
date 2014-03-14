@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi.pojo;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
@@ -45,7 +45,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	private final SimpleLabelHandlerRegistry labelReg = new SimpleLabelHandlerRegistry();
 	private final SimpleMessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
 	private final SimpleObjectHandlerRegistry objReg = new SimpleObjectHandlerRegistry();
-	private final SimpleEROSubobjectHandlerRegistry eroSubReg = new SimpleEROSubobjectHandlerRegistry();
+	private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
 	private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
 	private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
 	private final SimpleTlvRegistry tlvReg = new SimpleTlvRegistry();
@@ -66,7 +66,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	}
 
 	@Override
-	public final EROSubobjectHandlerRegistry getEROSubobjectHandlerRegistry() {
+	public final EROSubobjectRegistry getEROSubobjectHandlerRegistry() {
 		return this.eroSubReg;
 	}
 
