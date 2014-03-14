@@ -68,7 +68,7 @@ public final class TimedReconnectStrategyModule extends
     private static final class TimedReconnectStrategyFactory implements ReconnectStrategyFactory, AutoCloseable {
 
         private final EventExecutor executor;
-        private final long deadline, maxAttempts, maxSleep;
+        private final Long deadline, maxAttempts, maxSleep;
         private final double sleepFactor;
         private final int connectTime;
         private final long minSleep;
