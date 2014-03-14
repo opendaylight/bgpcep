@@ -64,7 +64,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
-import org.opendaylight.protocol.pcep.spi.EROSubobjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -123,7 +123,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerLabelSerializer(GeneralizedLabelCase.class, new GeneralizedLabelParser());
 		context.registerLabelSerializer(WavebandSwitchingLabelCase.class, new WavebandSwitchingLabelParser());
 
-		final EROSubobjectHandlerRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
+		final EROSubobjectRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
 		context.registerEROSubobjectParser(EROIpv4PrefixSubobjectParser.TYPE, new EROIpv4PrefixSubobjectParser());
 		context.registerEROSubobjectParser(EROIpv6PrefixSubobjectParser.TYPE, new EROIpv6PrefixSubobjectParser());
 		context.registerEROSubobjectParser(EROAsNumberSubobjectParser.TYPE, new EROAsNumberSubobjectParser());

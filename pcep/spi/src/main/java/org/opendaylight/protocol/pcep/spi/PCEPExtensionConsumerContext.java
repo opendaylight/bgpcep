@@ -15,7 +15,7 @@ public interface PCEPExtensionConsumerContext {
 
 	ObjectHandlerRegistry getObjectHandlerRegistry();
 
-	EROSubobjectHandlerRegistry getEROSubobjectHandlerRegistry();
+	EROSubobjectRegistry getEROSubobjectHandlerRegistry();
 
 	RROSubobjectRegistry getRROSubobjectHandlerRegistry();
 
