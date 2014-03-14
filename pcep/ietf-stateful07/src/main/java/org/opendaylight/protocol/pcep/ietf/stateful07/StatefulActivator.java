@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
@@ -30,7 +30,7 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
+		final ObjectRegistry objReg = context.getObjectHandlerRegistry();
 		regs.add(context.registerMessageParser(Stateful07PCUpdateRequestMessageParser.TYPE, new Stateful07PCUpdateRequestMessageParser(objReg)));
 		regs.add(context.registerMessageSerializer(Pcupd.class, new Stateful07PCUpdateRequestMessageParser(objReg)));
 		regs.add(context.registerMessageParser(Stateful07PCReportMessageParser.TYPE, new Stateful07PCReportMessageParser(objReg)));

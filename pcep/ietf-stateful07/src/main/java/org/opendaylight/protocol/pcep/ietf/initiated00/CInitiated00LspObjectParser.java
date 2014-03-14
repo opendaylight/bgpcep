@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07LspObjectParser;
-import org.opendaylight.protocol.pcep.spi.ObjectUtil;
+import org.opendaylight.protocol.pcep.impl.object.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;

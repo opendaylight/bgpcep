@@ -7,7 +7,6 @@
 */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.util.ByteArray;
