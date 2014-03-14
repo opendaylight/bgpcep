@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
@@ -43,7 +43,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
 	public static final int TYPE = 6;
 
-	public PCEPErrorMessageParser(final ObjectHandlerRegistry registry) {
+	public PCEPErrorMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 

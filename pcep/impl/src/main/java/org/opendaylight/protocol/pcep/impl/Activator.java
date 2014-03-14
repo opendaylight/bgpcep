@@ -66,7 +66,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -187,7 +187,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerTlvSerializer(OfList.class, new OFListTlvParser());
 		context.registerTlvSerializer(Order.class, new OrderTlvParser());
 
-		final ObjectHandlerRegistry objReg = context.getObjectHandlerRegistry();
+		final ObjectRegistry objReg = context.getObjectHandlerRegistry();
 		context.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE,
 				new PCEPRequestParameterObjectParser(tlvReg));
 		context.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, new PCEPNoPathObjectParser(tlvReg));

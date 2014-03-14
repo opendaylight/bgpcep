@@ -31,7 +31,7 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPNotificationMessageParser
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -148,7 +148,7 @@ import com.google.common.collect.Lists;
 
 public class PCEPValidatorTest {
 
-	private ObjectHandlerRegistry objectRegistry;
+	private ObjectRegistry objectRegistry;
 
 	private Rp rpTrue;
 	private Rp rpFalse;

@@ -18,7 +18,7 @@ import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -44,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
 	private final SimpleLabelHandlerRegistry labelReg = new SimpleLabelHandlerRegistry();
 	private final SimpleMessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
-	private final SimpleObjectHandlerRegistry objReg = new SimpleObjectHandlerRegistry();
+	private final SimpleObjectRegistry objReg = new SimpleObjectRegistry();
 	private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
 	private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
 	private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
@@ -61,7 +61,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	}
 
 	@Override
-	public final ObjectHandlerRegistry getObjectHandlerRegistry() {
+	public final ObjectRegistry getObjectHandlerRegistry() {
 		return this.objReg;
 	}
 

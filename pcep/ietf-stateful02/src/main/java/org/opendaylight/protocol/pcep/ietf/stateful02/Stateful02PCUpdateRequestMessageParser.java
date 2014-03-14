@@ -12,7 +12,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
-import org.opendaylight.protocol.pcep.spi.ObjectHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcupd;
@@ -42,7 +42,7 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
 
 	public static final int TYPE = 11;
 
-	public Stateful02PCUpdateRequestMessageParser(final ObjectHandlerRegistry registry) {
+	public Stateful02PCUpdateRequestMessageParser(final ObjectRegistry registry) {
 		super(registry);
 	}
 
