@@ -199,7 +199,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).build());
 
 		final PcupdMessageBuilder ib = new PcupdMessageBuilder(MESSAGE_HEADER);
 		ib.setUpdates(ImmutableList.of(rb.build()));
@@ -221,7 +221,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).setOperational(input.getArguments().getAugmentation(Arguments2.class).isOperational()).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).setOperational(input.getArguments().getAugmentation(Arguments2.class).isOperational()).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 		pb.fieldsFrom(input.getArguments());
