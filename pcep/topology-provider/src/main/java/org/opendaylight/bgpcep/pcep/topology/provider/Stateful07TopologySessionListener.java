@@ -186,7 +186,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.fieldsFrom(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(Boolean.TRUE).setPlspId(
+		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(rb.getLsp().isDelegate()).setPlspId(
 				new PlspId(0L)).setTlvs(
 						new TlvsBuilder().setSymbolicPathName(
 								new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
@@ -215,7 +215,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		// Build the request and send it
 		final RequestsBuilder rb = new RequestsBuilder();
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).build());
 
 		final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
 		ib.setRequests(ImmutableList.of(rb.build()));
@@ -238,7 +238,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(Boolean.TRUE).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 		pb.fieldsFrom(input.getArguments());
