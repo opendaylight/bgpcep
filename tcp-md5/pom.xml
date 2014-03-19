@@ -26,17 +26,10 @@
         <maven>3.0.4</maven>
     </prerequisites>
 
-
-	<artifactId>tcpmd5-parent</artifactId>
-	<description>RFC2385-enabled sockets components</description>
-	<packaging>pom</packaging>
-	<name>${project.artifactId}</name>
-
-	<modules>
-        <module>core</module>
-        <module>jni</module>
-        <module>netty</module>
-    </modules>
+    <artifactId>tcpmd5-parent</artifactId>
+    <description>RFC2385-enabled sockets components</description>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
 
     <dependencyManagement>
         <dependencies>
@@ -64,4 +57,27 @@
         </dependencies>
     </dependencyManagement>
 
+    <profiles>
+        <profile>
+            <id>jni</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>core</module>
+                <module>jni</module>
+                <module>netty</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>core</module>
+                <module>netty</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
