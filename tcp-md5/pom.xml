@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+ Copyright (c) 2013 Robert Varga. All rights reserved.
+
+ This program and the accompanying materials are made available under the
+ terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
+        <url>https://wiki.opendaylight.org/view/BGP_LS_PCEP:Main</url>
+        <tag>HEAD</tag>
+    </scm>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>commons.parent</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
+        <relativePath>../commons/parent</relativePath>
+    </parent>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
+
+
+	<artifactId>tcpmd5-parent</artifactId>
+	<description>RFC2385-enabled sockets components</description>
+	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+
+	<modules>
+        <module>core</module>
+        <module>jni</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-jni</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-jni</artifactId>
+                <version>${project.version}</version>
+                <type>nar</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
