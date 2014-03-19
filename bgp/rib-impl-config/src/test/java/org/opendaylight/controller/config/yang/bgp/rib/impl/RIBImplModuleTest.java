@@ -7,20 +7,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
+import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +36,6 @@ import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventEx
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
-import org.opendaylight.controller.config.yang.store.impl.YangParserWrapper;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
@@ -60,15 +46,33 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.model.api.Module;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
+import org.opendaylight.yangtools.yang.model.parser.api.YangModelParser;
+import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.google.common.collect.Lists;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
     private static final String INSTANCE_NAME = "rib-impl";
@@ -348,6 +352,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
         List<String> paths = Arrays.asList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang",
                 "/META-INF/yang/bgp-types.yang");
-        return YangParserWrapper.parseYangFiles(getFilesAsInputStreams(paths));
+        YangModelParser parser = new YangParserImpl();
+        Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(paths)));
+        return parser.resolveSchemaContext(new HashSet<>(inputStreamModuleMap.values()));
     }
 }
