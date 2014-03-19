@@ -10,20 +10,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-      <parent>
-          <groupId>org.opendaylight.bgpcep</groupId>
-          <artifactId>tcpmd5-parent</artifactId>
-          <version>0.3.1-SNAPSHOT</version>
-      </parent>
+    <parent>
+        <groupId>org.opendaylight.bgpcep</groupId>
+        <artifactId>tcpmd5-parent</artifactId>
+        <version>0.3.1-SNAPSHOT</version>
+    </parent>
 
-      <modelVersion>4.0.0</modelVersion>
-      <artifactId>tcpmd5-core</artifactId>
-      <description>RFC2385-enable sockets</description>
-      <packaging>bundle</packaging>
-      <name>${project.artifactId}</name>
-      <prerequisites>
-          <maven>3.0.4</maven>
-      </prerequisites>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>tcpmd5-core</artifactId>
+    <description>RFC2385-enable sockets</description>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
     <dependencies>
         <dependency>
@@ -72,12 +72,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <site>
-            <id>${project.artifactId}</id>
-            <name>TCPMD5-CORE Module site</name>
-            <url>${basedir}/target/site/${project.artifactId}</url>
-        </site>
-    </distributionManagement>
 </project>

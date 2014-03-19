@@ -159,19 +159,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>imagej.thirdparty</id>
-            <url>http://maven.imagej.net/content/repositories/thirdparty</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <distributionManagement>
-        <site>
-            <id>${project.artifactId}</id>
-            <name>TCPMD5-JNI Module site</name>
-            <url>${basedir}/target/site/${project.artifactId}</url>
-        </site>
-    </distributionManagement>
 </project>
