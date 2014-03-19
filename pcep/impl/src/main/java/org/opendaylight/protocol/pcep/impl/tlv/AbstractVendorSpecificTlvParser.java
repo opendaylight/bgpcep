@@ -5,8 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.spi;
+package org.opendaylight.protocol.pcep.impl.tlv;
 
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.TlvParser;
+import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -39,7 +42,7 @@ abstract public class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
             final byte[] bytes = new byte[ianaNumBytes.length + payloadBytes.length];
             System.arraycopy(ianaNumBytes, 0, bytes, 0, ENTERPRISE_NUM_LENGTH);
             System.arraycopy(payloadBytes, 0, bytes, ENTERPRISE_NUM_LENGTH, payloadBytes.length);
-            return bytes;
+            return TlvUtil.formatTlv(TYPE, bytes);
         }
         return new byte[0];
     }
