@@ -8,16 +8,17 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
+import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
+public class SimpleLabelRegistry implements LabelRegistry {
 	private final HandlerRegistry<DataContainer, LabelParser, LabelSerializer> handlers = new HandlerRegistry<>();
 
 	public AutoCloseable registerLabelParser(final int cType, final LabelParser parser) {
@@ -30,13 +31,21 @@ public class SimpleLabelHandlerRegistry implements LabelHandlerRegistry {
 	}
 
 	@Override
-	public LabelParser getLabelParser(final int cType) {
+	public LabelType parseLabel(int cType, byte[] buffer) throws PCEPDeserializerException {
 		Preconditions.checkArgument(cType >= 0 && cType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-		return this.handlers.getParser(cType);
+		final LabelParser parser = this.handlers.getParser(cType);
+		if (parser == null) {
+			return null;
+		}
+		return parser.parseLabel(buffer);
 	}
 
 	@Override
-	public LabelSerializer getLabelSerializer(final LabelType label) {
-		return this.handlers.getSerializer(label.getImplementedInterface());
+	public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType label) {
+		final LabelSerializer serializer = this.handlers.getSerializer(label.getImplementedInterface());
+		if (serializer == null) {
+			return null;
+		}
+		return serializer.serializeLabel(unidirectional, global, label);
 	}
 }

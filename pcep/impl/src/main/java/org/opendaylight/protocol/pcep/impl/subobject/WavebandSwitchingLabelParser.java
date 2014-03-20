@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.pcep.spi.LabelUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
@@ -50,7 +51,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 	}
 
 	@Override
-	public byte[] serializeLabel(final LabelType subobject) {
+	public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
 		if (!(subobject instanceof WavebandSwitchingLabelCase)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
 					+ ". Needed WavebandSwitchingLabelCase.");
@@ -61,7 +62,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 		System.arraycopy(ByteArray.intToBytes(obj.getStartLabel().intValue(), START_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH, START_F_LENGTH);
 		System.arraycopy(ByteArray.intToBytes(obj.getEndLabel().intValue(), END_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH + START_F_LENGTH,
 				END_F_LENGTH);
-		return retBytes;
+		return LabelUtil.formatLabel(CTYPE, unidirectional, global, retBytes);
 	}
 
 	@Override

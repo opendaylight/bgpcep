@@ -65,7 +65,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
-import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
@@ -114,7 +114,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		final LabelHandlerRegistry labelReg = context.getLabelHandlerRegistry();
+		final LabelRegistry labelReg = context.getLabelHandlerRegistry();
 		context.registerLabelParser(Type1LabelParser.CTYPE, new Type1LabelParser());
 		context.registerLabelParser(GeneralizedLabelParser.CTYPE, new GeneralizedLabelParser());
 		context.registerLabelParser(WavebandSwitchingLabelParser.CTYPE, new WavebandSwitchingLabelParser());

@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.pcep.spi.LabelUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCase;
@@ -32,12 +33,12 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 	}
 
 	@Override
-	public byte[] serializeLabel(final LabelType subobject) {
+	public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
 		if (!(subobject instanceof GeneralizedLabelCase)) {
 			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
 					+ ". Needed GeneralizedLabelCase.");
 		}
-		return ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel();
+		return LabelUtil.formatLabel(CTYPE, unidirectional, global, ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
 	}
 
 	@Override

@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
-import org.opendaylight.protocol.pcep.spi.LabelHandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.LabelParser;
-import org.opendaylight.protocol.pcep.spi.LabelSerializer;
+import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -46,9 +44,9 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 	public static final int U_FLAG_OFFSET = 0;
 	public static final int G_FLAG_OFFSET = 7;
 
-	private final LabelHandlerRegistry registry;
+	private final LabelRegistry registry;
 
-	public RROLabelSubobjectParser(final LabelHandlerRegistry labelReg) {
+	public RROLabelSubobjectParser(final LabelRegistry labelReg) {
 		this.registry = Preconditions.checkNotNull(labelReg);
 	}
 
@@ -65,36 +63,27 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
 		final short cType = (short) UnsignedBytes.toInt(buffer[C_TYPE_F_OFFSET]);
 
-		final LabelParser parser = this.registry.getLabelParser(cType);
-
-		if (parser == null) {
+		final LabelType labelType = this.registry.parseLabel(cType, ByteArray.cutBytes(buffer, HEADER_LENGTH));
+		if (labelType == null) {
 			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
 		}
 		final LabelBuilder builder = new LabelBuilder();
 		builder.setUniDirectional(reserved.get(U_FLAG_OFFSET));
 		builder.setGlobal(reserved.get(G_FLAG_OFFSET));
-		builder.setLabelType(parser.parseLabel(ByteArray.cutBytes(buffer, HEADER_LENGTH)));
+		builder.setLabelType(labelType);
 		return new SubobjectBuilder().setSubobjectType(new LabelCaseBuilder().setLabel(builder.build()).build()).build();
 	}
 
 	@Override
 	public byte[] serializeSubobject(final Subobject subobject) {
+		Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
 		final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
-		final LabelType l = label.getLabelType();
-		final LabelSerializer parser = this.registry.getLabelSerializer(l);
-		if (parser == null) {
-			throw new IllegalArgumentException("Unknown RROLabelSubobject instance. Passed " + subobject.getSubobjectType().getClass());
+		final byte[] labelbytes = this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType());
+		if (labelbytes == null) {
+			throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
+					+ label.getLabelType().getImplementedInterface());
 		}
-		final byte[] labelbytes = parser.serializeLabel(l);
-		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
-		System.arraycopy(labelbytes, 0, retBytes, HEADER_LENGTH, labelbytes.length);
-
-		final BitSet reserved = new BitSet();
-		reserved.set(U_FLAG_OFFSET, label.isUniDirectional());
-		reserved.set(G_FLAG_OFFSET, label.isGlobal());
-		System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
-		retBytes[C_TYPE_F_OFFSET] = UnsignedBytes.checkedCast(parser.getType());
-		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
+		return RROSubobjectUtil.formatSubobject(TYPE, labelbytes);
 	}
 
 	@Override
