@@ -40,19 +40,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPRROSubobjectParserTest {
 
 	private static final byte[] ip4PrefixBytes = { (byte) 0x01, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0x16, (byte) 0x01 };
+		(byte) 0x16, (byte) 0x01 };
 	private static final byte[] ip6PrefixBytes = { (byte) 0x02, (byte) 0x14, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x02 };
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x02 };
 	private static final byte[] unnumberedBytes = { (byte) 0x04, (byte) 0x0c, (byte) 0x02, (byte) 0x00, (byte) 0x12, (byte) 0x34,
-			(byte) 0x50, (byte) 0x00, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+		(byte) 0x50, (byte) 0x00, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 	private static final byte[] pathKey32Bytes = { (byte) 0x40, (byte) 0x08, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
-			(byte) 0x50, (byte) 0x00 };
+		(byte) 0x50, (byte) 0x00 };
 	private static final byte[] pathKey128Bytes = { (byte) 0x41, (byte) 0x14, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
-			(byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00,
-			(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
-	private static final byte[] labelBytes = { (byte) 0x03, (byte) 0x08, (byte) 0x81, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25,
-			(byte) 0xFF };
+		(byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00,
+		(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+	private static final byte[] labelBytes = { 0x03, 0x08, (byte) 0x80, 0x02, 0x12, 0x00, 0x25,	(byte) 0xFF };
 
 	@Test
 	public void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
@@ -126,7 +125,7 @@ public class PCEPRROSubobjectParserTest {
 			final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
 			final SubobjectBuilder subs = new SubobjectBuilder();
 			subs.setSubobjectType(new LabelCaseBuilder().setLabel(
-					new LabelBuilder().setUniDirectional(true).setGlobal(true).setLabelType(
+					new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
 							new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
 									new GeneralizedLabelBuilder().setGeneralizedLabel(
 											new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }).build()).build()).build()).build());
