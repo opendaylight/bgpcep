@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -63,7 +65,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof Pcreq)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
 					+ ". Needed PcrepMessage.");
@@ -72,6 +74,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 		if (msg.getRequests() == null || msg.getRequests().isEmpty()) {
 			throw new IllegalArgumentException("Requests cannot be null or empty.");
 		}
+		ByteBuf buffer = Unpooled.buffer();
 		for (final Requests req : msg.getRequests()) {
 			buffer.writeBytes(serializeObject(req.getRp()));
 			if (req.getPathKeyExpansion() != null) {
@@ -103,6 +106,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
@@ -323,7 +327,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 				&& builder.getBandwidth() != null
 				&& builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
 						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })).build()
-				&& builder.getReportedRoute().getRro() == null) {
+						&& builder.getReportedRoute().getRro() == null) {
 			errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
 			return null;
 		}

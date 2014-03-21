@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Pcinitiate;
@@ -42,12 +44,13 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof Pcinitiate)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Needed PcinitiateMessage.");
 		}
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
+		ByteBuf buffer = Unpooled.buffer();
 		for (final Requests req : init.getRequests()) {
 			buffer.writeBytes(serializeObject(req.getEndpointsObj()));
 			buffer.writeBytes(serializeObject(req.getLspa()));
@@ -63,6 +66,7 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

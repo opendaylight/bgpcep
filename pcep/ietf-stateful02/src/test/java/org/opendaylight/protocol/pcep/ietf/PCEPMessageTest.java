@@ -133,7 +133,7 @@ public class PCEPMessageTest {
 			builder.setRequests(reqs);
 
 			assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			final ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());

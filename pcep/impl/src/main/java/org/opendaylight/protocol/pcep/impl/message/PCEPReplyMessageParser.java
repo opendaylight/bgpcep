@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -55,7 +57,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof Pcrep)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded PcrepMessage.");
@@ -64,6 +66,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 		if (repMsg.getReplies() == null || repMsg.getReplies().isEmpty()) {
 			throw new IllegalArgumentException("Replies cannot be null or empty.");
 		}
+		ByteBuf buffer = Unpooled.buffer();
 		for (final Replies reply : repMsg.getReplies()) {
 			if (reply.getRp() == null) {
 				throw new IllegalArgumentException("Reply must contain RP object.");
@@ -112,6 +115,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

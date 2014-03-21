@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.impl;
+package org.opendaylight.protocol.pcep.spi;
 
 /**
  *
  */
-final class PCEPMessageConstants {
+public final class PCEPMessageConstants {
 	/**
 	 * Length of the common message header, in bytes.
 	 */

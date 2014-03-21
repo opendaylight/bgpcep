@@ -15,8 +15,9 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPMessageConstants;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
@@ -35,9 +36,9 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 
 	private static final int LENGTH_SIZE = 2;
 
-	private final MessageHandlerRegistry registry;
+	private final MessageRegistry registry;
 
-	public PCEPByteToMessageDecoder(final MessageHandlerRegistry registry) {
+	public PCEPByteToMessageDecoder(final MessageRegistry registry) {
 		this.registry = Preconditions.checkNotNull(registry);
 	}
 
@@ -81,9 +82,6 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 			throw new PCEPDeserializerException("Body size " + msgBody.length + " does not match header size "
 					+ (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
 		}
-
-		final Message msg = this.registry.getMessageParser(type).parseMessage(msgBody, errors);
-		LOG.debug("Message was parsed. {}", msg);
-		return msg;
+		return this.registry.parseMessage(type, msgBody, errors);
 	}
 }
