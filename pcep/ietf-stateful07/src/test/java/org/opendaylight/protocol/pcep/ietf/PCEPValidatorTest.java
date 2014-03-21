@@ -341,7 +341,7 @@ public class PCEPValidatorTest {
 			builder.setOpen(b.build());
 
 			assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			final ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -350,14 +350,14 @@ public class PCEPValidatorTest {
 
 	@Test
 	public void testKeepAliveMsg() throws IOException, PCEPDeserializerException {
-		final byte[] result = new byte[] {};
+		final byte[] result = new byte[] {32, 2, 0, 4};
 		final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(this.objectRegistry);
 		final KeepaliveBuilder builder = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build());
 
-		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message> emptyList()));
+		assertEquals(builder.build(), parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(builder.build(), buf);
-		assertArrayEquals(result, buf.array());
+		assertArrayEquals(result, buf.readBytes(buf.readableBytes()).array());
 	}
 
 	@Test
@@ -368,7 +368,7 @@ public class PCEPValidatorTest {
 		final CloseBuilder builder = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder().setCClose(
 				new CCloseBuilder().setIgnore(false).setProcessingRule(false).setReason((short) 5).build()).build());
 
-		assertEquals(builder.build(), parser.parseMessage(result, Collections.<Message> emptyList()));
+		assertEquals(builder.build(), parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(builder.build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -389,7 +389,7 @@ public class PCEPValidatorTest {
 		builder.setRequests(reqs1);
 
 		assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
 
@@ -411,7 +411,7 @@ public class PCEPValidatorTest {
 				this.svec).build()));
 
 		assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -433,7 +433,7 @@ public class PCEPValidatorTest {
 		builder.setReplies(replies1);
 
 		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -451,7 +451,7 @@ public class PCEPValidatorTest {
 		builder.setReplies(replies2);
 
 		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -467,7 +467,7 @@ public class PCEPValidatorTest {
 		builder.setReplies(replies3);
 
 		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -490,7 +490,7 @@ public class PCEPValidatorTest {
 		builder.setReplies(replies4);
 
 		assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -514,7 +514,7 @@ public class PCEPValidatorTest {
 			builder.setUpdates(updates);
 
 			assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -530,7 +530,7 @@ public class PCEPValidatorTest {
 			builder.setUpdates(updates1);
 
 			assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -552,7 +552,7 @@ public class PCEPValidatorTest {
 			builder.setReports(reports);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -566,7 +566,7 @@ public class PCEPValidatorTest {
 			builder.setReports(reports1);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -583,7 +583,7 @@ public class PCEPValidatorTest {
 			builder.setReports(reports2);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -601,7 +601,7 @@ public class PCEPValidatorTest {
 			builder.setReports(reports3);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -630,7 +630,7 @@ public class PCEPValidatorTest {
 			builder.setRequests(reqs);
 
 			assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			final ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -674,7 +674,7 @@ public class PCEPValidatorTest {
 		builder.setNotifications(nots);
 
 		assertEquals(new PcntfBuilder().setPcntfMessage(builder.build()).build(),
-				parser.parseMessage(result, Collections.<Message> emptyList()));
+				parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 		final ByteBuf buf = Unpooled.buffer(result.length);
 		parser.serializeMessage(new PcntfBuilder().setPcntfMessage(builder.build()).build(), buf);
 		assertArrayEquals(result, buf.array());
@@ -699,7 +699,7 @@ public class PCEPValidatorTest {
 			builder.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(this.open).build()).build());
 
 			assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			ByteBuf buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());
@@ -717,7 +717,7 @@ public class PCEPValidatorTest {
 			builder.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(rps).build()).build());
 
 			assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(),
-					parser.parseMessage(result, Collections.<Message> emptyList()));
+					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
 			buf = Unpooled.buffer(result.length);
 			parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
 			assertArrayEquals(result, buf.array());

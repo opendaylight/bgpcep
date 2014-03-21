@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -41,13 +43,14 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof PcntfMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Needed PcntfMessage.");
 		}
 		final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessage msg = ((PcntfMessage) message).getPcntfMessage();
 
+		ByteBuf buffer = Unpooled.buffer();
 		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications n : msg.getNotifications()) {
 			if (n.getRps() != null && !n.getRps().isEmpty()) {
 				for (final Rps rps : n.getRps()) {
@@ -62,6 +65,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

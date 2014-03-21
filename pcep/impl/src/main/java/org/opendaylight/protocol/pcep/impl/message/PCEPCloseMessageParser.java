@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
@@ -35,7 +37,7 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof CloseMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded CloseMessage.");
@@ -45,7 +47,9 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 		if (close.getCClose() == null) {
 			throw new IllegalArgumentException("Close Object must be present in Close Message.");
 		}
+		ByteBuf buffer = Unpooled.buffer();
 		buffer.writeBytes(serializeObject(close.getCClose()));
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

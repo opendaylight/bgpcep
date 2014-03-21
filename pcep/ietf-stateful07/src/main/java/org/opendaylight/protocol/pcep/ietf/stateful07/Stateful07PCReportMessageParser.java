@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -49,13 +51,14 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof Pcrpt)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
 					+ ". Nedded PcrptMessage.");
 		}
 		final Pcrpt msg = (Pcrpt) message;
 		final List<Reports> reports = msg.getPcrptMessage().getReports();
+		ByteBuf buffer = Unpooled.buffer();
 		for (final Reports report : reports) {
 			if (report.getSrp() != null) {
 				buffer.writeBytes(serializeObject(report.getSrp()));
@@ -83,6 +86,7 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

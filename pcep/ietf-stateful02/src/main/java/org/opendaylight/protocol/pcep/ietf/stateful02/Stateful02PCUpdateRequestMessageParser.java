@@ -8,10 +8,12 @@
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -47,13 +49,14 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof Pcupd)) {
 			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
 					+ ". Nedded PcupdMessage.");
 		}
 		final Pcupd msg = (Pcupd) message;
 		final List<Updates> updates = msg.getPcupdMessage().getUpdates();
+		ByteBuf buffer = Unpooled.buffer();
 		for (final Updates update : updates) {
 			buffer.writeBytes(serializeObject(update.getLsp()));
 			final Path p = update.getPath();
@@ -75,6 +78,7 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
 				}
 			}
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

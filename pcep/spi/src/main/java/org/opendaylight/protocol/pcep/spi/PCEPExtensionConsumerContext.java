@@ -11,7 +11,7 @@ public interface PCEPExtensionConsumerContext {
 
 	LabelRegistry getLabelHandlerRegistry();
 
-	MessageHandlerRegistry getMessageHandlerRegistry();
+	MessageRegistry getMessageHandlerRegistry();
 
 	ObjectRegistry getObjectHandlerRegistry();
 

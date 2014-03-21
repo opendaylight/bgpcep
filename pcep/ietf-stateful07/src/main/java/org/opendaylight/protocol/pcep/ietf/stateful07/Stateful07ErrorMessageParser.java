@@ -8,11 +8,13 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -50,7 +52,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
 	}
 
 	@Override
-	public void serializeMessage(final Message message, final ByteBuf buffer) {
+	public void serializeMessage(final Message message, final ByteBuf out) {
 		if (!(message instanceof PcerrMessage)) {
 			throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass()
 					+ ". Nedded ErrorMessage.");
@@ -60,6 +62,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
 		if (err.getErrors() == null || err.getErrors().isEmpty()) {
 			throw new IllegalArgumentException("Errors should not be empty.");
 		}
+		ByteBuf buffer = Unpooled.buffer();
 
 		if (err.getErrorType() instanceof RequestCase) {
 			final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
@@ -82,6 +85,7 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
 		if (err.getErrorType() instanceof SessionCase) {
 			buffer.writeBytes(serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen()));
 		}
+		MessageUtil.formatMessage(TYPE, buffer, out);
 	}
 
 	@Override

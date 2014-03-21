@@ -7,17 +7,22 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
+import java.util.List;
+
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.base.Preconditions;
 
-public final class SimpleMessageHandlerRegistry implements MessageHandlerRegistry {
+public final class SimpleMessageRegistry implements MessageRegistry {
 
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
@@ -31,13 +36,21 @@ public final class SimpleMessageHandlerRegistry implements MessageHandlerRegistr
 	}
 
 	@Override
-	public MessageParser getMessageParser(final int messageType) {
+	public Message parseMessage(int messageType, byte[] buffer, List<Message> errors) throws PCEPDeserializerException {
 		Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-		return this.handlers.getParser(messageType);
+		final MessageParser parser = this.handlers.getParser(messageType);
+		if (parser == null) {
+			return null;
+		}
+		return parser.parseMessage(buffer, errors);
 	}
 
 	@Override
-	public MessageSerializer getMessageSerializer(final Message message) {
-		return this.handlers.getSerializer(message.getImplementedInterface());
+	public void serializeMessage(Message message, ByteBuf buffer) {
+		final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
+		if (serializer == null) {
+			return;
+		}
+		serializer.serializeMessage(message, buffer);
 	}
 }

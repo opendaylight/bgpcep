@@ -15,7 +15,7 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
-import org.opendaylight.protocol.pcep.spi.MessageHandlerRegistry;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -43,7 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 @ThreadSafe
 public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
 	private final SimpleLabelRegistry labelReg = new SimpleLabelRegistry();
-	private final SimpleMessageHandlerRegistry msgReg = new SimpleMessageHandlerRegistry();
+	private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
 	private final SimpleObjectRegistry objReg = new SimpleObjectRegistry();
 	private final SimpleEROSubobjectRegistry eroSubReg = new SimpleEROSubobjectRegistry();
 	private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
@@ -56,7 +56,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
 	}
 
 	@Override
-	public final MessageHandlerRegistry getMessageHandlerRegistry() {
+	public final MessageRegistry getMessageHandlerRegistry() {
 		return this.msgReg;
 	}
 
