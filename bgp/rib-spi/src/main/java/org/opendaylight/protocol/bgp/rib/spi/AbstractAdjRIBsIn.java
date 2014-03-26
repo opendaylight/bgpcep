@@ -50,7 +50,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			return this.attributes;
 		}
 
-		protected abstract D getDataObject(I key);
+		protected abstract D getDataObject(I key, InstanceIdentifier<D> id);
 
 		@Override
 		public final String toString() {
@@ -77,7 +77,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		private final I key;
 
 		@GuardedBy("this")
-		private InstanceIdentifier<?> name;
+		private InstanceIdentifier<D> name;
 		@GuardedBy("this")
 		private RIBEntryData<I, D> currentState;
 
@@ -85,7 +85,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 			this.key = Preconditions.checkNotNull(key);
 		}
 
-		private InstanceIdentifier<?> getName() {
+		private InstanceIdentifier<D> getName() {
 			if (this.name == null) {
 				this.name = identifierForKey(AbstractAdjRIBsIn.this.basePath, this.key);
 				LOG.trace("Entry {} grew key {}", this, this.name);
@@ -109,7 +109,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
 			if (this.currentState == null || !this.currentState.equals(candidate)) {
 				LOG.trace("Elected new state for {}: {}", getName(), candidate);
-				transaction.putOperationalData(getName(), candidate.getDataObject(this.key));
+				transaction.putOperationalData(getName(), candidate.getDataObject(this.key, getName()));
 				this.currentState = candidate;
 			}
 		}
@@ -182,7 +182,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
 	}
 
-	protected abstract InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
+	protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
 	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
 		LOG.debug("Adding state {} for {} peer {}", data, id, peer);
