@@ -75,6 +75,9 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 		protected final LinkstateRoute getDataObject(final CLinkstateDestination key) {
 			final LinkstateRouteBuilder builder = new LinkstateRouteBuilder();
 
+			// FIXME: make this more efficient (e.g. we construct the same thing in identifierForKey()
+			builder.setKey(new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key)));
+
 			builder.setIdentifier(key.getIdentifier());
 			builder.setProtocolId(key.getProtocolId());
 			builder.setDistinguisher(key.getDistinguisher());
