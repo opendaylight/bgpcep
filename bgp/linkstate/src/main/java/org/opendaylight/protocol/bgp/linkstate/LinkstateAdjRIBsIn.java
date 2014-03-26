@@ -72,9 +72,10 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 		protected abstract ObjectType createObject(CLinkstateDestination key);
 
 		@Override
-		protected final LinkstateRoute getDataObject(final CLinkstateDestination key) {
+		protected final LinkstateRoute getDataObject(final CLinkstateDestination key, final InstanceIdentifier<LinkstateRoute> id) {
 			final LinkstateRouteBuilder builder = new LinkstateRouteBuilder();
 
+			builder.setKey(InstanceIdentifier.keyOf(id));
 			builder.setIdentifier(key.getIdentifier());
 			builder.setProtocolId(key.getProtocolId());
 			builder.setDistinguisher(key.getDistinguisher());
@@ -98,7 +99,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 	}
 
 	@Override
-	public InstanceIdentifier<?> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
+	public InstanceIdentifier<LinkstateRoute> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
 		return InstanceIdentifier.builder(basePath).child(LinkstateRoutes.class).child(LinkstateRoute.class,
 				new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
 	}

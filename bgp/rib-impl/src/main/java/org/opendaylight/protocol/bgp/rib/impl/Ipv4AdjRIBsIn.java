@@ -39,8 +39,8 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
 		final RIBEntryData<Ipv4Prefix, Ipv4Route> data = new RIBEntryData<Ipv4Prefix, Ipv4Route>(attributes) {
 			@Override
-			protected Ipv4Route getDataObject(final Ipv4Prefix key) {
-				return new Ipv4RouteBuilder().setKey(new Ipv4RouteKey(key)).setAttributes(new AttributesBuilder(attributes).build()).build();
+			protected Ipv4Route getDataObject(final Ipv4Prefix key, final InstanceIdentifier<Ipv4Route> id) {
+				return new Ipv4RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
 			}
 		};
 
