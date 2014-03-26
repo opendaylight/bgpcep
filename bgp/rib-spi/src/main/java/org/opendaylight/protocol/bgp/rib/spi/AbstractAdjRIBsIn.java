@@ -65,7 +65,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	/**
 	 * A single RIB table entry, which holds multiple versions of the entry's state and elects the authoritative based
 	 * on ordering specified by the supplied comparator.
-	 * 
+	 *
 	 */
 	private final class RIBEntry {
 		/*
@@ -163,7 +163,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		Preconditions.checkState(t != null);
 		if (!uptodate.equals(t.isUptodate())) {
 			LOG.debug("Table {} switching uptodate to {}", t, uptodate);
-			trans.putOperationalData(this.basePath, new TablesBuilder(t).setUptodate(uptodate).build());
+			trans.putOperationalData(this.basePath, new TablesBuilder(t).setRoutes(t.getRoutes()).setUptodate(uptodate).build());
 		}
 	}
 
