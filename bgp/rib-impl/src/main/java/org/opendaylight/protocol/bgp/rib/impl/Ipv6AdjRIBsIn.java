@@ -39,8 +39,8 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
 		final RIBEntryData<Ipv6Prefix, Ipv6Route> data = new RIBEntryData<Ipv6Prefix, Ipv6Route>(attributes) {
 			@Override
-			protected Ipv6Route getDataObject(final Ipv6Prefix key) {
-				return new Ipv6RouteBuilder().setKey(new Ipv6RouteKey(key)).setAttributes(new AttributesBuilder(attributes).build()).build();
+			protected Ipv6Route getDataObject(final Ipv6Prefix key, final InstanceIdentifier<Ipv6Route> id) {
+				return new Ipv6RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
 			}
 		};
 
