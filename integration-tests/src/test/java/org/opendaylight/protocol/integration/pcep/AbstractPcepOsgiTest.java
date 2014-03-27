@@ -29,7 +29,7 @@ import org.osgi.framework.BundleContext;
 
 public class AbstractPcepOsgiTest {
 	@Inject
-	@Filter(timeout = 60 * 1000)
+	@Filter(timeout = 120 * 1000)
 	BindingAwareBroker broker;
 	@Inject
 	BundleContext bundleContext;
