@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -33,11 +35,11 @@ import com.google.common.primitives.UnsignedBytes;
 final class SimpleAttributeRegistry implements AttributeRegistry {
 	private static final class RawAttribute {
 		private final AttributeParser parser;
-		private final byte[] body;
+		private final ByteBuf buffer;
 
-		public RawAttribute(final AttributeParser parser, final byte[] body) {
+		public RawAttribute(final AttributeParser parser, final ByteBuf buffer) {
 			this.parser = Preconditions.checkNotNull(parser);
-			this.body = Preconditions.checkNotNull(body);
+			this.buffer = Preconditions.checkNotNull(buffer);
 		}
 	}
 
@@ -57,19 +59,18 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 		return this.handlers.registerSerializer(paramClass, serializer);
 	}
 
-	private int addAttribute(final byte[] bytes, final int offset, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
-		final boolean[] flags = ByteArray.parseBits(bytes[offset]);
-		final Integer type = UnsignedBytes.toInt(bytes[offset + 1]);
+	private int addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
+		final boolean[] flags = ByteArray.parseBits(buffer.readByte());
+		final Integer type = UnsignedBytes.toInt(buffer.readByte());
 		final int hdrlen;
 		final int len;
 		if (flags[EXTENDED_LENGTH_BIT]) {
-			len = UnsignedBytes.toInt(bytes[offset + 2]) * 256 + UnsignedBytes.toInt(bytes[offset + 3]);
+			len = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
 			hdrlen = 4;
 		} else {
-			len = UnsignedBytes.toInt(bytes[offset + 2]);
+			len = UnsignedBytes.toInt(buffer.readByte());
 			hdrlen = 3;
 		}
-
 		if (!attributes.containsKey(type)) {
 			final AttributeParser parser = this.handlers.getParser(type);
 			if (parser == null) {
@@ -83,7 +84,8 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 					LOG.debug("Ignoring unrecognized attribute type {}", type);
 				}
 			} else {
-				attributes.put(type, new RawAttribute(parser, ByteArray.subByte(bytes, offset + hdrlen, len)));
+				attributes.put(type, new RawAttribute(parser, buffer.slice(buffer.readerIndex(), len)));
+				buffer.skipBytes(len);
 			}
 		} else {
 			LOG.debug("Ignoring duplicate attribute type {}", type);
@@ -92,14 +94,11 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 	}
 
 	@Override
-	public PathAttributes parseAttributes(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-		int byteOffset = 0;
-
+	public PathAttributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
 		final TreeMap<Integer, RawAttribute> attributes = new TreeMap<>();
-		while (byteOffset < bytes.length) {
-			byteOffset += addAttribute(bytes, byteOffset, attributes);
+		while (buffer.readableBytes() != 0) {
+			addAttribute(buffer, attributes);
 		}
-
 		/*
 		 * TreeMap guarantees that we will be invoking the parser in the order
 		 * of increasing attribute type.
@@ -109,7 +108,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 			LOG.debug("Parsing attribute type {}", e.getKey());
 
 			final RawAttribute a = e.getValue();
-			a.parser.parseAttribute(a.body, builder);
+			a.parser.parseAttribute(a.buffer, builder);
 		}
 
 		return builder.build();
@@ -121,7 +120,6 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 		if (serializer == null) {
 			return null;
 		}
-
 		return serializer.serializeAttribute(attribute);
 	}
 }

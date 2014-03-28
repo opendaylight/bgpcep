@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import io.netty.buffer.Unpooled;
 
 import java.math.BigInteger;
 
@@ -75,7 +76,7 @@ public class LinkstateNlriParserTest {
 	public void testNodeNlri() throws BGPParsingException {
 		final LinkstateNlriParser parser = new LinkstateNlriParser(false);
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-		parser.parseNlri(this.nodeNlri, this.nextHop, builder);
+		parser.parseNlri(Unpooled.copiedBuffer(this.nodeNlri), this.nextHop, builder);
 
 		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 
@@ -109,7 +110,7 @@ public class LinkstateNlriParserTest {
 	public void testLinkNlri() throws BGPParsingException {
 		final LinkstateNlriParser parser = new LinkstateNlriParser(false);
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-		parser.parseNlri(this.linkNlri, this.nextHop, builder);
+		parser.parseNlri(Unpooled.copiedBuffer(this.linkNlri), this.nextHop, builder);
 
 		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 
@@ -148,7 +149,7 @@ public class LinkstateNlriParserTest {
 	public void testPrefixNlri() throws BGPParsingException {
 		final LinkstateNlriParser parser = new LinkstateNlriParser(false);
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-		parser.parseNlri(this.prefixNlri, this.nextHop, builder);
+		parser.parseNlri(Unpooled.copiedBuffer(this.prefixNlri), this.nextHop, builder);
 
 		assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
 

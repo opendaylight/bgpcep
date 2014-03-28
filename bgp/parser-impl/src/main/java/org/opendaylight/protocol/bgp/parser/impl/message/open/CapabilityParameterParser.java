@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -39,22 +41,17 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 	}
 
 	@Override
-	public BgpParameters parseParameter(final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Byte array cannot be null or empty.");
-		}
-		LOG.trace("Started parsing of BGP Capability: {}", Arrays.toString(bytes));
-		int byteOffset = 0;
-		final int capCode = UnsignedBytes.toInt(bytes[byteOffset++]);
-		final int capLength = UnsignedBytes.toInt(bytes[byteOffset++]);
-		final byte[] paramBody = ByteArray.subByte(bytes, byteOffset, capLength);
-
-		final CParameters ret = reg.parseCapability(capCode, paramBody);
+	public BgpParameters parseParameter(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
+		Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
+		LOG.trace("Started parsing of BGP Capability: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
+		final int capCode = UnsignedBytes.toInt(buffer.readByte());
+		final int capLength = UnsignedBytes.toInt(buffer.readByte());
+		final ByteBuf paramBody = buffer.slice(buffer.readerIndex(), capLength);
+		final CParameters ret = this.reg.parseCapability(capCode, paramBody);
 		if (ret == null) {
 			LOG.debug("Ignoring unsupported capability {}", capCode);
 			return null;
 		}
-
 		return new BgpParametersBuilder().setCParameters(ret).build();
 	}
 
@@ -64,7 +61,7 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
 		LOG.trace("Started serializing BGP Capability: {}", cap);
 
-		byte[] bytes = reg.serializeCapability(cap);
+		byte[] bytes = this.reg.serializeCapability(cap);
 		if (bytes == null) {
 			throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
 		}

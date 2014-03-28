@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -28,9 +30,9 @@ public final class MPReachAttributeParser implements AttributeParser {
 	}
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
 		try {
-			final PathAttributes1 a = new PathAttributes1Builder().setMpReachNlri(reg.parseMpReach(bytes)).build();
+			final PathAttributes1 a = new PathAttributes1Builder().setMpReachNlri(this.reg.parseMpReach(buffer)).build();
 			builder.addAugmentation(PathAttributes1.class, a);
 		} catch (final BGPParsingException e) {
 			throw new BGPDocumentedException("Could not parse MP_REACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
