@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
@@ -31,17 +33,13 @@ public final class AggregatorAttributeParser implements AttributeParser {
 	/**
 	 * Parse AGGREGATOR from bytes
 	 * 
-	 * @param bytes byte array to be parsed
+	 * @param buffer byte buffer to be parsed
 	 * @return {@link Aggregator} BGP Aggregator
 	 */
-	private Aggregator parseAggregator(final byte[] bytes) {
-		final AsNumber asNumber = refCache.getSharedReference(new AsNumber(ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, AsPathSegmentParser.AS_NUMBER_LENGTH))));
-		final Ipv4Address address = Ipv4Util.addressForBytes(ByteArray.subByte(bytes, AsPathSegmentParser.AS_NUMBER_LENGTH, 4));
-		return new AggregatorBuilder().setAsNumber(asNumber).setNetworkAddress(address).build();
-	}
-
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
-		builder.setAggregator(parseAggregator(bytes));
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
+		final AsNumber asNumber = this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()));
+		final Ipv4Address address = Ipv4Util.addressForBytes(ByteArray.readAllBytes(buffer));
+		builder.setAggregator(new AggregatorBuilder().setAsNumber(asNumber).setNetworkAddress(address).build());
 	}
 }

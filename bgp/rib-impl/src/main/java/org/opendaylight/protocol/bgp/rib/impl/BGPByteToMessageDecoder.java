@@ -39,16 +39,12 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
 			LOG.debug("No more content in incoming buffer.");
 			return;
 		}
-		in.markReaderIndex();
 		try {
 			LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
-			final byte[] bytes = new byte[in.readableBytes()];
-			in.readBytes(bytes);
-			out.add(this.registry.parseMessage(bytes));
+			out.add(this.registry.parseMessage(in));
 		} catch (BGPParsingException | BGPDocumentedException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
 		}
-		in.discardReadBytes();
 	}
 }

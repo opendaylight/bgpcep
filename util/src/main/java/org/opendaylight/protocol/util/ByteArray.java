@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.util;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,6 +28,62 @@ import com.google.common.primitives.UnsignedInteger;
  */
 public final class ByteArray {
 	private ByteArray() {
+	}
+
+	/**
+	 * Helper method missing from netty ByteBuf methods. Directly returns byte
+	 * array part of the given buffer, starting at reader index, with given length.
+	 * Increases reader index of the buffer by 'length'.
+	 * 
+	 * @param buffer ByteBuf from which the bytes are going to be taken
+	 * @param length length of the returned byte array
+	 * @return byte array
+	 */
+	public static byte[] readBytes(final ByteBuf buffer, int length) {
+		Preconditions.checkState(buffer != null && buffer.readableBytes() >= length, "Buffer cannot be read for %s bytes. Contains only %s bytes.", length, buffer.readableBytes());
+		byte[] result = new byte[length];
+		buffer.readBytes(result);
+		return result;
+	}
+
+	/**
+	 * Helper method missing from netty ByteBuf methods. Directly returns
+	 * all readable bytes from buffer as byte array. Adjusts reader index
+	 * of the buffer by length of readable bytes in the buffer.
+	 * 
+	 * @param buffer byteBuf from which the bytes are going to be taken
+	 * @return byte array
+	 */
+	public static byte[] readAllBytes(final ByteBuf buffer) {
+		return readBytes(buffer, buffer.readableBytes());
+	}
+
+	/**
+	 * Helper method missing from netty ByteBuf methods. Directly returns byte
+	 * array part of the given buffer, starting at reader index, with given length.
+	 * Does not modify reader or writer index of the buffer.
+	 * 
+	 * @param buffer ByteBuf from which the bytes are going to be taken
+	 * @param length length of the returned byte array
+	 * @return byte array
+	 */
+	public static byte[] getBytes(final ByteBuf buffer, int length) {
+		Preconditions.checkState(buffer != null && buffer.readableBytes() >= length, "Buffer cannot be read for %s bytes. Contains only %s bytes.", length, buffer.readableBytes());
+		byte[] result = new byte[length];
+		buffer.getBytes(buffer.readerIndex(), result);
+		return result;
+	}
+
+	/**
+	 * Helper method missing from netty ByteBuf methods. Directly returns
+	 * all readable bytes from buffer as byte array. Does not modify writer
+	 * or reader index of the buffer.
+	 * 
+	 * @param buffer byteBuf from which the bytes are going to be taken
+	 * @return byte array
+	 */
+	public static byte[] getAllBytes(final ByteBuf buffer) {
+		return getBytes(buffer, buffer.readableBytes());
 	}
 
 	/**

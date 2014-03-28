@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
@@ -32,13 +34,12 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
 	}
 
 	@Override
-	public CParameters parseCapability(final int type, final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	public CParameters parseCapability(final int type, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
 		final CapabilityParser parser = this.handlers.getParser(type);
 		if (parser == null) {
 			return null;
 		}
-
-		return parser.parseCapability(bytes);
+		return parser.parseCapability(buffer);
 	}
 
 	@Override
