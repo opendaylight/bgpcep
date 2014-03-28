@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriUtil;
@@ -17,15 +19,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 
 abstract class IpNlriParser implements NlriParser {
-	protected abstract DestinationType parseNlri(final byte[] nlri);
+	protected abstract DestinationType parseNlri(final ByteBuf nlri);
 
 	@Override
-	public final void parseNlri(final byte[] nlri, final MpUnreachNlriBuilder builder) {
+	public final void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) {
 		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(parseNlri(nlri)).build());
 	}
 
 	@Override
-	public final void parseNlri(final byte[] nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
+	public final void parseNlri(final ByteBuf nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
 		builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(parseNlri(nlri)).build());
 		NlriUtil.parseNextHop(nextHop, builder);
 	}

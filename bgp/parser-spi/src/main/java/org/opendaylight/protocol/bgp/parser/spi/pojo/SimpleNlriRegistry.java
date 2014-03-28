@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -49,70 +51,66 @@ final class SimpleNlriRegistry implements NlriRegistry {
 	synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
 			final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
 		final BgpTableType key = createKey(afi, safi);
-		final NlriParser prev = handlers.get(key);
+		final NlriParser prev = this.handlers.get(key);
 		Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
 
-		handlers.put(key, parser);
+		this.handlers.put(key, parser);
 		final Object lock = this;
 		return new AbstractRegistration() {
 			@Override
 			protected void removeRegistration() {
 				synchronized (lock) {
-					handlers.remove(key);
+					SimpleNlriRegistry.this.handlers.remove(key);
 				}
 			}
 		};
 	}
 
-	private Class<? extends AddressFamily> getAfi(final byte[] header) throws BGPParsingException {
-		final int afiVal = UnsignedBytes.toInt(header[0]) * 256 + UnsignedBytes.toInt(header[1]);
-		final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
+	private Class<? extends AddressFamily> getAfi(final ByteBuf buffer) throws BGPParsingException {
+		final int afiVal = buffer.readUnsignedShort();
+		final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
 		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
 		}
-
 		return afi;
 	}
 
-	private Class<? extends SubsequentAddressFamily> getSafi(final byte[] header) throws BGPParsingException {
-		final int safiVal = UnsignedBytes.toInt(header[2]);
-		final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
+	private Class<? extends SubsequentAddressFamily> getSafi(final ByteBuf buffer) throws BGPParsingException {
+		final int safiVal = UnsignedBytes.toInt(buffer.readByte());
+		final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
 		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
 		}
-
 		return safi;
 	}
 
 	@Override
-	public MpUnreachNlri parseMpUnreach(final byte[] bytes) throws BGPParsingException {
+	public MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException {
 		final MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
-		builder.setAfi(getAfi(bytes));
-		builder.setSafi(getSafi(bytes));
+		builder.setAfi(getAfi(buffer));
+		builder.setSafi(getSafi(buffer));
 
-		final NlriParser parser = handlers.get(createKey(builder.getAfi(), builder.getSafi()));
-		parser.parseNlri(ByteArray.subByte(bytes, 3, bytes.length - 3), builder);
-
+		final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
+		final ByteBuf nlri = buffer.slice();
+		parser.parseNlri(nlri, builder);
 		return builder.build();
 	}
 
 	@Override
-	public MpReachNlri parseMpReach(final byte[] bytes) throws BGPParsingException {
+	public MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException {
 		final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-		builder.setAfi(getAfi(bytes));
-		builder.setSafi(getSafi(bytes));
+		builder.setAfi(getAfi(buffer));
+		builder.setSafi(getSafi(buffer));
 
-		final NlriParser parser = handlers.get(createKey(builder.getAfi(), builder.getSafi()));
+		final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
-		final int nextHopLength = UnsignedBytes.toInt(bytes[3]);
-		int byteOffset = 4;
+		final int nextHopLength = UnsignedBytes.toInt(buffer.readByte());
+		final byte[] nextHop = ByteArray.readBytes(buffer, nextHopLength);
+		//reserved
+		buffer.skipBytes(1);
 
-		final byte[] nextHop = ByteArray.subByte(bytes, byteOffset, nextHopLength);
-		byteOffset += nextHopLength + 1;
-
-		final byte[] nlri = ByteArray.subByte(bytes, byteOffset, bytes.length - byteOffset);
+		final ByteBuf nlri = buffer.slice();
 		parser.parseNlri(nlri, nextHop, builder);
-
 		return builder.build();
 	}
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterParser;
@@ -32,13 +34,12 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 	}
 
 	@Override
-	public BgpParameters parseParameter(final int parameterType, final byte[] bytes) throws BGPParsingException, BGPDocumentedException {
+	public BgpParameters parseParameter(final int parameterType, final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
 		final ParameterParser parser = this.handlers.getParser(parameterType);
 		if (parser == null) {
 			return null;
 		}
-
-		return parser.parseParameter(bytes);
+		return parser.parseParameter(buffer);
 	}
 
 	@Override
@@ -47,7 +48,6 @@ final class SimpleParameterRegistry implements ParameterRegistry {
 		if (serializer == null) {
 			return null;
 		}
-
 		return serializer.serializeParameter(parameter);
 	}
 }
