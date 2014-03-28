@@ -7,11 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 
 public interface NlriParser {
-	void parseNlri(byte[] nlri, MpUnreachNlriBuilder builder) throws BGPParsingException;
-	void parseNlri(byte[] nlri, byte[] nextHop, MpReachNlriBuilder builder) throws BGPParsingException;
+	void parseNlri(ByteBuf nlri, MpUnreachNlriBuilder builder) throws BGPParsingException;
+	void parseNlri(ByteBuf nlri, byte[] nextHop, MpReachNlriBuilder builder) throws BGPParsingException;
 }

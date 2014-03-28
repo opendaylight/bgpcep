@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -71,21 +73,21 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 	 * @throws BGPDocumentedException
 	 */
 	@Override
-	public Notify parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
+	public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
 		if (body == null) {
 			throw new IllegalArgumentException("Byte array cannot be null.");
 		}
-		LOG.trace("Started parsing of notification message: {}", Arrays.toString(body));
+		LOG.trace("Started parsing of notification message: {}", Arrays.toString(ByteArray.getAllBytes(body)));
 
-		if (body.length < ERROR_SIZE) {
+		if (body.readableBytes() < ERROR_SIZE) {
 			throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
 		}
-		final int errorCode = UnsignedBytes.toInt(body[0]);
-		final int errorSubcode = UnsignedBytes.toInt(body[1]);
+		final int errorCode = UnsignedBytes.toInt(body.readByte());
+		final int errorSubcode = UnsignedBytes.toInt(body.readByte());
 
 		byte[] data = null;
-		if (body.length > ERROR_SIZE) {
-			data = ByteArray.subByte(body, ERROR_SIZE, body.length - ERROR_SIZE);
+		if (body.readableBytes() != 0) {
+			data = ByteArray.readAllBytes(body);
 		}
 		LOG.trace("Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
 				Arrays.toString(data));

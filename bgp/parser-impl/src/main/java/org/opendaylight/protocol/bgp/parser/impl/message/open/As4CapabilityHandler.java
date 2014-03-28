@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
@@ -25,9 +27,9 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
 	private static final int AS4_LENGTH = 4;
 
 	@Override
-	public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
 		return new As4BytesCaseBuilder().setAs4BytesCapability(
-				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(bytes))).build()).build();
+				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
 	}
 
 	@Override

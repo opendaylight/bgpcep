@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AtomicAggregateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -15,7 +17,7 @@ public final class AtomicAggregateAttributeParser implements AttributeParser {
 	public static final int TYPE = 6;
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) {
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
 		builder.setAtomicAggregate(new AtomicAggregateBuilder().build());
 	}
 }
