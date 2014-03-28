@@ -169,7 +169,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
 		if (prefs != null && !prefs.isEmpty()) {
 			if (!prefs.containsAll(this.localPref.getParams())) {
-				LOG.info("Open message recieved does not match open message sent. Session still accepted.");
+				LOG.info("Open message session parameters differ, session still accepted.");
 			}
 			this.sendMessage(new KeepaliveBuilder().build());
 			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, openObj, this.localPref.getHoldTime());

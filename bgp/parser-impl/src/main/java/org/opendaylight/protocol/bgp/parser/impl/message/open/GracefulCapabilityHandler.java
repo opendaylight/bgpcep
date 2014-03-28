@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,30 +110,30 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 	}
 
 	@Override
-	public CParameters parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
+	public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
 		final GracefulRestartCapabilityBuilder cb = new GracefulRestartCapabilityBuilder();
 
-		final int flagBits = (bytes[0] >> RESTART_FLAGS_SIZE);
+		final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
 		cb.setRestartFlags(new RestartFlags((flagBits & 8) != 0));
 
-		final int timer = ((bytes[0] & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(bytes[1]);
+		final int timer = ((buffer.readByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(buffer.readByte());
 		cb.setRestartTime(timer);
 
 		final List<Tables> tables = new ArrayList<>();
-		for (int offset = HEADER_SIZE; offset < bytes.length; offset += PER_AFI_SAFI_SIZE) {
-			final int afiVal = UnsignedBytes.toInt(bytes[offset]) * 256 + UnsignedBytes.toInt(bytes[offset + 1]);
+		while (buffer.readableBytes() != 0) {
+			final int afiVal = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
 			final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
 			if (afi == null) {
 				LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);
 				continue;
 			}
-			final int safiVal = UnsignedBytes.toInt(bytes[offset + 2]);
+			final int safiVal = UnsignedBytes.toInt(buffer.readByte());
 			final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
 			if (safi == null) {
 				LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
 				continue;
 			}
-			final int flags = UnsignedBytes.toInt(bytes[offset + 3]);
+			final int flags = UnsignedBytes.toInt(buffer.readByte());
 			tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
 		}
 		return new GracefulRestartCaseBuilder().setGracefulRestartCapability(cb.build()).build();

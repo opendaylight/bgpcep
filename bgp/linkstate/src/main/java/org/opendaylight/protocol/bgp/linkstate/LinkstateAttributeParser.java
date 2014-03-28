@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -73,10 +75,6 @@ public class LinkstateAttributeParser implements AttributeParser {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateAttributeParser.class);
 
-	private static final int TYPE_LENGTH = 2;
-
-	private static final int LENGTH_SIZE = 2;
-
 	private static final int ROUTE_TAG_LENGTH = 4;
 
 	private static final int EXTENDED_ROUTE_TAG_LENGTH = 8;
@@ -112,26 +110,23 @@ public class LinkstateAttributeParser implements AttributeParser {
 	}
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPParsingException {
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPParsingException {
 		final NlriType type = getNlriType(builder);
 		if (type == null) {
 			LOG.warn("No Linkstate NLRI found, not parsing Linkstate attribute");
 			return;
 		}
 
-		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(type, bytes)).build();
+		final PathAttributes1 a = new PathAttributes1Builder().setLinkstatePathAttribute(parseLinkState(type, buffer)).build();
 		builder.addAugmentation(PathAttributes1.class, a);
 	}
 
-	private static LinkstatePathAttribute parseLinkState(final NlriType nlri, final byte[] bytes) throws BGPParsingException {
-		final Map<Short, ByteList> map = new TreeMap<>();
-		int byteOffset = 0;
-		while (byteOffset != bytes.length) {
-			final Short type = ByteArray.bytesToShort(ByteArray.subByte(bytes, byteOffset, TYPE_LENGTH));
-			byteOffset += TYPE_LENGTH;
-			final int length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, LENGTH_SIZE));
-			byteOffset += LENGTH_SIZE;
-			final byte[] value = ByteArray.subByte(bytes, byteOffset, length);
+	private static LinkstatePathAttribute parseLinkState(final NlriType nlri, final ByteBuf buffer) throws BGPParsingException {
+		final Map<Integer, ByteList> map = new TreeMap<>();
+		while (buffer.readableBytes() != 0) {
+			final int type = buffer.readUnsignedShort();
+			final int length = buffer.readUnsignedShort();
+			final byte[] value = ByteArray.readBytes(buffer, length);
 
 			// TODO: does the specification allow for a TLV to occur multiple times? If so, provide a reference to
 			// that section and replace this comment which description of what we are doing here.
@@ -142,7 +137,6 @@ public class LinkstateAttributeParser implements AttributeParser {
 
 			values.add(value);
 			map.put(type, values);
-			byteOffset += length;
 		}
 		final LinkstatePathAttributeBuilder builder = new LinkstatePathAttributeBuilder();
 
@@ -168,10 +162,10 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @param attributes key is the tlv type and value is the value of the tlv
 	 * @return {@link LinkStateAttribute}
 	 */
-	private static LinkStateAttribute parseLinkAttributes(final Map<Short, ByteList> attributes) {
+	private static LinkStateAttribute parseLinkAttributes(final Map<Integer, ByteList> attributes) {
 
 		final LinkAttributesBuilder builder = new LinkAttributesBuilder();
-		for (final Entry<Short, ByteList> entry : attributes.entrySet()) {
+		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
 			LOG.trace("Link attribute TLV {}", entry.getKey());
 
 			for (final byte[] value : entry.getValue().getBytes()) {
@@ -276,11 +270,11 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @param attributes key is the tlv type and value is the value of the tlv
 	 * @return {@link LinkStateAttribute}
 	 */
-	private static LinkStateAttribute parseNodeAttributes(final Map<Short, ByteList> attributes) {
+	private static LinkStateAttribute parseNodeAttributes(final Map<Integer, ByteList> attributes) {
 		final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
 		final List<IsisAreaIdentifier> areaMembership = Lists.newArrayList();
 		final NodeAttributesBuilder builder = new NodeAttributesBuilder();
-		for (final Entry<Short, ByteList> entry : attributes.entrySet()) {
+		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
 			LOG.trace("Node attribute TLV {}", entry.getKey());
 			for (final byte[] value : entry.getValue().getBytes()) {
 				switch (entry.getKey()) {
@@ -339,11 +333,11 @@ public class LinkstateAttributeParser implements AttributeParser {
 	 * @param attributes key is the tlv type and value are the value bytes of the tlv
 	 * @return {@link LinkStateAttribute}
 	 */
-	private static LinkStateAttribute parsePrefixAttributes(final Map<Short, ByteList> attributes) {
+	private static LinkStateAttribute parsePrefixAttributes(final Map<Integer, ByteList> attributes) {
 		final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
 		final List<RouteTag> routeTags = Lists.newArrayList();
 		final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
-		for (final Entry<Short, ByteList> entry : attributes.entrySet()) {
+		for (final Entry<Integer, ByteList> entry : attributes.entrySet()) {
 			LOG.trace("Prefix attribute TLV {}", entry.getKey());
 			for (final byte[] value : entry.getValue().getBytes()) {
 				switch (entry.getKey()) {
