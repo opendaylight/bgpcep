@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -14,17 +16,15 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageRegistry implements MessageRegistry {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageRegistry.class);
 
 	private static final byte[] MARKER;
 
-	protected abstract Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException;
+	protected abstract Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException;
 
 	protected abstract byte[] serializeMessageImpl(final Notification message);
 
@@ -34,40 +34,33 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 	}
 
 	@Override
-	public final Notification parseMessage(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Array of bytes is mandatory.");
-		}
-		if (bytes.length < MessageUtil.COMMON_HEADER_LENGTH) {
-			throw new IllegalArgumentException("Too few bytes in passed array. Passed: " + bytes.length + ". Expected: >= "
-					+ MessageUtil.COMMON_HEADER_LENGTH + ".");
-		}
-		final byte[] marker = ByteArray.subByte(bytes, 0, MessageUtil.MARKER_LENGTH);
+	public final Notification parseMessage(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+		Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Array of bytes cannot be null or empty.");
+		Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH, "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);
+		final byte[] marker = ByteArray.readBytes(buffer, MessageUtil.MARKER_LENGTH);
 
 		if (!Arrays.equals(marker, MARKER)) {
 			throw new BGPDocumentedException("Marker not set to ones.", BGPError.CONNECTION_NOT_SYNC);
 		}
-		final byte[] bs = ByteArray.cutBytes(bytes, MessageUtil.MARKER_LENGTH);
-		final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(bs, 0, MessageUtil.LENGTH_FIELD_LENGTH));
-		final int messageType = UnsignedBytes.toInt(bs[MessageUtil.LENGTH_FIELD_LENGTH]);
+		final int messageLength = buffer.readUnsignedShort();
+		// to be sent with Error message
+		final byte typeBytes = buffer.readByte();
+		final int messageType = UnsignedBytes.toInt(typeBytes);
 
-		final byte[] msgBody = ByteArray.cutBytes(bs, MessageUtil.LENGTH_FIELD_LENGTH + MessageUtil.TYPE_FIELD_LENGTH);
+		final ByteBuf msgBody = buffer.slice(buffer.readerIndex(), messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 
 		if (messageLength < MessageUtil.COMMON_HEADER_LENGTH) {
 			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
-		if (msgBody.length != messageLength - MessageUtil.COMMON_HEADER_LENGTH) {
-			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.length + "; Expected: "
+		if (msgBody.readableBytes() != messageLength - MessageUtil.COMMON_HEADER_LENGTH) {
+			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.readableBytes() + "; Expected: "
 					+ (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
 		}
-
-		LOG.debug("Attempt to parse message from bytes: {}", ByteArray.bytesToHexString(msgBody));
-
 		final Notification msg = parseBody(messageType, msgBody, messageLength);
 		if (msg == null) {
-			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { bs[MessageUtil.LENGTH_FIELD_LENGTH] });
+			throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE, new byte[] { typeBytes });
 		}
-		LOG.debug("Message parsed: {}", msg);
+		buffer.skipBytes(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 		return msg;
 	}
 
@@ -76,15 +69,10 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 		if (message == null) {
 			throw new IllegalArgumentException("BGPMessage is mandatory.");
 		}
-
-		LOG.trace("Serializing {}", message);
-
 		final byte[] ret = serializeMessageImpl(message);
 		if (ret == null) {
 			throw new IllegalArgumentException("Unknown instance of BGPMessage. Passed " + message.getClass());
 		}
-
-		LOG.trace("Serialized BGP message {}.", Arrays.toString(ret));
 		return ret;
 	}
 }

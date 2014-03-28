@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -24,8 +26,8 @@ public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializ
 	private final byte[] bytes = MessageUtil.formatMessage(TYPE, new byte[0]);
 
 	@Override
-	public Keepalive parseMessageBody(final byte[] body, final int messageLength) throws BGPDocumentedException {
-		if (body.length != 0) {
+	public Keepalive parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+		if (body.readableBytes() != 0) {
 			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
 		return this.msg;

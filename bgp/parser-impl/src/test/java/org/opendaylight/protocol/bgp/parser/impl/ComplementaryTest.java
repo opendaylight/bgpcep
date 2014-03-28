@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
+import io.netty.buffer.Unpooled;
 
 import java.util.Map;
 
@@ -128,7 +129,7 @@ public class ComplementaryTest {
 	public void testCommunitiesParser() {
 		ExtendedCommunities as = null;
 		try {
-			as = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 });
+			as = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 5, 0, 54, 0, 0, 1, 76 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -144,7 +145,7 @@ public class ComplementaryTest {
 		assertEquals(0, as.getCommType().intValue());
 
 		try {
-			as = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 });
+			as = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 40, 5, 0, 54, 0, 0, 1, 76 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -157,7 +158,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities rtc = null;
 		try {
-			rtc = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 });
+			rtc = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 1, 2, 0, 35, 4, 2, 8, 7 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -174,7 +175,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities roc = null;
 		try {
-			roc = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 });
+			roc = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 0, 3, 0, 24, 4, 2, 8, 7 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -191,7 +192,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities sec = null;
 		try {
-			sec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 });
+			sec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 41, 6, 12, 51, 2, 5, 21, 45 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -209,7 +210,7 @@ public class ComplementaryTest {
 
 		ExtendedCommunities oec = null;
 		try {
-			oec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 });
+			oec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 3, 6, 21, 45, 5, 4, 3, 1 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -221,7 +222,7 @@ public class ComplementaryTest {
 		assertEquals(3, oec.getCommType().intValue());
 
 		try {
-			oec = CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 });
+			oec = CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 43, 6, 21, 45, 5, 4, 3, 1 }));
 		} catch (final BGPDocumentedException e1) {
 			fail("Not expected exception: " + e1);
 		}
@@ -233,7 +234,7 @@ public class ComplementaryTest {
 		assertEquals(43, oec.getCommType().intValue());
 
 		try {
-			CommunitiesParser.parseExtendedCommunity(ref, new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 });
+			CommunitiesParser.parseExtendedCommunity(this.ref, Unpooled.copiedBuffer(new byte[] { 11, 11, 21, 45, 5, 4, 3, 1 }));
 			fail("Exception should have occured.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Could not parse Extended Community type: 11", e.getMessage());
@@ -244,7 +245,7 @@ public class ComplementaryTest {
 	public void testBGPHeaderParser() throws Exception {
 		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
 		try {
-			msgReg.parseMessage(new byte[] { (byte) 0, (byte) 0 });
+			msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }));
 			fail("Exception should have occured.");
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());

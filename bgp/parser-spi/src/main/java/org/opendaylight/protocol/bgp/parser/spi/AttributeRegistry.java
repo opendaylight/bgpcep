@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeRegistry {
-	PathAttributes parseAttributes(byte[] bytes) throws BGPDocumentedException, BGPParsingException;
+	PathAttributes parseAttributes(ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
 	byte[] serializeAttribute(DataObject attribute);
 }

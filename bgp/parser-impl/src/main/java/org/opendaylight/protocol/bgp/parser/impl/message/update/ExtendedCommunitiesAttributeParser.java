@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -29,16 +30,13 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 	}
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
 		final List<ExtendedCommunities> set = Lists.newArrayList();
-		int i = 0;
-		while (i < bytes.length) {
-			final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(refCache, ByteArray.subByte(bytes, i,
-					CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
-			i += CommunitiesParser.EXTENDED_COMMUNITY_LENGTH;
+		while (buffer.isReadable()) {
+			final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(), CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
+			buffer.skipBytes(CommunitiesParser.EXTENDED_COMMUNITY_LENGTH);
 			set.add(comm);
 		}
-
 		builder.setExtendedCommunities(set);
 	}
 }

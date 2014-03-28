@@ -7,11 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageRegistry {
-	Notification parseMessage(byte[] bytes) throws BGPDocumentedException, BGPParsingException;
+	Notification parseMessage(ByteBuf bytes) throws BGPDocumentedException, BGPParsingException;
 	byte[] serializeMessage(Notification message);
 }
