@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
+import io.netty.buffer.Unpooled;
+
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -62,7 +64,7 @@ public final class BGPMock implements Closeable {
 
 				final byte[] body = ByteArray.cutBytes(b, 1);
 
-				messages.add(registry.parseMessage(body));
+				messages.add(registry.parseMessage(Unpooled.copiedBuffer(body)));
 			}
 		} catch (final BGPDocumentedException | BGPParsingException e) {
 			LOG.warn("Failed to parse message {}", e);

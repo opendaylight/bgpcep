@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -20,12 +22,12 @@ public final class OriginAttributeParser implements AttributeParser {
 	public static final int TYPE = 1;
 
 	@Override
-	public void parseAttribute(final byte[] bytes, final PathAttributesBuilder builder) throws BGPDocumentedException {
-		final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(bytes[0]));
+	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
+		byte rawOrigin = buffer.readByte();
+		final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
 		if (borigin == null) {
-			throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01, bytes[0] });
+			throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin });
 		}
-
 		builder.setOrigin(new OriginBuilder().setValue(borigin).build());
 	}
 }

@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.parser.mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,16 +92,16 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test
 	public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException, IOException {
-		final Map<byte[], Notification> updateMap = Maps.newHashMap();
+		final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], this.messages.get(i));
+			updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
 		}
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			assertEquals(this.messages.get(i), mockParser.parseMessage(this.inputBytes[i]));
+			assertEquals(this.messages.get(i), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i])));
 		}
-		assertNotSame(this.messages.get(3), mockParser.parseMessage(this.inputBytes[8]));
+		assertNotSame(this.messages.get(3), mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8])));
 	}
 
 	/**
@@ -111,12 +113,12 @@ public class BGPMessageParserMockTest {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException, IOException {
-		final Map<byte[], Notification> updateMap = Maps.newHashMap();
+		final Map<ByteBuf, Notification> updateMap = Maps.newHashMap();
 		for (int i = 0; i < this.inputBytes.length; i++) {
-			updateMap.put(this.inputBytes[i], this.messages.get(i));
+			updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
 		}
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-		mockParser.parseMessage(new byte[] { 7, 4, 6 });
+		mockParser.parseMessage(Unpooled.copiedBuffer(new byte[] { 7, 4, 6 }));
 	}
 
 	/**
@@ -178,7 +180,7 @@ public class BGPMessageParserMockTest {
 
 	@Test
 	public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException, IOException {
-		final Map<byte[], Notification> openMap = Maps.newHashMap();
+		final Map<ByteBuf, Notification> openMap = Maps.newHashMap();
 
 		final Set<BgpTableType> type = Sets.newHashSet();
 		type.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
@@ -192,13 +194,13 @@ public class BGPMessageParserMockTest {
 		final byte[] input = new byte[] { 5, 8, 13, 21 };
 
 		openMap.put(
-				input,
+				Unpooled.copiedBuffer(input),
 				new OpenBuilder().setMyAsNumber(30).setHoldTimer(30).setBgpParameters(params).setVersion(new ProtocolVersion((short) 4)).build());
 
 		final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
 		final Set<BgpTableType> result = Sets.newHashSet();
-		for (final BgpParameters p : ((Open) mockParser.parseMessage(input)).getBgpParameters()) {
+		for (final BgpParameters p : ((Open) mockParser.parseMessage(Unpooled.copiedBuffer(input))).getBgpParameters()) {
 			final CParameters cp = p.getCParameters();
 			final BgpTableType t = new BgpTableTypeImpl(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
 			result.add(t);

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractMessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -19,8 +21,8 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
 	@Override
-	protected Notification parseBody(final int type, final byte[] body, final int messageLength) throws BGPDocumentedException {
-		final MessageParser parser = handlers.getParser(type);
+	protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+		final MessageParser parser = this.handlers.getParser(type);
 		if (parser == null) {
 			return null;
 		}
@@ -30,7 +32,7 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 
 	@Override
 	protected byte[] serializeMessageImpl(final Notification message) {
-		final MessageSerializer serializer = handlers.getSerializer(message.getImplementedInterface());
+		final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}
@@ -39,10 +41,10 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 	}
 
 	AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
-		return handlers.registerParser(messageType, parser);
+		return this.handlers.registerParser(messageType, parser);
 	}
 
 	AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
-		return handlers.registerSerializer(messageClass, serializer);
+		return this.handlers.registerSerializer(messageClass, serializer);
 	}
 }
