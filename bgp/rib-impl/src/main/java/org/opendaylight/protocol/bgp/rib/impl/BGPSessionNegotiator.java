@@ -147,8 +147,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 	private void handleOpen(final Open openObj) {
 		final AsNumber as = AsNumberUtil.advertizedAsNumber(openObj);
-		if (!remoteAs.equals(as)) {
-			LOG.info("Unexpected remote AS number. Expecting {}, got {}", remoteAs, as);
+		if (!this.remoteAs.equals(as)) {
+			LOG.info("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
 			this.sendMessage(buildErrorNotify(BGPError.BAD_PEER_AS));
 			negotiationFailed(new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS));
 			this.state = State.Finished;
@@ -158,7 +158,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
 		if (prefs != null && !prefs.isEmpty()) {
 			if (!prefs.containsAll(this.localPref.getParams())) {
-				LOG.info("Open message unacceptable. Check the configuration of BGP speaker.");
+				LOG.info("Open message session parameters differ, session still accepted.");
 			}
 			this.sendMessage(new KeepaliveBuilder().build());
 			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, openObj);
