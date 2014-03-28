@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -14,7 +16,6 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCaseBuilder;
@@ -28,9 +29,6 @@ import com.google.common.primitives.UnsignedBytes;
 public final class MultiProtocolCapabilityHandler implements CapabilityParser, CapabilitySerializer {
 	public static final int CODE = 1;
 
-	private static final int AFI_SIZE = 2;
-	private static final int SAFI_SIZE = 1;
-
 	private final AddressFamilyRegistry afiReg;
 	private final SubsequentAddressFamilyRegistry safiReg;
 
@@ -40,19 +38,19 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
 	}
 
 	@Override
-	public MultiprotocolCase parseCapability(final byte[] bytes) throws BGPDocumentedException, BGPParsingException {
-		final int afiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, 0, AFI_SIZE));
+	public MultiprotocolCase parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+		final int afiVal = buffer.readUnsignedShort();
 		final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
 		if (afi == null) {
 			throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
 		}
-
-		final int safiVal = ByteArray.bytesToInt(ByteArray.subByte(bytes, AFI_SIZE + 1, SAFI_SIZE));
+		// skip reserved
+		buffer.skipBytes(1);
+		final int safiVal = UnsignedBytes.toInt(buffer.readByte());
 		final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
 		if (safi == null) {
 			throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
 		}
-
 		return new MultiprotocolCaseBuilder().setMultiprotocolCapability(
 				new MultiprotocolCapabilityBuilder().setAfi(afi).setSafi(safi).build()).build();
 	}

@@ -10,7 +10,10 @@ package org.opendaylight.protocol.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +28,29 @@ import org.junit.Test;
 public class ByteArrayTest {
 
 	byte[] before = new byte[] { 15, 28, 4, 6, 9, 10 };
+
+	@Test
+	public void testReadBytes() {
+		ByteBuf buffer = Unpooled.copiedBuffer(this.before);
+		buffer.readerIndex(1);
+		assertArrayEquals(new byte[]{28,4,6}, ByteArray.readBytes(buffer, 3));
+		assertEquals(4, buffer.readerIndex());
+
+		assertArrayEquals(new byte[]{9,10}, ByteArray.readAllBytes(buffer));
+		assertEquals(buffer.readerIndex(), buffer.writerIndex());
+	}
+
+	@Test
+	public void testGetBytes() {
+		ByteBuf buffer = Unpooled.copiedBuffer(this.before);
+		buffer.readerIndex(1);
+		assertArrayEquals(new byte[]{28,4,6}, ByteArray.getBytes(buffer, 3));
+		assertEquals(1, buffer.readerIndex());
+
+		assertArrayEquals(new byte[]{28,4,6,9,10}, ByteArray.getAllBytes(buffer));
+		assertNotSame(buffer.readerIndex(), buffer.writerIndex());
+	}
+
 
 	@Test
 	public void testBytesToFloat() {

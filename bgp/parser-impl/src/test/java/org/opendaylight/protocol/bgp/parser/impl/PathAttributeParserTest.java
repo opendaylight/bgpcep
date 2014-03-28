@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import io.netty.buffer.Unpooled;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -23,7 +24,7 @@ public class PathAttributeParserTest {
 	@Test
 	public void testOriginParser() throws Exception {
 		try {
-			ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getAttributeRegistry().parseAttributes(new byte[] { 0x40, 0x01, 0x01, 0x04 });
+			ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getAttributeRegistry().parseAttributes(Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
 			fail("This needs to fail.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Unknown Origin type.", e.getMessage());
