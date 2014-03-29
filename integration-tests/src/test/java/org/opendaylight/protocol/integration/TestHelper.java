@@ -57,7 +57,6 @@ public class TestHelper {
                 mavenBundle(CONTROLLER, "ietf-netconf-monitoring-extension").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-monitoring").versionAsInProject(), //
 
-                mavenBundle(CONTROLLER, "netconf-client").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-util").versionAsInProject(), //
                 mavenBundle(CONTROLLER + ".thirdparty", "ganymed").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-mapping-api").versionAsInProject(), //
