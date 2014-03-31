@@ -76,6 +76,7 @@ public abstract class AbstractBundleTest {
 
 		ret.add(mavenBundle("org.javassist", "javassist").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "config-api").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "netty-config-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "protocol-framework").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-common-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-core-api").versionAsInProject());
