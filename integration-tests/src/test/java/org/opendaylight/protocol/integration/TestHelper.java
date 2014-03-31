@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.integration;
 
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
-import org.ops4j.pax.exam.util.PathUtils;
-
 import static org.ops4j.pax.exam.CoreOptions.frameworkProperty;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.util.PathUtils;
 
 public class TestHelper {
 
@@ -40,11 +40,12 @@ public class TestHelper {
 
     public static Option configMinumumBundles() {
         return new DefaultCompositeOption(
-                mavenBundle("org.opendaylight.controller", "protocol-framework").versionAsInProject(), //
+                mavenBundle(CONTROLLER, "protocol-framework").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "util").versionAsInProject(), //
                 mavenBundle("commons-codec", "commons-codec").versionAsInProject(),
 
                 mavenBundle(CONTROLLER, "config-api").versionAsInProject(), // //
+                mavenBundle(CONTROLLER, "netty-config-api").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "config-manager").versionAsInProject(), // //
                 mavenBundle("commons-io", "commons-io").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "config-api").versionAsInProject(), //
