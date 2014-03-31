@@ -7,7 +7,24 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +39,6 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
-import org.opendaylight.controller.config.yang.bgp.reconnectstrategy.TimedReconnectStrategyModuleTest;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleFactory;
 import org.opendaylight.controller.config.yang.bgp.rib.spi.RIBExtensionsImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.DataBrokerImplModuleFactory;
@@ -35,7 +51,8 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.netty.eventexecutor.GlobalEventExecutorModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
-import org.opendaylight.controller.config.yang.reconnectstrategy.TimedReconnectStrategyModuleFactory;
+import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleFactory;
+import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyModuleTest;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
@@ -57,22 +74,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import com.google.common.collect.Lists;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
     private static final String INSTANCE_NAME = "rib-impl";
@@ -82,8 +84,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
     private static final String RIB_ID = "test";
     private static final String BGP_ID = "192.168.1.1";
 
-    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-impl";
-    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy";
+    private static final String SESSION_RS_INSTANCE_NAME = "session-reconnect-strategy-factory";
+    private static final String TCP_RS_INSTANCE_NAME = "tcp-reconnect-strategy-factory";
     private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-impl";
     private static final String DOM_BROKER_INSTANCE_NAME = "data-broker-impl";
     private static final String DATA_STORE_INSTANCE_NAME = "data-store-impl";
@@ -175,7 +177,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
     protected List<ModuleFactory> getModuleFactories() {
         return Lists.newArrayList(new RIBImplModuleFactory(), new DataBrokerImplModuleFactory(),
                 new GlobalEventExecutorModuleFactory(), new BGPDispatcherImplModuleFactory(),
-                new NettyThreadgroupModuleFactory(), new TimedReconnectStrategyModuleFactory(),
+                new NettyThreadgroupModuleFactory(), new TimedReconnectStrategyFactoryModuleFactory(),
                 new SimpleBGPExtensionProviderContextModuleFactory(), new RIBExtensionsImplModuleFactory(),
                 new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
                 new HashMapDataStoreModuleFactory(), new HashedWheelTimerModuleFactory());
