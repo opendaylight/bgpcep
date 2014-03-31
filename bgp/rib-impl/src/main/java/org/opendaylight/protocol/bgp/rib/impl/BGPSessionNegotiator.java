@@ -24,6 +24,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
@@ -42,6 +43,11 @@ import com.google.common.base.Preconditions;
 public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
 	// 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
 	protected static final int INITIAL_HOLDTIMER = 4;
+
+	/**
+	 * @see <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
+	 */
+	private final int AS_TRANS = 23456;
 
 	@VisibleForTesting
 	public enum State {
@@ -88,7 +94,12 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	@Override
 	protected void startNegotiation() {
 		Preconditions.checkState(this.state == State.Idle);
-		this.sendMessage(new OpenBuilder().setMyAsNumber(this.localPref.getMyAs().getValue().intValue()).setHoldTimer(
+		int as = this.localPref.getMyAs().getValue().intValue();
+		// Set as AS_TRANS if the value is bigger than 2B
+		if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
+			as = this.AS_TRANS;
+		}
+		this.sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(
 				this.localPref.getHoldTime()).setBgpIdentifier(this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
 		this.state = State.OpenSent;
 
@@ -147,8 +158,8 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 
 	private void handleOpen(final Open openObj) {
 		final AsNumber as = AsNumberUtil.advertizedAsNumber(openObj);
-		if (!remoteAs.equals(as)) {
-			LOG.info("Unexpected remote AS number. Expecting {}, got {}", remoteAs, as);
+		if (!this.remoteAs.equals(as)) {
+			LOG.info("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
 			this.sendMessage(buildErrorNotify(BGPError.BAD_PEER_AS));
 			negotiationFailed(new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS));
 			this.state = State.Finished;
