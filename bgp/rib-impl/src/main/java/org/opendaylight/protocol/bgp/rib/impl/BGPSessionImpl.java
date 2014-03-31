@@ -115,12 +115,13 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	private final AsNumber asNumber;
 	private final Ipv4Address bgpId;
 
-	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen) {
+	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
 		this.listener = Preconditions.checkNotNull(listener);
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
-		this.keepAlive = remoteOpen.getHoldTimer() / 3;
-		this.holdTimerValue = remoteOpen.getHoldTimer();
+		this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
+		LOG.info("HoldTimer new value: {}", this.holdTimerValue);
+		this.keepAlive = this.holdTimerValue / 3;
 		this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
 
 		final Set<TablesKey> tts = Sets.newHashSet();
@@ -140,14 +141,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.sync = new BGPSynchronization(this, this.listener, tts);
 		this.tableTypes = tats;
 
-		if (remoteOpen.getHoldTimer() != 0) {
+		if (this.holdTimerValue != 0) {
 			this.stateTimer.newTimeout(new TimerTask() {
 
 				@Override
 				public void run(final Timeout timeout) throws Exception {
 					handleHoldTimer();
 				}
-			}, remoteOpen.getHoldTimer(), TimeUnit.SECONDS);
+			}, this.holdTimerValue, TimeUnit.SECONDS);
 
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
@@ -251,7 +252,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		}
 
 		final long ct = System.nanoTime();
-		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(holdTimerValue);
+		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(this.holdTimerValue);
 
 		if (ct >= nextHold) {
 			LOG.debug("HoldTimer expired. " + new Date());
