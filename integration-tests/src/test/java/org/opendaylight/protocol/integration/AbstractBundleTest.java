@@ -27,6 +27,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.util.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -37,6 +38,7 @@ public abstract class AbstractBundleTest {
 	private static final String GROUP = "org.opendaylight.bgpcep";
 
 	@Inject
+	@Filter(timeout = 60 * 1000)
 	BundleContext ctx;
 
 	abstract protected Collection<String> prerequisiteBundles();
