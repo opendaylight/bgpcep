@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Lsp}
  */
-public final class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
 	public static final int CLASS = 32;
 
