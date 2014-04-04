@@ -120,11 +120,13 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 			LOG.debug("Processing route key {}", key);
 
 			LinkStateAttribute lsattr = null;
-			final PathAttributes1 pa = attributes.getAugmentation(PathAttributes1.class);
-			if (pa != null) {
-				final LinkstatePathAttribute lpa = pa.getLinkstatePathAttribute();
-				if (lpa != null) {
-					lsattr = lpa.getLinkStateAttribute();
+			if (attributes.getAugmentation(PathAttributes1.class) != null) {
+				final PathAttributes1 pa = attributes.getAugmentation(PathAttributes1.class);
+				if (pa != null) {
+					final LinkstatePathAttribute lpa = pa.getLinkstatePathAttribute();
+					if (lpa != null) {
+						lsattr = lpa.getLinkStateAttribute();
+					}
 				}
 			}
 
