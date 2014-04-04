@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a5c5d37_22ff9636",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAdjRIBsIn.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-04-04T16:41:21Z",
+      "side": 1,
+      "message": "Why are we reverting to using getAugmentation() twice?",
+      "revId": "49e3687766a85bcb3a0e9a128e99f18af076eb90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
