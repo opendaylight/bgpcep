@@ -59,7 +59,7 @@ import com.google.common.base.Preconditions;
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
