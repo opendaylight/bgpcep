@@ -17,25 +17,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.as4.bytes._case.As4BytesCapability;
 
 public final class AsNumberUtil {
+
 	private AsNumberUtil() {
 		throw new UnsupportedOperationException("Utility class should never be instantiated");
 	}
 
+	/**
+	 * Looks for As4Byte Capability in capabilities and extracts AS number.
+	 * 
+	 * @param open remote BGP open message
+	 * @return AsNumber
+	 */
 	public static AsNumber advertizedAsNumber(final Open open) {
 		// Look for AS4 capability very defensively
 		final List<BgpParameters> params = open.getBgpParameters();
 		if (params != null) {
-			for (BgpParameters p : params) {
+			for (final BgpParameters p : params) {
 				final CParameters cp = p.getCParameters();
-				if (cp != null && cp instanceof As4BytesCase) {
-					final As4BytesCapability capa = ((As4BytesCase)cp).getAs4BytesCapability();
+				if (cp instanceof As4BytesCase) {
+					final As4BytesCapability capa = ((As4BytesCase) cp).getAs4BytesCapability();
 					if (capa != null) {
 						return capa.getAsNumber();
 					}
 				}
 			}
 		}
-
 		// Fallback to whatever is in the header
 		return new AsNumber(open.getMyAsNumber().longValue());
 	}

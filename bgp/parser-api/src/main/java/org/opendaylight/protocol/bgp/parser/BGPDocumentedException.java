@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser;
 
 import java.util.Arrays;
 
+import org.opendaylight.protocol.util.Values;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,10 +96,11 @@ public final class BGPDocumentedException extends Exception {
 	}
 
 	public static BGPDocumentedException badMessageLength(final String message, final int length) {
-		Preconditions.checkArgument(length >= 0 && length <= 65535);
+		Preconditions.checkArgument(length >= 0 && length <= Values.UNSIGNED_SHORT_MAX_VALUE);
 
-		return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] { UnsignedBytes.checkedCast(length / 256),
-				UnsignedBytes.checkedCast(length % 256) });
+		return new BGPDocumentedException(message, BGPError.BAD_MSG_LENGTH, new byte[] {
+				UnsignedBytes.checkedCast(length / (Values.UNSIGNED_BYTE_MAX_VALUE + 1)),
+				UnsignedBytes.checkedCast(length % (Values.UNSIGNED_BYTE_MAX_VALUE + 1)) });
 
 	}
 }
