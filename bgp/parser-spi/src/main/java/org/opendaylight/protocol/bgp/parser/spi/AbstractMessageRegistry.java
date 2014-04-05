@@ -35,8 +35,9 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
 	@Override
 	public final Notification parseMessage(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-		Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Array of bytes cannot be null or empty.");
-		Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH, "Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
+		Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH,
+				"Too few bytes in passed array. Passed: %s. Expected: >= %s.", buffer.readableBytes(), MessageUtil.COMMON_HEADER_LENGTH);
 		final byte[] marker = ByteArray.readBytes(buffer, MessageUtil.MARKER_LENGTH);
 
 		if (!Arrays.equals(marker, MARKER)) {
@@ -53,8 +54,8 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 			throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
 		}
 		if (msgBody.readableBytes() != messageLength - MessageUtil.COMMON_HEADER_LENGTH) {
-			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.readableBytes() + "; Expected: "
-					+ (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
+			throw new BGPParsingException("Size doesn't match size specified in header. Passed: " + msgBody.readableBytes()
+					+ "; Expected: " + (messageLength - MessageUtil.COMMON_HEADER_LENGTH) + ". ");
 		}
 		final Notification msg = parseBody(messageType, msgBody, messageLength);
 		if (msg == null) {
@@ -66,13 +67,9 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
 	@Override
 	public final byte[] serializeMessage(final Notification message) {
-		if (message == null) {
-			throw new IllegalArgumentException("BGPMessage is mandatory.");
-		}
+		Preconditions.checkNotNull(message, "BGPMessage is mandatory.");
 		final byte[] ret = serializeMessageImpl(message);
-		if (ret == null) {
-			throw new IllegalArgumentException("Unknown instance of BGPMessage. Passed " + message.getClass());
-		}
+		Preconditions.checkNotNull(ret, "Unknown instance of BGPMessage. Passed ", message.getClass());
 		return ret;
 	}
 }

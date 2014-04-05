@@ -272,7 +272,7 @@ public class ComplementaryTest {
 		String ex = "";
 		try {
 			msgReg.serializeMessage(null);
-		} catch (final IllegalArgumentException e) {
+		} catch (final NullPointerException e) {
 			ex = e.getMessage();
 		}
 		assertEquals("BGPMessage is mandatory.", ex);
