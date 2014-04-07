@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -65,7 +67,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	/**
 	 * A single RIB table entry, which holds multiple versions of the entry's state and elects the authoritative based
 	 * on ordering specified by the supplied comparator.
-	 * 
+	 *
 	 */
 	private final class RIBEntry {
 		/*
@@ -155,15 +157,18 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 								new MpReachNlriBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).build()).build()).build()).build();
 
 		trans.putOperationalData(this.basePath,
-				new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setUptodate(Boolean.FALSE).build());
+				new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).
+				setAttributes(new AttributesBuilder().setUptodate(Boolean.FALSE).build()).build());
 	}
 
 	private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
-		final Tables t = (Tables) trans.readOperationalData(this.basePath);
-		Preconditions.checkState(t != null);
-		if (!uptodate.equals(t.isUptodate())) {
-			LOG.debug("Table {} switching uptodate to {}", t, uptodate);
-			trans.putOperationalData(this.basePath, new TablesBuilder(t).setUptodate(uptodate).build());
+		final InstanceIdentifier<Attributes> aid = InstanceIdentifier.builder(this.basePath).child(Attributes.class).build();
+		final Attributes a = (Attributes) trans.readOperationalData(aid);
+		Preconditions.checkState(a != null);
+		if (!uptodate.equals(a.isUptodate())) {
+			LOG.debug("Table {} switching uptodate to {}", this.basePath, uptodate);
+			trans.removeOperationalData(aid);
+			trans.putOperationalData(aid, new AttributesBuilder().setUptodate(uptodate).build());
 		}
 	}
 
