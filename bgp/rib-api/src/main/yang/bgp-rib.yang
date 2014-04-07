@@ -42,9 +42,11 @@ module bgp-rib {
 			uses bgp-mp:bgp-table-type;
 			key "afi safi";
 
-			leaf uptodate {
-				type boolean;
-				default false;
+			container attributes {
+				leaf uptodate {
+					type boolean;
+					default false;
+				}
 			}
 
 			choice routes {
