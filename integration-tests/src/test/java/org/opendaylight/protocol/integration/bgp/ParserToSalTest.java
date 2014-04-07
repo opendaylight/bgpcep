@@ -52,7 +52,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -71,6 +77,8 @@ import com.google.common.eventbus.EventBus;
 public class ParserToSalTest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ParserToSalTest.class);
+	private static final InstanceIdentifier<Attributes> attrId =
+			InstanceIdentifier.builder(BgpRib.class).child(Rib.class).child(LocRib.class).child(Tables.class).child(Attributes.class).build();
 
 	private final String hex_messages = "/bgp_hex.txt";
 
@@ -138,7 +146,7 @@ public class ParserToSalTest {
 
 		Mockito.doAnswer(new Answer<String>() {
 			@Override
-			public String answer(final InvocationOnMock invocation) throws Throwable {
+			public String answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
 				LOG.debug("Put key {} value {}", args[0]);
 				LOG.debug("Put value {}", args[1]);
@@ -150,10 +158,32 @@ public class ParserToSalTest {
 
 		Mockito.doAnswer(new Answer<Object>() {
 			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
+			public Object answer(final InvocationOnMock invocation) {
 				final Object[] args = invocation.getArguments();
-				LOG.debug("Get key {}", args[0]);
-				return data.get(args[0]);
+				final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
+
+				LOG.debug("Remove key {}", id);
+				data.remove(id);
+				return null;
+			}
+		}).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+
+		Mockito.doAnswer(new Answer<Object>() {
+			@Override
+			public Object answer(final InvocationOnMock invocation) {
+				final Object[] args = invocation.getArguments();
+				final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
+
+				LOG.debug("Get key {}", id);
+				Object ret = data.get(id);
+				if (ret != null) {
+					return ret;
+				}
+
+				if (attrId.containsWildcarded(id)) {
+					return new AttributesBuilder().setUptodate(true).build();
+				}
+				return null;
 			}
 
 		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
@@ -193,7 +223,7 @@ public class ParserToSalTest {
 				(BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
 				new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
 
-		Mockito.verify(this.mockedTransaction, Mockito.times(81)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(83)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 
@@ -202,7 +232,7 @@ public class ParserToSalTest {
 		runTestWithTables(ImmutableList.of(
 				(BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
 
-		Mockito.verify(this.mockedTransaction, Mockito.times(27)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+		Mockito.verify(this.mockedTransaction, Mockito.times(28)).putOperationalData(Matchers.any(InstanceIdentifier.class),
 				Matchers.any(DataObject.class));
 	}
 
