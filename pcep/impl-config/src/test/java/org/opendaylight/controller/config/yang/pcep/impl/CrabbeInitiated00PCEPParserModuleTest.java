@@ -27,7 +27,7 @@ public class CrabbeInitiated00PCEPParserModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new CrabbeInitiated00PCEPParserModuleFactory(),
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new CrabbeInitiated00PCEPParserModuleFactory(),
                 new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 

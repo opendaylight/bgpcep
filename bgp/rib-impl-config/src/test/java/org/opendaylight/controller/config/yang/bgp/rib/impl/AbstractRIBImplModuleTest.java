@@ -10,18 +10,21 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -66,9 +69,6 @@ import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
@@ -186,8 +186,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
-                public void handleServiceRegistration(final Object o) {
-                    SchemaServiceListener listener = (SchemaServiceListener) o;
+                public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
+                    SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
                     YangModelParser parser = new YangParserImpl();
                     Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(getYangModelsPaths())));
                     listener.onGlobalContextUpdated(parser.resolveSchemaContext(Sets.newHashSet(inputStreamModuleMap.values())));
@@ -294,5 +294,23 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         List<String> paths = Lists.newArrayList("/META-INF/yang/bgp-rib.yang", "/META-INF/yang/ietf-inet-types.yang",
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
         return paths;
+    }
+
+
+    // TODO move back to AbstractConfigTest
+    private static Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
+        final Collection<InputStream> resources = new ArrayList<>();
+        List<String> failedToFind = new ArrayList<>();
+        for (String path : paths) {
+            InputStream resourceAsStream = AbstractRIBImplModuleTest.class.getResourceAsStream(path);
+            if (resourceAsStream == null) {
+                failedToFind.add(path);
+            } else {
+                resources.add(resourceAsStream);
+            }
+        }
+        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+
+        return resources;
     }
 }

@@ -27,7 +27,7 @@ public class BasePCEPParserModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new BasePCEPParserModuleFactory(),
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BasePCEPParserModuleFactory(),
                 new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 

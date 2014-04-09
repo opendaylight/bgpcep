@@ -13,6 +13,7 @@ import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
@@ -25,7 +26,8 @@ public class SimplePCEPExtensionProviderContextModuleTest extends AbstractConfig
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new SimplePCEPExtensionProviderContextModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
+                new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 
     @Test

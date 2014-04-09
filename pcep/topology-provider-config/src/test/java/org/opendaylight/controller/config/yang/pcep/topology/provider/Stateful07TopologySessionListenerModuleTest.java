@@ -21,7 +21,7 @@ public class Stateful07TopologySessionListenerModuleTest extends AbstractConfigT
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new Stateful07TopologySessionListenerModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new Stateful07TopologySessionListenerModuleFactory()));
     }
 
     @Test

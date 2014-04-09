@@ -8,9 +8,7 @@
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -25,7 +23,7 @@ public class RIBExtensionsImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new RIBExtensionsImplModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new RIBExtensionsImplModuleFactory()));
     }
 
     @Test

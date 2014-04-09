@@ -30,7 +30,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new Stateful02PCEPSessionProposalFactoryModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new Stateful02PCEPSessionProposalFactoryModuleFactory()));
     }
 
     @Test

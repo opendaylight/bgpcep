@@ -12,7 +12,6 @@ import static org.junit.Assert.fail;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
@@ -46,7 +45,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new PCEPDispatcherImplModuleFactory(),
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new PCEPDispatcherImplModuleFactory(),
                 new PCEPSessionProposalFactoryImplModuleFactory(), new NettyThreadgroupModuleFactory(),
                 new SimplePCEPExtensionProviderContextModuleFactory(), new HashedWheelTimerModuleFactory(),
                 new Stateful02PCEPSessionProposalFactoryModuleFactory()));

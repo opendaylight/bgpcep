@@ -27,7 +27,7 @@ public class IetfStateful02PCEPParserModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new IetfStateful02PCEPParserModuleFactory(),
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new IetfStateful02PCEPParserModuleFactory(),
                 new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 

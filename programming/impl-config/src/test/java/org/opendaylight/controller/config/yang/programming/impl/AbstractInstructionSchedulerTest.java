@@ -12,7 +12,9 @@ import static org.mockito.Mockito.mock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -21,6 +23,7 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -266,10 +269,11 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
-                public void handleServiceRegistration(final Object o) {
-                    SchemaServiceListener listener = (SchemaServiceListener) o;
+                public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
+                    SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
                     YangModelParser parser = new YangParserImpl();
-                    Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(getYangModelsPaths())));
+                    Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(
+                            getFilesAsInputStreams(getYangModelsPaths())));
                     listener.onGlobalContextUpdated(parser.resolveSchemaContext(Sets.newHashSet(inputStreamModuleMap.values())));
                 }
             };
@@ -289,4 +293,22 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 new DataBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(), new HashMapDataStoreModuleFactory(),
                 new RuntimeMappingModuleFactory(), new BindingBrokerImplModuleFactory());
     }
+
+    // TODO move back to AbstractConfigTest
+    private static Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
+        final Collection<InputStream> resources = new ArrayList<>();
+        List<String> failedToFind = new ArrayList<>();
+        for (String path : paths) {
+            InputStream resourceAsStream = AbstractInstructionSchedulerTest.class.getResourceAsStream(path);
+            if (resourceAsStream == null) {
+                failedToFind.add(path);
+            } else {
+                resources.add(resourceAsStream);
+            }
+        }
+        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+
+        return resources;
+    }
+
 }
