@@ -22,15 +22,11 @@ import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02StatefulCapabili
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.error.type.UserCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp._case.RsvpErrorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.error.type.user._case.UserErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.rsvp.error.spec.tlv.rsvp.error.spec.RsvpErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
@@ -41,13 +37,10 @@ public class PCEPTlvParserTest {
 	private static final byte[] statefulBytes = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01 };
 	private static final byte[] symbolicNameBytes = { 0x00, 0x11, 0x00, 0x19, 0x4d, 0x65, 0x64, 0x20, 0x74, 0x65,
 		0x73, 0x74, 0x20, 0x6f, 0x66, 0x20, 0x73, 0x79, 0x6d, 0x62, 0x6f, 0x6c, 0x69, 0x63, 0x20, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x00, 0x00 };
-	private static final byte[] rsvpErrorBytes = { 0x00, 0x15, 0x00, 0x0a, 0x06, 0x01, 0x12, 0x34, 0x56, 0x78, 0x02, (byte) 0x92, 0x16, 0x02, 0x00, 0x00 };
-	private static final byte[] rsvpError6Bytes = { 0x00, 0x15, 0x00, 0x16, 0x06, 0x02, 0x12, 0x34, 0x56, 0x78,
+	private static final byte[] rsvpErrorBytes = { 0x00, 0x15, 0x00, 0x08, 0x12, 0x34, 0x56, 0x78, 0x02, (byte) 0x92, 0x16, 0x02 };
+	private static final byte[] rsvpError6Bytes = { 0x00, 0x15, 0x00, 0x14, 0x12, 0x34, 0x56, 0x78,
 		(byte) 0x9a, (byte) 0xbc, (byte) 0xde, (byte) 0xf0, 0x12, 0x34, 0x56, 0x78, (byte) 0x9a,
-		(byte) 0xbc, (byte) 0xde, (byte) 0xf0, 0x02, (byte) 0xd5, (byte) 0xc5, (byte) 0xd9, 0x00, 0x00 };
-	private static final byte[] userErrorBytes = { 0x00, 0x15, 0x00, 0x13, (byte) 0xc2, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x30, (byte) 0x39,
-		(byte) 0x05, (byte) 0x09, (byte) 0x00, (byte) 0x26, (byte) 0x75, (byte) 0x73, (byte) 0x65, (byte) 0x72, (byte) 0x20,
-		(byte) 0x64, (byte) 0x65, (byte) 0x73, (byte) 0x63, 0x00 };
+		(byte) 0xbc, (byte) 0xde, (byte) 0xf0, 0x02, (byte) 0xd5, (byte) 0xc5, (byte) 0xd9 };
 	private static final byte[] lspDbBytes = { 0x00, 0x17, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xb4 };
 
 	@Test
@@ -75,8 +68,8 @@ public class PCEPTlvParserTest {
 		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
 		builder.setCode((short) 146);
 		builder.setValue(5634);
-		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.subByte(rsvpErrorBytes, 4, 10)));
+		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
+		assertEquals(tlv, parser.parseTlv(ByteArray.subByte(rsvpErrorBytes, 4, 8)));
 		assertArrayEquals(rsvpErrorBytes, parser.serializeTlv(tlv));
 	}
 
@@ -90,22 +83,9 @@ public class PCEPTlvParserTest {
 		builder.setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags(false, true));
 		builder.setCode((short) 213);
 		builder.setValue(50649);
-		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.subByte(rsvpError6Bytes, 4, 22)));
+		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
+		assertEquals(tlv, parser.parseTlv(ByteArray.subByte(rsvpError6Bytes, 4, 20)));
 		assertArrayEquals(rsvpError6Bytes, parser.serializeTlv(tlv));
-	}
-
-	@Test
-	public void testUserErrorSpecTlv() throws PCEPDeserializerException {
-		final Stateful02RSVPErrorSpecTlvParser parser = new Stateful02RSVPErrorSpecTlvParser();
-		final UserErrorBuilder builder = new UserErrorBuilder();
-		builder.setEnterprise(new EnterpriseNumber(12345L));
-		builder.setSubOrg((short) 5);
-		builder.setValue(38);
-		builder.setDescription("user desc");
-		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new UserCaseBuilder().setUserError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.subByte(userErrorBytes, 4, 19)));
-		assertArrayEquals(userErrorBytes, parser.serializeTlv(tlv));
 	}
 
 	@Test

@@ -82,17 +82,8 @@ module odl-pcep-ietf-stateful02 {
 		reference "http://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2.2";
 		container rsvp-error-spec {
 			uses pcep:tlv;
-			choice error-type {
-				case rsvp-case {
-					container rsvp-error {
-						uses rsvp:error-spec;
-					}
-				}
-				case user-case {
-					container user-error {
-						uses rsvp:user-error-spec;
-					}
-				}
+			container rsvp-error {
+				uses rsvp:error-spec;
 			}
 		}
 	}
