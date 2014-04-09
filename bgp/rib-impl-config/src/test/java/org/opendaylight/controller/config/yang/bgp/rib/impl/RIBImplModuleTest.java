@@ -7,31 +7,14 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
+import com.google.common.collect.Lists;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
@@ -74,7 +57,25 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.google.common.collect.Lists;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 public class RIBImplModuleTest extends AbstractConfigTest {
     private static final String INSTANCE_NAME = "rib-impl";
@@ -106,72 +107,72 @@ public class RIBImplModuleTest extends AbstractConfigTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
 
         List<ModuleFactory> moduleFactories = getModuleFactories();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
                 .toArray(new ModuleFactory[moduleFactories.size()])));
 
         Filter mockedFilter = mock(Filter.class);
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
 
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        doReturn(new Bundle[]{}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
+        doReturn(new ServiceReference[]{}).when(mockedContext)
                 .getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
         ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
 
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
+        doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
 
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        doReturn(new Bundle[]{}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
+        doReturn(new ServiceReference[]{}).when(mockedContext)
                 .getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         // mockedDataProvider = mock(DataProviderService.class);
 
-        Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
-        Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
+        doReturn("Empty reference").when(emptyServiceReference).toString();
+        doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
         //
-        Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext)
+        doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
+        doReturn(dataProviderServiceReference).when(mockedContext)
                 .getServiceReference(DataProviderService.class);
 
-        Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
+        doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
 
         // Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
-        Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
+        doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider)
+        doReturn(registration).when(mockedDataProvider)
                 .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider)
+        doReturn(registration).when(mockedDataProvider)
                 .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
 
-        Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
-        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
+        doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
+        doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
         Mockito.doNothing().when(mockedTransaction)
                 .putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
         Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
 
-        Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
-        Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
+        doReturn(mockedFuture).when(mockedTransaction).commit();
+        doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
 
-        Mockito.doReturn(mockedResult).when(mockedFuture).get();
-        Mockito.doReturn(true).when(mockedResult).isSuccessful();
-        Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
+        doReturn(mockedResult).when(mockedFuture).get();
+        doReturn(true).when(mockedResult).isSuccessful();
+        doReturn(Collections.emptySet()).when(mockedResult).getErrors();
+
     }
 
     protected List<ModuleFactory> getModuleFactories() {
@@ -189,8 +190,8 @@ public class RIBImplModuleTest extends AbstractConfigTest {
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
-                public void handleServiceRegistration(final Object o) {
-                    SchemaServiceListener listener = (SchemaServiceListener) o;
+                public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
+                    SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
                     listener.onGlobalContextUpdated(getMockedSchemaContext());
                 }
             };
@@ -281,7 +282,7 @@ public class RIBImplModuleTest extends AbstractConfigTest {
     }
 
     private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final RibId ribId,
-            final Long localAs, final Ipv4Address bgpId) throws Exception {
+                                             final Long localAs, final Ipv4Address bgpId) throws Exception {
         ObjectName nameCreated = transaction.createModule(RIBImplModuleFactory.NAME, INSTANCE_NAME);
         RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
         ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction,
@@ -358,4 +359,21 @@ public class RIBImplModuleTest extends AbstractConfigTest {
         Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(paths)));
         return parser.resolveSchemaContext(new HashSet<>(inputStreamModuleMap.values()));
     }
+
+    public Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
+        final Collection<InputStream> resources = new ArrayList<>();
+        List<String> failedToFind = new ArrayList<>();
+        for (String path : paths) {
+            InputStream resourceAsStream = getClass().getResourceAsStream(path);
+            if (resourceAsStream == null) {
+                failedToFind.add(path);
+            } else {
+                resources.add(resourceAsStream);
+            }
+        }
+        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+
+        return resources;
+    }
+
 }

@@ -7,13 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.ietf;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -26,6 +19,13 @@ import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.AbstractState
 import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.stateful07.cfg.Stateful07PCEPSessionProposalFactoryModuleMXBean;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTest {
 
 	private final String instanceName = "pcep-proposal";
@@ -35,7 +35,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
 	@Before
 	public void setUp() throws Exception {
 		this.factory = new Stateful07PCEPSessionProposalFactoryModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory));
+		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, this.factory));
 	}
 
 	@Test

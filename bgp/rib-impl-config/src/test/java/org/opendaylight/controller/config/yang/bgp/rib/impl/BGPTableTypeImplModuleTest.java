@@ -1,13 +1,5 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -23,6 +15,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.impl.codec.CodecRegistry;
 import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "bgp-table-type-impl";
@@ -34,7 +34,7 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new BGPTableTypeImplModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BGPTableTypeImplModuleFactory()));
     }
 
     @Override

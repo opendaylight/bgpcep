@@ -7,12 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -27,6 +21,12 @@ import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModul
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
@@ -50,7 +50,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         final NettyThreadgroupModuleFactory threadgroupFactory = new NettyThreadgroupModuleFactory();
         final SimplePCEPExtensionProviderContextModuleFactory extensionsFactory = new SimplePCEPExtensionProviderContextModuleFactory();
         final HashedWheelTimerModuleFactory timerFactory = new HashedWheelTimerModuleFactory();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(factory, sessionFactory,
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, factory, sessionFactory,
                 threadgroupFactory, extensionsFactory, timerFactory));
     }
 
