@@ -7,9 +7,6 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -24,6 +21,9 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
 public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "bgp-message-fct";
@@ -36,7 +36,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
                 new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
                 new RIBExtensionsImplModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(),
                 new HashedWheelTimerModuleFactory()));
