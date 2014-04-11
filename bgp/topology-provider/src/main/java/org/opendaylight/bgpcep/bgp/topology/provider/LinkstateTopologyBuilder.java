@@ -167,7 +167,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 		private boolean syncState(final DataModification<InstanceIdentifier<?>, DataObject> trans) {
 			final InstanceIdentifier<Node> nid = InstanceIdentifier.builder(getInstanceIdentifier()).child(
 					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
-					nb.getKey()).build();
+					this.nb.getKey()).build();
 
 			/*
 			 * Transaction's putOperationalData() does a merge. Force it onto a replace
@@ -175,23 +175,23 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			 */
 			trans.removeOperationalData(nid);
 
-			if (!advertized) {
-				if (tps.isEmpty() && prefixes.isEmpty()) {
-					LOG.debug("Removing unadvertized unused node {}", nb.getNodeId());
+			if (!this.advertized) {
+				if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
+					LOG.debug("Removing unadvertized unused node {}", this.nb.getNodeId());
 					return true;
 				}
 
-				LOG.debug("Node {} is still implied by {} TPs and {} prefixes", nb.getNodeId(), tps.size(), prefixes.size());
+				LOG.debug("Node {} is still implied by {} TPs and {} prefixes", this.nb.getNodeId(), this.tps.size(), this.prefixes.size());
 			}
 
 			// Re-generate termination points
 			this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(),
 					new Function<TpHolder, TerminationPoint>() {
-						@Override
-						public TerminationPoint apply(final TpHolder input) {
-							return input.getTp();
-						}
-					})));
+				@Override
+				public TerminationPoint apply(final TpHolder input) {
+					return input.getTp();
+				}
+			})));
 
 			// Re-generate prefixes
 			this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));
@@ -464,7 +464,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
 		if (la != null) {
-			ilab.setMetric(la.getMetric().getValue());
+			if (la.getMetric() != null) {
+				ilab.setMetric(la.getMetric().getValue());
+			}
 			ilab.setName(la.getLinkName());
 		}
 
