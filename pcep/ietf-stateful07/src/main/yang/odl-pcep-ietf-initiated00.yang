@@ -5,6 +5,8 @@ module odl-pcep-ietf-initiated00 {
 
 	import pcep-types { prefix pcep; revision-date 2013-10-05; }
 	import pcep-message { prefix msg; revision-date 2013-10-07; }
+	import network-topology { prefix nt; revision-date 2013-10-21; }
+	import network-topology-pcep { prefix topo; revision-date 2013-10-24; }
 	import odl-pcep-ietf-stateful07 { prefix stateful; revision-date 2013-12-22; }
 
 	organization "Cisco Systems, Inc.";
@@ -50,6 +52,14 @@ module odl-pcep-ietf-initiated00 {
 		}
 	}
 
+	grouping initiated-capability-tlv {
+		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
+		leaf initiation {
+			type boolean;
+			default false;
+		}
+	}
+
 	augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:srp" {
 		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.2";
 		leaf remove {
@@ -83,14 +93,15 @@ module odl-pcep-ietf-initiated00 {
 	}
 
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs/stateful:stateful" {
-		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-4.1";
-		leaf initiation {
-			type boolean;
-			default false;
-		}
+		uses initiated-capability-tlv;
 	}
 
 	notification pcinitiate {
 		uses pcinitiate-message;
 	}
+
+	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv/stateful:stateful" {
+		uses initiated-capability-tlv;
+	}
+
 }
