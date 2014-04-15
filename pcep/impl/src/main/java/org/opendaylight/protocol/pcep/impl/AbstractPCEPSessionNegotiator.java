@@ -100,14 +100,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	/**
 	 * Get the initial session parameters proposal.
-	 * 
+	 *
 	 * @return Session parameters proposal.
 	 */
 	protected abstract Open getInitialProposal();
 
 	/**
 	 * Get the revised session parameters proposal based on the feedback the peer has provided to us.
-	 * 
+	 *
 	 * @param suggestion Peer-provided suggested session parameters
 	 * @return Session parameters proposal, or null if peers session parameters preclude us from suggesting anything
 	 */
@@ -115,7 +115,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	/**
 	 * Check whether a peer-provided session parameters proposal is acceptable.
-	 * 
+	 *
 	 * @param proposal peer-proposed session parameters
 	 * @return true if the proposal is acceptable, false otherwise
 	 */
@@ -124,7 +124,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 	/**
 	 * Given a peer-provided session parameters proposal which we found unacceptable, provide a counter-proposal. The
 	 * requirement is that the isProposalAcceptable() method has to return true when presented with this proposal.
-	 * 
+	 *
 	 * @param proposal unacceptable peer proposal
 	 * @return our counter-proposal, or null if there is no way to negotiate an acceptable proposal
 	 */
@@ -132,7 +132,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	/**
 	 * Create the protocol session.
-	 * 
+	 *
 	 * @param timer Timer which the session can use for its various functions.
 	 * @param channel Underlying channel.
 	 * @param sessionId Assigned session ID.
@@ -144,7 +144,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError.
-	 * 
+	 *
 	 * @param value
 	 */
 	private void sendErrorMessage(final PCEPErrors value) {
@@ -225,14 +225,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				if (err.getErrorType() == null) {
 					final ErrorObject obj = err.getErrors().get(0).getErrorObject();
 					LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
-					negotiationFailed(new RuntimeException("Unexpected error received from PCC."));
+					negotiationFailed(new IllegalStateException("Unexpected error received from PCC."));
 					this.state = State.Idle;
 					return;
 				}
 				this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
 				if (this.localPrefs == null) {
 					sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
-					negotiationFailed(new RuntimeException("Peer suggested unacceptable retry proposal"));
+					negotiationFailed(new IllegalStateException("Peer suggested unacceptable retry proposal"));
 					this.state = State.Finished;
 					return;
 				}

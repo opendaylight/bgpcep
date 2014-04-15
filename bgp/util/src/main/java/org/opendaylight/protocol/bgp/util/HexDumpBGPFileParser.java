@@ -72,7 +72,7 @@ public final class HexDumpBGPFileParser {
 			try {
 				byteLength = Hex.decodeHex(hexLength.toCharArray());
 			} catch (final DecoderException e) {
-				throw new RuntimeException(e);
+				throw new IllegalArgumentException("Failed to decode message length", e);
 			}
 			final int length = ByteArray.bytesToInt(byteLength);
 			final int messageEndIdx = idx + length * 2;
@@ -87,7 +87,7 @@ public final class HexDumpBGPFileParser {
 			try {
 				message = Hex.decodeHex(hexMessage.toCharArray());
 			} catch (final DecoderException e) {
-				new RuntimeException(e);
+				new IllegalArgumentException("Failed to decode message body", e);
 			}
 			messages.add(message);
 			idx = messageEndIdx;
