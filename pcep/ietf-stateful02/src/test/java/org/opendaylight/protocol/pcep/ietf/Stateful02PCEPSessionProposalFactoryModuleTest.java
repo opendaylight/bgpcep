@@ -15,7 +15,6 @@ import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.config.api.ConflictingVersionException;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
@@ -24,22 +23,20 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.pcep.stateful02.cfg.Stateful02PCEPSessionProposalFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.stateful02.cfg.Stateful02PCEPSessionProposalFactoryModuleMXBean;
 
-public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest {
+public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "pcep-stateful02-session-proposal-factroy-impl";
     private static final String FACTROY_NAME = Stateful02PCEPSessionProposalFactoryModuleFactory.NAME;
 
     @Before
     public void setUp() throws Exception {
-        Stateful02PCEPSessionProposalFactoryModuleFactory factory = new Stateful02PCEPSessionProposalFactoryModuleFactory();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(factory));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new Stateful02PCEPSessionProposalFactoryModuleFactory()));
     }
 
     @Test
-    public void testValidationExceptionDeadTimerValueNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(null, 100, true, true, true, 0);
+            createStateful02SessionInstance(null, (short)100, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
@@ -47,10 +44,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionKeepAliveTimerNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(400, null, true, true, true, 0);
+            createStateful02SessionInstance((short)200, null, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
@@ -58,10 +54,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionStatefulNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionStatefulNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(400, 100, null, false, false, 0);
+            createStateful02SessionInstance((short)200, (short)100, null, false, false, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Stateful value is not set"));
@@ -69,10 +64,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionActiveNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionActiveNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(400, 100, true, null, true, 0);
+            createStateful02SessionInstance((short)200, (short)100, true, null, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Active value is not set"));
@@ -80,10 +74,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionInstantiatedNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionInstantiatedNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(400, 100, true, true, null, 0);
+            createStateful02SessionInstance((short)200, (short)100, true, true, null, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Initiated value is not set"));
@@ -91,10 +84,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionTimeoutNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionTimeoutNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(400, 100, true, true, true, null);
+            createStateful02SessionInstance((short)200, (short)100, true, true, true, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Timeout value is not set"));
@@ -102,10 +94,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionKeepAliveTimerMinValue() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
         try {
-            createStateful02SessionInstance(400, -10, true, true, true, 0);
+            createStateful02SessionInstance((short)200, (short)-10, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("minimum value is 1."));
@@ -114,7 +105,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 
     @Test
     public void testStatefulAfterCommitted() throws Exception {
-        createStateful02SessionInstance(400, 100, false, true, true, 0);
+        createStateful02SessionInstance((short)200, (short)100, false, true, true, 0);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final Stateful02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(
                 transaction.lookupConfigBean(FACTROY_NAME, INSTANCE_NAME),
@@ -124,14 +115,14 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 
     @Test
     public void testCreateBean() throws Exception {
-        final CommitStatus status = createStateful02SessionInstance(0, 0, true, true, true, 0);
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTROY_NAME);
         assertStatus(status, 1, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
-        createStateful02SessionInstance(400, 100, true, true, true, 0);
+        createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTROY_NAME);
         final CommitStatus status = transaction.commit();
@@ -141,7 +132,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 
     @Test
     public void testReconfigure() throws Exception {
-        createStateful02SessionInstance(400, 100, true, true, true, 0);
+        createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTROY_NAME);
         transaction.newMBeanProxy(transaction.lookupConfigBean(FACTROY_NAME, INSTANCE_NAME),
@@ -151,16 +142,26 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
         assertStatus(status, 0, 0, 1);
     }
 
-    private CommitStatus createStateful02SessionInstance(final Integer deadTimer, final Integer keepAlive,
+    private CommitStatus createInstance() throws Exception {
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+        createStateful02SessionProposalInstance(transaction);
+        return transaction.commit();
+    }
+
+    private CommitStatus createStateful02SessionInstance(final Short deadTimer, final Short keepAlive,
             final Boolean isStateful, final Boolean isActive, final Boolean isInstant, final Integer timeout)
-            throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
+            throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createStateful02SessionInstance(transaction, deadTimer, keepAlive, isStateful, isActive, isInstant, timeout);
         return transaction.commit();
     }
 
-    public static ObjectName createStateful02SessionInstance(final ConfigTransactionJMXClient transaction,
-            final Integer deadTimer, final Integer keepAlive, final Boolean stateful, final Boolean active,
+    public static ObjectName createStateful02SessionProposalInstance(final ConfigTransactionJMXClient transaction) throws Exception {
+        return createStateful02SessionInstance(transaction, (short)200, (short)100, true, true, true, 180);
+    }
+
+    private static ObjectName createStateful02SessionInstance(final ConfigTransactionJMXClient transaction,
+            final Short deadTimer, final Short keepAlive, final Boolean stateful, final Boolean active,
             final Boolean instant, final Integer timeout) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTROY_NAME, INSTANCE_NAME);
         final Stateful02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,

@@ -38,12 +38,12 @@ module odl-pcep-ietf-stateful02-cfg {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-stateful02'";
 
             leaf dead-timer-value {
-                type uint16;
+                type uint8;
                 default 120;
             }
 
             leaf keep-alive-timer-value {
-                type uint16;
+                type uint8;
                 default 30;
             }
 
@@ -63,8 +63,8 @@ module odl-pcep-ietf-stateful02-cfg {
             }
 
             leaf timeout {
-				type uint16;
-				default 180;
+                type uint16;
+                default 180;
             }
         }
     }

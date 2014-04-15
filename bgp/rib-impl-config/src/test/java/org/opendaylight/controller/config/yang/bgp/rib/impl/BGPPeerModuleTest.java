@@ -32,12 +32,13 @@ import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
 
 import com.google.common.collect.Lists;
 
-public class BGPPeerModuleTest extends RIBImplModuleTest {
+public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String INSTANCE_NAME = "bgp-peer-module-impl";
     private static final String FACTORY_NAME = BGPPeerModuleFactory.NAME;
 
     private static final String HOST = "127.0.0.1";
+    private static final PortNumber portNumber = new PortNumber(1);
 
     @Override
     protected CodecRegistry getCodecRegistry() {
@@ -72,14 +73,13 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
     @Test
     public void testValidationExceptionHostNotSet() throws Exception {
         try {
-            createBgpPeerInstance(null, 1);
+            createBgpPeerInstance(null, portNumber);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Host value is not set."));
         }
     }
 
-    @Override
     @Test
     public void testCreateBean() throws Exception {
         final CommitStatus status = createBgpPeerInstance();
@@ -110,8 +110,8 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
         assertStatus(status, 0, 1, 15);
     }
 
-    private static ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
-            final Integer port) throws Exception {
+    private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
+            final PortNumber port) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
@@ -119,9 +119,9 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
         // annotated for JMX as value
         // IpAddress host1 = new IpAddress(new Ipv4Address(host));
         mxBean.setHost(host == null ? null : new IpAddress(host.toCharArray()));
-        mxBean.setPort(port == null ? null : new PortNumber(port));
+        mxBean.setPort(port);
         mxBean.setAdvertizedTable(Collections.<ObjectName> emptyList());
-        mxBean.setRib(createInstance(transaction));
+        mxBean.setRib(createRIBImplModuleInstance(transaction));
         mxBean.setAdvertizedTable(Lists.newArrayList(BGPTableTypeImplModuleTest.createTableInstance(transaction,
                 new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()), new IdentityAttributeRef(
                         MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
@@ -129,10 +129,10 @@ public class BGPPeerModuleTest extends RIBImplModuleTest {
     }
 
     private CommitStatus createBgpPeerInstance() throws Exception {
-        return createBgpPeerInstance(HOST, 1);
+        return createBgpPeerInstance(HOST, portNumber);
     }
 
-    private CommitStatus createBgpPeerInstance(final String host, final Integer port) throws Exception {
+    private CommitStatus createBgpPeerInstance(final String host, final PortNumber port) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createBgpPeerInstance(transaction, host, port);
         return transaction.commit();

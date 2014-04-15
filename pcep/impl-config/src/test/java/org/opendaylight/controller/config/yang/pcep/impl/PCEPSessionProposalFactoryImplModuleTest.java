@@ -15,7 +15,6 @@ import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.config.api.ConflictingVersionException;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
@@ -34,10 +33,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionDeadTimerValueNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
         try {
-            createSessionInstance(null, 100);
+            createSessionInstance(null, (short)100);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
@@ -45,10 +43,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionKeepAliveTimerNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
         try {
-            createSessionInstance(400, null);
+            createSessionInstance((short)200, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
@@ -56,10 +53,9 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     }
 
     @Test
-    public void testValidationExceptionKeepAliveTimerMinValue() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
         try {
-            createSessionInstance(400, -10);
+            createSessionInstance((short)200, (short)-10);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("minimum value is 1."));
@@ -68,14 +64,14 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 
     @Test
     public void testCreateBean() throws Exception {
-        final CommitStatus status = createSessionInstance(0, 0);
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 1, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
-        createSessionInstance(400, 100);
+        createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
@@ -85,25 +81,29 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
 
     @Test
     public void testReconfigure() throws Exception {
-        createSessionInstance(400, 100);
+        createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+        PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 PCEPSessionProposalFactoryImplModuleMXBean.class);
+        mxBean.setKeepAliveTimerValue((short)180);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 1);
+        assertStatus(status, 0, 1, 0);
     }
 
-    private CommitStatus createSessionInstance(final Integer deadTimer, final Integer keepAlive)
-            throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
+    private CommitStatus createInstance() throws Exception {
+        return createSessionInstance((short)200, (short)100);
+    }
+
+    private CommitStatus createSessionInstance(final Short deadTimer, final Short keepAlive) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createSessionInstance(transaction, deadTimer, keepAlive);
         return transaction.commit();
     }
 
     public static ObjectName createSessionInstance(final ConfigTransactionJMXClient transaction,
-            final Integer deadTimer, final Integer keepAlive) throws InstanceAlreadyExistsException {
+            final Short deadTimer, final Short keepAlive) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
                 PCEPSessionProposalFactoryImplModuleMXBean.class);
