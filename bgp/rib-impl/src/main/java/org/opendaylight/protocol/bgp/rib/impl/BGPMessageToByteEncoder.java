@@ -33,7 +33,7 @@ final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
 	}
 
 	@Override
-	protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) throws Exception {
+	protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) {
 		LOG.trace("Encoding message: {}", msg);
 		final byte[] bytes = this.registry.serializeMessage(msg);
 		LOG.trace("Encoded message: {}", ByteArray.bytesToHexString(bytes));

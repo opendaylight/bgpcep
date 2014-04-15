@@ -106,7 +106,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		final Object lock = this;
 		this.timer.newTimeout(new TimerTask() {
 			@Override
-			public void run(final Timeout timeout) throws Exception {
+			public void run(final Timeout timeout) {
 				synchronized (lock) {
 					if (BGPSessionNegotiator.this.state != State.Finished) {
 						BGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));

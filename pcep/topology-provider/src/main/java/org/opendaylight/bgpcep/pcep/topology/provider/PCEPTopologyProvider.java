@@ -75,7 +75,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 
 		channel.close().addListener(new ChannelFutureListener() {
 			@Override
-			public void operationComplete(final ChannelFuture f) throws Exception {
+			public void operationComplete(final ChannelFuture f) {
 				LOG.debug("Server channel {} closed", f.channel());
 
 				try {

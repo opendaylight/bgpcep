@@ -140,14 +140,14 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 			this.stateTimer.newTimeout(new TimerTask() {
 
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleHoldTimer();
 				}
 			}, this.holdTimerValue, TimeUnit.SECONDS);
 
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleKeepaliveTimer();
 				}
 			}, this.keepAlive, TimeUnit.SECONDS);
@@ -167,7 +167,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	/**
 	 * Handles incoming message based on their type.
-	 * 
+	 *
 	 * @param msg incoming message
 	 */
 	@Override
@@ -225,7 +225,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 	/**
 	 * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
 	 * modified, because he initiated the closing. (To prevent concurrent modification exception).
-	 * 
+	 *
 	 * @param closeObject
 	 */
 	private void terminate(final BGPError error) {
@@ -255,7 +255,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		} else {
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleHoldTimer();
 				}
 			}, nextHold - ct, TimeUnit.NANOSECONDS);
@@ -282,7 +282,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		}
 		this.stateTimer.newTimeout(new TimerTask() {
 			@Override
-			public void run(final Timeout timeout) throws Exception {
+			public void run(final Timeout timeout) {
 				handleKeepaliveTimer();
 			}
 		}, nextKeepalive - ct, TimeUnit.NANOSECONDS);

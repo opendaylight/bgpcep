@@ -7,15 +7,20 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
@@ -53,15 +58,12 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.SettableFuture;
 
 public final class ProgrammingServiceImpl implements AutoCloseable, InstructionScheduler, ProgrammingService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
@@ -136,7 +138,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 	public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
 		return this.executor.submit(new Callable<RpcResult<CleanInstructionsOutput>>() {
 			@Override
-			public RpcResult<CleanInstructionsOutput> call() throws Exception {
+			public RpcResult<CleanInstructionsOutput> call() {
 				return realCleanInstructions(input);
 			}
 		});
@@ -261,7 +263,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 		// Schedule a timeout for the instruction
 		final Timeout t = this.timer.newTimeout(new TimerTask() {
 			@Override
-			public void run(final Timeout timeout) throws Exception {
+			public void run(final Timeout timeout) {
 				timeoutInstruction(input.getId());
 			}
 		}, left.longValue(), TimeUnit.NANOSECONDS);

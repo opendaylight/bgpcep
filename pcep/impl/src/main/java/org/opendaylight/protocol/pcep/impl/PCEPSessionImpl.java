@@ -117,7 +117,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		if (getDeadTimerValue() != 0) {
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleDeadTimer();
 				}
 			}, getDeadTimerValue(), TimeUnit.SECONDS);
@@ -126,7 +126,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		if (getKeepAliveTimerValue() != 0) {
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleKeepaliveTimer();
 				}
 			}, getKeepAliveTimerValue(), TimeUnit.SECONDS);
@@ -154,7 +154,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			} else {
 				this.stateTimer.newTimeout(new TimerTask() {
 					@Override
-					public void run(final Timeout timeout) throws Exception {
+					public void run(final Timeout timeout) {
 						handleDeadTimer();
 					}
 				}, nextDead - ct, TimeUnit.NANOSECONDS);
@@ -181,7 +181,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 			this.stateTimer.newTimeout(new TimerTask() {
 				@Override
-				public void run(final Timeout timeout) throws Exception {
+				public void run(final Timeout timeout) {
 					handleKeepaliveTimer();
 				}
 			}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
@@ -190,7 +190,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	/**
 	 * Sends message to serialization.
-	 * 
+	 *
 	 * @param msg to be sent
 	 */
 	@Override
@@ -272,7 +272,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
 	/**
 	 * Sends PCEP Error Message with one PCEPError and Open Object.
-	 * 
+	 *
 	 * @param value
 	 * @param open
 	 */
@@ -285,7 +285,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 * sent (CAPABILITY_NOT_SUPPORTED) and the method checks if the MAX_UNKNOWN_MSG per minute wasn't overstepped.
 	 * Second, any other error occurred that is specified by rfc. In this case, the an error message is generated and
 	 * sent.
-	 * 
+	 *
 	 * @param error documented error in RFC5440 or draft
 	 */
 	@VisibleForTesting
@@ -306,7 +306,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	/**
 	 * Handles incoming message. If the session is up, it notifies the user. The user is notified about every message
 	 * except KeepAlive.
-	 * 
+	 *
 	 * @param msg incoming message
 	 */
 	@Override

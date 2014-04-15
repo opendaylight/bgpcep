@@ -75,7 +75,7 @@ SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
 
 	/**
 	 * Create a new negotiator. This method needs to be implemented by subclasses to actually provide a negotiator.
-	 * 
+	 *
 	 * @param promise Session promise to be completed by the negotiator
 	 * @param channel Associated channel
 	 * @param sessionId Session ID assigned to the resulting session
@@ -145,7 +145,7 @@ SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
 
 					this.channel.closeFuture().addListener(new ChannelFutureListener() {
 						@Override
-						public void operationComplete(final ChannelFuture future) throws Exception {
+						public void operationComplete(final ChannelFuture future) {
 							synchronized (lock) {
 								AbstractPCEPSessionNegotiatorFactory.this.sessions.inverse().remove(this);
 							}
@@ -159,7 +159,7 @@ SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
 			}
 
 			@Override
-			protected void handleMessage(final Message msg) throws Exception {
+			protected void handleMessage(final Message msg) {
 				throw new IllegalStateException("Bootstrap negotiator should have been replaced");
 			}
 		};
@@ -169,7 +169,7 @@ SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
 	private Short nextSession(final byte[] clientAddress) throws ExecutionException {
 		final PeerRecord peer = formerClients.get(clientAddress, new Callable<PeerRecord>() {
 			@Override
-			public PeerRecord call() throws Exception {
+			public PeerRecord call() {
 				return new PeerRecord(ID_CACHE_SECONDS, null);
 			}
 		});
