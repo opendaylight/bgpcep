@@ -167,12 +167,12 @@ module odl-pcep-impl-cfg {
             when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-impl'";
 
             leaf dead-timer-value {
-                type uint16;
+                type uint8;
                 default 120;
             }
 
             leaf keep-alive-timer-value {
-                type uint16;
+                type uint8;
                 default 30;
             }
         }

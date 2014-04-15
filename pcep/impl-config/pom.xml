@@ -69,21 +69,15 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-util</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
@@ -92,7 +86,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-threadgroup-config</artifactId>
-            <version>${controller.config.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,11 +93,32 @@
             <artifactId>netty-timer-config</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-spi-config</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-ietf-stateful02</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.opendaylight.yangtools</groupId>
                 <artifactId>yang-maven-plugin</artifactId>

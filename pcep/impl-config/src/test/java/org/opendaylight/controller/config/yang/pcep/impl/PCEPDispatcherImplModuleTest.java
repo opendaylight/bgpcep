@@ -15,7 +15,6 @@ import javax.management.ObjectName;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.config.api.ConflictingVersionException;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
@@ -27,6 +26,8 @@ import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModul
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
+import org.opendaylight.controller.config.yang.pcep.stateful02.cfg.Stateful02PCEPSessionProposalFactoryModuleFactory;
+import org.opendaylight.protocol.pcep.ietf.Stateful02PCEPSessionProposalFactoryModuleTest;
 
 public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
@@ -45,18 +46,14 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        final PCEPDispatcherImplModuleFactory factory = new PCEPDispatcherImplModuleFactory();
-        final PCEPSessionProposalFactoryImplModuleFactory sessionFactory = new PCEPSessionProposalFactoryImplModuleFactory();
-        final NettyThreadgroupModuleFactory threadgroupFactory = new NettyThreadgroupModuleFactory();
-        final SimplePCEPExtensionProviderContextModuleFactory extensionsFactory = new SimplePCEPExtensionProviderContextModuleFactory();
-        final HashedWheelTimerModuleFactory timerFactory = new HashedWheelTimerModuleFactory();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(factory, sessionFactory,
-                threadgroupFactory, extensionsFactory, timerFactory));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(new PCEPDispatcherImplModuleFactory(),
+                new PCEPSessionProposalFactoryImplModuleFactory(), new NettyThreadgroupModuleFactory(),
+                new SimplePCEPExtensionProviderContextModuleFactory(), new HashedWheelTimerModuleFactory(),
+                new Stateful02PCEPSessionProposalFactoryModuleFactory()));
     }
 
     @Test
-    public void testValidationExceptionMaxUnknownMessagesNotSet() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionMaxUnknownMessagesNotSet() throws Exception {
         try {
             createDispatcherInstance(null);
             fail();
@@ -66,8 +63,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
     }
 
     @Test
-    public void testValidationExceptionMaxUnknownMessagesMinValue() throws InstanceAlreadyExistsException,
-            ConflictingVersionException {
+    public void testValidationExceptionMaxUnknownMessagesMinValue() throws Exception {
         try {
             createDispatcherInstance(0);
             fail();
@@ -107,19 +103,18 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
     }
 
     private CommitStatus createDispatcherInstance(final Integer maxUnknownMessages)
-            throws InstanceAlreadyExistsException, ConflictingVersionException, ValidationException {
+            throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createDispatcherInstance(transaction, maxUnknownMessages);
         return transaction.commit();
     }
 
-    private static ObjectName createDispatcherInstance(final ConfigTransactionJMXClient transaction,
-            final Integer maxUnknownMessages) throws InstanceAlreadyExistsException {
+    public static ObjectName createDispatcherInstance(final ConfigTransactionJMXClient transaction,
+            final Integer maxUnknownMessages) throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
                 PCEPDispatcherImplModuleMXBean.class);
-        mxBean.setPcepSessionProposalFactory(PCEPSessionProposalFactoryImplModuleTest.createSessionInstance(
-                transaction, 0, 0));
+        mxBean.setPcepSessionProposalFactory(Stateful02PCEPSessionProposalFactoryModuleTest.createStateful02SessionProposalInstance(transaction));
         mxBean.setMaxUnknownMessages(maxUnknownMessages);
         mxBean.setBossGroup(createThreadGroupInstance(transaction, 10, BOSS_TG_INSTANCE_NAME));
         mxBean.setWorkerGroup(createThreadGroupInstance(transaction, 10, WORKER_TG_INSTANCE_NAME));

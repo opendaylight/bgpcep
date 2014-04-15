@@ -59,7 +59,7 @@
         <slf4j.version>1.7.2</slf4j.version>
         <surefire.version>2.15</surefire.version>
 
-        <!-- YANG tools ertifacts -->
+        <!-- YANG tools artifacts -->
         <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
         <ietf.types.version>2010.09.24.4-SNAPSHOT</ietf.types.version>
         <ietf.topology.version>2013.10.21.2-SNAPSHOT</ietf.topology.version>
@@ -104,7 +104,100 @@
                 <version>${yangtools.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>config-manager</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>config-manager</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>config-util</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>netty-event-executor-config</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>netty-threadgroup-config</artifactId>
+                <version>${controller.config.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-spi-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-spi-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-impl-config</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-spi-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-ietf-stateful02</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-impl-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-impl-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-impl-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-provider-config</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+           </dependency>
+
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -112,7 +205,7 @@
             </dependency>
 
             <!-- Supporting Libraries -->
-            
+
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>

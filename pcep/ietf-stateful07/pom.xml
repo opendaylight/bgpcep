@@ -93,39 +93,22 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-util</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>netty-threadgroup-config</artifactId>
-            <version>${controller.config.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>netty-timer-config</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
