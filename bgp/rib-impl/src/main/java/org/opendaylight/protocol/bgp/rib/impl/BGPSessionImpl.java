@@ -54,11 +54,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
-	/*
-	 * 240
-	 */
-	private static final int DEFAULT_HOLD_TIMER_VALUE = 15;
-
 	private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
 	/**
