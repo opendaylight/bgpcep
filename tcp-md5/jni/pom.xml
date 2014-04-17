@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>tcpmd5-jni</artifactId>
     <description>Native support for RFC2385-enabled TCP sockets</description>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
     <prerequisites>
@@ -29,6 +29,7 @@
     <properties>
         <nar.groupId>com.github.maven-nar</nar.groupId>
         <nar.version>3.0.0</nar.version>
+        <copy.version>0.2.5</copy.version>
     </properties>
 
     <dependencies>
@@ -60,9 +61,37 @@
                         <Export-Package>
                             org.opendaylight.bgpcep.jni
                         </Export-Package>
+                        <Include-Resource>
+                            libtcpmd5-jni.so=target/nar/tcpmd5-jni-${project.version}-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libtcpmd5-jni-${project.version}.so
+                        </Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.goldin</groupId>
+                <artifactId>copy-maven-plugin</artifactId>
+                <version>0.2.5</version>
+                <executions>
+                    <execution>
+                        <id>copy-native</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <targetPath>${project.build.outputDirectory}</targetPath>
+                                    <file>${project.build.directory}/nar/tcpmd5-jni-${project.version}-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libtcpmd5-jni-${project.version}.so</file>
+                                    <destFileName>libtcpmd5-jni.so</destFileName>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <!-- Let eclipse know about the generated sources -->
                 <groupId>org.codehaus.mojo</groupId>
@@ -81,6 +110,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>${nar.groupId}</groupId>
                 <artifactId>nar-maven-plugin</artifactId>
@@ -107,7 +137,6 @@
                             <goal>nar-resources</goal>
                             <goal>nar-javah</goal>
                             <goal>nar-compile</goal>
-                            <goal>nar-package</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -149,7 +178,20 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore/>
+                                        <execute/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.github.goldin</groupId>
+                                        <artifactId>copy-maven-plugin</artifactId>
+                                        <versionRange>${copy.version}</versionRange>
+                                        <goals>
+                                            <goal>copy</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
