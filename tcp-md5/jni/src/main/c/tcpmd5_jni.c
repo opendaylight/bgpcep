@@ -258,40 +258,6 @@ jboolean Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_isClassSupporte
 
 /*
  * Class:     org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess
- * Method:    getChannelKey0
- * Signature: (Ljava/nio/channels/Channel;)[B
- */
-jbyteArray Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_getChannelKey0(JNIEnv *env, jclass clazz, jobject channel)
-{
-	const struct handler *h = find_handler(env, (*env)->GetObjectClass(env, channel));
-	if (h == NULL) {
-		ILLEGAL_STATE("Failed to find handler");
-		return NULL;
-	}
-
-	const jint fd = (*env)->GetIntField(env, channel, h->field);
-	if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
-		return NULL;
-	}
-
-	struct tcp_md5sig md5sig;
-	memset(&md5sig, 0, sizeof(md5sig));
-	socklen_t len = sizeof(md5sig);
-	if (getsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, &len) != 0) {
-		native_error(env, "getsockopt", errno);
-		return NULL;
-	}
-
-	jbyteArray ret = (*env)->NewByteArray(env, md5sig.tcpm_keylen);
-	if (ret != NULL) {
-		(*env)->SetByteArrayRegion(env, ret, 0, md5sig.tcpm_keylen, (jbyte *)md5sig.tcpm_key);
-	}
-
-	return ret;
-}
-
-/*
- * Class:     org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess
  * Method:    setChannelKey0
  * Signature: (Ljava/nio/channels/Channel;[B)V
  */
