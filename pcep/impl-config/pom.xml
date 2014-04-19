@@ -98,7 +98,6 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-timer-config</artifactId>
-            <version>${controller.config.version}</version>
             <scope>test</scope>
         </dependency>
 
