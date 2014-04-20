@@ -390,7 +390,7 @@ module bgp-linkstate {
 	typedef link-protection-type {
 		reference "http://tools.ietf.org/html/rfc5307#section-1.2";
 		type enumeration {
-			enum extra-traffix {
+			enum extra-traffic {
 				value 1;
 			}
 			enum unprotected {
