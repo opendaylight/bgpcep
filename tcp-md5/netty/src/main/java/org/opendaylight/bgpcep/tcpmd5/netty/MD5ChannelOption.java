@@ -9,6 +9,8 @@ package org.opendaylight.bgpcep.tcpmd5.netty;
 
 import io.netty.channel.ChannelOption;
 
+import com.google.common.base.Preconditions;
+
 /**
  * TCP MD5 Signature {@link ChannelOption}.
  */
@@ -25,5 +27,6 @@ public final class MD5ChannelOption extends ChannelOption<byte[]> {
 	@Override
 	public void validate(final byte[] value) {
 		// null value is allowed
+		Preconditions.checkArgument(value == null || value.length != 0);
 	}
 }

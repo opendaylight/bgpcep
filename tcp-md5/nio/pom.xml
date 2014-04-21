@@ -17,7 +17,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>tcpmd5-core</artifactId>
+    <artifactId>tcpmd5-nio</artifactId>
     <description>RFC2385-enable sockets</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
@@ -26,6 +26,10 @@
     </prerequisites>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcpmd5-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcpmd5-jni</artifactId>
@@ -41,6 +45,14 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>mockito-configuration</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -53,7 +65,7 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.opendaylight.bgpcep.tcpmd5
+                            org.opendaylight.bgpcep.tcpmd5.nio
                         </Export-Package>
                     </instructions>
                 </configuration>

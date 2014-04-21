@@ -13,7 +13,7 @@ import io.netty.channel.MessageSizeEstimator;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.socket.SocketChannelConfig;
 
-import org.opendaylight.bgpcep.tcpmd5.MD5SocketChannel;
+import org.opendaylight.bgpcep.tcpmd5.nio.MD5SocketChannel;
 
 /**
  * Proxy implementation working on top an existing SocketChannelConfig.
