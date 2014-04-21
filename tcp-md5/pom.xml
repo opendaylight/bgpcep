@@ -35,7 +35,7 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>tcpmd5-core</artifactId>
+                <artifactId>tcpmd5-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -46,6 +46,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>tcpmd5-netty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-nio</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -64,9 +69,10 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
-                <module>core</module>
+                <module>api</module>
                 <module>jni</module>
                 <module>netty</module>
+                <module>nio</module>
             </modules>
         </profile>
         <profile>
@@ -75,8 +81,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>core</module>
+                <module>api</module>
                 <module>netty</module>
+                <module>nio</module>
             </modules>
         </profile>
     </profiles>

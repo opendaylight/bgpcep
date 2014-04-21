@@ -12,55 +12,94 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.channels.Channel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
+import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NativeKeyAccessTest {
+	private static final Logger LOG = LoggerFactory.getLogger(NativeKeyAccessTest.class);
 	private static final byte[] KEY1 = new byte[] { 1 };
 	private static final byte[] KEY2 = new byte[] { 2, 3 };
 
-	@Test
-	public void testSocket() throws IOException {
-		final SocketChannel sc = SocketChannel.open();
+	private KeyAccessFactory factory;
+	private Channel channel;
 
-		assertTrue(NativeKeyAccess.isAvailableForClass(sc.getClass()));
+	private void testKeyManipulation(final Channel c) throws IOException {
+		assertTrue(factory.canHandleChannelClass(c.getClass()));
 
-		final KeyAccess ka = NativeKeyAccess.create(sc);
+		final KeyAccess ka = factory.getKeyAccess(c);
 		assertNull(ka.getKey());
 
-		ka.setKey(null);
-		assertNull(ka.getKey());
-
+		LOG.debug("Setting key {}", KEY1);
 		ka.setKey(KEY1);
 		assertArrayEquals(KEY1, ka.getKey());
 
+		LOG.debug("Setting key {}", KEY2);
 		ka.setKey(KEY2);
 		assertArrayEquals(KEY2, ka.getKey());
 
+		LOG.debug("Deleting key");
 		ka.setKey(null);
 		assertNull(ka.getKey());
 	}
 
+	@Before
+	public void initialize() throws IOException {
+		factory = NativeKeyAccessFactory.getInstance();
+		channel = SocketChannel.open();
+	}
+
+	@After
+	public void shutdown() throws IOException {
+		channel.close();
+	}
+
+	@Test
+	public void testSocket() throws IOException {
+		testKeyManipulation(channel);
+	}
+
+	@Test(expected=NullPointerException.class)
+	public void testNullChannel() {
+		factory.getKeyAccess(null);
+	}
+
+	@Test(expected=NullPointerException.class)
+	public void testNullClass() {
+		factory.canHandleChannelClass(null);
+	}
+
 	@Test
 	public void testServerSocket() throws IOException {
-		final ServerSocketChannel ssc = ServerSocketChannel.open();
+		try (final ServerSocketChannel ssc = ServerSocketChannel.open()) {
+			testKeyManipulation(ssc);
+		}
+	}
 
-		assertTrue(NativeKeyAccess.isAvailableForClass(ssc.getClass()));
-
-		final KeyAccess ka = NativeKeyAccess.create(ssc);
+	@Test(expected=IOException.class)
+	public void testDeleteKey() throws IOException {
+		final KeyAccess ka = factory.getKeyAccess(channel);
 		assertNull(ka.getKey());
-
 		ka.setKey(null);
-		assertNull(ka.getKey());
+	}
 
-		ka.setKey(KEY1);
-		assertArrayEquals(KEY1, ka.getKey());
+	@Test(expected=IllegalArgumentException.class)
+	public void testShortKey() throws IOException {
+		final KeyAccess ka = factory.getKeyAccess(channel);
+		ka.setKey(new byte[0]);
+	}
 
-		ka.setKey(KEY2);
-		assertArrayEquals(KEY2, ka.getKey());
-		ka.setKey(null);
-		assertNull(ka.getKey());
+	@Test(expected=IllegalArgumentException.class)
+	public void testLongKey() throws IOException {
+		final KeyAccess ka = factory.getKeyAccess(channel);
+		ka.setKey(new byte[81]);
 	}
 }

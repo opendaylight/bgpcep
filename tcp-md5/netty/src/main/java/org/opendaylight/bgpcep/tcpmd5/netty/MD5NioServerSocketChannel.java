@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.tcpmd5.netty;
 
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-import org.opendaylight.bgpcep.tcpmd5.MD5ServerSocketChannel;
+import org.opendaylight.bgpcep.tcpmd5.nio.MD5ServerSocketChannel;
 
 /**
  * {@link NioServerSocketChannel} enabled with support for TCP MD5 Signature
@@ -21,7 +21,7 @@ public class MD5NioServerSocketChannel extends NioServerSocketChannel {
 
 	public MD5NioServerSocketChannel() {
 		super();
-		this.channel = new MD5ServerSocketChannel(javaChannel());
+		this.channel = new MD5ServerSocketChannel(super.javaChannel());
 		this.config = new ProxyMD5ServerSocketChannelConfig(super.config(), channel);
 	}
 
@@ -32,6 +32,6 @@ public class MD5NioServerSocketChannel extends NioServerSocketChannel {
 
 	@Override
 	protected MD5ServerSocketChannel javaChannel() {
-		return channel;
+		return this.channel;
 	}
 }
