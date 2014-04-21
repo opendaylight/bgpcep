@@ -7,7 +7,7 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <projectDescription>
-	<name>tcpmd5-core</name>
+	<name>tcpmd5-nio</name>
 	<comment></comment>
 	<projects>
 	</projects>

@@ -5,15 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.bgpcep.tcpmd5;
+package org.opendaylight.bgpcep.tcpmd5.nio;
 
 import java.io.IOException;
 import java.net.SocketOption;
 import java.nio.channels.NetworkChannel;
 import java.util.Set;
 
-import org.opendaylight.bgpcep.tcpmd5.jni.KeyAccess;
-import org.opendaylight.bgpcep.tcpmd5.jni.NativeKeyAccess;
+import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
+import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -33,8 +34,8 @@ final class MD5ChannelOptions {
 		this.access = access;
 	}
 
-	static MD5ChannelOptions create(final NetworkChannel ch) {
-		final KeyAccess access = NativeKeyAccess.create(Preconditions.checkNotNull(ch));
+	static MD5ChannelOptions create(final KeyAccessFactory keyAccessFactory, final NetworkChannel ch) {
+		final KeyAccess access = keyAccessFactory.getKeyAccess(Preconditions.checkNotNull(ch));
 		return new MD5ChannelOptions(ch, access);
 	}
 
