@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.bgpcep.tcpmd5;
+package org.opendaylight.bgpcep.tcpmd5.nio;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+
 /**
  * {@link SocketChannel} augmented with support for TCP MD5 Signature option.
  */
@@ -23,9 +25,17 @@ public final class MD5SocketChannel extends SocketChannel {
 	private final SocketChannel inner;
 
 	public MD5SocketChannel(final SocketChannel inner) {
+		this(inner, DefaultKeyAccessFactoryFactory.getKeyAccessFactory());
+	}
+
+	public MD5SocketChannel(final SocketChannel inner, final KeyAccessFactory keyAccessFactory) {
 		super(inner.provider());
-		options = MD5ChannelOptions.create(inner);
 		this.inner = inner;
+		options = MD5ChannelOptions.create(keyAccessFactory, inner);
+	}
+
+	public static MD5SocketChannel open() throws IOException {
+		return new MD5SocketChannel(SocketChannel.open());
 	}
 
 	@Override

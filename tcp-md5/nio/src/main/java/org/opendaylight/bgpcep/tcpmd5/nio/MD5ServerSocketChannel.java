@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.bgpcep.tcpmd5;
+package org.opendaylight.bgpcep.tcpmd5.nio;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -14,6 +14,8 @@ import java.net.SocketOption;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Set;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+
 import com.google.common.base.Preconditions;
 
 /**
@@ -21,13 +23,19 @@ import com.google.common.base.Preconditions;
  * option.
  */
 public final class MD5ServerSocketChannel extends ServerSocketChannel {
+	private final KeyAccessFactory keyAccessFactory;
 	private final ServerSocketChannel inner;
 	private final MD5ChannelOptions options;
 
-	public MD5ServerSocketChannel(final ServerSocketChannel inner) {
+	public MD5ServerSocketChannel(final ServerSocketChannel inner, final KeyAccessFactory keyAccessFactory) {
 		super(inner.provider());
-		this.inner = Preconditions.checkNotNull(inner);
-		this.options = MD5ChannelOptions.create(inner);
+		this.inner = inner;
+		this.keyAccessFactory = Preconditions.checkNotNull(keyAccessFactory);
+		this.options = MD5ChannelOptions.create(keyAccessFactory, inner);
+	}
+
+	public MD5ServerSocketChannel(final ServerSocketChannel inner) {
+		this(inner, DefaultKeyAccessFactoryFactory.getKeyAccessFactory());
 	}
 
 	public static MD5ServerSocketChannel open() throws IOException {
@@ -69,7 +77,7 @@ public final class MD5ServerSocketChannel extends ServerSocketChannel {
 
 	@Override
 	public MD5SocketChannel accept() throws IOException {
-		return new MD5SocketChannel(inner.accept());
+		return new MD5SocketChannel(inner.accept(), keyAccessFactory);
 	}
 
 	@Override
