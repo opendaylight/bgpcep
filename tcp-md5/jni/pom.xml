@@ -62,9 +62,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.opendaylight.bgpcep.jni
-                        </Export-Package>
                         <Include-Resource>
                             libtcpmd5-jni.so=target/nar/tcpmd5-jni-${project.version}-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libtcpmd5-jni-${project.version}.so
                         </Include-Resource>

@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.SocketOption;
 import java.net.StandardSocketOptions;
 import java.nio.channels.NetworkChannel;
@@ -25,6 +26,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 
 import com.google.common.collect.ImmutableSet;
@@ -43,8 +45,8 @@ public class MD5ChannelOptionsTest {
 		MockitoAnnotations.initMocks(this);
 
 		Mockito.doReturn(keyAccess).when(keyAccessFactory).getKeyAccess(channel);
-		Mockito.doReturn(null).when(keyAccess).getKey();
-		Mockito.doNothing().when(keyAccess).setKey(any(byte[].class));
+		Mockito.doReturn(null).when(keyAccess).getKeys();
+		Mockito.doNothing().when(keyAccess).setKeys(any(KeyMapping.class));
 
 		Mockito.doReturn(ImmutableSet.of(StandardSocketOptions.TCP_NODELAY)).when(channel).supportedOptions();
 		Mockito.doReturn(false).when(channel).getOption(StandardSocketOptions.TCP_NODELAY);
@@ -71,7 +73,7 @@ public class MD5ChannelOptionsTest {
 		assertNull(opts.getOption(MD5SocketOptions.TCP_MD5SIG));
 		assertFalse(opts.getOption(StandardSocketOptions.TCP_NODELAY));
 
-		Mockito.verify(keyAccess).getKey();
+		Mockito.verify(keyAccess).getKeys();
 		Mockito.verify(channel).getOption(StandardSocketOptions.TCP_NODELAY);
 	}
 
@@ -79,10 +81,13 @@ public class MD5ChannelOptionsTest {
 	public void testSetOption() throws IOException {
 		final MD5ChannelOptions opts = MD5ChannelOptions.create(keyAccessFactory, channel);
 
-		opts.setOption(MD5SocketOptions.TCP_MD5SIG, new byte[] { 1, });
+		final KeyMapping map = new KeyMapping();
+		map.put(InetAddress.getLoopbackAddress(), new byte[] { 1, });
+
+		opts.setOption(MD5SocketOptions.TCP_MD5SIG, map);
 		opts.setOption(StandardSocketOptions.TCP_NODELAY, true);
 
-		Mockito.verify(keyAccess).setKey(any(byte[].class));
+		Mockito.verify(keyAccess).setKeys(any(KeyMapping.class));
 		Mockito.verify(channel).setOption(StandardSocketOptions.TCP_NODELAY, true);
 	}
 }
