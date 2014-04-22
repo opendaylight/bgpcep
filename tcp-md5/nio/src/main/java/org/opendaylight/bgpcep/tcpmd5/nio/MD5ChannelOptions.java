@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 
 import com.google.common.base.Preconditions;
@@ -42,7 +43,7 @@ final class MD5ChannelOptions {
 	public <T> T getOption(final SocketOption<T> name) throws IOException {
 		if (access != null && name.equals(MD5SocketOptions.TCP_MD5SIG)) {
 			@SuppressWarnings("unchecked")
-			final T key = (T)access.getKey();
+			final T key = (T)access.getKeys();
 			return key;
 		}
 
@@ -51,7 +52,7 @@ final class MD5ChannelOptions {
 
 	public <T> void setOption(final SocketOption<T> name, final T value) throws IOException {
 		if (access != null && name.equals(MD5SocketOptions.TCP_MD5SIG)) {
-			access.setKey((byte[])value);
+			access.setKeys((KeyMapping)value);
 		} else {
 			ch.setOption(name, value);
 		}

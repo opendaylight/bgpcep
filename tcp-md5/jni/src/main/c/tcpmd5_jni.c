@@ -261,13 +261,27 @@ jboolean Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_isClassSupporte
  * Method:    setChannelKey0
  * Signature: (Ljava/nio/channels/Channel;[B)V
  */
-void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIEnv *env, jclass clazz, jobject channel, jbyteArray key)
+void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIEnv *env, jclass clazz, jobject channel, jbyteArray address, jbyteArray key)
 {
-	jsize keylen = 0;
+	if (address == NULL) {
+		ILLEGAL_ARGUMENT("Address may not be null");
+		return;
+	}
+	if (channel == NULL) {
+		ILLEGAL_ARGUMENT("Channel may not be null");
+		return;
+	}
 
+	const jsize addrlen = (*env)->GetArrayLength(env, address);
+	if (addrlen != 4 && addrlen != 16) {
+		ILLEGAL_ARGUMENT("Unsupported address length %d", addrlen);
+		return;
+	}
+
+	jsize keylen = 0;
 	if (key != NULL) {
 		keylen = (*env)->GetArrayLength(env, key);
-		if (keylen < 0) {
+		if (keylen <= 0) {
 			ILLEGAL_ARGUMENT("Negative array length %d encountered", keylen);
 			return;
 		}
@@ -308,9 +322,66 @@ void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIE
 		return;
 	}
 
-	socklen_t al = sizeof(md5sig.tcpm_addr);
-	if (getsockname(fd, (struct sockaddr *)&md5sig.tcpm_addr, &al) == -1) {
+	struct sockaddr_storage ss;
+	memset(&ss, 0, sizeof(ss));
+
+	socklen_t ssl = sizeof(ss);
+	if (getsockname(fd, (struct sockaddr *)&ss, &ssl) == -1) {
 		native_error(env, "getsockname", errno);
+		return;
+	}
+
+	/*
+	 * Fill out the address.
+	 */
+	md5sig.tcpm_addr.ss_family = ss.ss_family;
+	void *dest = NULL;
+
+	switch (ss.ss_family) {
+	case AF_INET:
+		switch (addrlen) {
+		case 4:
+			// IPv4 dest in IPv4 socket
+			dest = &((struct sockaddr_in *)&md5sig.tcpm_addr)->sin_addr;
+			break;
+		case 16:
+			// IPv6 dest in IPv4 socket
+			ILLEGAL_ARGUMENT("Invalid IPv6 address for IPv4 socket");
+			return;
+		default:
+			// Ugh?
+			ILLEGAL_STATE("Unexpected address length %d", addrlen);
+			return;
+		}
+		break;
+	case AF_INET6:
+		switch (addrlen) {
+		case 4:
+			{
+				// IPv4 dest in IPv4 socket, we need to create a mapped address.
+				struct in6_addr *a = &((struct sockaddr_in6 *)&md5sig.tcpm_addr)->sin6_addr;
+
+				a->s6_addr[10] = 0xFF;
+				a->s6_addr[11] = 0xFF;
+				dest = a->s6_addr + 12;
+				break;
+			}
+		case 16:
+			// IPv6 dest in IPv6 socket
+			dest = &((struct sockaddr_in6 *)&md5sig.tcpm_addr)->sin6_addr;
+			return;
+		default:
+			ILLEGAL_STATE("Unexpected address length %d", addrlen);
+			return;
+		}
+		break;
+	default:
+		ILLEGAL_STATE("Unexpected address family %d", ss.ss_family);
+		return;
+	}
+
+	(*env)->GetByteArrayRegion(env, address, 0, addrlen, dest);
+	if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
 		return;
 	}
 

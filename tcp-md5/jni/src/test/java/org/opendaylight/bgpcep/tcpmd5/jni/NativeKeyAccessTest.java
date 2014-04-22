@@ -7,20 +7,22 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.jni;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,19 +38,23 @@ public class NativeKeyAccessTest {
 		assertTrue(factory.canHandleChannelClass(c.getClass()));
 
 		final KeyAccess ka = factory.getKeyAccess(c);
-		assertNull(ka.getKey());
+		assertEquals(Collections.emptyMap(), ka.getKeys());
 
+		final KeyMapping key1 = new KeyMapping();
+		key1.put(InetAddress.getLocalHost(), KEY1);
 		LOG.debug("Setting key {}", KEY1);
-		ka.setKey(KEY1);
-		assertArrayEquals(KEY1, ka.getKey());
+		ka.setKeys(key1);
+		assertEquals(key1, ka.getKeys());
 
+		final KeyMapping key2 = new KeyMapping();
+		key2.put(InetAddress.getLocalHost(), KEY2);
 		LOG.debug("Setting key {}", KEY2);
-		ka.setKey(KEY2);
-		assertArrayEquals(KEY2, ka.getKey());
+		ka.setKeys(key2);
+		assertEquals(key2, ka.getKeys());
 
-		LOG.debug("Deleting key");
-		ka.setKey(null);
-		assertNull(ka.getKey());
+		LOG.debug("Deleting keys");
+		ka.setKeys(new KeyMapping());
+		assertEquals(Collections.emptyMap(), ka.getKeys());
 	}
 
 	@Before
@@ -84,22 +90,20 @@ public class NativeKeyAccessTest {
 		}
 	}
 
-	@Test(expected=IOException.class)
-	public void testDeleteKey() throws IOException {
-		final KeyAccess ka = factory.getKeyAccess(channel);
-		assertNull(ka.getKey());
-		ka.setKey(null);
-	}
-
 	@Test(expected=IllegalArgumentException.class)
 	public void testShortKey() throws IOException {
 		final KeyAccess ka = factory.getKeyAccess(channel);
-		ka.setKey(new byte[0]);
+
+		final KeyMapping map = new KeyMapping();
+		map.put(InetAddress.getLocalHost(), new byte[0]);
+		ka.setKeys(map);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testLongKey() throws IOException {
 		final KeyAccess ka = factory.getKeyAccess(channel);
-		ka.setKey(new byte[81]);
+		final KeyMapping map = new KeyMapping();
+		map.put(InetAddress.getLocalHost(), new byte[81]);
+		ka.setKeys(map);
 	}
 }

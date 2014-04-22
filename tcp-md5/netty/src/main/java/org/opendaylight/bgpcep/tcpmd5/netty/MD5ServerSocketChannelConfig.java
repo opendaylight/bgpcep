@@ -12,13 +12,15 @@ import io.netty.channel.MessageSizeEstimator;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.socket.ServerSocketChannelConfig;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
+
 /**
  * {@link ServerSocketChannelConfig} augmented with TCP MD5 Signature option support.
  */
 public interface MD5ServerSocketChannelConfig extends ServerSocketChannelConfig {
-	byte[] getMD5SignatureKey();
+	KeyMapping getMD5SignatureKeys();
 
-	MD5ServerSocketChannelConfig setMD5SignatureKey(byte[] key);
+	MD5ServerSocketChannelConfig setMD5SignatureKeys(KeyMapping keys);
 
 	@Override
 	MD5ServerSocketChannelConfig setBacklog(int backlog);
