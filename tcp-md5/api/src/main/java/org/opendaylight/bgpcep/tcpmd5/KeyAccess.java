@@ -8,28 +8,30 @@
 package org.opendaylight.bgpcep.tcpmd5;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Map;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 /**
  * Interface for accessing key information attached to an object.
  */
 public interface KeyAccess {
 	/**
-	 * Retrieve the key.
+	 * Retrieve the key mapping.
 	 *
-	 * @return The key currently attached, null if there is no key attached.
+	 * @return The key mapping currently attached.
 	 * @throws IOException when the retrieve operation fails.
 	 */
-	@Nullable byte[] getKey() throws IOException;
+	@Nonnull Map<InetAddress, byte[]> getKeys() throws IOException;
 
 	/**
-	 * Set the key.
+	 * Attach key mappings.
 	 *
-	 * @param key The key to be attached, null indicates removal.
+	 * @param keys Mappings which should
 	 * @throws IOException when the set operation fails.
-	 * @throws IllegalArgumentException if the key length is zero or it exceeds
+	 * @throws IllegalArgumentException if a key length is zero or it exceeds
 	 *         platform-supported length (usually 80 bytes).
 	 */
-	void setKey(@Nullable byte[] key) throws IOException;
+	void setKeys(@Nonnull Map<InetAddress, byte[]> keys) throws IOException;
 }
