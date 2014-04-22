@@ -433,6 +433,7 @@ module pcep-types {
 
 			list subobject {
 				uses rsvp:exclude-route-subobjects;
+				order-by user;
 			}
 		}
 	}
@@ -460,6 +461,8 @@ module pcep-types {
 						}
 					}
 				}
+
+				order-by user;
 			}
 		}
 	}
@@ -474,6 +477,7 @@ module pcep-types {
 
 			list subobject {
 				uses rsvp:explicit-route-subobjects;
+				order-by user;
 			}
 		}
 	}
@@ -496,6 +500,7 @@ module pcep-types {
 						}
 					}
 				}
+				order-by user;
 			}
 		}
 	}
@@ -653,6 +658,7 @@ module pcep-types {
 				}
 
 				uses path-key-subobject;
+				order-by user;
 			}
 		}
 	}
