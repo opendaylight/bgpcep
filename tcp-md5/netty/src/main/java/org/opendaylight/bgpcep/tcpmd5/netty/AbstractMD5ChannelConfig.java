@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.channels.NetworkChannel;
 import java.util.Map;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 		this.channel = Preconditions.checkNotNull(channel);
 	}
 
-	protected final byte[] getKey() {
+	protected final KeyMapping getKeys() {
 		try {
 			return channel.getOption(MD5SocketOptions.TCP_MD5SIG);
 		} catch (IOException e) {
@@ -49,9 +50,9 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 		}
 	}
 
-	protected final void setKey(final byte[] key) {
+	protected final void setKeys(final KeyMapping keys) {
 		try {
-			channel.setOption(MD5SocketOptions.TCP_MD5SIG, key);
+			channel.setOption(MD5SocketOptions.TCP_MD5SIG, keys);
 		} catch (IOException e) {
 			throw new ChannelException("Failed to set channel MD5 signature key", e);
 		}
@@ -60,9 +61,9 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 	@Override
 	public Map<ChannelOption<?>, Object> getOptions() {
 		final Map<ChannelOption<?>, Object> opts = config.getOptions();
-		final byte[] key = getKey();
-		if (key != null) {
-			opts.put(MD5ChannelOption.TCP_MD5SIG, key);
+		final KeyMapping keys = getKeys();
+		if (keys != null) {
+			opts.put(MD5ChannelOption.TCP_MD5SIG, keys);
 		}
 
 		return opts;
@@ -72,7 +73,7 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 	public boolean setOptions(final Map<ChannelOption<?>, ?> options) {
 		boolean setAllOptions = true;
 		if (options.containsKey(MD5ChannelOption.TCP_MD5SIG)) {
-			setAllOptions = setOption(MD5ChannelOption.TCP_MD5SIG, (byte[]) options.get(MD5ChannelOption.TCP_MD5SIG));
+			setAllOptions = setOption(MD5ChannelOption.TCP_MD5SIG, (KeyMapping)options.get(MD5ChannelOption.TCP_MD5SIG));
 		}
 
 		return config.setOptions(options) && setAllOptions;
@@ -82,7 +83,7 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 	public <T> T getOption(final ChannelOption<T> option) {
 		if (option == MD5ChannelOption.TCP_MD5SIG) {
 			@SuppressWarnings("unchecked")
-			final T ret = (T) getKey();
+			final T ret = (T) getKeys();
 			return ret;
 		}
 
@@ -92,7 +93,7 @@ abstract class AbstractMD5ChannelConfig<C extends ChannelConfig> implements Chan
 	@Override
 	public <T> boolean setOption(final ChannelOption<T> option, final T value) {
 		if (option.equals(MD5ChannelOption.TCP_MD5SIG)) {
-			setKey((byte[]) value);
+			setKeys((KeyMapping) value);
 			return true;
 		}
 
