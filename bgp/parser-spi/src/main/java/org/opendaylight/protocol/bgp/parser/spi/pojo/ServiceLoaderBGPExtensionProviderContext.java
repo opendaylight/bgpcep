@@ -9,23 +9,39 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import java.util.ServiceLoader;
 
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 
 public final class ServiceLoaderBGPExtensionProviderContext {
-	private ServiceLoaderBGPExtensionProviderContext() {
+    private static final class Holder {
+        private static final BGPExtensionProviderContext INSTANCE;
 
-	}
+        static {
+            try {
+                INSTANCE = create();
+            } catch (final Exception e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+    }
 
-	public static BGPExtensionConsumerContext createConsumerContext() {
-		final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
+    public static BGPExtensionProviderContext create() throws Exception {
+        final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
-		final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(BGPExtensionProviderActivator.class);
-		for (BGPExtensionProviderActivator a : loader) {
-			a.start(ctx);
-		}
+        final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader
+                .load(BGPExtensionProviderActivator.class);
+        for (BGPExtensionProviderActivator a : loader) {
+            a.start(ctx);
+        }
 
-		return ctx;
-	}
+        return ctx;
+    }
+
+    public static BGPExtensionProviderContext getSingletonInstance() {
+        return Holder.INSTANCE;
+    }
+
+    private ServiceLoaderBGPExtensionProviderContext() {
+
+    }
 }

@@ -96,7 +96,7 @@ public class ParserToSalTest {
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 		final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(this.hex_messages));
-		this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
+		this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
 		Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
 
