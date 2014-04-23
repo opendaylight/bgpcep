@@ -85,7 +85,7 @@ public class ParserTest {
 
 	@BeforeClass
 	public static void setupClass() throws Exception {
-		reg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
+		reg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 	}
 
 	@Test

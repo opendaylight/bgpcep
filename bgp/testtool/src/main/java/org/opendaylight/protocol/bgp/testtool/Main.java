@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
@@ -63,7 +64,9 @@ public final class Main {
 	private static final int RECONNECT_MILLIS = 5000;
 
 	private Main() throws Exception {
-		this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry(),
+	    BGPActivator bgpActivator = new BGPActivator();
+	    bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+		this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(),
 				new HashedWheelTimer(), new NioEventLoopGroup(), new NioEventLoopGroup());
 	}
 

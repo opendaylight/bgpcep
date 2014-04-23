@@ -24,7 +24,7 @@ public class PathAttributeParserTest {
 	@Test
 	public void testOriginParser() throws Exception {
 		try {
-			ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getAttributeRegistry().parseAttributes(Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
+			ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
 			fail("This needs to fail.");
 		} catch (final BGPDocumentedException e) {
 			assertEquals("Unknown Origin type.", e.getMessage());

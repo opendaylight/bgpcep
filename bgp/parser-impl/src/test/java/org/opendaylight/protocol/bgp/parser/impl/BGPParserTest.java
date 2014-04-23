@@ -132,7 +132,7 @@ public class BGPParserTest {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
-		updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getAttributeRegistry());
+		updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
 		for (int i = 1; i <= COUNTER; i++) {
 			final String name = "/up" + i + ".bin";
@@ -1169,7 +1169,7 @@ public class BGPParserTest {
 	 */
 	@Test
 	public void testOpenMessage() throws Exception {
-		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
+		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 		final Open open = (Open) msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(13)));
 		final Set<BgpTableType> types = Sets.newHashSet();
 		for (final BgpParameters param : open.getBgpParameters()) {

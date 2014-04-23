@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
+import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
@@ -115,6 +116,9 @@ public final class Main {
 		final PCEPSessionProposalFactory spf = new Stateful07SessionProposalFactory(deadTimerValue, keepAliveValue, stateful, active, instant);
 
 		final Open prefs = spf.getSessionProposal(address, 0);
+
+		StatefulActivator activator07 = new StatefulActivator();
+		activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
 
 		final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(), new DefaultPCEPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, 5), new NioEventLoopGroup(), new NioEventLoopGroup());
 
