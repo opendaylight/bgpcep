@@ -87,6 +87,7 @@ static const struct handler *add_handler(JNIEnv *env, jobject logger, const char
 		goto out_clazz;
 	}
 
+	handler_count += 1;
 	(*env)->DeleteLocalRef(env, clazz);
 	return ret;
 
@@ -116,7 +117,7 @@ static const struct handler *find_handler(JNIEnv *env, jclass clazz)
 
 static jclass resolve_class(JNIEnv *env, const char *what, jclass *where)
 {
-	if (*where != NULL) {
+	if (*where == NULL) {
 		jclass clazz = (*env)->FindClass(env, what);
 		if (clazz == NULL) {
 			return NULL;
@@ -135,23 +136,26 @@ static jclass resolve_class(JNIEnv *env, const char *what, jclass *where)
 	}
 }
 
-static void native_error(JNIEnv *env, int err)
+static void native_error(JNIEnv *env, const char *what, int err)
 {
 	char buf[256] = "";
 	strerror_r(err, buf, sizeof(buf));
-	IO("Native operation failed: %s", buf);
+	IO("Native operation %s failed: %s", what, buf);
 }
 
 static int resolve_exceptions(JNIEnv *env)
 {
 	// First resolve Exception classes, these are mandatory
 	if (resolve_class(env, "java/lang/IllegalStateException", &illegal_state) == NULL) {
+		fprintf(stderr, "Failed to resolve java.lang.IllegalStateException\n");
 		return 1;
 	}
 	if (resolve_class(env, "java/lang/IllegalArgumentException", &illegal_argument) == NULL) {
+		fprintf(stderr, "Failed to resolve java.lang.IllegalArgumentException\n");
 		return 1;
 	}
 	if (resolve_class(env, "java/io/IOException", &io) == NULL) {
+		fprintf(stderr, "Failed to resolve java.io.IOException\n");
 		return 1;
 	}
 
@@ -162,7 +166,7 @@ static jobject resolve_logging(JNIEnv *env, jclass clazz)
 {
 	jclass lf = (*env)->FindClass(env, "org/slf4j/LoggerFactory");
 	if (lf != NULL) {
-		jmethodID mid = (*env)->GetStaticMethodID(env, lf, "getLogger", "(Ljava/lang/Class;)Lorg/slf4j/Logger");
+		jmethodID mid = (*env)->GetStaticMethodID(env, lf, "getLogger", "(Ljava/lang/Class;)Lorg/slf4j/Logger;");
 		if (mid != NULL) {
 			return (*env)->CallStaticObjectMethod(env, lf, mid, clazz);
 		}
@@ -173,12 +177,16 @@ static jobject resolve_logging(JNIEnv *env, jclass clazz)
 
 static jint sanity_check(JNIEnv *env, jobject logger)
 {
-	struct tcp_md5sig md5sig;
+	struct tcp_md5sig md5sig = {
+		.tcpm_addr = {
+			.ss_family = AF_INET,
+		},
+	};
 
 	// Sanity-check maximum key size against the structure
 	if (TCP_MD5SIG_MAXKEYLEN > sizeof(md5sig.tcpm_key)) {
 		ERROR("Structure key size %zu is less than %d", sizeof(md5sig.tcpm_key), TCP_MD5SIG_MAXKEYLEN);
-		return 0;
+		return -1;
 	}
 
 	// Now run a quick check to see if we can really the getsockopt/setsockopt calls are
@@ -186,42 +194,28 @@ static jint sanity_check(JNIEnv *env, jobject logger)
 	const int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1) {
 		ERROR("Failed to open a socket for sanity tests: %s", strerror(errno));
-		return 0;
-	}
-
-	int ret = -1;
-	socklen_t len = sizeof(md5sig);
-	memset(&md5sig, 0, sizeof(md5sig));
-	if (getsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, &len) != 0) {
-		WARN("Platform has no support of TCP_MD5SIG: %s", strerror(errno));
-		goto out_close;
-	}
-
-	// Sanity check: freshly-created sockets should not have a key
-	if (md5sig.tcpm_keylen != 0) {
-		ERROR("Platform advertizes a fresh socket with key length %u", md5sig.tcpm_keylen);
-		goto out_close;
+		return -1;
 	}
 
 	// Attempt to set a new key with maximum size
 	md5sig.tcpm_keylen = TCP_MD5SIG_MAXKEYLEN;
 	if (setsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, sizeof(md5sig)) != 0) {
 		ERROR("Failed to set TCP_MD5SIG option: %s", strerror(errno));
-		goto out_close;
+		close(fd);
+		return -1;
 	}
 
 	// Attempt to remove the key
 	md5sig.tcpm_keylen = 0;
 	if (setsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, sizeof(md5sig)) != 0) {
 		ERROR("Failed to clear TCP_MD5SIG option: %s", strerror(errno));
-		goto out_close;
+		close(fd);
+		return -1;
 	}
 
-	ret = 0;
-
-out_close:
+	// All done
 	close(fd);
-	return ret;
+	return 0;
 }
 
 /*
@@ -284,7 +278,7 @@ jbyteArray Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_getChannelKey
 	memset(&md5sig, 0, sizeof(md5sig));
 	socklen_t len = sizeof(md5sig);
 	if (getsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, &len) != 0) {
-		native_error(env, errno);
+		native_error(env, "getsockopt", errno);
 		return NULL;
 	}
 
@@ -303,14 +297,18 @@ jbyteArray Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_getChannelKey
  */
 void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIEnv *env, jclass clazz, jobject channel, jbyteArray key)
 {
-	const jsize keylen = (*env)->GetArrayLength(env, key);
-	if (keylen < 0) {
-		ILLEGAL_ARGUMENT("Negative array length %d encountered", keylen);
-		return;
-	}
-	if (keylen > TCP_MD5SIG_MAXKEYLEN) {
-		ILLEGAL_ARGUMENT("Key length %d exceeds platform limit %d", keylen, TCP_MD5SIG_MAXKEYLEN);
-		return;
+	jsize keylen = 0;
+
+	if (key != NULL) {
+		keylen = (*env)->GetArrayLength(env, key);
+		if (keylen < 0) {
+			ILLEGAL_ARGUMENT("Negative array length %d encountered", keylen);
+			return;
+		}
+		if (keylen > TCP_MD5SIG_MAXKEYLEN) {
+			ILLEGAL_ARGUMENT("Key length %d exceeds platform limit %d", keylen, TCP_MD5SIG_MAXKEYLEN);
+			return;
+		}
 	}
 
 	struct tcp_md5sig md5sig;
@@ -326,9 +324,11 @@ void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIE
 		return;
 	}
 
-	(*env)->GetByteArrayRegion(env, key, 0, keylen, (void *) &md5sig.tcpm_key);
-	if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
-		return;
+	if (keylen != 0) {
+		(*env)->GetByteArrayRegion(env, key, 0, keylen, (void *) &md5sig.tcpm_key);
+		if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
+			return;
+		}
 	}
 
 	const struct handler *h = find_handler(env, (*env)->GetObjectClass(env, channel));
@@ -342,9 +342,14 @@ void Java_org_opendaylight_bgpcep_tcpmd5_jni_NativeKeyAccess_setChannelKey0(JNIE
 		return;
 	}
 
-	const int ret = setsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, sizeof(md5sig));
-	if (ret != 0) {
-		native_error(env, errno);
+	socklen_t al = sizeof(md5sig.tcpm_addr);
+	if (getsockname(fd, (struct sockaddr *)&md5sig.tcpm_addr, &al) == -1) {
+		native_error(env, "getsockname", errno);
+		return;
+	}
+
+	if (setsockopt(fd, IPPROTO_TCP, TCP_MD5SIG, &md5sig, sizeof(md5sig)) == -1) {
+		native_error(env, "setsockopt", errno);
 	}
 }
 
