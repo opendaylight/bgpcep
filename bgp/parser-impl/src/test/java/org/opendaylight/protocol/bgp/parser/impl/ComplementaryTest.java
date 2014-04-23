@@ -243,7 +243,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testBGPHeaderParser() throws Exception {
-		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
+		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 		try {
 			msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }));
 			fail("Exception should have occured.");
@@ -268,7 +268,7 @@ public class ComplementaryTest {
 
 	@Test
 	public void testMessageParser() throws Exception {
-		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.createConsumerContext().getMessageRegistry();
+		final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
 		String ex = "";
 		try {
 			msgReg.serializeMessage(null);
