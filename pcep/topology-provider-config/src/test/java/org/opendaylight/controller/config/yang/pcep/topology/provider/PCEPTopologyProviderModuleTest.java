@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 import static org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleTest.createDispatcherInstance;
 
 import java.util.List;
+import java.util.Random;
 
 import javax.management.ObjectName;
 
@@ -107,7 +108,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     }
 
     private CommitStatus createInstance() throws Exception {
-        return createInstance(LISTEN_ADDRESS, LISTEN_PORT, TOPOLOGY_ID);
+        return createInstance(LISTEN_ADDRESS, getRandomPortNumber(), TOPOLOGY_ID);
     }
 
     public static ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
@@ -117,7 +118,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setDataProvider(dataBrokerON);
         mxBean.setDispatcher(createDispatcherInstance(transaction, 5));
         mxBean.setListenAddress(new IpAddress(LISTEN_ADDRESS.toCharArray()));
-        mxBean.setListenPort(LISTEN_PORT);
+        mxBean.setListenPort(getRandomPortNumber());
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);
         mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME, STATEFUL02_TOPOLOGY_INSTANCE_NAME));
@@ -155,6 +156,11 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         moduleFactories.add(new Stateful02TopologySessionListenerModuleFactory());
         moduleFactories.add(new Stateful02PCEPSessionProposalFactoryModuleFactory());
         return moduleFactories;
+    }
+
+    private static PortNumber getRandomPortNumber() {
+        final Random random = new Random();
+        return new PortNumber(random.nextInt(65000 - 30000 + 1) + 30000);
     }
 
     @Override
