@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -14,6 +16,10 @@ import io.netty.util.concurrent.Promise;
 
 import java.net.InetSocketAddress;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
+import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelFactory;
+import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelOption;
+import org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
@@ -30,22 +36,69 @@ import com.google.common.base.Preconditions;
 public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher, AutoCloseable {
 
 	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
+	private final MD5ServerChannelFactory<?> scf;
+	private final MD5ChannelFactory<?> cf;
 	private final PCEPHandlerFactory hf;
+	private KeyMapping keys;
 
 	/**
 	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
 	 */
 	public PCEPDispatcherImpl(final MessageRegistry registry,
-			final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, EventLoopGroup bossGroup,
-			EventLoopGroup workerGroup) {
+			final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final EventLoopGroup bossGroup,
+			final EventLoopGroup workerGroup) {
+		this(registry, negotiatorFactory, bossGroup, workerGroup, null, null);
+	}
+
+	/**
+	 * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
+	 */
+	public PCEPDispatcherImpl(final MessageRegistry registry,
+			final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> negotiatorFactory, final EventLoopGroup bossGroup,
+			final EventLoopGroup workerGroup, final MD5ChannelFactory<?> cf, final MD5ServerChannelFactory<?> scf) {
 		super(bossGroup, workerGroup);
+		this.cf = cf;
+		this.scf = scf;
 		this.snf = Preconditions.checkNotNull(negotiatorFactory);
 		this.hf = new PCEPHandlerFactory(registry);
 	}
 
 	@Override
-	public ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
-		return super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
+	public synchronized ChannelFuture createServer(final InetSocketAddress address, final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
+		return createServer(address, null, listenerFactory);
+	}
+
+	@Override
+	public void close() {
+	}
+
+	@Override
+	protected void customizeBootstrap(final Bootstrap b) {
+		if (keys != null && !keys.isEmpty()) {
+			if (cf == null) {
+				throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+			}
+			b.channelFactory(cf);
+			b.option(MD5ChannelOption.TCP_MD5SIG, keys);
+		}
+	}
+
+	@Override
+	protected void customizeBootstrap(final ServerBootstrap b) {
+		if (keys != null && !keys.isEmpty()) {
+			if (scf == null) {
+				throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
+			}
+			b.channelFactory(scf);
+			b.option(MD5ChannelOption.TCP_MD5SIG, keys);
+		}
+	}
+
+	@Override
+	public synchronized ChannelFuture createServer(final InetSocketAddress address, final KeyMapping keys,
+			final SessionListenerFactory<PCEPSessionListener> listenerFactory) {
+		this.keys = keys;
+		ChannelFuture ret = super.createServer(address, new PipelineInitializer<PCEPSessionImpl>() {
 			@Override
 			public void initializeChannel(final SocketChannel ch, final Promise<PCEPSessionImpl> promise) {
 				ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getDecoders());
@@ -53,9 +106,8 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 				ch.pipeline().addLast(PCEPDispatcherImpl.this.hf.getEncoders());
 			}
 		});
-	}
 
-	@Override
-	public void close() {
+		this.keys = null;
+		return ret;
 	}
 }
