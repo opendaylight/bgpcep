@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 public final class PcepApiBundleTest extends AbstractBundleTest {
 	@Override
 	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "rsvp-api", "util");
+		return Lists.newArrayList("concepts", "rsvp-api", "tcpmd5-api", "util");
 	}
 
 	@Override
