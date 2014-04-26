@@ -143,6 +143,11 @@ module config-pcep-topology-provider {
                 type inet:port-number;
                 default 4189;
             }
+
+            leaf password {
+                type pcep:rfc2385key;
+                description "RFC2385 shared secret";
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -30,13 +31,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.net.InetAddresses;
 
 /**
  *
  */
 public final class PCEPTopologyProviderModule extends
-		org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
+org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderModule.class);
 
 	public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
@@ -51,12 +53,15 @@ public final class PCEPTopologyProviderModule extends
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	public void customValidation() {
 		JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", this.topologyIdJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getListenAddress(), "is not set.", this.listenAddressJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getListenPort(), "is not set.", this.listenPortJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), "is not set.", this.statefulPluginJmxAttribute);
+		if (getPassword() != null) {
+
+
+		}
 	}
 
 	private InetAddress listenAddress() {
@@ -75,8 +80,17 @@ public final class PCEPTopologyProviderModule extends
 		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
 				new TopologyKey(getTopologyId())).toInstance();
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
+
+		final KeyMapping keys;
+		if (getPassword() != null) {
+			keys = new KeyMapping();
+			keys.put(InetAddresses.forString("0.0.0.0"), getPassword().getValue().getBytes(Charsets.UTF_8));
+		} else {
+			keys = null;
+		}
+
 		try {
-			return PCEPTopologyProvider.create(getDispatcherDependency(), address, getSchedulerDependency(), getDataProviderDependency(),
+			return PCEPTopologyProvider.create(getDispatcherDependency(), address, keys, getSchedulerDependency(), getDataProviderDependency(),
 					getRpcRegistryDependency(), topology, getStatefulPluginDependency());
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
