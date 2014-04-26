@@ -91,9 +91,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 				builder.setStatus(status);
 
 				final DataModificationTransaction t = dataProvider.beginTransaction();
-				t.putOperationalData(InstanceIdentifier.builder(qid).child(
+				t.putOperationalData(qid.child(
 						org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
-						new InstructionKey(builder.getId())).build(), builder.build());
+						new InstructionKey(builder.getId())), builder.build());
 				t.commit();
 			}
 
@@ -103,9 +103,9 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 		@Override
 		public void instructionRemoved() {
 			final DataModificationTransaction t = dataProvider.beginTransaction();
-			t.removeOperationalData(InstanceIdentifier.builder(qid).child(
+			t.removeOperationalData(qid.child(
 					org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
-					new InstructionKey(builder.getId())).build());
+					new InstructionKey(builder.getId())));
 			t.commit();
 		}
 	}

@@ -31,7 +31,7 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
 
 	@Override
 	public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
-		return InstanceIdentifier.builder(basePath).child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key)).toInstance();
+		return basePath.builder().child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key)).toInstance();
 	}
 
 	@Override

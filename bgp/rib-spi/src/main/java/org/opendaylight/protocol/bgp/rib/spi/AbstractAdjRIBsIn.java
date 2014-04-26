@@ -146,7 +146,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 	private final Map<Peer, Boolean> peers = new HashMap<>();
 
 	protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-		this.basePath = InstanceIdentifier.builder(rib.getInstanceIdentifier()).child(LocRib.class).child(Tables.class, key).toInstance();
+		this.basePath = rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
 
 		this.eor = new UpdateBuilder().setPathAttributes(
 				new PathAttributesBuilder().addAugmentation(

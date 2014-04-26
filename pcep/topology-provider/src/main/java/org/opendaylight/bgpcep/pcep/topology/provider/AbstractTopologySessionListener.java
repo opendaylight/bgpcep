@@ -102,7 +102,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		for (final Node n : topo.getNode()) {
 			LOG.debug("Matching topology node {} to id {}", n, pccId);
 			if (n.getNodeId().getValue().equals(pccId)) {
-				this.topologyNode = InstanceIdentifier.builder(this.serverSessionManager.getTopology()).child(Node.class, n.getKey()).toInstance();
+				this.topologyNode = this.serverSessionManager.getTopology().child(Node.class, n.getKey());
 				LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
 				return n;
 			}
@@ -114,7 +114,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		 */
 		final NodeId id = new NodeId(pccId);
 		final NodeKey nk = new NodeKey(id);
-		final InstanceIdentifier<Node> nti = InstanceIdentifier.builder(this.serverSessionManager.getTopology()).child(Node.class, nk).toInstance();
+		final InstanceIdentifier<Node> nti = this.serverSessionManager.getTopology().child(Node.class, nk);
 
 		final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
@@ -147,7 +147,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		onSessionUp(session, this.pccBuilder);
 
 		this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
-		this.topologyAugment = InstanceIdentifier.builder(this.topologyNode).augmentation(Node1.class).toInstance();
+		this.topologyAugment = this.topologyNode.augmentation(Node1.class);
 		final Node1 ta = this.topologyAugmentBuilder.build();
 
 		trans.putOperationalData(this.topologyAugment, ta);
@@ -273,7 +273,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	}
 
 	protected InstanceIdentifierBuilder<PathComputationClient> pccIdentifier() {
-		return InstanceIdentifier.builder(this.topologyAugment).child(PathComputationClient.class);
+		return this.topologyAugment.builder().child(PathComputationClient.class);
 	}
 
 	protected final synchronized PCEPRequest removeRequest(final SRPID id) {

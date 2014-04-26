@@ -31,7 +31,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
 
 	@Override
 	public InstanceIdentifier<Ipv6Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
-		return InstanceIdentifier.builder(basePath).child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key)).toInstance();
+		return basePath.builder().child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key)).toInstance();
 	}
 
 	@Override

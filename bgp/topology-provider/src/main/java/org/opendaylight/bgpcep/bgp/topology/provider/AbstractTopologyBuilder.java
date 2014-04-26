@@ -80,7 +80,7 @@ TopologyReference {
 	}
 
 	public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-		return InstanceIdentifier.builder(locRibReference.getInstanceIdentifier()).child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
+		return locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);

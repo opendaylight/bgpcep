@@ -25,6 +25,6 @@ public final class TunnelProgrammingUtil {
 
 	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final BaseTunnelInput input) {
 		Preconditions.checkNotNull(input.getLinkId());
-		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(input.getLinkId())).toInstance();
+		return topology.child(Link.class, new LinkKey(input.getLinkId()));
 	}
 }

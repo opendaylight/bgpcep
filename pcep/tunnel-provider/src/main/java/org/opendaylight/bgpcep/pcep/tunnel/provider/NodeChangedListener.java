@@ -105,7 +105,7 @@ public final class NodeChangedListener implements DataChangeListener {
 		}
 
 		for (final ReportedLsp l : pccnode.getPathComputationClient().getReportedLsp()) {
-			lsps.add(InstanceIdentifier.builder(id).augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsp.class,
+			lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class).child(ReportedLsp.class,
 					l.getKey()).toInstance());
 		}
 	}
@@ -115,7 +115,7 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
-		return InstanceIdentifier.builder(this.target).child(Link.class, new LinkKey(linkId)).toInstance();
+		return this.target.child(Link.class, new LinkKey(linkId));
 	}
 
 	private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
@@ -162,11 +162,11 @@ public final class NodeChangedListener implements DataChangeListener {
 										final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
 
 										trans.putOperationalData(
-												InstanceIdentifier.builder(this.target).child(Node.class, n.getKey()).child(
+												this.target.builder().child(Node.class, n.getKey()).child(
 														SupportingNode.class, sn.getKey()).toInstance(), sn);
 									}
 								}
-								return InstanceIdentifier.builder(this.target).child(Node.class, n.getKey()).child(TerminationPoint.class,
+								return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class,
 										tp.getKey()).toInstance();
 							}
 						}
@@ -197,8 +197,9 @@ public final class NodeChangedListener implements DataChangeListener {
 			nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(), inControl)));
 		}
 
-		trans.putOperationalData(InstanceIdentifier.builder(this.target).child(Node.class, nb.getKey()).toInstance(), nb.build());
-		return InstanceIdentifier.builder(this.target).child(Node.class, nb.getKey()).child(TerminationPoint.class, tpb.getKey()).toInstance();
+		final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.getKey());
+		trans.putOperationalData(nid, nb.build());
+		return nid.child(TerminationPoint.class, tpb.getKey());
 	}
 
 	private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
@@ -250,11 +251,11 @@ public final class NodeChangedListener implements DataChangeListener {
 	}
 
 	private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
-		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).toInstance();
+		return this.target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class, new TerminationPointKey(tp)).toInstance();
 	}
 
 	private InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
-		return InstanceIdentifier.builder(this.target).child(Node.class, new NodeKey(node)).toInstance();
+		return this.target.child(Node.class, new NodeKey(node));
 	}
 
 	private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
@@ -266,7 +267,7 @@ public final class NodeChangedListener implements DataChangeListener {
 			trans.removeOperationalData(li);
 
 			LOG.debug("Searching for orphan links/nodes");
-			final Topology t = (Topology) trans.readOperationalData(InstanceIdentifier.builder(this.target).toInstance());
+			final Topology t = (Topology) trans.readOperationalData(this.target);
 
 			NodeId srcNode = l.getSource().getSourceNode();
 			NodeId dstNode = l.getDestination().getDestNode();
@@ -410,6 +411,6 @@ public final class NodeChangedListener implements DataChangeListener {
 
 	public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology, final NodeId node,
 			final String name) {
-		return InstanceIdentifier.builder(topology).child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name))).toInstance();
+		return topology.child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name)));
 	}
 }

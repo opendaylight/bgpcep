@@ -59,7 +59,7 @@ import com.google.common.base.Preconditions;
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
 	private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-			RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+	RIBEntryData<CLinkstateDestination, LinkstateRoute> {
 		private final A lsattr;
 
 		protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -100,7 +100,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
 	@Override
 	public InstanceIdentifier<LinkstateRoute> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
-		return InstanceIdentifier.builder(basePath).child(LinkstateRoutes.class).child(LinkstateRoute.class,
+		return basePath.builder().child(LinkstateRoutes.class).child(LinkstateRoute.class,
 				new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
 	}
 

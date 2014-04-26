@@ -160,14 +160,14 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
 		/**
 		 * Synchronized in-core state of a node into the backing store using the transaction
-		 * 
+		 *
 		 * @param trans data modification transaction which to use
 		 * @return True if the node has been purged, false otherwise.
 		 */
 		private boolean syncState(final DataModification<InstanceIdentifier<?>, DataObject> trans) {
-			final InstanceIdentifier<Node> nid = InstanceIdentifier.builder(getInstanceIdentifier()).child(
+			final InstanceIdentifier<Node> nid = getInstanceIdentifier().child(
 					org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
-					this.nb.getKey()).build();
+					this.nb.getKey());
 
 			/*
 			 * Transaction's putOperationalData() does a merge. Force it onto a replace
@@ -351,9 +351,9 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private InstanceIdentifier<?> buildLinkIdentifier(final UriBuilder base, final LinkId id) {
-		return InstanceIdentifier.builder(getInstanceIdentifier()).child(
+		return getInstanceIdentifier().child(
 				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link.class,
-				new LinkKey(id)).toInstance();
+				new LinkKey(id));
 	}
 
 	private static Float bandwidthToFloat(final Bandwidth bandwidth) {
