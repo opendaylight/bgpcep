@@ -11,6 +11,7 @@ module config-pcep-topology-provider {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import pcep { prefix pcep; revision-date 2013-04-09; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
+    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
 
     organization "Cisco Systems, Inc.";
 
@@ -142,6 +143,11 @@ module config-pcep-topology-provider {
             leaf listen-port {
                 type inet:port-number;
                 default 4189;
+            }
+
+            leaf password {
+                type tcpmd5:rfc2385-key;
+                description "RFC2385 shared secret";
             }
         }
     }

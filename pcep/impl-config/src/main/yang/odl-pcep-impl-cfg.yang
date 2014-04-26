@@ -8,6 +8,7 @@ module odl-pcep-impl-cfg {
     import pcep { prefix pcep; revision-date 2013-04-09; }
     import config-pcep-spi { prefix spi; revision-date 2013-11-15; }
     import netty { prefix netty; revision-date 2013-11-19; }
+    import odl-tcpmd5-netty-cfg { prefix tcpmd5; revision-date 2014-04-27; }
 
     organization "Cisco Systems, Inc.";
 
@@ -49,7 +50,7 @@ module odl-pcep-impl-cfg {
     identity pcep-parser-ietf-stateful07 {
         base config:module-type;
         config:provided-service spi:extension;
-       config:java-name-prefix IetfStateful07PCEPParser;
+        config:java-name-prefix IetfStateful07PCEPParser;
     }
 
     augment "/config:modules/config:module/config:configuration" {
@@ -58,8 +59,8 @@ module odl-pcep-impl-cfg {
         }
     }
 
-	identity pcep-parser-ietf-initiated00 {
-		base config:module-type;
+    identity pcep-parser-ietf-initiated00 {
+        base config:module-type;
         config:provided-service spi:extension;
         config:java-name-prefix IetfInitiated00PCEPParser;
     }
@@ -67,7 +68,7 @@ module odl-pcep-impl-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case pcep-parser-ietf-initiated00 {
             when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
-	    }
+        }
     }
 
     identity pcep-parser-ietf-stateful02 {
@@ -82,8 +83,8 @@ module odl-pcep-impl-cfg {
         }
     }
 
-	identity pcep-parser-crabbe-initiated00 {
-		base config:module-type;
+    identity pcep-parser-crabbe-initiated00 {
+        base config:module-type;
         config:provided-service spi:extension;
         config:java-name-prefix CrabbeInitiated00PCEPParser;
     }
@@ -150,6 +151,24 @@ module odl-pcep-impl-cfg {
                     refine type {
                         mandatory true;
                         config:required-identity netty:netty-timer;
+                    }
+                }
+            }
+
+            container md5-channel-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity tcpmd5:md5-channel-factory;
+                    }
+                }
+            }
+
+            container md5-server-channel-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity tcpmd5:md5-server-channel-factory;
                     }
                 }
             }
