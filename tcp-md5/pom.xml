@@ -40,7 +40,17 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-api-cfg</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>tcpmd5-jni</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>tcpmd5-jni-cfg</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -70,8 +80,11 @@
             </activation>
             <modules>
                 <module>api</module>
+                <module>api-cfg</module>
                 <module>jni</module>
+                <module>jni-cfg</module>
                 <module>netty</module>
+                <module>netty-cfg</module>
                 <module>nio</module>
             </modules>
         </profile>
@@ -82,7 +95,10 @@
             </activation>
             <modules>
                 <module>api</module>
+                <module>api-cfg</module>
+                <module>jni-cfg</module>
                 <module>netty</module>
+                <module>netty-cfg</module>
                 <module>nio</module>
             </modules>
         </profile>
