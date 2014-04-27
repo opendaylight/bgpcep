@@ -7,13 +7,11 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.netty;
 
-import io.netty.bootstrap.ChannelFactory;
-
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 
 import com.google.common.base.Preconditions;
 
-public final class MD5NioSocketChannelFactory implements ChannelFactory<MD5NioSocketChannel> {
+public class MD5NioSocketChannelFactory implements MD5ChannelFactory<MD5NioSocketChannel> {
 	private final KeyAccessFactory keyAccessFactory;
 
 	public MD5NioSocketChannelFactory(final KeyAccessFactory keyAccessFactory) {
