@@ -1,0 +1,97 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-tcpmd5-netty-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg";
+    prefix "md5-netty";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import netty { prefix netty; revision-date 2013-11-19; }
+    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         TCP MD5 Signature option.
+
+        Copyright (c)2014 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2014-04-27" {
+        description
+            "Initial revision";
+    }
+
+    identity md5-channel-factory {
+        description
+            "Service representing a way for instantiating channels.";
+
+        //base "netty:channel-factory";
+        base "config:service-type";
+        config:java-class "org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelFactory";
+    }
+
+    identity md5-server-channel-factory {
+        description
+            "Service representing a way for instantiating channels.";
+
+        //base "netty:channel-factory";
+        base "config:service-type";
+        config:java-class "org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory";
+    }
+
+    identity md5-server-channel-factory-impl {
+        description
+            "Service representing a way for accessing key informtion.";
+
+        base config:module-type;
+        config:provided-service md5-server-channel-factory;
+        config:java-name-prefix MD5ServerChannelFactory;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case md5-server-channel-factory-impl {
+            when "/config:modules/config:module/config:type = 'md5-server-channel-factory-impl'";
+
+            container server-key-access-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tcpmd5:key-access-factory;
+                    }
+                }
+            }
+        }
+    }
+
+    identity md5-client-channel-factory {
+        description
+            "Service representing a way for accessing key informtion.";
+
+        base config:module-type;
+        config:provided-service md5-channel-factory;
+        config:java-name-prefix MD5ClientChannelFactory;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case md5-channel-factory {
+            when "/config:modules/config:module/config:type = 'md5-client-channel-factory'";
+
+            container key-access-factory {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity tcpmd5:key-access-factory;
+                    }
+                }
+            }
+        }
+    }
+}
+
