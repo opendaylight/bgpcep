@@ -49,6 +49,9 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
 		final ObjectParser parser = this.handlers.getParser(createKey(objectClass, objectType));
 
 		if (parser == null) {
+		    if(!header.isProcessingRule()) {
+		        return null;
+		    }
 
 			final boolean foundClass = false;
 
