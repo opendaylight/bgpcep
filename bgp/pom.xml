@@ -53,7 +53,6 @@
         <module>topology-provider</module>
         <module>topology-provider-config</module>
         <module>util</module>
-        <module>update-api-config</module>
 
         <module>controller-config</module>
     </modules>
@@ -153,11 +152,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>bgp-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-update-api-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

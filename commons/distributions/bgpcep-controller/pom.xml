@@ -1128,11 +1128,6 @@
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>bgp-update-api-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>bgp-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1805,10 +1800,6 @@
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-topology-provider-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.bgpcep</groupId>
-            <artifactId>bgp-update-api-config</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
