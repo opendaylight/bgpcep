@@ -178,7 +178,7 @@ public class ParserToSalTest {
 	private void runTestWithTables(final List<BgpTableType> tables) {
 		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext,
 				this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
-		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib.getLocalAs(), rib);
+		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, null, rib.getLocalAs(), rib);
 
 		ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
 		reg.close();
