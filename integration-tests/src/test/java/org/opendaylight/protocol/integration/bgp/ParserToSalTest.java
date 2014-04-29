@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
@@ -159,7 +160,7 @@ public class ParserToSalTest {
 
 		Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).
 		createReconnectingClient(Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class), Mockito.any(AsNumber.class),
-				Mockito.any(BGPSessionListener.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy));
+				Mockito.any(BGPSessionListener.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy), Mockito.any(KeyMapping.class));
 
 		this.ext = new SimpleRIBExtensionProviderContext();
 		this.baseact = new RIBActivator();
@@ -178,7 +179,7 @@ public class ParserToSalTest {
 	private void runTestWithTables(final List<BgpTableType> tables) {
 		final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext,
 				this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
-		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, rib.getLocalAs(), rib);
+		final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, null, rib.getLocalAs(), rib);
 
 		ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
 		reg.close();

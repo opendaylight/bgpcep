@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
@@ -31,6 +32,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
@@ -51,11 +53,20 @@ public final class BGPPeer implements BGPSessionListener, Peer, AutoCloseable {
 	private Future<Void> cf;
 	private BGPSession session;
 
-	public BGPPeer(final String name, final InetSocketAddress address, final BGPSessionPreferences prefs,
+	public BGPPeer(final String name, final InetSocketAddress address, final String password, final BGPSessionPreferences prefs,
 			final AsNumber remoteAs, final RIB rib) {
 		this.rib = Preconditions.checkNotNull(rib);
 		this.name = Preconditions.checkNotNull(name);
-		this.cf = rib.getDispatcher().createReconnectingClient(address, prefs, remoteAs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategyFactory());
+
+		final KeyMapping keys;
+		if (password != null) {
+			keys = new KeyMapping();
+			keys.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
+		} else {
+			keys = null;
+		}
+
+		this.cf = rib.getDispatcher().createReconnectingClient(address, prefs, remoteAs, this, rib.getTcpStrategyFactory(), rib.getSessionStrategyFactory(), keys);
 	}
 
 	@Override

@@ -16,8 +16,16 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
+
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -61,6 +69,29 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 				"value is not set.", hostJmxAttribute);
 		JmxAttributeValidationException.checkNotNull(getPort(),
 				"value is not set.", portJmxAttribute);
+
+		if (getPassword() != null) {
+			/*
+			 *  This is a nasty hack, but we don't have another clean solution. We cannot allow
+			 *  password being set if the injected dispatcher does not have the optional
+			 *  md5-server-channel-factory set.
+			 *
+			 *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
+			 *         should something like isMd5ServerSupported()
+			 */
+			final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
+			try {
+				// FIXME: AbstractRIBImplModule.bgpDispatcherJmxAttribute.getAttributeName()
+				final ObjectName disp = (ObjectName) srv.getAttribute(getRib(), "BgpDispatcher");
+
+				// FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
+				final Object cf = srv.getAttribute(disp, "Md5ChannelFactory");
+				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", this.passwordJmxAttribute);
+			} catch (AttributeNotFoundException | InstanceNotFoundException
+					| MBeanException | ReflectionException e) {
+				JmxAttributeValidationException.wrap(e, passwordJmxAttribute);
+			}
+		}
 	}
 
 	private InetSocketAddress createAddress() {
@@ -111,7 +142,14 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 			remoteAs = r.getLocalAs();
 		}
 
-		return new BGPPeer(peerName(getHost()), createAddress(),
+		final String password;
+		if (getPassword() != null) {
+			password = getPassword().getValue();
+		} else {
+			password = null;
+		}
+
+		return new BGPPeer(peerName(getHost()), createAddress(), password,
 				new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
 	}
 }
