@@ -42,6 +42,10 @@ public final class MD5ServerSocketChannel extends ServerSocketChannel {
 		return new MD5ServerSocketChannel(ServerSocketChannel.open());
 	}
 
+	public static MD5ServerSocketChannel open(final KeyAccessFactory keyAccessFactory) throws IOException {
+		return new MD5ServerSocketChannel(ServerSocketChannel.open(), keyAccessFactory);
+	}
+
 	@Override
 	public SocketAddress getLocalAddress() throws IOException {
 		return inner.getLocalAddress();
