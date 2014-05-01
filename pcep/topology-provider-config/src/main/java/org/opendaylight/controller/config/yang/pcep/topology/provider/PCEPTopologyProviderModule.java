@@ -25,6 +25,7 @@ import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
@@ -77,12 +78,14 @@ org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopol
 			final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
 			Object scf;
 			try {
+				final ObjectName ci = (ObjectName) srv.getAttribute(getDispatcher(), "CurrentImplementation");
+
 				// FIXME: AbstractPCEPDispatcherImplModule.md5ServerChannelFactoryJmxAttribute.getAttributeName()
-				scf = srv.getAttribute(getDispatcher(), "Md5ServerChannelFactory");
+				scf = srv.getAttribute(ci, "Md5ServerChannelFactory");
 				JmxAttributeValidationException.checkCondition(scf != null, "Underlying dispatcher does not support MD5 server", this.passwordJmxAttribute);
 			} catch (AttributeNotFoundException | InstanceNotFoundException
 					| MBeanException | ReflectionException e) {
-				JmxAttributeValidationException.wrap(e, passwordJmxAttribute);
+				JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);
 			}
 		}
 	}
