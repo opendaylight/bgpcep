@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi: set et smarttab sw=4 tabstop=4: -->
+<!--
+Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+<snapshot>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:cfg?module=odl-tcpmd5-cfg&amp;revision=2014-04-27</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:jni:cfg?module=odl-tcpmd5-jni-cfg&amp;revision=2014-04-27</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg?module=odl-tcpmd5-netty-cfg&amp;revision=2014-04-27</capability>
+    </required-capabilities>
+
+    <configuration>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <!--
+                Uncomment this block to enable TCP MD5 Signature support
+
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:jni:cfg">prefix:native-key-access-factory</type>
+                    <name>global-key-access-factory</name>
+                </module>
+
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-client-channel-factory</type>
+                    <name>md5-client-channel-factory</name>
+
+                    <key-access-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:cfg">prefix:key-access-factory</type>
+                        <name>global-key-access-factory</name>
+                    </key-access-factory>
+                </module>
+
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-server-channel-factory-impl</type>
+                    <name>md5-server-channel-factory</name>
+
+                    <server-key-access-factory>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:cfg">prefix:key-access-factory</type>
+                        <name>global-key-access-factory</name>
+                    </server-key-access-factory>
+                </module>
+            </modules>
+
+            <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:cfg">prefix:key-access-factory</type>
+                    <instance>
+                        <name>global-key-access-factory</name>
+                        <provider>/modules/module[type='native-key-access-factory'][name='global-key-access-factory']</provider>
+                    </instance>
+                </service>
+
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-channel-factory</type>
+                    <instance>
+                        <name>md5-client-channel-factory</name>
+                        <provider>/modules/module[type='md5-client-channel-factory'][name='md5-client-channel-factory']</provider>
+                    </instance>
+                </service>
+
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:tcpmd5:netty:cfg">prefix:md5-server-channel-factory</type>
+                    <instance>
+                        <name>md5-server-channel-factory</name>
+                        <provider>/modules/module[type='md5-server-channel-factory-impl'][name='md5-server-channel-factory']</provider>
+                    </instance>
+                </service>
+            </services>
+            -->
+        </data>
+    </configuration>
+</snapshot>
