@@ -182,4 +182,16 @@ final class ProxyMD5SocketChannelConfig extends AbstractMD5ChannelConfig<SocketC
 		config.setMessageSizeEstimator(estimator);
 		return this;
 	}
+
+	@Override
+	public SocketChannelConfig setAutoClose(final boolean autoClose) {
+		config.setAutoClose(autoClose);
+		return this;
+	}
+
+	@Override
+	@Deprecated
+	public boolean isAutoClose() {
+		return config.isAutoClose();
+	}
 }

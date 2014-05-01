@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.util.ArrayList;
@@ -126,6 +127,7 @@ public abstract class AbstractBundleTest {
 		}
 
 		options.addAll(Arrays.asList(junitBundles()));
+		options.add(systemPackages("sun.nio.ch"));
 		return options.toArray(new Option[0]);
 	}
 

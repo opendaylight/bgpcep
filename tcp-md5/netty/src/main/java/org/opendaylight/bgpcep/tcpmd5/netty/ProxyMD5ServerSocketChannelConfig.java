@@ -127,4 +127,17 @@ final class ProxyMD5ServerSocketChannelConfig extends AbstractMD5ChannelConfig<S
 		config.setWriteBufferLowWaterMark(writeBufferLowWaterMark);
 		return this;
 	}
+
+	@Override
+	@Deprecated
+	public ServerSocketChannelConfig setAutoClose(final boolean autoClose) {
+		config.setAutoClose(autoClose);
+		return this;
+	}
+
+	@Override
+	@Deprecated
+	public boolean isAutoClose() {
+		return config.isAutoClose();
+	}
 }
