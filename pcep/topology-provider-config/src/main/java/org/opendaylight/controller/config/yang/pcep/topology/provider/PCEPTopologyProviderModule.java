@@ -25,6 +25,7 @@ import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
@@ -59,13 +60,43 @@ org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopol
 		super(identifier, dependencyResolver, oldModule, oldInstance);
 	}
 
+	private KeyMapping contructKeys() {
+		final KeyMapping ret =new KeyMapping();
+		if (getClient() != null) {
+			for (Client c : getClient()) {
+				if (c.getAddress() == null) {
+					LOG.warn("Client {} does not have an address skipping it", c);
+					continue;
+				}
+				if (c.getPassword() != null) {
+					final String s = getAddressString(c.getAddress());
+					ret.put(InetAddresses.forString(s), c.getPassword().getValue().getBytes(Charsets.US_ASCII));
+				}
+			}
+		}
+		return ret;
+	}
+
+	private String getAddressString(final IpAddress address) {
+		if (address.getIpv4Address() != null) {
+			return address.getIpv4Address().getValue();
+		}
+		if (address.getIpv6Address() != null) {
+			return address.getIpv6Address().getValue();
+		}
+
+		throw new IllegalArgumentException(String.format("Address %s is invalid", address));
+	}
+
 	@Override
 	public void customValidation() {
-		JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", this.topologyIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getListenAddress(), "is not set.", this.listenAddressJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getListenPort(), "is not set.", this.listenPortJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), "is not set.", this.statefulPluginJmxAttribute);
-		if (getPassword() != null) {
+		JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", topologyIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenAddress(), "is not set.", listenAddressJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getListenPort(), "is not set.", listenPortJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), "is not set.", statefulPluginJmxAttribute);
+
+		final KeyMapping keys = contructKeys();
+		if (!keys.isEmpty()) {
 			/*
 			 *  This is a nasty hack, but we don't have another clean solution. We cannot allow
 			 *  password being set if the injected dispatcher does not have the optional
@@ -77,12 +108,14 @@ org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopol
 			final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
 			Object scf;
 			try {
+				final ObjectName ci = (ObjectName) srv.getAttribute(getDispatcher(), "CurrentImplementation");
+
 				// FIXME: AbstractPCEPDispatcherImplModule.md5ServerChannelFactoryJmxAttribute.getAttributeName()
-				scf = srv.getAttribute(getDispatcher(), "Md5ServerChannelFactory");
-				JmxAttributeValidationException.checkCondition(scf != null, "Underlying dispatcher does not support MD5 server", this.passwordJmxAttribute);
+				scf = srv.getAttribute(ci, "Md5ServerChannelFactory");
+				JmxAttributeValidationException.checkCondition(scf != null, "password is not compatible with selected dispatcher", clientJmxAttribute);
 			} catch (AttributeNotFoundException | InstanceNotFoundException
 					| MBeanException | ReflectionException e) {
-				JmxAttributeValidationException.wrap(e, passwordJmxAttribute);
+				JmxAttributeValidationException.wrap(e, "password support could not be validated", clientJmxAttribute);
 			}
 		}
 	}
@@ -103,18 +136,12 @@ org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopol
 		final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
 				new TopologyKey(getTopologyId())).toInstance();
 		final InetSocketAddress address = new InetSocketAddress(listenAddress(), getListenPort().getValue());
-
-		final KeyMapping keys;
-		if (getPassword() != null) {
-			keys = new KeyMapping();
-			keys.put(InetAddresses.forString("0.0.0.0"), getPassword().getValue().getBytes(Charsets.UTF_8));
-		} else {
-			keys = null;
-		}
+		final KeyMapping keys = contructKeys();
 
 		try {
-			return PCEPTopologyProvider.create(getDispatcherDependency(), address, keys, getSchedulerDependency(), getDataProviderDependency(),
-					getRpcRegistryDependency(), topology, getStatefulPluginDependency());
+			return PCEPTopologyProvider.create(getDispatcherDependency(), address,
+					keys.isEmpty() ? null : keys, getSchedulerDependency(), getDataProviderDependency(),
+							getRpcRegistryDependency(), topology, getStatefulPluginDependency());
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
 			throw new RuntimeException("Failed to instantiate provider", e);

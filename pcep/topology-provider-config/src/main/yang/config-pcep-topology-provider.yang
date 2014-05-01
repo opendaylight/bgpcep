@@ -145,9 +145,16 @@ module config-pcep-topology-provider {
                 default 4189;
             }
 
-            leaf password {
-                type tcpmd5:rfc2385-key;
-                description "RFC2385 shared secret";
+            list client {
+                leaf address {
+                    type inet:ip-address;
+                }
+                key "address";
+
+                leaf password {
+                    type tcpmd5:rfc2385-key;
+                    description "RFC2385 shared secret";
+                }
             }
         }
     }

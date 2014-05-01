@@ -80,7 +80,7 @@ module odl-tcpmd5-netty-cfg {
     }
 
     augment "/config:modules/config:module/config:configuration" {
-        case md5-channel-factory {
+        case md5-client-channel-factory {
             when "/config:modules/config:module/config:type = 'md5-client-channel-factory'";
 
             container key-access-factory {
