@@ -7,7 +7,8 @@
  */
 package org.opendaylight.controller.config.yang.tcpmd5.netty.cfg;
 
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5NioSocketChannel;
+import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
+import org.opendaylight.bgpcep.tcpmd5.netty.MD5NioSocketChannelFactory;
 
 /**
  * Service representing a way for accessing key informtion.
@@ -28,12 +29,18 @@ public class MD5ClientChannelFactoryModule extends org.opendaylight.controller.c
 
 	@Override
 	public java.lang.AutoCloseable createInstance() {
-		return new AbstractChannelFactory<MD5NioSocketChannel>() {
+		final class AutoCloseableMD5NioSocketChannelFactory extends MD5NioSocketChannelFactory implements AutoCloseable {
+			public AutoCloseableMD5NioSocketChannelFactory(final KeyAccessFactory keyAccessFactory) {
+				super(keyAccessFactory);
+			}
+
 			@Override
-			public MD5NioSocketChannel newChannel() {
-				return new MD5NioSocketChannel(getKeyAccessFactoryDependency());
+			public void close() {
+				// Noop
 			}
 		};
+
+		return new AutoCloseableMD5NioSocketChannelFactory(getKeyAccessFactoryDependency());
 	}
 
 }
