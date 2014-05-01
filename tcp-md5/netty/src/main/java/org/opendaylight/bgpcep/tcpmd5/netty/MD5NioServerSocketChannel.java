@@ -7,29 +7,50 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.netty;
 
+import io.netty.channel.ChannelException;
+import io.netty.channel.ChannelMetadata;
+import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.nio.AbstractNioMessageChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.List;
+
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
-import org.opendaylight.bgpcep.tcpmd5.nio.MD5ServerSocketChannel;
+
+import com.google.common.base.Preconditions;
 
 /**
  * {@link NioServerSocketChannel} enabled with support for TCP MD5 Signature
  * option.
  */
-public class MD5NioServerSocketChannel extends NioServerSocketChannel {
-	private final MD5ServerSocketChannelConfig config;
-	private final MD5ServerSocketChannel channel;
+public class MD5NioServerSocketChannel extends AbstractNioMessageChannel implements io.netty.channel.socket.ServerSocketChannel {
+	private static final ChannelMetadata METADATA = new ChannelMetadata(false);
 
-	public MD5NioServerSocketChannel() {
-		super();
-		this.channel = new MD5ServerSocketChannel(super.javaChannel());
-		this.config = new ProxyMD5ServerSocketChannelConfig(super.config(), channel);
+	private final MD5ServerSocketChannelConfig config;
+	private final KeyAccessFactory keyAccessFactory;
+
+	private static ServerSocketChannel newChannel() {
+		try {
+			return ServerSocketChannel.open();
+		} catch (IOException e) {
+			throw new ChannelException("Failed to instantiate channel", e);
+		}
+	}
+
+	private MD5NioServerSocketChannel(final ServerSocketChannel channel, final KeyAccessFactory keyAccessFactory) {
+		super(null, channel, SelectionKey.OP_ACCEPT);
+		this.config = new DefaultMD5ServerSocketChannelConfig(this, keyAccessFactory);
+		this.keyAccessFactory = Preconditions.checkNotNull(keyAccessFactory);
 	}
 
 	public MD5NioServerSocketChannel(final KeyAccessFactory keyAccessFactory) {
-		super();
-		this.channel = new MD5ServerSocketChannel(super.javaChannel(), keyAccessFactory);
-		this.config = new ProxyMD5ServerSocketChannelConfig(super.config(), channel);
+		this(newChannel(), keyAccessFactory);
 	}
 
 	@Override
@@ -38,7 +59,81 @@ public class MD5NioServerSocketChannel extends NioServerSocketChannel {
 	}
 
 	@Override
-	protected MD5ServerSocketChannel javaChannel() {
-		return this.channel;
+	public InetSocketAddress localAddress() {
+		return (InetSocketAddress) super.localAddress();
+	}
+
+	@Override
+	public ChannelMetadata metadata() {
+		return METADATA;
+	}
+
+	@Override
+	public boolean isActive() {
+		return javaChannel().socket().isBound();
+	}
+
+	@Override
+	public InetSocketAddress remoteAddress() {
+		return null;
+	}
+
+	@Override
+	protected ServerSocketChannel javaChannel() {
+		return (ServerSocketChannel) super.javaChannel();
+	}
+
+	@Override
+	protected SocketAddress localAddress0() {
+		return javaChannel().socket().getLocalSocketAddress();
+	}
+
+	@Override
+	protected void doBind(final SocketAddress localAddress) throws Exception {
+		javaChannel().socket().bind(localAddress, config.getBacklog());
+	}
+
+	@Override
+	protected void doClose() throws Exception {
+		javaChannel().close();
+	}
+
+	@Override
+	protected int doReadMessages(final List<Object> buf) throws Exception {
+		final SocketChannel jc = javaChannel().accept();
+		if (jc == null) {
+			return 0;
+		}
+
+		final MD5NioSocketChannel ch = new MD5NioSocketChannel(this, jc, keyAccessFactory);
+		buf.add(ch);
+		return 1;
+	}
+
+	@Override
+	protected boolean doWriteMessage(final Object msg, final ChannelOutboundBuffer in)
+			throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected boolean doConnect(final SocketAddress remoteAddress,
+			final SocketAddress localAddress) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected void doFinishConnect() throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected SocketAddress remoteAddress0() {
+		return null;
+	}
+
+	@Override
+	protected void doDisconnect() throws Exception {
+		throw new UnsupportedOperationException();
 	}
 }

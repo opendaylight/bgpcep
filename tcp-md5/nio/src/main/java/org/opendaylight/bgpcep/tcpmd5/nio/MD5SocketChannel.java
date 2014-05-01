@@ -38,6 +38,10 @@ public final class MD5SocketChannel extends SocketChannel {
 		return new MD5SocketChannel(SocketChannel.open());
 	}
 
+	public static MD5SocketChannel open(final KeyAccessFactory keyAccessFactory) throws IOException {
+		return new MD5SocketChannel(SocketChannel.open(), keyAccessFactory);
+	}
+
 	@Override
 	public SocketAddress getLocalAddress() throws IOException {
 		return inner.getLocalAddress();

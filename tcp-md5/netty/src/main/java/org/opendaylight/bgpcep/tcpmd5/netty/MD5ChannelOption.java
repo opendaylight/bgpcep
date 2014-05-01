@@ -20,6 +20,7 @@ public final class MD5ChannelOption extends ChannelOption<KeyMapping> {
 	 */
 	public static final MD5ChannelOption TCP_MD5SIG = new MD5ChannelOption("TCP_MD5SIG");
 
+	@SuppressWarnings("deprecation")
 	private MD5ChannelOption(final String name) {
 		super(name);
 	}

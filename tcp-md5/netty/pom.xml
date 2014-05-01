@@ -30,10 +30,6 @@
 			<groupId>${project.groupId}</groupId>
             <artifactId>tcpmd5-api</artifactId>
         </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-nio</artifactId>
-        </dependency>
         <dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-transport</artifactId>
