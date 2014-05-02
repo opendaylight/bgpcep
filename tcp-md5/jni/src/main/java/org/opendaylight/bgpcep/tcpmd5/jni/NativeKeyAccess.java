@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.tcpmd5.jni;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.channels.Channel;
+import java.util.Arrays;
 import java.util.Map.Entry;
 
 import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
@@ -54,8 +55,11 @@ final class NativeKeyAccess implements KeyAccess {
 			}
 
 			for (Entry<InetAddress, byte[]> e : keys.entrySet()) {
-				LOG.debug("Channel {} adding key for address {}", channel, e.getKey());
-				setChannelKey0(channel, e.getKey().getAddress(), e.getValue());
+				final byte[] currentValue = currentKeys.get(e.getKey());
+				if (!Arrays.equals(currentValue, e.getValue())) {
+					LOG.debug("Channel {} adding key for address {}", channel, e.getKey());
+					setChannelKey0(channel, e.getKey().getAddress(), e.getValue());
+				}
 			}
 
 			this.currentKeys = new KeyMapping(keys);
