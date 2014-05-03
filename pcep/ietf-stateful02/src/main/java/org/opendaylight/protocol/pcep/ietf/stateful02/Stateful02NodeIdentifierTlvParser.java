@@ -26,7 +26,7 @@ public final class Stateful02NodeIdentifierTlvParser implements TlvParser, TlvSe
 
 	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
-		return TlvUtil.formatTlv(TYPE, ((NodeIdentifier) tlv).getValue());
+		return TlvUtil.formatTlv(TYPE, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier) tlv).getNodeId().getValue());
 	}
 
 	@Override

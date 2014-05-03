@@ -29,11 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 
 import com.google.common.collect.Lists;
 
@@ -70,13 +70,13 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
 				if (p.getBandwidth() != null) {
 					buffer.writeBytes(serializeObject(p.getBandwidth()));
 				}
-				if (p.getRro() != null) {
-					buffer.writeBytes(serializeObject(p.getRro()));
-				}
 				if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
 					for (final Metrics m : p.getMetrics()) {
 						buffer.writeBytes(serializeObject(m.getMetric()));
 					}
+				}
+				if (p.getIro() != null) {
+					buffer.writeBytes(serializeObject(p.getRro()));
 				}
 			}
 		}
@@ -146,19 +146,19 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
 					break;
 				}
 			case BandwidthIn:
-				state = State.RroIn;
-				if (obj instanceof Rro) {
-					builder.setRro((Rro) obj);
-					break;
-				}
-			case RroIn:
 				state = State.MetricIn;
 				if (obj instanceof Metric) {
 					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.RroIn;
+					state = State.BandwidthIn;
 					break;
 				}
 			case MetricIn:
+				state = State.IroIn;
+				if (obj instanceof Iro) {
+					builder.setIro((Iro) obj);
+					break;
+				}
+			case IroIn:
 				state = State.End;
 				break;
 			case End:
@@ -174,7 +174,7 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
 	}
 
 	private enum State {
-		Init, EroIn, LspaIn, BandwidthIn, RroIn, MetricIn, End
+		Init, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, End
 	}
 
 	@Override

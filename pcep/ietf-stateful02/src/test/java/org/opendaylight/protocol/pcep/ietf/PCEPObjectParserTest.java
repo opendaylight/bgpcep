@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.crabbe.initiated00.PCEPOpenObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspaObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -26,8 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.lsp.cleanup.tlv.LspCleanupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
@@ -114,25 +117,22 @@ public class PCEPObjectParserTest {
 
 	@Test
 	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
-		// final PCEPLspObjectParser parser = new PCEPLspObjectParser(this.tlvRegistry);
-		// final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
-		//
-		// final LspBuilder builder = new LspBuilder();
-		// builder.setProcessingRule(true);
-		// builder.setIgnore(true);
-		// builder.setDelegate(false);
-		// builder.setRemove(true);
-		// builder.setSync(false);
-		//
-		// final LspErrorCode tlv1 = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
-		// final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
-		// new
-		// org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName("Med".getBytes())).build();
-		// builder.setTlvs(new
-		// org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspErrorCode(
-		// tlv1).setSymbolicPathName(tlv2).build());
-		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
-		// 4)));
-		// assertArrayEquals(result, parser.serializeObject(builder.build()));
+		final Stateful02LspObjectParser parser = new Stateful02LspObjectParser(this.tlvRegistry);
+		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
+
+		final LspBuilder builder = new LspBuilder();
+		builder.setProcessingRule(true);
+		builder.setIgnore(true);
+		builder.setDelegate(false);
+		builder.setSync(false);
+		builder.setOperational(true);
+		builder.setRemove(true);
+		builder.setPlspId(new PlspId(0x12345L));
+
+		final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName("Med".getBytes())).build();
+		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(tlv2).build());
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
+		assertArrayEquals(result, parser.serializeObject(builder.build()));
 	}
 }
