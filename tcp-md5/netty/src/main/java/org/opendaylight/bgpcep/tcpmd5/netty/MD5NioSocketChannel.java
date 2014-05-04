@@ -15,7 +15,6 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoop;
 import io.netty.channel.FileRegion;
 import io.netty.channel.nio.AbstractNioByteChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,8 +27,8 @@ import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 import com.google.common.base.Preconditions;
 
 /**
- * {@link NioSocketChannel} enabled with support for TCP MD5 Signature
- * option.
+ * {@link io.netty.channel.socket.nio.NioSocketChannel} enabled with support
+ * for TCP MD5 Signature option.
  */
 public class MD5NioSocketChannel extends AbstractNioByteChannel implements io.netty.channel.socket.SocketChannel {
 	private static final ChannelMetadata METADATA = new ChannelMetadata(false);
