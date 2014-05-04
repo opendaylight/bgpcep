@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.impl.tlv;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.util.ByteArray;
 
-public class TlvUtil {
+public final class TlvUtil {
 
 	private static final int TLV_TYPE_F_LENGTH = 2;
 	private static final int TLV_LENGTH_F_LENGTH = 2;
@@ -19,6 +19,7 @@ public class TlvUtil {
 	protected static final int PADDED_TO = 4;
 
 	private TlvUtil() {
+		throw new UnsupportedOperationException("Utility class should not be instantiated");
 	}
 
 	public static byte[] formatTlv(final int type, final byte[] valueBytes) {

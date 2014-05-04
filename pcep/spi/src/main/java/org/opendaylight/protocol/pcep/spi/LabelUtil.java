@@ -13,7 +13,7 @@ import org.opendaylight.protocol.util.ByteArray;
 
 import com.google.common.primitives.UnsignedBytes;
 
-public class LabelUtil {
+public final class LabelUtil {
 
 	private static final int RES_F_LENGTH = 1;
 
@@ -30,7 +30,7 @@ public class LabelUtil {
 	private static final int G_FLAG_OFFSET = 7;
 
 	private LabelUtil() {
-
+		throw new UnsupportedOperationException("Utility class should not be instantiated");
 	}
 
 	public static byte[] formatLabel(final int type, final boolean unidirectional, final boolean global, final byte[] labelbytes) {

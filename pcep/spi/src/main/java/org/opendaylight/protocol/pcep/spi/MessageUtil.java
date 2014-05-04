@@ -12,14 +12,15 @@ import io.netty.buffer.ByteBuf;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
-public class MessageUtil {
+public final class MessageUtil {
 
 	private static final int VERSION_SF_LENGTH = 3;
 
 	private MessageUtil() {
+		throw new UnsupportedOperationException("Utility class should not be instantiated");
 	}
 
-	public static void formatMessage(final int messageType, final ByteBuf body, ByteBuf out) {
+	public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {
 		final int msgLength = body.readableBytes();
 		final byte[] header = new byte[] {
 				UnsignedBytes.checkedCast(PCEPMessageConstants.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH)),
