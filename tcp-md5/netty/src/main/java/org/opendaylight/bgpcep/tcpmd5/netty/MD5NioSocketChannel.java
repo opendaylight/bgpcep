@@ -127,9 +127,7 @@ public class MD5NioSocketChannel extends AbstractNioByteChannel implements io.ne
 
 	@Override
 	protected long doWriteFileRegion(final FileRegion region) throws IOException {
-		final long position = region.transfered();
-		final long writtenBytes = region.transferTo(javaChannel(), position);
-		return writtenBytes;
+		return region.transferTo(javaChannel(), region.transfered());
 	}
 
 	@Override
@@ -139,9 +137,7 @@ public class MD5NioSocketChannel extends AbstractNioByteChannel implements io.ne
 
 	@Override
 	protected int doWriteBytes(final ByteBuf buf) throws IOException {
-		final int expectedWrittenBytes = buf.readableBytes();
-		final int writtenBytes = buf.readBytes(javaChannel(), expectedWrittenBytes);
-		return writtenBytes;
+		return buf.readBytes(javaChannel(), buf.readableBytes());
 	}
 
 	@Override
