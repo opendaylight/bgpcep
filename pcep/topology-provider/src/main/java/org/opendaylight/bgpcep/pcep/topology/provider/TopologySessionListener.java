@@ -11,5 +11,5 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 
 interface TopologySessionListener extends AutoCloseable, PCEPSessionListener, TopologySessionRPCs {
 	@Override
-	public void close();
+	void close();
 }
