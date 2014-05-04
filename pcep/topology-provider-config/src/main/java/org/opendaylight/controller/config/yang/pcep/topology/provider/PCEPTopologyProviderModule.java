@@ -144,7 +144,7 @@ org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopol
 							getRpcRegistryDependency(), topology, getStatefulPluginDependency());
 		} catch (InterruptedException | ExecutionException e) {
 			LOG.error("Failed to instantiate topology provider at {}", address, e);
-			throw new RuntimeException("Failed to instantiate provider", e);
+			throw new IllegalStateException("Failed to instantiate provider", e);
 		}
 	}
 }

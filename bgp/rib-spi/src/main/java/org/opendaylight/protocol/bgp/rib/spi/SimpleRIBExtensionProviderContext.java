@@ -24,7 +24,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
 		final TablesKey key = new TablesKey(afi, safi);
 
 		if (this.factories.containsKey(key)) {
-			throw new RuntimeException("Specified AFI/SAFI combination is already registered");
+			throw new IllegalArgumentException("Specified AFI/SAFI combination is already registered");
 		}
 
 		this.factories.put(key, factory);

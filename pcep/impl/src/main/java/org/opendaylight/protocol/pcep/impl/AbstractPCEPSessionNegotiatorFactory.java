@@ -113,7 +113,7 @@ SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> {
 								LOG.error("Unexpected failure to close old session", e);
 							}
 						} else {
-							negotiationFailed(new RuntimeException("A conflicting session for address "
+							negotiationFailed(new IllegalStateException("A conflicting session for address "
 									+ ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
 							return;
 						}

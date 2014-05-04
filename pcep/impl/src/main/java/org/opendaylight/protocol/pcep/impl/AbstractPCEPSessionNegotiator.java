@@ -266,7 +266,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
 				if (this.openRetry) {
 					sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
-					negotiationFailed(new RuntimeException("OPEN renegotiation failed"));
+					negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
 					this.state = State.Finished;
 					return;
 				}
@@ -274,7 +274,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 				final Open newPrefs = getCounterProposal(open);
 				if (newPrefs == null) {
 					sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
-					negotiationFailed(new RuntimeException("Peer sent unacceptable session parameters"));
+					negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
 					this.state = State.Finished;
 					return;
 				}
