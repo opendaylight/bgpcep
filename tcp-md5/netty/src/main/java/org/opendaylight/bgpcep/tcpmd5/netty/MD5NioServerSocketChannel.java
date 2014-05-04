@@ -89,17 +89,17 @@ public class MD5NioServerSocketChannel extends AbstractNioMessageChannel impleme
 	}
 
 	@Override
-	protected void doBind(final SocketAddress localAddress) throws Exception {
+	protected void doBind(final SocketAddress localAddress) throws IOException {
 		javaChannel().socket().bind(localAddress, config.getBacklog());
 	}
 
 	@Override
-	protected void doClose() throws Exception {
+	protected void doClose() throws IOException {
 		javaChannel().close();
 	}
 
 	@Override
-	protected int doReadMessages(final List<Object> buf) throws Exception {
+	protected int doReadMessages(final List<Object> buf) throws IOException {
 		final SocketChannel jc = javaChannel().accept();
 		if (jc == null) {
 			return 0;
@@ -111,19 +111,18 @@ public class MD5NioServerSocketChannel extends AbstractNioMessageChannel impleme
 	}
 
 	@Override
-	protected boolean doWriteMessage(final Object msg, final ChannelOutboundBuffer in)
-			throws Exception {
+	protected boolean doWriteMessage(final Object msg, final ChannelOutboundBuffer in) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	protected boolean doConnect(final SocketAddress remoteAddress,
-			final SocketAddress localAddress) throws Exception {
+			final SocketAddress localAddress) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected void doFinishConnect() throws Exception {
+	protected void doFinishConnect() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -133,7 +132,7 @@ public class MD5NioServerSocketChannel extends AbstractNioMessageChannel impleme
 	}
 
 	@Override
-	protected void doDisconnect() throws Exception {
+	protected void doDisconnect() {
 		throw new UnsupportedOperationException();
 	}
 }
