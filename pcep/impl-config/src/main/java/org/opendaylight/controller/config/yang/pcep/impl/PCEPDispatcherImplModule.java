@@ -46,11 +46,11 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModu
 	public void validate() {
 		super.validate();
 		JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(),
-				"value is not set.", this.maxUnknownMessagesJmxAttribute);
+				"value is not set.", maxUnknownMessagesJmxAttribute);
 		JmxAttributeValidationException.checkCondition(
 				getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
 						+ "must be greater than 0",
-						this.maxUnknownMessagesJmxAttribute);
+						maxUnknownMessagesJmxAttribute);
 	}
 
 	@Override

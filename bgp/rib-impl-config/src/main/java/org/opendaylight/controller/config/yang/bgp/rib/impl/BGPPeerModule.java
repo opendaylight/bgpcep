@@ -90,7 +90,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
 				// FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
 				final Object cf = srv.getAttribute(dispi, "Md5ChannelFactory");
-				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", this.passwordJmxAttribute);
+				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
 			} catch (AttributeNotFoundException | InstanceNotFoundException
 					| MBeanException | ReflectionException e) {
 				JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);

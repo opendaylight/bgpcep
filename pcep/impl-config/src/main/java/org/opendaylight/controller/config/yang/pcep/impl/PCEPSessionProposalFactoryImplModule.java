@@ -46,11 +46,11 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFac
 
 	@Override
 	public void customValidation() {
-		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", this.deadTimerValueJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", this.keepAliveTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
 		if (getKeepAliveTimerValue() != 0) {
 			JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-					this.keepAliveTimerValueJmxAttribute);
+					keepAliveTimerValueJmxAttribute);
 			if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}

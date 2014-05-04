@@ -37,14 +37,14 @@ public final class Stateful02PCEPSessionProposalFactoryModule extends org.openda
 
 	@Override
 	protected void customValidation(){
-		JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", this.activeJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", this.initiatedJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", this.deadTimerValueJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", this.keepAliveTimerValueJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getTimeout(), "value is not set.", this.timeoutJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", activeJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", initiatedJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getTimeout(), "value is not set.", timeoutJmxAttribute);
 		if (getKeepAliveTimerValue() != 0) {
 			JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-					this.keepAliveTimerValueJmxAttribute);
+					keepAliveTimerValueJmxAttribute);
 			if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
 				LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
 			}
@@ -52,7 +52,7 @@ public final class Stateful02PCEPSessionProposalFactoryModule extends org.openda
 		if (getActive() && !getStateful()) {
 			setStateful(true);
 		}
-		JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", this.statefulJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", statefulJmxAttribute);
 	}
 
 	@Override

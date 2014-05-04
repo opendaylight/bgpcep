@@ -38,13 +38,13 @@ public final class RIBImplModule extends org.opendaylight.controller.config.yang
 
 	@Override
 	public void customValidation() {
-		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", this.extensionsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", this.ribIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", this.localAsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", this.bgpIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", this.tcpReconnectStrategyJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", this.sessionReconnectStrategyJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", this.localTableJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", extensionsJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", ribIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", localAsJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", bgpIdJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", tcpReconnectStrategyJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", sessionReconnectStrategyJmxAttribute);
+		JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", localTableJmxAttribute);
 	}
 
 	@Override
