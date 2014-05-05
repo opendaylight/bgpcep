@@ -53,15 +53,15 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
 		        return null;
 		    }
 
-			final boolean foundClass = false;
-
-			// FIXME: BUG-187: search the parsers, check classes
-
-			if (!foundClass) {
-				return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
-			} else {
-				return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
+			int type = 1;
+			while(type <= 15) {
+			    final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
+			    if(objParser != null) {
+			        return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
+			    }
+			    type++;
 			}
+			return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
 		}
 		return parser.parseObject(header, buffer);
 	}

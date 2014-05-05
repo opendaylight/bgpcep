@@ -9,6 +9,9 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +44,9 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectPars
 import org.opendaylight.protocol.pcep.impl.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -616,5 +621,27 @@ public class PCEPObjectParserTest {
 
 		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), ByteArray.cutBytes(result, 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));
+	}
+
+	@Test
+	public void testIgnoreUknownObject() throws PCEPDeserializerException {
+	    final Object object = ctx.getObjectHandlerRegistry().parseObject(35, 1, new ObjectHeaderImpl(false, false), null);
+	    assertNull(object);
+	}
+
+	@Test
+	public void testUnrecognizedObjectType() throws PCEPDeserializerException {
+	    final Object object = ctx.getObjectHandlerRegistry().parseObject(2, 2, new ObjectHeaderImpl(true, true), null);
+	    assertNotNull(object);
+	    assertTrue(object instanceof UnknownObject);
+	    assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_TYPE, ((UnknownObject) object).getError());
+	}
+
+	@Test
+	public void testUnrecognizedObjectClass() throws PCEPDeserializerException {
+	    final Object object = ctx.getObjectHandlerRegistry().parseObject(35, 1, new ObjectHeaderImpl(true, true), null);
+	    assertNotNull(object);
+	    assertTrue(object instanceof UnknownObject);
+	    assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_CLASS, ((UnknownObject) object).getError());
 	}
 }
