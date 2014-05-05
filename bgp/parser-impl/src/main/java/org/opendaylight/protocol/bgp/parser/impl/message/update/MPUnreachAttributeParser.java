@@ -13,14 +13,16 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 
 import com.google.common.base.Preconditions;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class MPUnreachAttributeParser implements AttributeParser {
+public final class MPUnreachAttributeParser implements AttributeParser,AttributeSerializer {
 	public static final int TYPE = 15;
 
 	private final NlriRegistry reg;
@@ -38,4 +40,9 @@ public final class MPUnreachAttributeParser implements AttributeParser {
 			throw new BGPDocumentedException("Could not parse MP_UNREACH_NLRI", BGPError.OPT_ATTR_ERROR, e);
 		}
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        //TODO implement this
+    }
 }

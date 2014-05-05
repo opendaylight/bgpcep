@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
@@ -46,13 +45,24 @@ import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AtomicAggregate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDisc;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.GracefulRestartCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
@@ -72,22 +82,63 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
 		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
-		final AttributeRegistry attrReg = context.getAttributeRegistry();
-		regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser()));
-		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser()));
-		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser()));
-		regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser()));
-		regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser()));
-		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser()));
-		regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser()));
-		regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(nlriReg)));
-		regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(nlriReg)));
-		regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser(context.getReferenceCache())));
+        final AttributeRegistry attrReg = context.getAttributeRegistry();
+
+        OriginAttributeParser originAttributeParser = new OriginAttributeParser();
+        context.registerAttributeSerializer(Origin.class,originAttributeParser);
+		regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, originAttributeParser));
+
+        AsPathAttributeParser asPathAttributeParser = new AsPathAttributeParser(context.getReferenceCache());
+        context.registerAttributeSerializer(AsPath.class, asPathAttributeParser);
+		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, asPathAttributeParser));
+
+        NextHopAttributeParser nextHopAttributeParser = new NextHopAttributeParser();
+        context.registerAttributeSerializer(NextHop.class, nextHopAttributeParser );
+		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, nextHopAttributeParser));
+
+        MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser = new  MultiExitDiscriminatorAttributeParser();
+        context.registerAttributeSerializer(MultiExitDisc.class,multiExitDiscriminatorAttributeParser);
+		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE,multiExitDiscriminatorAttributeParser ));
+
+        LocalPreferenceAttributeParser localPreferenceAttributeParser = new LocalPreferenceAttributeParser();
+        context.registerAttributeSerializer(LocalPref.class, localPreferenceAttributeParser);
+		regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, localPreferenceAttributeParser));
+
+        AtomicAggregateAttributeParser atomicAggregateAttributeParser = new AtomicAggregateAttributeParser();
+        context.registerAttributeSerializer(AtomicAggregate.class,atomicAggregateAttributeParser);
+		regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, atomicAggregateAttributeParser));
+
+        AggregatorAttributeParser as4AggregatorAttributeParser = new AggregatorAttributeParser(context.getReferenceCache());
+        context.registerAttributeSerializer(AtomicAggregate.class, as4AggregatorAttributeParser);
+		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, as4AggregatorAttributeParser));
+
+        CommunitiesAttributeParser communitiesAttributeParser = new CommunitiesAttributeParser(context.getReferenceCache());
+        context.registerAttributeSerializer(Communities.class,communitiesAttributeParser);
+		regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, communitiesAttributeParser));
+
+        OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();
+		regs.add(context.registerAttributeParser(OriginatorIdAttributeParser.TYPE, originatorIdAttributeParser));
+
+        ClusterIdAttributeParser clusterIdAttributeParser = new ClusterIdAttributeParser();
+		regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE,clusterIdAttributeParser));
+
+        MPReachAttributeParser mpReachAttributeParser = new MPReachAttributeParser(nlriReg);
+        context.registerAttributeSerializer(MpReachNlri.class, mpReachAttributeParser);
+        regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, mpReachAttributeParser));
+
+
+        MPUnreachAttributeParser mpUnreachAttributeParser = new MPUnreachAttributeParser(nlriReg);
+        context.registerAttributeSerializer(MpUnreachNlri.class, mpUnreachAttributeParser);
+        regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, mpUnreachAttributeParser));
+
+
+        ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new ExtendedCommunitiesAttributeParser(context.getReferenceCache());
+        context.registerAttributeSerializer(ExtendedCommunities.class, extendedCommunitiesAttributeParser);
+        regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, extendedCommunitiesAttributeParser));
+
 		regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
 		regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
+
 
 		final CapabilityRegistry capReg = context.getCapabilityRegistry();
 		final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
@@ -113,7 +164,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
 		final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(attrReg);
 		regs.add(context.registerMessageParser(BGPUpdateMessageParser.TYPE, ump));
-		// Serialization of Update message is not supported
+        regs.add(context.registerMessageSerializer(Update.class,ump));
 
 		final BGPNotificationMessageParser nmp = new BGPNotificationMessageParser();
 		regs.add(context.registerMessageParser(BGPNotificationMessageParser.TYPE, nmp));
