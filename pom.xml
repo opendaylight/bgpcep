@@ -47,9 +47,6 @@
 
         <!-- Parents -->
         <module>commons/parent</module>
-
-        <!-- Distributions -->
-        <module>commons/distributions/bgpcep-controller</module>
     </modules>
 
     <build>
