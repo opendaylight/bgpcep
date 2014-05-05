@@ -162,7 +162,7 @@ public class MD5NioSocketChannel extends AbstractNioByteChannel implements io.ne
 
 	@Override
 	protected void doFinishConnect() throws IOException {
-		Preconditions.checkState(javaChannel().finishConnect() == true, "finishConnect() failed");
+		Preconditions.checkState(javaChannel().finishConnect(), "finishConnect() failed");
 	}
 
 	@Override
