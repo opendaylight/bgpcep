@@ -36,8 +36,7 @@ public final class RIBExtensionsImplModule extends org.opendaylight.controller.c
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	protected void customValidation() {
 		// Add custom validation for module attributes here.
 	}
 

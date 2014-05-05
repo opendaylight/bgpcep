@@ -38,8 +38,7 @@ public final class LinkstateModule extends org.opendaylight.controller.config.ya
 	}
 
 	@Override
-	public void validate(){
-		super.validate();
+	public void customValidation() {
 		// Add custom validation for module attributes here.
 	}
 

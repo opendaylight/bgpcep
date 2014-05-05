@@ -34,8 +34,7 @@ public final class SimplePCEPExtensionProviderContextModule extends org.opendayl
 	}
 
 	@Override
-	public void validate(){
-		super.validate();
+	protected void customValidation() {
 		// Add custom validation for module attributes here.
 	}
 

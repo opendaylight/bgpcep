@@ -37,8 +37,7 @@ org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensio
 	}
 
 	@Override
-	public void validate() {
-		super.validate();
+	protected void customValidation() {
 		// Add custom validation for module attributes here.
 	}
 
