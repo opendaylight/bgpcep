@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import io.netty.buffer.ByteBuf;
 
+import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -42,7 +43,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 	 * @return BGP Notification message converted to byte array
 	 */
 	@Override
-	public byte[] serializeMessage(final Notification msg) {
+	public ByteBuf serializeMessage(final Notification msg) {
 		if (msg == null) {
 			throw new IllegalArgumentException("BGP Notification message cannot be null");
 		}
@@ -60,8 +61,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 			System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
 		}
 
-		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-		LOG.trace("Notification message serialized to: {}", Arrays.toString(ret));
+		final ByteBuf ret = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, msgBody));
+		LOG.trace("Notification message serialized to: {}", Arrays.toString(ret.array()));
 		return ret;
 	}
 
