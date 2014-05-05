@@ -7,20 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -48,9 +42,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class ParserTest {
 
@@ -121,8 +119,8 @@ public class ParserTest {
 	@Test
 	public void testKeepAliveMsg() throws BGPParsingException, BGPDocumentedException {
 		final Notification keepAlive = new KeepaliveBuilder().build();
-		final byte[] bytes = ParserTest.reg.serializeMessage(keepAlive);
-		assertArrayEquals(keepAliveBMsg, bytes);
+		final ByteBuf bytes = ParserTest.reg.serializeMessage(keepAlive);
+		assertArrayEquals(keepAliveBMsg, bytes.array());
 
 		final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -150,8 +148,8 @@ public class ParserTest {
 	public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
 		final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
 				new ProtocolVersion((short) 4)).build();
-		final byte[] bytes = ParserTest.reg.serializeMessage(open);
-		assertArrayEquals(openBMsg, bytes);
+		final ByteBuf bytes = ParserTest.reg.serializeMessage(open);
+		assertArrayEquals(openBMsg, bytes.array());
 
 		final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -218,8 +216,8 @@ public class ParserTest {
 	public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
 		Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
 				BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
-		byte[] bytes = ParserTest.reg.serializeMessage(notMsg);
-		assertArrayEquals(notificationBMsg, bytes);
+		ByteBuf bytes = ParserTest.reg.serializeMessage(notMsg);
+		assertArrayEquals(notificationBMsg, bytes.array());
 
 		Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -293,9 +291,9 @@ public class ParserTest {
 		final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
 				new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
 
-		final byte[] result = ParserTest.reg.serializeMessage(open);
+		final ByteBuf result = ParserTest.reg.serializeMessage(open);
 
 		// the capabilities can be swapped.
-		assertTrue(Arrays.equals(openWithCpblt1, result) || Arrays.equals(openWithCpblt2, result));
+		assertTrue(Arrays.equals(openWithCpblt1, result.array()) || Arrays.equals(openWithCpblt2, result.array()));
 	}
 }
