@@ -8,16 +8,18 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -26,10 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
+import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 /**
  * LENGTH fields, that denote the length of the fields with variable length, have fixed SIZE.
@@ -37,7 +38,7 @@ import com.google.common.base.Preconditions;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  *
  */
-public class BGPUpdateMessageParser implements MessageParser {
+public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
 	public static final int TYPE = 2;
 
 	private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
@@ -97,4 +98,39 @@ public class BGPUpdateMessageParser implements MessageParser {
 		LOG.debug("BGP Update message was parsed {}.", msg);
 		return msg;
 	}
+
+    @Override
+    public ByteBuf serializeMessage(Notification message) {
+        if (message == null) {
+            throw new IllegalArgumentException("BGPUpdate message cannot be null");
+        }
+        LOG.trace("Started serializing update message: {}", message);
+        final Update update = (Update) message;
+
+        ByteBuf messageBody = Unpooled.buffer();
+
+        if (update.getPathAttributes()!=null){
+            if (update.getPathAttributes().getOrigin()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getOrigin(), messageBody);
+            }
+            if (update.getPathAttributes().getAsPath()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getAsPath(), messageBody);
+            }
+            if (update.getPathAttributes().getMultiExitDisc()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getMultiExitDisc(), messageBody);
+            }
+            if (update.getPathAttributes().getLocalPref()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getLocalPref(), messageBody);
+            }
+            if (update.getPathAttributes().getAtomicAggregate()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getAtomicAggregate(), messageBody);
+            }
+            if (update.getPathAttributes().getAggregator()!=null) {
+                this.reg.serializeAttribute(update.getPathAttributes().getAggregator(), messageBody);
+            }
+        }
+
+        LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
+        return messageBody;
+    }
 }
