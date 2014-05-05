@@ -7,18 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-import com.google.common.base.Preconditions;
-
-public final class NextHopAttributeParser implements AttributeParser {
+public final class NextHopAttributeParser implements AttributeParser, AttributeSerializer {
 	public static final int TYPE = 3;
 
 	@Override
@@ -27,4 +28,10 @@ public final class NextHopAttributeParser implements AttributeParser {
 		builder.setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(
 				new Ipv4NextHopBuilder().setGlobal(Ipv4Util.addressForBytes(ByteArray.readAllBytes(buffer))).build()).build());
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        Ipv4NextHop nextHop = (Ipv4NextHop) attribute;
+        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(nextHop.getGlobal()));
+    }
 }
