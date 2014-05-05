@@ -75,7 +75,7 @@ final class UriBuilder {
 		return this;
 	}
 
-	private final String isoId(final byte[] bytes) {
+	private String isoId(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
 		sb.append('.');
@@ -85,7 +85,7 @@ final class UriBuilder {
 		return sb.toString();
 	}
 
-	private final String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
+	private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
 		if (routerIdentifier == null) {
 			return null;
 		}

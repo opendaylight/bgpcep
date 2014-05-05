@@ -27,7 +27,7 @@ public final class DummyKeyAccessFactory implements KeyAccessFactory {
 	 *
 	 * @return A singleton instance.
 	 */
-	public static final DummyKeyAccessFactory getInstance() {
+	public static DummyKeyAccessFactory getInstance() {
 		return INSTANCE;
 	}
 
