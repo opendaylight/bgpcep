@@ -40,11 +40,10 @@ final class MD5ChannelOptions {
 		return new MD5ChannelOptions(ch, access);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getOption(final SocketOption<T> name) throws IOException {
 		if (access != null && name.equals(MD5SocketOptions.TCP_MD5SIG)) {
-			@SuppressWarnings("unchecked")
-			final T key = (T)access.getKeys();
-			return key;
+			return (T)access.getKeys();
 		}
 
 		return ch.getOption(name);
