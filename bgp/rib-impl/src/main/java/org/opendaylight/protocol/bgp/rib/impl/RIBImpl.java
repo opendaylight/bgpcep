@@ -240,7 +240,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 	}
 
 	@Override
-	public final String toString() {
+	public String toString() {
 		return addToStringAttributes(Objects.toStringHelper(this)).toString();
 	}
 
