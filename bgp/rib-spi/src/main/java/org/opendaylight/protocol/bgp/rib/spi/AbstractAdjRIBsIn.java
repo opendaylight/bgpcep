@@ -182,6 +182,13 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 		setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
 	}
 
+	/**
+	 * Construct a datastore identifier for an entry key.
+	 *
+	 * @param basePath datastore base path under which the entry to be stored
+	 * @param id object identifier
+	 * @return Data store identifier, may not be null
+	 */
 	protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
 	protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
