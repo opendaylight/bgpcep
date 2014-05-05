@@ -308,15 +308,20 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return req.getFuture();
 	}
 
-	protected final synchronized void updateLsp(final DataModificationTransaction trans, final PLSPID id, String name,
+	protected final synchronized void updateLsp(final DataModificationTransaction trans, final PLSPID id, final String lspName,
 			final ReportedLspBuilder rlb, final boolean solicited) {
-		if (name == null) {
+
+		final String name;
+		if (lspName == null) {
 			name = this.lsps.get(id);
 			if (name == null) {
 				LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
 				return;
 			}
+		} else {
+			name = lspName;
 		}
+
 		LOG.debug("Saved LSP {} with name {}", id, name);
 		this.lsps.put(id, name);
 
