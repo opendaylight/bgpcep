@@ -38,7 +38,7 @@ public class MD5ClientChannelFactoryModule extends org.opendaylight.controller.c
 			public void close() {
 				// Noop
 			}
-		};
+		}
 
 		return new AutoCloseableMD5NioSocketChannelFactory(getKeyAccessFactoryDependency());
 	}
