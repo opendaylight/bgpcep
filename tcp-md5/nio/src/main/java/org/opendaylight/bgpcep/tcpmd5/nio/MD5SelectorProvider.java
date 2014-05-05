@@ -35,7 +35,7 @@ public final class MD5SelectorProvider extends SelectorProvider {
 		this.delegate = Preconditions.checkNotNull(delegate);
 	}
 
-	public synchronized static MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory, final SelectorProvider provider) {
+	public static synchronized MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory, final SelectorProvider provider) {
 		MD5SelectorProvider ret = INSTANCES.get(provider);
 		if (ret == null) {
 			ret = new MD5SelectorProvider(keyAccessFactory, provider);

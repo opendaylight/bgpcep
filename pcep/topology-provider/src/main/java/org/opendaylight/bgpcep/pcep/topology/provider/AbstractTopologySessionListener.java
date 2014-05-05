@@ -363,9 +363,9 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		lspData.remove(name);
 	}
 
-	abstract protected void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
+	protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
 
-	abstract protected boolean onMessage(DataModificationTransaction trans, Message message);
+	protected abstract boolean onMessage(DataModificationTransaction trans, Message message);
 
 	protected String lookupLspName(final PLSPID id) {
 		Preconditions.checkNotNull(id, "ID parameter null.");

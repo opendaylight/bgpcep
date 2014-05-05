@@ -47,7 +47,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	/**
 	 * @see <a href="http://tools.ietf.org/html/rfc6793">BGP Support for 4-Octet AS Number Space</a>
 	 */
-	private final int AS_TRANS = 23456;
+	private static final int AS_TRANS = 23456;
 
 	@VisibleForTesting
 	public enum State {
@@ -97,7 +97,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		int as = this.localPref.getMyAs().getValue().intValue();
 		// Set as AS_TRANS if the value is bigger than 2B
 		if (as > Values.UNSIGNED_SHORT_MAX_VALUE) {
-			as = this.AS_TRANS;
+			as = AS_TRANS;
 		}
 		this.sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(
 				this.localPref.getHoldTime()).setBgpIdentifier(this.localPref.getBgpId()).setBgpParameters(this.localPref.getParams()).build());
