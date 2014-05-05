@@ -34,7 +34,7 @@ public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message
 	}
 
 	@Override
-	protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) throws Exception {
+	protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) {
 		Preconditions.checkNotNull(msg);
 		this.registry.serializeMessage(msg, out);
 		LOG.debug("Encoded : {}", msg);

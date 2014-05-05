@@ -34,17 +34,12 @@ final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
 	}
 
 	@Override
-	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
-		if (in.readableBytes() == 0) {
-			LOG.debug("No more content in incoming buffer.");
-			return;
-		}
-		try {
+	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BGPDocumentedException, BGPParsingException {
+		if (in.isReadable()) {
 			LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
 			out.add(this.registry.parseMessage(in));
-		} catch (BGPParsingException | BGPDocumentedException e) {
-			LOG.debug("Failed to decode protocol message", e);
-			this.exceptionCaught(ctx, e);
+		} else {
+			LOG.trace("No more content in incoming buffer.");
 		}
 	}
 }
