@@ -32,6 +32,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPMetricObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNoPathObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPNotificationObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPObjectiveFunctionObjectParser;
+import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPPathKeyObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPReportedRouteObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
@@ -91,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.notification.object.CNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
@@ -218,6 +220,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectParser(PCEPObjectiveFunctionObjectParser.CLASS, PCEPObjectiveFunctionObjectParser.TYPE,
 				new PCEPObjectiveFunctionObjectParser(tlvReg));
 		context.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, new PCEPClassTypeObjectParser(tlvReg));
+		context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, new PCEPOpenObjectParser(tlvReg));
 
 		context.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE,
 				new PCEPGlobalConstraintsObjectParser(tlvReg));
@@ -245,6 +248,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 		context.registerObjectSerializer(ClassType.class, new PCEPClassTypeObjectParser(tlvReg));
 		context.registerObjectSerializer(Gc.class, new PCEPGlobalConstraintsObjectParser(tlvReg));
 		context.registerObjectSerializer(Xro.class, new PCEPExcludeRouteObjectParser(xroSubReg));
+		context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(tlvReg));
 
 		context.registerMessageParser(PCEPOpenMessageParser.TYPE, new PCEPOpenMessageParser(objReg));
 		context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, new PCEPKeepAliveMessageParser(objReg));
