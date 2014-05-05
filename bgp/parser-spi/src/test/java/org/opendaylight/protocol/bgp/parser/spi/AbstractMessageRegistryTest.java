@@ -7,17 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AbstractMessageRegistryTest {
 
@@ -28,8 +27,8 @@ public class AbstractMessageRegistryTest {
 	private final AbstractMessageRegistry registry = new AbstractMessageRegistry() {
 
 		@Override
-		protected byte[] serializeMessageImpl(Notification message) {
-			return keepAliveBMsg;
+		protected ByteBuf serializeMessageImpl(Notification message) {
+			return Unpooled.copiedBuffer(keepAliveBMsg);
 		}
 
 		@Override
@@ -41,8 +40,8 @@ public class AbstractMessageRegistryTest {
 	@Test
 	public void testRegistry() throws BGPDocumentedException, BGPParsingException {
 		final Notification keepAlive = new KeepaliveBuilder().build();
-		final byte[] serialized = this.registry.serializeMessage(keepAlive);
-		assertArrayEquals(keepAliveBMsg, serialized);
+		final ByteBuf serialized = this.registry.serializeMessage(keepAlive);
+		assertArrayEquals(keepAliveBMsg, serialized.array());
 
 		final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg));
 		assertTrue(not instanceof Keepalive);

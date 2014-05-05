@@ -7,16 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.List;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
-
-import org.junit.Test;
 
 public class BGPHexFileParserTest {
 

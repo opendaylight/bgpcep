@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.netty.buffer.Unpooled;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +17,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -113,9 +110,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class BGPParserTest {
 
@@ -129,6 +126,7 @@ public class BGPParserTest {
 	private static int MAX_SIZE = 300;
 
 	private static BGPUpdateMessageParser updateParser;
+
 
 	@BeforeClass
 	public static void setUp() throws Exception {
