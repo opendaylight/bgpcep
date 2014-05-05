@@ -25,9 +25,9 @@ import com.google.common.io.CharStreams;
 
 /**
  * Parses PCEP messages from a text file. Messages need to follow this formatting:
- * 
+ *
  * Received PCEP Open message. Length:28.
- * 
+ *
  * 20 01 00 1c 01 10 00 18 20 1e 78 03 00 10 00 04 00 00 00 05 00 1a 00 04 00 00 00 b4
  */
 public final class PCEPHexDumpParser {
@@ -76,7 +76,7 @@ public final class PCEPHexDumpParser {
 			try {
 				message = Hex.decodeHex(hexMessage.toCharArray());
 			} catch (final DecoderException e) {
-				new RuntimeException(e);
+				new IllegalArgumentException("Failed to decode message", e);
 			}
 			messages.add(message);
 			idx = messageEndIdx;
