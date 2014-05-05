@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -32,9 +33,9 @@ import com.google.common.base.Preconditions;
 
 /**
  * LENGTH fields, that denote the length of the fields with variable length, have fixed SIZE.
- * 
+ *
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
- * 
+ *
  */
 public class BGPUpdateMessageParser implements MessageParser {
 	public static final int TYPE = 2;
@@ -82,10 +83,7 @@ public class BGPUpdateMessageParser implements MessageParser {
 				final PathAttributes pathAttributes = this.reg.parseAttributes(buffer.slice(buffer.readerIndex(), totalPathAttrLength));
 				buffer.skipBytes(totalPathAttrLength);
 				eventBuilder.setPathAttributes(pathAttributes);
-			} catch (final BGPDocumentedException e) {
-				// Rethrow BGPDocumentedExceptions
-				throw e;
-			} catch (final Exception e) {
+			} catch (final BGPParsingException | RuntimeException e) {
 				// Catch everything else and turn it into a BGPDocumentedException
 				LOG.warn("Could not parse BGP attributes", e);
 				throw new BGPDocumentedException("Could not parse BGP attributes.", BGPError.MALFORMED_ATTR_LIST, e);
