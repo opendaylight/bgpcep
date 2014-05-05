@@ -243,7 +243,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 			this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.build());
 			final Node1 ta = this.topologyAugmentBuilder.build();
 
-			//trans.removeOperationalData(this.topologyAugment);
+			trans.removeOperationalData(this.topologyAugment);
 			trans.putOperationalData(this.topologyAugment, ta);
 			LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
 			dirty = false;
