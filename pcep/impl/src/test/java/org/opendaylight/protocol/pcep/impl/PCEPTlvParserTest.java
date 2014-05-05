@@ -13,6 +13,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.impl.tlv.AbstractVendorSpecificTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OrderTlvParser;
@@ -20,6 +21,7 @@ import org.opendaylight.protocol.pcep.impl.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
@@ -32,6 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 import com.google.common.collect.Lists;
 
@@ -42,6 +48,33 @@ public class PCEPTlvParserTest {
 	private static final byte[] reqMissingBytes = { 0x00, 0x03, 0x00, 0x04, (byte) 0xF7, (byte) 0x82, 0x35, 0x17 };
 	private static final byte[] orderBytes = { 0x00, 0x05, 0x00, 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00, 0x00, 0x00, 0x01 };
 	private static final byte[] ofListBytes = { 0x00, 0x04, 0x00, 0x04, 0x12, 0x34, 0x56, 0x78 };
+	private static final byte[] vsTlvBytes = { 0x00, 0x1b, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x09, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05 };
+
+	private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
+
+		@Override
+		protected byte[] serializeVendorPayload(VendorPayload payload) {
+			return new byte[] {0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05};
+		}
+
+		@Override
+		protected VendorPayload parseVendorPayload(byte[] payloadBytes) throws PCEPDeserializerException {
+			return PCEPTlvParserTest.this.vp;
+		}
+
+		@Override
+		protected long getEnterpriseNumber() {
+			return 9;
+		}
+	};
+
+	private final VendorPayload vp = new VendorPayload() {
+
+		@Override
+		public Class<? extends DataContainer> getImplementedInterface() {
+			return null;
+		}
+	};
 
 	@Test
 	public void testNoPathVectorTlv() throws PCEPDeserializerException {
@@ -84,5 +117,12 @@ public class PCEPTlvParserTest {
 		final OfList tlv = new OfListBuilder().setCodes(ids).build();
 		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(ofListBytes, 4)));
 		assertArrayEquals(ofListBytes, parser.serializeTlv(tlv));
+	}
+
+	@Test
+	public void testVendorSpecificTlv() throws PCEPDeserializerException {
+		VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
+		assertEquals(tlv, this.vsParser.parseTlv(ByteArray.cutBytes(vsTlvBytes, 4)));
+		assertArrayEquals(vsTlvBytes, this.vsParser.serializeTlv(tlv));
 	}
 }
