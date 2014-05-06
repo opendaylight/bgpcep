@@ -57,6 +57,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	/**
 	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
 	 */
+	@VisibleForTesting
 	protected volatile long lastMessageSentAt;
 
 	/**
@@ -64,11 +65,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	private long lastMessageReceivedAt;
 
-	/**
-	 * Protected for testing.
-	 */
-	protected int maxUnknownMessages;
-
+	@VisibleForTesting
 	protected final Queue<Long> unknownMessagesTimes = new LinkedList<Long>();
 
 	private final PCEPSessionListener listener;
@@ -93,6 +90,8 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	private int sentMsgCount = 0;
 
 	private int receivedMsgCount = 0;
+
+	private int maxUnknownMessages;
 
 	// True if the listener should not be notified about events
 	private boolean closed = false;
