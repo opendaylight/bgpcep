@@ -23,16 +23,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
-
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractMessageParser.class);
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
 
@@ -118,8 +114,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return new PcerrBuilder().setPcerrMessage(
 				new PcerrMessageBuilder().setErrors(
 						Arrays.asList(new ErrorsBuilder().setErrorObject(
-								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
-										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
+										maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
 	}
 
 	public static Message createErrorMsg(final PCEPErrors e, final Rp rp) {
@@ -129,8 +125,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 						new RequestCaseBuilder().setRequest(
 								new RequestBuilder().setRps(Lists.newArrayList(new RpsBuilder().setRp(rp).build())).build()).build()).setErrors(
 										Arrays.asList(new ErrorsBuilder().setErrorObject(
-												new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
-														maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+												new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
+														maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
 	}
 
 	protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;

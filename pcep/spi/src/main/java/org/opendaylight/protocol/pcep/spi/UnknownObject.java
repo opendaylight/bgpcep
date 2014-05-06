@@ -36,7 +36,7 @@ public final class UnknownObject implements Object {
 
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
 		this.error = new ErrorsBuilder().setErrorObject(
-				new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).type).setValue(mapping.getFromErrorsEnum(error).value).build()).build();
+				new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).getType()).setValue(mapping.getFromErrorsEnum(error).getValue()).build()).build();
 		this.invalidObject = invalidObject;
 	}
 

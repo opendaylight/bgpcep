@@ -35,7 +35,7 @@ public final class Util {
 		final PcerrBuilder errMessageBuilder = new PcerrBuilder();
 		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
 		final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
-		final ErrorObject err = new ErrorObjectBuilder().setType(id.type).setValue(id.value).build();
+		final ErrorObject err = new ErrorObjectBuilder().setType(id.getType()).setValue(id.getValue()).build();
 		if (t == null) {
 			return errMessageBuilder.setPcerrMessage(
 					new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();

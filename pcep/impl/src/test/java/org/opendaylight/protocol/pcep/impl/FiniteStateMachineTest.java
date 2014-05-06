@@ -109,7 +109,7 @@ public class FiniteStateMachineTest {
 	/**
 	 * Both PCEs accept session characteristics. Also tests KeepAliveTimer and error message and when pce attempts to
 	 * establish pce session for the 2nd time.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -126,7 +126,7 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * Mock PCE does not accept session characteristics the first time.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -152,14 +152,14 @@ public class FiniteStateMachineTest {
 								new SessionBuilder().setOpen(
 										new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
 												(short) 1).build()).build()).build()).setErrors(
-						Arrays.asList(new ErrorsBuilder().setErrorObject(
-								new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).type).setValue(
-										maping.getFromErrorsEnum(e).value).build()).build())).build()).build();
+														Arrays.asList(new ErrorsBuilder().setErrorObject(
+																new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
+																		maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
 	}
 
 	/**
 	 * Sending different PCEP Message than Open in session establishment phase.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -179,7 +179,7 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * KeepWaitTimer expired.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -202,7 +202,7 @@ public class FiniteStateMachineTest {
 
 	/**
 	 * OpenWait timer expired.
-	 * 
+	 *
 	 * @throws InterruptedException
 	 */
 	@Test

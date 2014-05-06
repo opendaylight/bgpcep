@@ -26,12 +26,20 @@ public final class PCEPErrorMapping {
 	 * Caret for combination of Error-type and Error-value
 	 */
 	public static final class PCEPErrorIdentifier {
-		public short type;
-		public short value;
+		private final short type;
+		private final short value;
 
 		private PCEPErrorIdentifier(final short type, final short value) {
 			this.type = type;
 			this.value = value;
+		}
+
+		public short getType() {
+			return type;
+		}
+
+		public short getValue() {
+			return value;
 		}
 
 		@Override
