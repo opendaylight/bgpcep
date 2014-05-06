@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -71,13 +72,11 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	};
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
-	// FIXME: make this private
-	protected final ServerSessionManager serverSessionManager;
-
 	private final Map<SRPID, PCEPRequest> waitingRequests = new HashMap<>();
 	private final Map<SRPID, PCEPRequest> sendingRequests = new HashMap<>();
 	private final Map<String, ReportedLsp> lspData = new HashMap<>();
 	private final Map<PLSPID, String> lsps = new HashMap<>();
+	private final ServerSessionManager serverSessionManager;
 	private InstanceIdentifier<Node> topologyNode;
 	private InstanceIdentifier<Node1> topologyAugment;
 	private PathComputationClientBuilder pccBuilder;
@@ -375,5 +374,9 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	protected String lookupLspName(final PLSPID id) {
 		Preconditions.checkNotNull(id, "ID parameter null.");
 		return this.lsps.get(id);
+	}
+
+	protected final <T extends DataObject> T readOperationalData(final InstanceIdentifier<T> id) {
+		return serverSessionManager.readOperationalData(id);
 	}
 }

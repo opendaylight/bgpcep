@@ -160,7 +160,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
 		// Make sure there is no such LSP
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-		if (this.serverSessionManager.readOperationalData(lsp) != null) {
+		if (readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return OperationResults.UNSENT.future();
 		}
@@ -188,7 +188,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
 		// Make sure the LSP exists, we need it for PLSP-ID
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-		final ReportedLsp rep = this.serverSessionManager.readOperationalData(lsp);
+		final ReportedLsp rep = readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return OperationResults.UNSENT.future();
@@ -210,7 +210,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
 		// Make sure the LSP exists
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-		final ReportedLsp rep = this.serverSessionManager.readOperationalData(lsp);
+		final ReportedLsp rep = readOperationalData(lsp);
 		if (rep == null) {
 			LOG.warn("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return OperationResults.UNSENT.future();
@@ -244,7 +244,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 		// Make sure the LSP exists
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
 		LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
-		final ReportedLsp rep = this.serverSessionManager.readOperationalData(lsp);
+		final ReportedLsp rep = readOperationalData(lsp);
 		if (rep == null) {
 			LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
 			return OperationResults.UNSENT.future();
