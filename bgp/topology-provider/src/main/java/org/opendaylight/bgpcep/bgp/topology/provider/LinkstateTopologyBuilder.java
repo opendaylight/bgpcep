@@ -147,11 +147,11 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 	}
 
 	private final class NodeHolder {
-		final Map<PrefixKey, Prefix> prefixes = new HashMap<>();
-		final Map<TpId, TpHolder> tps = new HashMap<>();
-		boolean advertized = false;
-		IgpNodeAttributesBuilder inab;
-		NodeBuilder nb;
+		private final Map<PrefixKey, Prefix> prefixes = new HashMap<>();
+		private final Map<TpId, TpHolder> tps = new HashMap<>();
+		private boolean advertized = false;
+		private IgpNodeAttributesBuilder inab;
+		private NodeBuilder nb;
 
 		private NodeHolder(final NodeId id) {
 			this.inab = new IgpNodeAttributesBuilder();
