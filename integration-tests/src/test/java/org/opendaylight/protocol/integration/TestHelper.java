@@ -58,8 +58,8 @@ public class TestHelper {
                 mavenBundle(CONTROLLER, "ietf-netconf-monitoring-extension").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-monitoring").versionAsInProject(), //
 
-                mavenBundle(CONTROLLER + ".thirdparty", "nagasena").versionAsInProject(), //
-                mavenBundle(CONTROLLER + ".thirdparty", "nagasena-rta").versionAsInProject(), //
+                mavenBundle("org.openexi", "nagasena").versionAsInProject(), //
+                mavenBundle("org.openexi", "nagasena-rta").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-util").versionAsInProject(), //
                 mavenBundle(CONTROLLER + ".thirdparty", "ganymed").versionAsInProject(), //
                 mavenBundle(CONTROLLER, "netconf-mapping-api").versionAsInProject(), //
