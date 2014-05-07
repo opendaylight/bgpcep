@@ -91,6 +91,7 @@
                 <module>netty</module>
                 <module>netty-cfg</module>
                 <module>nio</module>
+                <module>controller-config</module>
             </modules>
         </profile>
         <profile>
@@ -105,6 +106,7 @@
                 <module>netty</module>
                 <module>netty-cfg</module>
                 <module>nio</module>
+                <module>controller-config</module>
             </modules>
         </profile>
     </profiles>
