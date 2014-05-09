@@ -24,7 +24,6 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.After;
@@ -35,23 +34,16 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcerr;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OpenMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.keepalive.message.KeepaliveMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 import com.google.common.collect.Lists;
@@ -134,27 +126,15 @@ public class FiniteStateMachineTest {
 		this.serverSession.channelActive(null);
 		assertEquals(1, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(0) instanceof Open);
+		Open remote = (Open) this.receivedMsgs.get(0);
 		this.serverSession.handleMessage(this.openmsg);
 		assertEquals(2, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
-		this.serverSession.handleMessage(createErrorMessageWOpen(PCEPErrors.NON_ACC_NEG_SESSION_CHAR));
+		this.serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, remote.getOpenMessage().getOpen()));
 		assertEquals(3, this.receivedMsgs.size());
 		assertTrue(this.receivedMsgs.get(2) instanceof Open);
 		this.serverSession.handleMessage(this.kamsg);
 		assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.Finished);
-	}
-
-	private Pcerr createErrorMessageWOpen(final PCEPErrors e) {
-		final PCEPErrorMapping maping = PCEPErrorMapping.getInstance();
-		return new PcerrBuilder().setPcerrMessage(
-				new PcerrMessageBuilder().setErrorType(
-						new SessionCaseBuilder().setSession(
-								new SessionBuilder().setOpen(
-										new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
-												(short) 1).build()).build()).build()).setErrors(
-														Arrays.asList(new ErrorsBuilder().setErrorObject(
-																new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
-																		maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
 	}
 
 	/**
