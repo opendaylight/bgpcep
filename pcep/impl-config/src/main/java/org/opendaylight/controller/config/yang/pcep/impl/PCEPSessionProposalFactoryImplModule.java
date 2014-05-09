@@ -72,7 +72,8 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFac
 		}
 
 		@Override
-		public void close() throws Exception {
+		public void close() {
+			// Nothing to do
 		}
 
 		@Override

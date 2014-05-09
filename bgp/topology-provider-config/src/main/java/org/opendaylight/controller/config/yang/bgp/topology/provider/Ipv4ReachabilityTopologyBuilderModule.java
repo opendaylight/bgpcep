@@ -16,6 +16,8 @@
  */
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
+import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
@@ -65,7 +67,7 @@ public final class Ipv4ReachabilityTopologyBuilderModule extends org.opendayligh
 			}
 
 			@Override
-			public void close() throws Exception {
+			public void close() throws InterruptedException, ExecutionException {
 				try {
 					r.close();
 				} finally {

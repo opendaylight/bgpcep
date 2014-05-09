@@ -25,7 +25,7 @@ public final class ServiceLoaderBGPExtensionProviderContext {
         }
     }
 
-    public static BGPExtensionProviderContext create() throws Exception {
+    public static BGPExtensionProviderContext create() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
         final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader

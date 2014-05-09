@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.node._case.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.node._case.OspfNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
@@ -613,9 +612,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 			ab.setRouterType(new PseudonodeBuilder().setPseudonode(Boolean.TRUE).build());
 			ab.setDrInterfaceId(pn.getLanInterface().getValue());
 		} else if (ri instanceof OspfNodeCase) {
-			final OspfNode in = ((OspfNodeCase) ri).getOspfNode();
-
 			// TODO: what should we do with in.getOspfRouterId()?
+			// final OspfNode in = ((OspfNodeCase) ri).getOspfNode();
 
 			if (na != null) {
 				final NodeFlagBits nf = na.getNodeFlags();

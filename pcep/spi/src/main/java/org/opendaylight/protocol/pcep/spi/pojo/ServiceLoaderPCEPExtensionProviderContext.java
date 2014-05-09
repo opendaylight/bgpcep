@@ -29,7 +29,7 @@ public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPE
 
 	}
 
-	public static PCEPExtensionProviderContext create() throws Exception {
+	public static PCEPExtensionProviderContext create() {
 		final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
 		final ServiceLoader<PCEPExtensionProviderActivator> loader = ServiceLoader.load(PCEPExtensionProviderActivator.class);

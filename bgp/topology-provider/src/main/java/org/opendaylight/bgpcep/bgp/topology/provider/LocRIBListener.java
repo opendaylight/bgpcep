@@ -22,8 +22,7 @@ public interface LocRIBListener extends EventListener {
 	 *              caller if it is not committed before this method returns.
 	 * @param event Data change event
 	 * @param depth Subscription path depth.
-	 * @throws Exception throw it if you must. If you can handle it, please do so.
 	 */
 	void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans,
-			DataChangeEvent<InstanceIdentifier<?>, DataObject> event) throws Exception;
+			DataChangeEvent<InstanceIdentifier<?>, DataObject> event);
 }
