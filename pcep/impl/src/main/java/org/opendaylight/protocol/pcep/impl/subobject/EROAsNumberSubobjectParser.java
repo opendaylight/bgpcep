@@ -64,9 +64,4 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
 		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

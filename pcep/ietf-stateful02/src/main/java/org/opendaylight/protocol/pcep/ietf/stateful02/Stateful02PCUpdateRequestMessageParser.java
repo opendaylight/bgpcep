@@ -178,9 +178,4 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
 	private enum State {
 		Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

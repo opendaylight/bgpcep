@@ -82,9 +82,4 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 		retBytes[ATTRIBUTE4_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
 		return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

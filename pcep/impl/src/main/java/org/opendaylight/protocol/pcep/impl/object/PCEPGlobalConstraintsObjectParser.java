@@ -73,14 +73,4 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 		retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getOverBookingFactor());
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

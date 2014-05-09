@@ -88,14 +88,4 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 		// No tlvs defined
 		return new byte[0];
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

@@ -63,9 +63,4 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
 		System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
 		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

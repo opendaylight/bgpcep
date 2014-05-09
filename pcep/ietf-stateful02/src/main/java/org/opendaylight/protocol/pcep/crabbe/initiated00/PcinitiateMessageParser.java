@@ -139,9 +139,4 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
 	private enum State {
 		Init, EroIn, BandwidthIn, MetricIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

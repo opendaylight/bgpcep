@@ -68,9 +68,4 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 		}
 		return new CloseBuilder().setCCloseMessage(msg).build();
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

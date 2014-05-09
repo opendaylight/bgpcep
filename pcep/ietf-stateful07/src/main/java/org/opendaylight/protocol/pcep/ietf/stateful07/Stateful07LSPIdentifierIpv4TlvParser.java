@@ -91,9 +91,4 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 		ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()), bytes, offset);
 		return TlvUtil.formatTlv(TYPE, bytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

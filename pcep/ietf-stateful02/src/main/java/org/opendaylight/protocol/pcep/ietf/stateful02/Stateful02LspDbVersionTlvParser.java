@@ -40,9 +40,4 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 		final LspDbVersion lsp = (LspDbVersion) tlv;
 		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

@@ -70,9 +70,4 @@ public class EROIpv6PrefixSubobjectParser implements EROSubobjectParser, EROSubo
 		retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
 		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

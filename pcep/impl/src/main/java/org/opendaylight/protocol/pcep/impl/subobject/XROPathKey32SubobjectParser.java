@@ -67,9 +67,4 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
 		System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
 		return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

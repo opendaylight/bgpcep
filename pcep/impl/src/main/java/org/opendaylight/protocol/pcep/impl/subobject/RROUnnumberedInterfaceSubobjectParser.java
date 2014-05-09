@@ -82,9 +82,4 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

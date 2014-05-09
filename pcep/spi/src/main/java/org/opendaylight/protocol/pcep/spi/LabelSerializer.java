@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 public interface LabelSerializer {
-	@Deprecated
-	int getType();
+
 	byte[] serializeLabel(boolean unidirectional, boolean global, LabelType subobject);
 }

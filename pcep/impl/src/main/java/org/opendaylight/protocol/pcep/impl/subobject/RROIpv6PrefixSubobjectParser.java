@@ -85,9 +85,4 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
 		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

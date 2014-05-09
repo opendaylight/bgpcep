@@ -172,9 +172,4 @@ public final class CInitiated00PCInitiateMessageParser extends AbstractMessagePa
 	private enum State {
 		Init, EndpointsIn, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

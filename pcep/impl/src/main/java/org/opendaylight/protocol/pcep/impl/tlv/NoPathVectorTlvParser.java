@@ -68,9 +68,4 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 		flags.set(PCE_UNAVAILABLE, tlv.getFlags().isPceUnavailable());
 		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

@@ -85,9 +85,4 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 		}
 		return RROSubobjectUtil.formatSubobject(TYPE, labelbytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

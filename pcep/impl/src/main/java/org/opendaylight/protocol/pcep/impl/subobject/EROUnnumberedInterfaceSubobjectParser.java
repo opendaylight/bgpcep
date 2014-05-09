@@ -69,9 +69,4 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
 		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

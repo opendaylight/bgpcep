@@ -92,14 +92,4 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 		System.arraycopy(mObj.getValue().getValue(), 0, retBytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

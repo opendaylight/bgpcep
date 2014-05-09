@@ -100,9 +100,4 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 		ByteArray.copyWhole(value, bytes, offset);
 		return TlvUtil.formatTlv(TYPE, bytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

@@ -399,9 +399,4 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 	private enum SvecState {
 		Init, OfIn, GcIn, XroIn, MetricIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

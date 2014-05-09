@@ -52,14 +52,4 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
 				serializeSubobject(obj.getSubobject()));
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

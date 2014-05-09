@@ -53,14 +53,4 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
 				serializeSubobject(ero.getSubobject()));
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

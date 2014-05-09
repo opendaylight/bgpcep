@@ -126,16 +126,6 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	}
 
 	public byte[] serializeTlvs(final Tlvs tlvs) {
-	    return new byte[0];
-	}
-
-	@Override
-	public int getObjectType() {
-	        return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
+		return new byte[0];
 	}
 }

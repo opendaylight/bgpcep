@@ -11,8 +11,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface RROSubobjectSerializer {
 
-	@Deprecated
-	int getType();
-
 	byte[] serializeSubobject(Subobject subobject);
 }

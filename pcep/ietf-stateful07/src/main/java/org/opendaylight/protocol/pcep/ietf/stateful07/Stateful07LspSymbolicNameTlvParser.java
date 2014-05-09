@@ -36,9 +36,4 @@ public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvS
 		final SymbolicPathName spn = (SymbolicPathName) tlv;
 		return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

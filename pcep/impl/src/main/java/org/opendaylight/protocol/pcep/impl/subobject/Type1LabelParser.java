@@ -49,9 +49,4 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
 		}
 		return LabelUtil.formatLabel(CTYPE, unidirectional, global, ByteArray.longToBytes(((Type1LabelCase) subobject).getType1Label().getType1Label().longValue(), LABEL_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return CTYPE;
-	}
 }

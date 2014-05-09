@@ -56,9 +56,4 @@ public class Stateful02StatefulCapabilityTlvParser implements TlvParser, TlvSeri
 		flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
 		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

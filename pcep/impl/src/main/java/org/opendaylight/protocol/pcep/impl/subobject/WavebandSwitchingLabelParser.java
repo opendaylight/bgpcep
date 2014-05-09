@@ -64,9 +64,4 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
 				END_F_LENGTH);
 		return LabelUtil.formatLabel(CTYPE, unidirectional, global, retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return CTYPE;
-	}
 }

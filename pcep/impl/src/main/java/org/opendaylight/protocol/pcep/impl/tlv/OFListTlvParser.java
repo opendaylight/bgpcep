@@ -61,9 +61,4 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 		}
 		return TlvUtil.formatTlv(TYPE, retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

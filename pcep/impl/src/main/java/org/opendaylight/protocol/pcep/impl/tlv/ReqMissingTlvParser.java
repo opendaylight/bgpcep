@@ -38,9 +38,4 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 		final ReqMissing req = (ReqMissing) tlv;
 		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

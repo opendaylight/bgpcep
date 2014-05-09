@@ -278,9 +278,4 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 	private enum State {
 		Init, LspaIn, OfIn, BandwidthIn, MetricIn, IroIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

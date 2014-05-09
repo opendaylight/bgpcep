@@ -180,14 +180,4 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		}
 		return new byte[0];
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

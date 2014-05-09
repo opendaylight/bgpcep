@@ -40,9 +40,4 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 		}
 		return LabelUtil.formatLabel(CTYPE, unidirectional, global, ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
 	}
-
-	@Override
-	public int getType() {
-		return CTYPE;
-	}
 }

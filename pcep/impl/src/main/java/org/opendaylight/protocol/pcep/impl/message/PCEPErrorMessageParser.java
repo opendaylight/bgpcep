@@ -177,9 +177,4 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 	private enum State {
 		Init, ErrorIn, RpIn, Open, Error, OpenIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

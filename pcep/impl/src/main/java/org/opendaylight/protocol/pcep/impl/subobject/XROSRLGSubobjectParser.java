@@ -73,9 +73,4 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 
 		return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

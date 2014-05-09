@@ -84,9 +84,4 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		}
 		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), labelbytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

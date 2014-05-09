@@ -98,14 +98,4 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
 		}
 		return new byte[0];
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

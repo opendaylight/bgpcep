@@ -45,9 +45,4 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
 		return TlvUtil.formatTlv(TYPE, bytes);
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

@@ -11,11 +11,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface ObjectSerializer {
 
-	@Deprecated
-	int getObjectType();
-
-	@Deprecated
-	int getObjectClass();
-
 	byte[] serializeObject(Object object);
 }

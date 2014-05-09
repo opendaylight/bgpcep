@@ -88,14 +88,4 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
 		ByteArray.copyWhole(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getDestinationIpv4Address()), retBytes, DEST4_F_OFFSET);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

@@ -70,9 +70,4 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
 
 		return new OpenBuilder().setOpenMessage(msg).build();
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

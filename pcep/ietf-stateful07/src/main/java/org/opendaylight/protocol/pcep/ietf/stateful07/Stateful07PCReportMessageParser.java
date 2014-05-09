@@ -192,9 +192,4 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
 	private enum State {
 		Init, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

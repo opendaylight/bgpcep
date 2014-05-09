@@ -24,11 +24,6 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
 	protected static final int ENTERPRISE_NUM_LENGTH = 4;
 
 	@Override
-	public int getType() {
-		return TYPE;
-	}
-
-	@Override
 	public byte[] serializeTlv(final Tlv tlv) {
 		if (tlv == null) {
 			throw new IllegalArgumentException("Vendor Specific Tlv is mandatory.");

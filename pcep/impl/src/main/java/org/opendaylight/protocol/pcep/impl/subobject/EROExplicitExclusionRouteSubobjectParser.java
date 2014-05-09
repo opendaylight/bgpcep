@@ -136,9 +136,4 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 		}
 		return resultBytes;
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

@@ -29,9 +29,4 @@ public final class LSPCleanupTlvParser implements TlvParser, TlvSerializer {
 	public Tlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
 		return new LspCleanupBuilder().setTimeout(ByteArray.bytesToLong(buffer)).build();
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

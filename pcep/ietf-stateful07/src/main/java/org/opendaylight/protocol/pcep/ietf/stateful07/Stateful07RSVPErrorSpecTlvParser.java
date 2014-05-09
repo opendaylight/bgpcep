@@ -194,9 +194,4 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 		ByteArray.copyWhole(value, bytes, offset);
 		return bytes;
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

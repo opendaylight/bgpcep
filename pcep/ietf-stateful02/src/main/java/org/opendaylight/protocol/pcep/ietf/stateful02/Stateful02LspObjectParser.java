@@ -152,14 +152,4 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 		}
 		return result;
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

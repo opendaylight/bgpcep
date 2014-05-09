@@ -37,9 +37,4 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 		final OverloadDuration odt = (OverloadDuration) tlv;
 		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }

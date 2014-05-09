@@ -149,9 +149,4 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 	private enum State {
 		Init, RpIn, NotificationIn, End
 	}
-
-	@Override
-	public int getMessageType() {
-		return TYPE;
-	}
 }

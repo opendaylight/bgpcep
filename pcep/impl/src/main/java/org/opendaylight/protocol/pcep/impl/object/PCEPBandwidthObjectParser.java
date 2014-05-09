@@ -37,14 +37,4 @@ public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
 		final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
 	}
-
-	@Override
-	public int getObjectType() {
-		return TYPE;
-	}
-
-	@Override
-	public int getObjectClass() {
-		return CLASS;
-	}
 }

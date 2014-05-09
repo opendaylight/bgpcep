@@ -38,9 +38,4 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 		final LspErrorCode lsp = (LspErrorCode) tlv;
 		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getErrorCode(), UPDATE_ERR_CODE_LENGTH));
 	}
-
-	@Override
-	public int getType() {
-		return TYPE;
-	}
 }
