@@ -56,7 +56,14 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 
-public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements PCEPSessionListener, TopologySessionListener {
+/**
+ * Abstract topology listener. Handles to common tasks in creating the topology.
+ * Needs to be subclassed to provide proper message handing.
+ *
+ * @param <S> identifier type of requests
+ * @param <L> identifier type for LSPs
+ */
+public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener {
 	protected static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
 		private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
@@ -72,10 +79,10 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 	};
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
-	private final Map<SRPID, PCEPRequest> waitingRequests = new HashMap<>();
-	private final Map<SRPID, PCEPRequest> sendingRequests = new HashMap<>();
+	private final Map<S, PCEPRequest> waitingRequests = new HashMap<>();
+	private final Map<S, PCEPRequest> sendingRequests = new HashMap<>();
 	private final Map<String, ReportedLsp> lspData = new HashMap<>();
-	private final Map<PLSPID, String> lsps = new HashMap<>();
+	private final Map<L, String> lsps = new HashMap<>();
 	private final ServerSessionManager serverSessionManager;
 	private InstanceIdentifier<Node> topologyNode;
 	private InstanceIdentifier<Node1> topologyAugment;
@@ -199,14 +206,14 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		});
 
 		// Clear all requests which have not been sent to the peer: they result in cancellation
-		for (final Entry<SRPID, PCEPRequest> e : this.sendingRequests.entrySet()) {
+		for (final Entry<S, PCEPRequest> e : this.sendingRequests.entrySet()) {
 			LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
 			e.getValue().setResult(OperationResults.UNSENT);
 		}
 		this.sendingRequests.clear();
 
 		// CLear all requests which have not been acked by the peer: they result in failure
-		for (final Entry<SRPID, PCEPRequest> e : this.waitingRequests.entrySet()) {
+		for (final Entry<S, PCEPRequest> e : this.waitingRequests.entrySet()) {
 			LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
 			e.getValue().setResult(OperationResults.NOACK);
 		}
@@ -275,11 +282,11 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return this.topologyAugment.builder().child(PathComputationClient.class);
 	}
 
-	protected final synchronized PCEPRequest removeRequest(final SRPID id) {
+	protected final synchronized PCEPRequest removeRequest(final S id) {
 		return this.waitingRequests.remove(id);
 	}
 
-	private synchronized void messageSendingComplete(final SRPID requestId, final io.netty.util.concurrent.Future<Void> future) {
+	private synchronized void messageSendingComplete(final S requestId, final io.netty.util.concurrent.Future<Void> future) {
 		final PCEPRequest req = this.sendingRequests.remove(requestId);
 
 		if (future.isSuccess()) {
@@ -290,7 +297,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		}
 	}
 
-	protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SRPID requestId,
+	protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
 			final Metadata metadata) {
 		final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 		final PCEPRequest req = new PCEPRequest(metadata);
@@ -307,7 +314,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return req.getFuture();
 	}
 
-	protected final synchronized void updateLsp(final DataModificationTransaction trans, final PLSPID id, final String lspName,
+	protected final synchronized void updateLsp(final DataModificationTransaction trans, final L id, final String lspName,
 			final ReportedLspBuilder rlb, final boolean solicited) {
 
 		final String name;
@@ -360,7 +367,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 		return pccIdentifier().child(ReportedLsp.class, new ReportedLspKey(name));
 	}
 
-	protected final synchronized void removeLsp(final DataModificationTransaction trans, final PLSPID id) {
+	protected final synchronized void removeLsp(final DataModificationTransaction trans, final L id) {
 		final String name = this.lsps.remove(id);
 		dirty = true;
 		LOG.debug("LSP {} removed", name);
@@ -371,7 +378,7 @@ public abstract class AbstractTopologySessionListener<SRPID, PLSPID> implements 
 
 	protected abstract boolean onMessage(DataModificationTransaction trans, Message message);
 
-	protected String lookupLspName(final PLSPID id) {
+	protected String lookupLspName(final L id) {
 		Preconditions.checkNotNull(id, "ID parameter null.");
 		return this.lsps.get(id);
 	}
