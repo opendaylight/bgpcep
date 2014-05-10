@@ -112,7 +112,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	private static LinkDescriptors parseLinkDescriptors(final ByteBuf buffer) throws BGPParsingException {
 		final LinkDescriptorsBuilder builder = new LinkDescriptorsBuilder();
-		while (buffer.readableBytes() != 0) {
+		while (buffer.isReadable()) {
 			final int type = buffer.readUnsignedShort();
 			final int length = buffer.readUnsignedShort();
 			final byte[] value = ByteArray.readBytes(buffer, length);
@@ -163,7 +163,7 @@ public final class LinkstateNlriParser implements NlriParser {
 		DomainIdentifier bgpId = null;
 		AreaIdentifier ai = null;
 		CRouterIdentifier routerId = null;
-		while (buffer.readableBytes() != 0) {
+		while (buffer.isReadable()) {
 			final int type = buffer.readUnsignedShort();
 			final int length = buffer.readUnsignedShort();
 			final byte[] value = ByteArray.readBytes(buffer, length);
@@ -228,7 +228,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	private static PrefixDescriptors parsePrefixDescriptors(final ByteBuf buffer, final boolean ipv4) throws BGPParsingException {
 		final PrefixDescriptorsBuilder builder = new PrefixDescriptorsBuilder();
-		while (buffer.readableBytes() != 0) {
+		while (buffer.isReadable()) {
 			final int type = buffer.readUnsignedShort();
 			final int length = buffer.readUnsignedShort();
 			final byte[] value = ByteArray.readBytes(buffer, length);
@@ -274,20 +274,20 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	/**
 	 * Parses common parts for Link State Nodes, Links and Prefixes, that includes protocol ID and identifier tlv.
-	 * 
+	 *
 	 * @param nlri as byte array
 	 * @return {@link CLinkstateDestination}
 	 * @throws BGPParsingException if parsing was unsuccessful
 	 */
 	private List<CLinkstateDestination> parseNlri(final ByteBuf nlri) throws BGPParsingException {
-		if (nlri.readableBytes() == 0) {
+		if (!nlri.isReadable()) {
 			return null;
 		}
 		final List<CLinkstateDestination> dests = Lists.newArrayList();
 
 		CLinkstateDestinationBuilder builder = null;
 
-		while (nlri.readableBytes() != 0) {
+		while (nlri.isReadable()) {
 			builder = new CLinkstateDestinationBuilder();
 			final NlriType type = NlriType.forValue(nlri.readUnsignedShort());
 			builder.setNlriType(type);
@@ -344,7 +344,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	@Override
 	public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder) throws BGPParsingException {
-		if (nlri.readableBytes() == 0) {
+		if (!nlri.isReadable()) {
 			return;
 		}
 		final List<CLinkstateDestination> dst = parseNlri(nlri);
@@ -357,7 +357,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	@Override
 	public void parseNlri(final ByteBuf nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
-		if (nlri.readableBytes() == 0) {
+		if (!nlri.isReadable()) {
 			return;
 		}
 		final List<CLinkstateDestination> dst = parseNlri(nlri);
@@ -370,7 +370,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	/**
 	 * Serializes Linkstate NLRI to byte array. We need this as NLRI serves as a key in upper layers.
-	 * 
+	 *
 	 * @param destination Linkstate NLRI to be serialized
 	 * @return byte array
 	 */
@@ -423,17 +423,17 @@ public final class LinkstateNlriParser implements NlriParser {
 		if (descriptors.getAsNumber() != null) {
 			buffer.writeShort(TlvCode.AS_NUMBER);
 			buffer.writeShort(length);
-			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getAsNumber().getValue()));
+			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getAsNumber().getValue()).intValue());
 		}
 		if (descriptors.getDomainId() != null) {
 			buffer.writeShort(TlvCode.BGP_LS_ID);
 			buffer.writeShort(length);
-			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getDomainId().getValue()));
+			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getDomainId().getValue()).intValue());
 		}
 		if (descriptors.getAreaId() != null) {
 			buffer.writeShort(TlvCode.AREA_ID);
 			buffer.writeShort(length);
-			buffer.writeBytes(ByteArray.uint32ToBytes(descriptors.getAreaId().getValue()));
+			buffer.writeInt(UnsignedInteger.valueOf(descriptors.getAreaId().getValue()).intValue());
 		}
 		if (descriptors.getCRouterIdentifier() != null) {
 			final byte[] value = serializeRouterId(descriptors.getCRouterIdentifier());
@@ -441,7 +441,7 @@ public final class LinkstateNlriParser implements NlriParser {
 			buffer.writeShort(value.length);
 			buffer.writeBytes(value);
 		}
-		return ByteArray.subByte(buffer.array(), 0, buffer.readableBytes());
+		return ByteArray.readAllBytes(buffer);
 	}
 
 	private static byte[] serializeRouterId(final CRouterIdentifier routerId) {

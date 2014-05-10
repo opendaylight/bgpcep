@@ -22,7 +22,6 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
-import org.opendaylight.protocol.util.ByteList;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -250,20 +249,6 @@ public class ComplementaryTest {
 		} catch (final IllegalArgumentException e) {
 			assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
 		}
-	}
-
-	@Test
-	public void testByteList() {
-		final ByteList b1 = new ByteList();
-		b1.add(new byte[] { 3, 4, 8 });
-		b1.add(new byte[] { 3, 4, 9 });
-
-		final ByteList b2 = new ByteList();
-		b2.add(new byte[] { 3, 4, 8 });
-		b2.add(new byte[] { 3, 4, 9 });
-
-		assertEquals(b1, b2);
-		assertEquals(b1.toString(), b2.toString());
 	}
 
 	@Test

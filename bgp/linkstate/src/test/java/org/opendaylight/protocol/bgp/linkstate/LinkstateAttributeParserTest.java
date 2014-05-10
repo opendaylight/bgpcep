@@ -59,7 +59,8 @@ public class LinkstateAttributeParserTest {
 	private static final byte[] NODE_ATTR = new byte[] { (byte) 0x01, (byte) 0x07, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x2a,
 		(byte) 0x00, (byte) 0x2b, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0xb0, (byte) 0x04, (byte) 0x02,
 		(byte) 0x00, (byte) 0x05, (byte) 0x31, (byte) 0x32, (byte) 0x4b, (byte) 0x2d, (byte) 0x32, (byte) 0x04, (byte) 0x03,
-		(byte) 0x00, (byte) 0x01, (byte) 0x72, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x29, (byte) 0x29,
+		(byte) 0x00, (byte) 0x01, (byte) 0x72, (byte) 0x04, (byte) 0x03,
+		(byte) 0x00, (byte) 0x01, (byte) 0x73, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x29, (byte) 0x29,
 		(byte) 0x29, (byte) 0x29, (byte) 0x04, (byte) 0x88, (byte) 0x00, (byte) 0x01, (byte) 0x0a };
 
 	private static final byte[] P4_ATTR = new byte[] { (byte) 0x04, (byte) 0x80, (byte) 0x00, (byte) 0x01, (byte) 0xff, (byte) 0x04,
@@ -124,8 +125,7 @@ public class LinkstateAttributeParserTest {
 		assertTrue(ls.getNodeFlags().isAbr());
 
 		assertEquals("12K-2", ls.getDynamicHostname());
-		assertEquals(1, ls.getIsisAreaId().size());
-		assertArrayEquals(new byte[] { 114 }, ls.getIsisAreaId().get(0).getValue());
+		assertEquals(2, ls.getIsisAreaId().size());
 		assertEquals("41.41.41.41", ls.getIpv4RouterId().getValue());
 	}
 
