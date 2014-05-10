@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.concepts;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -20,7 +21,7 @@ public class MultiRegistryTest {
 		String second = "second";
 		String third = "third";
 
-		registry.register(first, 1);
+		AbstractRegistration a = registry.register(first, 1);
 		registry.register(second, 2);
 		registry.register(third, 3);
 
@@ -35,6 +36,9 @@ public class MultiRegistryTest {
 		registry.register(Character.valueOf('c'), 5);
 
 		assertEquals(Integer.valueOf(5), registry.get('c'));
-	}
 
+		a.close();
+
+		assertNull(registry.get("first"));
+	}
 }

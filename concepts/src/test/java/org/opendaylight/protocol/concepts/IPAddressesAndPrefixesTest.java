@@ -104,12 +104,10 @@ public class IPAddressesAndPrefixesTest {
 
 	@Test
 	public void testPrefixList6ForBytes() {
-		final List<Ipv6Prefix> prefs = Lists.newArrayList();
-		prefs.add(new Ipv6Prefix("2001:db8:1:2::/64"));
-		prefs.add(new Ipv6Prefix("2001:db8:1:1::/64"));
-		prefs.add(new Ipv6Prefix("2001:db8:1::/64"));
+		final byte[] bytes = new byte[] { 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x02, 0x40, 0x20, 0x01, 0x0d, (byte) 0xb8, 0x00, 0x01, 0x00, 0x01,};
+		final List<Ipv6Prefix> prefs = Ipv6Util.prefixListForBytes(bytes);
 		assertEquals(prefs,
-				Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64"), new Ipv6Prefix("2001:db8:1::/64")));
+				Lists.newArrayList(new Ipv6Prefix("2001:db8:1:2::/64"), new Ipv6Prefix("2001:db8:1:1::/64")));
 	}
 
 	@Test
