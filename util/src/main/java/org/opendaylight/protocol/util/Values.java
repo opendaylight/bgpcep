@@ -26,7 +26,7 @@ public final class Values {
 	public static final int UNSIGNED_BYTE_MAX_VALUE = 255;
 
 	/**
-	 * Maximum nsigned Byte value in hex.
+	 * Maximum unsigned Byte value in hex.
 	 */
 	public static final int BYTE_MAX_VALUE_BYTES = 0xFF;
 }

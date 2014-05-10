@@ -27,6 +27,8 @@ public class PCEPHexDumpParserTest {
 	public void testParsing() throws Exception {
 		final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getResourceAsStream(PCEPHexDumpParserTest.hexDumpFileName));
 		assertEquals(this.expectedSize, result.size());
+		final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getResource(PCEPHexDumpParserTest.hexDumpFileName).getPath()));
+		assertEquals(this.expectedSize, result1.size());
 	}
 
 	@Test
