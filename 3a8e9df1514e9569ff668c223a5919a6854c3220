@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_61a1bef7",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-lsp-setup-type01.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-12T12:10:29Z",
+      "side": 1,
+      "message": "\u0027The absence of the PATH-SETUP-TYPE TLV is equivalent to an PATH-\n   SETUP-TYPE TLV with an PST value of 0.  It is recommended to omit the\n   TLV in the default case.\u0027 \n\nSo we shouldn\u0027t even have a value of 0. So it can be a boolean.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e165cee1",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-12T12:10:29Z",
+      "side": 1,
+      "message": "I understood that the sr-ero object should contain a _list_ of NAI of the same type.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8162c2d6",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-12T12:10:29Z",
+      "side": 1,
+      "message": "Doesn\u0027t have to be ipv-4 address.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_617a1e8a",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-12T12:10:29Z",
+      "side": 1,
+      "message": "Not sure, whether we can relate this to success, if it should contain no-path object (augmented like this, it doesn\u0027t). Maybe create an entirely new case?",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_016f92c6",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-12T12:10:29Z",
+      "side": 1,
+      "message": "Can we associate this draft with stateful02 at all? It counts on SRP object being present, for example.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
