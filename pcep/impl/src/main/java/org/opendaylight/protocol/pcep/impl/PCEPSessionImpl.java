@@ -197,7 +197,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		final ChannelFuture f = this.channel.writeAndFlush(msg);
 		this.lastMessageSentAt = System.nanoTime();
 		if (!(msg instanceof KeepaliveMessage)) {
-			LOG.debug("Message enqueued: {}", msg);
+			LOG.info("PCEP Message enqueued: {}", msg);
 		}
 		this.sentMsgCount++;
 
@@ -205,7 +205,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 			@Override
 			public void operationComplete(final ChannelFuture arg) {
 				if (arg.isSuccess()) {
-					LOG.debug("Message sent to socket: {}", msg);
+					LOG.trace("Message sent to socket: {}", msg);
 				} else {
 					LOG.debug("Message not sent: {}", msg, arg.cause());
 				}
@@ -220,7 +220,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	@Override
 	public void close() {
-		LOG.trace("Closing session: {}", this);
+		LOG.info("Closing PCEP session: {}", this);
 		this.channel.close();
 	}
 
@@ -231,7 +231,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	 */
 	@Override
 	public synchronized void close(final TerminationReason reason) {
-		LOG.debug("Closing session: {}", this);
+		LOG.info("Closing PCEP session: {}", this);
 		this.closed = true;
 		this.sendMessage(new CloseBuilder().setCCloseMessage(
 				new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
@@ -249,7 +249,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 	}
 
 	private synchronized void terminate(final TerminationReason reason) {
-		LOG.info("Local session termination : {}", reason);
+		LOG.info("Local PCEP session termination : {}", reason);
 		this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
 		this.closed = true;
 		this.sendMessage(new CloseBuilder().setCCloseMessage(
@@ -313,11 +313,12 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 		// Update last reception time
 		this.lastMessageReceivedAt = System.nanoTime();
 		this.receivedMsgCount++;
-
+		if (!(msg instanceof KeepaliveMessage)) {
+			LOG.debug("PCEP message {} received.", msg);
+		}
 		// Internal message handling. The user does not see these messages
 		if (msg instanceof KeepaliveMessage) {
 			// Do nothing, the timer has been already reset
-			LOG.trace("Session {} received a keepalive", this);
 		} else if (msg instanceof OpenMessage) {
 			this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
 		} else if (msg instanceof CloseMessage) {

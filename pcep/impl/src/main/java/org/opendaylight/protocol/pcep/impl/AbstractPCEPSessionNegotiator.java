@@ -193,7 +193,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 		this.state = State.OpenWait;
 		scheduleFailTimer();
 
-		LOG.debug("Channel {} started sent proposal {}", this.channel, this.localPrefs);
+		LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
 	}
 
 	@Override
@@ -210,7 +210,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 			if (msg instanceof Keepalive) {
 				this.localOK = true;
 				if (this.remoteOK) {
-					LOG.info("Channel {} completed negotiation", this.channel);
+					LOG.info("PCEP peer {} completed negotiation", this.channel);
 					negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
 					this.state = State.Finished;
 				} else {
@@ -255,6 +255,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 					this.remoteOK = true;
 					if (this.localOK) {
 						negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
+						LOG.info("PCEP peer {} completed negotiation", this.channel);
 						this.state = State.Finished;
 					} else {
 						scheduleFailTimer();
