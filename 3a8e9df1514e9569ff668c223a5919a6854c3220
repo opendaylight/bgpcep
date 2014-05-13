@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_d3c18181",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-lsp-setup-type01.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-05-13T08:47:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_61a1bef7",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_e165cee1",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2014-05-12T12:10:29Z",
       "side": 1,
       "message": "I understood that the sr-ero object should contain a _list_ of NAI of the same type.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d393c1a1",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-05-13T08:47:44Z",
+      "side": 1,
+      "message": "\"An SR-ERO object consists of one or more ERO subobjects described in the following section.  Also, all subobjects within an SR-ERO MUST be of the SR-ERO subobject type\"\n\nSo, it contains a list of SR-ERO subobjects",
+      "parentUuid": "fa82b9bf_e165cee1",
       "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_33ea2d10",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-05-13T08:47:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_8162c2d6",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_617a1e8a",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_13d0494f",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-05-13T08:47:44Z",
+      "side": 1,
+      "message": "I think, NO-PATH object is used in same way (path computation failure case) as defined in http://tools.ietf.org/html/rfc5440#section-6.5",
+      "parentUuid": "fa82b9bf_617a1e8a",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_016f92c6",
         "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
         "patchSetId": 1
@@ -81,6 +153,24 @@
       "writtenOn": "2014-05-12T12:10:29Z",
       "side": 1,
       "message": "Can we associate this draft with stateful02 at all? It counts on SRP object being present, for example.",
+      "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b3c4fd92",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-05-13T08:47:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_016f92c6",
       "revId": "3a8e9df1514e9569ff668c223a5919a6854c3220",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
