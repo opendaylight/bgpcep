@@ -117,6 +117,7 @@ public class BGPSynchronization {
 			if (!s.getEor()) {
 				if (!s.getUpd()) {
 					s.setEorTrue();
+					LOG.info("BGP Synchronization finished for table {} ", entry.getKey());
 					final Update up = generateEOR(entry.getKey());
 					LOG.debug("Sending synchronization message: {}", up);
 					this.listener.onMessage(this.session, up);

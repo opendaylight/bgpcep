@@ -93,7 +93,8 @@ public class BGPUpdateMessageParser implements MessageParser {
 		if (nlri != null && !nlri.isEmpty()) {
 			eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
 		}
-		LOG.trace("Update message was parsed.");
-		return eventBuilder.build();
+		Update msg = eventBuilder.build();
+		LOG.debug("BGP Update message was parsed {}.", msg);
+		return msg;
 	}
 }

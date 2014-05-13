@@ -115,7 +115,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 		this.stateTimer = Preconditions.checkNotNull(timer);
 		this.channel = Preconditions.checkNotNull(channel);
 		this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
-		LOG.info("HoldTimer new value: {}", this.holdTimerValue);
+		LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
 		this.keepAlive = this.holdTimerValue / 3;
 		this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
 
@@ -157,7 +157,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
 	@Override
 	public synchronized void close() {
-		LOG.debug("Closing session: {}", this);
+		LOG.info("Closing session: {}", this);
 		if (this.state != State.Idle) {
 			this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build());
 			this.channel.close();
@@ -187,7 +187,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 					new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
 		} else if (msg instanceof Keepalive) {
 			// Keepalives are handled internally
-			LOG.debug("Received KeepAlive messsage.");
+			LOG.trace("Received KeepAlive messsage.");
 			this.kaCounter++;
 			if (this.kaCounter >= 2) {
 				this.sync.kaReceived();

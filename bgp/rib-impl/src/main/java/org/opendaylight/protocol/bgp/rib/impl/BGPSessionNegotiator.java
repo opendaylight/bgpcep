@@ -126,10 +126,11 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		case Finished:
 		case Idle:
 			this.sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
-			// FIXME: is something missing here? (at least an explanation why fall-through is okay
+			return;
 		case OpenConfirm:
 			if (msg instanceof Keepalive) {
 				negotiationSuccessful(this.session);
+				LOG.info("BGP Session with peer {} established successfully.", this.channel);
 			} else if (msg instanceof Notify) {
 				final Notify ntf = (Notify) msg;
 				negotiationFailed(new BGPDocumentedException("Peer refusal", BGPError.forValue(ntf.getErrorCode(), ntf.getErrorSubcode())));
@@ -159,7 +160,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 	private void handleOpen(final Open openObj) {
 		final AsNumber as = AsNumberUtil.advertizedAsNumber(openObj);
 		if (!this.remoteAs.equals(as)) {
-			LOG.info("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
+			LOG.warn("Unexpected remote AS number. Expecting {}, got {}", this.remoteAs, as);
 			this.sendMessage(buildErrorNotify(BGPError.BAD_PEER_AS));
 			negotiationFailed(new BGPDocumentedException("Peer AS number mismatch", BGPError.BAD_PEER_AS));
 			this.state = State.Finished;
@@ -169,7 +170,7 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
 		final List<BgpParameters> prefs = openObj.getBgpParameters();
 		if (prefs != null && !prefs.isEmpty()) {
 			if (!prefs.containsAll(this.localPref.getParams())) {
-				LOG.info("Open message session parameters differ, session still accepted.");
+				LOG.info("BGP Open message session parameters differ, session still accepted.");
 			}
 			this.sendMessage(new KeepaliveBuilder().build());
 			this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, openObj, this.localPref.getHoldTime());
