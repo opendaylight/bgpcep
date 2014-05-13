@@ -89,12 +89,12 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
 		if (body.readableBytes() != 0) {
 			data = ByteArray.readAllBytes(body);
 		}
-		LOG.trace("Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
-				Arrays.toString(data));
 		final NotifyBuilder builder = new NotifyBuilder().setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
 		if (data != null) {
 			builder.setData(data);
 		}
+		LOG.info("BGP Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
+				Arrays.toString(data));
 		return builder.build();
 	}
 }

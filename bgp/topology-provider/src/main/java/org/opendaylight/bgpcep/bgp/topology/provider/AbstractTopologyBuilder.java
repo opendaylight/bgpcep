@@ -59,13 +59,13 @@ TopologyReference {
 		final TopologyKey tk = new TopologyKey(Preconditions.checkNotNull(topologyId));
 		this.topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, tk).toInstance();
 
-		LOG.debug("Initiating topology builder from {} at {}", locRibReference, topology);
+		LOG.debug("Initiating topology builder from {} at {}", locRibReference, this.topology);
 
 		DataModificationTransaction t = dataProvider.beginTransaction();
-		Object o = t.readOperationalData(topology);
-		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", topology);
+		Object o = t.readOperationalData(this.topology);
+		Preconditions.checkState(o == null, "Data provider conflict detected on object {}", this.topology);
 
-		t.putOperationalData(topology, new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types).build());
+		t.putOperationalData(this.topology, new TopologyBuilder().setKey(tk).setServerProvided(Boolean.TRUE).setTopologyTypes(types).build());
 		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
 			@Override
 			public void onSuccess(final RpcResult<TransactionStatus> result) {
@@ -74,13 +74,13 @@ TopologyReference {
 
 			@Override
 			public void onFailure(final Throwable t) {
-				LOG.error("Failed to initiate topology {} by listener {}", topology, AbstractTopologyBuilder.this, t);
+				LOG.error("Failed to initiate topology {} by listener {}", AbstractTopologyBuilder.this.topology, AbstractTopologyBuilder.this, t);
 			}
 		});
 	}
 
 	public final InstanceIdentifier<Tables> tableInstanceIdentifier(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-		return locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
+		return this.locRibReference.getInstanceIdentifier().builder().child(LocRib.class).child(Tables.class, new TablesKey(afi, safi)).toInstance();
 	}
 
 	protected abstract void createObject(DataModification<InstanceIdentifier<?>, DataObject> trans, InstanceIdentifier<T> id, T value);
@@ -101,7 +101,7 @@ TopologyReference {
 		if (id != null) {
 			out.add(id);
 		} else {
-			LOG.info("Identifier {} in {} set does not contain listening class {}, ignoring it", i, set, this.idClass);
+			LOG.debug("Identifier {} in {} set does not contain listening class {}, ignoring it", i, set, this.idClass);
 		}
 	}
 

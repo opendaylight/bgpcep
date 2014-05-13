@@ -164,7 +164,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 		if (optLength > 0) {
 			fillParams(body.slice(body.readerIndex(), optLength), optParams);
 		}
-		LOG.trace("Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
+		LOG.info("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
 		return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime).setBgpIdentifier(bgpId).setBgpParameters(
 				optParams).build();
 	}
