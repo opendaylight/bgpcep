@@ -120,7 +120,7 @@
 					<topology-id>example-ipv4-topology</topology-id>
 				</module>
 				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv4</type>
+					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv6</type>
 					<name>example-ipv6-topology</name>
 					<data-provider>
 						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
