@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_5a6edd02",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-15T12:15:06Z",
+      "side": 1,
+      "message": "list inside cases",
+      "revId": "4eea0115ff5ad950e2fca29f7125f372e050d822",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ba67e924",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-15T12:15:06Z",
+      "side": 1,
+      "message": "enum",
+      "revId": "4eea0115ff5ad950e2fca29f7125f372e050d822",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7a7161df",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-15T12:15:06Z",
+      "side": 1,
+      "message": "group ipv4 and ipv6 to ip-address",
+      "revId": "4eea0115ff5ad950e2fca29f7125f372e050d822",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
