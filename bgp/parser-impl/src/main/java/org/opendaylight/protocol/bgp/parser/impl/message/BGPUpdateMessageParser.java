@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *  * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -17,17 +18,27 @@ import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeDescriptor;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.3">BGP-4 Update Message Format</a>
  *
  */
-public class BGPUpdateMessageParser implements MessageParser {
+public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
 	public static final int TYPE = 2;
 
 	private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
@@ -98,7 +109,6 @@ public class BGPUpdateMessageParser implements MessageParser {
 		LOG.debug("BGP Update message was parsed {}.", msg);
 		return msg;
 	}
-}
 
     @Override
     public ByteBuf serializeMessage(Notification message) {
@@ -109,29 +119,104 @@ public class BGPUpdateMessageParser implements MessageParser {
         final Update update = (Update) message;
 
         ByteBuf messageBody = Unpooled.buffer();
+        if (update.getWithdrawnRoutes()!=null) {
+            messageBody.writeShort(update.getWithdrawnRoutes().getWithdrawnRoutes().size());
+            for (Ipv4Prefix withdrawnRoutePrefix : update.getWithdrawnRoutes().getWithdrawnRoutes()) {
+                byte[] prefixBytes = Ipv4Util.bytesForPrefix(withdrawnRoutePrefix);
+                messageBody.writeByte(prefixBytes.length);
+                messageBody.writeBytes(prefixBytes);
+            }
+        } else {
+            messageBody.writeShort(0);
+        }
 
-        if (update.getPathAttributes()!=null){
-            if (update.getPathAttributes().getOrigin()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getOrigin(), messageBody);
+        if (update.getPathAttributes()!=null) {
+            parsePathAttributes(update.getPathAttributes(), messageBody);
+        }
+
+        if (update.getNlri()!=null){
+            for (Ipv4Prefix ipv4Prefix:update.getNlri().getNlri()) {
+                int prefixBites = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
+                byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
+                        prefixBites/8);
+                messageBody.writeByte(prefixBites);
+                messageBody.writeBytes(prefixBytes);
             }
-            if (update.getPathAttributes().getAsPath()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getAsPath(), messageBody);
+        }
+        LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
+
+        ByteBuf ret= Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, messageBody.copy(0,messageBody.writerIndex()).array()));
+
+        return ret;
+    }
+
+    private void parsePathAttributes(PathAttributes pathAttributes, ByteBuf messageAggregator){
+        ByteBuf pathAttributesBody = Unpooled.buffer();
+        if (pathAttributes.getOrigin()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getOrigin(), pathAttributesBody);
+        }
+        if (pathAttributes.getAsPath()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getAsPath(), pathAttributesBody);
+        }
+        if (pathAttributes.getCNextHop()!=null){
+            if (pathAttributes.getCNextHop() instanceof Ipv4NextHopCase) {
+                this.reg.serializeAttribute((Ipv4NextHopCase)pathAttributes.getCNextHop(), pathAttributesBody);
             }
-            if (update.getPathAttributes().getMultiExitDisc()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getMultiExitDisc(), messageBody);
-            }
-            if (update.getPathAttributes().getLocalPref()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getLocalPref(), messageBody);
-            }
-            if (update.getPathAttributes().getAtomicAggregate()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getAtomicAggregate(), messageBody);
-            }
-            if (update.getPathAttributes().getAggregator()!=null) {
-                this.reg.serializeAttribute(update.getPathAttributes().getAggregator(), messageBody);
+            if (pathAttributes.getCNextHop() instanceof Ipv6NextHopCase) {
+                this.reg.serializeAttribute((Ipv6NextHopCase)pathAttributes.getCNextHop(), pathAttributesBody);
             }
         }
 
-        LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
-        return messageBody;
+        if (pathAttributes.getMultiExitDisc()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getMultiExitDisc(), pathAttributesBody);
+        }
+        if (pathAttributes.getLocalPref()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getLocalPref(), pathAttributesBody);
+        }
+        if (pathAttributes.getAtomicAggregate()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getAtomicAggregate(), pathAttributesBody);
+        }
+        if (pathAttributes.getAggregator()!=null) {
+            this.reg.serializeAttribute(pathAttributes.getAggregator(), pathAttributesBody);
+        }
+
+        if (pathAttributes.getCommunities()!=null){
+            ByteBuf communitiesBuffer = Unpooled.buffer();
+            for (Communities communities:pathAttributes.getCommunities()) {
+                this.reg.serializeAttribute(communities, communitiesBuffer);
+            }
+            pathAttributesBody.writeByte(UnsignedBytes.checkedCast(CommunitiesAttributeParser.ATTR_FLAGS));
+            pathAttributesBody.writeByte(UnsignedBytes.checkedCast(CommunitiesAttributeParser.TYPE));
+            pathAttributesBody.writeByte(UnsignedBytes.checkedCast(communitiesBuffer.writerIndex()));
+            pathAttributesBody.writeBytes(communitiesBuffer);
+        }
+        if (pathAttributes.getExtendedCommunities()!=null){
+            for (ExtendedCommunities extendedCommunities:pathAttributes.getExtendedCommunities()){
+                this.reg.serializeAttribute(extendedCommunities, pathAttributesBody);
+            }
+        }
+        if (pathAttributes.getOriginatorId()!=null){
+            serializeIpv4AddressAttribute(pathAttributesBody, pathAttributes.getOriginatorId(), new OriginatorIdAttributeParser());
+        }
+        if (pathAttributes.getClusterId()!=null){
+            serializeIpv4AddressAttributes(pathAttributesBody, pathAttributes.getClusterId(), new ClusterIdAttributeParser());
+        }
+
+        messageAggregator.writeShort(pathAttributesBody.writerIndex());
+        messageAggregator.writeBytes(pathAttributesBody);
+    }
+    private void serializeIpv4AddressAttribute(ByteBuf byteAggregator,Ipv4Address address, AttributeDescriptor serializer){
+        byteAggregator.writeByte(serializer.getFlags());
+        byteAggregator.writeByte(serializer.getType());
+        byteAggregator.writeByte(serializer.getLength());
+        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(address));
+    }
+    private void serializeIpv4AddressAttributes(ByteBuf byteAggregator,List<? extends Ipv4Address> addresses, AttributeDescriptor serializer){
+        byteAggregator.writeByte(serializer.getFlags());
+        byteAggregator.writeByte(serializer.getType());
+        byteAggregator.writeByte(serializer.getLength()*addresses.size());
+        for (Ipv4Address address:addresses){
+            byteAggregator.writeBytes(Ipv4Util.bytesForAddress(address));
+        }
     }
 }
