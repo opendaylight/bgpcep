@@ -15,6 +15,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
@@ -28,18 +30,16 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
 
 	@Override
 	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
-		final List<ClusterIdentifier> list = Lists.newArrayList();
+		final List<ClusterId> list = Lists.newArrayList();
 		while (buffer.isReadable()) {
-			list.add(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, CLUSTER_LENGTH))));
+			list.add(new ClusterIdBuilder().setIdentifier(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, CLUSTER_LENGTH)))).build());
 		}
 		builder.setClusterId(list);
 	}
 
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-/*
-        ClusterIdentifier clusterIdentifier = (ClusterIdentifier) attribute;
-        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));
-*/
+        ClusterId clusterId = (ClusterId) attribute;
+        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(clusterId.getIdentifier()));
     }
 }

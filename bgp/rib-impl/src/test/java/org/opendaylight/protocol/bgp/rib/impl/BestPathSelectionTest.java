@@ -7,17 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertTrue;
-
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
@@ -32,8 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
-
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @see <a href="http://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/13753-25.html">BGP Best Path
@@ -65,9 +64,9 @@ public class BestPathSelectionTest {
 		segs.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(ases).build()).build()).build());
 		asBuilder2.setSegments(segs);
 
-		final List<ClusterIdentifier> clusters = new ArrayList<>();
-		clusters.add(new ClusterIdentifier(new Ipv4Address("0.0.0.0")));
-		clusters.add(new ClusterIdentifier(new Ipv4Address("0.0.0.0")));
+		final List<ClusterId> clusters = new ArrayList<>();
+		clusters.add(new ClusterIdBuilder().setIdentifier(new ClusterIdentifier(new Ipv4Address("0.0.0.0"))).build());
+		clusters.add(new ClusterIdBuilder().setIdentifier(new ClusterIdentifier(new Ipv4Address("0.0.0.0"))).build());
 
 		final PathAttributesBuilder builder = new PathAttributesBuilder();
 		builder.setLocalPref(new LocalPrefBuilder().setPref(100L).build());
@@ -84,7 +83,7 @@ public class BestPathSelectionTest {
 		builder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(12L).build());
 		this.attr5 = builder.build();
 		builder.setAsPath(new AsPathBuilder().setSegments(new ArrayList<Segments>()).build());
-		builder.setClusterId(new ArrayList<ClusterIdentifier>());
+		builder.setClusterId(new ArrayList<ClusterId>());
 		this.attr6 = builder.build();
 		builder.setClusterId(clusters);
 		this.attr7 = builder.build();

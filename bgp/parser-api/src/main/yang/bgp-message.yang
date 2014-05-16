@@ -112,11 +112,11 @@ module bgp-message {
 		list extended-communities {
 			uses bgp-t:extended-community;
 		}
-		leaf originator-id {
-			type inet:ipv4-address;
+		container originator-id {
+			uses bgp-t:bgp-originator-id;
 		}
-		leaf-list cluster-id {
-			type bgp-t:cluster-identifier;
+		list cluster-id {
+			uses bgp-t:cluster-id;
 		}
 	}
 

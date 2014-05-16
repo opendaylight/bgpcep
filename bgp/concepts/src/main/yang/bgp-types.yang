@@ -90,6 +90,20 @@ module bgp-types {
 			type inet:ipv4-address;
 		}
 	}
+	grouping bgp-originator-id {
+		reference "http://www.ietf.org/rfc/rfc4456.txt";
+		description "This attribute will carry the BGP Identifier of the originator of the route in the local AS.";
+		leaf bgp-identifier {
+			type inet:ipv4-address;
+		}
+	}
+	grouping cluster-id {
+		reference "http://www.ietf.org/rfc/rfc4456.txt";
+		description "Value representing the reflection path that the route has passed";
+		leaf identifier {
+			type cluster-identifier;
+		}
+	}
 
 	grouping community {
 		reference "https://tools.ietf.org/html/rfc1997";

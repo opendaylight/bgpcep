@@ -113,6 +113,12 @@ public class BGPUpdateAttributesSerializationTest {
                 MessageUtil.LENGTH_FIELD_LENGTH));
         message =  BGPUpdateAttributesSerializationTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
     }
+
+    @Test
+    public void testOriginatorId() throws BGPDocumentedException {
+        readUpdateMesageFromList(1);
+        OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();
+    }
     @Test
     public void testPathAttributesSerialization() throws BGPDocumentedException {
         readUpdateMesageFromList(0);
@@ -130,6 +136,7 @@ public class BGPUpdateAttributesSerializationTest {
         MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser = new MultiExitDiscriminatorAttributeParser();
         serialize(multiExitDiscriminatorAttributeParser,message.getPathAttributes().getMultiExitDisc());
         assertEquals("00000000",asHexDump());
+
 
 /*
         OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();

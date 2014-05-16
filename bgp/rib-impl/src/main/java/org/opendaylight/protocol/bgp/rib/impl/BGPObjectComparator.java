@@ -120,10 +120,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 		byte[] oid1 = this.localId;
 		byte[] oid2 = this.remoteId;
 		if (o1.getOriginatorId() != null) {
-			oid1 = InetAddresses.forString(o1.getOriginatorId().getValue()).getAddress();
+			oid1 = InetAddresses.forString(o1.getOriginatorId().getBgpIdentifier().getValue()).getAddress();
 		}
 		if (o2.getOriginatorId() != null) {
-			oid2 = InetAddresses.forString(o2.getOriginatorId().getValue()).getAddress();
+			oid2 = InetAddresses.forString(o2.getOriginatorId().getBgpIdentifier().getValue()).getAddress();
 		}
 		if (!Arrays.equals(oid1, oid2)) {
 			return compareByteArrays(oid1, oid2);
