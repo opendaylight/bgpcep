@@ -90,7 +90,6 @@ module bgp-types {
 			type inet:ipv4-address;
 		}
 	}
-
 	grouping community {
 		reference "https://tools.ietf.org/html/rfc1997";
 		description "Community Path Attribute";
