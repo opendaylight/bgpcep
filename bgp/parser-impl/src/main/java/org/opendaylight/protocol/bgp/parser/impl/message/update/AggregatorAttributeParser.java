@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
 	public static final int TYPE = 7;
     public static final int AGGREGATOR_OCTETS = 6;
-
+    public static final int ATTR_FLAGS = 192;
 	private final ReferenceCache refCache;
 
 	public AggregatorAttributeParser(final ReferenceCache refCache) {
@@ -53,6 +53,12 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
 
         ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
         Preconditions.checkArgument(aggregator.getAsNumber() != null,"AS number that formed the aggregate route (encoded as 2 octets)");
+
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(AGGREGATOR_OCTETS));
+
         byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
         byteAggregator.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
     }

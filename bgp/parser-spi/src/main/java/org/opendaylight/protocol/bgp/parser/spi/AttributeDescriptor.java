@@ -7,9 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import io.netty.buffer.ByteBuf;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+/**
+ * Common interface for path attribute descriptors <attribute type, attribute length, attribute value> of
+  */
+public interface AttributeDescriptor {
 
-public interface NlriSerializer {
-	void serializeAttribute(DataObject attribute,ByteBuf byteAggregator);
+    public int getType();
+    public int getFlags();
+    public int getLength();
+
 }

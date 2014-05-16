@@ -349,7 +349,7 @@ public class BGPParserTest {
 				new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
 		final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
-				new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
+                new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
 
 		// check path attributes
 
