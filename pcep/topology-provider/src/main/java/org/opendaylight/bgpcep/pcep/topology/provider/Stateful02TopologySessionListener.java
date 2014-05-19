@@ -221,7 +221,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
 		// Build the PCUpd request and send it
 		final UpdatesBuilder rb = new UpdatesBuilder();
-		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).setOperational(input.getArguments().getAugmentation(Arguments2.class).isOperational()).build());
+		rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).setOperational(input.getArguments().getAugmentation(Arguments1.class).isOperational()).build());
 		final PathBuilder pb = new PathBuilder();
 		rb.setPath(pb.setEro(input.getArguments().getEro()).build());
 		pb.fieldsFrom(input.getArguments());
@@ -234,7 +234,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 	@Override
 	public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
 		Boolean op = null;
-		final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
+		final Arguments2 aa = input.getArguments().getAugmentation(Arguments2.class);
 		if (aa == null) {
 			LOG.warn("Operational status not present in MD-SAL.");
 		} else {
