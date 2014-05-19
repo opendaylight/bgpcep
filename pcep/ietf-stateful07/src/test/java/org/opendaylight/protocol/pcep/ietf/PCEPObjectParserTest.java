@@ -34,6 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
@@ -128,11 +130,11 @@ public class PCEPObjectParserTest {
 		builder.setSetupPriority((short) 0x03);
 		builder.setLocalProtectionDesired(true);
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder().addAugmentation(
-				Tlvs2.class, new Tlvs2Builder().setSymbolicPathName(tlv).build()).build());
+				Tlvs3.class, new Tlvs3Builder().setSymbolicPathName(tlv).build()).build());
 
 		// Tlvs container does not contain toString
 		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4));
-		assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs2.class).getSymbolicPathName());
+		assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs3.class).getSymbolicPathName());
 		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
 		// 4)));
 		assertArrayEquals(result, parser.serializeObject(builder.build()));

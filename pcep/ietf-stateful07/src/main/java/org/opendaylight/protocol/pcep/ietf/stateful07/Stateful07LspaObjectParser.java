@@ -12,6 +12,8 @@ import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
@@ -30,9 +32,9 @@ public final class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 	@Override
 	public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
 		super.addTlv(tbuilder, tlv);
-		final Tlvs2Builder nameBuilder = new Tlvs2Builder();
-		if (tbuilder.getAugmentation(Tlvs2.class) != null) {
-			final Tlvs2 t = tbuilder.getAugmentation(Tlvs2.class);
+		final Tlvs3Builder nameBuilder = new Tlvs3Builder();
+		if (tbuilder.getAugmentation(Tlvs3.class) != null) {
+			final Tlvs3 t = tbuilder.getAugmentation(Tlvs3.class);
 			if (t.getSymbolicPathName() != null) {
 				nameBuilder.setSymbolicPathName(t.getSymbolicPathName());
 			}
@@ -40,7 +42,7 @@ public final class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 		if (tlv instanceof SymbolicPathName) {
 			nameBuilder.setSymbolicPathName((SymbolicPathName) tlv);
 		}
-		tbuilder.addAugmentation(Tlvs2.class, nameBuilder.build());
+		tbuilder.addAugmentation(Tlvs3.class, nameBuilder.build());
 	}
 
 	@Override
@@ -51,8 +53,8 @@ public final class Stateful07LspaObjectParser extends PCEPLspaObjectParser {
 		final byte[] prev = super.serializeTlvs(tlvs);
 		int finalLength = prev.length;
 		byte[] nameBytes = null;
-		if (tlvs.getAugmentation(Tlvs2.class) != null) {
-			final Tlvs2 nameTlvs = tlvs.getAugmentation(Tlvs2.class);
+		if (tlvs.getAugmentation(Tlvs3.class) != null) {
+			final Tlvs3 nameTlvs = tlvs.getAugmentation(Tlvs3.class);
 			if (nameTlvs.getSymbolicPathName() != null) {
 				nameBytes = serializeTlv(nameTlvs.getSymbolicPathName());
 				finalLength += nameBytes.length;
