@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -17,15 +19,19 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 
-public final class MPReachAttributeParser implements AttributeParser,AttributeSerializer {
-    public static final int TYPE = 14;
+public final class MPReachAttributeParser implements AttributeParser, AttributeSerializer {
 
+    public static final int TYPE = 14;
+    public static final int ATTR_FLAGS = 128;
+    public static final int ATTR_LENGTH = 2;
     private final NlriRegistry reg;
 
     public MPReachAttributeParser(final NlriRegistry reg) {
@@ -44,6 +50,18 @@ public final class MPReachAttributeParser implements AttributeParser,AttributeSe
 
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        //TODO implement this
+        PathAttributes pathAttributes = (PathAttributes) attribute;
+        PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
+        if (pathAttributes1 == null) {
+            return;
+        }
+        MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
+        ByteBuf reachBuffer = Unpooled.buffer();
+        this.reg.serializeMpReach(mpReachNlri, reachBuffer);
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(reachBuffer.writerIndex()));
+        byteAggregator.writeBytes(reachBuffer);
+
     }
 }
