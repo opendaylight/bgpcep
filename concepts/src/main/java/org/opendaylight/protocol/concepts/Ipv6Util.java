@@ -71,6 +71,31 @@ public final class Ipv6Util {
     }
 
     /**
+     * Obtains prefix length from given prefix.
+     *
+     * @param prefixValue value of prefix
+     * @return prefix length
+     */
+    public static int getPrefixLength(final String prefixValue) {
+        final int sep = prefixValue.indexOf('/');
+        return Integer.valueOf(prefixValue.substring(sep + 1, prefixValue.length()));
+    }
+
+    /**
+     * Converts Ipv6Prefix to byte array of (prefix bit size/8) size.
+     *
+     * @param prefix Ipv6Prefix to be converted
+     * @return byte array
+     */
+    public static byte[] bytesForPrefixByPrefixLength(Ipv6Prefix ipv6Prefix){
+        int prefixBites = getPrefixLength(ipv6Prefix.getValue());
+        byte[] prefixBytes = ByteArray.subByte(Ipv6Util.bytesForPrefix(ipv6Prefix), 0,
+                Ipv4Util.getMinBytes(prefixBites));
+        return prefixBytes;
+    }
+
+
+    /**
      * Converts Ipv6Prefix to byte array.
      *
      * @param prefix Ipv6Prefix to be converted

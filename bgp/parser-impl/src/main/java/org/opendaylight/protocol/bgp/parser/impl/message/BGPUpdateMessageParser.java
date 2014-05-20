@@ -132,15 +132,19 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         } else {
             messageBody.writeShort(0);
         }
-        if (update.getNlri() != null) {
-            for (Ipv4Prefix ipv4Prefix : update.getNlri().getNlri()) {
+
+        if (update.getNlri() != null){
+            ByteBuf nlriBuffer = Unpooled.buffer();
+            for (Ipv4Prefix ipv4Prefix:update.getNlri().getNlri()) {
                 double prefixBits = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
                 byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
-                        (int) Math.ceil(prefixBits / 8));
-                messageBody.writeByte((int) prefixBits);
-                messageBody.writeBytes(prefixBytes);
+                        (int)Math.ceil(prefixBits/8));
+                nlriBuffer.writeByte((int)prefixBits);
+                nlriBuffer.writeBytes(prefixBytes);
             }
+            messageBody.writeBytes(nlriBuffer);
         }
+
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         ByteBuf ret = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, messageBody.copy(0, messageBody.writerIndex()).array()));
         return ret;
