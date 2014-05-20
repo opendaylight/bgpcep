@@ -25,14 +25,16 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
@@ -46,6 +48,7 @@ public class BGPUpdateAttributesSerializationTest {
     private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateMessageParser.class);
     static final List<byte[]> inputBytes = new ArrayList<byte[]>();
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
+
 
     private static int COUNTER = 9;//17;
     private static int MAX_SIZE = 300;
@@ -123,6 +126,12 @@ public class BGPUpdateAttributesSerializationTest {
         if (left.getOriginatorId()!=null){
             assertEquals(left.getOriginatorId().getValue(), right.getOriginatorId().getValue());
         }
+        if (left.getAugmentation(PathAttributes1.class)!=null){
+            assertTrue(right.getAugmentation(PathAttributes1.class) != null);
+        }
+        if (left.getAugmentation(PathAttributes2.class)!=null){
+            assertTrue(right.getAugmentation(PathAttributes2.class)!=null);
+        }
     }
 
     private void assertEqualsClusterId(List<ClusterIdentifier> left,List<ClusterIdentifier> right){
@@ -185,9 +194,8 @@ public class BGPUpdateAttributesSerializationTest {
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
         for (int i = 0; i < COUNTER; i++) {
             message = readUpdateMessageFromList(i);
-            byteAggregator = updateParser.serializeMessage(message);
-
             Update originalMessage = readUpdateMessageFromList(i);
+
             Update serializedMessage = readUpdateMessageBytes(BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage));
             if (originalMessage.getNlri()!=null) {
                 assertEqualsNlri(originalMessage.getNlri(), serializedMessage.getNlri());
