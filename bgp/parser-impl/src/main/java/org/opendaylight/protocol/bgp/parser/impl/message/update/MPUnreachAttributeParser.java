@@ -8,7 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -23,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class MPUnreachAttributeParser implements AttributeParser,AttributeSerializer {
 	public static final int TYPE = 15;
+    public static final int ATTR_FLAGS = 128;
 
 	private final NlriRegistry reg;
 
@@ -42,7 +45,15 @@ public final class MPUnreachAttributeParser implements AttributeParser,Attribute
 
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        //TODO implement this
         MpUnreachNlri mpUnreachNlri = (MpUnreachNlri) attribute;
+
+        ByteBuf unreachBuffer = Unpooled.buffer();
+        this.reg.serializeMpUnReach(mpUnreachNlri,unreachBuffer);
+
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+        byteAggregator.writeByte(unreachBuffer.writerIndex());
+        byteAggregator.writeBytes(unreachBuffer);
+
     }
 }
