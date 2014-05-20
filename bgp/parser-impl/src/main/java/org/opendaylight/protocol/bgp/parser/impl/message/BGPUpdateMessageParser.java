@@ -60,14 +60,14 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
     private final AttributeRegistry reg;
 
     // Constructors -------------------------------------------------------
-    public BGPUpdateMessageParser (final AttributeRegistry reg) {
+    public BGPUpdateMessageParser(final AttributeRegistry reg) {
         this.reg = Preconditions.checkNotNull(reg);
     }
 
     // Getters & setters --------------------------------------------------
 
     @Override
-    public Update parseMessageBody (final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
+    public Update parseMessageBody(final ByteBuf buffer, final int messageLength) throws BGPDocumentedException {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
         LOG.trace("Started parsing of update message: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
 
@@ -127,29 +127,33 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         } else {
             messageBody.writeShort(0);
         }
-        if (update.getPathAttributes() != null){
+        if (update.getPathAttributes() != null) {
             ByteBuf pathAttributesBuf = Unpooled.buffer();
             this.reg.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
             ClusterIdAttributeParser clusterIdAttributeParser = new ClusterIdAttributeParser();
-            clusterIdAttributeParser.serializeAttribute(update.getPathAttributes(),pathAttributesBuf);
+            clusterIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
 
             OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();
-            originatorIdAttributeParser.serializeAttribute(update.getPathAttributes(),pathAttributesBuf);
+            originatorIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
 
             messageBody.writeShort(pathAttributesBuf.writerIndex());
             messageBody.writeBytes(pathAttributesBuf);
         } else {
             messageBody.writeShort(0);
         }
+
         if (update.getNlri() != null) {
+            ByteBuf nlriBuffer = Unpooled.buffer();
             for (Ipv4Prefix ipv4Prefix : update.getNlri().getNlri()) {
                 double prefixBits = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
                 byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
                         (int) Math.ceil(prefixBits / 8));
-                messageBody.writeByte((int) prefixBits);
-                messageBody.writeBytes(prefixBytes);
+                nlriBuffer.writeByte((int) prefixBits);
+                nlriBuffer.writeBytes(prefixBytes);
             }
+            messageBody.writeBytes(nlriBuffer);
         }
+
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         //FIXME: switch to ByteBuf
         bytes.writeBytes(MessageUtil.formatMessage(TYPE,ByteArray.getAllBytes(messageBody)));
