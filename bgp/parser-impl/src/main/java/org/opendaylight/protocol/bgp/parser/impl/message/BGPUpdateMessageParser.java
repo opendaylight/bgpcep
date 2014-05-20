@@ -143,14 +143,17 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         }
         Nlri nlri = update.getNlri();
         if (nlri != null) {
+            ByteBuf nlriBuffer = Unpooled.buffer();
             for (Ipv4Prefix ipv4Prefix : nlri.getNlri()) {
                 int prefixBits = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
                 byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
                         Ipv4Util.getPrefixLengthBytes(ipv4Prefix.getValue()));
-                messageBody.writeByte(prefixBits);
-                messageBody.writeBytes(prefixBytes);
+                nlriBuffer.writeByte(prefixBits);
+                nlriBuffer.writeBytes(prefixBytes);
             }
+            messageBody.writeBytes(nlriBuffer);
         }
+
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         //FIXME: switch to ByteBuf
         bytes.writeBytes(MessageUtil.formatMessage(TYPE, ByteArray.getAllBytes(messageBody)));
