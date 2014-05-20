@@ -11,10 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.opendaylight.protocol.bgp.concepts.util.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -32,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 final class SimpleNlriRegistry implements NlriRegistry {
+
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
@@ -41,14 +44,15 @@ final class SimpleNlriRegistry implements NlriRegistry {
         this.safiReg = Preconditions.checkNotNull(safiReg);
     }
 
-    private static BgpTableType createKey(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+    private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
+                                          final Class<? extends SubsequentAddressFamily> safi) {
         Preconditions.checkNotNull(afi);
         Preconditions.checkNotNull(safi);
         return new BgpTableTypeImpl(afi, safi);
     }
 
     synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
+                                                  final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
         Preconditions.checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
@@ -93,6 +97,29 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final ByteBuf nlri = buffer.slice();
         parser.parseNlri(nlri, builder);
         return builder.build();
+    }
+
+    @Override
+    public void serializeMpReach(MpReachNlri mpReachNlri, ByteBuf byteAggregator) {
+
+        byteAggregator.writeShort(this.afiReg.numberForClass(mpReachNlri.getAfi()));
+        byteAggregator.writeByte(this.safiReg.numberForClass(mpReachNlri.getSafi()));
+
+        ByteBuf nextHopBuffer = Unpooled.buffer();
+        NextHopUtil.serializeNextHopSimple(mpReachNlri.getCNextHop(), nextHopBuffer);
+
+        byteAggregator.writeByte(nextHopBuffer.writerIndex());
+        byteAggregator.writeBytes(nextHopBuffer);
+
+        //TODO how to calculate number of SNPAs Subnetwork Points of Attachment and serialize SNPAs ?
+        byteAggregator.writeByte(0);
+    }
+
+    @Override
+    public void serializeMpUnReach(MpUnreachNlri mpUnreachNlri, ByteBuf byteAggregator) {
+
+        byteAggregator.writeShort(this.afiReg.numberForClass(mpUnreachNlri.getAfi()));
+        byteAggregator.writeByte(this.safiReg.numberForClass(mpUnreachNlri.getSafi()));
     }
 
     @Override
