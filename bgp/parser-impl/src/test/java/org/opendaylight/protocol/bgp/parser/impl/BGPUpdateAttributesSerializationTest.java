@@ -36,7 +36,7 @@ public class BGPUpdateAttributesSerializationTest {
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
     private Update message;
 
-    private static int COUNTER = 1;//17;
+    private static int COUNTER = 8;//17;
 
     private static int MAX_SIZE = 300;
 
@@ -74,9 +74,11 @@ public class BGPUpdateAttributesSerializationTest {
 
     @Test
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
-        for (int i=0;i<COUNTER;i++){
+        for (int i=8;i<COUNTER;i++){
             readUpdateMesageFromList(i);
             byteAggregator = updateParser.serializeMessage(message);
+            System.out.println("Serialized :"+asHexDump(byteAggregator));
+            System.out.println("Original   :"+asHexDump(inputBytes.get(i)));
             assertTrue(Arrays.equals(byteAggregator.array(), inputBytes.get(i)));
         }
 
