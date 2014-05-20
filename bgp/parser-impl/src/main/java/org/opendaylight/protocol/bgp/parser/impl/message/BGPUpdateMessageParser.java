@@ -36,7 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -119,38 +122,51 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
         final Update update = (Update) message;
 
         ByteBuf messageBody = Unpooled.buffer();
-        if (update.getWithdrawnRoutes()!=null) {
-            messageBody.writeShort(update.getWithdrawnRoutes().getWithdrawnRoutes().size());
-            for (Ipv4Prefix withdrawnRoutePrefix : update.getWithdrawnRoutes().getWithdrawnRoutes()) {
-                byte[] prefixBytes = Ipv4Util.bytesForPrefix(withdrawnRoutePrefix);
-                messageBody.writeByte(prefixBytes.length);
-                messageBody.writeBytes(prefixBytes);
-            }
-        } else {
-            messageBody.writeShort(0);
-        }
 
-        if (update.getPathAttributes()!=null) {
-            parsePathAttributes(update.getPathAttributes(), messageBody);
-        }
+        parseWithdrawnRoutes(update.getWithdrawnRoutes(),messageBody);
+        parsePathAttributes(update.getPathAttributes(), messageBody);
 
         if (update.getNlri()!=null){
             for (Ipv4Prefix ipv4Prefix:update.getNlri().getNlri()) {
                 int prefixBites = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
-                byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
-                        prefixBites/8);
                 messageBody.writeByte(prefixBites);
-                messageBody.writeBytes(prefixBytes);
+                messageBody.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
             }
         }
+
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
+
+
 
         ByteBuf ret= Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, messageBody.copy(0,messageBody.writerIndex()).array()));
 
         return ret;
     }
 
+    private void parseWithdrawnRoutes(WithdrawnRoutes withdrawnRoutes,ByteBuf byteAggregator){
+        if (withdrawnRoutes!=null) {
+
+            ByteBuf withDrawnRoutesBuf = Unpooled.buffer();
+
+            for (Ipv4Prefix withdrawnRoutePrefix : withdrawnRoutes.getWithdrawnRoutes()) {
+                ByteBuf prefixBytes = Unpooled.copiedBuffer(Ipv4Util.bytesForPrefix(withdrawnRoutePrefix));
+                int prefixLength = Ipv4Util.getPrefixLength(withdrawnRoutePrefix.getValue());
+                withDrawnRoutesBuf.writeByte(prefixLength);
+                withDrawnRoutesBuf.writeBytes(prefixBytes.slice(0,prefixBytes.writerIndex()-1));
+            }
+
+            byteAggregator.writeShort(withDrawnRoutesBuf.writerIndex());
+            byteAggregator.writeBytes(withDrawnRoutesBuf);
+        } else {
+            byteAggregator.writeShort(0);
+        }
+
+    }
     private void parsePathAttributes(PathAttributes pathAttributes, ByteBuf messageAggregator){
+        if (pathAttributes == null){
+            messageAggregator.writeShort(0);
+            return;
+        }
         ByteBuf pathAttributesBody = Unpooled.buffer();
         if (pathAttributes.getOrigin()!=null) {
             this.reg.serializeAttribute(pathAttributes.getOrigin(), pathAttributesBody);
@@ -200,6 +216,14 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
         }
         if (pathAttributes.getClusterId()!=null){
             serializeIpv4AddressAttributes(pathAttributesBody, pathAttributes.getClusterId(), new ClusterIdAttributeParser());
+        }
+
+        if (pathAttributes.getAugmentation(PathAttributes1.class)!=null){
+            this.reg.serializeAttribute(pathAttributes.getAugmentation(PathAttributes1.class).getMpReachNlri(),pathAttributesBody);
+        }
+
+        if (pathAttributes.getAugmentation(PathAttributes2.class)!=null){
+            this.reg.serializeAttribute(pathAttributes.getAugmentation(PathAttributes2.class).getMpUnreachNlri(),pathAttributesBody);
         }
 
         messageAggregator.writeShort(pathAttributesBody.writerIndex());
