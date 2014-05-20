@@ -34,7 +34,7 @@ public final class LocalPreferenceAttributeParser implements AttributeParser,Att
         byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
         byteAggregator.writeByte(UnsignedBytes.checkedCast(LOCAL_PREFS_LENGTH));
 
-        byteAggregator.writeShort(localPref.getPref().shortValue());
+        byteAggregator.writeInt(localPref.getPref().shortValue());
     }
 
 }

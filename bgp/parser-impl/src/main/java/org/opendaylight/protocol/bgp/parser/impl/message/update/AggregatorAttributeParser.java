@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -25,7 +26,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
 	public static final int TYPE = 7;
-    public static final int AGGREGATOR_OCTETS = 6;
     public static final int ATTR_FLAGS = 192;
 	private final ReferenceCache refCache;
 
@@ -55,9 +55,14 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
         byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
         byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
 
-        byteAggregator.writeByte(UnsignedBytes.checkedCast(AGGREGATOR_OCTETS));
+        ByteBuf aggregatorBuffer = Unpooled.buffer();
 
-        byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
-        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+        aggregatorBuffer.writeInt(shortAsNumber.getValue().shortValue());
+        aggregatorBuffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(aggregatorBuffer.writerIndex()));
+        byteAggregator.writeBytes(aggregatorBuffer);
+
+
     }
 }
