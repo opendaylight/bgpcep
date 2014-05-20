@@ -72,7 +72,26 @@ public final class Ipv4Util {
 		return a.getAddress();
 	}
 
-	/**
+    /**
+     * Converts Ipv4Prefix to byte array of (prefix bit size/8) size.
+     *
+     * @param prefix Ipv4Prefix to be converted
+     * @return byte array
+     */
+    public static byte[] bytesForPrefixByPrefixLength(Ipv4Prefix ipv4Prefix){
+        int prefixBites = getPrefixLength(ipv4Prefix.getValue());
+        byte[] prefixBytes = ByteArray.subByte(bytesForPrefix(ipv4Prefix), 0,
+                getMinBytes(prefixBites));
+        return prefixBytes;
+    }
+
+    public static int getMinBytes(int bites){
+        if (bites%8!=0){
+            return (bites/8)+1;
+        }
+        return bites/8;
+    }
+    /**
 	 * Converts Ipv4Prefix to byte array.
 	 * 
 	 * @param prefix Ipv4Prefix to be converted
