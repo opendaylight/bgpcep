@@ -7,22 +7,20 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.UnsignedBytes;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
-import com.google.common.primitives.Bytes;
-import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Util class for creating generated Ipv6Address.
@@ -69,6 +67,38 @@ public final class Ipv6Util {
 		Preconditions.checkArgument(a instanceof Inet6Address);
 		return a.getAddress();
 	}
+
+    /**
+     * Obtains prefix length from given prefix.
+     *
+     * @param prefixValue value of prefix
+     * @return prefix length
+     */
+    public static int getPrefixLength(final String prefixValue) {
+        final int sep = prefixValue.indexOf('/');
+        return Integer.valueOf(prefixValue.substring(sep + 1, prefixValue.length()));
+    }
+
+
+    /**
+     * Converts Ipv6Prefix to byte array of (prefix bit size/8) size.
+     *
+     * @param prefix Ipv6Prefix to be converted
+     * @return byte array
+     */
+    public static byte[] bytesForPrefixByPrefixLength(Ipv6Prefix ipv6Prefix){
+        int prefixBites = getPrefixLength(ipv6Prefix.getValue());
+        byte[] prefixBytes = ByteArray.subByte(Ipv6Util.bytesForPrefix(ipv6Prefix), 0,
+                getMinBytes(prefixBites));
+        return prefixBytes;
+    }
+
+    private static int getMinBytes(int bites){
+        if (bites%8!=0){
+            return (bites/8)+1;
+        }
+        return bites/8;
+    }
 
 	/**
 	 * Converts Ipv6Prefix to byte array.
