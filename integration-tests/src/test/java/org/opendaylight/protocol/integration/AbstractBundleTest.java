@@ -18,11 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.opendaylight.controller.test.sal.binding.it.TestHelper;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -33,6 +32,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
+//FIXME: merge with org.opendaylight.controller.test.sal.binding.it.AbstractTest ?
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerMethod.class)
 public abstract class AbstractBundleTest {
@@ -53,8 +53,7 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject());
 		ret.add(mavenBundle("commons-io", "commons-io").versionAsInProject());
 
-		ret.add(TestHelper.getNettyBundles());
-		ret.add(TestHelper.getLoggingBundles());
+        TestHelper.configMinumumBundles();
 
 		ret.add(mavenBundle("org.opendaylight.yangtools", "concepts").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding").versionAsInProject());
@@ -95,7 +94,20 @@ public abstract class AbstractBundleTest {
 
 		ret.add(systemProperty("pax.exam.osgi.unresolved.fail").value("true"));
 
-		return ret;
+        ret.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
+        ret.add(mavenBundle("org.slf4j", "log4j-over-slf4j").versionAsInProject());
+        ret.add(mavenBundle("ch.qos.logback", "logback-core").versionAsInProject());
+        ret.add(mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject());
+        ret.add(mavenBundle("org.openexi", "nagasena").versionAsInProject());
+
+
+        ret.add(mavenBundle("io.netty", "netty-common").versionAsInProject());
+        ret.add(mavenBundle("io.netty", "netty-buffer").versionAsInProject());
+        ret.add(mavenBundle("io.netty", "netty-handler").versionAsInProject());
+        ret.add(mavenBundle("io.netty", "netty-codec").versionAsInProject());
+        ret.add(mavenBundle("io.netty", "netty-transport").versionAsInProject());
+
+        return ret;
 	}
 
 	private Bundle getBundle(final String name) {
