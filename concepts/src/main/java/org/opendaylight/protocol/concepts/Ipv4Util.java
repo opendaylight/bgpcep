@@ -87,6 +87,18 @@ public final class Ipv4Util {
     }
 
     /**
+     * Converts Ipv4Prefix to byte array of length equal to prefix length value.
+     *
+     * @param ipv4Prefix Ipv4Prefix to be converted
+     * @return byte array
+     */
+    public static byte[] bytesForPrefixByPrefixLength(Ipv4Prefix ipv4Prefix) {
+        byte[] prefixBytes = ByteArray.subByte(bytesForPrefix(ipv4Prefix), 0,
+                getPrefixLengthBytes(ipv4Prefix.getValue()));
+        return prefixBytes;
+    }
+
+    /**
      * Converts Ipv4Prefix to byte array.
      *
      * @param prefix Ipv4Prefix to be converted
