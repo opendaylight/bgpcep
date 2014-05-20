@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public interface NlriRegistry {
     MpReachNlri parseMpReach(final ByteBuf buffer) throws BGPParsingException;
-
     MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException;
+    void serializeMpReach(final MpReachNlri mpReachNlri,final ByteBuf byteAggregator);
+    void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri,final ByteBuf byteAggregator);
 }
