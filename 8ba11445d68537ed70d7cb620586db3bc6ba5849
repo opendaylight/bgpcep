@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_66ac5b36",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T15:57:00Z",
+      "side": 1,
+      "message": "list should be inside case like we talked about",
+      "revId": "8ba11445d68537ed70d7cb620586db3bc6ba5849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c6644724",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T15:57:00Z",
+      "side": 1,
+      "message": "move to to enum type out of this grouping",
+      "revId": "8ba11445d68537ed70d7cb620586db3bc6ba5849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e6670b24",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T15:57:00Z",
+      "side": 1,
+      "message": "use the enumeration, not the numbers",
+      "revId": "8ba11445d68537ed70d7cb620586db3bc6ba5849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
