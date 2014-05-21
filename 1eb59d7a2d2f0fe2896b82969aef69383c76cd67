@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_262bb395",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "body.isReadable()",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6608db2d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "in the next commit please rewrite the serialization for all messages to use the byteBuf object from the start (do not work with byte arrays)",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6800a901",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "checkArgument(aggregator.getAsNumber !\u003d null)",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_480da536",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "whitespaces!",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c818d577",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "beware of using variables just once, I think it will trigger sonar warning",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_0836bde7",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "remove empty lines",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c82f7587",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "for the future, write a //TODO: comment so that I know, this won\u0027t stay empty",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_28586131",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPParserTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "Order imports! There\u0027s a discussion on mailing list about ordering, check if your formatter does the right thing.",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c846954f",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/OpenTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "use ByteArray.getAllBytes()",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_286f01c7",
+        "filename": "bgp/parser-spi/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "why is this here? I mean in this commit, it\u0027s unrelated to serialization",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_08647de3",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/AbstractMessageRegistry.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-21T17:28:21Z",
+      "side": 1,
+      "message": "formatting!",
+      "revId": "1eb59d7a2d2f0fe2896b82969aef69383c76cd67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
