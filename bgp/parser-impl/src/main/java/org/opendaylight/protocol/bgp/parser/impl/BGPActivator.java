@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.bgp.linkstate.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPKeepAliveMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPNotificationMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPOpenMessageParser;
@@ -42,6 +43,8 @@ import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.CLinkstateDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
@@ -143,6 +146,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 		regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
 		regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
 
+        context.registerAttributeSerializer(LinkstatePathAttribute.class, new LinkstateAttributeParser());
+        context.registerAttributeSerializer(CLinkstateDestination.class, new LinkstateAttributeParser());
 
 		final CapabilityRegistry capReg = context.getCapabilityRegistry();
 		final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
