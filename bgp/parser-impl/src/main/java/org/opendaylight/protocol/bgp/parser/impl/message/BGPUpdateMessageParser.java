@@ -142,7 +142,6 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
                 nlriBuffer.writeByte((int)prefixBits);
                 nlriBuffer.writeBytes(prefixBytes);
             }
-            //messageBody.writeByte(nlriBuffer.writerIndex());
             messageBody.writeBytes(nlriBuffer);
         }
 

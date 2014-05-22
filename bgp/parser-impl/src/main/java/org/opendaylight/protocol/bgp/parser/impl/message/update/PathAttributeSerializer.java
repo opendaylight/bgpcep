@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class PathAttributeSerializer implements AttributeSerializer {
@@ -27,6 +27,5 @@ public class PathAttributeSerializer implements AttributeSerializer {
         for (AttributeSerializer attributeSerializer:this.pathAttributesSerializers){
             attributeSerializer.serializeAttribute(pathAttributes,byteAggregator);
         }
-
     }
 }
