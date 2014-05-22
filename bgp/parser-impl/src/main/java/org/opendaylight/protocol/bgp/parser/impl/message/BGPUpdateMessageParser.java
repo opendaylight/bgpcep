@@ -38,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -123,8 +121,8 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
 
         ByteBuf messageBody = Unpooled.buffer();
 
-        parseWithdrawnRoutes(update.getWithdrawnRoutes(),messageBody);
-        parsePathAttributes(update.getPathAttributes(), messageBody);
+        serializeWithdrawnRoutes(update.getWithdrawnRoutes(),messageBody);
+        serializePathAttributes(update.getPathAttributes(), messageBody);
 
         if (update.getNlri()!=null){
             for (Ipv4Prefix ipv4Prefix:update.getNlri().getNlri()) {
@@ -143,7 +141,7 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
         return ret;
     }
 
-    private void parseWithdrawnRoutes(WithdrawnRoutes withdrawnRoutes,ByteBuf byteAggregator){
+    private void serializeWithdrawnRoutes(WithdrawnRoutes withdrawnRoutes,ByteBuf byteAggregator){
         if (withdrawnRoutes!=null) {
 
             ByteBuf withDrawnRoutesBuf = Unpooled.buffer();
@@ -162,12 +160,13 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
         }
 
     }
-    private void parsePathAttributes(PathAttributes pathAttributes, ByteBuf messageAggregator){
+    private void serializePathAttributes(PathAttributes pathAttributes, ByteBuf messageAggregator){
         if (pathAttributes == null){
             messageAggregator.writeShort(0);
             return;
         }
         ByteBuf pathAttributesBody = Unpooled.buffer();
+
         if (pathAttributes.getOrigin()!=null) {
             this.reg.serializeAttribute(pathAttributes.getOrigin(), pathAttributesBody);
         }
@@ -218,12 +217,15 @@ public class BGPUpdateMessageParser implements MessageParser,MessageSerializer {
             serializeIpv4AddressAttributes(pathAttributesBody, pathAttributes.getClusterId(), new ClusterIdAttributeParser());
         }
 
-        if (pathAttributes.getAugmentation(PathAttributes1.class)!=null){
-            this.reg.serializeAttribute(pathAttributes.getAugmentation(PathAttributes1.class).getMpReachNlri(),pathAttributesBody);
+        if (pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class)!=null){
+            this.reg.serializeAttribute(pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class).getLinkstatePathAttribute(),pathAttributesBody);
+        }
+        if (pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class)!=null){
+            this.reg.serializeAttribute(pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class).getMpReachNlri(),pathAttributesBody);
         }
 
-        if (pathAttributes.getAugmentation(PathAttributes2.class)!=null){
-            this.reg.serializeAttribute(pathAttributes.getAugmentation(PathAttributes2.class).getMpUnreachNlri(),pathAttributesBody);
+        if (pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2.class)!=null){
+            this.reg.serializeAttribute(pathAttributes.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2.class).getMpUnreachNlri(),pathAttributesBody);
         }
 
         messageAggregator.writeShort(pathAttributesBody.writerIndex());
