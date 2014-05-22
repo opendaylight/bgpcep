@@ -16,6 +16,7 @@ import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class ClusterIdAttributeParser implements AttributeParser, AttributeDescriptor {
 
