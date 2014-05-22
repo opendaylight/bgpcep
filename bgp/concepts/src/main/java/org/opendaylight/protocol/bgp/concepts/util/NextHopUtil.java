@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.concepts.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
@@ -82,6 +83,5 @@ public class NextHopUtil {
         if (nextHopCase.getIpv6NextHop().getLinkLocal() != null) {
             byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHopCase.getIpv6NextHop().getLinkLocal()));
         }
-
     }
 }

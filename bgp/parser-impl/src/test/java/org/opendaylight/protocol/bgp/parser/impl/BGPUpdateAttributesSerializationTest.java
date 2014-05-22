@@ -10,14 +10,15 @@ package org.opendaylight.protocol.bgp.parser.impl;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -41,17 +42,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BGPUpdateAttributesSerializationTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BGPUpdateAttributesSerializationTest.class);
-    static final List<byte[]> inputBytes = new ArrayList<byte[]>();
+    static final List<byte[]> inputBytes = new ArrayList<>();
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
-
-    private static int COUNTER = 9;//17;
+    private static int COUNTER = 8;//17;
     private static int MAX_SIZE = 300;
 
     @Before
@@ -63,7 +60,6 @@ public class BGPUpdateAttributesSerializationTest {
             if (is == null) {
                 throw new IOException("Failed to get resource " + name);
             }
-
             final ByteArrayOutputStream bis = new ByteArrayOutputStream();
             final byte[] data = new byte[MAX_SIZE];
             int nRead = 0;
@@ -74,8 +70,6 @@ public class BGPUpdateAttributesSerializationTest {
 
             inputBytes.add(bis.toByteArray());
         }
-
-
     }
 
     private Update readUpdateMessageFromList(int listIndex) throws BGPDocumentedException {
@@ -129,6 +123,9 @@ public class BGPUpdateAttributesSerializationTest {
         }
         if (left.getAugmentation(PathAttributes2.class) != null) {
             assertNotNull(right.getAugmentation(PathAttributes2.class));
+        }
+        if (left.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class) != null) {
+            assertNotNull(right.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class));
         }
     }
 
