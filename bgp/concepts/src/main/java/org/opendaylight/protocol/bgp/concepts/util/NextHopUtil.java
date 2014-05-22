@@ -87,6 +87,12 @@ public class NextHopUtil {
         if (nextHopCase.getIpv6NextHop().getLinkLocal() != null) {
             byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHopCase.getIpv6NextHop().getLinkLocal()));
         }
-
     }
+
+    public static void writeTLV(int t, ByteBuf value,ByteBuf byteAggregator){
+        byteAggregator.writeShort(t);
+        byteAggregator.writeShort(value.writerIndex());
+        byteAggregator.writeBytes(value);
+    }
+
 }
