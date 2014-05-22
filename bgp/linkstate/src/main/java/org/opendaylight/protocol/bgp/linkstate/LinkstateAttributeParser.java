@@ -11,19 +11,26 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.AdministrativeGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.ExtendedRouteTag;
@@ -39,19 +46,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.RouteTag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.link.state.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.link.state.UnreservedBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.prefix.state.IgpBitsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.LinkstatePathAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.LinkStateAttribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.LinkAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.PrefixAttributesCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.DestinationType;
@@ -60,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.SrlgId;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +84,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-04">BGP-LS draft</a>
  */
-public class LinkstateAttributeParser implements AttributeParser {
+public class LinkstateAttributeParser implements AttributeParser, AttributeSerializer {
     // TODO: replace with actual values by IANA
     public static final int TYPE = 99;
 
@@ -83,6 +99,16 @@ public class LinkstateAttributeParser implements AttributeParser {
     private static final int UNRESERVED_BW_COUNT = 8;
 
     private static final int BANDWIDTH_LENGTH = 4;
+
+    // node flag bits
+    private static final int OVERLOAD_BIT = 7;
+    private static final int ATTACHED_BIT = 6;
+    private static final int EXTERNAL_BIT = 5;
+    private static final int ABBR_BIT = 4;
+
+    // MPLS protection mask bits
+    private static final int LDP_BIT = 7;
+    private static final int RSVP_BIT = 6;
 
     private NlriType getNlriType(final PathAttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
@@ -311,7 +337,6 @@ public class LinkstateAttributeParser implements AttributeParser {
             }
         }
         LOG.trace("Finished parsing Node Attributes.");
-
         builder.setTopologyIdentifier(topologyMembership);
         builder.setIsisAreaId(areaMembership);
         return new NodeAttributesCaseBuilder().setNodeAttributes(builder.build()).build();
@@ -387,5 +412,206 @@ public class LinkstateAttributeParser implements AttributeParser {
         builder.setRouteTags(routeTags);
         builder.setExtendedTags(exRouteTags);
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
+    }
+
+    /**
+     * Serialize linkstate attributes.
+     *
+     * @param attribute DataObject representing LinkstatePathAttribute
+     * @param byteAggregator ByteBuf where all serialized data are aggregated
+     */
+
+    @Override
+    public void serializeAttribute(final DataObject attribute, final ByteBuf linkstateAttrBuffer) {
+        final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
+        if (pathAttributes1 == null) {
+            return;
+        }
+        final LinkStateAttribute linkState = pathAttributes1.getLinkstatePathAttribute().getLinkStateAttribute();
+        final ByteBuf byteAggregator = Unpooled.buffer();
+        if (linkState instanceof LinkAttributesCase) {
+            serializeLinkAttributes((LinkAttributesCase) linkState, byteAggregator);
+        } else if (linkState instanceof NodeAttributesCase) {
+            serializeNodeAttributes((NodeAttributesCase) linkState, byteAggregator);
+        } else if (linkState instanceof PrefixAttributesCase) {
+            serializePrefixAttributes((PrefixAttributesCase) linkState, byteAggregator);
+        }
+        if (byteAggregator.writerIndex() > Values.UNSIGNED_BYTE_MAX_VALUE) {
+            linkstateAttrBuffer.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.EXTENDED);
+            linkstateAttrBuffer.writeByte(TYPE);
+            linkstateAttrBuffer.writeShort(byteAggregator.writerIndex());
+        } else {
+            linkstateAttrBuffer.writeByte(AttributeFlags.OPTIONAL);
+            linkstateAttrBuffer.writeByte(TYPE);
+            linkstateAttrBuffer.writeByte(byteAggregator.writerIndex());
+        }
+        linkstateAttrBuffer.writeBytes(byteAggregator);
+    }
+
+    private void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf byteAggregator) {
+        final LinkAttributes linkAttributes = linkAttributesCase.getLinkAttributes();
+        LOG.trace("Started serializing Link Attributes");
+        if (linkAttributes.getLocalIpv4RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV4_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(linkAttributes.getLocalIpv4RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (linkAttributes.getLocalIpv6RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV6_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(linkAttributes.getLocalIpv6RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (linkAttributes.getRemoteIpv4RouterId() != null) {
+            writeTLV(TlvCode.REMOTE_IPV4_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(linkAttributes.getRemoteIpv4RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (linkAttributes.getRemoteIpv6RouterId() != null) {
+            writeTLV(TlvCode.REMOTE_IPV6_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(linkAttributes.getRemoteIpv6RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (linkAttributes.getAdminGroup() != null) {
+            writeTLV(TlvCode.ADMIN_GROUP, Unpooled.copyInt(linkAttributes.getAdminGroup().getValue().intValue()), byteAggregator);
+        }
+        if (linkAttributes.getMaxLinkBandwidth() != null) {
+            writeTLV(TlvCode.MAX_BANDWIDTH, Unpooled.wrappedBuffer(linkAttributes.getMaxLinkBandwidth().getValue()), byteAggregator);
+        }
+        if (linkAttributes.getMaxReservableBandwidth() != null) {
+            writeTLV(TlvCode.MAX_RESERVABLE_BANDWIDTH, Unpooled.wrappedBuffer(linkAttributes.getMaxReservableBandwidth().getValue()), byteAggregator);
+        }
+        // this sub-TLV contains eight 32-bit IEEE floating point numbers
+        if (linkAttributes.getUnreservedBandwidth() != null) {
+            final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
+            for (final UnreservedBandwidth unreservedBandwidth : linkAttributes.getUnreservedBandwidth()) {
+                unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
+            }
+            writeTLV(TlvCode.UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);
+        }
+        if (linkAttributes.getTeMetric() != null) {
+            writeTLV(TlvCode.TE_METRIC, Unpooled.copyLong(linkAttributes.getTeMetric().getValue().longValue()), byteAggregator);
+        }
+        if (linkAttributes.getLinkProtection() != null) {
+            writeTLV(TlvCode.LINK_PROTECTION_TYPE, Unpooled.copyShort(linkAttributes.getLinkProtection().getIntValue()), byteAggregator);
+        }
+        MplsProtocolMask mplsProtocolMask = linkAttributes.getMplsProtocol();
+        if (mplsProtocolMask != null) {
+            final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer();
+            final BitSet mask = new BitSet();
+            if (mplsProtocolMask.isLdp() != null) {
+                mask.set(LDP_BIT, mplsProtocolMask.isLdp());
+            }
+            if (mplsProtocolMask.isRsvpte() != null) {
+                mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
+            }
+            mplsProtocolMaskBuf.writeBytes(mask.toByteArray());
+            writeTLV(TlvCode.MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
+        }
+        if (linkAttributes.getMetric() != null) {
+            // size of metric can be 1,2 or 3 depending on the protocol
+            writeTLV(TlvCode.METRIC, Unpooled.copyMedium(linkAttributes.getMetric().getValue().intValue()), byteAggregator);
+        }
+        if (linkAttributes.getSharedRiskLinkGroups() != null) {
+            final ByteBuf sharedRLGBuf = Unpooled.buffer();
+            for (final SrlgId srlgId : linkAttributes.getSharedRiskLinkGroups()) {
+                sharedRLGBuf.writeInt(srlgId.getValue().intValue());
+            }
+            writeTLV(TlvCode.SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
+        }
+        if (linkAttributes.getLinkName() != null) {
+            writeTLV(TlvCode.LINK_NAME, Unpooled.wrappedBuffer(linkAttributes.getLinkName().getBytes()), byteAggregator);
+        }
+        LOG.trace("Finished serializing Link Attributes");
+    }
+
+    private void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
+        LOG.trace("Started serializing Node Attributes");
+        final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
+        if (nodeAttributes.getTopologyIdentifier() != null) {
+            final ByteBuf mpIdBuf = Unpooled.buffer();
+            for (final TopologyIdentifier topologyIdentifier : nodeAttributes.getTopologyIdentifier()) {
+                mpIdBuf.writeShort(topologyIdentifier.getValue());
+            }
+            writeTLV(TlvCode.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
+        }
+        final NodeFlagBits nodeFlagBits = nodeAttributes.getNodeFlags();
+        if (nodeFlagBits != null) {
+            final ByteBuf nodeFlagBuf = Unpooled.buffer();
+            final BitSet flags = new BitSet();
+            if (nodeFlagBits.isOverload() != null) {
+                flags.set(OVERLOAD_BIT, nodeFlagBits.isOverload());
+            }
+            if (nodeFlagBits.isAttached() != null) {
+                flags.set(ATTACHED_BIT, nodeFlagBits.isAttached());
+            }
+            if (nodeFlagBits.isExternal() != null) {
+                flags.set(EXTERNAL_BIT, nodeFlagBits.isExternal());
+            }
+            if (nodeFlagBits.isAbr() != null) {
+                flags.set(ABBR_BIT, nodeFlagBits.isAbr());
+            }
+            nodeFlagBuf.writeBytes(flags.toByteArray());
+            writeTLV(TlvCode.NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
+        }
+        if (nodeAttributes.getDynamicHostname() != null) {
+            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
+        }
+        if (nodeAttributes.getIsisAreaId() != null) {
+            for (final IsisAreaIdentifier isisAreaIdentifier : nodeAttributes.getIsisAreaId()) {
+                writeTLV(TlvCode.ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
+            }
+        }
+        if (nodeAttributes.getIpv4RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV4_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv4RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (nodeAttributes.getIpv6RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV6_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv6RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        LOG.trace("Finished serializing Node Attributes");
+    }
+
+    private void serializePrefixAttributes(final PrefixAttributesCase prefixAttributesCase, final ByteBuf byteAggregator) {
+        final PrefixAttributes prefixAtrributes = prefixAttributesCase.getPrefixAttributes();
+        if (prefixAtrributes.getIgpBits() != null) {
+            BitSet igpBit = new BitSet();
+            Boolean bit = prefixAtrributes.getIgpBits().getUpDown().isUpDown();
+            if (bit != null) {
+                igpBit.set(7, bit);
+            }
+            writeTLV(TlvCode.IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.toByteArray()), byteAggregator);
+        }
+        if (prefixAtrributes.getRouteTags() != null) {
+            final ByteBuf routeTagsBuf = Unpooled.buffer();
+            for (final RouteTag routeTag : prefixAtrributes.getRouteTags()) {
+                routeTagsBuf.writeBytes(routeTag.getValue());
+            }
+            writeTLV(TlvCode.ROUTE_TAG, routeTagsBuf, byteAggregator);
+        }
+        if (prefixAtrributes.getExtendedTags() != null) {
+            final ByteBuf extendedBuf = Unpooled.buffer();
+            for (final ExtendedRouteTag extendedRouteTag : prefixAtrributes.getExtendedTags()) {
+                extendedBuf.writeBytes(extendedRouteTag.getValue());
+            }
+            writeTLV(TlvCode.EXTENDED_ROUTE_TAG, extendedBuf, byteAggregator);
+        }
+        if (prefixAtrributes.getPrefixMetric() != null) {
+            writeTLV(TlvCode.PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
+        }
+        IpAddress forwardingAddress = prefixAtrributes.getOspfForwardingAddress();
+        if (forwardingAddress != null) {
+            final ByteBuf ospfBuf = Unpooled.buffer();
+            if (forwardingAddress.getIpv4Address() != null) {
+                ospfBuf.writeBytes(Ipv4Util.bytesForAddress(forwardingAddress.getIpv4Address()));
+            } else if (forwardingAddress.getIpv6Address() != null) {
+                ospfBuf.writeBytes(Ipv6Util.bytesForAddress(forwardingAddress.getIpv6Address()));
+            }
+            writeTLV(TlvCode.FORWARDING_ADDRESS, ospfBuf, byteAggregator);
+        }
+    }
+
+    /**
+     * Util method for writing TLV header.
+     * @param type TLV type
+     * @param value TLV value
+     * @param byteAggregator final ByteBuf where the tlv should be serialized
+     */
+    private static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
+        byteAggregator.writeShort(type);
+        byteAggregator.writeShort(value.writerIndex());
+        byteAggregator.writeBytes(value);
+        value.readerIndex(0);
+        LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
     }
 }
