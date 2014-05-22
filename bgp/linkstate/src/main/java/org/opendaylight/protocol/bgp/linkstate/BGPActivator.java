@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 
 /**
@@ -29,7 +29,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 	protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
+        context.registerAttributeSerializer(PathAttributes1.class, new LinkstateAttributeParser());
+
+                regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
 		regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
 
 		regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,

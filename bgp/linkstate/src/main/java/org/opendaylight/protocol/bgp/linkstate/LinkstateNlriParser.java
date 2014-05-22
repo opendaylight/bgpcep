@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriUtil;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -69,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +81,7 @@ import com.google.common.primitives.UnsignedInteger;
 /**
  * Parser and serializer for Linkstate NLRI.
  */
-public final class LinkstateNlriParser implements NlriParser {
+public final class LinkstateNlriParser implements NlriParser,AttributeSerializer {
 	private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
 	private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
 	private static final int PROTOCOL_ID_LENGTH = 1;
@@ -90,6 +92,7 @@ public final class LinkstateNlriParser implements NlriParser {
 
 	private static final int TYPE_LENGTH = 2;
 	private static final int LENGTH_SIZE = 2;
+
 
 	private final boolean isVpn;
 
@@ -531,4 +534,9 @@ public final class LinkstateNlriParser implements NlriParser {
 			buffer.writeBytes(prefixBytes);
 		}
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        CLinkstateDestination cLinkstateDestination = (CLinkstateDestination) attribute;
+    }
 }
