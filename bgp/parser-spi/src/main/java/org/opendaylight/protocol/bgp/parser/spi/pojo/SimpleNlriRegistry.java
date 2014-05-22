@@ -21,14 +21,8 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.protocol.concepts.Ipv4Util;
-import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
@@ -119,47 +113,13 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         byteAggregator.writeBytes(mpReachBuffer);
 
-        if (mpReachNlri.getAdvertizedRoutes().getDestinationType() instanceof DestinationIpv4Case){
-            DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) mpReachNlri.getAdvertizedRoutes().getDestinationType();
-            for (Ipv4Prefix ipv4Prefix:destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()){
-                byteAggregator.writeByte(Ipv4Util.getPrefixLength(ipv4Prefix.getValue()));
-                byteAggregator.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
-            }
-        }
-        if (mpReachNlri.getAdvertizedRoutes().getDestinationType() instanceof DestinationIpv6Case){
-            DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) mpReachNlri.getAdvertizedRoutes().getDestinationType();
-            for (Ipv6Prefix ipv6Prefix:destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()){
-                byteAggregator.writeByte(Ipv6Util.getPrefixLength(ipv6Prefix.getValue()));
-                byteAggregator.writeBytes(Ipv6Util.bytesForPrefixByPrefixLength(ipv6Prefix));
-            }
-        }
-
     }
-    public void serializeAvertizedRoutes(MpReachNlri mpReachNlri, ByteBuf byteAggregator){
 
-    }
     @Override
     public void serializeMpUnReach(MpUnreachNlri mpUnreachNlri, ByteBuf byteAggregator) {
 
         byteAggregator.writeShort(this.afiReg.numberForClass(mpUnreachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpUnreachNlri.getSafi()));
-
-        if (mpUnreachNlri.getWithdrawnRoutes()!=null) {
-            if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv4Case) {
-                DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                for (Ipv4Prefix ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
-                    byteAggregator.writeByte(Ipv4Util.getPrefixLength(ipv4Prefix.getValue()));
-                    byteAggregator.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
-                }
-            }
-            if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv6Case) {
-                DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                for (Ipv6Prefix ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
-                    byteAggregator.writeByte(Ipv6Util.getPrefixLength(ipv6Prefix.getValue()));
-                    byteAggregator.writeBytes(Ipv6Util.bytesForPrefixByPrefixLength(ipv6Prefix));
-                }
-            }
-        }
     }
 
     @Override
