@@ -51,11 +51,10 @@ public class BGPUpdateAttributesSerializationTest {
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
 
-    private static int COUNTER = 9;//17;
+    private static int COUNTER = 8;//17;
     private static int MAX_SIZE = 300;
     private ByteBuf byteAggregator;
     private Update message;
-
 
 
     @Before
@@ -67,7 +66,6 @@ public class BGPUpdateAttributesSerializationTest {
             if (is == null) {
                 throw new IOException("Failed to get resource " + name);
             }
-
             final ByteArrayOutputStream bis = new ByteArrayOutputStream();
             final byte[] data = new byte[MAX_SIZE];
             int nRead = 0;
@@ -78,8 +76,6 @@ public class BGPUpdateAttributesSerializationTest {
 
             inputBytes.add(bis.toByteArray());
         }
-
-
     }
 
     private Update readUpdateMessageFromList (int listIndex) throws BGPDocumentedException {
@@ -132,6 +128,9 @@ public class BGPUpdateAttributesSerializationTest {
         }
         if (left.getAugmentation(PathAttributes2.class)!=null){
             assertNotNull(right.getAugmentation(PathAttributes2.class));
+        }
+        if (left.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class)!=null){
+            assertTrue(right.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class)!=null);
         }
     }
 
@@ -209,4 +208,5 @@ public class BGPUpdateAttributesSerializationTest {
             }
         }
     }
+
 }
