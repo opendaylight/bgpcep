@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 	@Override
 	protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
+
 		return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
 				new AdjRIBsInFactory() {
 			@Override
