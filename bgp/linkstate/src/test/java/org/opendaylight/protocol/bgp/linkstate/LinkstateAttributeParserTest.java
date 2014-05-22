@@ -15,10 +15,14 @@ import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkProtectionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -94,6 +98,13 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
+
+        //serialization
+        final ByteBuf buff = Unpooled.buffer();
+        this.parser.serializeAttribute(builder.build(), buff);
+        buff.readerIndex(buff.readerIndex() + 3);
+        // there is unresolved TLV at the end, that needs to be cut off
+        assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -115,6 +126,13 @@ public class LinkstateAttributeParserTest {
         assertEquals("12K-2", ls.getDynamicHostname());
         assertEquals(2, ls.getIsisAreaId().size());
         assertEquals("41.41.41.41", ls.getIpv4RouterId().getValue());
+
+        //serialization
+        final ByteBuf buff = Unpooled.buffer();
+        this.parser.serializeAttribute(builder.build(), buff);
+        buff.readerIndex(buff.readerIndex() + 3);
+        // there is unresolved TLV at the end, that needs to be cut off
+        assertTrue(Arrays.equals(ByteArray.subByte(NODE_ATTR, 0, NODE_ATTR.length -5), ByteArray.getAllBytes(buff)) || Arrays.equals(NODE_ATTR_S, ByteArray.getAllBytes(buff)));
     }
 
     @Test
@@ -134,5 +152,12 @@ public class LinkstateAttributeParserTest {
             (byte) 0x70 }, ls.getExtendedTags().get(0).getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
         assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4Address().getValue());
+
+        //serialization
+        final ByteBuf buff = Unpooled.buffer();
+        this.parser.serializeAttribute(builder.build(), buff);
+        buff.readerIndex(buff.readerIndex() + 3);
+        // there is unresolved TLV at the end, that needs to be cut off
+        assertArrayEquals(ByteArray.subByte(P4_ATTR, 0, P4_ATTR.length -5), ByteArray.getAllBytes(buff));
     }
 }

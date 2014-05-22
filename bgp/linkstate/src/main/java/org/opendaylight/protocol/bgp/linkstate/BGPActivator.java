@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActi
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
 
 /**
@@ -37,6 +38,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
                 new LinkstateNlriParser(true)));
 
+        regs.add(context.registerAttributeSerializer(PathAttributes1.class, new LinkstateAttributeParser()));
         regs.add(context.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser()));
 
         return regs;
