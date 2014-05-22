@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import io.netty.buffer.ByteBuf;
@@ -34,10 +35,8 @@ public class BGPUpdateAttributesSerializationTest {
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
     private Update message;
 
-    private static int COUNTER = 8;//17;
-
+    private static int COUNTER = 9;
     private static int MAX_SIZE = 300;
-
 
     @Before
     public void setupUpdateMessage() throws Exception{
@@ -48,7 +47,6 @@ public class BGPUpdateAttributesSerializationTest {
             if (is == null) {
                 throw new IOException("Failed to get resource " + name);
             }
-
             final ByteArrayOutputStream bis = new ByteArrayOutputStream();
             final byte[] data = new byte[MAX_SIZE];
             int nRead = 0;
@@ -59,8 +57,6 @@ public class BGPUpdateAttributesSerializationTest {
 
             inputBytes.add(bis.toByteArray());
         }
-
-
     }
 
     private void readUpdateMesageFromList (int listIndex) throws BGPDocumentedException {
@@ -72,10 +68,16 @@ public class BGPUpdateAttributesSerializationTest {
 
     @Test
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
-        for (int i = 0; i < COUNTER; i++) {
+        for (int i=0;i<COUNTER;i++){
             readUpdateMesageFromList(i);
             byteAggregator = updateParser.serializeMessage(message);
-            assertTrue(Arrays.equals(byteAggregator.array(), inputBytes.get(i)));
+            if (i != 8) {
+                assertTrue(Arrays.equals(byteAggregator.array(), inputBytes.get(i)));
+            } else {
+                // up8.bin hasn't got bytes ordered by type code, only length is compared
+                assertEquals(byteAggregator.array().length,inputBytes.get(i).length);
+            }
         }
     }
+
 }
