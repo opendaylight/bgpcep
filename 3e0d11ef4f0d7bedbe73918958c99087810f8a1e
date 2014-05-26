@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_3ca983df",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "Always add error message.",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dcaf37e2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "still whitespace changes",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_fcaa3bd1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/LocalPreferenceAttributeParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "again, one-time use of variable",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9cb9af30",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPParserTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "What exactly did change in this class?",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bcb4b335",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/OpenTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "use ByteArray.getAllBytes()",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5c832756",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/ParserTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "again, order imports, the only thing changing in imports here should be one line import ByteBuf.",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1c7d9f6e",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/AbstractMessageRegistry.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "whitespaces...I can\u0027t see what changed, if all lines differ.",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9c90cf96",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleMessageRegistry.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "whitespaces",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5cd1e755",
+        "filename": "bgp/util/src/test/java/org/opendaylight/protocol/bgp/util/BGPHexFileParserTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T12:03:29Z",
+      "side": 1,
+      "message": "imports order! + unrelated change to serialization, put it as separate commit.",
+      "revId": "3e0d11ef4f0d7bedbe73918958c99087810f8a1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
