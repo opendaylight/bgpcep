@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_1ccb5fa6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "Fix this in commit 7104",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dc4bb729",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "Did you mean \u0027serializeWithdrawnRoutes\u0027?",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9cbe8ffe",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "this should probably trigger an error, as many path attributes are mandatory",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9c552fc8",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "Fix this in commit 7104",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bc5033d5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "Not a multiprotocol change, move to 7104 commit",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5c5fa7e5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/LocalPreferenceAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "again, not a multiprotocol change",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dc72d77b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "order import + why is it commented out?",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5c06c7cf",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/SerializationUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "NextHop is located in bgp/concepts, put this class there and rename it to NextHopUtil. Put also javadoc, what the methods do. Also 2014 is the right year, for new files.",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bcfef3ac",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "Why is here Ipv6 prefix import?",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_fc1b1b1a",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-26T13:07:25Z",
+      "side": 1,
+      "message": "One method is enough (the one in Ipv4util will do the trick)",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
