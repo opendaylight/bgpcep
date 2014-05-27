@@ -23,7 +23,7 @@ public final class LabelUtil {
 
 	private static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
 
-	private static final int HEADER_LENGTH = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
+	private static final int HEADER_OFFSET = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
 
 	private static final int U_FLAG_OFFSET = 0;
 
@@ -35,9 +35,9 @@ public final class LabelUtil {
 
 	public static byte[] formatLabel(final int type, final boolean unidirectional, final boolean global, final byte[] labelbytes) {
 
-		final byte[] retBytes = new byte[labelbytes.length + HEADER_LENGTH];
+		final byte[] retBytes = new byte[labelbytes.length + HEADER_OFFSET];
 
-		System.arraycopy(labelbytes, 0, retBytes, HEADER_LENGTH, labelbytes.length);
+		System.arraycopy(labelbytes, 0, retBytes, HEADER_OFFSET, labelbytes.length);
 
 		final BitSet reserved = new BitSet();
 		reserved.set(U_FLAG_OFFSET, unidirectional);
