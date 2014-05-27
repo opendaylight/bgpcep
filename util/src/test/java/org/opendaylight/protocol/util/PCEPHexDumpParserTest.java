@@ -20,14 +20,14 @@ import org.junit.Test;
 
 public class PCEPHexDumpParserTest {
 
-	public static final String hexDumpFileName = "/pcep-hex.txt";
+	public static final String hexDumpFileName = "pcep-hex.txt";
 	private final int expectedSize = 6;
 
 	@Test
 	public void testParsing() throws Exception {
-		final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getResourceAsStream(PCEPHexDumpParserTest.hexDumpFileName));
+		final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(PCEPHexDumpParserTest.hexDumpFileName));
 		assertEquals(this.expectedSize, result.size());
-		final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getResource(PCEPHexDumpParserTest.hexDumpFileName).toURI()));
+		final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(PCEPHexDumpParserTest.hexDumpFileName).getPath()));
 		assertEquals(this.expectedSize, result1.size());
 	}
 
@@ -37,7 +37,7 @@ public class PCEPHexDumpParserTest {
 			PCEPHexDumpParser.parseMessages(new File("bad file name"));
 			fail("Exception should have occured.");
 		} catch (final FileNotFoundException e) {
-			assertThat(e.getMessage(), containsString("bad file name (No such file or directory)"));
+			assertThat(e.getMessage(), containsString("bad file name"));
 		}
 	}
 }
