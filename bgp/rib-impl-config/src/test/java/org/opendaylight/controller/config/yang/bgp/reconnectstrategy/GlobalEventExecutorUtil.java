@@ -26,5 +26,4 @@ public class GlobalEventExecutorUtil {
 				GlobalEventExecutorModuleMXBean.class);
 		return nameCreated;
 	}
-
 }
