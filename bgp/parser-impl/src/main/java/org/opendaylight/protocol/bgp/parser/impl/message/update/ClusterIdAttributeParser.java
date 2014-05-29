@@ -12,14 +12,16 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
 import com.google.common.collect.Lists;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class ClusterIdAttributeParser implements AttributeParser {
+public final class ClusterIdAttributeParser implements AttributeParser, AttributeSerializer {
 	public static final int TYPE = 10;
 
 	private static final int CLUSTER_LENGTH = 4;
@@ -32,4 +34,9 @@ public final class ClusterIdAttributeParser implements AttributeParser {
 		}
 		builder.setClusterId(list);
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        //TODO implement this
+    }
 }
