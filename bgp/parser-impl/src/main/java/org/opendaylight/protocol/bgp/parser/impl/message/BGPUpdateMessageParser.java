@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ *  * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
-import com.google.common.base.Preconditions;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -102,7 +101,7 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
     }
 
     @Override
-    public void serializeMessage(Notification message,ByteBuf bytes) {
+    public void serializeMessage(Notification message, ByteBuf bytes) {
         if (message == null) {
             throw new IllegalArgumentException("BGPUpdate message cannot be null");
         }
@@ -110,13 +109,46 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         final Update update = (Update) message;
 
         ByteBuf messageBody = Unpooled.buffer();
+        if (update.getWithdrawnRoutes() != null) {
+            ByteBuf withdrawnRoutesBuf = Unpooled.buffer();
+            for (Ipv4Prefix withdrawnRoutePrefix : update.getWithdrawnRoutes().getWithdrawnRoutes()) {
+                int prefixBits = Ipv4Util.getPrefixLength(withdrawnRoutePrefix.getValue());
+                byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(withdrawnRoutePrefix), 0,
+                        Ipv4Util.getPrefixLengthBytes(withdrawnRoutePrefix.getValue()));
+                withdrawnRoutesBuf.writeByte(prefixBits);
+                withdrawnRoutesBuf.writeBytes(prefixBytes);
+            }
+            messageBody.writeShort(withdrawnRoutesBuf.writerIndex());
+            messageBody.writeBytes(withdrawnRoutesBuf);
 
-        if (update.getPathAttributes() != null) {
-            this.reg.serializeAttribute(update.getPathAttributes(), messageBody);
+        } else {
+            messageBody.writeZero(2);
         }
+        if (update.getPathAttributes() != null) {
+            ByteBuf pathAttributesBuf = Unpooled.buffer();
+            this.reg.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
+            ClusterIdAttributeParser clusterIdAttributeParser = new ClusterIdAttributeParser();
+            clusterIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
 
+            OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();
+            originatorIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
+
+            messageBody.writeShort(pathAttributesBuf.writerIndex());
+            messageBody.writeBytes(pathAttributesBuf);
+        } else {
+            messageBody.writeZero(2);
+        }
+        if (update.getNlri() != null) {
+            for (Ipv4Prefix ipv4Prefix : update.getNlri().getNlri()) {
+                int prefixBits = Ipv4Util.getPrefixLength(ipv4Prefix.getValue());
+                byte[] prefixBytes = ByteArray.subByte(Ipv4Util.bytesForPrefix(ipv4Prefix), 0,
+                        Ipv4Util.getPrefixLengthBytes(ipv4Prefix.getValue()));
+                messageBody.writeByte(prefixBits);
+                messageBody.writeBytes(prefixBytes);
+            }
+        }
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
         //FIXME: switch to ByteBuf
-        bytes.writeBytes(MessageUtil.formatMessage(TYPE,ByteArray.getAllBytes(messageBody)));
+        bytes.writeBytes(MessageUtil.formatMessage(TYPE, ByteArray.getAllBytes(messageBody)));
     }
 }

@@ -11,6 +11,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -25,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class OriginAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 1;
+    public static final int ATTR_LENGTH = 1;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
@@ -40,9 +42,11 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
         PathAttributes pathAttributes = (PathAttributes) attribute;
         Origin origin = pathAttributes.getOrigin();
-        if (origin == null) {
-            return;
+        if (origin != null) {
+            byteAggregator.writeByte(AttributeFlags.TRANSITIVE);
+            byteAggregator.writeByte(TYPE);
+            byteAggregator.writeByte(ATTR_LENGTH);
+            byteAggregator.writeByte(origin.getValue().getIntValue());
         }
-        byteAggregator.writeByte(origin.getValue().getIntValue());
     }
 }
