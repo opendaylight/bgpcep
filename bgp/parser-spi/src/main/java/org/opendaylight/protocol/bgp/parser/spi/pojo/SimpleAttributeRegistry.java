@@ -115,11 +115,9 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     }
 
     @Override
-    public byte[] serializeAttribute(final DataObject attribute) {
-        final AttributeSerializer serializer = this.handlers.getSerializer(attribute.getImplementedInterface());
-        if (serializer == null) {
-            return null;
+    public void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator) {
+        for (AttributeSerializer serializer : this.handlers.getAllSerializers()) {
+            serializer.serializeAttribute(attribute, byteAggregator);
         }
-        return serializer.serializeAttribute(attribute);
     }
 }
