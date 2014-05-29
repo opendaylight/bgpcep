@@ -85,7 +85,7 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte((byte) aSetCase.getASet().getAsSet().size());
         for (AsNumber asNumber:aSetCase.getASet().getAsSet()){
             ShortAsNumber shortAsNumber = new ShortAsNumber(asNumber);
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeInt(shortAsNumber.getValue().intValue());
         }
     }
     static void serializeAsSequence(AListCase aListCase,ByteBuf byteAggregator){
@@ -93,7 +93,7 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte((byte) aListCase.getAList().getAsSequence().size());
         for (AsSequence value:aListCase.getAList().getAsSequence()){
             ShortAsNumber shortAsNumber = new ShortAsNumber(value.getAs());
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeInt(shortAsNumber.getValue().intValue());
         }
     }
 
