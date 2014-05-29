@@ -136,7 +136,17 @@ public final class Ipv4Util {
 		} else {
 			p = prefix.getIpv6Prefix().getValue();
 		}
-		final int sep = p.indexOf('/');
-		return Integer.valueOf(p.substring(sep + 1, p.length()));
+		return getPrefixLength(p);
 	}
+    /**
+     * Obtains prefix length from given prefix.
+     *
+     * @param prefixValue value of prefix
+     * @return prefix length
+     */
+    public static int getPrefixLength(final String prefixValue) {
+        final int sep = prefixValue.indexOf('/');
+        return Integer.valueOf(prefixValue.substring(sep + 1, prefixValue.length()));
+    }
+
 }
