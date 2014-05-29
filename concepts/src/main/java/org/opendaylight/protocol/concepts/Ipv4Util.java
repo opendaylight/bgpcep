@@ -73,6 +73,17 @@ public final class Ipv4Util {
     }
 
     /**
+     * Returns number of minimum bytes needed to cover all bits of prefix.
+     * @param prefix
+     * @return
+     */
+    public static int getPrefixLengthBytes(final String prefix){
+        int bits = Ipv4Util.getPrefixLength(prefix);
+        if (bits%8!=0){
+            return (bits/8)+1;
+        }
+        return bits/8;
+    }    /**
      * Converts Ipv4Prefix to byte array.
      *
      * @param prefix Ipv4Prefix to be converted

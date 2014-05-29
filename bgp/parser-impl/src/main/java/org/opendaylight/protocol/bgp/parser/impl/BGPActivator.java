@@ -79,11 +79,12 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
         regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
 
+        final NlriRegistry nlriReg = context.getNlriRegistry();
+
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
         final AttributeRegistry attrReg = context.getAttributeRegistry();
-        final NlriRegistry nlriReg = context.getNlriRegistry();
 
         final OriginAttributeParser originAttributeParser = new OriginAttributeParser();
         regs.add(context.registerAttributeSerializer(Origin.class, originAttributeParser));
