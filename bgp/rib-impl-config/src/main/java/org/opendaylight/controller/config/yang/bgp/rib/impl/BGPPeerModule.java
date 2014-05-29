@@ -81,19 +81,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 			 */
 			final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
 			try {
-				final ObjectName ribi = (ObjectName) srv.getAttribute(getRib(), "CurrentImplementation");
-
 				// FIXME: AbstractRIBImplModule.bgpDispatcherJmxAttribute.getAttributeName()
-				final ObjectName disp = (ObjectName) srv.getAttribute(ribi, "BgpDispatcher");
-
-				final ObjectName dispi = (ObjectName) srv.getAttribute(disp, "CurrentImplementation");
+				final ObjectName disp = (ObjectName) srv.getAttribute(getRib(), "BgpDispatcher");
 
 				// FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
-				final Object cf = srv.getAttribute(dispi, "Md5ChannelFactory");
-				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
+				final Object cf = srv.getAttribute(disp, "Md5ChannelFactory");
+				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", this.passwordJmxAttribute);
 			} catch (AttributeNotFoundException | InstanceNotFoundException
 					| MBeanException | ReflectionException e) {
-				JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);
+				JmxAttributeValidationException.wrap(e, passwordJmxAttribute);
 			}
 		}
 	}
