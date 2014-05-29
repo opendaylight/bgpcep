@@ -18,33 +18,32 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class SimpleMessageRegistry extends AbstractMessageRegistry {
-	private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
-	@Override
-	protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
-		final MessageParser parser = this.handlers.getParser(type);
-		if (parser == null) {
-			return null;
-		}
+    @Override
+    protected Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+        final MessageParser parser = this.handlers.getParser(type);
+        if (parser == null) {
+            return null;
+        }
 
-		return parser.parseMessageBody(body, messageLength);
-	}
+        return parser.parseMessageBody(body, messageLength);
+    }
 
-	@Override
-	protected byte[] serializeMessageImpl(final Notification message) {
-		final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
-		if (serializer == null) {
-			return null;
-		}
+    @Override
+    protected ByteBuf serializeMessageImpl(final Notification message) {
+        final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
+        if (serializer == null) {
+            return null;
+        }
+        return serializer.serializeMessage(message);
+    }
 
-		return serializer.serializeMessage(message);
-	}
+    AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
+        return this.handlers.registerParser(messageType, parser);
+    }
 
-	AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
-		return this.handlers.registerParser(messageType, parser);
-	}
-
-	AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
-		return this.handlers.registerSerializer(messageClass, serializer);
-	}
+    AutoCloseable registerMessageSerializer(final Class<? extends Notification> messageClass, final MessageSerializer serializer) {
+        return this.handlers.registerSerializer(messageClass, serializer);
+    }
 }

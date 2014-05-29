@@ -7,18 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-import com.google.common.primitives.UnsignedBytes;
-
-public final class OriginAttributeParser implements AttributeParser {
+public final class OriginAttributeParser implements AttributeParser,AttributeSerializer {
 	public static final int TYPE = 1;
 
 	@Override
@@ -30,4 +32,12 @@ public final class OriginAttributeParser implements AttributeParser {
 		}
 		builder.setOrigin(new OriginBuilder().setValue(borigin).build());
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        PathAttributes pathAttributes = (PathAttributes) attribute;
+        if (pathAttributes.getOrigin() == null) return;
+        Origin origin = pathAttributes.getOrigin();
+        byteAggregator.writeByte((byte)origin.getValue().getIntValue());
+    }
 }
