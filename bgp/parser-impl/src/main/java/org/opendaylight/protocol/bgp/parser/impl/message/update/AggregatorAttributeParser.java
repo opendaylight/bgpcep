@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Aggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AggregatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
@@ -55,7 +56,13 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
             return;
         }
         Preconditions.checkArgument(aggregator.getAsNumber() != null, "Missing AS number that formed the aggregate route (encoded as 2 octets).");
-        byteAggregator.writeInt(aggregator.getAsNumber().getValue().shortValue());
-        byteAggregator.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+        ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
+        byteAggregator.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.TRANSITIVE);
+        byteAggregator.writeByte(TYPE);
+        ByteBuf aggregatorBuffer = Unpooled.buffer();
+        aggregatorBuffer.writeInt(shortAsNumber.getValue().intValue());
+        aggregatorBuffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+        byteAggregator.writeByte(aggregatorBuffer.writerIndex());
+        byteAggregator.writeBytes(aggregatorBuffer);
     }
 }
