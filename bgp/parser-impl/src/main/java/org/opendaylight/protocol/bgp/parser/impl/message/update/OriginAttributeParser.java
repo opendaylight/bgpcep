@@ -22,8 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class OriginAttributeParser implements AttributeParser, AttributeSerializer {
+public final class OriginAttributeParser implements AttributeParser,AttributeSerializer {
+
     public static final int TYPE = 1;
+    public static final int ATTR_FLAGS = 64;
+    public static final int ATTR_LENGTH = 1;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
@@ -42,6 +45,10 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
         if (origin == null) {
             return;
         }
-        byteAggregator.writeByte((byte) origin.getValue().getIntValue());
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_LENGTH));
+
+        byteAggregator.writeByte((byte)origin.getValue().getIntValue());
     }
 }
