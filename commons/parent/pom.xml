@@ -23,7 +23,7 @@
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>commons.parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.3.1-SNAPSHOT</version>
+    <version>0.3.0-1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
