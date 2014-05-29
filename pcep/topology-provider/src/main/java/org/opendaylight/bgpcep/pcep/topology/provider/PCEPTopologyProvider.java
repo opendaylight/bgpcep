@@ -57,7 +57,7 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 					throws InterruptedException, ExecutionException {
 
 		final ServerSessionManager manager = new ServerSessionManager(dataService, topology, listenerFactory);
-		final ChannelFuture f = dispatcher.createServer(address, keys, manager);
+		final ChannelFuture f = dispatcher.createServer(address, manager);
 		f.get();
 
 		final BindingAwareBroker.RoutedRpcRegistration<NetworkTopologyPcepService> element = rpcRegistry.addRoutedRpcImplementation(

@@ -27,8 +27,6 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
@@ -36,7 +34,7 @@ import com.google.common.base.Preconditions;
  * Implementation of PCEPDispatcher.
  */
 public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEPSessionListener> implements PCEPDispatcher, AutoCloseable {
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
+
 	private final SessionNegotiatorFactory<Message, PCEPSessionImpl, PCEPSessionListener> snf;
 	private final MD5ServerChannelFactory<?> scf;
 	private final MD5ChannelFactory<?> cf;
@@ -80,8 +78,6 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 			if (cf == null) {
 				throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
 			}
-
-			LOG.debug("Adding MD5 keys {} to boostrap {}", keys, b);
 			b.channelFactory(cf);
 			b.option(MD5ChannelOption.TCP_MD5SIG, keys);
 		}
@@ -93,8 +89,6 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
 			if (scf == null) {
 				throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
 			}
-
-			LOG.debug("Adding MD5 keys {} to boostrap {}", keys, b);
 			b.channelFactory(scf);
 			b.option(MD5ChannelOption.TCP_MD5SIG, keys);
 		}
