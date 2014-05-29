@@ -60,15 +60,15 @@
         <surefire.version>2.15</surefire.version>
 
         <!-- YANG tools artifacts -->
-        <yangtools.version>0.6.2-SNAPSHOT</yangtools.version>
-        <ietf.types.version>2010.09.24.4-SNAPSHOT</ietf.types.version>
-        <ietf.topology.version>2013.10.21.2-SNAPSHOT</ietf.topology.version>
-        <yang-ext.version>2013.09.07.4-SNAPSHOT</yang-ext.version>
+        <yangtools.version>0.6.1-1-SNAPSHOT</yangtools.version>
+        <ietf.types.version>2010.09.24.3-1-SNAPSHOT</ietf.types.version>
+        <ietf.topology.version>2013.10.21.1-1-SNAPSHOT</ietf.topology.version>
+        <yang-ext.version>2013.09.07.3-1-SNAPSHOT</yang-ext.version>
 
         <!-- Controller artifacts -->
-        <controller.config.version>0.2.5-SNAPSHOT</controller.config.version>
-        <controller.framework.version>0.5.0-SNAPSHOT</controller.framework.version>
-        <controller.mdsal.version>1.1-SNAPSHOT</controller.mdsal.version>
+        <controller.config.version>0.2.3-1-SNAPSHOT</controller.config.version>
+        <controller.framework.version>0.4.0-1-SNAPSHOT</controller.framework.version>
+        <controller.mdsal.version>1.0-1-SNAPSHOT</controller.mdsal.version>
     </properties>
 
     <dependencyManagement>
