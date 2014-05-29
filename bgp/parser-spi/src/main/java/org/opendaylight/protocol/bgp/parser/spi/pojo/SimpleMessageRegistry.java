@@ -31,12 +31,11 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
 	}
 
 	@Override
-	protected byte[] serializeMessageImpl(final Notification message) {
+	protected ByteBuf serializeMessageImpl(final Notification message) {
 		final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
 		if (serializer == null) {
 			return null;
 		}
-
 		return serializer.serializeMessage(message);
 	}
 

@@ -41,7 +41,7 @@ public class BGPMessageParserMock implements MessageRegistry {
 	}
 
 	@Override
-	public byte[] serializeMessage(final Notification msg) {
+	public ByteBuf serializeMessage(final Notification msg) {
 		// nothing
 		return null;
 	}
