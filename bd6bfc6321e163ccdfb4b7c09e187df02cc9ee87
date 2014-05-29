@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_7d0945dc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "Definitely.",
+      "parentUuid": "fa82b9bf_dc4bb729",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_9cbe8ffe",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 6
@@ -47,6 +65,24 @@
       "writtenOn": "2014-05-26T13:07:25Z",
       "side": 1,
       "message": "this should probably trigger an error, as many path attributes are mandatory",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1d5919fe",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "RFC sais that pathattributes may be 0.",
+      "parentUuid": "fa82b9bf_9cbe8ffe",
       "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +157,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_7dd70524",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_dc72d77b",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_5c06c7cf",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/SerializationUtil.java",
         "patchSetId": 6
@@ -132,6 +186,24 @@
       "writtenOn": "2014-05-26T13:07:25Z",
       "side": 1,
       "message": "NextHop is located in bgp/concepts, put this class there and rename it to NextHopUtil. Put also javadoc, what the methods do. Also 2014 is the right year, for new files.",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7d30659e",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/SerializationUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_5c06c7cf",
       "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +227,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_3d865d14",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_bcfef3ac",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_fc1b1b1a",
         "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
         "patchSetId": 6
@@ -166,6 +256,24 @@
       "writtenOn": "2014-05-26T13:07:25Z",
       "side": 1,
       "message": "One method is enough (the one in Ipv4util will do the trick)",
+      "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dd7c1123",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-05-29T05:19:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_fc1b1b1a",
       "revId": "bd6bfc6321e163ccdfb4b7c09e187df02cc9ee87",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
