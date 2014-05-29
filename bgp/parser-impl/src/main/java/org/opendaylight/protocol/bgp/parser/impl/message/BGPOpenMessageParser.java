@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * Parser for BGP Open message.
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
+
     public static final int TYPE = 1;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenMessageParser.class);
@@ -71,7 +73,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * @return BGP Open message converted to byte array
      */
     @Override
-    public byte[] serializeMessage(final Notification msg) {
+    public ByteBuf serializeMessage(final Notification msg) {
         if (msg == null) {
             throw new IllegalArgumentException("BGPOpen message cannot be null");
         }
@@ -121,8 +123,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 index += entry.getValue();
             }
         }
-        final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-        LOG.trace("Open message serialized to: {}", Arrays.toString(ret));
+        final ByteBuf ret = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, msgBody));
+        LOG.trace("Open message serialized to: {}", Arrays.toString(ret.array()));
         return ret;
     }
 
