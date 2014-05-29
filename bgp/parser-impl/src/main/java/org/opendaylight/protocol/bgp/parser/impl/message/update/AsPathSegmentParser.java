@@ -8,6 +8,9 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
+import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
+
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
-import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
-import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
 
 /**
  *
@@ -85,7 +86,7 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte((byte) aSetCase.getASet().getAsSet().size());
         for (AsNumber asNumber:aSetCase.getASet().getAsSet()){
             ShortAsNumber shortAsNumber = new ShortAsNumber(asNumber);
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeInt(shortAsNumber.getValue().intValue());
         }
     }
     static void serializeAsSequence(AListCase aListCase,ByteBuf byteAggregator){
@@ -93,7 +94,7 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte((byte) aListCase.getAList().getAsSequence().size());
         for (AsSequence value:aListCase.getAList().getAsSequence()){
             ShortAsNumber shortAsNumber = new ShortAsNumber(value.getAs());
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeInt(shortAsNumber.getValue().intValue());
         }
     }
 

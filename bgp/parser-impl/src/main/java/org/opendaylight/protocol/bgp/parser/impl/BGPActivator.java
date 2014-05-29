@@ -25,13 +25,14 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.AtomicAggregateA
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunitiesAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.ExtendedCommunitiesAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv4NlriParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv6NextHopAttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.Ipv6NlriParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPReachAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MPUnreachAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.MultiExitDiscriminatorAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.PathAttributeSerializer;
@@ -70,6 +71,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 		regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
 
 		final NlriRegistry nlriReg = context.getNlriRegistry();
+
 		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
 		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
@@ -84,9 +86,14 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         pathAttributeSerializer.registerSerializer(asPathAttributeParser);
 		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, asPathAttributeParser));
 
-        NextHopAttributeParser nextHopAttributeParser = new NextHopAttributeParser();
-        pathAttributeSerializer.registerSerializer(nextHopAttributeParser);
-		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, nextHopAttributeParser));
+        Ipv4NextHopAttributeParser ipv4NextHopAttributeParser = new Ipv4NextHopAttributeParser();
+        pathAttributeSerializer.registerSerializer(ipv4NextHopAttributeParser);
+		regs.add(context.registerAttributeParser(Ipv4NextHopAttributeParser.TYPE, ipv4NextHopAttributeParser));
+
+        Ipv6NextHopAttributeSerializer ipv6NextHopAttributeSerializer = new Ipv6NextHopAttributeSerializer();
+        pathAttributeSerializer.registerSerializer(ipv6NextHopAttributeSerializer);
+        regs.add(context.registerAttributeParser(Ipv4NextHopAttributeParser.TYPE, ipv4NextHopAttributeParser));
+
 
         MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser = new  MultiExitDiscriminatorAttributeParser();
         pathAttributeSerializer.registerSerializer(multiExitDiscriminatorAttributeParser);

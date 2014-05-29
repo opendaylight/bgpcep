@@ -7,15 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AtomicAggregateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class AtomicAggregateAttributeParser implements AttributeParser,AttributeSerializer {
 	public static final int TYPE = 6;
+    //TODO how is this possible ? it wellknown, discretionary attribute so bits should be set 01000000
+    public static final int ATTR_FLAGS = 100;
+    public static final int ATTR_LENGTH = 0;
     @Override
 	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
 		builder.setAtomicAggregate(new AtomicAggregateBuilder().build());
@@ -23,6 +28,10 @@ public final class AtomicAggregateAttributeParser implements AttributeParser,Att
 
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        //noop
+        PathAttributes pathAttributes = (PathAttributes) attribute;
+        if (pathAttributes.getAtomicAggregate() == null) return;
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_LENGTH));
     }
 }

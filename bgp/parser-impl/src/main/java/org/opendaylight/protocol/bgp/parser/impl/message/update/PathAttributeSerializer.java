@@ -26,6 +26,7 @@ public class PathAttributeSerializer implements AttributeSerializer {
         PathAttributes pathAttributes = (PathAttributes) attribute;
         for (AttributeSerializer attributeSerializer:this.pathAttributesSerializers){
             attributeSerializer.serializeAttribute(pathAttributes,byteAggregator);
+//            System.out.println(ByteBufUtil.hexDump(byteAggregator));
         }
 
     }
