@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import io.netty.buffer.ByteBuf;
 
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractMessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -18,6 +19,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class SimpleMessageRegistry extends AbstractMessageRegistry {
+
     private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
     @Override
@@ -31,13 +33,14 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     }
 
     @Override
-    protected byte[] serializeMessageImpl(final Notification message) {
+    protected ByteBuf serializeMessageImpl(final Notification message) {
         final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
         if (serializer == null) {
             return null;
         }
-
-        return serializer.serializeMessage(message);
+        ByteBuf bytes = Unpooled.buffer();
+        serializer.serializeMessage(message,bytes);
+        return bytes;
     }
 
     AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
