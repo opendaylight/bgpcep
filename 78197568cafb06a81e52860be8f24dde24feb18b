@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_723f2fd7",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-29T12:49:15Z",
+      "side": 1,
+      "message": "Still not in this commit.",
+      "revId": "78197568cafb06a81e52860be8f24dde24feb18b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_120d833e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-29T12:49:15Z",
+      "side": 1,
+      "message": "Not in this commit.",
+      "revId": "78197568cafb06a81e52860be8f24dde24feb18b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f201ff06",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-05-29T12:49:15Z",
+      "side": 1,
+      "message": "This method already exists in Ipv4Util",
+      "revId": "78197568cafb06a81e52860be8f24dde24feb18b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
