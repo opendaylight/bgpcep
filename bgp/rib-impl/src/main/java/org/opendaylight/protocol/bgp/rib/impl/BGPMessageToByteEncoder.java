@@ -8,14 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +33,8 @@ final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
     @Override
     protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) {
         LOG.trace("Encoding message: {}", msg);
-        final byte[] bytes = this.registry.serializeMessage(msg);
-        LOG.trace("Encoded message: {}", ByteArray.bytesToHexString(bytes));
+        final ByteBuf bytes = this.registry.serializeMessage(msg);
+        LOG.trace("Encoded message: {}", ByteBufUtil.hexDump(bytes));
         out.writeBytes(bytes);
         LOG.debug("Message sent to output: {}", msg);
     }
