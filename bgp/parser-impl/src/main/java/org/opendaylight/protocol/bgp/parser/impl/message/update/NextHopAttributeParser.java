@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -43,17 +43,27 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
         if (cNextHop == null) {
             return;
         }
+        ByteBuf nextHopBuffer = Unpooled.buffer();
         if (cNextHop instanceof Ipv4NextHopCase) {
+            byteAggregator.writeByte(AttributeFlags.TRANSITIVE);
+            byteAggregator.writeByte(TYPE);
             Ipv4NextHopCase nextHop = (Ipv4NextHopCase) cNextHop;
-            byteAggregator.writeBytes(Ipv4Util.bytesForAddress(nextHop.getIpv4NextHop().getGlobal()));
+            nextHopBuffer.writeBytes(Ipv4Util.bytesForAddress(nextHop.getIpv4NextHop().getGlobal()));
+            byteAggregator.writeByte(nextHopBuffer.writerIndex());
+            byteAggregator.writeBytes(nextHopBuffer);
         } else if (cNextHop instanceof Ipv6NextHopCase) {
+            byteAggregator.writeByte(AttributeFlags.TRANSITIVE);
+            byteAggregator.writeByte(TYPE);
             Ipv6NextHopCase nextHop = (Ipv6NextHopCase) cNextHop;
             if (nextHop.getIpv6NextHop().getGlobal() != null) {
-                byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getGlobal()));
+                nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getGlobal()));
             }
             if (nextHop.getIpv6NextHop().getLinkLocal() != null) {
-                byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getLinkLocal()));
+                nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getLinkLocal()));
             }
+            byteAggregator.writeByte(nextHopBuffer.writerIndex());
+            byteAggregator.writeBytes(nextHopBuffer);
         }
+
     }
 }
