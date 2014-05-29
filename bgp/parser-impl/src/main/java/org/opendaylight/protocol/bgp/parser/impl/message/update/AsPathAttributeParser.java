@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AsPathAttributeParser implements AttributeParser, AttributeSerializer {
     public static final int TYPE = 2;
+    public static final int ATTR_FLAGS = 64;
     private final ReferenceCache refCache;
     private static final Logger LOG = LoggerFactory.getLogger(AsPathAttributeParser.class);
 
@@ -95,20 +97,29 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
         PathAttributes pathAttributes = (PathAttributes) attribute;
-        if (pathAttributes.getAsPath() == null) {
+        AsPath asPath = pathAttributes.getAsPath();
+        if (asPath == null) {
             return;
         }
-        AsPath asPath = pathAttributes.getAsPath();
-        for (Segments segments : asPath.getSegments()) {
-            if (segments.getCSegment() instanceof AListCase) {
-                AListCase listCase = (AListCase) segments.getCSegment();
-                AsPathSegmentParser.serializeAsSequence(listCase, byteAggregator);
-            } else if (segments.getCSegment() instanceof ASetCase) {
-                ASetCase set = (ASetCase) segments.getCSegment();
-                AsPathSegmentParser.serializeAsSet(set, byteAggregator);
-            } else {
-                LOG.warn("CSegment class is neither AListCase nor ASetCase.");
+
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+
+        ByteBuf segmentsBuffer = Unpooled.buffer();
+        if (asPath.getSegments().size()>0) {
+            for (Segments segments : asPath.getSegments()) {
+                if (segments.getCSegment() instanceof AListCase) {
+                    AListCase listCase = (AListCase) segments.getCSegment();
+                    AsPathSegmentParser.serializeAsSequence(listCase, segmentsBuffer);
+                } else if (segments.getCSegment() instanceof ASetCase) {
+                    ASetCase set = (ASetCase) segments.getCSegment();
+                    AsPathSegmentParser.serializeAsSet(set, segmentsBuffer);
+                } else {
+                    LOG.warn("Segment class is neither AListCase nor ASetCase.");
+                }
             }
         }
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(segmentsBuffer.writerIndex()));
+        byteAggregator.writeBytes(segmentsBuffer);
     }
 }
