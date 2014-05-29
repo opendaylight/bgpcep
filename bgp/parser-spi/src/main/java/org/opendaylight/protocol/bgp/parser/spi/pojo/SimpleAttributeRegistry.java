@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
-
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -28,9 +28,6 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 
 final class SimpleAttributeRegistry implements AttributeRegistry {
 	private static final class RawAttribute {
@@ -115,11 +112,10 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 	}
 
 	@Override
-	public byte[] serializeAttribute(final DataObject attribute) {
-		final AttributeSerializer serializer = this.handlers.getSerializer(attribute.getImplementedInterface());
-		if (serializer == null) {
-			return null;
-		}
-		return serializer.serializeAttribute(attribute);
-	}
+	public void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator) {
+        for (AttributeSerializer serializer : this.handlers.getAllSerializers()) {
+            serializer.serializeAttribute(attribute, byteAggregator);
+        }
+    }
+
 }
