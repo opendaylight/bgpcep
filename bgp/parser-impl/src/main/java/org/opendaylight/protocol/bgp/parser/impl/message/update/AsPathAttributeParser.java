@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
@@ -40,8 +41,10 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 
 public final class AsPathAttributeParser implements AttributeParser, AttributeSerializer {
+
     public static final int TYPE = 2;
     private final ReferenceCache refCache;
+    public static final int ATTR_FLAGS = 64;
 
     public AsPathAttributeParser(final ReferenceCache refCache) {
         this.refCache = Preconditions.checkNotNull(refCache);
@@ -67,20 +70,16 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
             final int count = UnsignedBytes.toInt(buffer.readByte());
 
             if (segmentType == SegmentType.AS_SEQUENCE) {
-                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(),
-                        count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(), count * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(
                         new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
                 isSequence = true;
             } else {
-                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count
-                        * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
-
             }
             buffer.skipBytes(count * AsPathSegmentParser.AS_NUMBER_LENGTH);
         }
-
         if (!isSequence && buffer.readableBytes() != 0) {
             throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
         }
@@ -101,17 +100,26 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
 
         AsPath asPath = pathAttributes.getAsPath();
 
-        for (Segments segments:asPath.getSegments()) {
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
 
-            if (segments.getCSegment() instanceof AListCase) {
-                AListCase listCase = (AListCase)segments.getCSegment();
-                AsPathSegmentParser.serializeAsSequence(listCase,byteAggregator);
-            }
+        ByteBuf segmentsBuffer = Unpooled.buffer();
 
-            if (segments.getCSegment() instanceof ASetCase) {
-                ASetCase set = (ASetCase) segments.getCSegment();
-                AsPathSegmentParser.serializeAsSet(set,byteAggregator);
+        if (asPath.getSegments().size()>0) {
+            for (Segments segments : asPath.getSegments()) {
+
+                if (segments.getCSegment() instanceof AListCase) {
+                    AListCase listCase = (AListCase) segments.getCSegment();
+                    AsPathSegmentParser.serializeAsSequence(listCase, segmentsBuffer);
+                }
+
+                if (segments.getCSegment() instanceof ASetCase) {
+                    ASetCase set = (ASetCase) segments.getCSegment();
+                    AsPathSegmentParser.serializeAsSet(set, segmentsBuffer);
+                }
             }
         }
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(segmentsBuffer.writerIndex()));
+        byteAggregator.writeBytes(segmentsBuffer);
     }
 }
