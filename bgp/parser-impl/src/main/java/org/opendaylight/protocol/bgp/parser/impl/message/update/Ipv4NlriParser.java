@@ -11,9 +11,12 @@ import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv4._case.DestinationIpv4Builder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class Ipv4NlriParser extends IpNlriParser {
 	@Override
@@ -21,4 +24,12 @@ public final class Ipv4NlriParser extends IpNlriParser {
 		return new DestinationIpv4CaseBuilder().setDestinationIpv4(
 				new DestinationIpv4Builder().setIpv4Prefixes(Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri))).build()).build();
 	}
+
+    @Override
+    public void serializeAttribute(DataObject attribute,ByteBuf byteAggregator){
+        Nlri nlri = (Nlri)attribute;
+        for (Ipv4Prefix ipv4Prefix:nlri.getNlri()) {
+            byteAggregator.writeBytes(Ipv4Util.bytesForPrefix(ipv4Prefix));
+        }
+    }
 }

@@ -21,6 +21,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class OriginAttributeParser implements AttributeParser,AttributeSerializer {
 	public static final int TYPE = 1;
+    public static final int ATTR_FLAGS = 64;
+    public static final int ATTR_LENGTH = 1;
+
 
 	@Override
 	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
@@ -35,6 +38,10 @@ public final class OriginAttributeParser implements AttributeParser,AttributeSer
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
         Origin origin = (Origin) attribute;
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_LENGTH));
+
         byteAggregator.writeByte((byte)origin.getValue().getIntValue());
     }
 }
