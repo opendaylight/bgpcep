@@ -17,15 +17,15 @@ public final class MD5SocketOptions {
 	/**
 	 * TCP MD5 Signature option, as defined in RFC 2385.
 	 */
-	public static final SocketOption<KeyMapping> TCP_MD5SIG = new SocketOption<KeyMapping>() {
+	public static final SocketOption<byte[]> TCP_MD5SIG = new SocketOption<byte[]>() {
 		@Override
 		public String name() {
 			return "TCP_MD5SIG";
 		}
 
 		@Override
-		public Class<KeyMapping> type() {
-			return KeyMapping.class;
+		public Class<byte[]> type() {
+			return byte[].class;
 		}
 	};
 

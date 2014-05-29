@@ -13,7 +13,6 @@ import io.netty.channel.MessageSizeEstimator;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.socket.SocketChannelConfig;
 
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.nio.MD5SocketChannel;
 
 /**
@@ -77,13 +76,13 @@ final class ProxyMD5SocketChannelConfig extends AbstractMD5ChannelConfig<SocketC
 	}
 
 	@Override
-	public KeyMapping getMD5SignatureKeys() {
-		return getKeys();
+	public byte[] getMD5SignatureKey() {
+		return getKey();
 	}
 
 	@Override
-	public MD5SocketChannelConfig setMD5SignatureKeys(final KeyMapping keys) {
-		setKeys(keys);
+	public MD5SocketChannelConfig setMD5SignatureKey(final byte[] key) {
+		setKey(key);
 		return this;
 	}
 

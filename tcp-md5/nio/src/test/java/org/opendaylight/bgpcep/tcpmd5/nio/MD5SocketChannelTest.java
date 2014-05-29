@@ -12,7 +12,6 @@ import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.any;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketOption;
@@ -27,10 +26,11 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 
 public class MD5SocketChannelTest {
+	private static final byte[] KEY1 = new byte[] { 1 };
+
 	@Mock
 	private KeyAccessFactory keyAccessFactory;
 	@Mock
@@ -144,8 +144,8 @@ public class MD5SocketChannelTest {
 		};
 
 		Mockito.doReturn(keyAccess).when(keyAccessFactory).getKeyAccess(channel);
-		Mockito.doReturn(null).when(keyAccess).getKeys();
-		Mockito.doNothing().when(keyAccess).setKeys(any(KeyMapping.class));
+		Mockito.doReturn(null).when(keyAccess).getKey();
+		Mockito.doNothing().when(keyAccess).setKey(any(byte[].class));
 	}
 
 	@Test
@@ -165,19 +165,16 @@ public class MD5SocketChannelTest {
 		}
 
 		Mockito.verify(keyAccessFactory).getKeyAccess(channel);
-		Mockito.verify(keyAccess).getKeys();
+		Mockito.verify(keyAccess).getKey();
 	}
 
 	@Test
 	public void testSetKey() throws IOException {
-		final KeyMapping map = new KeyMapping();
-		map.put(InetAddress.getLoopbackAddress(), new byte[] { 1, 2, 3 });
-
 		try (final MD5SocketChannel sc = new MD5SocketChannel(channel, keyAccessFactory)) {
-			assertSame(sc, sc.setOption(MD5SocketOptions.TCP_MD5SIG, map));
+			assertSame(sc, sc.setOption(MD5SocketOptions.TCP_MD5SIG, KEY1));
 		}
 
 		Mockito.verify(keyAccessFactory).getKeyAccess(channel);
-		Mockito.verify(keyAccess).setKeys(map);
+		Mockito.verify(keyAccess).setKey(KEY1);
 	}
 }

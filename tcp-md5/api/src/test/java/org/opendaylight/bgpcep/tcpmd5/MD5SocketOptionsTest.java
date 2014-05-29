@@ -20,7 +20,7 @@ public class MD5SocketOptionsTest {
 
 	@Test
 	public void testMd5SigType() {
-		assertEquals(KeyMapping.class, MD5SocketOptions.TCP_MD5SIG.type());
+		assertEquals(byte[].class, MD5SocketOptions.TCP_MD5SIG.type());
 	}
 
 }

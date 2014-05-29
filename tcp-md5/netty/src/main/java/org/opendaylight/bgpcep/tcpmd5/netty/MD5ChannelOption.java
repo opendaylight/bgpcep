@@ -9,12 +9,12 @@ package org.opendaylight.bgpcep.tcpmd5.netty;
 
 import io.netty.channel.ChannelOption;
 
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
+import com.google.common.base.Preconditions;
 
 /**
  * TCP MD5 Signature {@link ChannelOption}.
  */
-public final class MD5ChannelOption extends ChannelOption<KeyMapping> {
+public final class MD5ChannelOption extends ChannelOption<byte[]> {
 	/**
 	 * Singleton instance of TCP MD5 Signature ChannelOption.
 	 */
@@ -22,5 +22,11 @@ public final class MD5ChannelOption extends ChannelOption<KeyMapping> {
 
 	private MD5ChannelOption(final String name) {
 		super(name);
+	}
+
+	@Override
+	public void validate(final byte[] value) {
+		// null value is allowed
+		Preconditions.checkArgument(value == null || value.length != 0);
 	}
 }
