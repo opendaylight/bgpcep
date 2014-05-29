@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageSerializer {
-    byte[] serializeMessage(Notification message);
+
+    ByteBuf serializeMessage(Notification message);
 }
