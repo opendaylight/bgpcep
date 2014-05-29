@@ -63,8 +63,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 	@Override
@@ -80,6 +81,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 		regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
 
 		final NlriRegistry nlriReg = context.getNlriRegistry();
+
 		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
 		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
@@ -94,7 +96,8 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, asPathAttributeParser));
 
         NextHopAttributeParser nextHopAttributeParser = new NextHopAttributeParser();
-        context.registerAttributeSerializer(NextHop.class, nextHopAttributeParser );
+        context.registerAttributeSerializer(Ipv4NextHopCase.class, nextHopAttributeParser );
+        context.registerAttributeSerializer(Ipv6NextHopCase.class, nextHopAttributeParser );
 		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, nextHopAttributeParser));
 
         MultiExitDiscriminatorAttributeParser multiExitDiscriminatorAttributeParser = new  MultiExitDiscriminatorAttributeParser();
