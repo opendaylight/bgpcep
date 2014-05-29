@@ -15,8 +15,6 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Set;
 
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
@@ -24,14 +22,13 @@ import com.google.common.base.Preconditions;
  * {@link ServerSocketChannel} augmented with support for TCP MD5 Signature
  * option.
  */
-public final class MD5ServerSocketChannel extends ServerSocketChannel implements ProxyChannel<ServerSocketChannel> {
-	private static final Logger LOG = LoggerFactory.getLogger(MD5ServerSocketChannel.class);
+public final class MD5ServerSocketChannel extends ServerSocketChannel {
 	private final KeyAccessFactory keyAccessFactory;
 	private final ServerSocketChannel inner;
 	private final MD5ChannelOptions options;
 
 	public MD5ServerSocketChannel(final ServerSocketChannel inner, final KeyAccessFactory keyAccessFactory) {
-		super(MD5SelectorProvider.getInstance(keyAccessFactory, inner.provider()));
+		super(inner.provider());
 		this.inner = inner;
 		this.keyAccessFactory = Preconditions.checkNotNull(keyAccessFactory);
 		this.options = MD5ChannelOptions.create(keyAccessFactory, inner);
@@ -78,9 +75,8 @@ public final class MD5ServerSocketChannel extends ServerSocketChannel implements
 
 	@Override
 	public ServerSocket socket() {
-		final ServerSocket s = inner.socket();
-		LOG.info("Leaking inner socket {} from server {}", s, this);
-		return s;
+		// FIXME: provider a wrapper
+		return inner.socket();
 	}
 
 	@Override
@@ -96,10 +92,5 @@ public final class MD5ServerSocketChannel extends ServerSocketChannel implements
 	@Override
 	protected void implConfigureBlocking(final boolean block) throws IOException {
 		inner.configureBlocking(block);
-	}
-
-	@Override
-	public ServerSocketChannel getDelegate() {
-		return inner;
 	}
 }

@@ -20,7 +20,7 @@ import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 /**
  * {@link SocketChannel} augmented with support for TCP MD5 Signature option.
  */
-public final class MD5SocketChannel extends SocketChannel implements ProxyChannel<SocketChannel> {
+public final class MD5SocketChannel extends SocketChannel {
 	private final MD5ChannelOptions options;
 	private final SocketChannel inner;
 
@@ -29,7 +29,7 @@ public final class MD5SocketChannel extends SocketChannel implements ProxyChanne
 	}
 
 	public MD5SocketChannel(final SocketChannel inner, final KeyAccessFactory keyAccessFactory) {
-		super(MD5SelectorProvider.getInstance(keyAccessFactory, inner.provider()));
+		super(inner.provider());
 		this.inner = inner;
 		options = MD5ChannelOptions.create(keyAccessFactory, inner);
 	}
@@ -140,10 +140,5 @@ public final class MD5SocketChannel extends SocketChannel implements ProxyChanne
 	@Override
 	protected void implConfigureBlocking(final boolean block) throws IOException {
 		inner.configureBlocking(block);
-	}
-
-	@Override
-	public SocketChannel getDelegate() {
-		return inner;
 	}
 }
