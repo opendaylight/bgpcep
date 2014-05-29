@@ -33,17 +33,8 @@
 						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
 						<name>global-event-executor</name>
 					</executor>
-                </module>
-
-                <!--
-                     A single BGP peer. Note this section is deactivated because a misconfigured peer
-                     tends to log rather nasty error messages.
-
-                     For TCP-MD5 support, make sure the dispatcher associated with the rib has
-                     "md5-channel-factory" attribute set and then add a "password" attribute here.
-                     Note that the peer has to have the same password configured, otherwise the
-                     connection will not be established.
-				<module>
+				</module>
+				<!--module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
                     <host>192.0.2.1</host>
@@ -64,9 +55,7 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>linkstate</name>
                     </advertized-table>
-                </module>
-                -->
-
+				</module-->
 				<module>
 					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
 					<name>example-bgp-rib</name>

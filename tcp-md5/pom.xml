@@ -69,11 +69,6 @@
                 <version>${project.version}</version>
                 <type>nar</type>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>tcpmd5-controller-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
