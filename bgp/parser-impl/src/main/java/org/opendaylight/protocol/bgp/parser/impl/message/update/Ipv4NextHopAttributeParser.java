@@ -14,18 +14,17 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
-import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class NextHopAttributeParser implements AttributeParser, AttributeSerializer {
+public final class Ipv4NextHopAttributeParser implements AttributeParser, AttributeSerializer {
 	public static final int TYPE = 3;
+    public static final int ATTR_FLAGS = 64;
 
 	@Override
 	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
@@ -38,22 +37,14 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
         PathAttributes pathAttributes = (PathAttributes) attribute;
         if (pathAttributes.getCNextHop() == null) return;
-        ByteBuf nextHopBuffer = Unpooled.buffer();
         if (pathAttributes.getCNextHop() instanceof Ipv4NextHopCase) {
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
+            ByteBuf nextHopBuffer = Unpooled.buffer();
             Ipv4NextHopCase nextHop = (Ipv4NextHopCase) pathAttributes.getCNextHop();
             nextHopBuffer.writeBytes(Ipv4Util.bytesForAddress(nextHop.getIpv4NextHop().getGlobal()));
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(nextHopBuffer.writerIndex()));
+            byteAggregator.writeBytes(nextHopBuffer);
         }
-
-        if (pathAttributes.getCNextHop() instanceof Ipv6NextHopCase){
-            Ipv6NextHopCase nextHop = (Ipv6NextHopCase) pathAttributes.getCNextHop();
-            if (nextHop.getIpv6NextHop().getGlobal()!=null) {
-                nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getGlobal()));
-            }
-            if (nextHop.getIpv6NextHop().getLinkLocal()!=null) {
-                nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getLinkLocal()));
-            }
-        }
-        byteAggregator.writeByte(UnsignedBytes.checkedCast(nextHopBuffer.writerIndex()));
-        byteAggregator.writeBytes(nextHopBuffer);
     }
 }
