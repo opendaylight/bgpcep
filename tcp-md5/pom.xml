@@ -35,7 +35,6 @@
 	<modules>
         <module>core</module>
         <module>jni</module>
-        <module>netty</module>
     </modules>
 
     <dependencyManagement>
@@ -48,11 +47,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>tcpmd5-jni</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>tcpmd5-netty</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
