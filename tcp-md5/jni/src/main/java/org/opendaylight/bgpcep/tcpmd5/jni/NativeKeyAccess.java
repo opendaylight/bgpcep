@@ -15,10 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +27,8 @@ import com.google.common.base.Preconditions;
  * directly to the underlying operating system.
  */
 public final class NativeKeyAccess implements KeyAccess {
-	private static final Logger LOG = LoggerFactory.getLogger(NativeKeyAccess.class);
-	private static final Map<Channel, KeyAccess> CHANNELS = new WeakHashMap<>();
 	private static final String LIBNAME = "libtcpmd5-jni.so";
+	private static final Logger LOG = LoggerFactory.getLogger(NativeKeyAccess.class);
 	private static boolean AVAILABLE = false;
 
 	private static InputStream getLibraryStream() {
@@ -85,10 +81,10 @@ public final class NativeKeyAccess implements KeyAccess {
 	}
 
 	private static native boolean isClassSupported0(Class<?> channel);
+	private static native byte[] getChannelKey0(Channel channel) throws IOException;
 	private static native void setChannelKey0(Channel channel, byte[] key) throws IOException;
 
 	private final Channel channel;
-	private byte[] key;
 
 	private NativeKeyAccess(final Channel channel) {
 		this.channel = Preconditions.checkNotNull(channel);
@@ -97,23 +93,15 @@ public final class NativeKeyAccess implements KeyAccess {
 	public static KeyAccess create(final Channel channel) {
 		if (!AVAILABLE) {
 			LOG.debug("Native library not available");
-			throw new UnsupportedOperationException("Native library not available");
+			return null;
 		}
 
 		if (!isClassSupported0(channel.getClass())) {
 			LOG.debug("No support available for class {}", channel.getClass());
-			throw new IllegalArgumentException(String.format("Channel class %s not supported", channel.getClass()));
+			return null;
 		}
 
-		synchronized (CHANNELS) {
-			KeyAccess e = CHANNELS.get(channel);
-			if (e == null) {
-				e = new NativeKeyAccess(channel);
-				CHANNELS.put(channel, e);
-			}
-
-			return e;
-		}
+		return new NativeKeyAccess(channel);
 	}
 
 	public static boolean isAvailableForClass(final Class<?> clazz) {
@@ -131,23 +119,16 @@ public final class NativeKeyAccess implements KeyAccess {
 	}
 
 	@Override
-	public void setKey(final byte[] key) throws IOException {
-		Preconditions.checkArgument(key == null || key.length != 0, "Key may not be empty");
-
-		synchronized (channel) {
-			if (!Arrays.equals(this.key, key)) {
-				setChannelKey0(channel, key);
-				LOG.debug("Channel {} assigned key {}", channel, key);
-				this.key = key;
-			} else {
-				LOG.debug("Channel {} already has key {}", channel, key);
-			}
-		}
-	}
-	@Override
 	public byte[] getKey() throws IOException {
 		synchronized (channel) {
-			return key;
+			return getChannelKey0(channel);
+		}
+	}
+
+	@Override
+	public void setKey(final byte[] key) throws IOException {
+		synchronized (channel) {
+			setChannelKey0(channel, Preconditions.checkNotNull(key));
 		}
 	}
 }
