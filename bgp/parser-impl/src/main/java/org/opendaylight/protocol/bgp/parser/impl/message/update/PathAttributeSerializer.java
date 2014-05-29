@@ -27,6 +27,5 @@ public class PathAttributeSerializer implements AttributeSerializer {
         for (AttributeSerializer attributeSerializer:this.pathAttributesSerializers){
             attributeSerializer.serializeAttribute(pathAttributes,byteAggregator);
         }
-
     }
 }
