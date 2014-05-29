@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.tcpmd5.netty;
 
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-import org.opendaylight.bgpcep.tcpmd5.nio.MD5SocketChannel;
+import org.opendaylight.bgpcep.tcpmd5.MD5SocketChannel;
 
 /**
  * {@link io.netty.channel.socket.nio.NioSocketChannel} enabled with support
@@ -21,7 +21,7 @@ public class MD5NioSocketChannel extends NioSocketChannel {
 
 	public MD5NioSocketChannel() {
 		super();
-		this.channel = new MD5SocketChannel(super.javaChannel());
+		this.channel = new MD5SocketChannel(javaChannel());
 		this.config = new ProxyMD5SocketChannelConfig(super.config(), channel);
 	}
 
@@ -32,6 +32,6 @@ public class MD5NioSocketChannel extends NioSocketChannel {
 
 	@Override
 	protected MD5SocketChannel javaChannel() {
-		return this.channel;
+		return channel;
 	}
 }

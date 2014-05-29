@@ -28,11 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-api</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-nio</artifactId>
+            <artifactId>tcpmd5-core</artifactId>
         </dependency>
         <dependency>
 			<groupId>io.netty</groupId>
