@@ -15,8 +15,6 @@ module bgp-rib-impl {
     import netty { prefix netty; revision-date 2013-11-19; }
     import config { prefix config; revision-date 2013-04-05; }
     import protocol-framework { prefix pf; revision-date 2014-03-13; }
-    import odl-tcpmd5-cfg { prefix tcpmd5; revision-date 2014-04-27; }
-    import odl-tcpmd5-netty-cfg { prefix tcpmd5n; revision-date 2014-04-27; }
 
     organization "Cisco Systems, Inc.";
 
@@ -100,24 +98,6 @@ module bgp-rib-impl {
                     refine type {
                         mandatory true;
                         config:required-identity netty:netty-threadgroup;
-                    }
-                }
-            }
-
-            container md5-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5n:md5-channel-factory;
-                    }
-                }
-            }
-
-            container md5-server-channel-factory {
-                uses config:service-ref {
-                    refine type {
-                        mandatory false;
-                        config:required-identity tcpmd5n:md5-server-channel-factory;
                     }
                 }
             }
@@ -223,11 +203,6 @@ module bgp-rib-impl {
                     "Expected remote AS number. If not present, it is assumed
                     to be the same as our local AS number.";
                 type uint32;
-            }
-
-            leaf password {
-                type tcpmd5:rfc2385-key;
-                description "RFC2385 shared secret";
             }
 
             container rib {

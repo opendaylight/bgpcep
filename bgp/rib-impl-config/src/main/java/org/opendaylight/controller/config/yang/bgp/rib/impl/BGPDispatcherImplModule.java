@@ -44,6 +44,6 @@ org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplMo
 	public java.lang.AutoCloseable createInstance() {
 		final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
 		return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getTimerDependency(),
-				getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+				getBossGroupDependency(), getWorkerGroupDependency());
 	}
 }
