@@ -15,6 +15,7 @@ import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -33,7 +34,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class ExtendedCommunitiesAttributeParser implements AttributeParser,AttributeSerializer {
 
     public static final int TYPE = 16;
-    public static final int ATTR_FLAGS = 128;
 
     private final ReferenceCache refCache;
 
@@ -109,7 +109,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
                 extendedCommunitiesBuffer.writeShort(routeOriginExtendedCommunity.getRouteOriginExtendedCommunity().getGlobalAdministrator().getValue().shortValue());
                 extendedCommunitiesBuffer.writeBytes(routeOriginExtendedCommunity.getRouteOriginExtendedCommunity().getLocalAdministrator());
             }
-            byteAggregator.writeByte(ATTR_FLAGS);
+            byteAggregator.writeByte(AttributeFlags.OPTIONAL);
             byteAggregator.writeByte(TYPE);
             byteAggregator.writeByte(extendedCommunitiesBuffer.writerIndex());
             byteAggregator.writeBytes(extendedCommunitiesBuffer);

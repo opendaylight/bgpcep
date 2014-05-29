@@ -9,11 +9,14 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -25,7 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class CommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
+
     public static final int TYPE = 8;
+    public static final int ATTR_LENGTH = 4;
 
     private final ReferenceCache refCache;
 
@@ -51,8 +56,15 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
         if (communities == null) {
             return;
         }
+        ByteBuf communitiesBuffer = Unpooled.buffer();
         for (Community community : communities) {
-            byteAggregator.writeInt(community.getAsNumber().getValue().intValue());
+            communitiesBuffer.writeShort(community.getAsNumber().getValue().intValue());
+            communitiesBuffer.writeShort(community.getSemantics().intValue());
         }
+        //TODO how is this possible ? should be TRANSITIVE | PARTIAL;
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(AttributeFlags.TRANSITIVE | AttributeFlags.PARTIAL | AttributeFlags.UNUSED_4));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(CommunitiesAttributeParser.TYPE));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(communitiesBuffer.writerIndex()));
+        byteAggregator.writeBytes(communitiesBuffer);
     }
 }

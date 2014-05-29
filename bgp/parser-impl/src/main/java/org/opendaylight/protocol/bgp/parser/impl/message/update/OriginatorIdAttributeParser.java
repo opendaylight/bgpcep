@@ -10,27 +10,41 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class OriginatorIdAttributeParser implements AttributeParser, AttributeSerializer {
-    public static final int TYPE = 9;
 
-    private static final int ORIGINATOR_LENGTH = 4;
+public final class OriginatorIdAttributeParser implements AttributeParser,AttributeSerializer {
+
+    public static final int TYPE = 9;
+    public static final int ATTR_LENGTH = 4;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
-        Preconditions.checkArgument(buffer.readableBytes() == ORIGINATOR_LENGTH, "Length of byte array for ORIGINATOR_ID should be %s, but is %s", ORIGINATOR_LENGTH, buffer.readableBytes());
-        builder.setOriginatorId(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, ORIGINATOR_LENGTH)));
+        Preconditions.checkArgument(buffer.readableBytes() == ATTR_LENGTH, "Length of byte array for ORIGINATOR_ID should be %s, but is %s", ATTR_LENGTH, buffer.readableBytes());
+        builder.setOriginatorId(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, ATTR_LENGTH)));
     }
 
     @Override
     public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        //TODO implement this
+        PathAttributes pathAttributes = (PathAttributes) attribute;
+        if (pathAttributes.getOriginatorId() == null) {
+            return;
+        }
+        ByteBuf originatorIdBuf = Unpooled.buffer();
+        originatorIdBuf.writeBytes(Ipv4Util.bytesForAddress(pathAttributes.getOriginatorId()));
+        byteAggregator.writeByte(AttributeFlags.OPTIONAL);
+        byteAggregator.writeByte(TYPE);
+        byteAggregator.writeByte(originatorIdBuf.writerIndex());
+        byteAggregator.writeBytes(originatorIdBuf);
+
     }
 }

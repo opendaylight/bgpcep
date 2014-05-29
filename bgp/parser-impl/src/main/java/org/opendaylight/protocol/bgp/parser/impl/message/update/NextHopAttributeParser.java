@@ -9,10 +9,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -46,9 +45,15 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
         }
         ByteBuf nextHopBuffer = Unpooled.buffer();
         if (cNextHop instanceof Ipv4NextHopCase) {
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(AttributeFlags.TRANSITIVE));
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
             Ipv4NextHopCase nextHop = (Ipv4NextHopCase) cNextHop;
             nextHopBuffer.writeBytes(Ipv4Util.bytesForAddress(nextHop.getIpv4NextHop().getGlobal()));
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(nextHopBuffer.writerIndex()));
+            byteAggregator.writeBytes(nextHopBuffer);
         } else if (cNextHop instanceof Ipv6NextHopCase) {
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(AttributeFlags.TRANSITIVE));
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
             Ipv6NextHopCase nextHop = (Ipv6NextHopCase) cNextHop;
             if (nextHop.getIpv6NextHop().getGlobal() != null) {
                 nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getGlobal()));
@@ -56,8 +61,9 @@ public final class NextHopAttributeParser implements AttributeParser, AttributeS
             if (nextHop.getIpv6NextHop().getLinkLocal() != null) {
                 nextHopBuffer.writeBytes(Ipv6Util.bytesForAddress(nextHop.getIpv6NextHop().getLinkLocal()));
             }
+            byteAggregator.writeByte(UnsignedBytes.checkedCast(nextHopBuffer.writerIndex()));
+            byteAggregator.writeBytes(nextHopBuffer);
         }
-        byteAggregator.writeByte(UnsignedBytes.checkedCast(nextHopBuffer.writerIndex()));
-        byteAggregator.writeBytes(nextHopBuffer);
+
     }
 }

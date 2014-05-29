@@ -13,6 +13,7 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -29,7 +30,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public final class AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
     public static final int TYPE = 7;
-    public static final int ATTR_FLAGS = 192;
     private final ReferenceCache refCache;
 
     public AggregatorAttributeParser(final ReferenceCache refCache) {
@@ -58,7 +58,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
         }
         Preconditions.checkArgument(aggregator.getAsNumber() != null, "Missing AS number that formed the aggregate route (encoded as 2 octets).");
         ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
-        byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS));
+        byteAggregator.writeByte(UnsignedBytes.checkedCast(AttributeFlags.OPTIONAL | AttributeFlags.TRANSITIVE));
         byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
         ByteBuf aggregatorBuffer = Unpooled.buffer();
         aggregatorBuffer.writeInt(shortAsNumber.getValue().shortValue());
