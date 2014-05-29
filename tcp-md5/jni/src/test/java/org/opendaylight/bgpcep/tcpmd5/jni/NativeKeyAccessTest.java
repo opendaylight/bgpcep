@@ -26,8 +26,8 @@ import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BasicNativeKeyAccessTest {
-	private static final Logger LOG = LoggerFactory.getLogger(BasicNativeKeyAccessTest.class);
+public class NativeKeyAccessTest {
+	private static final Logger LOG = LoggerFactory.getLogger(NativeKeyAccessTest.class);
 	private static final byte[] KEY1 = new byte[] { 1 };
 	private static final byte[] KEY2 = new byte[] { 2, 3 };
 
@@ -58,13 +58,13 @@ public class BasicNativeKeyAccessTest {
 	}
 
 	@Before
-	public void setup() throws IOException {
+	public void initialize() throws IOException {
 		factory = NativeKeyAccessFactory.getInstance();
 		channel = SocketChannel.open();
 	}
 
 	@After
-	public void teardown() throws IOException {
+	public void shutdown() throws IOException {
 		channel.close();
 	}
 
