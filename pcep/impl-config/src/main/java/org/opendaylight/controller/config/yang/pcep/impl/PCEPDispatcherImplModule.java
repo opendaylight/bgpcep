@@ -62,8 +62,7 @@ org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModu
 
 		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
 				getPcepExtensionsDependency().getMessageHandlerRegistry(),
-				negFactory, getBossGroupDependency(), getWorkerGroupDependency(),
-				getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+				negFactory, getBossGroupDependency(), getWorkerGroupDependency());
 		return instance;
 	}
 }

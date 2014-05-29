@@ -15,7 +15,6 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
@@ -51,7 +50,6 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
 	}
 
 	public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address,
-			final KeyMapping keys,
 			final InstructionScheduler scheduler, final DataProviderService dataService, final RpcProviderRegistry rpcRegistry,
 			final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory)
 					throws InterruptedException, ExecutionException {
