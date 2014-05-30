@@ -89,7 +89,7 @@ public final class CInitiated00LspObjectParser extends Stateful07LspObjectParser
 		if (specObj.isAdministrative() != null && specObj.isAdministrative()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (ADMINISTRATIVE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
-		if (specObj.getAugmentation(Lsp1.class).isCreate() != null && specObj.getAugmentation(Lsp1.class).isCreate()) {
+		if (specObj.getAugmentation(Lsp1.class) != null && specObj.getAugmentation(Lsp1.class).isCreate()) {
 			retBytes[3] |= 1 << (Byte.SIZE - (CREATE_FLAG_OFFSET - Byte.SIZE) - 1);
 		}
 		if (specObj.getOperational() != null) {
