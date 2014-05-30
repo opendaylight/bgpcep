@@ -67,9 +67,7 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		final Srp srp = (Srp) object;
 		final byte[] tlvs = serializeTlvs(srp.getTlvs());
 		final Long id = srp.getOperationId().getValue();
-		if (id == 0 || id == 0xFFFFFFFFL) {
-			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");
-		}
+
 		final byte[] retBytes = new byte[MIN_SIZE];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
