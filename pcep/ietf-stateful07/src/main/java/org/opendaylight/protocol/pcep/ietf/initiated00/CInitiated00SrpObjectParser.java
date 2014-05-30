@@ -75,7 +75,9 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
 		final BitSet flags = new BitSet(FLAGS_SIZE * Byte.SIZE);
-		flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
+		if (srp.getAugmentation(Srp1.class) != null && srp.getAugmentation(Srp1.class).isRemove()) {
+			flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
+		}
 		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_SIZE), retBytes, 0);
 
 		System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
