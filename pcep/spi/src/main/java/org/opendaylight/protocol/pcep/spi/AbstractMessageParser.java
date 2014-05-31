@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -31,10 +34,6 @@ import com.google.common.primitives.UnsignedBytes;
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
 
 	private static final int COMMON_OBJECT_HEADER_LENGTH = 4;
-
-	private static final int OC_F_LENGTH = 1;
-	private static final int OT_FLAGS_MF_LENGTH = 1;
-	private static final int OBJ_LENGTH_F_LENGTH = 2;
 
 	private static final int OT_SF_LENGTH = 4;
 	private static final int FLAGS_SF_LENGTH = 4;
@@ -62,48 +61,38 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 		return this.registry.serializeObject(object);
 	}
 
-	private List<Object> parseObjects(final byte[] bytes) throws PCEPDeserializerException {
-		int offset = 0;
-		final List<Object> objs = Lists.newArrayList();
-		while (bytes.length - offset > 0) {
-			if (bytes.length - offset < COMMON_OBJECT_HEADER_LENGTH) {
-				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
+	private List<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {
+		final List<Object> objs = new ArrayList<>();
+		while (bytes.isReadable()) {
+			if (bytes.readableBytes() < COMMON_OBJECT_HEADER_LENGTH) {
+				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes() + " Expected: >= "
 						+ COMMON_OBJECT_HEADER_LENGTH + ".");
 			}
+			final int objClass = bytes.readUnsignedByte();
 
-			final int objClass = UnsignedBytes.toInt(bytes[offset]);
-
-			offset += OC_F_LENGTH;
-
-			final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(bytes[offset], OT_SF_OFFSET, OT_SF_LENGTH));
-
-			final byte[] flagsBytes = { ByteArray.copyBitsRange(bytes[offset], FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
-
+			byte flagsByte = bytes.readByte();
+			final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(flagsByte, OT_SF_OFFSET, OT_SF_LENGTH));
+			final byte[] flagsBytes = { ByteArray.copyBitsRange(flagsByte, FLAGS_SF_OFFSET, FLAGS_SF_LENGTH) };
 			final BitSet flags = ByteArray.bytesToBitSet(flagsBytes);
 
-			offset += OT_FLAGS_MF_LENGTH;
+			final int objLength = bytes.readUnsignedShort();
 
-			final int objLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset, OBJ_LENGTH_F_LENGTH));
-
-			if (bytes.length - offset < objLength - COMMON_OBJECT_HEADER_LENGTH) {
-				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + (bytes.length - offset) + " Expected: >= "
+			if (bytes.readableBytes() < objLength - COMMON_OBJECT_HEADER_LENGTH) {
+				throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes() + " Expected: >= "
 						+ objLength + ".");
 			}
-
-			offset += OBJ_LENGTH_F_LENGTH;
-
 			// copy bytes for deeper parsing
-			final byte[] bytesToPass = ByteArray.subByte(bytes, offset, objLength - COMMON_OBJECT_HEADER_LENGTH);
-
-			offset += objLength - COMMON_OBJECT_HEADER_LENGTH;
+			final ByteBuf bytesToPass = bytes.slice(bytes.readerIndex(), objLength - COMMON_OBJECT_HEADER_LENGTH);
 
 			final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
 			// parseObject is required to return null for P=0 errored objects
-			final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
+			// FIXME: change this to ByteBuf
+			final Object o = this.registry.parseObject(objClass, objType, header, ByteArray.readAllBytes(bytesToPass));
 			if (o != null) {
 				objs.add(o);
 			}
+			bytes.readerIndex(bytes.readerIndex() + objLength- COMMON_OBJECT_HEADER_LENGTH);
 		}
 
 		return objs;
@@ -132,7 +121,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 	protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;
 
 	@Override
-	public final Message parseMessage(final byte[] buffer, final List<Message> errors) throws PCEPDeserializerException {
+	public final Message parseMessage(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
 		Preconditions.checkNotNull(buffer, "Buffer may not be null");
 
 		// Parse objects first

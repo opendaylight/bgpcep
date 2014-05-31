@@ -18,23 +18,17 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPMessageConstants;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 
 /**
  * A PCEP message parser which also does validation.
  */
 public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 	private static final Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
-
-	private static final int TYPE_SIZE = 1;
-
-	private static final int LENGTH_SIZE = 2;
 
 	private final MessageRegistry registry;
 
@@ -44,20 +38,18 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 
 	@Override
 	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
-		if (in.readableBytes() == 0) {
+		if (!in.isReadable()) {
 			LOG.debug("No more content in incoming buffer.");
 			return;
 		}
 
 		in.markReaderIndex();
 		LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
-		final byte[] bytes = new byte[in.readableBytes()];
-		in.readBytes(bytes);
 
 		final List<Message> errors = new ArrayList<>();
 
 		try {
-			out.add(parse(bytes, errors));
+			out.add(parse(in.slice(), errors));
 		} catch (final PCEPDeserializerException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
@@ -73,13 +65,14 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 		}
 	}
 
-	private Message parse(final byte[] bytes, final List<Message> errors) throws PCEPDeserializerException {
-		final int type = UnsignedBytes.toInt(bytes[1]);
-		final int msgLength = ByteArray.bytesToInt(ByteArray.subByte(bytes, TYPE_SIZE + 1, LENGTH_SIZE));
-
-		final byte[] msgBody = ByteArray.cutBytes(bytes, TYPE_SIZE + 1 + LENGTH_SIZE);
-		if (msgBody.length != msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH) {
-			throw new PCEPDeserializerException("Body size " + msgBody.length + " does not match header size "
+	private Message parse(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
+		buffer.readerIndex(buffer.readerIndex() + 1);
+		final int type = buffer.readUnsignedByte();
+		final int msgLength = buffer.readUnsignedShort();
+		final int actualLength = buffer.readableBytes();
+		final ByteBuf msgBody = buffer.slice();
+		if (actualLength != msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH) {
+			throw new PCEPDeserializerException("Body size " + actualLength + " does not match header size "
 					+ (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
 		}
 		return this.registry.parseMessage(type, msgBody, errors);

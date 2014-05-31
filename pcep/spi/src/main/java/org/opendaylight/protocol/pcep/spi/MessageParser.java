@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public interface MessageParser {
-	Message parseMessage(byte[] buffer, List<Message> errors) throws PCEPDeserializerException;
+	Message parseMessage(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException;
 }

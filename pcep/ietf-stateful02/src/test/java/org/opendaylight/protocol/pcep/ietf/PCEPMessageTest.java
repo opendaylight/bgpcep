@@ -143,7 +143,7 @@ public class PCEPMessageTest {
 	public void testPcinitMsg() throws IOException, PCEPDeserializerException {
 		try (InitiatedActivator a = new InitiatedActivator()) {
 			a.start(this.ctx);
-			final byte[] result = ByteArray.fileToBytes("src/test/resources/Pcinit.bin");
+			final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/Pcinit.bin"));
 
 			final PcinitiateMessageParser parser = new PcinitiateMessageParser(this.ctx.getObjectHandlerRegistry());
 
@@ -159,10 +159,10 @@ public class PCEPMessageTest {
 			builder.setRequests(reqs);
 
 			assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			final ByteBuf buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes() -4), Collections.<Message> emptyList()));
+			final ByteBuf buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 		}
 	}
 
@@ -170,7 +170,7 @@ public class PCEPMessageTest {
 	public void testUpdMsg() throws IOException, PCEPDeserializerException {
 		try (StatefulActivator a = new StatefulActivator()) {
 			a.start(this.ctx);
-			byte[] result = ByteArray.fileToBytes("src/test/resources/PCUpd.2.bin");
+			ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCUpd.2.bin"));
 
 			final Stateful02PCUpdateRequestMessageParser parser = new Stateful02PCUpdateRequestMessageParser(this.ctx.getObjectHandlerRegistry());
 
@@ -184,12 +184,12 @@ public class PCEPMessageTest {
 			builder.setUpdates(updates);
 
 			assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			ByteBuf buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			ByteBuf buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 
-			result = ByteArray.fileToBytes("src/test/resources/PCUpd.5.bin");
+			result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCUpd.5.bin"));
 
 			final List<Updates> updates1 = Lists.newArrayList();
 			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.PathBuilder pBuilder1 = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.pcupd.message.pcupd.message.updates.PathBuilder();
@@ -200,10 +200,10 @@ public class PCEPMessageTest {
 			builder.setUpdates(updates1);
 
 			assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 		}
 	}
 
@@ -211,7 +211,7 @@ public class PCEPMessageTest {
 	public void testRptMsg() throws IOException, PCEPDeserializerException {
 		try (StatefulActivator a = new StatefulActivator()) {
 			a.start(this.ctx);
-			byte[] result = ByteArray.fileToBytes("src/test/resources/PCRpt.1.bin");
+			ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.1.bin"));
 
 			final Stateful02PCReportMessageParser parser = new Stateful02PCReportMessageParser(this.ctx.getObjectHandlerRegistry());
 
@@ -222,12 +222,12 @@ public class PCEPMessageTest {
 			builder.setReports(reports);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			ByteBuf buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			ByteBuf buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 
-			result = ByteArray.fileToBytes("src/test/resources/PCRpt.2.bin");
+			result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.2.bin"));
 
 			final List<Reports> reports1 = Lists.newArrayList();
 			reports1.add(new ReportsBuilder().setLsp(this.lsp).setPath(
@@ -236,12 +236,12 @@ public class PCEPMessageTest {
 			builder.setReports(reports1);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 
-			result = ByteArray.fileToBytes("src/test/resources/PCRpt.3.bin");
+			result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.3.bin"));
 
 			final List<Reports> reports2 = Lists.newArrayList();
 			final PathBuilder pBuilder = new PathBuilder();
@@ -252,12 +252,12 @@ public class PCEPMessageTest {
 			builder.setReports(reports2);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 
-			result = ByteArray.fileToBytes("src/test/resources/PCRpt.5.bin");
+			result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.5.bin"));
 
 			final List<Reports> reports3 = Lists.newArrayList();
 			final PathBuilder pBuilder1 = new PathBuilder();
@@ -269,10 +269,10 @@ public class PCEPMessageTest {
 			builder.setReports(reports3);
 
 			assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
-					parser.parseMessage(ByteArray.cutBytes(result, 4), Collections.<Message> emptyList()));
-			buf = Unpooled.buffer(result.length);
+					parser.parseMessage(result.slice(4, result.readableBytes()-4), Collections.<Message> emptyList()));
+			buf = Unpooled.buffer(result.readableBytes());
 			parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
-			assertArrayEquals(result, buf.array());
+			assertArrayEquals(result.array(), buf.array());
 		}
 	}
 }
