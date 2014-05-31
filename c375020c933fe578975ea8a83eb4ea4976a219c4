@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_0342133e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "Do not introduce inconsistent whitespace, please.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_233dd7bb",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "this looks as if though MessageUtil.formatMessage() should be changed, not wrapped.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c34bcb57",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "please use a single space to separate operator in expression.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8375c399",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "Add a comment why we need this buffer",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a3780790",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "missing space after ,\nmethod arguments should be final",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_436fbbc5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "again, the colon needs to be separated with spaces, so should the curly brace.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2364f7e3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "please do keep the fields and methods separated by a line",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6372ffae",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "Why is this a no-op? Please add a full comment.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c362ebd7",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ClusterIdAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "it should be a FIXME",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e35daf16",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "Does this do the right thing? asNumber is 32bit unsigned, this looks as if we\u0027re trimming it to a signed...",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_839ce3c1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "FIXME. Also what does this comment really mean? Please expand it or address it.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_43a6db11",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "again, signed vs. unsigned",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_63a99fde",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "Empty method? Why?",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_03b0d341",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "FIXME.",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_23ab97d7",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "now I am sure: not how we use readUnsignedInt() and here we trim it",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c3b98b2f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginatorIdAttributeParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "empty method",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_83838355",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageRegistry.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-05-31T14:31:22Z",
+      "side": 1,
+      "message": "This looks a bit inconsistent: the attributes are parsed into a passed bytebuffer, messages return a bytebuf of their own. can we have consistency, please?",
+      "revId": "c375020c933fe578975ea8a83eb4ea4976a219c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
