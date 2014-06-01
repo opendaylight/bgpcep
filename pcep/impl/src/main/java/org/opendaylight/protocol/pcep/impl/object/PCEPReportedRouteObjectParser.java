@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
@@ -39,8 +38,7 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 		final RroBuilder builder = new RroBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		//FIXME: switch to ByteBuf
-		builder.setSubobject(parseSubobjects(ByteArray.readAllBytes(bytes)));
+		builder.setSubobject(parseSubobjects(bytes.slice()));
 		return builder.build();
 	}
 
