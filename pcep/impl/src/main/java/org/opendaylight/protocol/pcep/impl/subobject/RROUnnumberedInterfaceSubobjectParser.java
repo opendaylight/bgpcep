@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import java.util.Arrays;
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
@@ -22,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
-import com.google.common.primitives.UnsignedInts;
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link UnnumberedCase}
@@ -44,23 +45,20 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
 	private static final int LPIU_F_OFFSET = 6;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
+	public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != CONTENT_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
 					+ CONTENT_LENGTH + ".");
 		}
-
 		final SubobjectBuilder builder = new SubobjectBuilder();
-		final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, 0, FLAGS_F_LENGTH));
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
 		builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
 		builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
 		final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-		ubuilder.setRouterId(ByteArray.bytesToLong(ByteArray.subByte(buffer, ROUTER_ID_NUMBER_OFFSET, ROUTER_ID_NUMBER_LENGTH)));
-		ubuilder.setInterfaceId(UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(buffer, INTERFACE_ID_NUMBER_OFFSET,
-				INTERFACE_ID_NUMBER_LENGTH))));
+		buffer.readerIndex(buffer.readerIndex() + 1);
+		ubuilder.setRouterId(buffer.readUnsignedInt());
+		ubuilder.setInterfaceId(buffer.readUnsignedInt());
 		builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
 		return builder.build();
 	}
