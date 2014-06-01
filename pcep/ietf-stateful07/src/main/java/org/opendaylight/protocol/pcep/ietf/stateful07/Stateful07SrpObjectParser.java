@@ -9,8 +9,6 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -63,10 +61,6 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		bytes.readerIndex(bytes.readerIndex() + FLAGS_SIZE);
-		final byte[] srpId = ByteArray.getBytes(bytes, SRP_ID_SIZE);
-		if (Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
-			throw new PCEPDeserializerException("Max values for SRP ID are reserved.");
-		}
 		builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
 		return builder.build();
 	}
@@ -86,9 +80,6 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 		final Srp srp = (Srp) object;
 		final byte[] tlvs = serializeTlvs(srp.getTlvs());
 		final Long id = srp.getOperationId().getValue();
-		if (id == 0 || id == 0xFFFFFFFFL) {
-			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");
-		}
 		final byte[] retBytes = new byte[MIN_SIZE];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

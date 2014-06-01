@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
@@ -53,10 +52,6 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		builder.setProcessingRule(header.isProcessingRule());
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_SIZE));
 		builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
-		final byte[] srpId = ByteArray.getBytes(bytes, SRP_ID_SIZE);
-		if (Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
-			throw new PCEPDeserializerException("Max values for SRP ID are reserved.");
-		}
 		builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
 		return builder.build();
 	}
