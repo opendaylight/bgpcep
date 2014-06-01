@@ -7,14 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link GeneralizedLabelCase}
@@ -24,12 +29,9 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 	public static final int CTYPE = 2;
 
 	@Override
-	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-
-		return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(new GeneralizedLabelBuilder().setGeneralizedLabel(buffer).build()).build();
+	public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(new GeneralizedLabelBuilder().setGeneralizedLabel(ByteArray.readAllBytes(buffer)).build()).build();
 	}
 
 	@Override

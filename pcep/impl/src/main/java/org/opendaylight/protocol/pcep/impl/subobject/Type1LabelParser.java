@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
@@ -17,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.type1.label._case.Type1LabelBuilder;
 
-import com.google.common.primitives.UnsignedInts;
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link Type1LabelCase}
@@ -29,16 +31,14 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
 	public static final int LABEL_LENGTH = 4;
 
 	@Override
-	public LabelType parseLabel(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != LABEL_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: " + LABEL_LENGTH
+	public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != LABEL_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: " + LABEL_LENGTH
 					+ ".");
 		}
 		return new Type1LabelCaseBuilder().setType1Label(
-				new Type1LabelBuilder().setType1Label(UnsignedInts.toLong(ByteArray.bytesToInt(buffer))).build()).build();
+				new Type1LabelBuilder().setType1Label(buffer.readUnsignedInt()).build()).build();
 	}
 
 	@Override

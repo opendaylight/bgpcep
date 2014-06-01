@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.Unpooled;
 
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.subobject.GeneralizedLabelParser;
@@ -37,7 +38,7 @@ public class LabelSubobjectParserTest {
 		final GeneralizedLabelBuilder iBuilder = new GeneralizedLabelBuilder();
 		iBuilder.setGeneralizedLabel(ByteArray.cutBytes(generalizedLabelBytes, 2));
 		final GeneralizedLabelCaseBuilder builder = new GeneralizedLabelCaseBuilder().setGeneralizedLabel(iBuilder.build());
-		assertEquals(builder.build(), parser.parseLabel(ByteArray.cutBytes(generalizedLabelBytes, 2)));
+		assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(generalizedLabelBytes, 2))));
 		assertArrayEquals(generalizedLabelBytes, parser.serializeLabel(true, false, builder.build()));
 	}
 
@@ -49,7 +50,7 @@ public class LabelSubobjectParserTest {
 		iBuilder.setStartLabel(0x9999L);
 		iBuilder.setEndLabel(0x1111L);
 		final WavebandSwitchingLabelCaseBuilder builder = new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
-		assertEquals(builder.build(), parser.parseLabel(ByteArray.cutBytes(wavebandLabelBytes, 2)));
+		assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(wavebandLabelBytes, 2))));
 		assertArrayEquals(wavebandLabelBytes, parser.serializeLabel(false, true, builder.build()));
 	}
 
@@ -59,7 +60,7 @@ public class LabelSubobjectParserTest {
 		final Type1LabelBuilder iBuilder = new Type1LabelBuilder();
 		iBuilder.setType1Label(0x120025ffL);
 		final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder().setType1Label(iBuilder.build());
-		assertEquals(builder.build(), parser.parseLabel(ByteArray.cutBytes(typeOneLabelBytes, 2)));
+		assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(typeOneLabelBytes, 2))));
 		assertArrayEquals(typeOneLabelBytes, parser.serializeLabel(true, true, builder.build()));
 	}
 }

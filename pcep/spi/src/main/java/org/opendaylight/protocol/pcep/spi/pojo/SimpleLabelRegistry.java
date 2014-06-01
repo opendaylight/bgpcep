@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
@@ -31,7 +33,7 @@ public class SimpleLabelRegistry implements LabelRegistry {
 	}
 
 	@Override
-	public LabelType parseLabel(int cType, byte[] buffer) throws PCEPDeserializerException {
+	public LabelType parseLabel(final int cType, final ByteBuf buffer) throws PCEPDeserializerException {
 		Preconditions.checkArgument(cType >= 0 && cType <= Values.UNSIGNED_BYTE_MAX_VALUE);
 		final LabelParser parser = this.handlers.getParser(cType);
 		if (parser == null) {

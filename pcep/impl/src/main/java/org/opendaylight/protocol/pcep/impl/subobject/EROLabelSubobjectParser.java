@@ -60,8 +60,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 		final BitSet reserved = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, RES_F_LENGTH));
 		final short cType = (short) UnsignedBytes.toInt(buffer.readByte());
 
-		//FIXME: switch to ByteBuf
-		final LabelType labelType = this.registry.parseLabel(cType, ByteArray.readAllBytes(buffer));
+		final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
 		if (labelType == null) {
 			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
 		}
