@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class PCEPTlvParserTest {
 		final NoPathVectorTlvParser parser = new NoPathVectorTlvParser();
 		final NoPathVectorTlv tlv = new NoPathVectorBuilder().setFlags(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags(false, true, false, true, false, true, true, true)).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(noPathVectorBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(noPathVectorBytes, 4))));
 		assertArrayEquals(noPathVectorBytes, parser.serializeTlv(tlv));
 	}
 
@@ -89,14 +90,14 @@ public class PCEPTlvParserTest {
 	public void testOverloadedDurationTlv() throws PCEPDeserializerException {
 		final OverloadedDurationTlvParser parser = new OverloadedDurationTlvParser();
 		final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(0x7FFFFFFFL).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(overloadedBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(overloadedBytes, 4))));
 		assertArrayEquals(overloadedBytes, parser.serializeTlv(tlv));
 	}
 
 	public void testReqMissingTlv() throws PCEPDeserializerException {
 		final ReqMissingTlvParser parser = new ReqMissingTlvParser();
 		final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(0xF7823517L)).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(reqMissingBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(reqMissingBytes, 4))));
 		assertArrayEquals(reqMissingBytes, parser.serializeTlv(tlv));
 	}
 
@@ -104,7 +105,7 @@ public class PCEPTlvParserTest {
 	public void testOrderTlv() throws PCEPDeserializerException {
 		final OrderTlvParser parser = new OrderTlvParser();
 		final Order tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(orderBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(orderBytes, 4))));
 		assertArrayEquals(orderBytes, parser.serializeTlv(tlv));
 	}
 
@@ -115,14 +116,14 @@ public class PCEPTlvParserTest {
 		ids.add(new OfId(0x1234));
 		ids.add(new OfId(0x5678));
 		final OfList tlv = new OfListBuilder().setCodes(ids).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(ofListBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(ofListBytes, 4))));
 		assertArrayEquals(ofListBytes, parser.serializeTlv(tlv));
 	}
 
 	@Test
 	public void testVendorSpecificTlv() throws PCEPDeserializerException {
 		VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
-		assertEquals(tlv, this.vsParser.parseTlv(ByteArray.cutBytes(vsTlvBytes, 4)));
+		assertEquals(tlv, this.vsParser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(vsTlvBytes, 4))));
 		assertArrayEquals(vsTlvBytes, this.vsParser.serializeTlv(tlv));
 	}
 }

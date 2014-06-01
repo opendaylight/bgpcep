@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -26,8 +28,11 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 	private static final int REQ_ID_LENGTH = 4;
 
 	@Override
-	public ReqMissing parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new ReqMissingBuilder().setRequestId(new RequestId(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, REQ_ID_LENGTH)))).build();
+	public ReqMissing parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
+		return new ReqMissingBuilder().setRequestId(new RequestId(buffer.readUnsignedInt())).build();
 	}
 
 	@Override

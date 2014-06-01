@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -16,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.rsvp.error.spec.tlv.RsvpErrorSpec;
@@ -67,21 +68,17 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 	private static final int V6_RSVP_LENGTH = 22;
 
 	@Override
-	public RsvpErrorSpec parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		if (valueBytes == null || valueBytes.length == 0) {
-			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
+	public RsvpErrorSpec parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-
-		final int classNum = ByteArray.bytesToInt(ByteArray.subByte(valueBytes, 0, 1));
-		final int classType = ByteArray.bytesToInt(ByteArray.subByte(valueBytes, 1, 1));
-
+		final int classNum = UnsignedBytes.toInt(buffer.readByte());
+		final int classType = UnsignedBytes.toInt(buffer.readByte());
 		ErrorType errorType = null;
-		final int byteOffset = 2;
-
 		if (classNum == RSVP_ERROR_CLASS_NUM) {
-			errorType = parseRsvp(classType, ByteArray.cutBytes(valueBytes, byteOffset));
+			errorType = parseRsvp(classType, buffer.slice());
 		} else if (classNum == USER_ERROR_CLASS_NUM && classType == USER_ERROR_CLASS_TYPE) {
-			errorType = parseUserError(ByteArray.cutBytes(valueBytes, byteOffset));
+			errorType = parseUserError(buffer.slice());
 		}
 		return new RsvpErrorSpecBuilder().setErrorType(errorType).build();
 	}
@@ -102,19 +99,13 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 		}
 	}
 
-	private UserCase parseUserError(final byte[] valueBytes) {
+	private UserCase parseUserError(final ByteBuf buffer) {
 		final UserErrorBuilder error = new UserErrorBuilder();
-		int byteOffset = 0;
-		error.setEnterprise(new EnterpriseNumber(ByteArray.bytesToLong(ByteArray.subByte(valueBytes, byteOffset, ENTERPRISE_F_LENGTH))));
-		byteOffset += ENTERPRISE_F_LENGTH;
-		error.setSubOrg((short) UnsignedBytes.toInt(valueBytes[byteOffset]));
-		byteOffset += SUB_ORG_F_LENGTH;
-		final int errDescrLength = UnsignedBytes.toInt(valueBytes[byteOffset]);
-		byteOffset += ERR_DESCR_LENGTH_F_LENGTH;
-		error.setValue(ByteArray.bytesToInt(ByteArray.subByte(valueBytes, byteOffset, USER_VALUE_F_LENGTH)));
-		byteOffset += USER_VALUE_F_LENGTH;
-		error.setDescription(ByteArray.bytesToHRString(ByteArray.subByte(valueBytes, byteOffset, errDescrLength)));
-		byteOffset += errDescrLength;
+		error.setEnterprise(new EnterpriseNumber(buffer.readUnsignedInt()));
+		error.setSubOrg((short) UnsignedBytes.toInt(buffer.readByte()));
+		final int errDescrLength = UnsignedBytes.toInt(buffer.readByte());
+		error.setValue(buffer.readUnsignedShort());
+		error.setDescription(ByteArray.bytesToHRString(ByteArray.readBytes(buffer, errDescrLength)));
 		// if we have any subobjects, place the implementation here
 		return new UserCaseBuilder().setUserError(error.build()).build();
 	}
@@ -143,23 +134,18 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 		return bytes;
 	}
 
-	private RsvpCase parseRsvp(final int classType, final byte[] valueBytes) {
-		int byteOffset = 0;
+	private RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
 		final RsvpErrorBuilder builder = new RsvpErrorBuilder();
 		if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
-			builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, byteOffset, IP4_F_LENGTH))));
-			byteOffset += IP4_F_LENGTH;
+			builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH))));
 		} else if (classType == RSVP_IPV6_ERROR_CLASS_TYPE) {
-			builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.subByte(valueBytes, byteOffset, IP6_F_LENGTH))));
-			byteOffset += IP6_F_LENGTH;
+			builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH))));
 		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(valueBytes, byteOffset, FLAGS_F_LENGTH));
-		byteOffset += FLAGS_F_LENGTH;
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
 		builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
-		final short errorCode = (short) (valueBytes[byteOffset] & Values.BYTE_MAX_VALUE_BYTES);
-		byteOffset += ERROR_CODE_F_LENGTH;
+		final short errorCode = buffer.readUnsignedByte();
 		builder.setCode(errorCode);
-		final int errorValue = (ByteArray.bytesToShort(ByteArray.subByte(valueBytes, byteOffset, ERROR_VALUE_F_LENGTH)) & 0xFFFF);
+		final int errorValue = buffer.readUnsignedShort();
 		builder.setValue(errorValue);
 		return new RsvpCaseBuilder().setRsvpError(builder.build()).build();
 	}

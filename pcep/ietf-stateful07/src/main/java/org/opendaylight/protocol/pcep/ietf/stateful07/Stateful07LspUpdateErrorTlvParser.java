@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
@@ -26,8 +28,11 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 	private static final int UPDATE_ERR_CODE_LENGTH = 4;
 
 	@Override
-	public LspErrorCode parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new LspErrorCodeBuilder().setErrorCode(ByteArray.bytesToLong(buffer)).build();
+	public LspErrorCode parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
+		return new LspErrorCodeBuilder().setErrorCode(buffer.readUnsignedInt()).build();
 	}
 
 	@Override

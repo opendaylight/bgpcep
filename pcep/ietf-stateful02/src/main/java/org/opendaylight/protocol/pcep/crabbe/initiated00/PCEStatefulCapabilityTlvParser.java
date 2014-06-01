@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02StatefulCapabilityTlvParser;
@@ -27,16 +29,15 @@ public final class PCEStatefulCapabilityTlvParser extends Stateful02StatefulCapa
 	private static final int I_FLAG_OFFSET = 29;
 
 	@Override
-	public Stateful parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
+	public Stateful parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-		if (buffer.length < FLAGS_F_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >= "
+		if (buffer.readableBytes() < FLAGS_F_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
 					+ FLAGS_F_LENGTH + ".");
 		}
-
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(buffer, 0, FLAGS_F_LENGTH));
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
 
 		final StatefulBuilder sb = new StatefulBuilder();
 		sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));

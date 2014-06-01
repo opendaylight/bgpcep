@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
-import java.util.Arrays;
+import io.netty.buffer.ByteBuf;
+
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -31,16 +32,16 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 	private static final int OF_CODE_ELEMENT_LENGTH = 2;
 
 	@Override
-	public OfList parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		if (valueBytes == null || valueBytes.length == 0) {
-			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
+	public OfList parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-		if (valueBytes.length % OF_CODE_ELEMENT_LENGTH != 0) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + valueBytes.length + ".");
+		if (buffer.readableBytes() % OF_CODE_ELEMENT_LENGTH != 0) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ".");
 		}
 		final List<OfId> ofCodes = Lists.newArrayList();
-		for (int i = 0; i < valueBytes.length; i += OF_CODE_ELEMENT_LENGTH) {
-			ofCodes.add(new OfId(ByteArray.bytesToShort(Arrays.copyOfRange(valueBytes, i, i + OF_CODE_ELEMENT_LENGTH)) & 0xFFFF));
+		while (buffer.isReadable()) {
+			ofCodes.add(new OfId(buffer.readUnsignedShort()));
 		}
 		return new OfListBuilder().setCodes(ofCodes).build();
 	}

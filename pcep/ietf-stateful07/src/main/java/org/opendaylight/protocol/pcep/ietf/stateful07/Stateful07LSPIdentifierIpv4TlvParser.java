@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -42,25 +44,19 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 	private static final int V4_LENGTH = 16;
 
 	@Override
-	public LspIdentifiers parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		if (valueBytes == null || valueBytes.length == 0) {
-			throw new IllegalArgumentException("Value bytes array is mandatory. Can't be null or empty.");
+	public LspIdentifiers parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-		if (valueBytes.length != V4_LENGTH) {
-			throw new IllegalArgumentException("Length " + valueBytes.length + " does not match LSP Identifiers Ipv4 tlv length.");
+		if (buffer.readableBytes() != V4_LENGTH) {
+			throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv4 tlv length.");
 		}
-		int position = 0;
 		final Ipv4Builder builder = new Ipv4Builder();
-		builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position, IP4_F_LENGTH)));
-		position = IP4_F_LENGTH;
-		final LspId lspId = new LspId(ByteArray.bytesToLong(ByteArray.subByte(valueBytes, position, LSP_ID_F_LENGTH)));
-		position += LSP_ID_F_LENGTH;
-		final TunnelId tunnelId = new TunnelId(ByteArray.bytesToInt(ByteArray.subByte(valueBytes, position, TUNNEL_ID_F_LENGTH)));
-		position += TUNNEL_ID_F_LENGTH;
-		builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position,
-				EX_TUNNEL_ID4_F_LENGTH))));
-		position += EX_TUNNEL_ID4_F_LENGTH;
-		builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.subByte(valueBytes, position, IP4_F_LENGTH)));
+		builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH)));
+		final LspId lspId = new LspId((long) buffer.readUnsignedShort());
+		final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
+		builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, EX_TUNNEL_ID4_F_LENGTH))));
+		builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH)));
 		final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
 		return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
 	}

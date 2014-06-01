@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
@@ -35,7 +37,7 @@ public final class SimpleTlvRegistry implements TlvRegistry {
 	}
 
 	@Override
-	public Tlv parseTlv(final int type, final byte[] buffer) throws PCEPDeserializerException {
+	public Tlv parseTlv(final int type, final ByteBuf buffer) throws PCEPDeserializerException {
 		Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
 		final TlvParser parser = this.handlers.getParser(type);
 		if (parser == null) {

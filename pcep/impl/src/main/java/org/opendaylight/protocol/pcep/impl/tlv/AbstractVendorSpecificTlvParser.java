@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -43,22 +45,19 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
 	}
 
 	@Override
-	public VsTlv parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		VsTlvBuilder vsTlvBuider = new VsTlvBuilder();
-		if (valueBytes == null || valueBytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+	public VsTlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-
-		byte[] enBytes = ByteArray.subByte(valueBytes, 0, ENTERPRISE_NUM_LENGTH);
-		long en = ByteArray.bytesToLong(enBytes);
+		VsTlvBuilder vsTlvBuider = new VsTlvBuilder();
+		long en = buffer.readUnsignedInt();
 		if (en == getEnterpriseNumber()) {
 			vsTlvBuider.setEnterpriseNumber(new EnterpriseNumber(getEnterpriseNumber()));
-			int byteOffset = ENTERPRISE_NUM_LENGTH;
-			int payloadLength = valueBytes.length - byteOffset;
 			VendorPayload vendorPayload = null;
-			if (payloadLength > 0) {
-				byte[] payloadBytes = ByteArray.subByte(valueBytes, byteOffset, payloadLength);
-				vendorPayload = parseVendorPayload(payloadBytes);
+			if (buffer.isReadable()) {
+				ByteBuf payloadBytes = buffer.slice();
+				//FIXME: change this to ByteBuf
+				vendorPayload = parseVendorPayload(ByteArray.getAllBytes(payloadBytes));
 				if (vendorPayload != null) {
 					vsTlvBuider.setVendorPayload(vendorPayload);
 				}

@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBufUtil;
 
 import java.util.Arrays;
 
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +48,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 			}
 			final ByteBuf tlvBytes = bytes.slice(bytes.readerIndex(), length);
 			LOG.trace("Attempt to parse tlv from bytes: {}", ByteBufUtil.hexDump(tlvBytes));
-			//FIXME: switch to ByteBuf
-			final Tlv tlv = this.tlvReg.parseTlv(type, ByteArray.readAllBytes(tlvBytes));
+			final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
 			LOG.trace("Tlv was parsed. {}", tlv);
 			addTlv(builder, tlv);
 			bytes.readerIndex(bytes.readerIndex() + length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO));

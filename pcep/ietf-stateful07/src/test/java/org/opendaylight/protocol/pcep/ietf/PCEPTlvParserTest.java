@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.Unpooled;
 
 import org.junit.Test;
 import org.opendaylight.protocol.concepts.Ipv4Util;
@@ -71,7 +72,7 @@ public class PCEPTlvParserTest {
 	public void testStatefulTlv() throws PCEPDeserializerException {
 		final Stateful07StatefulCapabilityTlvParser parser = new Stateful07StatefulCapabilityTlvParser();
 		final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(statefulBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(statefulBytes, 4))));
 		assertArrayEquals(statefulBytes, parser.serializeTlv(tlv));
 	}
 
@@ -80,7 +81,7 @@ public class PCEPTlvParserTest {
 		final Stateful07LspSymbolicNameTlvParser parser = new Stateful07LspSymbolicNameTlvParser();
 		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName("Med test of symbolic nameeee".getBytes())).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(symbolicNameBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(symbolicNameBytes, 4))));
 		assertArrayEquals(symbolicNameBytes, parser.serializeTlv(tlv));
 	}
 
@@ -88,7 +89,7 @@ public class PCEPTlvParserTest {
 	public void testLspErrorCodeTlv() throws PCEPDeserializerException {
 		final Stateful07LspUpdateErrorTlvParser parser = new Stateful07LspUpdateErrorTlvParser();
 		final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(627610883L).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(lspUpdateErrorBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspUpdateErrorBytes, 4))));
 		assertArrayEquals(lspUpdateErrorBytes, parser.serializeTlv(tlv));
 	}
 
@@ -102,7 +103,7 @@ public class PCEPTlvParserTest {
 		afi.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }));
 		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv4CaseBuilder().setIpv4(afi.build()).build()).setLspId(
 				new LspId(65535L)).setTunnelId(new TunnelId(4660)).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(lspIdentifiers4Bytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspIdentifiers4Bytes, 4))));
 		assertArrayEquals(lspIdentifiers4Bytes, parser.serializeTlv(tlv));
 	}
 
@@ -121,7 +122,7 @@ public class PCEPTlvParserTest {
 				(byte) 0xBC, (byte) 0xDE, (byte) 0xF0 }));
 		final LspIdentifiers tlv = new LspIdentifiersBuilder().setAddressFamily(new Ipv6CaseBuilder().setIpv6(afi.build()).build()).setLspId(
 				new LspId(4660L)).setTunnelId(new TunnelId(65535)).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(lspIdentifiers6Bytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspIdentifiers6Bytes, 4))));
 		assertArrayEquals(lspIdentifiers6Bytes, parser.serializeTlv(tlv));
 	}
 
@@ -134,7 +135,7 @@ public class PCEPTlvParserTest {
 		builder.setCode((short) 146);
 		builder.setValue(5634);
 		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(rsvpErrorBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(rsvpErrorBytes, 4))));
 		assertArrayEquals(rsvpErrorBytes, parser.serializeTlv(tlv));
 	}
 
@@ -149,7 +150,7 @@ public class PCEPTlvParserTest {
 		builder.setCode((short) 213);
 		builder.setValue(50649);
 		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new RsvpCaseBuilder().setRsvpError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(rsvpError6Bytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(rsvpError6Bytes, 4))));
 		assertArrayEquals(rsvpError6Bytes, parser.serializeTlv(tlv));
 	}
 
@@ -162,7 +163,7 @@ public class PCEPTlvParserTest {
 		builder.setValue(38);
 		builder.setDescription("user desc");
 		final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setErrorType(new UserCaseBuilder().setUserError(builder.build()).build()).build();
-		assertEquals(tlv, parser.parseTlv(ByteArray.cutBytes(userErrorBytes, 4)));
+		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(userErrorBytes, 4))));
 		assertArrayEquals(userErrorBytes, parser.serializeTlv(tlv));
 	}
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -27,9 +29,11 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 	private static final int ORDR_SETUP_LENGTH = 4;
 
 	@Override
-	public Order parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new OrderBuilder().setDelete(Long.valueOf(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, ORDR_DEL_LENGTH)))).setSetup(
-				ByteArray.bytesToLong(ByteArray.subByte(buffer, ORDR_DEL_LENGTH, ORDR_SETUP_LENGTH))).build();
+	public Order parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
+		return new OrderBuilder().setDelete(buffer.readUnsignedInt()).setSetup(buffer.readUnsignedInt()).build();
 	}
 
 	@Override

@@ -7,10 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -23,9 +26,12 @@ public final class Stateful02LspSymbolicNameTlvParser implements TlvParser, TlvS
 	public static final int TYPE = 17;
 
 	@Override
-	public SymbolicPathName parseTlv(final byte[] buffer) throws PCEPDeserializerException {
+	public SymbolicPathName parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
 		return new SymbolicPathNameBuilder().setPathName(
-				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName(buffer)).build();
+				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName(ByteArray.readAllBytes(buffer))).build();
 	}
 
 	@Override

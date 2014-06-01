@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import io.netty.buffer.ByteBuf;
+
 import java.math.BigInteger;
 
 import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
@@ -30,8 +32,11 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 	private static final int DBV_F_LENGTH = 8;
 
 	@Override
-	public LspDbVersion parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(ByteArray.bytesToLong(ByteArray.subByte(buffer, 0, DBV_F_LENGTH)))).build();
+	public LspDbVersion parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
+		return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(buffer.readLong())).build();
 	}
 
 	@Override

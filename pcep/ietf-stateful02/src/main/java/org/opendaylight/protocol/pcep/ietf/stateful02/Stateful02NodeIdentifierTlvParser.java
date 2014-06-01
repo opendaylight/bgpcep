@@ -7,10 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -25,7 +28,10 @@ public final class Stateful02NodeIdentifierTlvParser implements TlvParser, TlvSe
 	}
 
 	@Override
-	public Tlv parseTlv(final byte[] buffer) throws PCEPDeserializerException {
-		return new NodeIdentifierBuilder().setNodeId(new NodeIdentifier(buffer)).build();
+	public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
+		}
+		return new NodeIdentifierBuilder().setNodeId(new NodeIdentifier(ByteArray.readAllBytes(buffer))).build();
 	}
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -37,15 +39,15 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 	private static final int PCE_UNAVAILABLE = 31;
 
 	@Override
-	public NoPathVector parseTlv(final byte[] valueBytes) throws PCEPDeserializerException {
-		if (valueBytes == null || valueBytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+	public NoPathVector parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+		if (buffer == null) {
+			return null;
 		}
-		if (valueBytes.length != FLAGS_F_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + valueBytes.length + "; Expected: >="
+		if (buffer.readableBytes() != FLAGS_F_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >="
 					+ FLAGS_F_LENGTH + ".");
 		}
-		final BitSet flags = ByteArray.bytesToBitSet(valueBytes);
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readAllBytes(buffer));
 		return new NoPathVectorBuilder().setFlags(
 				new Flags(flags.get(CHAIN_UNAVAILABLE), flags.get(NO_GCO_MIGRATION_PATH), flags.get(NO_GCO_SOLUTION), flags.get(REACHABLITY_PROBLEM), flags.get(PATH_KEY), flags.get(PCE_UNAVAILABLE), flags.get(UNKNOWN_DEST), flags.get(UNKNOWN_SRC))).build();
 	}
