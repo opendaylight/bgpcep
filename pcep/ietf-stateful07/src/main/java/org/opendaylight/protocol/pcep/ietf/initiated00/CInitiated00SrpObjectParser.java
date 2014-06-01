@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
-import java.util.Arrays;
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
@@ -52,9 +51,6 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, 0, FLAGS_SIZE));
 		builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
 		final byte[] srpId = ByteArray.subByte(bytes, FLAGS_SIZE, SRP_ID_SIZE);
-		if (Arrays.equals(srpId, new byte[] { 0, 0, 0, 0 }) || Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
-			throw new PCEPDeserializerException("Min/Max values for SRP ID are reserved.");
-		}
 		builder.setOperationId(new SrpIdNumber(ByteArray.bytesToLong(srpId)));
 		return builder.build();
 	}
@@ -67,9 +63,6 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		final Srp srp = (Srp) object;
 		final byte[] tlvs = serializeTlvs(srp.getTlvs());
 		final Long id = srp.getOperationId().getValue();
-		if (id == 0 || id == 0xFFFFFFFFL) {
-			throw new IllegalArgumentException("Min/Max values for SRP ID are reserved.");
-		}
 		final byte[] retBytes = new byte[MIN_SIZE];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);

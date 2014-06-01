@@ -61,7 +61,7 @@ module odl-pcep-ietf-stateful07 {
 
 	typedef srp-id-number {
 		type uint32 {
-			range 0..4294967294;
+			range 1..4294967294;
 		}
 	}
 
