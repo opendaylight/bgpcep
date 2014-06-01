@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
@@ -23,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -44,20 +47,18 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
 	private static final int CONTENT6_LENGTH = ATTRIBUTE6_OFFSET + ATTRIBUTE_LENGTH;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT6_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + ";");
-		}
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final SubobjectBuilder builder = new SubobjectBuilder();
 		builder.setMandatory(mandatory);
-		final int length = UnsignedBytes.toInt(buffer[PREFIX6_F_OFFSET]);
-		builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer[ATTRIBUTE6_OFFSET])));
-		builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
-				new IpPrefixBuilder().setIpPrefix(
-						new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.subByte(buffer, IP_F_OFFSET, IP6_F_LENGTH), length))).build()).build());
+		if (buffer.readableBytes() != CONTENT6_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+		}
+		final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX6_F_OFFSET));
+		IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH), length)));
+		builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
+		buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
+		builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
 		return builder.build();
 	}
 

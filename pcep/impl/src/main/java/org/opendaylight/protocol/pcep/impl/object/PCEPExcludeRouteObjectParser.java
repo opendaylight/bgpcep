@@ -44,8 +44,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 		builder.setProcessingRule(header.isProcessingRule());
 		bytes.readerIndex(bytes.readerIndex() + FLAGS_OFFSET);
 		builder.setFlags(new Flags(bytes.readBoolean()));
-		//FIXME: switch to ByteBuf
-		builder.setSubobject(parseSubobjects(ByteArray.readAllBytes(bytes)));
+		builder.setSubobject(parseSubobjects(bytes.slice()));
 		return builder.build();
 	}
 

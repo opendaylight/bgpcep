@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
@@ -19,6 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.as.number._case.AsNumberBuilder;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link AsNumberCase}
@@ -34,17 +38,15 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 	private static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != CONTENT_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
 					+ CONTENT_LENGTH + ".");
 		}
 		return new SubobjectBuilder().setMandatory(mandatory).setSubobjectType(
 				new AsNumberCaseBuilder().setAsNumber(
-						new AsNumberBuilder().setAsNumber(new AsNumber(ByteArray.bytesToLong(buffer))).build()).build()).build();
+						new AsNumberBuilder().setAsNumber(new AsNumber((long) buffer.readUnsignedShort())).build()).build()).build();
 	}
 
 	@Override

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.SrlgCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.srlg._case.SrlgBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -39,12 +42,10 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 	private static final int CONTENT_LENGTH = SRLG_ID_NUMBER_LENGTH + ATTRIBUTE_LENGTH;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != CONTENT_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
 					+ CONTENT_LENGTH + ".");
 		}
 
@@ -53,7 +54,7 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
 		builder.setAttribute(Attribute.Srlg);
 		builder.setSubobjectType(new SrlgCaseBuilder().setSrlg(
 				new SrlgBuilder().setSrlgId(
-						new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(buffer, SRLG_ID_NUMBER_OFFSET, SRLG_ID_NUMBER_LENGTH)))).build()).build());
+						new SrlgId(buffer.readUnsignedInt())).build()).build());
 		return builder.build();
 	}
 

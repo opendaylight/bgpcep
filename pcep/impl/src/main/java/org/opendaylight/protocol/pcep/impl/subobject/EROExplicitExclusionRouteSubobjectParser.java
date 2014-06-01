@@ -17,7 +17,6 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.ExrsCase;
@@ -89,8 +88,8 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
 						+ buffer.readableBytes());
 			}
-			//FIXME: switch to ByteBuf
-			subs.add(this.registry.parseSubobject(type, ByteArray.readBytes(buffer, length), mandatory));
+			subs.add(this.registry.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), mandatory));
+			buffer.readerIndex(buffer.readerIndex() + length);
 		}
 		return subs;
 	}

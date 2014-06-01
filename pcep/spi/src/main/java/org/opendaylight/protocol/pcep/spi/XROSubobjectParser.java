@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 
 public interface XROSubobjectParser {
-	Subobject parseSubobject(byte[] buffer, boolean mandatory) throws PCEPDeserializerException;
+	Subobject parseSubobject(final ByteBuf buffer, boolean mandatory) throws PCEPDeserializerException;
 }

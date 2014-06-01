@@ -7,13 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +29,7 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractXROWithSubobjectsParser.class);
 
-	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
-	private static final int SUB_LENGTH_F_LENGTH = 1;
-	private static final int SUB_HEADER_LENGTH = SUB_TYPE_FLAG_F_LENGTH + SUB_LENGTH_F_LENGTH;
-
-	private static final int TYPE_FLAG_F_OFFSET = 0;
-	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
-	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
+	private static final int HEADER_LENGTH = 2;
 
 	private final XROSubobjectRegistry subobjReg;
 
@@ -40,43 +37,26 @@ public abstract class AbstractXROWithSubobjectsParser implements ObjectParser, O
 		this.subobjReg = Preconditions.checkNotNull(subobjReg);
 	}
 
-	protected List<Subobject> parseSubobjects(final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Byte array is mandatory.");
-		}
-		int type;
-		byte[] soContentsBytes;
-		int length;
-		int offset = 0;
-
-		final List<Subobject> subs = Lists.newArrayList();
-
-		while (offset < bytes.length) {
-
-			final boolean mandatory = ((bytes[offset] & (1 << 7)) != 0) ? true : false;
-			type = UnsignedBytes.checkedCast((bytes[offset] & 0xff) & ~(1 << 7));
-
-			offset += SUB_TYPE_FLAG_F_LENGTH;
-
-			length = UnsignedBytes.toInt(bytes[offset]);
-
-			offset += SUB_LENGTH_F_LENGTH;
-
-			if (length - SUB_HEADER_LENGTH > bytes.length - offset) {
+	protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		final List<Subobject> subs = new ArrayList<>();
+		while (buffer.isReadable()) {
+			final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
+			int type = UnsignedBytes.checkedCast((buffer.readByte() & 0xff) & ~(1 << 7));
+			int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+			if (length > buffer.readableBytes()) {
 				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
-						+ (bytes.length - offset));
+						+ buffer.readableBytes());
 			}
-			soContentsBytes = ByteArray.subByte(bytes, offset, length - SO_CONTENTS_OFFSET);
-
-			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobject sub = this.subobjReg.parseSubobject(type, soContentsBytes, mandatory);
+			LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
+			final Subobject sub = this.subobjReg.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), mandatory);
 			if (sub == null) {
 				LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
 			} else {
 				LOG.debug("Subobject was parsed. {}", sub);
 				subs.add(sub);
 			}
-			offset += soContentsBytes.length;
+			buffer.readerIndex(buffer.readerIndex() + length);
 		}
 		return subs;
 	}

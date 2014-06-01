@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
@@ -20,8 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-import com.google.common.primitives.UnsignedInts;
 
 /**
  * Parser for {@link UnnumberedCase}
@@ -41,23 +43,20 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
 	private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean mandatory) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: "
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != CONTENT_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
 					+ CONTENT_LENGTH + ".");
 		}
-
+		buffer.readerIndex(buffer.readerIndex() + ATTRIBUTE_OFFSET);
 		final SubobjectBuilder builder = new SubobjectBuilder();
-		final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-		ubuilder.setRouterId(ByteArray.bytesToLong(ByteArray.subByte(buffer, ROUTER_ID_NUMBER_OFFSET, ROUTER_ID_NUMBER_LENGTH)));
-		ubuilder.setInterfaceId(UnsignedInts.toLong(ByteArray.bytesToInt(ByteArray.subByte(buffer, INTERFACE_ID_NUMBER_OFFSET,
-				INTERFACE_ID_NUMBER_LENGTH))));
-		builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
 		builder.setMandatory(mandatory);
-		builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer[ATTRIBUTE_OFFSET])));
+		builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
+		final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
+		ubuilder.setRouterId(buffer.readUnsignedInt());
+		ubuilder.setInterfaceId(buffer.readUnsignedInt());
+		builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
 		return builder.build();
 	}
 
