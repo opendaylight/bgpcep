@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import java.util.Arrays;
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
@@ -50,20 +51,17 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
 	}
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length < HEADER_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() < HEADER_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
 					+ HEADER_LENGTH + ".");
 		}
-		final BitSet reserved = ByteArray.bytesToBitSet(Arrays.copyOfRange(buffer, RES_F_OFFSET, RES_F_LENGTH));
+		final BitSet reserved = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, RES_F_LENGTH));
+		final short cType = (short) UnsignedBytes.toInt(buffer.readByte());
 
-		final short cType = (short) UnsignedBytes.toInt(buffer[C_TYPE_F_OFFSET]);
-
-		final LabelType labelType = this.registry.parseLabel(cType, ByteArray.cutBytes(buffer, HEADER_LENGTH));
-
+		//FIXME: switch to ByteBuf
+		final LabelType labelType = this.registry.parseLabel(cType, ByteArray.readAllBytes(buffer));
 		if (labelType == null) {
 			throw new PCEPDeserializerException("Unknown C-TYPE for ero label subobject. Passed: " + cType);
 		}

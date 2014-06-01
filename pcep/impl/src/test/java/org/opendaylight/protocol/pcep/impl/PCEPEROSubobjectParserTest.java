@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.Unpooled;
 
 import java.util.List;
 
@@ -51,20 +52,20 @@ import com.google.common.collect.Lists;
 
 public class PCEPEROSubobjectParserTest {
 	private static final byte[] ip4PrefixBytes = { (byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0x16, (byte) 0x00 };
+		(byte) 0x16, (byte) 0x00 };
 	private static final byte[] ip6PrefixBytes = { (byte) 0x02, (byte) 0x14, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00 };
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+		(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00 };
 	private static final byte[] asNumberBytes = { (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 	private static final byte[] unnumberedBytes = { (byte) 0x84, (byte) 0x0c, (byte) 0x00, (byte) 0x00, (byte) 0x12, (byte) 0x34,
-			(byte) 0x50, (byte) 0x00, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
+		(byte) 0x50, (byte) 0x00, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 	private static final byte[] pathKey32Bytes = { (byte) 0xc0, (byte) 0x08, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
-			(byte) 0x50, (byte) 0x00 };
+		(byte) 0x50, (byte) 0x00 };
 	private static final byte[] pathKey128Bytes = { (byte) 0xc1, (byte) 0x14, (byte) 0x12, (byte) 0x34, (byte) 0x12, (byte) 0x34,
-			(byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00,
-			(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+		(byte) 0x56, (byte) 0x78, (byte) 0x9A, (byte) 0xBC, (byte) 0xDE, (byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00,
+		(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 };
 	private static final byte[] labelBytes = { (byte) 0x83, (byte) 0x08, (byte) 0x80, (byte) 0x02, (byte) 0x12, (byte) 0x00, (byte) 0x25,
-			(byte) 0xFF };
+		(byte) 0xFF };
 	private static final byte[] exrsBytes = { (byte) 0xa1, (byte) 0x06, (byte) 0xa0, (byte) 0x04, (byte) 0x00, (byte) 0x64 };
 
 	private SimplePCEPExtensionProviderContext ctx;
@@ -84,7 +85,7 @@ public class PCEPEROSubobjectParserTest {
 		subs.setLoose(true);
 		subs.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(
 				new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("255.255.255.255/22"))).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(ip4PrefixBytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(ip4PrefixBytes, 2)), true));
 		assertArrayEquals(ip4PrefixBytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -98,7 +99,7 @@ public class PCEPEROSubobjectParserTest {
 								(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 								(byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 22))).build()).build());
 		subs.setLoose(false);
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(ip6PrefixBytes, 2), false));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(ip6PrefixBytes, 2)), false));
 		assertArrayEquals(ip6PrefixBytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -108,7 +109,7 @@ public class PCEPEROSubobjectParserTest {
 		final SubobjectBuilder subs = new SubobjectBuilder();
 		subs.setLoose(true);
 		subs.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(asNumberBytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(asNumberBytes, 2)), true));
 		assertArrayEquals(asNumberBytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -119,7 +120,7 @@ public class PCEPEROSubobjectParserTest {
 		subs.setLoose(true);
 		subs.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(
 				new UnnumberedBuilder().setRouterId(0x12345000L).setInterfaceId(0xffffffffL).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(unnumberedBytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(unnumberedBytes, 2)), true));
 		assertArrayEquals(unnumberedBytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -132,7 +133,7 @@ public class PCEPEROSubobjectParserTest {
 		pBuilder.setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }));
 		pBuilder.setPathKey(new PathKey(4660));
 		subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(pathKey32Bytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey32Bytes, 2)), true));
 		assertArrayEquals(pathKey32Bytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -146,7 +147,7 @@ public class PCEPEROSubobjectParserTest {
 				(byte) 0x12, (byte) 0x34, (byte) 0x54, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 }));
 		pBuilder.setPathKey(new PathKey(4660));
 		subs.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(pathKey128Bytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathKey128Bytes, 2)), true));
 		assertArrayEquals(pathKey128Bytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -161,7 +162,7 @@ public class PCEPEROSubobjectParserTest {
 						new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
 								new GeneralizedLabelBuilder().setGeneralizedLabel(
 										new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF }).build()).build()).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(labelBytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(labelBytes, 2)), true));
 		assertArrayEquals(labelBytes, parser.serializeSubobject(subs.build()));
 	}
 
@@ -176,7 +177,7 @@ public class PCEPEROSubobjectParserTest {
 		builder.setSubobjectType(new AsNumberCaseBuilder().setAsNumber(new AsNumberBuilder().setAsNumber(new AsNumber(0x64L)).build()).build());
 		list.add(builder.build());
 		subs.setSubobjectType(new ExrsCaseBuilder().setExrs(new ExrsBuilder().setExrs(list).build()).build());
-		assertEquals(subs.build(), parser.parseSubobject(ByteArray.cutBytes(exrsBytes, 2), true));
+		assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(exrsBytes, 2)), true));
 		assertArrayEquals(exrsBytes, parser.serializeSubobject(subs.build()));
 	}
 }

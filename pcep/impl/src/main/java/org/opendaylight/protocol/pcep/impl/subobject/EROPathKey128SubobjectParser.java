@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import java.util.Arrays;
+import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
@@ -21,6 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link PathKey}
@@ -39,21 +41,19 @@ public class EROPathKey128SubobjectParser implements EROSubobjectParser, EROSubo
 	private static final int CONTENT128_LENGTH = PCE_ID_F_OFFSET + PCE128_ID_F_LENGTH;
 
 	@Override
-	public Subobject parseSubobject(final byte[] buffer, final boolean loose) throws PCEPDeserializerException {
-		if (buffer == null || buffer.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (buffer.length != CONTENT128_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.length + "; Expected: >"
+	public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (buffer.readableBytes() != CONTENT128_LENGTH) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >"
 					+ CONTENT128_LENGTH + ".");
 		}
-		final byte[] pceId = Arrays.copyOfRange(buffer, PCE_ID_F_OFFSET, CONTENT128_LENGTH);
-		final int pathKey = ByteArray.bytesToShort(Arrays.copyOfRange(buffer, PK_F_OFFSET, PCE_ID_F_OFFSET));
+		final int pathKey = buffer.readUnsignedShort();
+		final byte[] pceId = ByteArray.readBytes(buffer, PCE128_ID_F_LENGTH);
 		final SubobjectBuilder builder = new SubobjectBuilder();
-		builder.setLoose(loose);
 		final PathKeyBuilder pBuilder = new PathKeyBuilder();
 		pBuilder.setPceId(new PceId(pceId));
 		pBuilder.setPathKey(new PathKey(pathKey));
+		builder.setLoose(loose);
 		builder.setSubobjectType(new PathKeyCaseBuilder().setPathKey(pBuilder.build()).build());
 		return builder.build();
 	}

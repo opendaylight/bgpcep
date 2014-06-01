@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
@@ -34,13 +33,12 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 	}
 
 	@Override
-	public Ero parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+	public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final EroBuilder builder = new EroBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		//FIXME: switch to ByteBuf
-		builder.setSubobject(parseSubobjects(ByteArray.readAllBytes(bytes)));
+		builder.setSubobject(parseSubobjects(buffer));
 		return builder.build();
 	}
 

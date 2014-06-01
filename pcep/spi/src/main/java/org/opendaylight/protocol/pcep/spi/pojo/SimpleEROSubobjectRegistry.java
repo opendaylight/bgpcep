@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
@@ -33,7 +35,7 @@ public final class SimpleEROSubobjectRegistry implements EROSubobjectRegistry {
 	}
 
 	@Override
-	public Subobject parseSubobject(int type, byte[] buffer, boolean loose) throws PCEPDeserializerException {
+	public Subobject parseSubobject(final int type, final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
 		Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
 		final EROSubobjectParser parser = this.handlers.getParser(type);
 		if (parser == null) {
