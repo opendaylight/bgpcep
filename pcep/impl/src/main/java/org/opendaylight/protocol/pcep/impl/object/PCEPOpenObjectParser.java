@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -27,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -73,22 +76,20 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	}
 
 	@Override
-	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		final int versionValue = ByteArray.copyBitsRange(bytes[VER_FLAGS_MF_OFFSET], VERSION_SF_OFFSET, VERSION_SF_LENGTH);
+	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		final int versionValue = ByteArray.copyBitsRange(bytes.readByte(), VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
 		final OpenBuilder builder = new OpenBuilder();
 		builder.setVersion(new ProtocolVersion((short) versionValue));
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setIgnore(header.isIgnore());
-		builder.setDeadTimer((short) UnsignedBytes.toInt(bytes[DEAD_TIMER_OFFSET]));
-		builder.setKeepalive((short) UnsignedBytes.toInt(bytes[KEEPALIVE_F_OFFSET]));
-		builder.setSessionId((short) UnsignedBytes.toInt(bytes[SID_F_OFFSET]));
+		builder.setKeepalive((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setDeadTimer((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setSessionId((short) UnsignedBytes.toInt(bytes.readByte()));
 
 		final TlvsBuilder tbuilder = new TlvsBuilder();
-		parseTlvs(tbuilder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		parseTlvs(tbuilder, bytes.slice());
 		builder.setTlvs(tbuilder.build());
 
 		final Open obj = builder.build();

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
@@ -17,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.XroBuilder;
 
-import com.google.common.primitives.UnsignedBytes;
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link Xro}
@@ -35,15 +37,15 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 	}
 
 	@Override
-	public Xro parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
-		}
+	public Xro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final XroBuilder builder = new XroBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setFlags(new Flags(UnsignedBytes.toInt(bytes[FLAGS_OFFSET]) != 0));
-		builder.setSubobject(parseSubobjects(ByteArray.cutBytes(bytes, FLAGS_OFFSET + 1)));
+		bytes.readerIndex(bytes.readerIndex() + FLAGS_OFFSET);
+		builder.setFlags(new Flags(bytes.readBoolean()));
+		//FIXME: switch to ByteBuf
+		builder.setSubobject(parseSubobjects(ByteArray.readAllBytes(bytes)));
 		return builder.build();
 	}
 

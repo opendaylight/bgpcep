@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -20,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -58,22 +61,21 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
 	}
 
 	@Override
-	public Metric parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+	public Metric parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (bytes.readableBytes() != SIZE) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: " + SIZE + ".");
 		}
-		if (bytes.length != SIZE) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: " + SIZE + ".");
-		}
-		final byte[] flagBytes = { bytes[FLAGS_F_OFFSET] };
+		bytes.readerIndex(bytes.readerIndex() + FLAGS_F_OFFSET);
+		final byte[] flagBytes = { bytes.readByte() };
 		final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
 		final MetricBuilder builder = new MetricBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 		builder.setBound(flags.get(B_FLAG_OFFSET));
 		builder.setComputed(flags.get(C_FLAG_OFFSET));
-		builder.setMetricType((short) UnsignedBytes.toInt(bytes[TYPE_F_OFFSET]));
-		builder.setValue(new Float32(ByteArray.subByte(bytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH)));
+		builder.setMetricType((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setValue(new Float32(ByteArray.readBytes(bytes, METRIC_VALUE_F_LENGTH)));
 		return builder.build();
 	}
 

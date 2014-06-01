@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -44,20 +46,19 @@ public final class SimpleObjectRegistry implements ObjectRegistry {
 	}
 
 	@Override
-	public Object parseObject(int objectClass, int objectType, ObjectHeader header, byte[] buffer) throws PCEPDeserializerException {
+	public Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
 		Preconditions.checkArgument(objectType >= 0 && objectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
 		final ObjectParser parser = this.handlers.getParser(createKey(objectClass, objectType));
 
 		if (parser == null) {
-		    if(!header.isProcessingRule()) {
-		        return null;
-		    }
-
+			if(!header.isProcessingRule()) {
+				return null;
+			}
 			for (int type = 1; type <= 15; type++) {
-			    final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
-			    if(objParser != null) {
-			        return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
-			    }
+				final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
+				if(objParser != null) {
+					return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
+				}
 			}
 			return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
 		}

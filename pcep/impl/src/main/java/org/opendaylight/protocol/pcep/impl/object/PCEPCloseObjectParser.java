@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -18,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.Tlvs;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -51,15 +54,14 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 	}
 
 	@Override
-	public CClose parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Byte array is mandatory.");
-		}
+	public CClose parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final CCloseBuilder builder = new CCloseBuilder();
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setReason((short) UnsignedBytes.toInt(bytes[REASON_F_OFFSET]));
+		bytes.readerIndex(bytes.readerIndex() + REASON_F_OFFSET);
+		builder.setReason((short) UnsignedBytes.toInt(bytes.readByte()));
+		parseTlvs(builder, bytes.slice());
 		return builder.build();
 	}
 

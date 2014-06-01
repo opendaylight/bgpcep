@@ -8,7 +8,8 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
-import java.util.Arrays;
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -25,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link Rp}
@@ -97,13 +100,9 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 	}
 
 	@Override
-	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-
-		final BitSet flags = ByteArray.bytesToBitSet(Arrays.copyOfRange(bytes, FLAGS_PRI_MF_OFFSET, FLAGS_PRI_MF_OFFSET
-				+ FLAGS_PRI_MF_LENGTH));
+	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_PRI_MF_LENGTH));
 		short priority = 0;
 		priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
 		priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
@@ -125,9 +124,8 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 		builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
 		builder.setReoptimization(flags.get(R_FLAG_OFFSET));
 
-		builder.setRequestId(new RequestId(ByteArray.bytesToLong(Arrays.copyOfRange(bytes, RID_F_OFFSET, RID_F_OFFSET + RID_F_LENGTH))));
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
-
+		builder.setRequestId(new RequestId(bytes.readUnsignedInt()));
+		parseTlvs(builder, bytes.slice());
 		return builder.build();
 	}
 

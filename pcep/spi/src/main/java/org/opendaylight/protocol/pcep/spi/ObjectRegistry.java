@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
@@ -15,16 +17,16 @@ public interface ObjectRegistry {
 	 * Finds parser for given object type and class in the registry. Delegates parsing to found parser.
 	 * @param objectType object type
 	 * @param objectClass object class
-	 * @param buffer object raw binary value to be parsed
+	 * @param buffer object wrapped in ByteBuf
 	 * @return null if the parser for this object could not be found
 	 * @throws PCEPDeserializerException if the parsing did not succeed
 	 */
-	Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final byte[] buffer) throws PCEPDeserializerException;
+	Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException;
 
 	/**
 	 * Find serializer for given object. Delegates parsing to found serializer.
 	 * @param object to be parsed
 	 * @return null if the serializer for this object could not be found
 	 */
-	byte[] serializeObject(Object object);
+	byte[] serializeObject(final Object object);
 }

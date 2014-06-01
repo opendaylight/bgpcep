@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -59,17 +61,18 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 	}
 
 	@Override
-	public Lsp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, 2, 2));
-
+	public Lsp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final LspBuilder builder = new LspBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-
-		builder.setPlspId(new PlspId((ByteArray.bytesToLong(ByteArray.subByte(bytes, 0, 2)) & 0xFFFF) << 4 | (bytes[2] & 0xFF) >> 4));
+		int[] plspIdRaw = new int[] {
+				bytes.readUnsignedByte(),
+				bytes.readUnsignedByte(),
+				bytes.getUnsignedByte(2),
+		};
+		builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << 12) | (plspIdRaw[1] << 4) | (plspIdRaw[2] >> 4))));
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, 2));
 		builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
 		builder.setSync(flags.get(SYNC_FLAG_OFFSET));
 		builder.setRemove(flags.get(REMOVE_FLAG_OFFSET));
@@ -80,7 +83,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 		s |= (flags.get(OPERATIONAL_OFFSET) ? 1 : 0) << 2;
 		builder.setOperational(OperationalStatus.forValue(s));
 		final TlvsBuilder b = new TlvsBuilder();
-		parseTlvs(b, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		parseTlvs(b, bytes.slice());
 		builder.setTlvs(b.build());
 		return builder.build();
 	}

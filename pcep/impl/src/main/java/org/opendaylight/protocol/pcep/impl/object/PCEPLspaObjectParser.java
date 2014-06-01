@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -22,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.lspa.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -64,26 +67,24 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 	}
 
 	@Override
-	public Lspa parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Bytes array is mandatory.");
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
-
+	public Lspa parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final LspaBuilder builder = new LspaBuilder();
-		final TlvsBuilder tbuilder = new TlvsBuilder();
-		parseTlvs(tbuilder, ByteArray.cutBytes(bytes, TLVS_F_OFFSET));
-		builder.setTlvs(tbuilder.build());
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setHoldPriority((short) UnsignedBytes.toInt(bytes[HOLD_PRIO_F_OFFSET]));
-		builder.setSetupPriority((short) UnsignedBytes.toInt(bytes[SET_PRIO_F_OFFSET]));
+		builder.setExcludeAny(new AttributeFilter(bytes.readUnsignedInt()));
+		builder.setIncludeAll(new AttributeFilter(bytes.readUnsignedInt()));
+		builder.setIncludeAny(new AttributeFilter(bytes.readUnsignedInt()));
+		builder.setSetupPriority((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setHoldPriority((short) UnsignedBytes.toInt(bytes.readByte()));
+
+		final BitSet flags = ByteArray.bytesToBitSet(new byte[]{ bytes.readByte() });
 		builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
-		builder.setExcludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, EXC_ANY_F_OFFSET, EXC_ANY_F_LENGTH))));
-		builder.setIncludeAll(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ALL_F_OFFSET, INC_ALL_F_LENGTH))));
-		builder.setIncludeAny(new AttributeFilter(ByteArray.bytesToLong(ByteArray.subByte(bytes, INC_ANY_F_OFFSET, INC_ANY_F_LENGTH))));
+		final TlvsBuilder tbuilder = new TlvsBuilder();
+		bytes.readerIndex(TLVS_F_OFFSET);
+		parseTlvs(tbuilder, bytes.slice());
+		builder.setTlvs(tbuilder.build());
 		return builder.build();
 	}
 

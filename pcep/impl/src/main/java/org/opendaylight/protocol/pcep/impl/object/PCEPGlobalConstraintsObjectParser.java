@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -16,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.Gc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.GcBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -44,19 +47,17 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 	}
 
 	@Override
-	public Gc parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
+	public Gc parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final GcBuilder builder = new GcBuilder();
 
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setMaxHop((short) UnsignedBytes.toInt(bytes[MAX_HOP_F_OFFSET]));
-		builder.setMinUtilization((short) UnsignedBytes.toInt(bytes[MIN_UTIL_F_OFFSET]));
-		builder.setMaxUtilization((short) UnsignedBytes.toInt(bytes[MAX_UTIL_F_OFFSET]));
-		builder.setOverBookingFactor((short) UnsignedBytes.toInt(bytes[OVER_BOOKING_FACTOR_F_OFFSET]));
+		builder.setMaxHop((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setMaxUtilization((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setMinUtilization((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setOverBookingFactor((short) UnsignedBytes.toInt(bytes.readByte()));
 		return builder.build();
 	}
 

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.util.ByteArray;
@@ -32,36 +35,25 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 		this.tlvReg = Preconditions.checkNotNull(tlvReg);
 	}
 
-	protected final void parseTlvs(final T builder, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Byte array is mandatory.");
-		}
-		if (bytes.length == 0) {
+	protected final void parseTlvs(final T builder, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null, "Array of bytes is mandatory. Can't be null.");
+		if (!bytes.isReadable()) {
 			return;
 		}
-
-		int length;
-		int byteOffset = 0;
-		int type = 0;
-
-		while (byteOffset < bytes.length) {
-			type = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TLV_TYPE_F_LENGTH));
-			byteOffset += TLV_TYPE_F_LENGTH;
-			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, byteOffset, TLV_LENGTH_F_LENGTH));
-			byteOffset += TLV_LENGTH_F_LENGTH;
-
-			if (TLV_HEADER_LENGTH + length > bytes.length) {
-				throw new PCEPDeserializerException("Wrong length specified. Passed: " + (TLV_HEADER_LENGTH + length) + "; Expected: <= "
-						+ (bytes.length - byteOffset) + ".");
+		while (bytes.isReadable()) {
+			int type = bytes.readUnsignedShort();
+			int length = bytes.readUnsignedShort();
+			if (length > bytes.readableBytes()) {
+				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+						+ bytes.readableBytes() + ".");
 			}
-
-			final byte[] tlvBytes = ByteArray.subByte(bytes, byteOffset, length);
-
-			LOG.trace("Attempt to parse tlv from bytes: {}", ByteArray.bytesToHexString(tlvBytes));
-			final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
+			final ByteBuf tlvBytes = bytes.slice(bytes.readerIndex(), length);
+			LOG.trace("Attempt to parse tlv from bytes: {}", ByteBufUtil.hexDump(tlvBytes));
+			//FIXME: switch to ByteBuf
+			final Tlv tlv = this.tlvReg.parseTlv(type, ByteArray.readAllBytes(tlvBytes));
 			LOG.trace("Tlv was parsed. {}", tlv);
 			addTlv(builder, tlv);
-			byteOffset += length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO);
+			bytes.readerIndex(bytes.readerIndex() + length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO));
 		}
 	}
 

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -26,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Parser for IPv6 {@link EndpointsObj}
  */
@@ -37,36 +41,31 @@ public class PCEPEndPointsIpv6ObjectParser extends AbstractObjectWithTlvsParser<
 	public static final int TYPE = 2;
 
 	/*
-	 * fields lengths and offsets for IPv4 in bytes
+	 * fields lengths and offsets for IPv6 in bytes
 	 */
-	private static final int SRC6_F_LENGTH = 16;
-	private static final int DEST6_F_LENGTH = 16;
-
 	private static final int SRC6_F_OFFSET = 0;
-	private static final int DEST6_F_OFFSET = SRC6_F_OFFSET + SRC6_F_LENGTH;
+	private static final int DEST6_F_OFFSET = SRC6_F_OFFSET + Ipv6Util.IPV6_LENGTH;
 
 	public PCEPEndPointsIpv6ObjectParser(final TlvRegistry tlvReg) {
 		super(tlvReg);
 	}
 
 	@Override
-	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Array of bytes is mandatory");
-		}
+	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final EndpointsObjBuilder builder = new EndpointsObjBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
-		if (!builder.isProcessingRule()) {
+		if (!header.isProcessingRule()) {
 			LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
 			return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, builder.build());
 		}
-		if (bytes.length != SRC6_F_LENGTH + DEST6_F_LENGTH) {
+		if (bytes.readableBytes() != Ipv6Util.IPV6_LENGTH * 2) {
 			throw new PCEPDeserializerException("Wrong length of array of bytes.");
 		}
+		builder.setIgnore(header.isIgnore());
+		builder.setProcessingRule(header.isProcessingRule());
 		final Ipv6Builder b = new Ipv6Builder();
-		b.setSourceIpv6Address(Ipv6Util.addressForBytes(ByteArray.subByte(bytes, SRC6_F_OFFSET, SRC6_F_LENGTH)));
-		b.setDestinationIpv6Address((Ipv6Util.addressForBytes(ByteArray.subByte(bytes, DEST6_F_OFFSET, DEST6_F_LENGTH))));
+		b.setSourceIpv6Address(Ipv6Util.addressForBytes(ByteArray.readBytes(bytes, Ipv6Util.IPV6_LENGTH)));
+		b.setDestinationIpv6Address((Ipv6Util.addressForBytes(ByteArray.readBytes(bytes, Ipv6Util.IPV6_LENGTH))));
 		builder.setAddressFamily(new Ipv6CaseBuilder().setIpv6(b.build()).build());
 		return builder.build();
 	}
@@ -83,7 +82,7 @@ public class PCEPEndPointsIpv6ObjectParser extends AbstractObjectWithTlvsParser<
 		if (!(afi instanceof Ipv6Case)) {
 			throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + afi.getClass() + ". Needed IPv4");
 		}
-		final byte[] retBytes = new byte[SRC6_F_LENGTH + DEST6_F_LENGTH];
+		final byte[] retBytes = new byte[Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH];
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getSourceIpv6Address()), retBytes, SRC6_F_OFFSET);
 		ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getDestinationIpv6Address()), retBytes, DEST6_F_OFFSET);
 		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);

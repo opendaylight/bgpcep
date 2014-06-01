@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 /**
@@ -61,19 +64,17 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
 	}
 
 	@Override
-	public Svec parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
+	public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (bytes.readableBytes() < MIN_SIZE) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >=" + MIN_SIZE + ".");
 		}
-		if (bytes.length < MIN_SIZE) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + MIN_SIZE
-					+ ".");
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
+		bytes.readerIndex(bytes.readerIndex() + FLAGS_F_OFFSET);
+		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_F_LENGTH));
 		final List<RequestId> requestIDs = Lists.newArrayList();
 
-		for (int i = REQ_ID_LIST_OFFSET; i < bytes.length; i += REQ_LIST_ITEM_LENGTH) {
-			requestIDs.add(new RequestId(ByteArray.bytesToLong(ByteArray.subByte(bytes, i, REQ_LIST_ITEM_LENGTH))));
+		while (bytes.isReadable()) {
+			requestIDs.add(new RequestId(bytes.readUnsignedInt()));
 		}
 		if (requestIDs.isEmpty()) {
 			throw new PCEPDeserializerException("Empty Svec Object - no request ids.");

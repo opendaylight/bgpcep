@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 
@@ -53,7 +55,7 @@ public class PCEPObjectParserTest {
 	@Test
 	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
 		final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
 		final OpenBuilder builder = new OpenBuilder();
 		builder.setProcessingRule(false);
@@ -75,14 +77,14 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
 				Tlvs2.class, statBuilder.build()).addAugmentation(Tlvs1.class, cleanupBuilder.build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() -4)));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testLspaObjectWithTlv() throws IOException, PCEPDeserializerException {
 		final Stateful02LspaObjectParser parser = new Stateful02LspaObjectParser(this.tlvRegistry);
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
 		final LspaBuilder builder = new LspaBuilder();
 		builder.setIgnore(false);
@@ -105,20 +107,20 @@ public class PCEPObjectParserTest {
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder().setSymbolicPathName(
 						tlv).build()).build());
 		// Tlvs container does not contain toString
-		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4));
+		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() -4));
 		assertEquals(
 				tlv,
 				((Lspa) o).getTlvs().getAugmentation(
 						org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class).getSymbolicPathName());
 		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
 		// 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
 		final Stateful02LspObjectParser parser = new Stateful02LspObjectParser(this.tlvRegistry);
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin"));
 
 		final LspBuilder builder = new LspBuilder();
 		builder.setProcessingRule(true);
@@ -132,7 +134,7 @@ public class PCEPObjectParserTest {
 		final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName("Med".getBytes())).build();
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(tlv2).build());
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() -4)));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 }

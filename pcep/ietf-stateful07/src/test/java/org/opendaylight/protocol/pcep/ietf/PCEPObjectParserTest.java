@@ -9,6 +9,8 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 
@@ -60,7 +62,7 @@ public class PCEPObjectParserTest {
 	@Test
 	public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
 		final Stateful07OpenObjectParser parser = new Stateful07OpenObjectParser(this.tlvRegistry);
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
 		final OpenBuilder builder = new OpenBuilder();
 		builder.setProcessingRule(false);
@@ -78,14 +80,14 @@ public class PCEPObjectParserTest {
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
 				Tlvs1.class, statBuilder.build()).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() -4)));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
 		final CInitiated00LspObjectParser parser = new CInitiated00LspObjectParser(this.tlvRegistry);
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin"));
 
 		final LspBuilder builder = new LspBuilder();
 		builder.setProcessingRule(true);
@@ -103,15 +105,15 @@ public class PCEPObjectParserTest {
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName("Med".getBytes())).build();
 		builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspErrorCode(
 				tlv1).setSymbolicPathName(tlv2).build());
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() -4)));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testLspaObject() throws IOException, PCEPDeserializerException {
 		final Stateful07LspaObjectParser parser = new Stateful07LspaObjectParser(this.tlvRegistry);
 		final LspaBuilder builder = new LspaBuilder();
-		final byte[] result = ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin");
+		final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin"));
 
 		final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
 				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName(new byte[] {
@@ -131,17 +133,17 @@ public class PCEPObjectParserTest {
 				Tlvs2.class, new Tlvs2Builder().setSymbolicPathName(tlv).build()).build());
 
 		// Tlvs container does not contain toString
-		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result, 4));
+		final Object o = parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() -4));
 		assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs2.class).getSymbolicPathName());
 		// assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
 		// 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 
 	@Test
 	public void testSrpObject() throws IOException, PCEPDeserializerException {
 		final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry);
-		final byte[] result = new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01 };
+		final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01 });
 
 		final SrpBuilder builder = new SrpBuilder();
 		builder.setProcessingRule(false);
@@ -149,7 +151,7 @@ public class PCEPObjectParserTest {
 		builder.setOperationId(new SrpIdNumber(1L));
 		builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
 
-		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), ByteArray.cutBytes(result, 4)));
-		assertArrayEquals(result, parser.serializeObject(builder.build()));
+		assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() -4)));
+		assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
 	}
 }

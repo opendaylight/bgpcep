@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -23,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Parser for {@link Srp}
@@ -46,12 +50,10 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 	}
 
 	@Override
-	public Srp parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		if (bytes.length < MIN_SIZE) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.length + "; Expected: >=" + MIN_SIZE
+	public Srp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+		if (bytes.readableBytes() < MIN_SIZE) {
+			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: >=" + MIN_SIZE
 					+ ".");
 		}
 		if (header.isProcessingRule()) {
@@ -60,11 +62,12 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 		final SrpBuilder builder = new SrpBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		final byte[] srpId = ByteArray.subByte(bytes, FLAGS_SIZE, SRP_ID_SIZE);
-		if (Arrays.equals(srpId, new byte[] { 0, 0, 0, 0 }) || Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
-			throw new PCEPDeserializerException("Min/Max values for SRP ID are reserved.");
+		bytes.readerIndex(bytes.readerIndex() + FLAGS_SIZE);
+		final byte[] srpId = ByteArray.getBytes(bytes, SRP_ID_SIZE);
+		if (Arrays.equals(srpId, new byte[] { 0xFFFFFFFF })) {
+			throw new PCEPDeserializerException("Max values for SRP ID are reserved.");
 		}
-		builder.setOperationId(new SrpIdNumber(ByteArray.bytesToLong(srpId)));
+		builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
 		return builder.build();
 	}
 

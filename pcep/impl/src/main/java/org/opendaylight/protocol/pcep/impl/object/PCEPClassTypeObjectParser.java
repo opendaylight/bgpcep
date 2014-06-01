@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -20,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -52,24 +55,21 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 	}
 
 	@Override
-	public Object parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Byte array is mandatory.");
-		}
-		if (bytes.length != SIZE) {
-			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
-					+ bytes.length);
-		}
+	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		if (!header.isProcessingRule()) {
-			// LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
+			LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
 			return null;
 		}
+		if (bytes.readableBytes() != SIZE) {
+			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
+					+ bytes.readableBytes());
+		}
 		final ClassTypeBuilder builder = new ClassTypeBuilder();
-
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		final short ct = (short) UnsignedBytes.toInt(bytes[SIZE - 1]);
+		final short ct = (short) bytes.readUnsignedInt();
 		builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
 		final Object obj = builder.build();

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -46,17 +49,15 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 	}
 
 	@Override
-	public ErrorObject parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Array of bytes is mandatory.");
-		}
-
+	public ErrorObject parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final ErrorObjectBuilder builder = new ErrorObjectBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
-		builder.setType((short) UnsignedBytes.toInt(bytes[ET_F_OFFSET]));
-		builder.setValue((short) UnsignedBytes.toInt(bytes[EV_F_OFFSET]));
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		bytes.readerIndex(bytes.readerIndex() + ET_F_OFFSET);
+		builder.setType((short) UnsignedBytes.toInt(bytes.readByte()));
+		builder.setValue((short) UnsignedBytes.toInt(bytes.readByte()));
+		parseTlvs(builder, bytes.slice());
 		return builder.build();
 	}
 

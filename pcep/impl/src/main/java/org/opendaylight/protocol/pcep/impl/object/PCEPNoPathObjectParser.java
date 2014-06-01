@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -23,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVector;
 
+import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 /**
@@ -59,19 +62,18 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
 	}
 
 	@Override
-	public NoPath parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Array of bytes is mandatory. Can't be null or empty.");
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.subByte(bytes, FLAGS_F_OFFSET, FLAGS_F_LENGTH));
-
+	public NoPath parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
 		final NoPathBuilder builder = new NoPathBuilder();
 		builder.setIgnore(header.isIgnore());
 		builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setNatureOfIssue((short) UnsignedBytes.toInt(bytes[NI_F_OFFSET]));
+		builder.setNatureOfIssue((short) UnsignedBytes.toInt(bytes.readByte()));
+		final byte[] flagsByte = ByteArray.readBytes(bytes, FLAGS_F_LENGTH);
+		final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
 		builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
-		parseTlvs(builder, ByteArray.cutBytes(bytes, TLVS_OFFSET));
+		bytes.readerIndex(TLVS_OFFSET);
+		parseTlvs(builder, bytes.slice());
 		return builder.build();
 	}
 

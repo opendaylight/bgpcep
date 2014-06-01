@@ -87,8 +87,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 			final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
 			// parseObject is required to return null for P=0 errored objects
-			// FIXME: change this to ByteBuf
-			final Object o = this.registry.parseObject(objClass, objType, header, ByteArray.readAllBytes(bytesToPass));
+			final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
 			if (o != null) {
 				objs.add(o);
 			}
