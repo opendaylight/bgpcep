@@ -7,18 +7,16 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 
 /**
  * A registry which allows multiple values for a particular key. One of those
@@ -86,4 +84,5 @@ public final class MultiRegistry<K, V> {
 	public V get(final K key) {
 		return this.current.get(key);
 	}
+    public Collection<V> getAllValues() { return this.current.values(); }
 }
