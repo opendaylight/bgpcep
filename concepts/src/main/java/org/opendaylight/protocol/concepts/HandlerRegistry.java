@@ -15,18 +15,22 @@ public class HandlerRegistry<C, P, S> {
     private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();
 
     public AbstractRegistration registerParser(final int type, final P parser) {
-        return parsers.register(type, parser);
+        return this.parsers.register(type, parser);
     }
 
     public P getParser(final int type) {
-        return parsers.get(type);
+        return this.parsers.get(type);
     }
 
     public AbstractRegistration registerSerializer(final Class<? extends C> clazz, final S serializer) {
-        return serializers.register(clazz, serializer);
+        return this.serializers.register(clazz, serializer);
     }
 
     public S getSerializer(final Class<? extends C> clazz) {
-        return serializers.get(clazz);
+        return this.serializers.get(clazz);
+    }
+
+    public Iterable<S> getAllSerializers() {
+        return this.serializers.getAllValues();
     }
 }
