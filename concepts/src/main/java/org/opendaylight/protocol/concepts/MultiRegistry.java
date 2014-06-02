@@ -10,6 +10,7 @@ package org.opendaylight.protocol.concepts;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,11 +41,11 @@ public final class MultiRegistry<K, V> {
 
     @GuardedBy("this")
     private void updateCurrent(final K key) {
-        final List<V> values = candidates.get(key);
+        final List<V> values = this.candidates.get(key);
 
         // Simple case: no candidates
         if (values.isEmpty()) {
-            current.remove(key);
+            this.current.remove(key);
             return;
         }
 
@@ -63,11 +64,11 @@ public final class MultiRegistry<K, V> {
         }
 
         LOG.debug("New best value {}", best);
-        current.put(key, best);
+        this.current.put(key, best);
     }
 
     public synchronized AbstractRegistration register(final K key, final V value) {
-        candidates.put(key, value);
+        this.candidates.put(key, value);
         updateCurrent(key);
 
         final Object lock = this;
@@ -75,7 +76,7 @@ public final class MultiRegistry<K, V> {
             @Override
             protected void removeRegistration() {
                 synchronized (lock) {
-                    candidates.remove(key, value);
+                    MultiRegistry.this.candidates.remove(key, value);
                     updateCurrent(key);
                 }
             }
@@ -84,5 +85,9 @@ public final class MultiRegistry<K, V> {
 
     public V get(final K key) {
         return this.current.get(key);
+    }
+
+    public Collection<V> getAllValues() {
+        return this.current.values();
     }
 }
