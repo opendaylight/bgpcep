@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import java.util.Collection;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
@@ -29,4 +30,6 @@ public class HandlerRegistry<C, P, S> {
 	public S getSerializer(final Class<? extends C> clazz) {
 		return serializers.get(clazz);
 	}
+    public Collection<S> getAllSerializers() { return this.serializers.getAllValues(); }
+
 }
