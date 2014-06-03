@@ -44,12 +44,12 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 		}
 
 		in.markReaderIndex();
-		LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
+		LOG.debug("Received to decode: {}", ByteBufUtil.hexDump(in));
 
 		final List<Message> errors = new ArrayList<>();
 
 		try {
-			out.add(parse(in.slice(), errors));
+			out.add(parse(in, errors));
 		} catch (final PCEPDeserializerException e) {
 			LOG.debug("Failed to decode protocol message", e);
 			this.exceptionCaught(ctx, e);
@@ -75,6 +75,7 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
 			throw new PCEPDeserializerException("Body size " + actualLength + " does not match header size "
 					+ (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
 		}
+		buffer.readerIndex(buffer.readerIndex() + actualLength);
 		return this.registry.parseMessage(type, msgBody, errors);
 	}
 }
