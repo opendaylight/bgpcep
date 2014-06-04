@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
@@ -199,18 +200,19 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
 	@Override
 	public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+		LOG.trace("AddLspArgs {}", input);
 		// Make sure there is no such LSP
 		final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
 		if (readOperationalData(lsp) != null) {
 			LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
 			return OperationResults.UNSENT.future();
 		}
-
 		// Build the request
 		final RequestsBuilder rb = new RequestsBuilder();
+		Lsp inputLsp = input.getArguments().getAugmentation(Arguments2.class).getLsp();
 		rb.fieldsFrom(input.getArguments());
 		rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-		rb.setLsp(new LspBuilder().setAdministrative(input.getArguments().isAdministrative()).setDelegate(rb.getLsp().isDelegate()).setPlspId(
+		rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
 				new PlspId(0L)).setTlvs(
 						new TlvsBuilder().setSymbolicPathName(
 								new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
