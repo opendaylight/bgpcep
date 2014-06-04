@@ -11,6 +11,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -191,11 +192,14 @@ public class BGPUpdateAttributesSerializationTest {
     }
     @Test
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
-        for (int i = 0; i < COUNTER; i++) {
+        for (int i = 8; i < COUNTER; i++) {
             message = readUpdateMessageFromList(i);
             Update originalMessage = readUpdateMessageFromList(i);
-
-            Update serializedMessage = readUpdateMessageBytes(BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage));
+            ByteBuf serializedMessageBuf = BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage);
+            System.out.println("parsing message :"+i);
+            System.out.println("original message   :"+ ByteBufUtil.hexDump(Unpooled.copiedBuffer(inputBytes.get(i))));
+            System.out.println("serialized message :"+ ByteBufUtil.hexDump(serializedMessageBuf));
+            Update serializedMessage = readUpdateMessageBytes(serializedMessageBuf);
             if (originalMessage.getNlri()!=null) {
                 assertEqualsNlri(originalMessage.getNlri(), serializedMessage.getNlri());
             }

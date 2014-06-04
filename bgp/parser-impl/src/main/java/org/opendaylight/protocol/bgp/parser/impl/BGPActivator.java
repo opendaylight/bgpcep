@@ -62,6 +62,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 	protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
 		final List<AutoCloseable> regs = new ArrayList<>();
 
+
 		final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
 		regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
 		regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));

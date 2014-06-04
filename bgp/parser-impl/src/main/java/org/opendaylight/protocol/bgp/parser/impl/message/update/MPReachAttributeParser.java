@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -67,7 +68,7 @@ public final class MPReachAttributeParser implements AttributeParser,AttributeSe
         ByteBuf reachBuffer = Unpooled.buffer();
         this.reg.serializeMpReach(mpReachNlri, reachBuffer);
 
-        serializeAdvertizedRoutes(mpReachNlri.getAdvertizedRoutes(),reachBuffer);
+        serializeAdvertizedRoutes(mpReachNlri.getAdvertizedRoutes(),reachBuffer,pathAttributes);
         if (reachBuffer.writerIndex()>127) {
             byteAggregator.writeByte(UnsignedBytes.checkedCast(ATTR_FLAGS+16));
             byteAggregator.writeByte(UnsignedBytes.checkedCast(TYPE));
@@ -81,20 +82,22 @@ public final class MPReachAttributeParser implements AttributeParser,AttributeSe
 
 
     }
-    private void serializeAdvertizedRoutes(AdvertizedRoutes advertizedRoutes, ByteBuf byteAggregator) {
+    private void serializeAdvertizedRoutes(AdvertizedRoutes advertizedRoutes, ByteBuf byteAggregator,PathAttributes pathAttributes) {
         if (advertizedRoutes.getDestinationType() instanceof DestinationIpv4Case) {
             DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) advertizedRoutes.getDestinationType();
             for (Ipv4Prefix ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
                 byteAggregator.writeByte(Ipv4Util.getPrefixLength(ipv4Prefix.getValue()));
                 byteAggregator.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
             }
-        }
-        if (advertizedRoutes.getDestinationType() instanceof DestinationIpv6Case) {
+        } else if (advertizedRoutes.getDestinationType() instanceof DestinationIpv6Case) {
             DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) advertizedRoutes.getDestinationType();
             for (Ipv6Prefix ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
                 byteAggregator.writeByte(Ipv6Util.getPrefixLength(ipv6Prefix.getValue()));
                 byteAggregator.writeBytes(Ipv6Util.bytesForPrefixByPrefixLength(ipv6Prefix));
             }
+        } else {
+            NlriSerializer serializer = this.reg.getSerializerForClass(PathAttributes.class);
+            serializer.serializeAttribute(pathAttributes, byteAggregator);
         }
     }
 }
