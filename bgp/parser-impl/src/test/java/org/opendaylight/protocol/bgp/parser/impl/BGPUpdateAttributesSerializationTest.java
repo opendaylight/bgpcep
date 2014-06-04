@@ -48,7 +48,8 @@ public class BGPUpdateAttributesSerializationTest {
     static final List<byte[]> inputBytes = new ArrayList<>();
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
-    private static int COUNTER = 8;//17;
+    private static int COUNTER = 10;//17;
+
     private static int MAX_SIZE = 300;
 
     @Before
