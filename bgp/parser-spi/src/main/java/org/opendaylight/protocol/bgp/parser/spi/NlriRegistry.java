@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
@@ -18,4 +17,6 @@ public interface NlriRegistry {
     MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException;
     void serializeMpReach(final MpReachNlri mpReachNlri,final ByteBuf byteAggregator);
     void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri,final ByteBuf byteAggregator);
+    Iterable<NlriSerializer> getSerializers();
+
 }
