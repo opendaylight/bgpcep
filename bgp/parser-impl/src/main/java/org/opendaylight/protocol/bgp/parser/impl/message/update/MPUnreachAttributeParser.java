@@ -17,16 +17,11 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
-import org.opendaylight.protocol.concepts.Ipv4Util;
-import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
+import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
@@ -60,27 +55,10 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
         MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
         ByteBuf unreachBuffer = Unpooled.buffer();
         this.reg.serializeMpUnReach(mpUnreachNlri, unreachBuffer);
-
-        if (mpUnreachNlri.getWithdrawnRoutes() != null) {
-            if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv4Case) {
-                DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                if (destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes() != null) {
-                    for (Ipv4Prefix ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
-                        unreachBuffer.writeByte(Ipv4Util.getPrefixLength(ipv4Prefix.getValue()));
-                        unreachBuffer.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
-                    }
-                }
-            }
-            if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv6Case) {
-                DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                if (destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes() != null) {
-                    for (Ipv6Prefix ipv6Prefix : destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes()) {
-                        unreachBuffer.writeByte(Ipv4Util.getPrefixLength(ipv6Prefix.getValue()));
-                        unreachBuffer.writeBytes(Ipv6Util.bytesForPrefixByPrefixLength(ipv6Prefix));
-                    }
-                }
-            }
+        for (NlriSerializer nlriSerializer:this.reg.getSerializers()){
+            nlriSerializer.serializeAttribute(attribute,unreachBuffer );
         }
+
         if (unreachBuffer.writerIndex() > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE) {
             byteAggregator.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.EXTENDED);
             byteAggregator.writeByte(TYPE);
