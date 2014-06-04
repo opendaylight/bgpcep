@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -24,12 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link Srp}
  */
-public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
+public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
 
 	private static final int REMOVE_FLAG = 31;
 
@@ -53,6 +50,7 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_SIZE));
 		builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(flags.get(REMOVE_FLAG)).build());
 		builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
+		parseTlvs(builder, bytes.slice());
 		return builder.build();
 	}
 
@@ -65,7 +63,7 @@ public final class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser
 		final byte[] tlvs = serializeTlvs(srp.getTlvs());
 		final Long id = srp.getOperationId().getValue();
 
-		final byte[] retBytes = new byte[MIN_SIZE];
+		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 		if (tlvs != null) {
 			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
 		}
