@@ -17,7 +17,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public class PathAttributeSerializer implements AttributeSerializer {
 
     private List<AttributeSerializer> pathAttributesSerializers = new ArrayList<AttributeSerializer>();
-
     public void registerSerializer(AttributeSerializer attributeSerializer){
         this.pathAttributesSerializers.add(attributeSerializer);
     }

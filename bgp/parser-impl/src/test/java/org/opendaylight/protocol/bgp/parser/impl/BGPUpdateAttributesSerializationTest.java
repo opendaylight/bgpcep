@@ -51,7 +51,7 @@ public class BGPUpdateAttributesSerializationTest {
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
 
-    private static int COUNTER = 8;//17;
+    private static int COUNTER = 10;//17;
     private static int MAX_SIZE = 300;
     private ByteBuf byteAggregator;
     private Update message;
@@ -130,7 +130,7 @@ public class BGPUpdateAttributesSerializationTest {
             assertNotNull(right.getAugmentation(PathAttributes2.class));
         }
         if (left.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class)!=null){
-            assertTrue(right.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class)!=null);
+            assertNotNull(right.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class));
         }
     }
 
@@ -195,8 +195,8 @@ public class BGPUpdateAttributesSerializationTest {
         for (int i = 0; i < COUNTER; i++) {
             message = readUpdateMessageFromList(i);
             Update originalMessage = readUpdateMessageFromList(i);
-
-            Update serializedMessage = readUpdateMessageBytes(BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage));
+            ByteBuf serializedMessageBuf = BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage);
+            Update serializedMessage = readUpdateMessageBytes(serializedMessageBuf);
             if (originalMessage.getNlri()!=null) {
                 assertEqualsNlri(originalMessage.getNlri(), serializedMessage.getNlri());
             }
