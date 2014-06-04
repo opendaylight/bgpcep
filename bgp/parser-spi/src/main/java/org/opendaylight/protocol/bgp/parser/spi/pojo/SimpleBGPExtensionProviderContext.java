@@ -107,7 +107,7 @@ public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsume
 
 	@Override
 	public AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer) {
-		throw new UnsupportedOperationException("NLRI serialization not implemented");
+        return nlriReg.registerNlriSerializer(nlriClass,serializer);
 	}
 
 	@Override
