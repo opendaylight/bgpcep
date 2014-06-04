@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -72,8 +73,7 @@ public final class MPUnreachAttributeParser implements AttributeParser,Attribute
                     unreachBuffer.writeByte(Ipv4Util.getPrefixLength(ipv4Prefix.getValue()));
                     unreachBuffer.writeBytes(Ipv4Util.bytesForPrefixByPrefixLength(ipv4Prefix));
                 }
-            }
-            if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv6Case) {
+            } else if (mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationIpv6Case) {
                 DestinationIpv6Case destinationIpv6Case = (DestinationIpv6Case) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
                 Iterator<Ipv6Prefix> it = destinationIpv6Case.getDestinationIpv6().getIpv6Prefixes().iterator();
                 while (it.hasNext()){
@@ -81,6 +81,9 @@ public final class MPUnreachAttributeParser implements AttributeParser,Attribute
                     unreachBuffer.writeByte(Ipv6Util.getPrefixLength(ipv6Prefix.getValue()));
                     unreachBuffer.writeBytes(Ipv6Util.bytesForPrefixByPrefixLength(ipv6Prefix));
                 }
+            } else {
+                NlriSerializer serializer = this.reg.getSerializerForClass(PathAttributes.class);
+                serializer.serializeAttribute(pathAttributes,unreachBuffer);
             }
         }
         if (unreachBuffer.writerIndex()>127) {

@@ -191,11 +191,11 @@ public class BGPUpdateAttributesSerializationTest {
     }
     @Test
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
-        for (int i = 0; i < COUNTER; i++) {
+        for (int i = 8; i < COUNTER; i++) {
             message = readUpdateMessageFromList(i);
             Update originalMessage = readUpdateMessageFromList(i);
-
-            Update serializedMessage = readUpdateMessageBytes(BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage));
+            ByteBuf serializedMessageBuf = BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage);
+            Update serializedMessage = readUpdateMessageBytes(serializedMessageBuf);
             if (originalMessage.getNlri()!=null) {
                 assertEqualsNlri(originalMessage.getNlri(), serializedMessage.getNlri());
             }
