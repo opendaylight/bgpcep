@@ -13,6 +13,7 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -22,6 +23,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.util.ByteArray;
@@ -32,10 +34,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 final class SimpleNlriRegistry implements NlriRegistry {
 
     private final ConcurrentMap<BgpTableType, NlriParser> handlers = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Class<? extends DataObject>, NlriSerializer> serializers = new ConcurrentHashMap<>();
     private final SubsequentAddressFamilyRegistry safiReg;
     private final AddressFamilyRegistry afiReg;
 
@@ -49,6 +53,22 @@ final class SimpleNlriRegistry implements NlriRegistry {
         Preconditions.checkNotNull(afi);
         Preconditions.checkNotNull(safi);
         return new BgpTableTypeImpl(afi, safi);
+    }
+
+    synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer){
+        final NlriParser prev = this.handlers.get(nlriClass);
+        Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
+
+        this.serializers.put(nlriClass, serializer);
+        final Object lock = this;
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (lock) {
+                    SimpleNlriRegistry.this.serializers.remove(nlriClass);
+                }
+            }
+        };
     }
 
     synchronized AutoCloseable registerNlriParser(final Class<? extends AddressFamily> afi,
@@ -116,7 +136,6 @@ final class SimpleNlriRegistry implements NlriRegistry {
         mpReachBuffer.writeByte(0);
 
         byteAggregator.writeBytes(mpReachBuffer);
-
     }
 
     @Override
@@ -124,6 +143,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
         byteAggregator.writeShort(this.afiReg.numberForClass(mpUnreachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpUnreachNlri.getSafi()));
+    }
+
+    @Override
+    public Collection<NlriSerializer> getSerializers() {
+        return this.serializers.values();
     }
 
     @Override
