@@ -12,6 +12,7 @@ module odl-pcep-ietf-stateful07 {
 	import topology-tunnel { prefix tt; revision-date 2013-08-19; }
 	import topology-tunnel-pcep { prefix tun; revision-date 2013-08-20; }
 	import topology-tunnel-pcep-programming { prefix ttpp; revision-date 2013-10-30; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
 	organization "Cisco Systems, Inc.";
 	contact "Robert Varga <rovarga@cisco.com>";
@@ -293,10 +294,12 @@ module odl-pcep-ietf-stateful07 {
 
 	augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
 		uses stateful-capability-tlv;
+        ext:augment-identifier tlvs-1;
 	}
 
-	augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-		uses stateful-capability-tlv;
+    augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:lspa/msg:tlvs" {
+		uses symbolic-path-name-tlv;
+        ext:augment-identifier tlvs-4;
 	}
 
 	augment "/msg:pcerr/msg:pcerr-message/msg:error-type" {
@@ -309,13 +312,15 @@ module odl-pcep-ietf-stateful07 {
 			}
 		}
 	}
-	
-	augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:lspa/msg:tlvs" {
+
+    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:lspa/msg:tlvs" {
 		uses symbolic-path-name-tlv;
+        ext:augment-identifier tlvs-2;
 	}
-	
-	augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:lspa/msg:tlvs" {
-		uses symbolic-path-name-tlv;
+
+	augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
+		uses stateful-capability-tlv;
+        ext:augment-identifier tlvs-3;
 	}
 
 	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp" {
@@ -327,13 +332,15 @@ module odl-pcep-ietf-stateful07 {
 	}
 
 	augment "/topo:ensure-lsp-operational/topo:input/topo:arguments" {
+        ext:augment-identifier arguments-1;
 		leaf operational {
 			type operational-status;
 		}
 	}
 
 	augment "/topo:add-lsp/topo:input/topo:arguments" {
-		uses lsp-object;
+        ext:augment-identifier arguments-2;		
+        uses lsp-object;
 	}
 
 	typedef administrative-status {
