@@ -10,16 +10,14 @@ package org.opendaylight.protocol.bgp.linkstate;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
+import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.NlriUtil;
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
@@ -68,18 +66,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Parser and serializer for Linkstate NLRI.
  */
-public final class LinkstateNlriParser implements NlriParser {
+public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateNlriParser.class);
     private static final int ROUTE_DISTINGUISHER_LENGTH = 8;
     private static final int PROTOCOL_ID_LENGTH = 1;
@@ -209,7 +214,8 @@ public final class LinkstateNlriParser implements NlriParser {
                         new IsoSystemIdentifier(ByteArray.subByte(value, 0, ISO_SYSTEM_ID_LENGTH))).build();
                 return new IsisPseudonodeCaseBuilder().setIsisPseudonode(
                         new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn(
-                                (short) UnsignedBytes.toInt(value[ISO_SYSTEM_ID_LENGTH])).build()).build();
+                                (short) UnsignedBytes.toInt(value[ISO_SYSTEM_ID_LENGTH])).build()
+                ).build();
             }
         }
         if (value.length == 4) {
@@ -351,7 +357,9 @@ public final class LinkstateNlriParser implements NlriParser {
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                                dst).build()).build()).build());
+                                dst).build()
+                ).build()
+        ).build());
     }
 
     @Override
@@ -363,7 +371,8 @@ public final class LinkstateNlriParser implements NlriParser {
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
                 new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                        new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build()).build());
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build()
+        ).build());
         NlriUtil.parseNextHop(nextHop, builder);
     }
 
@@ -528,6 +537,39 @@ public final class LinkstateNlriParser implements NlriParser {
             buffer.writeShort(1 + prefixBytes.length);
             buffer.writeByte(prefixLength);
             buffer.writeBytes(prefixBytes);
+        }
+    }
+
+    @Override
+    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
+        PathAttributes pathAttributes = (PathAttributes) attribute;
+        PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
+        PathAttributes2 pathAttributes2 = pathAttributes.getAugmentation(PathAttributes2.class);
+        if (pathAttributes1 == null
+                && pathAttributes2 == null) {
+            return;
+        }
+        if (pathAttributes1 != null) {
+            MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
+            if (mpReachNlri.getAdvertizedRoutes() != null &&
+                    mpReachNlri.getAdvertizedRoutes().getDestinationType()
+                            instanceof
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase
+                        linkstateCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) mpReachNlri.getAdvertizedRoutes().getDestinationType();
+                for (CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+                    byteAggregator.writeBytes(serializeNlri(cLinkstateDestination));
+                }
+            }
+        }
+        if (pathAttributes2 != null) {
+            MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
+            if (mpUnreachNlri.getWithdrawnRoutes() != null && mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationLinkstateCase) {
+                DestinationLinkstateCase linkstateCase = (DestinationLinkstateCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                for (CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+                    byteAggregator.writeBytes(serializeNlri(cLinkstateDestination));
+                }
+            }
         }
     }
 }
