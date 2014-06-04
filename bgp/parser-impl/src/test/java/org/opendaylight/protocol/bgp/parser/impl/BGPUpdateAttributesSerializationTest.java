@@ -50,7 +50,7 @@ public class BGPUpdateAttributesSerializationTest {
     private static BGPUpdateMessageParser updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
 
 
-    private static int COUNTER = 8;//17;
+    private static int COUNTER = 10;//17;
     private static int MAX_SIZE = 300;
     private ByteBuf byteAggregator;
     private Update message;
@@ -191,11 +191,11 @@ public class BGPUpdateAttributesSerializationTest {
     }
     @Test
     public void testUpdateMessageSerialization() throws BGPDocumentedException {
-        for (int i = 0; i < COUNTER; i++) {
+        for (int i = 8; i < COUNTER; i++) {
             message = readUpdateMessageFromList(i);
             Update originalMessage = readUpdateMessageFromList(i);
-
-            Update serializedMessage = readUpdateMessageBytes(BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage));
+            ByteBuf serializedMessageBuf = BGPUpdateAttributesSerializationTest.updateParser.serializeMessage(originalMessage);
+            Update serializedMessage = readUpdateMessageBytes(serializedMessageBuf);
             if (originalMessage.getNlri()!=null) {
                 assertEqualsNlri(originalMessage.getNlri(), serializedMessage.getNlri());
             }
