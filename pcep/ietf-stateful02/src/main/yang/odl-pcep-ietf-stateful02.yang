@@ -254,7 +254,7 @@ module odl-pcep-ietf-stateful02 {
 			enum active;
 			enum inactive;
 		}
-		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-07#section-7.3";
+		reference "https://tools.ietf.org/html/draft-ietf-pce-stateful-pce-02#section-7.2";
 	}
 
 	grouping cfg-attributes {
