@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_9f1c33c3",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:24:55Z",
+      "side": 1,
+      "message": "do NOT commit commented code",
+      "revId": "8854820c1132d0a53985d87f5b891084693bc47f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
