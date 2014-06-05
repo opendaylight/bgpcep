@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_1fb903e9",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "spaces () !\u003d null) {",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ffb53fee",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "MessageUtil should be rewritten to take ByteBuf instead of byte[].",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_df915b53",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ClusterIdAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "Why do we need getMethods?",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf96d74a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ClusterIdAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f87c310",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv6NextHopAttributeSerializer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "2014 if it\u0027s a new file",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ff83ff01",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv6NextHopAttributeSerializer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf7d771e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "nothing change, remove from commit",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_df787b2d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "remove this file from commit",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f77ef3a",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPUpdateAttributesSerializationTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "2014",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9f72f347",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/AttributeDescriptor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:08:27Z",
+      "side": 1,
+      "message": "Why do we need this?",
+      "revId": "8b6ca0587541dbb71c15bdf9913dc2029519eaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
