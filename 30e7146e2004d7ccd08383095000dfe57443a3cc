@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ff9a1f62",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f9ee356",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "imports without code?",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bfa497a6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "remove comment",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dfc63b49",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "LOG (consistency accross the codebase)",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3fdf270f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "this class should be removed in previous commit, therefore there won\u0027t be the need to remove the comment in this commit",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1feca3c6",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPUpdateAttributesSerializationTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "assertNotNull",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3f064787",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleAttributeRegistry.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:16:02Z",
+      "side": 1,
+      "message": "final, why did it need renaming?",
+      "revId": "30e7146e2004d7ccd08383095000dfe57443a3cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
