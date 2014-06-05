@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f8823e6",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:27:25Z",
+      "side": 1,
+      "message": "typo",
+      "revId": "8e65d454e706147fd8f1980f244d569da5dbe8ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf6ed72d",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:27:25Z",
+      "side": 1,
+      "message": "why do we need this method?",
+      "revId": "8e65d454e706147fd8f1980f244d569da5dbe8ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
