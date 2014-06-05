@@ -33,6 +33,24 @@
       "revId": "8e65d454e706147fd8f1980f244d569da5dbe8ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1fd6e3c5",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-05T13:39:37Z",
+      "side": 1,
+      "message": "In next commit there is serialization of Withdrawn/Advertised routes attributes based on this. I can change it to \"iterate trough serializers\" way.",
+      "parentUuid": "fa82b9bf_bf6ed72d",
+      "revId": "8e65d454e706147fd8f1980f244d569da5dbe8ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
