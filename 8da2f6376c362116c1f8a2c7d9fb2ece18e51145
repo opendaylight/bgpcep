@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ff277f62",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "I\u0027ve seen this before... why is it here again? Check before using.",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf21f74e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "In this file you don\u0027t overwrite whitespaces... so why do you do it in AggregatorAttributeParser for example?",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_df1cfb15",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "space before bracket, configure your formatter",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f1b6f1b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "again, whitespace change",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9f1673f0",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "brackets { } even if the statement has one line",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3fd5e71b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "whitespace change",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5fd8eb52",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "TODO: implement this",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1fe26303",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "unnecesarry white lines",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bfe817e3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "spacing: () !\u003d null",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dfe39b03",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "Why do we need this class, instead of using SimpleAttributeRegistry.java ?",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7ff28fd3",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/AbstractMessageRegistry.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "whitespace changes",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9fed13f2",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleMessageRegistry.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T11:52:08Z",
+      "side": 1,
+      "message": "whitespace changes",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
