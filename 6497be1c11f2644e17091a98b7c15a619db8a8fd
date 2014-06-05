@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_dff4fb88",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "regs.add",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5f30eb55",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "why is this class AttributeSerializer?",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ff369f51",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/RIBActivator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "remove this class from commit",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f3a6336",
+        "filename": "bgp/parser-impl/pom.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "git checkout, and remove this class from commit",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf4017a6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "again, imports without code",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_df3b9b36",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "remove this class from the commit, commented code shouldn\u0027t be committed at all",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f4a8fc6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "16, 127 - magic number warning",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3f14079f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "remove this class from commit",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5f178ba3",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPUpdateAttributesSerializationTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-05T12:22:56Z",
+      "side": 1,
+      "message": "assertNotNull",
+      "revId": "6497be1c11f2644e17091a98b7c15a619db8a8fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
