@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_657e7ce6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-06T06:29:13Z",
+      "side": 1,
+      "message": "It was because of diffuse which have had tab spaces set to 8.",
+      "parentUuid": "fa82b9bf_bf21f74e",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_df1cfb15",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
         "patchSetId": 15
@@ -87,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_e5692c26",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-06T06:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_9f1673f0",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3fd5e71b",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/ExtendedCommunitiesAttributeParser.java",
         "patchSetId": 15
@@ -121,6 +157,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_857860f3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-06T06:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_5fd8eb52",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_1fe26303",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
         "patchSetId": 15
@@ -138,6 +192,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_a5732414",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-06T06:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_1fe26303",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_bfe817e3",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
         "patchSetId": 15
@@ -149,6 +221,24 @@
       "writtenOn": "2014-06-05T11:52:08Z",
       "side": 1,
       "message": "spacing: () !\u003d null",
+      "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_4562583f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-06T06:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_bfe817e3",
       "revId": "8da2f6376c362116c1f8a2c7d9fb2ece18e51145",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
