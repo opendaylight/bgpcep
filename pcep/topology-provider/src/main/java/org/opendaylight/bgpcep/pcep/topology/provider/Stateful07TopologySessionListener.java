@@ -106,7 +106,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         if (message instanceof PcerrMessage) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg = ((PcerrMessage) message).getPcerrMessage();
             if (errMsg.getErrorType() instanceof StatefulCase) {
-                StatefulCase stat = (StatefulCase) errMsg.getErrorType();
+                StatefulCase stat = (StatefulCase)errMsg.getErrorType();
                 for (Srps srps : stat.getStateful().getSrps()) {
                     SrpIdNumber id = srps.getSrp().getOperationId();
                     if (id.getValue() != 0) {
@@ -202,6 +202,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+        Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
@@ -211,13 +212,17 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         }
         // Build the request
         final RequestsBuilder rb = new RequestsBuilder();
-        Lsp inputLsp = input.getArguments().getAugmentation(Arguments2.class).getLsp();
+        Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
+        Preconditions.checkState(args != null, "Input is missing operational tag.");
+        Lsp inputLsp = args.getLsp();
+        Preconditions.checkState(inputLsp != null, "Reported LSP does not contain LSP object.");
+
         rb.fieldsFrom(input.getArguments());
         rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
         rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
                 new PlspId(0L)).setTlvs(
-                new TlvsBuilder().setSymbolicPathName(
-                        new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
+                        new TlvsBuilder().setSymbolicPathName(
+                                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
 
         final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
         ib.setRequests(ImmutableList.of(rb.build()));
@@ -229,6 +234,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+        Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null, "Mandatory XML tags are missing.");
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
         final ReportedLsp rep = readOperationalData(lsp);
@@ -238,13 +244,14 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         }
 
         final ReportedLsp1 ra = rep.getAugmentation(ReportedLsp1.class);
-        Preconditions.checkState(ra != null);
+        Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
+        Lsp reportedLsp = ra.getLsp();
+        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
 
         // Build the request and send it
         final RequestsBuilder rb = new RequestsBuilder();
-        rb.setSrp(new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(
-                nextRequest()).setProcessingRule(Boolean.TRUE).build());
-        rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).build());
+        rb.setSrp(new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
+        rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
 
         final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
         ib.setRequests(ImmutableList.of(rb.build()));
@@ -253,6 +260,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+        Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
         final ReportedLsp rep = readOperationalData(lsp);
@@ -260,16 +268,16 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
             return OperationResults.UNSENT.future();
         }
-
         final ReportedLsp1 ra = rep.getAugmentation(ReportedLsp1.class);
-        Preconditions.checkState(ra != null);
+        Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
+        Lsp reportedLsp = ra.getLsp();
+        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
 
         // Build the PCUpd request and send it
         final UpdatesBuilder rb = new UpdatesBuilder();
         rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-        rb.setLsp(new LspBuilder().setPlspId(ra.getLsp().getPlspId()).setDelegate(ra.getLsp().isDelegate()).build());
+        rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
         final PathBuilder pb = new PathBuilder();
-        rb.setPath(pb.setEro(input.getArguments().getEro()).build());
         pb.fieldsFrom(input.getArguments());
         rb.setPath(pb.build());
         final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
@@ -280,6 +288,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+        Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
         OperationalStatus op = null;
         final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
         if (aa != null) {
