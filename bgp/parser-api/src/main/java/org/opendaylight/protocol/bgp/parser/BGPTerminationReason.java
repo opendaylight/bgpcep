@@ -10,14 +10,14 @@ package org.opendaylight.protocol.bgp.parser;
 import org.opendaylight.protocol.framework.TerminationReason;
 
 public final class BGPTerminationReason implements TerminationReason {
-	private final BGPError error;
+    private final BGPError error;
 
-	public BGPTerminationReason(final BGPError error) {
-		this.error = error;
-	}
+    public BGPTerminationReason(final BGPError error) {
+        this.error = error;
+    }
 
-	@Override
-	public String getErrorMessage() {
-		return error.toString();
-	}
+    @Override
+    public String getErrorMessage() {
+        return error.toString();
+    }
 }

@@ -7,39 +7,38 @@
  */
 package org.opendaylight.bgpcep.tcpmd5;
 
-import java.nio.channels.Channel;
-
 import com.google.common.base.Preconditions;
 
+import java.nio.channels.Channel;
+
 /**
- * Dummy KeyAccessFactory. This factory does not support any channels
- * and it does not give out any KeyAccess objects.
+ * Dummy KeyAccessFactory. This factory does not support any channels and it does not give out any KeyAccess objects.
  */
 public final class DummyKeyAccessFactory implements KeyAccessFactory {
-	private static final DummyKeyAccessFactory INSTANCE = new DummyKeyAccessFactory();
+    private static final DummyKeyAccessFactory INSTANCE = new DummyKeyAccessFactory();
 
-	private DummyKeyAccessFactory() {
+    private DummyKeyAccessFactory() {
 
-	}
+    }
 
-	/**
-	 * Get a DummyKeyAccessFactory instance.
-	 *
-	 * @return A singleton instance.
-	 */
-	public static DummyKeyAccessFactory getInstance() {
-		return INSTANCE;
-	}
+    /**
+     * Get a DummyKeyAccessFactory instance.
+     *
+     * @return A singleton instance.
+     */
+    public static DummyKeyAccessFactory getInstance() {
+        return INSTANCE;
+    }
 
-	@Override
-	public KeyAccess getKeyAccess(final Channel channel) {
-		Preconditions.checkNotNull(channel);
-		return null;
-	}
+    @Override
+    public KeyAccess getKeyAccess(final Channel channel) {
+        Preconditions.checkNotNull(channel);
+        return null;
+    }
 
-	@Override
-	public boolean canHandleChannelClass(final Class<? extends Channel> clazz) {
-		Preconditions.checkNotNull(clazz);
-		return false;
-	}
+    @Override
+    public boolean canHandleChannelClass(final Class<? extends Channel> clazz) {
+        Preconditions.checkNotNull(clazz);
+        return false;
+    }
 }

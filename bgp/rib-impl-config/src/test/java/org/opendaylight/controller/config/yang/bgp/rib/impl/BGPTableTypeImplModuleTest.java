@@ -1,5 +1,13 @@
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ConflictingVersionException;
@@ -15,22 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.impl.codec.CodecRegistry;
 import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.ObjectName;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-
 public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "bgp-table-type-impl";
     private static final String FACTORY_NAME = BGPTableTypeImplModuleFactory.NAME;
 
     private IdentityAttributeRef afiRef = new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString());
-    private IdentityAttributeRef safiRef = new IdentityAttributeRef(
-            MplsLabeledVpnSubsequentAddressFamily.QNAME.toString());
+    private IdentityAttributeRef safiRef = new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString());
 
     @Before
     public void setUp() throws Exception {
@@ -41,8 +40,7 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
     protected CodecRegistry getCodecRegistry() {
         IdentityCodec<?> idCodec = mock(IdentityCodec.class);
         doReturn(Ipv4AddressFamily.class).when(idCodec).deserialize(Ipv4AddressFamily.QNAME);
-        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(
-                MplsLabeledVpnSubsequentAddressFamily.QNAME);
+        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(MplsLabeledVpnSubsequentAddressFamily.QNAME);
         doReturn(Ipv6AddressFamily.class).when(idCodec).deserialize(Ipv6AddressFamily.QNAME);
 
         CodecRegistry codecReg = super.getCodecRegistry();
@@ -92,8 +90,8 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
         createInstance();
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(
-                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), BGPTableTypeImplModuleMXBean.class);
+        final BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+                BGPTableTypeImplModuleMXBean.class);
         mxBean.setAfi(new IdentityAttributeRef(Ipv6AddressFamily.QNAME.toString()));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -111,12 +109,10 @@ public class BGPTableTypeImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    public static ObjectName createTableInstance(final ConfigTransactionJMXClient transaction,
-            final IdentityAttributeRef afiRef, final IdentityAttributeRef safiRef)
-            throws InstanceAlreadyExistsException {
+    public static ObjectName createTableInstance(final ConfigTransactionJMXClient transaction, final IdentityAttributeRef afiRef,
+            final IdentityAttributeRef safiRef) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
-                BGPTableTypeImplModuleMXBean.class);
+        BGPTableTypeImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPTableTypeImplModuleMXBean.class);
 
         mxBean.setAfi(afiRef);
         mxBean.setSafi(safiRef);

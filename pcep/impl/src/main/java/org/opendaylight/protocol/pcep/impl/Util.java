@@ -28,21 +28,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class Util {
 
-	private Util() {
-	}
+    private Util() {
+    }
 
-	public static Message createErrorMessage(final PCEPErrors e, final Open t) {
-		final PcerrBuilder errMessageBuilder = new PcerrBuilder();
-		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
-		final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
-		final ErrorObject err = new ErrorObjectBuilder().setType(id.getType()).setValue(id.getValue()).build();
-		if (t == null) {
-			return errMessageBuilder.setPcerrMessage(
-					new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
-		} else {
-			final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
-			return errMessageBuilder.setPcerrMessage(
-					new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
-		}
-	}
+    public static Message createErrorMessage(final PCEPErrors e, final Open t) {
+        final PcerrBuilder errMessageBuilder = new PcerrBuilder();
+        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
+        final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(e);
+        final ErrorObject err = new ErrorObjectBuilder().setType(id.getType()).setValue(id.getValue()).build();
+        if (t == null) {
+            return errMessageBuilder.setPcerrMessage(
+                    new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).build()).build();
+        } else {
+            final ErrorType type = new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(t).build()).build();
+            return errMessageBuilder.setPcerrMessage(
+                    new PcerrMessageBuilder().setErrors(Arrays.asList(new ErrorsBuilder().setErrorObject(err).build())).setErrorType(type).build()).build();
+        }
+    }
 }

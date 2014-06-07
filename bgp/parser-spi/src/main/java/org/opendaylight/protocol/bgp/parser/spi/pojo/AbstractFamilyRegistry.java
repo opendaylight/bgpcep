@@ -7,47 +7,47 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.opendaylight.protocol.concepts.AbstractRegistration;
 
-import com.google.common.base.Preconditions;
-
 abstract class AbstractFamilyRegistry<C, N> {
-	private final Map<Class<? extends C>, N> classToNumber = new ConcurrentHashMap<>();
-	private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
+    private final Map<Class<? extends C>, N> classToNumber = new ConcurrentHashMap<>();
+    private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
 
-	protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
-		Preconditions.checkNotNull(clazz);
+    protected synchronized AutoCloseable registerFamily(final Class<? extends C> clazz, final N number) {
+        Preconditions.checkNotNull(clazz);
 
-		final Class<?> c = numberToClass.get(number);
-		Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
+        final Class<?> c = numberToClass.get(number);
+        Preconditions.checkState(c == null, "Number " + number + " already registered to " + c);
 
-		final N n = classToNumber.get(clazz);
-		Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
+        final N n = classToNumber.get(clazz);
+        Preconditions.checkState(n == null, "Class " + clazz + " already registered to " + n);
 
-		numberToClass.put(number, clazz);
-		classToNumber.put(clazz, number);
+        numberToClass.put(number, clazz);
+        classToNumber.put(clazz, number);
 
-		final Object lock = this;
-		return new AbstractRegistration() {
+        final Object lock = this;
+        return new AbstractRegistration() {
 
-			@Override
-			protected void removeRegistration() {
-				synchronized (lock) {
-					classToNumber.remove(clazz);
-					numberToClass.remove(number);
-				}
-			}
-		};
-	}
+            @Override
+            protected void removeRegistration() {
+                synchronized (lock) {
+                    classToNumber.remove(clazz);
+                    numberToClass.remove(number);
+                }
+            }
+        };
+    }
 
-	protected Class<? extends C> classForFamily(final N number) {
-		return numberToClass.get(number);
-	}
+    protected Class<? extends C> classForFamily(final N number) {
+        return numberToClass.get(number);
+    }
 
-	protected N numberForClass(final Class<? extends C> clazz) {
-		return classToNumber.get(clazz);
-	}
+    protected N numberForClass(final Class<? extends C> clazz) {
+        return classToNumber.get(clazz);
+    }
 }

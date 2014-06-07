@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import com.google.common.primitives.UnsignedBytes;
+
 import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
@@ -22,109 +24,107 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.UnsignedBytes;
-
 final class UriBuilder {
-	private static final Logger LOG = LoggerFactory.getLogger(UriBuilder.class);
-	private final StringBuilder sb;
+    private static final Logger LOG = LoggerFactory.getLogger(UriBuilder.class);
+    private final StringBuilder sb;
 
-	UriBuilder(final UriBuilder base, final String type) {
-		this.sb = new StringBuilder(base.sb);
-		this.sb.append("type=").append(type);
-	}
+    UriBuilder(final UriBuilder base, final String type) {
+        this.sb = new StringBuilder(base.sb);
+        this.sb.append("type=").append(type);
+    }
 
-	UriBuilder(final LinkstateRoute route) {
-		this.sb = new StringBuilder("bgpls://");
+    UriBuilder(final LinkstateRoute route) {
+        this.sb = new StringBuilder("bgpls://");
 
-		if (route.getDistinguisher() != null) {
-			this.sb.append(route.getDistinguisher().getValue().toString()).append(':');
-		}
+        if (route.getDistinguisher() != null) {
+            this.sb.append(route.getDistinguisher().getValue().toString()).append(':');
+        }
 
-		this.sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
-	}
+        this.sb.append(route.getProtocolId().toString()).append(':').append(route.getIdentifier().getValue().toString()).append('/');
+    }
 
-	UriBuilder add(final String name, final Object value) {
-		if (value != null) {
-			this.sb.append('&').append(name).append('=').append(value.toString());
-		}
-		return this;
-	}
+    UriBuilder add(final String name, final Object value) {
+        if (value != null) {
+            this.sb.append('&').append(name).append('=').append(value.toString());
+        }
+        return this;
+    }
 
-	UriBuilder add(final LinkCase link) {
-		add("local-", link.getLocalNodeDescriptors());
-		add("remote-", link.getRemoteNodeDescriptors());
+    UriBuilder add(final LinkCase link) {
+        add("local-", link.getLocalNodeDescriptors());
+        add("remote-", link.getRemoteNodeDescriptors());
 
-		final LinkDescriptors ld = link.getLinkDescriptors();
-		if (ld.getIpv4InterfaceAddress() != null) {
-			add("ipv4-iface", ld.getIpv4InterfaceAddress().getValue());
-		}
-		if (ld.getIpv4NeighborAddress() != null) {
-			add("ipv4-neigh", ld.getIpv4NeighborAddress().getValue());
-		}
-		if (ld.getIpv6InterfaceAddress() != null) {
-			add("ipv6-iface", ld.getIpv6InterfaceAddress().getValue());
-		}
-		if (ld.getIpv6NeighborAddress() != null) {
-			add("ipv6-neigh", ld.getIpv6NeighborAddress().getValue());
-		}
-		if (ld.getMultiTopologyId() != null) {
-			add("mt", ld.getMultiTopologyId().getValue());
-		}
-		add("local-id", ld.getLinkLocalIdentifier());
-		add("remote-id", ld.getLinkRemoteIdentifier());
-		return this;
-	}
+        final LinkDescriptors ld = link.getLinkDescriptors();
+        if (ld.getIpv4InterfaceAddress() != null) {
+            add("ipv4-iface", ld.getIpv4InterfaceAddress().getValue());
+        }
+        if (ld.getIpv4NeighborAddress() != null) {
+            add("ipv4-neigh", ld.getIpv4NeighborAddress().getValue());
+        }
+        if (ld.getIpv6InterfaceAddress() != null) {
+            add("ipv6-iface", ld.getIpv6InterfaceAddress().getValue());
+        }
+        if (ld.getIpv6NeighborAddress() != null) {
+            add("ipv6-neigh", ld.getIpv6NeighborAddress().getValue());
+        }
+        if (ld.getMultiTopologyId() != null) {
+            add("mt", ld.getMultiTopologyId().getValue());
+        }
+        add("local-id", ld.getLinkLocalIdentifier());
+        add("remote-id", ld.getLinkRemoteIdentifier());
+        return this;
+    }
 
-	private String isoId(final byte[] bytes) {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
-		sb.append('.');
-		sb.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
-		sb.append('.');
-		sb.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
-		return sb.toString();
-	}
+    private String isoId(final byte[] bytes) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(Hex.encodeHexString(new byte[] { bytes[0], bytes[1] }));
+        sb.append('.');
+        sb.append(Hex.encodeHexString(new byte[] { bytes[2], bytes[3] }));
+        sb.append('.');
+        sb.append(Hex.encodeHexString(new byte[] { bytes[4], bytes[5] }));
+        return sb.toString();
+    }
 
-	private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
-		if (routerIdentifier == null) {
-			return null;
-		}
+    private String formatRouterIdentifier(final CRouterIdentifier routerIdentifier) {
+        if (routerIdentifier == null) {
+            return null;
+        }
 
-		if (routerIdentifier instanceof IsisNodeCase) {
-			return isoId(((IsisNodeCase)routerIdentifier).getIsisNode().getIsoSystemId().getValue());
-		} else if (routerIdentifier instanceof IsisPseudonodeCase) {
-			final IsisPseudonode r = ((IsisPseudonodeCase)routerIdentifier).getIsisPseudonode();
-			return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.' +
-					Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
-		} else if (routerIdentifier instanceof OspfNodeCase) {
-			return ((OspfNodeCase)routerIdentifier).getOspfNode().getOspfRouterId().toString();
-		} else if (routerIdentifier instanceof OspfPseudonodeCase) {
-			final OspfPseudonode r = ((OspfPseudonodeCase)routerIdentifier).getOspfPseudonode();
-			return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
-		} else {
-			LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
-			return routerIdentifier.toString();
-		}
-	}
+        if (routerIdentifier instanceof IsisNodeCase) {
+            return isoId(((IsisNodeCase) routerIdentifier).getIsisNode().getIsoSystemId().getValue());
+        } else if (routerIdentifier instanceof IsisPseudonodeCase) {
+            final IsisPseudonode r = ((IsisPseudonodeCase) routerIdentifier).getIsisPseudonode();
+            return isoId(r.getIsIsRouterIdentifier().getIsoSystemId().getValue()) + '.'
+                    + Hex.encodeHexString(new byte[] { UnsignedBytes.checkedCast(r.getPsn()) });
+        } else if (routerIdentifier instanceof OspfNodeCase) {
+            return ((OspfNodeCase) routerIdentifier).getOspfNode().getOspfRouterId().toString();
+        } else if (routerIdentifier instanceof OspfPseudonodeCase) {
+            final OspfPseudonode r = ((OspfPseudonodeCase) routerIdentifier).getOspfPseudonode();
+            return r.getOspfRouterId().toString() + ':' + r.getLanInterface().getValue();
+        } else {
+            LOG.warn("Unhandled router identifier type {}, fallback to toString()", routerIdentifier.getImplementedInterface());
+            return routerIdentifier.toString();
+        }
+    }
 
-	UriBuilder add(final String prefix, final NodeIdentifier node) {
-		if (node.getAsNumber() != null) {
-			add(prefix + "as", node.getAsNumber().getValue());
-		}
-		if (node.getDomainId() != null) {
-			add(prefix + "domain", node.getDomainId().getValue());
-		}
-		if (node.getAreaId() != null) {
-			add(prefix + "area", node.getAreaId().getValue());
-		}
-		add(prefix + "router", formatRouterIdentifier(node.getCRouterIdentifier()));
-		return this;
-	}
+    UriBuilder add(final String prefix, final NodeIdentifier node) {
+        if (node.getAsNumber() != null) {
+            add(prefix + "as", node.getAsNumber().getValue());
+        }
+        if (node.getDomainId() != null) {
+            add(prefix + "domain", node.getDomainId().getValue());
+        }
+        if (node.getAreaId() != null) {
+            add(prefix + "area", node.getAreaId().getValue());
+        }
+        add(prefix + "router", formatRouterIdentifier(node.getCRouterIdentifier()));
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		final String ret = this.sb.toString();
-		LOG.trace("New URI {}", ret);
-		return ret;
-	}
+    @Override
+    public String toString() {
+        final String ret = this.sb.toString();
+        LOG.trace("New URI {}", ret);
+        return ret;
+    }
 }

@@ -28,8 +28,7 @@ public final class ServiceLoaderBGPExtensionProviderContext {
     public static BGPExtensionProviderContext create() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
-        final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader
-                .load(BGPExtensionProviderActivator.class);
+        final ServiceLoader<BGPExtensionProviderActivator> loader = ServiceLoader.load(BGPExtensionProviderActivator.class);
         for (BGPExtensionProviderActivator a : loader) {
             a.start(ctx);
         }

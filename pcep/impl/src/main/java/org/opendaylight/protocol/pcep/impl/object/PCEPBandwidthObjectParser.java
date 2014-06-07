@@ -19,22 +19,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
 
-	public static final int CLASS = 5;
+    public static final int CLASS = 5;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	private static final int BANDWIDTH_LENGTH = 4;
+    private static final int BANDWIDTH_LENGTH = 4;
 
-	public PCEPBandwidthObjectParser(final TlvRegistry tlvReg) {
-		super(tlvReg);
-	}
+    public PCEPBandwidthObjectParser(final TlvRegistry tlvReg) {
+        super(tlvReg);
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof Bandwidth)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
-		}
-		final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
-	}
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof Bandwidth)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
+        }
+        final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+    }
 }

@@ -10,19 +10,19 @@ package org.opendaylight.protocol.pcep.impl;
 import java.io.IOException;
 
 public interface PCEPSessionRuntimeMXBean {
-	// FIXME: BUG-194: remove once operations are generated
+    // FIXME: BUG-194: remove once operations are generated
 
-	Integer getDeadTimerValue();
+    Integer getDeadTimerValue();
 
-	Integer getKeepAliveTimerValue();
+    Integer getKeepAliveTimerValue();
 
-	Integer getReceivedMsgCount();
+    Integer getReceivedMsgCount();
 
-	Integer getSentMsgCount();
+    Integer getSentMsgCount();
 
-	String getPeerAddress();
+    String getPeerAddress();
 
-	String getNodeIdentifier();
+    String getNodeIdentifier();
 
-	void tearDown() throws IOException;
+    void tearDown() throws IOException;
 }

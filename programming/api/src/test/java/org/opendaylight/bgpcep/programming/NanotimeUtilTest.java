@@ -17,21 +17,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NanotimeUtilTest {
-	private static final Logger LOG = LoggerFactory.getLogger(NanotimeUtilTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NanotimeUtilTest.class);
 
-	@Test
-	public void testCurrentTime() {
-		assertTrue(NanotimeUtil.currentTime().getValue().divide(BigInteger.valueOf(1000000)).subtract(
-				BigInteger.valueOf(System.currentTimeMillis())).shortValue() <= 0);
-	}
+    @Test
+    public void testCurrentTime() {
+        assertTrue(NanotimeUtil.currentTime().getValue().divide(BigInteger.valueOf(1000000)).subtract(
+                BigInteger.valueOf(System.currentTimeMillis())).shortValue() <= 0);
+    }
 
-	@Test
-	public void testNanoTime() throws InterruptedException {
-		final Nanotime nt1 = NanotimeUtil.currentNanoTime();
-		Thread.sleep(1);
-		final Nanotime nt2 = NanotimeUtil.currentNanoTime();
+    @Test
+    public void testNanoTime() throws InterruptedException {
+        final Nanotime nt1 = NanotimeUtil.currentNanoTime();
+        Thread.sleep(1);
+        final Nanotime nt2 = NanotimeUtil.currentNanoTime();
 
-		LOG.debug("Times: {} {}", nt1, nt2);
-		assertTrue(nt1.getValue().compareTo(nt2.getValue()) < 0);
-	}
+        LOG.debug("Times: {} {}", nt1, nt2);
+        assertTrue(nt1.getValue().compareTo(nt2.getValue()) < 0);
+    }
 }

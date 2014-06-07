@@ -9,6 +9,9 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
+import com.google.common.collect.Lists;
+
 import io.netty.buffer.Unpooled;
 
 import java.util.List;
@@ -40,90 +43,90 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.collect.Lists;
-
 public class PCEPTlvParserTest {
 
-	private static final byte[] noPathVectorBytes = { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, (byte) 0xa7 };
-	private static final byte[] overloadedBytes = { 0x00, 0x02, 0x00, 0x04, 0x7f, (byte) 0xff, (byte) 0xff, (byte) 0xff };
-	private static final byte[] reqMissingBytes = { 0x00, 0x03, 0x00, 0x04, (byte) 0xF7, (byte) 0x82, 0x35, 0x17 };
-	private static final byte[] orderBytes = { 0x00, 0x05, 0x00, 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00, 0x00, 0x00, 0x01 };
-	private static final byte[] ofListBytes = { 0x00, 0x04, 0x00, 0x04, 0x12, 0x34, 0x56, 0x78 };
-	private static final byte[] vsTlvBytes = { 0x00, 0x1b, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x09, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05 };
+    private static final byte[] noPathVectorBytes = { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, (byte) 0xa7 };
+    private static final byte[] overloadedBytes = { 0x00, 0x02, 0x00, 0x04, 0x7f, (byte) 0xff, (byte) 0xff, (byte) 0xff };
+    private static final byte[] reqMissingBytes = { 0x00, 0x03, 0x00, 0x04, (byte) 0xF7, (byte) 0x82, 0x35, 0x17 };
+    private static final byte[] orderBytes = { 0x00, 0x05, 0x00, 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00, 0x00,
+        0x00, 0x01 };
+    private static final byte[] ofListBytes = { 0x00, 0x04, 0x00, 0x04, 0x12, 0x34, 0x56, 0x78 };
+    private static final byte[] vsTlvBytes = { 0x00, 0x1b, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x09, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
+        0x05 };
 
-	private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
+    private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
 
-		@Override
-		protected byte[] serializeVendorPayload(VendorPayload payload) {
-			return new byte[] {0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05};
-		}
+        @Override
+        protected byte[] serializeVendorPayload(VendorPayload payload) {
+            return new byte[] { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05 };
+        }
 
-		@Override
-		protected VendorPayload parseVendorPayload(byte[] payloadBytes) throws PCEPDeserializerException {
-			return PCEPTlvParserTest.this.vp;
-		}
+        @Override
+        protected VendorPayload parseVendorPayload(byte[] payloadBytes) throws PCEPDeserializerException {
+            return PCEPTlvParserTest.this.vp;
+        }
 
-		@Override
-		protected long getEnterpriseNumber() {
-			return 9;
-		}
-	};
+        @Override
+        protected long getEnterpriseNumber() {
+            return 9;
+        }
+    };
 
-	private final VendorPayload vp = new VendorPayload() {
+    private final VendorPayload vp = new VendorPayload() {
 
-		@Override
-		public Class<? extends DataContainer> getImplementedInterface() {
-			return null;
-		}
-	};
+        @Override
+        public Class<? extends DataContainer> getImplementedInterface() {
+            return null;
+        }
+    };
 
-	@Test
-	public void testNoPathVectorTlv() throws PCEPDeserializerException {
-		final NoPathVectorTlvParser parser = new NoPathVectorTlvParser();
-		final NoPathVectorTlv tlv = new NoPathVectorBuilder().setFlags(
-				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags(false, true, false, true, false, true, true, true)).build();
-		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(noPathVectorBytes, 4))));
-		assertArrayEquals(noPathVectorBytes, parser.serializeTlv(tlv));
-	}
+    @Test
+    public void testNoPathVectorTlv() throws PCEPDeserializerException {
+        final NoPathVectorTlvParser parser = new NoPathVectorTlvParser();
+        final NoPathVectorTlv tlv = new NoPathVectorBuilder().setFlags(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags(false, true, false, true, false, true, true, true)).build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(noPathVectorBytes, 4))));
+        assertArrayEquals(noPathVectorBytes, parser.serializeTlv(tlv));
+    }
 
-	@Test
-	public void testOverloadedDurationTlv() throws PCEPDeserializerException {
-		final OverloadedDurationTlvParser parser = new OverloadedDurationTlvParser();
-		final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(0x7FFFFFFFL).build();
-		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(overloadedBytes, 4))));
-		assertArrayEquals(overloadedBytes, parser.serializeTlv(tlv));
-	}
+    @Test
+    public void testOverloadedDurationTlv() throws PCEPDeserializerException {
+        final OverloadedDurationTlvParser parser = new OverloadedDurationTlvParser();
+        final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(0x7FFFFFFFL).build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(overloadedBytes, 4))));
+        assertArrayEquals(overloadedBytes, parser.serializeTlv(tlv));
+    }
 
-	public void testReqMissingTlv() throws PCEPDeserializerException {
-		final ReqMissingTlvParser parser = new ReqMissingTlvParser();
-		final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(0xF7823517L)).build();
-		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(reqMissingBytes, 4))));
-		assertArrayEquals(reqMissingBytes, parser.serializeTlv(tlv));
-	}
+    public void testReqMissingTlv() throws PCEPDeserializerException {
+        final ReqMissingTlvParser parser = new ReqMissingTlvParser();
+        final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(0xF7823517L)).build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(reqMissingBytes, 4))));
+        assertArrayEquals(reqMissingBytes, parser.serializeTlv(tlv));
+    }
 
-	@Test
-	public void testOrderTlv() throws PCEPDeserializerException {
-		final OrderTlvParser parser = new OrderTlvParser();
-		final Order tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
-		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(orderBytes, 4))));
-		assertArrayEquals(orderBytes, parser.serializeTlv(tlv));
-	}
+    @Test
+    public void testOrderTlv() throws PCEPDeserializerException {
+        final OrderTlvParser parser = new OrderTlvParser();
+        final Order tlv = new OrderBuilder().setDelete(0xFFFFFFFFL).setSetup(0x00000001L).build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(orderBytes, 4))));
+        assertArrayEquals(orderBytes, parser.serializeTlv(tlv));
+    }
 
-	@Test
-	public void testOFListTlv() throws PCEPDeserializerException {
-		final OFListTlvParser parser = new OFListTlvParser();
-		final List<OfId> ids = Lists.newArrayList();
-		ids.add(new OfId(0x1234));
-		ids.add(new OfId(0x5678));
-		final OfList tlv = new OfListBuilder().setCodes(ids).build();
-		assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(ofListBytes, 4))));
-		assertArrayEquals(ofListBytes, parser.serializeTlv(tlv));
-	}
+    @Test
+    public void testOFListTlv() throws PCEPDeserializerException {
+        final OFListTlvParser parser = new OFListTlvParser();
+        final List<OfId> ids = Lists.newArrayList();
+        ids.add(new OfId(0x1234));
+        ids.add(new OfId(0x5678));
+        final OfList tlv = new OfListBuilder().setCodes(ids).build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(ofListBytes, 4))));
+        assertArrayEquals(ofListBytes, parser.serializeTlv(tlv));
+    }
 
-	@Test
-	public void testVendorSpecificTlv() throws PCEPDeserializerException {
-		VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
-		assertEquals(tlv, this.vsParser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(vsTlvBytes, 4))));
-		assertArrayEquals(vsTlvBytes, this.vsParser.serializeTlv(tlv));
-	}
+    @Test
+    public void testVendorSpecificTlv() throws PCEPDeserializerException {
+        VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
+        assertEquals(tlv, this.vsParser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(vsTlvBytes, 4))));
+        assertArrayEquals(vsTlvBytes, this.vsParser.serializeTlv(tlv));
+    }
 }

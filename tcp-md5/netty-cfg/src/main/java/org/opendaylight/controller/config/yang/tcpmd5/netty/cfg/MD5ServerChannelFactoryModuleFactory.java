@@ -6,6 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.controller.config.yang.tcpmd5.netty.cfg;
-public class MD5ServerChannelFactoryModuleFactory extends org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.AbstractMD5ServerChannelFactoryModuleFactory {
+
+public class MD5ServerChannelFactoryModuleFactory extends
+        org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.AbstractMD5ServerChannelFactoryModuleFactory {
 
 }

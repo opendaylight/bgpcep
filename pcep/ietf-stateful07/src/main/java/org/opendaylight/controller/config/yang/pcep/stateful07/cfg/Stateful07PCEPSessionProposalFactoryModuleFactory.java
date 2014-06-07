@@ -10,8 +10,7 @@ package org.opendaylight.controller.config.yang.pcep.stateful07.cfg;
 /**
  *
  */
-public class Stateful07PCEPSessionProposalFactoryModuleFactory extends org.opendaylight.controller.config.yang.pcep.stateful07.cfg.AbstractStateful07PCEPSessionProposalFactoryModuleFactory
-{
-
+public class Stateful07PCEPSessionProposalFactoryModuleFactory extends
+        org.opendaylight.controller.config.yang.pcep.stateful07.cfg.AbstractStateful07PCEPSessionProposalFactoryModuleFactory {
 
 }

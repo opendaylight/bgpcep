@@ -19,8 +19,6 @@ package org.opendaylight.controller.config.yang.bgp.mock;
 /**
 *
 */
-public class BgpMockModuleFactory
-		extends
-		org.opendaylight.controller.config.yang.bgp.mock.AbstractBgpMockModuleFactory {
+public class BgpMockModuleFactory extends org.opendaylight.controller.config.yang.bgp.mock.AbstractBgpMockModuleFactory {
 
 }

@@ -20,24 +20,26 @@ import org.junit.Test;
 
 public class PCEPHexDumpParserTest {
 
-	public static final String hexDumpFileName = "pcep-hex.txt";
-	private final int expectedSize = 6;
+    public static final String hexDumpFileName = "pcep-hex.txt";
+    private final int expectedSize = 6;
 
-	@Test
-	public void testParsing() throws Exception {
-		final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(PCEPHexDumpParserTest.hexDumpFileName));
-		assertEquals(this.expectedSize, result.size());
-		final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(PCEPHexDumpParserTest.hexDumpFileName).getPath()));
-		assertEquals(this.expectedSize, result1.size());
-	}
+    @Test
+    public void testParsing() throws Exception {
+        final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
+                PCEPHexDumpParserTest.hexDumpFileName));
+        assertEquals(this.expectedSize, result.size());
+        final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(
+                PCEPHexDumpParserTest.hexDumpFileName).getPath()));
+        assertEquals(this.expectedSize, result1.size());
+    }
 
-	@Test
-	public void testParsingInvalidFile() throws Exception {
-		try {
-			PCEPHexDumpParser.parseMessages(new File("bad file name"));
-			fail("Exception should have occured.");
-		} catch (final FileNotFoundException e) {
-			assertThat(e.getMessage(), containsString("bad file name"));
-		}
-	}
+    @Test
+    public void testParsingInvalidFile() throws Exception {
+        try {
+            PCEPHexDumpParser.parseMessages(new File("bad file name"));
+            fail("Exception should have occured.");
+        } catch (final FileNotFoundException e) {
+            assertThat(e.getMessage(), containsString("bad file name"));
+        }
+    }
 }

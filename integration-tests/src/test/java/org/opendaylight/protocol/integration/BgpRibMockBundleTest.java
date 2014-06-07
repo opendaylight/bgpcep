@@ -7,21 +7,19 @@
  */
 package org.opendaylight.protocol.integration;
 
-import java.util.Collection;
-
 import com.google.common.collect.Lists;
 
-public final class BgpRibMockBundleTest extends AbstractBundleTest {
-	@Override
-	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "bgp-concepts", "bgp-linkstate", "bgp-parser-api",
-				"bgp-parser-impl", "bgp-parser-spi", "bgp-rib-api", "bgp-rib-impl",
-				"bgp-rib-spi", "bgp-util", "rsvp-api", "tcpmd5-api",
-				"tcpmd5-netty", "util");
-	}
+import java.util.Collection;
 
-	@Override
-	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("bgp-rib-mock");
-	}
+public final class BgpRibMockBundleTest extends AbstractBundleTest {
+    @Override
+    protected Collection<String> prerequisiteBundles() {
+        return Lists.newArrayList("concepts", "bgp-concepts", "bgp-linkstate", "bgp-parser-api", "bgp-parser-impl", "bgp-parser-spi",
+                "bgp-rib-api", "bgp-rib-impl", "bgp-rib-spi", "bgp-util", "rsvp-api", "tcpmd5-api", "tcpmd5-netty", "util");
+    }
+
+    @Override
+    protected Collection<String> requiredBundles() {
+        return Lists.newArrayList("bgp-rib-mock");
+    }
 }

@@ -14,10 +14,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public final class LocalPreferenceAttributeParser implements AttributeParser {
-	public static final int TYPE = 5;
+    public static final int TYPE = 5;
 
-	@Override
-	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
-		builder.setLocalPref(new LocalPrefBuilder().setPref(buffer.readUnsignedInt()).build());
-	}
+    @Override
+    public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
+        builder.setLocalPref(new LocalPrefBuilder().setPref(buffer.readUnsignedInt()).build());
+    }
 }

@@ -23,45 +23,45 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
 public class BandwidthTest {
-	private Bandwidth b1, b2, b3, b4;
+    private Bandwidth b1, b2, b3, b4;
 
-	@Before
-	public void setUp() {
-		this.b1 = new Bandwidth(ByteArray.intToBytes(1000, 4));
-		this.b2 = new Bandwidth(ByteArray.intToBytes(2000, 4));
-		this.b3 = new Bandwidth(ByteArray.intToBytes(2000, 4));
-		this.b4 = new Bandwidth(ByteArray.intToBytes(100, 4));
-	}
+    @Before
+    public void setUp() {
+        this.b1 = new Bandwidth(ByteArray.intToBytes(1000, 4));
+        this.b2 = new Bandwidth(ByteArray.intToBytes(2000, 4));
+        this.b3 = new Bandwidth(ByteArray.intToBytes(2000, 4));
+        this.b4 = new Bandwidth(ByteArray.intToBytes(100, 4));
+    }
 
-	@Test
-	public void testBitsBytes() {
-		assertEquals(1000.0, ByteArray.bytesToLong(this.b1.getValue()), 0.1);
-	}
+    @Test
+    public void testBitsBytes() {
+        assertEquals(1000.0, ByteArray.bytesToLong(this.b1.getValue()), 0.1);
+    }
 
-	@Test
-	public void testEquals() {
-		assertFalse(this.b1.equals(null));
-		assertThat(this.b1, not(equalTo(new Object())));
-		assertThat(this.b1, equalTo(this.b1));
-		assertThat(this.b1, not(equalTo(this.b2)));
-		assertEquals(this.b2, this.b3);
-		assertFalse(this.b1.equals(new Object()));
-	}
+    @Test
+    public void testEquals() {
+        assertFalse(this.b1.equals(null));
+        assertThat(this.b1, not(equalTo(new Object())));
+        assertThat(this.b1, equalTo(this.b1));
+        assertThat(this.b1, not(equalTo(this.b2)));
+        assertEquals(this.b2, this.b3);
+        assertFalse(this.b1.equals(new Object()));
+    }
 
-	@Test
-	public void testHashCode() {
-		final Set<Bandwidth> set = new HashSet<Bandwidth>();
+    @Test
+    public void testHashCode() {
+        final Set<Bandwidth> set = new HashSet<Bandwidth>();
 
-		set.add(this.b1);
-		assertEquals(1, set.size());
+        set.add(this.b1);
+        assertEquals(1, set.size());
 
-		set.add(this.b2);
-		assertEquals(2, set.size());
+        set.add(this.b2);
+        assertEquals(2, set.size());
 
-		set.add(this.b3);
-		assertEquals(2, set.size());
+        set.add(this.b3);
+        assertEquals(2, set.size());
 
-		set.add(this.b4);
-		assertEquals(3, set.size());
-	}
+        set.add(this.b4);
+        assertEquals(3, set.size());
+    }
 }

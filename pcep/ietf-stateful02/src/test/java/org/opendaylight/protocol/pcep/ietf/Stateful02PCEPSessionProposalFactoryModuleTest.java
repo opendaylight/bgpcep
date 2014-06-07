@@ -36,7 +36,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionDeadTimerValueNotSet() throws Exception {
         try {
-            createStateful02SessionInstance(null, (short)100, true, true, true, 0);
+            createStateful02SessionInstance(null, (short) 100, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("DeadTimerValue value is not set"));
@@ -46,7 +46,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionKeepAliveTimerNotSet() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, null, true, true, true, 0);
+            createStateful02SessionInstance((short) 200, null, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("KeepAliveTimerValue value is not set"));
@@ -56,7 +56,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionStatefulNotSet() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, (short)100, null, false, false, 0);
+            createStateful02SessionInstance((short) 200, (short) 100, null, false, false, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Stateful value is not set"));
@@ -66,7 +66,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionActiveNotSet() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, (short)100, true, null, true, 0);
+            createStateful02SessionInstance((short) 200, (short) 100, true, null, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Active value is not set"));
@@ -76,7 +76,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionInstantiatedNotSet() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, (short)100, true, true, null, 0);
+            createStateful02SessionInstance((short) 200, (short) 100, true, true, null, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Initiated value is not set"));
@@ -86,7 +86,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionTimeoutNotSet() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, (short)100, true, true, true, null);
+            createStateful02SessionInstance((short) 200, (short) 100, true, true, true, null);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("Timeout value is not set"));
@@ -96,7 +96,7 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
     @Test
     public void testValidationExceptionKeepAliveTimerMinValue() throws Exception {
         try {
-            createStateful02SessionInstance((short)200, (short)-10, true, true, true, 0);
+            createStateful02SessionInstance((short) 200, (short) -10, true, true, true, 0);
             fail();
         } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("minimum value is 1."));
@@ -105,11 +105,10 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
 
     @Test
     public void testStatefulAfterCommitted() throws Exception {
-        createStateful02SessionInstance((short)200, (short)100, false, true, true, 0);
+        createStateful02SessionInstance((short) 200, (short) 100, false, true, true, 0);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(
-                transaction.lookupConfigBean(FACTROY_NAME, INSTANCE_NAME),
-                Stateful02PCEPSessionProposalFactoryModuleMXBean.class);
+        final Stateful02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(
+                FACTROY_NAME, INSTANCE_NAME), Stateful02PCEPSessionProposalFactoryModuleMXBean.class);
         assertTrue(mxBean.getStateful());
     }
 
@@ -148,21 +147,20 @@ public class Stateful02PCEPSessionProposalFactoryModuleTest extends AbstractConf
         return transaction.commit();
     }
 
-    private CommitStatus createStateful02SessionInstance(final Short deadTimer, final Short keepAlive,
-            final Boolean isStateful, final Boolean isActive, final Boolean isInstant, final Integer timeout)
-            throws Exception {
+    private CommitStatus createStateful02SessionInstance(final Short deadTimer, final Short keepAlive, final Boolean isStateful,
+            final Boolean isActive, final Boolean isInstant, final Integer timeout) throws Exception {
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createStateful02SessionInstance(transaction, deadTimer, keepAlive, isStateful, isActive, isInstant, timeout);
         return transaction.commit();
     }
 
     public static ObjectName createStateful02SessionProposalInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createStateful02SessionInstance(transaction, (short)200, (short)100, true, true, true, 180);
+        return createStateful02SessionInstance(transaction, (short) 200, (short) 100, true, true, true, 180);
     }
 
-    private static ObjectName createStateful02SessionInstance(final ConfigTransactionJMXClient transaction,
-            final Short deadTimer, final Short keepAlive, final Boolean stateful, final Boolean active,
-            final Boolean instant, final Integer timeout) throws InstanceAlreadyExistsException {
+    private static ObjectName createStateful02SessionInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer,
+            final Short keepAlive, final Boolean stateful, final Boolean active, final Boolean instant, final Integer timeout)
+            throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTROY_NAME, INSTANCE_NAME);
         final Stateful02PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
                 Stateful02PCEPSessionProposalFactoryModuleMXBean.class);

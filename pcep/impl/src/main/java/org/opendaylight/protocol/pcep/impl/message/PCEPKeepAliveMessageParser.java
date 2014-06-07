@@ -26,27 +26,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link KeepaliveMessage}
  */
 public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
-	private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
-	public static final int TYPE = 2;
+    private static final KeepaliveMessage MESSAGE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+    public static final int TYPE = 2;
 
-	public PCEPKeepAliveMessageParser(final ObjectRegistry registry) {
-		super(registry);
-	}
+    public PCEPKeepAliveMessageParser(final ObjectRegistry registry) {
+        super(registry);
+    }
 
-	@Override
-	public void serializeMessage(final Message message, final ByteBuf out) {
-		if (!(message instanceof KeepaliveMessage)) {
-			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-					+ ". Need KeepaliveMessage.");
-		}
-		MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
-	}
+    @Override
+    public void serializeMessage(final Message message, final ByteBuf out) {
+        if (!(message instanceof KeepaliveMessage)) {
+            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
+                    + ". Need KeepaliveMessage.");
+        }
+        MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
+    }
 
-	@Override
-	protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-		if (objects != null && !objects.isEmpty()) {
-			throw new PCEPDeserializerException("Keepalive message should not contain any objects.");
-		}
-		return MESSAGE;
-	}
+    @Override
+    protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        if (objects != null && !objects.isEmpty()) {
+            throw new PCEPDeserializerException("Keepalive message should not contain any objects.");
+        }
+        return MESSAGE;
+    }
 }

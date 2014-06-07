@@ -15,17 +15,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
 public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv6Route> {
-	public Ipv6ReachabilityTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
-		super(dataProvider, locRibReference, topologyId, Ipv6Route.class);
-	}
+    public Ipv6ReachabilityTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference,
+            final TopologyId topologyId) {
+        super(dataProvider, locRibReference, topologyId, Ipv6Route.class);
+    }
 
-	@Override
-	protected Attributes getAttributes(final Ipv6Route value) {
-		return value.getAttributes();
-	}
+    @Override
+    protected Attributes getAttributes(final Ipv6Route value) {
+        return value.getAttributes();
+    }
 
-	@Override
-	protected IpPrefix getPrefix(final Ipv6Route value) {
-		return new IpPrefix(value.getKey().getPrefix());
-	}
+    @Override
+    protected IpPrefix getPrefix(final Ipv6Route value) {
+        return new IpPrefix(value.getKey().getPrefix());
+    }
 }

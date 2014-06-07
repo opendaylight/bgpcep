@@ -7,37 +7,34 @@
  */
 package org.opendaylight.bgpcep.programming.spi;
 
+import com.google.common.base.Preconditions;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
 
-import com.google.common.base.Preconditions;
-
 public final class ExecutionResult<T extends Details> {
-	private final InstructionStatus status;
-	private final T details;
+    private final InstructionStatus status;
+    private final T details;
 
-	public ExecutionResult(final InstructionStatus status, final T details) {
-		Preconditions.checkArgument(
-				status == InstructionStatus.Cancelled ||
-				status == InstructionStatus.Failed ||
-				status == InstructionStatus.Successful, "Illegal instruction status " + status);
-		Preconditions.checkArgument(status != InstructionStatus.Failed || details != null, "Failed status requires details");
+    public ExecutionResult(final InstructionStatus status, final T details) {
+        Preconditions.checkArgument(status == InstructionStatus.Cancelled || status == InstructionStatus.Failed
+                || status == InstructionStatus.Successful, "Illegal instruction status " + status);
+        Preconditions.checkArgument(status != InstructionStatus.Failed || details != null, "Failed status requires details");
 
-		this.status = status;
-		this.details = details;
-	}
+        this.status = status;
+        this.details = details;
+    }
 
-	public InstructionStatus getStatus() {
-		return status;
-	}
+    public InstructionStatus getStatus() {
+        return status;
+    }
 
-	public T getDetails() {
-		return details;
-	}
+    public T getDetails() {
+        return details;
+    }
 
-	@Override
-	public String toString() {
-		return "ExecutionResult [status=" + status + ", details=" + details
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return "ExecutionResult [status=" + status + ", details=" + details + "]";
+    }
 }

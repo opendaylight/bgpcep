@@ -51,9 +51,11 @@ public class SimpleBGPExtensionProviderContextModuleTest extends AbstractConfigT
         return transaction.commit();
     }
 
-    public static ObjectName createBGPExtensionsModuleInstance(final ConfigTransactionJMXClient transaction, final List<ObjectName> extensions) throws Exception {
+    public static ObjectName createBGPExtensionsModuleInstance(final ConfigTransactionJMXClient transaction,
+            final List<ObjectName> extensions) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        SimpleBGPExtensionProviderContextModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, SimpleBGPExtensionProviderContextModuleMXBean.class);
+        SimpleBGPExtensionProviderContextModuleMXBean mxBean = transaction.newMXBeanProxy(objectName,
+                SimpleBGPExtensionProviderContextModuleMXBean.class);
         mxBean.setExtension(extensions);
         return objectName;
     }

@@ -74,8 +74,8 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         createLinkstateTopologyBuilderModuleInstance();
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(
-                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), LinkstateTopologyBuilderModuleMXBean.class);
+        final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
+                INSTANCE_NAME), LinkstateTopologyBuilderModuleMXBean.class);
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -88,8 +88,9 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance(final TopologyId topologyId) throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
-        final ObjectName linkstateTopoBuilderON =  transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateTopoBuilderON, LinkstateTopologyBuilderModuleMXBean.class);
+        final ObjectName linkstateTopoBuilderON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateTopoBuilderON,
+                LinkstateTopologyBuilderModuleMXBean.class);
         final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         mxBean.setDataProvider(dataBrokerON);
         mxBean.setLocalRib(createRIBImplModuleInstance(transaction, dataBrokerON));

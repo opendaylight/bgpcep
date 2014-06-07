@@ -19,8 +19,7 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 /**
 *
 */
-public class BGPDispatcherImplModuleFactory
-		extends
-		org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModuleFactory {
+public class BGPDispatcherImplModuleFactory extends
+        org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModuleFactory {
 
 }

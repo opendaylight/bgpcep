@@ -19,8 +19,7 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 /**
 *
 */
-public class PCEPSessionProposalFactoryImplModuleFactory
-		extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModuleFactory {
+public class PCEPSessionProposalFactoryImplModuleFactory extends
+        org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPSessionProposalFactoryImplModuleFactory {
 
 }

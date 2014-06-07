@@ -1,163 +1,163 @@
 module bgp-message {
-	yang-version 1;
-	namespace "urn:opendaylight:params:xml:ns:yang:bgp-message";
-	prefix "bgp-msg";
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-message";
+    prefix "bgp-msg";
 
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
 
-	organization "Cisco Systems, Inc.";
-	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+    organization "Cisco Systems, Inc.";
+    contact "Dana Kutenicsova <dkutenic@cisco.com>";
 
-	description
-		"This module contains the base data model of a BGP message.
-		It rolls up the definitions contained in RFC4271 and RFC4893.
+    description
+        "This module contains the base data model of a BGP message.
+        It rolls up the definitions contained in RFC4271 and RFC4893.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-		This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
-	revision "2013-09-19" {
-		description
-			"Split off basic types";
-	}
+    revision "2013-09-19" {
+        description
+            "Split off basic types";
+    }
 
-	revision "2013-09-18" {
-		description
-			"Initial revision.";
-		reference "RFC4271, RFC4893";
-	}
+    revision "2013-09-18" {
+        description
+            "Initial revision.";
+        reference "RFC4271, RFC4893";
+    }
 
-	typedef protocol-version {
-		type uint8 {
-			range 1..7;
-		}
-	}
+    typedef protocol-version {
+        type uint8 {
+            range 1..7;
+        }
+    }
 
-	notification open {
-		description "Open Message";
-		reference "http://tools.ietf.org/html/rfc4271#section-4.2";
-		leaf version {
-			type protocol-version;
-			default 4;
-		}
-		leaf my-as-number {
-			type uint16;
-			default 23456;
-		}
-		leaf hold-timer {
-			type uint16;
-			mandatory true;
-		}
-		leaf bgp-identifier {
-			type inet:ipv4-address;
-			mandatory true;
-		}
-		list bgp-parameters {
-			reference "http://tools.ietf.org/html/rfc3392#section-4";
-			choice c-parameters {
-				case as4-bytes-case {
-					container as4-bytes-capability {
-						reference "http://tools.ietf.org/html/rfc6793";
-						leaf as-number {
-							type inet:as-number;
-						}
-					}
-				}
-			}
-		}
-	}
+    notification open {
+        description "Open Message";
+        reference "http://tools.ietf.org/html/rfc4271#section-4.2";
+        leaf version {
+            type protocol-version;
+            default 4;
+        }
+        leaf my-as-number {
+            type uint16;
+            default 23456;
+        }
+        leaf hold-timer {
+            type uint16;
+            mandatory true;
+        }
+        leaf bgp-identifier {
+            type inet:ipv4-address;
+            mandatory true;
+        }
+        list bgp-parameters {
+            reference "http://tools.ietf.org/html/rfc3392#section-4";
+            choice c-parameters {
+                case as4-bytes-case {
+                    container as4-bytes-capability {
+                        reference "http://tools.ietf.org/html/rfc6793";
+                        leaf as-number {
+                            type inet:as-number;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	grouping path-attributes {
-		reference "http://tools.ietf.org/html/rfc4271#section-5";
-		container origin {
-			reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
-			leaf value {
-				type bgp-t:bgp-origin;
-				mandatory true;
-			}
-		}
-		container as-path {
-			reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
-			list segments {
-				uses bgp-t:as-path-segment;
-			}
-		}
-		uses bgp-t:next-hop;
-		container multi-exit-disc {
-			reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
-			leaf med {
-				type uint32;
-			}
-		}
-		container local-pref {
-			reference "http://tools.ietf.org/html/rfc4271#section-5.1.5";
-			leaf pref {
-				type uint32;
-			}
-		}
-		container atomic-aggregate {
-			reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
-			presence "Atomic Aggregate attribute is present.";
-		}
-		container aggregator {
-			uses bgp-t:bgp-aggregator;
-		}
-		list communities {
-			uses bgp-t:community;
-		}
-		list extended-communities {
-			uses bgp-t:extended-community;
-		}
-		leaf originator-id {
-			type inet:ipv4-address;
-		}
-		leaf-list cluster-id {
-			type bgp-t:cluster-identifier;
-		}
-	}
+    grouping path-attributes {
+        reference "http://tools.ietf.org/html/rfc4271#section-5";
+        container origin {
+            reference "http://tools.ietf.org/html/rfc4271#section-5.1.1";
+            leaf value {
+                type bgp-t:bgp-origin;
+                mandatory true;
+            }
+        }
+        container as-path {
+            reference "http://tools.ietf.org/html/rfc4271#section-5.1.2";
+            list segments {
+                uses bgp-t:as-path-segment;
+            }
+        }
+        uses bgp-t:next-hop;
+        container multi-exit-disc {
+            reference "http://tools.ietf.org/html/rfc4271#section-5.1.4";
+            leaf med {
+                type uint32;
+            }
+        }
+        container local-pref {
+            reference "http://tools.ietf.org/html/rfc4271#section-5.1.5";
+            leaf pref {
+                type uint32;
+            }
+        }
+        container atomic-aggregate {
+            reference "http://tools.ietf.org/html/rfc4271#section-5.1.6";
+            presence "Atomic Aggregate attribute is present.";
+        }
+        container aggregator {
+            uses bgp-t:bgp-aggregator;
+        }
+        list communities {
+            uses bgp-t:community;
+        }
+        list extended-communities {
+            uses bgp-t:extended-community;
+        }
+        leaf originator-id {
+            type inet:ipv4-address;
+        }
+        leaf-list cluster-id {
+            type bgp-t:cluster-identifier;
+        }
+    }
 
-	notification update {
-		description "Update Message";
-		reference "http://tools.ietf.org/html/rfc4271#section-4.3";
-		container path-attributes {
-			reference "http://tools.ietf.org/html/rfc4271#section-5";
-			uses path-attributes;
-		}
-		container withdrawn-routes {
-			leaf-list withdrawn-routes {
-				type inet:ipv4-prefix;
-			}
-		}
-		container nlri {
-			leaf-list nlri {
-				type inet:ipv4-prefix;
-			}
-		}
-	}
+    notification update {
+        description "Update Message";
+        reference "http://tools.ietf.org/html/rfc4271#section-4.3";
+        container path-attributes {
+            reference "http://tools.ietf.org/html/rfc4271#section-5";
+            uses path-attributes;
+        }
+        container withdrawn-routes {
+            leaf-list withdrawn-routes {
+                type inet:ipv4-prefix;
+            }
+        }
+        container nlri {
+            leaf-list nlri {
+                type inet:ipv4-prefix;
+            }
+        }
+    }
 
-	notification keepalive {
-		description "Keepalive Message";
-		reference "http://tools.ietf.org/html/rfc4271#section-4.4";
-	}
+    notification keepalive {
+        description "Keepalive Message";
+        reference "http://tools.ietf.org/html/rfc4271#section-4.4";
+    }
 
-	notification notify {
-		description "Notification Message";
-		reference "http://tools.ietf.org/html/rfc4271#section-4.5";
+    notification notify {
+        description "Notification Message";
+        reference "http://tools.ietf.org/html/rfc4271#section-4.5";
 
-		leaf error-code {
-			type uint8;
-			mandatory true;
-		}
-		leaf error-subcode {
-			type uint8;
-			mandatory true;
-		}
-		leaf data {
-			type binary;
-		}
-	}
+        leaf error-code {
+            type uint8;
+            mandatory true;
+        }
+        leaf error-subcode {
+            type uint8;
+            mandatory true;
+        }
+        leaf data {
+            type binary;
+        }
+    }
 }

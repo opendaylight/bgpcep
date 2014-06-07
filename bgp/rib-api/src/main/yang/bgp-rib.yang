@@ -3,16 +3,16 @@ module bgp-rib {
         namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
         prefix "rib";
 
-	import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
-	import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
 
         organization "Cisco Systems, Inc.";
         contact "Robert Varga <rovarga@cisco.com>";
 
         description
                 "This module contains the concept of a Routing Information Base,
-		as defined by RFC4271.
+        as defined by RFC4271.
 
                 Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -27,73 +27,73 @@ module bgp-rib {
                 reference "RFC4271";
         }
 
-	typedef rib-id {
-		type inet:uri;
-	}
+    typedef rib-id {
+        type inet:uri;
+    }
 
-	grouping route {
-		container attributes {
-			uses bgp-msg:path-attributes;
-		}
-	}
+    grouping route {
+        container attributes {
+            uses bgp-msg:path-attributes;
+        }
+    }
 
-	grouping rib {
-		list tables {
-			uses bgp-mp:bgp-table-type;
-			key "afi safi";
+    grouping rib {
+        list tables {
+            uses bgp-mp:bgp-table-type;
+            key "afi safi";
 
-			container attributes {
-				leaf uptodate {
-					type boolean;
-					default false;
-				}
-			}
+            container attributes {
+                leaf uptodate {
+                    type boolean;
+                    default false;
+                }
+            }
 
-			choice routes {
-				case ipv4-routes-case {
-					container ipv4-routes {
-						list ipv4-route {
-							when "../../afi = ipv4";
+            choice routes {
+                case ipv4-routes-case {
+                    container ipv4-routes {
+                        list ipv4-route {
+                            when "../../afi = ipv4";
 
-							leaf prefix {
-								type inet:ipv4-prefix;
-							}
-							key prefix;
+                            leaf prefix {
+                                type inet:ipv4-prefix;
+                            }
+                            key prefix;
 
-							uses route;
-						}
-					}
-				}
-				case ipv6-routes-case {
-					container ipv6-routes {
-						list ipv6-route {
-							when "../../afi = ipv6";
+                            uses route;
+                        }
+                    }
+                }
+                case ipv6-routes-case {
+                    container ipv6-routes {
+                        list ipv6-route {
+                            when "../../afi = ipv6";
 
-							leaf prefix {
-								type inet:ipv6-prefix;
-							}
-							key prefix;
+                            leaf prefix {
+                                type inet:ipv6-prefix;
+                            }
+                            key prefix;
 
-							uses route;
-						}
-					}
-				}
-			}
-		}
-	}
+                            uses route;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	container bgp-rib {
-		list rib {
-			config false;
+    container bgp-rib {
+        list rib {
+            config false;
 
-			leaf id {
-				type rib-id;
-			}
-			key id;
+            leaf id {
+                type rib-id;
+            }
+            key id;
 
-			container loc-rib {
-				uses rib;
-			}
-		}
-	}
+            container loc-rib {
+                uses rib;
+            }
+        }
+    }
 }

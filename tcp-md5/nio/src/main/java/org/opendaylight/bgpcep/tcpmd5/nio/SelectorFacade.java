@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.nio;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -16,60 +18,58 @@ import java.nio.channels.spi.AbstractSelector;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-
 final class SelectorFacade extends AbstractSelector {
-	private final AbstractSelector delegate;
+    private final AbstractSelector delegate;
 
-	SelectorFacade(final SelectorProvider provider, final AbstractSelector delegate) {
-		super(provider);
-		this.delegate = Preconditions.checkNotNull(delegate);
-	}
+    SelectorFacade(final SelectorProvider provider, final AbstractSelector delegate) {
+        super(provider);
+        this.delegate = Preconditions.checkNotNull(delegate);
+    }
 
-	@Override
-	protected void implCloseSelector() throws IOException {
-		delegate.close();
-	}
+    @Override
+    protected void implCloseSelector() throws IOException {
+        delegate.close();
+    }
 
-	@Override
-	protected SelectionKey register(final AbstractSelectableChannel ch, final int ops, final Object att) {
-		Preconditions.checkArgument(ch instanceof ProxyChannel<?>);
+    @Override
+    protected SelectionKey register(final AbstractSelectableChannel ch, final int ops, final Object att) {
+        Preconditions.checkArgument(ch instanceof ProxyChannel<?>);
 
-		final AbstractSelectableChannel ach = ((ProxyChannel<?>)ch).getDelegate();
-		try {
-			return ach.register(delegate, ops, att);
-		} catch (ClosedChannelException e) {
-			throw new IllegalArgumentException("Failed to register channel", e);
-		}
-	}
+        final AbstractSelectableChannel ach = ((ProxyChannel<?>) ch).getDelegate();
+        try {
+            return ach.register(delegate, ops, att);
+        } catch (ClosedChannelException e) {
+            throw new IllegalArgumentException("Failed to register channel", e);
+        }
+    }
 
-	@Override
-	public Set<SelectionKey> keys() {
-		return delegate.keys();
-	}
+    @Override
+    public Set<SelectionKey> keys() {
+        return delegate.keys();
+    }
 
-	@Override
-	public Set<SelectionKey> selectedKeys() {
-		return delegate.selectedKeys();
-	}
+    @Override
+    public Set<SelectionKey> selectedKeys() {
+        return delegate.selectedKeys();
+    }
 
-	@Override
-	public int selectNow() throws IOException {
-		return delegate.selectNow();
-	}
+    @Override
+    public int selectNow() throws IOException {
+        return delegate.selectNow();
+    }
 
-	@Override
-	public int select(final long timeout) throws IOException {
-		return delegate.select(timeout);
-	}
+    @Override
+    public int select(final long timeout) throws IOException {
+        return delegate.select(timeout);
+    }
 
-	@Override
-	public int select() throws IOException {
-		return delegate.select();
-	}
+    @Override
+    public int select() throws IOException {
+        return delegate.select();
+    }
 
-	@Override
-	public Selector wakeup() {
-		return delegate.wakeup();
-	}
+    @Override
+    public Selector wakeup() {
+        return delegate.wakeup();
+    }
 }

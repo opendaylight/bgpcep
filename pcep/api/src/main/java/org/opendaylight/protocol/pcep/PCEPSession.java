@@ -23,19 +23,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public interface PCEPSession extends ProtocolSession<Message> {
 
-	/**
-	 * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
-	 * is only allowed, when a PCEP handshake is in progress). Close message will close the session and free all the
-	 * resources.
-	 * 
-	 * @param message message to be sent
-	 * @return Future promise which will be succeed when the message is enqueued in the socket.
-	 */
-	Future<Void> sendMessage(Message message);
+    /**
+     * Sends message from user to PCE/PCC. If the user sends an Open Message, the session returns an error (open message
+     * is only allowed, when a PCEP handshake is in progress). Close message will close the session and free all the
+     * resources.
+     *
+     * @param message message to be sent
+     * @return Future promise which will be succeed when the message is enqueued in the socket.
+     */
+    Future<Void> sendMessage(Message message);
 
-	void close(TerminationReason reason);
+    void close(TerminationReason reason);
 
-	Tlvs getRemoteTlvs();
+    Tlvs getRemoteTlvs();
 
-	InetAddress getRemoteAddress();
+    InetAddress getRemoteAddress();
 }

@@ -19,29 +19,29 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * BGP Session represents the finite state machine in BGP, including timers and its purpose is to create a BGP
  * connection between BGP speakers. Session is automatically started, when TCP connection is created, but can be stopped
  * manually via close method of the Closeable interface.
- * 
+ *
  * If the session is up, it has to redirect messages to/from user. Handles also malformed messages and unknown requests.
  */
 public interface BGPSession extends ProtocolSession<Notification> {
-	/**
-	 * Return the list of tables which the peer has advertized to support.
-	 * 
-	 * @return Set of tables which it supports.
-	 */
+    /**
+     * Return the list of tables which the peer has advertized to support.
+     *
+     * @return Set of tables which it supports.
+     */
 
-	Set<BgpTableType> getAdvertisedTableTypes();
+    Set<BgpTableType> getAdvertisedTableTypes();
 
-	/**
-	 * Return the BGP router ID advertized by the peer.
-	 * 
-	 * @return Peer's BGP Router ID.
-	 */
-	Ipv4Address getBgpId();
+    /**
+     * Return the BGP router ID advertized by the peer.
+     *
+     * @return Peer's BGP Router ID.
+     */
+    Ipv4Address getBgpId();
 
-	/**
-	 * Return the AS number which the peer advertizes.
-	 * 
-	 * @return Peer's AS Number
-	 */
-	AsNumber getAsNumber();
+    /**
+     * Return the AS number which the peer advertizes.
+     *
+     * @return Peer's AS Number
+     */
+    AsNumber getAsNumber();
 }

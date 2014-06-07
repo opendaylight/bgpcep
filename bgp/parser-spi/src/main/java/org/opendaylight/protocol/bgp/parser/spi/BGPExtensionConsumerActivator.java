@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 public interface BGPExtensionConsumerActivator {
-	void start(BGPExtensionConsumerContext context);
-	void stop();
+    void start(BGPExtensionConsumerContext context);
+
+    void stop();
 }

@@ -10,6 +10,9 @@ package org.opendaylight.controller.config.yang.programming.impl;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,9 +70,6 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTest {
 
     private static final String FACTORY_NAME = InstructionSchedulerImplModuleFactory.NAME;
@@ -111,8 +111,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         MockitoAnnotations.initMocks(this);
 
         List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
-                .toArray(new ModuleFactory[moduleFactories.size()])));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
         Filter mockedFilter = mock(Filter.class);
         Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
@@ -123,8 +122,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
-                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
@@ -141,8 +139,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
-                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
@@ -151,14 +148,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn("Notification Publish Service Reference").when(notificationPublishServiceReference).toString();
         //
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext)
-            .getServiceReference(DataProviderService.class);
-        Mockito.doReturn(rpcProvisionServiceReference).when(mockedContext)
-            .getServiceReference(RpcProvisionRegistry.class);
-        Mockito.doReturn(notificationPublishServiceReference).when(mockedContext)
-            .getServiceReference(NotificationPublishService.class);
-        Mockito.doReturn(mountProvisionServiceReference).when(mockedContext)
-            .getServiceReference(MountProvisionService.class);
+        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
+        Mockito.doReturn(rpcProvisionServiceReference).when(mockedContext).getServiceReference(RpcProvisionRegistry.class);
+        Mockito.doReturn(notificationPublishServiceReference).when(mockedContext).getServiceReference(NotificationPublishService.class);
+        Mockito.doReturn(mountProvisionServiceReference).when(mockedContext).getServiceReference(MountProvisionService.class);
 
         Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
         Mockito.doReturn(mockedRpcProvision).when(mockedContext).getService(rpcProvisionServiceReference);
@@ -168,18 +161,17 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider)
-                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider)
-                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
+        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+                any(DataCommitHandler.class));
+        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+                any(DataCommitHandler.class));
 
         Mockito.doReturn(null).when(mockedMountProvision).registerProvisionListener(any(MountProvisionListener.class));
 
         Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
         Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
-        Mockito.doNothing().when(mockedTransaction)
-                .putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
+        Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
         Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
 
         Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
@@ -195,7 +187,8 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     public ObjectName createInstructionSchedulerModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
             final ObjectName rpcRegistyON, final ObjectName notificationBrokerON) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final InstructionSchedulerImplModuleMXBean mxBean = transaction.newMBeanProxy(objectName, InstructionSchedulerImplModuleMXBean.class);
+        final InstructionSchedulerImplModuleMXBean mxBean = transaction.newMBeanProxy(objectName,
+                InstructionSchedulerImplModuleMXBean.class);
         mxBean.setDataProvider(dataBrokerON);
         mxBean.setRpcRegistry(rpcRegistyON);
         mxBean.setNotificationService(notificationBrokerON);
@@ -203,8 +196,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return objectName;
     }
 
-    private ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
         return nameCreated;
 
@@ -224,8 +216,8 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return objectName;
     }
 
-    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException, InstanceNotFoundException {
+    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException,
+            InstanceNotFoundException {
         ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
         DataBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
         mxBean.setDomBroker(createDomBrokerInstance(transaction));
@@ -233,16 +225,14 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return nameCreated;
     }
 
-    private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
         DomBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
         mxBean.setDataStore(createDataStoreInstance(transaction));
         return nameCreated;
     }
 
-    private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(HashMapDataStoreModuleFactory.NAME, DATA_STORE_INSTANCE_NAME);
         transaction.newMBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
         return nameCreated;
@@ -251,12 +241,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
 
         try {
-            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME,
-                    RuntimeMappingModuleFactory.SINGLETON_NAME);
+            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
         } catch (InstanceNotFoundException e) {
             try {
-                return transaction.createModule(RuntimeMappingModuleFactory.NAME,
-                        RuntimeMappingModuleFactory.SINGLETON_NAME);
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
             } catch (InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
@@ -264,16 +252,14 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     @Override
-    protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(
-            final Class<?> serviceType) {
+    protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
                 public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
                     SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
                     YangModelParser parser = new YangParserImpl();
-                    Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(
-                            getFilesAsInputStreams(getYangModelsPaths())));
+                    Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(getYangModelsPaths())));
                     listener.onGlobalContextUpdated(parser.resolveSchemaContext(Sets.newHashSet(inputStreamModuleMap.values())));
                 }
             };
@@ -288,10 +274,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     }
 
     public List<ModuleFactory> getModuleFactories() {
-        return Lists.newArrayList(new InstructionSchedulerImplModuleFactory(),
-                new HashedWheelTimerModuleFactory(), new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(),
-                new DataBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(), new HashMapDataStoreModuleFactory(),
-                new RuntimeMappingModuleFactory(), new BindingBrokerImplModuleFactory());
+        return Lists.newArrayList(new InstructionSchedulerImplModuleFactory(), new HashedWheelTimerModuleFactory(),
+                new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(), new DataBrokerImplModuleFactory(),
+                new DomBrokerImplModuleFactory(), new HashMapDataStoreModuleFactory(), new RuntimeMappingModuleFactory(),
+                new BindingBrokerImplModuleFactory());
     }
 
     // TODO move back to AbstractConfigTest
@@ -306,7 +292,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
                 resources.add(resourceAsStream);
             }
         }
-        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
     }

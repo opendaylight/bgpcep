@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
  *
  */
 interface QueueInstruction {
-	void instructionUpdated(InstructionStatus status, Details details);
-	void instructionRemoved();
+    void instructionUpdated(InstructionStatus status, Details details);
+
+    void instructionRemoved();
 }

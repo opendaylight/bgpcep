@@ -12,20 +12,22 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 
 public interface XROSubobjectRegistry {
-	/**
-	 * Finds parser for given subobject type in the registry. Delegates parsing to found parser.
-	 * @param type subobject type, key in parser registry
-	 * @param buffer subobject wrapped in ByteBuf
-	 * @param mandatory XRO specific common field
-	 * @return null if the parser for this subobject could not be found
-	 * @throws PCEPDeserializerException if the parsing did not succeed
-	 */
-	Subobject parseSubobject(final int type, final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException;
+    /**
+     * Finds parser for given subobject type in the registry. Delegates parsing to found parser.
+     *
+     * @param type subobject type, key in parser registry
+     * @param buffer subobject wrapped in ByteBuf
+     * @param mandatory XRO specific common field
+     * @return null if the parser for this subobject could not be found
+     * @throws PCEPDeserializerException if the parsing did not succeed
+     */
+    Subobject parseSubobject(final int type, final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException;
 
-	/**
-	 * Find serializer for given subobject. Delegates parsing to found serializer.
-	 * @param subobject to be parsed
-	 * @return null if the serializer for this subobject could not be found
-	 */
-	byte[] serializeSubobject(final Subobject subobject);
+    /**
+     * Find serializer for given subobject. Delegates parsing to found serializer.
+     *
+     * @param subobject to be parsed
+     * @return null if the serializer for this subobject could not be found
+     */
+    byte[] serializeSubobject(final Subobject subobject);
 }

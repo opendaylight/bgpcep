@@ -11,5 +11,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface XROSubobjectSerializer {
 
-	byte[] serializeSubobject(Subobject subobject);
+    byte[] serializeSubobject(Subobject subobject);
 }

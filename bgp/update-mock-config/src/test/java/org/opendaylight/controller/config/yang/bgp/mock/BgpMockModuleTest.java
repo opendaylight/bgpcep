@@ -23,69 +23,61 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.threadpool.impl.EventBusModuleFactory;
 import org.opendaylight.controller.config.yang.threadpool.impl.EventBusModuleMXBean;
 
-
 public class BgpMockModuleTest extends AbstractConfigTest {
 
-	private final String instanceName = "bgp-mock";
-	
-	private BgpMockModuleFactory factory;
-	
-	private EventBusModuleFactory eventBusFactory;
-	
-	@Before
-	public void setUp() throws Exception {
-		this.factory = new BgpMockModuleFactory();
-		this.eventBusFactory = new EventBusModuleFactory();
-		super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(
-				this.factory, this.eventBusFactory));
-	}
-	
-	@Test
-	public void testValidationExceptionBothAttributesSet()
-			throws InstanceAlreadyExistsException {
-		try {
-			ConfigTransactionJMXClient transaction = configRegistryClient
-					.createTransaction();
-			createInstance(transaction, this.factory.getImplementationName(),
-					instanceName, new byte[]{1}, "hexMsg", this.eventBusFactory.getImplementationName());
-			transaction.validateConfig();
-			fail();
-		} catch (ValidationException e) {
-			assertTrue(e.getMessage().contains("Both 'HexDump' and 'BinDump' contain value"));
-		}
-	}
-	
-	@Test
-	public void testCreateBean() throws Exception {
-		ConfigTransactionJMXClient transaction = configRegistryClient
-				.createTransaction();
-		createInstance(transaction, this.factory.getImplementationName(),
-				instanceName, null, "hexString", this.eventBusFactory.getImplementationName());
-		transaction.validateConfig();
-		CommitStatus status = transaction.commit();
-		assertBeanCount(1, factory.getImplementationName());
-		assertStatus(status, 2, 0, 0);
-	}
-	
-	public static ObjectName createInstance(
-			final ConfigTransactionJMXClient transaction,
-			final String moduleName, final String instanceName,
-			final byte[] binDump, final String hexDump, final String eventBusImplName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(moduleName,
-				instanceName);
-		BgpMockModuleMXBean mxBean = transaction.newMBeanProxy(
-				nameCreated, BgpMockModuleMXBean.class);
-		mxBean.setBinDump(binDump);
-		mxBean.setHexDump(hexDump);
-		mxBean.setEventBus(createEventBus(transaction, eventBusImplName, "event-bus1"));
-		return nameCreated;
-	}
-	
-	public static ObjectName createEventBus(final ConfigTransactionJMXClient transaction,
-			final String moduleName, final String instanceName) throws InstanceAlreadyExistsException {
-		ObjectName nameCreated = transaction.createModule(moduleName, instanceName);
-		transaction.newMBeanProxy(nameCreated, EventBusModuleMXBean.class);
-		return nameCreated;
-	}
-	
+    private final String instanceName = "bgp-mock";
+
+    private BgpMockModuleFactory factory;
+
+    private EventBusModuleFactory eventBusFactory;
+
+    @Before
+    public void setUp() throws Exception {
+        this.factory = new BgpMockModuleFactory();
+        this.eventBusFactory = new EventBusModuleFactory();
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.factory, this.eventBusFactory));
+    }
+
+    @Test
+    public void testValidationExceptionBothAttributesSet() throws InstanceAlreadyExistsException {
+        try {
+            ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+            createInstance(transaction, this.factory.getImplementationName(), instanceName, new byte[] { 1 }, "hexMsg",
+                    this.eventBusFactory.getImplementationName());
+            transaction.validateConfig();
+            fail();
+        } catch (ValidationException e) {
+            assertTrue(e.getMessage().contains("Both 'HexDump' and 'BinDump' contain value"));
+        }
+    }
+
+    @Test
+    public void testCreateBean() throws Exception {
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createInstance(transaction, this.factory.getImplementationName(), instanceName, null, "hexString",
+                this.eventBusFactory.getImplementationName());
+        transaction.validateConfig();
+        CommitStatus status = transaction.commit();
+        assertBeanCount(1, factory.getImplementationName());
+        assertStatus(status, 2, 0, 0);
+    }
+
+    public static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final String moduleName,
+            final String instanceName, final byte[] binDump, final String hexDump, final String eventBusImplName)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(moduleName, instanceName);
+        BgpMockModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, BgpMockModuleMXBean.class);
+        mxBean.setBinDump(binDump);
+        mxBean.setHexDump(hexDump);
+        mxBean.setEventBus(createEventBus(transaction, eventBusImplName, "event-bus1"));
+        return nameCreated;
+    }
+
+    public static ObjectName createEventBus(final ConfigTransactionJMXClient transaction, final String moduleName, final String instanceName)
+            throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(moduleName, instanceName);
+        transaction.newMBeanProxy(nameCreated, EventBusModuleMXBean.class);
+        return nameCreated;
+    }
+
 }

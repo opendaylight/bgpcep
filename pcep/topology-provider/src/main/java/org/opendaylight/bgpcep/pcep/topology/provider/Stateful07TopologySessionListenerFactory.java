@@ -8,8 +8,8 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 public class Stateful07TopologySessionListenerFactory implements TopologySessionListenerFactory {
-	@Override
-	public final TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
-		return new Stateful07TopologySessionListener(manager);
-	}
+    @Override
+    public final TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
+        return new Stateful07TopologySessionListener(manager);
+    }
 }

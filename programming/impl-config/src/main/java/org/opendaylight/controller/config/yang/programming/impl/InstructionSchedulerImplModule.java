@@ -16,6 +16,10 @@
  */
 package org.opendaylight.controller.config.yang.programming.impl;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import java.util.concurrent.Executors;
 
 import org.opendaylight.bgpcep.programming.impl.ProgrammingServiceImpl;
@@ -26,60 +30,56 @@ import org.opendaylight.controller.sal.binding.api.BindingAwareBroker.RpcRegistr
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-
 /**
  *
  */
 public final class InstructionSchedulerImplModule extends
-org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
+        org.opendaylight.controller.config.yang.programming.impl.AbstractInstructionSchedulerImplModule {
 
-	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public InstructionSchedulerImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final InstructionSchedulerImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation() {
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    protected void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-		final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency());
+        final ProgrammingServiceImpl inst = new ProgrammingServiceImpl(getDataProviderDependency(), getNotificationServiceDependency(), exec, getTimerDependency());
 
-		final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
+        final RpcRegistration<ProgrammingService> reg = getRpcRegistryDependency().addRpcImplementation(ProgrammingService.class, inst);
 
-		final class ProgrammingServiceImplCloseable implements InstructionScheduler, AutoCloseable {
-			@Override
-			public void close() throws Exception {
-				try {
-					reg.close();
-				} finally {
-					try {
-						inst.close();
-					} finally {
-						exec.shutdown();
-					}
-				}
-			}
+        final class ProgrammingServiceImplCloseable implements InstructionScheduler, AutoCloseable {
+            @Override
+            public void close() throws Exception {
+                try {
+                    reg.close();
+                } finally {
+                    try {
+                        inst.close();
+                    } finally {
+                        exec.shutdown();
+                    }
+                }
+            }
 
-			@Override
-			public ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
-				return inst.scheduleInstruction(input);
-			}
-		}
+            @Override
+            public ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws SchedulerException {
+                return inst.scheduleInstruction(input);
+            }
+        }
 
-		return new ProgrammingServiceImplCloseable();
-	}
+        return new ProgrammingServiceImplCloseable();
+    }
 }

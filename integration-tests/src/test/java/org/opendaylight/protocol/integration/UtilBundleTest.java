@@ -7,19 +7,19 @@
  */
 package org.opendaylight.protocol.integration;
 
+import com.google.common.collect.Lists;
+
 import java.util.Collection;
 import java.util.Collections;
 
-import com.google.common.collect.Lists;
-
 public final class UtilBundleTest extends AbstractBundleTest {
-	@Override
-	protected Collection<String> prerequisiteBundles() {
-		return Collections.emptyList();
-	}
+    @Override
+    protected Collection<String> prerequisiteBundles() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("util");
-	}
+    @Override
+    protected Collection<String> requiredBundles() {
+        return Lists.newArrayList("util");
+    }
 }

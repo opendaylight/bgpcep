@@ -25,42 +25,42 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 
 public class APITest {
 
-	@Test
-	public void testDocumentedException() {
-		final BGPDocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
-		assertEquals("Some message", de.getMessage());
-		assertEquals(BGPError.BAD_BGP_ID, de.getError());
-		assertNull(de.getData());
+    @Test
+    public void testDocumentedException() {
+        final BGPDocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
+        assertEquals("Some message", de.getMessage());
+        assertEquals(BGPError.BAD_BGP_ID, de.getError());
+        assertNull(de.getData());
 
-		final BGPDocumentedException doc = BGPDocumentedException.badMessageLength("Wrong length", 5000);
-		assertEquals(5000, ByteArray.bytesToInt(doc.getData()));
-	}
+        final BGPDocumentedException doc = BGPDocumentedException.badMessageLength("Wrong length", 5000);
+        assertEquals(5000, ByteArray.bytesToInt(doc.getData()));
+    }
 
-	@Test
-	public void testParsingException() {
-		final BGPParsingException de = new BGPParsingException("Some message");
-		assertEquals("Some message", de.getMessage());
-	}
+    @Test
+    public void testParsingException() {
+        final BGPParsingException de = new BGPParsingException("Some message");
+        assertEquals("Some message", de.getMessage());
+    }
 
-	@Test
-	public void testBGPError() {
-		assertEquals(BGPError.BAD_MSG_TYPE, BGPError.forValue(1, 3));
-	}
+    @Test
+    public void testBGPError() {
+        assertEquals(BGPError.BAD_MSG_TYPE, BGPError.forValue(1, 3));
+    }
 
-	@Test
-	public void testTerminationReason() {
-		assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS).getErrorMessage());
-	}
+    @Test
+    public void testTerminationReason() {
+        assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS).getErrorMessage());
+    }
 
-	@Test
-	public void testAsNumberUtil() {
-		final List<BgpParameters> params = new ArrayList<>();
-		params.add(new BgpParametersBuilder().setCParameters(
-				new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(35L)).build()).build()).build());
-		final Open open1 = new OpenBuilder().setBgpParameters(params).build();
-		assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
+    @Test
+    public void testAsNumberUtil() {
+        final List<BgpParameters> params = new ArrayList<>();
+        params.add(new BgpParametersBuilder().setCParameters(
+                new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(35L)).build()).build()).build());
+        final Open open1 = new OpenBuilder().setBgpParameters(params).build();
+        assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
 
-		final Open open2 = new OpenBuilder().setMyAsNumber(10).build();
-		assertEquals(10, AsNumberUtil.advertizedAsNumber(open2).getValue().intValue());
-	}
+        final Open open2 = new OpenBuilder().setMyAsNumber(10).build();
+        assertEquals(10, AsNumberUtil.advertizedAsNumber(open2).getValue().intValue());
+    }
 }

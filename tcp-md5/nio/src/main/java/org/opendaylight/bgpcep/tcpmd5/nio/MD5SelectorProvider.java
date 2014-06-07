@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.nio;
 
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.net.ProtocolFamily;
 import java.nio.channels.DatagramChannel;
@@ -22,73 +24,71 @@ import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 public final class MD5SelectorProvider extends SelectorProvider {
-	private static final Logger LOG = LoggerFactory.getLogger(MD5SelectorProvider.class);
-	private static final Map<SelectorProvider, MD5SelectorProvider> INSTANCES = new WeakHashMap<>();
-	private final KeyAccessFactory keyAccessFactory;
-	private final SelectorProvider delegate;
+    private static final Logger LOG = LoggerFactory.getLogger(MD5SelectorProvider.class);
+    private static final Map<SelectorProvider, MD5SelectorProvider> INSTANCES = new WeakHashMap<>();
+    private final KeyAccessFactory keyAccessFactory;
+    private final SelectorProvider delegate;
 
-	private MD5SelectorProvider(final KeyAccessFactory keyAccessFactory, final SelectorProvider delegate) {
-		this.keyAccessFactory = Preconditions.checkNotNull(keyAccessFactory);
-		this.delegate = Preconditions.checkNotNull(delegate);
-	}
+    private MD5SelectorProvider(final KeyAccessFactory keyAccessFactory, final SelectorProvider delegate) {
+        this.keyAccessFactory = Preconditions.checkNotNull(keyAccessFactory);
+        this.delegate = Preconditions.checkNotNull(delegate);
+    }
 
-	public static synchronized MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory, final SelectorProvider provider) {
-		MD5SelectorProvider ret = INSTANCES.get(provider);
-		if (ret == null) {
-			ret = new MD5SelectorProvider(keyAccessFactory, provider);
-			LOG.debug("Created new provider instance {} for delegate {}", ret, provider);
-			INSTANCES.put(provider, ret);
-		}
+    public static synchronized MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory, final SelectorProvider provider) {
+        MD5SelectorProvider ret = INSTANCES.get(provider);
+        if (ret == null) {
+            ret = new MD5SelectorProvider(keyAccessFactory, provider);
+            LOG.debug("Created new provider instance {} for delegate {}", ret, provider);
+            INSTANCES.put(provider, ret);
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	public static MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory) {
-		return getInstance(keyAccessFactory, provider());
-	}
+    public static MD5SelectorProvider getInstance(final KeyAccessFactory keyAccessFactory) {
+        return getInstance(keyAccessFactory, provider());
+    }
 
-	@Override
-	public DatagramChannel openDatagramChannel() throws IOException {
-		throw new UnsupportedOperationException("Datagram channels are not supported");
-	}
+    @Override
+    public DatagramChannel openDatagramChannel() throws IOException {
+        throw new UnsupportedOperationException("Datagram channels are not supported");
+    }
 
-	@Override
-	public DatagramChannel openDatagramChannel(final ProtocolFamily family) throws IOException {
-		throw new UnsupportedOperationException("Datagram channels are not supported");
-	}
+    @Override
+    public DatagramChannel openDatagramChannel(final ProtocolFamily family) throws IOException {
+        throw new UnsupportedOperationException("Datagram channels are not supported");
+    }
 
-	@Override
-	public Pipe openPipe() throws IOException {
-		throw new UnsupportedOperationException("Pipes are not supported");
-	}
+    @Override
+    public Pipe openPipe() throws IOException {
+        throw new UnsupportedOperationException("Pipes are not supported");
+    }
 
-	@Override
-	public AbstractSelector openSelector() throws IOException {
-		final AbstractSelector s = delegate.openSelector();
-		final AbstractSelector ret = new SelectorFacade(delegate, s);
+    @Override
+    public AbstractSelector openSelector() throws IOException {
+        final AbstractSelector s = delegate.openSelector();
+        final AbstractSelector ret = new SelectorFacade(delegate, s);
 
-		LOG.debug("Opened facade {} for selector {}", ret, s);
-		return ret;
-	}
+        LOG.debug("Opened facade {} for selector {}", ret, s);
+        return ret;
+    }
 
-	@Override
-	public MD5ServerSocketChannel openServerSocketChannel() throws IOException {
-		final ServerSocketChannel ch = delegate.openServerSocketChannel();
-		final MD5ServerSocketChannel ret = new MD5ServerSocketChannel(ch, keyAccessFactory);
+    @Override
+    public MD5ServerSocketChannel openServerSocketChannel() throws IOException {
+        final ServerSocketChannel ch = delegate.openServerSocketChannel();
+        final MD5ServerSocketChannel ret = new MD5ServerSocketChannel(ch, keyAccessFactory);
 
-		LOG.debug("Created facade {} for server channel {}", ret, ch);
-		return ret;
-	}
+        LOG.debug("Created facade {} for server channel {}", ret, ch);
+        return ret;
+    }
 
-	@Override
-	public MD5SocketChannel openSocketChannel() throws IOException {
-		final SocketChannel ch = delegate.openSocketChannel();
-		final MD5SocketChannel ret = new MD5SocketChannel(ch, keyAccessFactory);
+    @Override
+    public MD5SocketChannel openSocketChannel() throws IOException {
+        final SocketChannel ch = delegate.openSocketChannel();
+        final MD5SocketChannel ret = new MD5SocketChannel(ch, keyAccessFactory);
 
-		LOG.debug("Created facade {} for channel {}", ret, ch);
-		return ret;
-	}
+        LOG.debug("Created facade {} for channel {}", ret, ch);
+        return ret;
+    }
 }

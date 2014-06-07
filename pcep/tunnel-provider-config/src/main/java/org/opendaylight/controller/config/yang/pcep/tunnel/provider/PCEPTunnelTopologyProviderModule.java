@@ -32,55 +32,58 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  *
  */
-public final class PCEPTunnelTopologyProviderModule extends org.opendaylight.controller.config.yang.pcep.tunnel.provider.AbstractPCEPTunnelTopologyProviderModule
-{
+public final class PCEPTunnelTopologyProviderModule extends
+        org.opendaylight.controller.config.yang.pcep.tunnel.provider.AbstractPCEPTunnelTopologyProviderModule {
 
-	public PCEPTunnelTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public PCEPTunnelTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public PCEPTunnelTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final PCEPTunnelTopologyProviderModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public PCEPTunnelTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final PCEPTunnelTopologyProviderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void validate(){
-		super.validate();
-		JmxAttributeValidationException.checkNotNull(getTopologyId(),
-				"is not set.", topologyIdJmxAttribute);
-	}
+    @Override
+    public void validate() {
+        super.validate();
+        JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", topologyIdJmxAttribute);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final PCEPTunnelTopologyProvider ttp = PCEPTunnelTopologyProvider.create(getDataProviderDependency(), getSourceTopologyDependency().getInstanceIdentifier(), getTopologyId());
-		final NetworkTopologyPcepService ntps = getRpcRegistryDependency().getRpcService(NetworkTopologyPcepService.class);
-		final TunnelProgramming tp = new TunnelProgramming(getSchedulerDependency(), getDataProviderDependency(), ntps);
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final PCEPTunnelTopologyProvider ttp = PCEPTunnelTopologyProvider.create(getDataProviderDependency(),
+                getSourceTopologyDependency().getInstanceIdentifier(), getTopologyId());
+        final NetworkTopologyPcepService ntps = getRpcRegistryDependency().getRpcService(NetworkTopologyPcepService.class);
+        final TunnelProgramming tp = new TunnelProgramming(getSchedulerDependency(), getDataProviderDependency(), ntps);
 
-		final BindingAwareBroker.RoutedRpcRegistration<TopologyTunnelPcepProgrammingService> reg =
-				getRpcRegistryDependency().addRoutedRpcImplementation(TopologyTunnelPcepProgrammingService.class, tp);
-		final InstanceIdentifier<Topology> topology =
-				InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(getTopologyId())).toInstance();
-		reg.registerPath(NetworkTopologyContext.class, topology);
+        final BindingAwareBroker.RoutedRpcRegistration<TopologyTunnelPcepProgrammingService> reg = getRpcRegistryDependency().addRoutedRpcImplementation(
+                TopologyTunnelPcepProgrammingService.class, tp);
+        final InstanceIdentifier<Topology> topology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+                new TopologyKey(getTopologyId())).toInstance();
+        reg.registerPath(NetworkTopologyContext.class, topology);
 
-		final class TunnelTopologyReferenceCloseable extends DefaultTopologyReference implements AutoCloseable {
-			public TunnelTopologyReferenceCloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
-				super(instanceIdentifier);
-			}
+        final class TunnelTopologyReferenceCloseable extends DefaultTopologyReference implements AutoCloseable {
+            public TunnelTopologyReferenceCloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
+                super(instanceIdentifier);
+            }
 
-			@Override
-			public void close() throws Exception {
-				try {
-					reg.close();
-				} finally {
-					try {
-						tp.close();
-					} finally {
-						ttp.close();
-					}
-				}
-			}
-		}
+            @Override
+            public void close() throws Exception {
+                try {
+                    reg.close();
+                } finally {
+                    try {
+                        tp.close();
+                    } finally {
+                        ttp.close();
+                    }
+                }
+            }
+        }
 
-		return new TunnelTopologyReferenceCloseable(ttp.getTopologyReference().getInstanceIdentifier());
-	}
+        return new TunnelTopologyReferenceCloseable(ttp.getTopologyReference().getInstanceIdentifier());
+    }
 }

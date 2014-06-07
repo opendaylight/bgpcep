@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -16,41 +18,39 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 public abstract class AbstractPCEPExtensionProviderActivator implements AutoCloseable, PCEPExtensionProviderActivator {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPExtensionProviderActivator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPExtensionProviderActivator.class);
 
-	@GuardedBy("this")
-	private List<AutoCloseable> registrations;
+    @GuardedBy("this")
+    private List<AutoCloseable> registrations;
 
-	@GuardedBy("this")
-	protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context);
+    @GuardedBy("this")
+    protected abstract List<AutoCloseable> startImpl(PCEPExtensionProviderContext context);
 
-	@Override
-	public final synchronized void start(final PCEPExtensionProviderContext context) {
-		Preconditions.checkState(this.registrations == null);
+    @Override
+    public final synchronized void start(final PCEPExtensionProviderContext context) {
+        Preconditions.checkState(this.registrations == null);
 
-		this.registrations = Preconditions.checkNotNull(startImpl(context));
-	}
+        this.registrations = Preconditions.checkNotNull(startImpl(context));
+    }
 
-	@Override
-	public final synchronized void stop() {
-		Preconditions.checkState(this.registrations != null);
+    @Override
+    public final synchronized void stop() {
+        Preconditions.checkState(this.registrations != null);
 
-		for (final AutoCloseable r : this.registrations) {
-			try {
-				r.close();
-			} catch (final Exception e) {
-				LOG.warn("Failed to close registration", e);
-			}
-		}
+        for (final AutoCloseable r : this.registrations) {
+            try {
+                r.close();
+            } catch (final Exception e) {
+                LOG.warn("Failed to close registration", e);
+            }
+        }
 
-		this.registrations = null;
-	}
+        this.registrations = null;
+    }
 
-	@Override
-	public final void close() {
-		stop();
-	}
+    @Override
+    public final void close() {
+        stop();
+    }
 }

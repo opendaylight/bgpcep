@@ -1,164 +1,164 @@
 module pcep-types {
-	yang-version 1;
-	namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
-	prefix "pcep-t";
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
+    prefix "pcep-t";
 
-	import ieee754 { prefix ieee754; revision-date 2013-08-19; }
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-	import network-concepts { prefix netc; revision-date 2013-11-25; }
-	import rsvp { prefix rsvp; revision-date 2013-08-20; }
-	import iana { prefix iana; revision-date 2013-08-16; }
+    import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import rsvp { prefix rsvp; revision-date 2013-08-20; }
+    import iana { prefix iana; revision-date 2013-08-16; }
 
-	organization "Cisco Systems, Inc.";
-	contact "Robert Varga <rovarga@cisco.com>";
+    organization "Cisco Systems, Inc.";
+    contact "Robert Varga <rovarga@cisco.com>";
 
-	description
-		"This module contains the base data model of a PCEP message.
-		It rolls up the definitions contained in RFC5440, RFC5520
-		and RFC6006.
+    description
+        "This module contains the base data model of a PCEP message.
+        It rolls up the definitions contained in RFC5440, RFC5520
+        and RFC6006.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-		This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
-	revision "2013-10-05" {
-		description
-			"Initial revision.";
-		reference "RFC5440";
-	}
+    revision "2013-10-05" {
+        description
+            "Initial revision.";
+        reference "RFC5440";
+    }
 
-	// NOTE: this model uses counts bits in fields from left to right,
-	//       just as IANA does for PCEP protocol.
+    // NOTE: this model uses counts bits in fields from left to right,
+    //       just as IANA does for PCEP protocol.
 
-	// Types
-	typedef protocol-version {
-		type uint8 {
-			range 1..7;
-		}
-	}
+    // Types
+    typedef protocol-version {
+        type uint8 {
+            range 1..7;
+        }
+    }
 
-	typedef request-id {
-		type uint32 {
-			range 1..max;
-		}
-	}
+    typedef request-id {
+        type uint32 {
+            range 1..max;
+        }
+    }
 
-	typedef of-id {
-		type uint16;
-	}
+    typedef of-id {
+        type uint16;
+    }
 
-	typedef path-key {
-		type uint16;
-	}
+    typedef path-key {
+        type uint16;
+    }
 
-	typedef pce-id {
-		type union {
-			type binary {
-				length 4;
-			}
-			type binary {
-				length 16;
-			}
-		}
-	}
+    typedef pce-id {
+        type union {
+            type binary {
+                length 4;
+            }
+            type binary {
+                length 16;
+            }
+        }
+    }
 
-	// TLVs
-	grouping tlv {
-		description "Marker grouping for TLV groupings.";
-	}
+    // TLVs
+    grouping tlv {
+        description "Marker grouping for TLV groupings.";
+    }
 
-	grouping no-path-vector-tlv {
-		description "NO-PATH-VECTOR TLV";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+    grouping no-path-vector-tlv {
+        description "NO-PATH-VECTOR TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
 
-		uses tlv;
-		leaf flags {
-			type bits {
-				bit p2mp-unreachable {
-					position 24;
-				}
-				bit no-gco-solution {
-					position 25;
-				}
-				bit no-gco-migration {
-					position 26;
-				}
-				bit path-key {
-					reference "https://tools.ietf.org/html/rfc5520#section-7.4";
-					position 27;
-				}
-				bit chain-unavailable {
-					position 28;
-				}
-				bit unknown-source {
-					position 29;
-				}
-				bit unknown-destination {
-					position 30;
-				}
-				bit pce-unavailable {
-					position 31;
-				}
-			}
-			mandatory true;
-		}
-	}
+        uses tlv;
+        leaf flags {
+            type bits {
+                bit p2mp-unreachable {
+                    position 24;
+                }
+                bit no-gco-solution {
+                    position 25;
+                }
+                bit no-gco-migration {
+                    position 26;
+                }
+                bit path-key {
+                    reference "https://tools.ietf.org/html/rfc5520#section-7.4";
+                    position 27;
+                }
+                bit chain-unavailable {
+                    position 28;
+                }
+                bit unknown-source {
+                    position 29;
+                }
+                bit unknown-destination {
+                    position 30;
+                }
+                bit pce-unavailable {
+                    position 31;
+                }
+            }
+            mandatory true;
+        }
+    }
 
-	grouping overload-duration-tlv {
-		description "OVERLOAD-DURATION TLV";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
-		container overload-duration {
-			uses tlv;
-			leaf duration {
-				type uint32;
-				units seconds;
-			}
-		}
-	}
+    grouping overload-duration-tlv {
+        description "OVERLOAD-DURATION TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.14";
+        container overload-duration {
+            uses tlv;
+            leaf duration {
+                type uint32;
+                units seconds;
+            }
+        }
+    }
 
-	grouping req-missing-tlv {
-		description "REQ-MISSING TLV";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
-		container req-missing {
-			uses tlv;
-			leaf request-id {
-				type request-id;
-			}
-		}
-	}
+    grouping req-missing-tlv {
+        description "REQ-MISSING TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+        container req-missing {
+            uses tlv;
+            leaf request-id {
+                type request-id;
+            }
+        }
+    }
 
-	grouping of-list-tlv {
-		description "OF-List TLV";
-		reference "https://tools.ietf.org/html/rfc5541#section-2.1";
-		container of-list {
-			uses tlv;
-			leaf-list codes {
-				type of-id;
-			}
-		}
-	}
+    grouping of-list-tlv {
+        description "OF-List TLV";
+        reference "https://tools.ietf.org/html/rfc5541#section-2.1";
+        container of-list {
+            uses tlv;
+            leaf-list codes {
+                type of-id;
+            }
+        }
+    }
 
-	grouping order-tlv {
-		description "Order TLV";
-		reference "https://tools.ietf.org/html/rfc5557#section-5.4";
-		container order {
-			uses tlv;
-			leaf delete {
-				type uint32;
-				mandatory true;
-			}
+    grouping order-tlv {
+        description "Order TLV";
+        reference "https://tools.ietf.org/html/rfc5557#section-5.4";
+        container order {
+            uses tlv;
+            leaf delete {
+                type uint32;
+                mandatory true;
+            }
 
-			leaf setup {
-				type uint32;
-				mandatory true;
-			}
-		}
-	}
+            leaf setup {
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
 
-	grouping vs-tlv {
+    grouping vs-tlv {
         description "Vendor-specific TLV.";
         container vs-tlv {
                 uses tlv;
@@ -172,783 +172,783 @@ module pcep-types {
         }
     }
 
-	// Objects
-	grouping object-header {
-		description "Common Object Header";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.2";
-
-		leaf processing-rule {
-			type boolean;
-			default false;
-		}
-
-		leaf ignore {
-			type boolean;
-			default false;
-		}
-	}
-
-	grouping object {
-		description "Core object structure with optional TLVs";
-		uses object-header;
-	}
-
-	grouping open-object {
-		description "OPEN Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.3";
-
-		container open {
-			uses object;
-			container "tlvs" {
-				uses of-list-tlv;
-			}
-
-			leaf version {
-				type protocol-version;
-				default 1;
-			}
-
-			leaf keepalive {
-				// Note: non-presence is equal to '0'
-				type uint8 {
-					range 1..255;
-				}
-				mandatory true;
-			}
-
-			leaf dead-timer {
-				// Note: non-presence is equal to '0'
-				type uint8 {
-					range 1..255;
-				}
-				mandatory true;
-			}
-
-			leaf session-id {
-				type uint8;
-			}
-		}
-	}
-
-	grouping rp-object {
-		description "RP Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.4";
-		container rp {
-			uses object;
-			container "tlvs" {
-				uses order-tlv;
-			}
-
-			leaf priority {
-				type uint8 {
-					range 1..7;
-				}
-			}
-
-			leaf request-id {
-				type request-id;
-				mandatory true;
-			}
-
-			leaf reoptimization {
-				type boolean;
-				default false;
-			}
-
-			leaf bi-directional {
-				type boolean;
-				default false;
-			}
-
-			leaf loose {
-				type boolean;
-				default false;
-			}
-
-			leaf path-key {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
-			}
-
-			leaf fragmentation {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
-			}
-
-			leaf p2mp {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
-			}
-
-			leaf ero-compression {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
-			}
-
-			leaf supply-of {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc5541#section-3.3";
-			}
-
-			leaf order {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc5557#section-5.3";
-			}
-
-			leaf make-before-break {
-				type boolean;
-				default false;
-				reference "https://tools.ietf.org/html/rfc5557#section-5.3";
-			}
-		}
-	}
-
-	grouping no-path-object {
-		description "NO-PATH Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.5";
-
-		uses object;
-
-		leaf nature-of-issue {
-			type uint8;
-			mandatory true;
-		}
-
-		leaf unsatisfied-constraints {
-			when "nature-of-issue = 0" {
-				description
-					"The C flag has no meaning
-					and is ignored unless the NI
-					field is set to 0x00.";
-			}
-			type boolean;
-			default false;
-		}
-	}
-
-	grouping endpoints {
-		choice address-family {
-			mandatory true;
-
-			case ipv4-case {
-				container ipv4 {
-					leaf source-ipv4-address {
-						type inet:ipv4-address;
-						mandatory true;
-					}
-
-					leaf destination-ipv4-address {
-						type inet:ipv4-address;
-						mandatory true;
-					}
-				}
-			}
-			case ipv6-case {
-				container ipv6 {
-					leaf source-ipv6-address {
-						type inet:ipv6-address;
-						mandatory true;
-					}
-
-					leaf destination-ipv6-address {
-						type inet:ipv6-address;
-						mandatory true;
-					}
-				}
-			}
-		}
-	}
-
-	grouping endpoints-object {
-		description "END-POINTS Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.6";
-
-		container endpoints-obj {
-			uses object;
-			uses endpoints;
-		}
-	}
-
-	grouping bandwidth-object {
-		description "BANDWIDTH Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.7";
-		container bandwidth {
-			uses object;
-
-			// No possibility to carry TLVs
-			leaf bandwidth {
-				type netc:bandwidth;
-			}
-		}
-	}
-
-	grouping metric-object {
-		description "METRIC Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.8";
-		container metric {
-			uses object;
-
-			leaf metric-type {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf bound {
-				type boolean;
-				default false;
-			}
-
-			leaf computed {
-				type boolean;
-				default false;
-			}
-
-			leaf value {
-				type ieee754:float32;
-			}
-		}
-	}
-
-	grouping exclude-route-object {
-		description "Exclude Route Object";
-		reference "https://tools.ietf.org/html/rfc5521#section-2.1.1";
-
-		container xro {
-			uses object;
-
-			leaf flags {
-				type bits {
-					bit fail {
-						position 31;
-					}
-				}
-				mandatory true;
-			}
-
-			list subobject {
-				uses rsvp:exclude-route-subobjects;
-				order-by user;
-			}
-		}
-	}
-
-	grouping explicit-route-object {
-		description "Explicit Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.9";
-
-		container ero {
-			// No possibility of TLVs
-			uses object;
-
-			list subobject {
-				leaf loose {
-					type boolean;
-					mandatory true;
-				}
-
-				uses rsvp:explicit-route-subobjects {
-					augment "subobject-type" {
-						case path-key-case {
-							container path-key {
-								uses path-key-subobject;
-							}
-						}
-					}
-				}
-
-				order-by user;
-			}
-		}
-	}
-
-	grouping include-route-object {
-		description "Include Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.12";
-
-		container iro {
-			// No possibility of TLVs
-			uses object;
-
-			list subobject {
-				uses rsvp:explicit-route-subobjects;
-				order-by user;
-			}
-		}
-	}
-
-	grouping reported-route-object {
-		description "Reported Route Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.10";
-
-		container rro {
-			// No possibility of TLVs
-			uses object;
-
-			list subobject {
-				uses rsvp:record-route-subobjects {
-					augment "subobject-type" {
-						case path-key-case {
-							container path-key {
-								uses path-key-subobject;
-							}
-						}
-					}
-				}
-				order-by user;
-			}
-		}
-	}
-
-	grouping lspa-object {
-		description "LSPA Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.11";
-
-		container lspa {
-			uses object;
-			uses rsvp:tunnel-attributes;
-			container "tlvs" {
-			}
-		}
-	}
-
-	grouping svec-object {
-		description "Synchronization Vector Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.13";
-
-		container svec {
-			// No possibility of TLVs
-			uses object;
-
-			leaf link-diverse {
-				type boolean;
-				default false;
-			}
-
-			leaf node-diverse {
-				type boolean;
-				default false;
-			}
-
-			leaf srlg-diverse {
-				type boolean;
-				default false;
-			}
-
-			leaf-list requests-ids {
-				type request-id;
-			}
-		}
-	}
-
-	grouping notification-object {
-		description "NOTIFICATION Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.14";
-		container c-notification {
-			uses object;
-			container "tlvs" {
-				when "../type = 2 and ../value = 1";
-
-				uses overload-duration-tlv;
-			}
-
-			leaf type {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf value {
-				type uint8;
-				mandatory true;
-			}
-		}
-	}
-
-	grouping pcep-error-object {
-		description "PCEP-ERROR Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.15";
-		container error-object {
-			uses object;
-			container "tlvs" {
-				when "../type = 7";
-				uses req-missing-tlv;
-			}
-
-			leaf type {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf value {
-				type uint8;
-				mandatory true;
-			}
-		}
-	}
-
-	grouping load-balancing-object {
-		description "LOAD-BALANCING Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.16";
-
-		container load-balancing {
-			// No possibility of TLVs
-			uses object;
-
-			leaf max-lsp {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf min-bandwidth {
-				type netc:bandwidth;
-			}
-		}
-	}
-
-	grouping close-object {
-		description "CLOSE Object";
-		reference "https://tools.ietf.org/html/rfc5440#section-7.17";
-
-		container c-close {
-			uses object;
-
-			leaf reason {
-				type uint8;
-				mandatory true;
-			}
-
-			container tlvs {
-
-			}
-		}
-	}
-
-	grouping path-key-subobject {
-		reference "https://tools.ietf.org/html/rfc5520#section-3.1";
-		uses rsvp:c-subobject;
-
-		leaf pce-id {
-			type pce-id;
-			mandatory true;
-		}
-
-		leaf path-key {
-			type path-key;
-			mandatory true;
-		}
-	}
-
-	grouping path-key-object {
-		description "PATH-KEY Object";
-		reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
-		container path-key {
-			uses object;
-
-			list path-keys {
-				min-elements 1;
-
-				leaf loose {
-					type boolean;
-					default false;
-				}
-
-				uses path-key-subobject;
-				order-by user;
-			}
-		}
-	}
-
-	grouping of-object {
-		description "OF Object";
-		reference "https://tools.ietf.org/html/rfc5541#section-3.1";
-		container of {
-			uses object;
-
-			leaf code {
-				type of-id;
-				mandatory true;
-			}
-		}
-	}
-
-	typedef class-type {
-		type uint8 {
-			range 1..7;
-		}
-	}
-
-	grouping classtype-object {
-		description "CLASSTYPE Object";
-		reference "https://tools.ietf.org/html/rfc5455#section-3";
-
-		container class-type {
-			uses object;
-
-			leaf class-type {
-				type class-type;
-				mandatory true;
-			}
-		}
-	}
-
-	grouping gc-object {
-		description "GLOBAL CONSTRAINTS (GC) Object";
-		reference "https://tools.ietf.org/html/rfc5557#section-5.5";
-		container gc {
-			uses object;
-
-			leaf max-hop {
-				type uint8;
-				mandatory true;
-			}
-
-			leaf max-utilization {
-				type uint8 {
-					range 0..100;
-				}
-				units percent;
-				mandatory true;
-			}
-
-			leaf min-utilization {
-				type uint8 {
-					range 0..100;
-				}
-				units percent;
-				mandatory true;
-			}
-
-			leaf over-booking-factor {
-				type uint8 {
-					range 0..100;
-				}
-				units percent;
-				mandatory true;
-			}
-		}
-	}
-
-	// Messages
-	grouping message {
-		description "Marker grouping for message groupings.";
-	}
-
-	grouping message-header {
-		description "Common Header";
-		reference "https://tools.ietf.org/html/rfc5440#section-6.1";
-
-		leaf version {
-			type protocol-version;
-			default 1;
-		}
-	}
-
-	grouping open-message {
-		uses message;
-
-		container open-message {
-			description "Open Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.2";
-
-			uses message-header;
-
-			uses open-object;
-		}
-	}
-
-	grouping keepalive-message {
-		uses message;
-
-		container keepalive-message {
-			description "Keepalive Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.3";
-
-			uses message-header;
-		}
-	}
-
-	grouping lsp-attributes {
-		uses lspa-object;
-
-		uses bandwidth-object;
-
-		list metrics {
-			uses metric-object;
-		}
-		uses include-route-object;
-
-		uses reported-route-object;
-
-		uses exclude-route-object;
-
-		uses of-object;
-
-		uses classtype-object;
-	}
-
-	grouping pcreq-message {
-		uses message;
-
-		container pcreq-message {
-			description "Path Computation Request Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.4";
-
-			uses message-header;
-
-			list requests {
-				uses rp-object;
-
-				container path-key-expansion {
-					when "rp/path-key = true";
-					uses path-key-object;
-				}
-
-				container segment-computation {
-					when "rp/path-key = false";
-
-					container p2p {
-						when "../rp/p2mp = false";
-
-						uses endpoints-object;
-
-						container reported-route {
-							uses reported-route-object;
-
-							uses bandwidth-object;
-						}
-
-						uses load-balancing-object;
-
-						uses lsp-attributes;
-					}
-				}
-			}
-
-			list svec {
-				uses svec-object;
-
-				uses of-object;
-
-				uses gc-object;
-
-				uses exclude-route-object;
-
-				list metric {
-					uses metric-object;
-				}
-			}
-		}
-	}
-
-	grouping path-definition {
-		uses explicit-route-object;
-
-		uses lsp-attributes;
-	}
-
-	grouping pcrep-message {
-		uses message;
-
-		container pcrep-message {
-			description "Path Computation Reply Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.5";
-
-			uses message-header;
-
-			list replies {
-				uses rp-object;
-
-				choice result {
-					case success-case {
-						container success {
-							list paths {
-								uses path-definition;
-							}
-						}
-					}
-					case failure-case {
-						container no-path {
-							uses no-path-object;
-							container "tlvs" {
-								container no-path-vector {
-									uses no-path-vector-tlv;
-								}
-							}
-						}
-						uses lsp-attributes;
-					}
-				}
-			}
-		}
-	}
-
-	grouping pcntf-message {
-		uses message;
-
-		container pcntf-message {
-			description "Notification Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.6";
-
-			uses message-header;
-
-			list notifications {
-				list rps {
-					uses rp-object;
-				}
-
-				list notifications {
-					uses notification-object;
-				}
-			}
-		}
-	}
-
-	grouping pcerr-message {
-		uses message;
-
-		container pcerr-message {
-			description "Error Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.7";
-
-			uses message-header;
-
-			list errors {
-				uses pcep-error-object;
-			}
-
-			choice error-type {
-				case request-case {
-					container request {
-						list rps {
-							uses rp-object;
-						}
-					}
-				}
-
-				case session-case {
-					container session {
-						uses open-object;
-					}
-				}
-			}
-		}
-	}
-
-	grouping close-message {
-		uses message;
-
-		container c-close-message {
-			description "Close Message";
-			reference "https://tools.ietf.org/html/rfc5440#section-6.8";
-
-			uses message-header;
-
-			uses close-object;
-		}
-	}
+    // Objects
+    grouping object-header {
+        description "Common Object Header";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.2";
+
+        leaf processing-rule {
+            type boolean;
+            default false;
+        }
+
+        leaf ignore {
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping object {
+        description "Core object structure with optional TLVs";
+        uses object-header;
+    }
+
+    grouping open-object {
+        description "OPEN Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.3";
+
+        container open {
+            uses object;
+            container "tlvs" {
+                uses of-list-tlv;
+            }
+
+            leaf version {
+                type protocol-version;
+                default 1;
+            }
+
+            leaf keepalive {
+                // Note: non-presence is equal to '0'
+                type uint8 {
+                    range 1..255;
+                }
+                mandatory true;
+            }
+
+            leaf dead-timer {
+                // Note: non-presence is equal to '0'
+                type uint8 {
+                    range 1..255;
+                }
+                mandatory true;
+            }
+
+            leaf session-id {
+                type uint8;
+            }
+        }
+    }
+
+    grouping rp-object {
+        description "RP Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.4";
+        container rp {
+            uses object;
+            container "tlvs" {
+                uses order-tlv;
+            }
+
+            leaf priority {
+                type uint8 {
+                    range 1..7;
+                }
+            }
+
+            leaf request-id {
+                type request-id;
+                mandatory true;
+            }
+
+            leaf reoptimization {
+                type boolean;
+                default false;
+            }
+
+            leaf bi-directional {
+                type boolean;
+                default false;
+            }
+
+            leaf loose {
+                type boolean;
+                default false;
+            }
+
+            leaf path-key {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
+            }
+
+            leaf fragmentation {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+            }
+
+            leaf p2mp {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+            }
+
+            leaf ero-compression {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc6006#section-3.3.1";
+            }
+
+            leaf supply-of {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5541#section-3.3";
+            }
+
+            leaf order {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5557#section-5.3";
+            }
+
+            leaf make-before-break {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5557#section-5.3";
+            }
+        }
+    }
+
+    grouping no-path-object {
+        description "NO-PATH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+
+        uses object;
+
+        leaf nature-of-issue {
+            type uint8;
+            mandatory true;
+        }
+
+        leaf unsatisfied-constraints {
+            when "nature-of-issue = 0" {
+                description
+                    "The C flag has no meaning
+                    and is ignored unless the NI
+                    field is set to 0x00.";
+            }
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping endpoints {
+        choice address-family {
+            mandatory true;
+
+            case ipv4-case {
+                container ipv4 {
+                    leaf source-ipv4-address {
+                        type inet:ipv4-address;
+                        mandatory true;
+                    }
+
+                    leaf destination-ipv4-address {
+                        type inet:ipv4-address;
+                        mandatory true;
+                    }
+                }
+            }
+            case ipv6-case {
+                container ipv6 {
+                    leaf source-ipv6-address {
+                        type inet:ipv6-address;
+                        mandatory true;
+                    }
+
+                    leaf destination-ipv6-address {
+                        type inet:ipv6-address;
+                        mandatory true;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping endpoints-object {
+        description "END-POINTS Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.6";
+
+        container endpoints-obj {
+            uses object;
+            uses endpoints;
+        }
+    }
+
+    grouping bandwidth-object {
+        description "BANDWIDTH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.7";
+        container bandwidth {
+            uses object;
+
+            // No possibility to carry TLVs
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping metric-object {
+        description "METRIC Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.8";
+        container metric {
+            uses object;
+
+            leaf metric-type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf bound {
+                type boolean;
+                default false;
+            }
+
+            leaf computed {
+                type boolean;
+                default false;
+            }
+
+            leaf value {
+                type ieee754:float32;
+            }
+        }
+    }
+
+    grouping exclude-route-object {
+        description "Exclude Route Object";
+        reference "https://tools.ietf.org/html/rfc5521#section-2.1.1";
+
+        container xro {
+            uses object;
+
+            leaf flags {
+                type bits {
+                    bit fail {
+                        position 31;
+                    }
+                }
+                mandatory true;
+            }
+
+            list subobject {
+                uses rsvp:exclude-route-subobjects;
+                order-by user;
+            }
+        }
+    }
+
+    grouping explicit-route-object {
+        description "Explicit Route Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.9";
+
+        container ero {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
+
+                uses rsvp:explicit-route-subobjects {
+                    augment "subobject-type" {
+                        case path-key-case {
+                            container path-key {
+                                uses path-key-subobject;
+                            }
+                        }
+                    }
+                }
+
+                order-by user;
+            }
+        }
+    }
+
+    grouping include-route-object {
+        description "Include Route Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.12";
+
+        container iro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                uses rsvp:explicit-route-subobjects;
+                order-by user;
+            }
+        }
+    }
+
+    grouping reported-route-object {
+        description "Reported Route Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.10";
+
+        container rro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                uses rsvp:record-route-subobjects {
+                    augment "subobject-type" {
+                        case path-key-case {
+                            container path-key {
+                                uses path-key-subobject;
+                            }
+                        }
+                    }
+                }
+                order-by user;
+            }
+        }
+    }
+
+    grouping lspa-object {
+        description "LSPA Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.11";
+
+        container lspa {
+            uses object;
+            uses rsvp:tunnel-attributes;
+            container "tlvs" {
+            }
+        }
+    }
+
+    grouping svec-object {
+        description "Synchronization Vector Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.13";
+
+        container svec {
+            // No possibility of TLVs
+            uses object;
+
+            leaf link-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf node-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf srlg-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf-list requests-ids {
+                type request-id;
+            }
+        }
+    }
+
+    grouping notification-object {
+        description "NOTIFICATION Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.14";
+        container c-notification {
+            uses object;
+            container "tlvs" {
+                when "../type = 2 and ../value = 1";
+
+                uses overload-duration-tlv;
+            }
+
+            leaf type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf value {
+                type uint8;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping pcep-error-object {
+        description "PCEP-ERROR Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.15";
+        container error-object {
+            uses object;
+            container "tlvs" {
+                when "../type = 7";
+                uses req-missing-tlv;
+            }
+
+            leaf type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf value {
+                type uint8;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping load-balancing-object {
+        description "LOAD-BALANCING Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.16";
+
+        container load-balancing {
+            // No possibility of TLVs
+            uses object;
+
+            leaf max-lsp {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf min-bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping close-object {
+        description "CLOSE Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.17";
+
+        container c-close {
+            uses object;
+
+            leaf reason {
+                type uint8;
+                mandatory true;
+            }
+
+            container tlvs {
+
+            }
+        }
+    }
+
+    grouping path-key-subobject {
+        reference "https://tools.ietf.org/html/rfc5520#section-3.1";
+        uses rsvp:c-subobject;
+
+        leaf pce-id {
+            type pce-id;
+            mandatory true;
+        }
+
+        leaf path-key {
+            type path-key;
+            mandatory true;
+        }
+    }
+
+    grouping path-key-object {
+        description "PATH-KEY Object";
+        reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
+        container path-key {
+            uses object;
+
+            list path-keys {
+                min-elements 1;
+
+                leaf loose {
+                    type boolean;
+                    default false;
+                }
+
+                uses path-key-subobject;
+                order-by user;
+            }
+        }
+    }
+
+    grouping of-object {
+        description "OF Object";
+        reference "https://tools.ietf.org/html/rfc5541#section-3.1";
+        container of {
+            uses object;
+
+            leaf code {
+                type of-id;
+                mandatory true;
+            }
+        }
+    }
+
+    typedef class-type {
+        type uint8 {
+            range 1..7;
+        }
+    }
+
+    grouping classtype-object {
+        description "CLASSTYPE Object";
+        reference "https://tools.ietf.org/html/rfc5455#section-3";
+
+        container class-type {
+            uses object;
+
+            leaf class-type {
+                type class-type;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping gc-object {
+        description "GLOBAL CONSTRAINTS (GC) Object";
+        reference "https://tools.ietf.org/html/rfc5557#section-5.5";
+        container gc {
+            uses object;
+
+            leaf max-hop {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf max-utilization {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+
+            leaf min-utilization {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+
+            leaf over-booking-factor {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+        }
+    }
+
+    // Messages
+    grouping message {
+        description "Marker grouping for message groupings.";
+    }
+
+    grouping message-header {
+        description "Common Header";
+        reference "https://tools.ietf.org/html/rfc5440#section-6.1";
+
+        leaf version {
+            type protocol-version;
+            default 1;
+        }
+    }
+
+    grouping open-message {
+        uses message;
+
+        container open-message {
+            description "Open Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.2";
+
+            uses message-header;
+
+            uses open-object;
+        }
+    }
+
+    grouping keepalive-message {
+        uses message;
+
+        container keepalive-message {
+            description "Keepalive Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.3";
+
+            uses message-header;
+        }
+    }
+
+    grouping lsp-attributes {
+        uses lspa-object;
+
+        uses bandwidth-object;
+
+        list metrics {
+            uses metric-object;
+        }
+        uses include-route-object;
+
+        uses reported-route-object;
+
+        uses exclude-route-object;
+
+        uses of-object;
+
+        uses classtype-object;
+    }
+
+    grouping pcreq-message {
+        uses message;
+
+        container pcreq-message {
+            description "Path Computation Request Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.4";
+
+            uses message-header;
+
+            list requests {
+                uses rp-object;
+
+                container path-key-expansion {
+                    when "rp/path-key = true";
+                    uses path-key-object;
+                }
+
+                container segment-computation {
+                    when "rp/path-key = false";
+
+                    container p2p {
+                        when "../rp/p2mp = false";
+
+                        uses endpoints-object;
+
+                        container reported-route {
+                            uses reported-route-object;
+
+                            uses bandwidth-object;
+                        }
+
+                        uses load-balancing-object;
+
+                        uses lsp-attributes;
+                    }
+                }
+            }
+
+            list svec {
+                uses svec-object;
+
+                uses of-object;
+
+                uses gc-object;
+
+                uses exclude-route-object;
+
+                list metric {
+                    uses metric-object;
+                }
+            }
+        }
+    }
+
+    grouping path-definition {
+        uses explicit-route-object;
+
+        uses lsp-attributes;
+    }
+
+    grouping pcrep-message {
+        uses message;
+
+        container pcrep-message {
+            description "Path Computation Reply Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.5";
+
+            uses message-header;
+
+            list replies {
+                uses rp-object;
+
+                choice result {
+                    case success-case {
+                        container success {
+                            list paths {
+                                uses path-definition;
+                            }
+                        }
+                    }
+                    case failure-case {
+                        container no-path {
+                            uses no-path-object;
+                            container "tlvs" {
+                                container no-path-vector {
+                                    uses no-path-vector-tlv;
+                                }
+                            }
+                        }
+                        uses lsp-attributes;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping pcntf-message {
+        uses message;
+
+        container pcntf-message {
+            description "Notification Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.6";
+
+            uses message-header;
+
+            list notifications {
+                list rps {
+                    uses rp-object;
+                }
+
+                list notifications {
+                    uses notification-object;
+                }
+            }
+        }
+    }
+
+    grouping pcerr-message {
+        uses message;
+
+        container pcerr-message {
+            description "Error Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.7";
+
+            uses message-header;
+
+            list errors {
+                uses pcep-error-object;
+            }
+
+            choice error-type {
+                case request-case {
+                    container request {
+                        list rps {
+                            uses rp-object;
+                        }
+                    }
+                }
+
+                case session-case {
+                    container session {
+                        uses open-object;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping close-message {
+        uses message;
+
+        container c-close-message {
+            description "Close Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+
+            uses message-header;
+
+            uses close-object;
+        }
+    }
 }

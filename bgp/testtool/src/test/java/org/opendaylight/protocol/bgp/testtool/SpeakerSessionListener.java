@@ -15,28 +15,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SpeakerSessionListener implements BGPSessionListener {
-	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpeakerSessionListener.class);
 
-	@Override
-	public void onSessionUp(final BGPSession session) {
-		logger.info("Server: Session is up.");
-	}
+    @Override
+    public void onSessionUp(final BGPSession session) {
+        LOG.info("Server: Session is up.");
+    }
 
-	@Override
-	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-		logger.info("Server: Session terminated: {}", cause);
-	}
+    @Override
+    public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
+        LOG.info("Server: Session terminated: {}", cause);
+    }
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
-		logger.info("Server: Session down.");
-		session.close();
-		// this.d.stop();
-	}
+    @Override
+    public void onSessionDown(final BGPSession session, final Exception e) {
+        LOG.info("Server: Session down.");
+        session.close();
+        // this.d.stop();
+    }
 
-	@Override
-	public void onMessage(final BGPSession session, final Notification message) {
-		logger.info("Server: Message received: {}", message);
-		// this.d.stop();
-	}
+    @Override
+    public void onMessage(final BGPSession session, final Notification message) {
+        LOG.info("Server: Message received: {}", message);
+        // this.d.stop();
+    }
 }

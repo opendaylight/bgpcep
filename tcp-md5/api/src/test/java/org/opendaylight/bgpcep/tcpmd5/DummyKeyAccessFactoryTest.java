@@ -19,42 +19,42 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DummyKeyAccessFactoryTest {
-	private ServerSocketChannel ssc;
-	private KeyAccessFactory kaf;
-	private SocketChannel sc;
+    private ServerSocketChannel ssc;
+    private KeyAccessFactory kaf;
+    private SocketChannel sc;
 
-	@Before
-	public void setup() throws IOException {
-		kaf = DummyKeyAccessFactory.getInstance();
-		sc = SocketChannel.open();
-		ssc = ServerSocketChannel.open();
-	}
+    @Before
+    public void setup() throws IOException {
+        kaf = DummyKeyAccessFactory.getInstance();
+        sc = SocketChannel.open();
+        ssc = ServerSocketChannel.open();
+    }
 
-	@After
-	public void tearDown() throws IOException {
-		sc.close();
-		ssc.close();
-	}
+    @After
+    public void tearDown() throws IOException {
+        sc.close();
+        ssc.close();
+    }
 
-	@Test
-	public void testCanHandleChannelClass() {
-		assertFalse(kaf.canHandleChannelClass(sc.getClass()));
-		assertFalse(kaf.canHandleChannelClass(ssc.getClass()));
-	}
+    @Test
+    public void testCanHandleChannelClass() {
+        assertFalse(kaf.canHandleChannelClass(sc.getClass()));
+        assertFalse(kaf.canHandleChannelClass(ssc.getClass()));
+    }
 
-	@Test(expected=NullPointerException.class)
-	public void testNullCanHandleChannelClass() {
-		assertFalse(kaf.canHandleChannelClass(null));
-	}
+    @Test(expected = NullPointerException.class)
+    public void testNullCanHandleChannelClass() {
+        assertFalse(kaf.canHandleChannelClass(null));
+    }
 
-	@Test
-	public void testGetKeyAccess() {
-		assertNull(kaf.getKeyAccess(sc));
-		assertNull(kaf.getKeyAccess(ssc));
-	}
+    @Test
+    public void testGetKeyAccess() {
+        assertNull(kaf.getKeyAccess(sc));
+        assertNull(kaf.getKeyAccess(ssc));
+    }
 
-	@Test(expected=NullPointerException.class)
-	public void testNullGetKeyAccess() {
-		assertNull(kaf.getKeyAccess(null));
-	}
+    @Test(expected = NullPointerException.class)
+    public void testNullGetKeyAccess() {
+        assertNull(kaf.getKeyAccess(null));
+    }
 }

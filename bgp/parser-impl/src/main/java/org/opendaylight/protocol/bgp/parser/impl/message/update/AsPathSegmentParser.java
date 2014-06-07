@@ -19,60 +19,56 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
 
 /**
- * 
+ *
  * Representation of one AS Path Segment. It is, in fact, a TLV, but the length field is representing the count of AS
  * Numbers in the collection (in its value). If the segment is of type AS_SEQUENCE, the collection is a List, if AS_SET,
  * the collection is a Set.
- * 
+ *
  */
 public final class AsPathSegmentParser {
 
-	public static final int TYPE_LENGTH = 1;
+    public static final int TYPE_LENGTH = 1;
 
-	public static final int LENGTH_SIZE = 1;
+    public static final int LENGTH_SIZE = 1;
 
-	public static final int AS_NUMBER_LENGTH = 4;
+    public static final int AS_NUMBER_LENGTH = 4;
 
-	/**
-	 * Possible types of AS Path segments.
-	 */
-	public enum SegmentType {
-		AS_SEQUENCE, AS_SET
-	}
+    /**
+     * Possible types of AS Path segments.
+     */
+    public enum SegmentType {
+        AS_SEQUENCE, AS_SET
+    }
 
-	private AsPathSegmentParser() {
+    private AsPathSegmentParser() {
 
-	}
+    }
 
-	static SegmentType parseType(final int type) {
-		switch (type) {
-		case 1:
-			return SegmentType.AS_SET;
-		case 2:
-			return SegmentType.AS_SEQUENCE;
-		default:
-			return null;
-		}
-	}
+    static SegmentType parseType(final int type) {
+        switch (type) {
+        case 1:
+            return SegmentType.AS_SET;
+        case 2:
+            return SegmentType.AS_SEQUENCE;
+        default:
+            return null;
+        }
+    }
 
-	static List<AsSequence> parseAsSequence(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
-		final List<AsSequence> coll = new ArrayList<>();
-		for (int i = 0; i < count; i++) {
-			coll.add(
-					refCache.getSharedReference(
-							new AsSequenceBuilder().setAs(
-									refCache.getSharedReference(
-											new AsNumber(buffer.readUnsignedInt()))).build()));
-		}
-		return coll;
-	}
+    static List<AsSequence> parseAsSequence(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
+        final List<AsSequence> coll = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            coll.add(refCache.getSharedReference(new AsSequenceBuilder().setAs(
+                    refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()))).build()));
+        }
+        return coll;
+    }
 
-	static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
-		final List<AsNumber> coll = new ArrayList<>();
-		for (int i = 0; i < count; i++) {
-			coll.add(refCache.getSharedReference(
-					new AsNumber(buffer.readUnsignedInt())));
-		}
-		return coll;
-	}
+    static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
+        final List<AsNumber> coll = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            coll.add(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt())));
+        }
+        return coll;
+    }
 }

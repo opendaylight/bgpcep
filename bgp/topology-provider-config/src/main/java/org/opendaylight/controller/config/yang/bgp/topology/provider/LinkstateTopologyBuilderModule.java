@@ -31,51 +31,52 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  *
  */
-public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule
-{
-	private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilderModule.class);
+public final class LinkstateTopologyBuilderModule extends
+        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule {
+    private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilderModule.class);
 
-	public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final LinkstateTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final LinkstateTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void validate(){
-		super.validate();
-		JmxAttributeValidationException.checkNotNull(getTopologyId(),
-				"is not set.", topologyIdJmxAttribute);
-	}
+    @Override
+    public void validate() {
+        super.validate();
+        JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", topologyIdJmxAttribute);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
-		final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-		final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
-		LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
+        final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
+        LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
 
-		final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
-			public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
-				super(instanceIdentifier);
-			}
+        final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
+            public TopologyReferenceAutocloseable(final InstanceIdentifier<Topology> instanceIdentifier) {
+                super(instanceIdentifier);
+            }
 
-			@Override
-			public void close() throws InterruptedException, ExecutionException {
-				try {
-					r.close();
-				} finally {
-					b.close();
-				}
-			}
-		}
+            @Override
+            public void close() throws InterruptedException, ExecutionException {
+                try {
+                    r.close();
+                } finally {
+                    b.close();
+                }
+            }
+        }
 
-		return new TopologyReferenceAutocloseable(b.getInstanceIdentifier());
-	}
+        return new TopologyReferenceAutocloseable(b.getInstanceIdentifier());
+    }
 }

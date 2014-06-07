@@ -56,73 +56,75 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
-	@Override
-	protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-		final List<AutoCloseable> regs = new ArrayList<>();
+    @Override
+    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
 
-		final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
-		regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
-		regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));
+        final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
+        regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
+        regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));
 
-		final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
-		regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
-		regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
+        final SubsequentAddressFamilyRegistry safiReg = context.getSubsequentAddressFamilyRegistry();
+        regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
+        regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, 128));
 
-		final NlriRegistry nlriReg = context.getNlriRegistry();
-		regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
-		regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
+        final NlriRegistry nlriReg = context.getNlriRegistry();
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv4NlriParser()));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new Ipv6NlriParser()));
 
-		final AttributeRegistry attrReg = context.getAttributeRegistry();
-		regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser()));
-		regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser()));
-		regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser()));
-		regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser()));
-		regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser()));
-		regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE, new CommunitiesAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser()));
-		regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser()));
-		regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(nlriReg)));
-		regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(nlriReg)));
-		regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE, new ExtendedCommunitiesAttributeParser(context.getReferenceCache())));
-		regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
-		regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
+        final AttributeRegistry attrReg = context.getAttributeRegistry();
+        regs.add(context.registerAttributeParser(OriginAttributeParser.TYPE, new OriginAttributeParser()));
+        regs.add(context.registerAttributeParser(AsPathAttributeParser.TYPE, new AsPathAttributeParser(context.getReferenceCache())));
+        regs.add(context.registerAttributeParser(NextHopAttributeParser.TYPE, new NextHopAttributeParser()));
+        regs.add(context.registerAttributeParser(MultiExitDiscriminatorAttributeParser.TYPE, new MultiExitDiscriminatorAttributeParser()));
+        regs.add(context.registerAttributeParser(LocalPreferenceAttributeParser.TYPE, new LocalPreferenceAttributeParser()));
+        regs.add(context.registerAttributeParser(AtomicAggregateAttributeParser.TYPE, new AtomicAggregateAttributeParser()));
+        regs.add(context.registerAttributeParser(AggregatorAttributeParser.TYPE, new AggregatorAttributeParser(context.getReferenceCache())));
+        regs.add(context.registerAttributeParser(CommunitiesAttributeParser.TYPE,
+                new CommunitiesAttributeParser(context.getReferenceCache())));
+        regs.add(context.registerAttributeParser(OriginatorIdAttributeParser.TYPE, new OriginatorIdAttributeParser()));
+        regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE, new ClusterIdAttributeParser()));
+        regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, new MPReachAttributeParser(nlriReg)));
+        regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, new MPUnreachAttributeParser(nlriReg)));
+        regs.add(context.registerAttributeParser(ExtendedCommunitiesAttributeParser.TYPE,
+                new ExtendedCommunitiesAttributeParser(context.getReferenceCache())));
+        regs.add(context.registerAttributeParser(AS4AggregatorAttributeParser.TYPE, new AS4AggregatorAttributeParser()));
+        regs.add(context.registerAttributeParser(AS4PathAttributeParser.TYPE, new AS4PathAttributeParser()));
 
-		final CapabilityRegistry capReg = context.getCapabilityRegistry();
-		final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
-		regs.add(context.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi));
-		regs.add(context.registerCapabilitySerializer(MultiprotocolCase.class, multi));
+        final CapabilityRegistry capReg = context.getCapabilityRegistry();
+        final MultiProtocolCapabilityHandler multi = new MultiProtocolCapabilityHandler(afiReg, safiReg);
+        regs.add(context.registerCapabilityParser(MultiProtocolCapabilityHandler.CODE, multi));
+        regs.add(context.registerCapabilitySerializer(MultiprotocolCase.class, multi));
 
-		final As4CapabilityHandler as4 = new As4CapabilityHandler();
-		regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
-		regs.add(context.registerCapabilitySerializer(As4BytesCase.class, as4));
+        final As4CapabilityHandler as4 = new As4CapabilityHandler();
+        regs.add(context.registerCapabilityParser(As4CapabilityHandler.CODE, as4));
+        regs.add(context.registerCapabilitySerializer(As4BytesCase.class, as4));
 
-		final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
-		regs.add(context.registerCapabilitySerializer(GracefulRestartCase.class, grace));
-		regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
+        final GracefulCapabilityHandler grace = new GracefulCapabilityHandler(afiReg, safiReg);
+        regs.add(context.registerCapabilitySerializer(GracefulRestartCase.class, grace));
+        regs.add(context.registerCapabilityParser(GracefulCapabilityHandler.CODE, grace));
 
-		final ParameterRegistry paramReg = context.getParameterRegistry();
-		final CapabilityParameterParser cpp = new CapabilityParameterParser(capReg);
-		regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));
-		regs.add(context.registerParameterSerializer(BgpParameters.class, cpp));
+        final ParameterRegistry paramReg = context.getParameterRegistry();
+        final CapabilityParameterParser cpp = new CapabilityParameterParser(capReg);
+        regs.add(context.registerParameterParser(CapabilityParameterParser.TYPE, cpp));
+        regs.add(context.registerParameterSerializer(BgpParameters.class, cpp));
 
-		final BGPOpenMessageParser omp = new BGPOpenMessageParser(paramReg);
-		regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
-		regs.add(context.registerMessageSerializer(Open.class, omp));
+        final BGPOpenMessageParser omp = new BGPOpenMessageParser(paramReg);
+        regs.add(context.registerMessageParser(BGPOpenMessageParser.TYPE, omp));
+        regs.add(context.registerMessageSerializer(Open.class, omp));
 
-		final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(attrReg);
-		regs.add(context.registerMessageParser(BGPUpdateMessageParser.TYPE, ump));
-		// Serialization of Update message is not supported
+        final BGPUpdateMessageParser ump = new BGPUpdateMessageParser(attrReg);
+        regs.add(context.registerMessageParser(BGPUpdateMessageParser.TYPE, ump));
+        // Serialization of Update message is not supported
 
-		final BGPNotificationMessageParser nmp = new BGPNotificationMessageParser();
-		regs.add(context.registerMessageParser(BGPNotificationMessageParser.TYPE, nmp));
-		regs.add(context.registerMessageSerializer(Notify.class, nmp));
+        final BGPNotificationMessageParser nmp = new BGPNotificationMessageParser();
+        regs.add(context.registerMessageParser(BGPNotificationMessageParser.TYPE, nmp));
+        regs.add(context.registerMessageSerializer(Notify.class, nmp));
 
-		final BGPKeepAliveMessageParser kamp = new BGPKeepAliveMessageParser();
-		regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
-		regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
+        final BGPKeepAliveMessageParser kamp = new BGPKeepAliveMessageParser();
+        regs.add(context.registerMessageParser(BGPKeepAliveMessageParser.TYPE, kamp));
+        regs.add(context.registerMessageSerializer(Keepalive.class, kamp));
 
-		return regs;
-	}
+        return regs;
+    }
 }

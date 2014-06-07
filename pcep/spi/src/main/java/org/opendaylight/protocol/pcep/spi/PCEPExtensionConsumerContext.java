@@ -9,17 +9,17 @@ package org.opendaylight.protocol.pcep.spi;
 
 public interface PCEPExtensionConsumerContext {
 
-	LabelRegistry getLabelHandlerRegistry();
+    LabelRegistry getLabelHandlerRegistry();
 
-	MessageRegistry getMessageHandlerRegistry();
+    MessageRegistry getMessageHandlerRegistry();
 
-	ObjectRegistry getObjectHandlerRegistry();
+    ObjectRegistry getObjectHandlerRegistry();
 
-	EROSubobjectRegistry getEROSubobjectHandlerRegistry();
+    EROSubobjectRegistry getEROSubobjectHandlerRegistry();
 
-	RROSubobjectRegistry getRROSubobjectHandlerRegistry();
+    RROSubobjectRegistry getRROSubobjectHandlerRegistry();
 
-	XROSubobjectRegistry getXROSubobjectHandlerRegistry();
+    XROSubobjectRegistry getXROSubobjectHandlerRegistry();
 
-	TlvRegistry getTlvHandlerRegistry();
+    TlvRegistry getTlvHandlerRegistry();
 }

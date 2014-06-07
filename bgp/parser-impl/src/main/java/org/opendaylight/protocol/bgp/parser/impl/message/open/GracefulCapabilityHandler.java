@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
@@ -33,109 +36,106 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-
 public final class GracefulCapabilityHandler implements CapabilityParser, CapabilitySerializer {
-	public static final int CODE = 64;
+    public static final int CODE = 64;
 
-	private static final Logger LOG = LoggerFactory.getLogger(GracefulCapabilityHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GracefulCapabilityHandler.class);
 
-	// Restart flag size, in bits
-	private static final int RESTART_FLAGS_SIZE = 4;
-	private static final int RESTART_FLAG_STATE = 0x80;
+    // Restart flag size, in bits
+    private static final int RESTART_FLAGS_SIZE = 4;
+    private static final int RESTART_FLAG_STATE = 0x80;
 
-	// Restart timer size, in bits
-	private static final int TIMER_SIZE = 12;
-	private static final int TIMER_TOPBITS_MASK = 0x0F;
+    // Restart timer size, in bits
+    private static final int TIMER_SIZE = 12;
+    private static final int TIMER_TOPBITS_MASK = 0x0F;
 
-	// Size of the capability header
-	private static final int HEADER_SIZE = (RESTART_FLAGS_SIZE + TIMER_SIZE) / Byte.SIZE;
+    // Size of the capability header
+    private static final int HEADER_SIZE = (RESTART_FLAGS_SIZE + TIMER_SIZE) / Byte.SIZE;
 
-	// Length of each AFI/SAFI array member, in bytes
-	private static final int PER_AFI_SAFI_SIZE = 4;
+    // Length of each AFI/SAFI array member, in bytes
+    private static final int PER_AFI_SAFI_SIZE = 4;
 
-	private static final int AFI_FLAG_FORWARDING_STATE = 0x80;
+    private static final int AFI_FLAG_FORWARDING_STATE = 0x80;
 
-	private final AddressFamilyRegistry afiReg;
-	private final SubsequentAddressFamilyRegistry safiReg;
+    private final AddressFamilyRegistry afiReg;
+    private final SubsequentAddressFamilyRegistry safiReg;
 
-	public GracefulCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
-		this.afiReg = Preconditions.checkNotNull(afiReg);
-		this.safiReg = Preconditions.checkNotNull(safiReg);
-	}
+    public GracefulCapabilityHandler(final AddressFamilyRegistry afiReg, final SubsequentAddressFamilyRegistry safiReg) {
+        this.afiReg = Preconditions.checkNotNull(afiReg);
+        this.safiReg = Preconditions.checkNotNull(safiReg);
+    }
 
-	@Override
-	public byte[] serializeCapability(final CParameters capability) {
-		final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
-		final List<Tables> tables = grace.getTables();
+    @Override
+    public byte[] serializeCapability(final CParameters capability) {
+        final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
+        final List<Tables> tables = grace.getTables();
 
-		final byte[] bytes = new byte[HEADER_SIZE + PER_AFI_SAFI_SIZE * tables.size()];
+        final byte[] bytes = new byte[HEADER_SIZE + PER_AFI_SAFI_SIZE * tables.size()];
 
-		int flagBits = 0;
-		final RestartFlags flags = grace.getRestartFlags();
-		if (flags != null) {
-			if (flags.isRestartState()) {
-				flagBits |= RESTART_FLAG_STATE;
-			}
-		}
-		int timeval = 0;
-		final Integer time = grace.getRestartTime();
-		if (time != null) {
-			Preconditions.checkArgument(time >= 0 && time <= 4095);
-			timeval = time;
-		}
-		bytes[0] = UnsignedBytes.checkedCast(flagBits + timeval / 256);
-		bytes[1] = UnsignedBytes.checkedCast(timeval % 256);
+        int flagBits = 0;
+        final RestartFlags flags = grace.getRestartFlags();
+        if (flags != null) {
+            if (flags.isRestartState()) {
+                flagBits |= RESTART_FLAG_STATE;
+            }
+        }
+        int timeval = 0;
+        final Integer time = grace.getRestartTime();
+        if (time != null) {
+            Preconditions.checkArgument(time >= 0 && time <= 4095);
+            timeval = time;
+        }
+        bytes[0] = UnsignedBytes.checkedCast(flagBits + timeval / 256);
+        bytes[1] = UnsignedBytes.checkedCast(timeval % 256);
 
-		int index = HEADER_SIZE;
-		for (final Tables t : tables) {
-			final Class<? extends AddressFamily> afi = t.getAfi();
-			final Integer afival = this.afiReg.numberForClass(afi);
-			Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
+        int index = HEADER_SIZE;
+        for (final Tables t : tables) {
+            final Class<? extends AddressFamily> afi = t.getAfi();
+            final Integer afival = this.afiReg.numberForClass(afi);
+            Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
 
-			final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
-			final Integer safival = this.safiReg.numberForClass(safi);
-			Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
+            final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
+            final Integer safival = this.safiReg.numberForClass(safi);
+            Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
 
-			bytes[index] = UnsignedBytes.checkedCast(afival / 256);
-			bytes[index + 1] = UnsignedBytes.checkedCast(afival % 256);
-			bytes[index + 2] = UnsignedBytes.checkedCast(safival);
-			if (t.getAfiFlags().isForwardingState()) {
-				bytes[index + 3] = UnsignedBytes.checkedCast(AFI_FLAG_FORWARDING_STATE);
-			}
-			index += PER_AFI_SAFI_SIZE;
-		}
-		return CapabilityUtil.formatCapability(CODE, bytes);
-	}
+            bytes[index] = UnsignedBytes.checkedCast(afival / 256);
+            bytes[index + 1] = UnsignedBytes.checkedCast(afival % 256);
+            bytes[index + 2] = UnsignedBytes.checkedCast(safival);
+            if (t.getAfiFlags().isForwardingState()) {
+                bytes[index + 3] = UnsignedBytes.checkedCast(AFI_FLAG_FORWARDING_STATE);
+            }
+            index += PER_AFI_SAFI_SIZE;
+        }
+        return CapabilityUtil.formatCapability(CODE, bytes);
+    }
 
-	@Override
-	public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-		final GracefulRestartCapabilityBuilder cb = new GracefulRestartCapabilityBuilder();
+    @Override
+    public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        final GracefulRestartCapabilityBuilder cb = new GracefulRestartCapabilityBuilder();
 
-		final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
-		cb.setRestartFlags(new RestartFlags((flagBits & 8) != 0));
+        final int flagBits = (buffer.getByte(0) >> RESTART_FLAGS_SIZE);
+        cb.setRestartFlags(new RestartFlags((flagBits & 8) != 0));
 
-		final int timer = ((buffer.readByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(buffer.readByte());
-		cb.setRestartTime(timer);
+        final int timer = ((buffer.readByte() & TIMER_TOPBITS_MASK) << RESTART_FLAGS_SIZE) + UnsignedBytes.toInt(buffer.readByte());
+        cb.setRestartTime(timer);
 
-		final List<Tables> tables = new ArrayList<>();
-		while (buffer.readableBytes() != 0) {
-			final int afiVal = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
-			final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
-			if (afi == null) {
-				LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);
-				continue;
-			}
-			final int safiVal = UnsignedBytes.toInt(buffer.readByte());
-			final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
-			if (safi == null) {
-				LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
-				continue;
-			}
-			final int flags = UnsignedBytes.toInt(buffer.readByte());
-			tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
-		}
-		return new GracefulRestartCaseBuilder().setGracefulRestartCapability(cb.build()).build();
-	}
+        final List<Tables> tables = new ArrayList<>();
+        while (buffer.readableBytes() != 0) {
+            final int afiVal = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
+            final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
+            if (afi == null) {
+                LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);
+                continue;
+            }
+            final int safiVal = UnsignedBytes.toInt(buffer.readByte());
+            final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
+            if (safi == null) {
+                LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
+                continue;
+            }
+            final int flags = UnsignedBytes.toInt(buffer.readByte());
+            tables.add(new TablesBuilder().setAfi(afi).setSafi(safi).setAfiFlags(new AfiFlags((flags & AFI_FLAG_FORWARDING_STATE) != 0)).build());
+        }
+        return new GracefulRestartCaseBuilder().setGracefulRestartCapability(cb.build()).build();
+    }
 }

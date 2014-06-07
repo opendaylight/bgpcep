@@ -8,31 +8,31 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <snapshot>
-	<required-capabilities>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg?module=config-bgp-rib&amp;revision=2013-07-01</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=config-bgp-rib-spi&amp;revision=2013-11-15</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-rib-impl&amp;revision=2013-04-09</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider?module=config-bgp-topology-provider&amp;revision=2013-11-15</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
-		<capability>urn:opendaylight:params:xml:ns:yang:controller:topology?module=config-topology-api&amp;revision=2013-11-15</capability>
-	</required-capabilities>
-	<configuration>
+    <required-capabilities>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg?module=config-bgp-rib&amp;revision=2013-07-01</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=config-bgp-rib-spi&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-rib-impl&amp;revision=2013-04-09</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider?module=config-bgp-topology-provider&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:topology?module=config-topology-api&amp;revision=2013-11-15</capability>
+    </required-capabilities>
+    <configuration>
 
-		<data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-			<modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
-					<name>example-reconnect-strategy-factory</name>
-					<min-sleep>1000</min-sleep>
-					<max-sleep>180000</max-sleep>
-					<sleep-factor>2.00</sleep-factor>
-					<connect-time>5000</connect-time>
-					<executor>
-						<type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
-						<name>global-event-executor</name>
-					</executor>
+        <data xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <modules xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:timed-reconnect-strategy-factory</type>
+                    <name>example-reconnect-strategy-factory</name>
+                    <min-sleep>1000</min-sleep>
+                    <max-sleep>180000</max-sleep>
+                    <sleep-factor>2.00</sleep-factor>
+                    <connect-time>5000</connect-time>
+                    <executor>
+                        <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
+                        <name>global-event-executor</name>
+                    </executor>
                 </module>
 
                 <!--
@@ -43,14 +43,14 @@
                      "md5-channel-factory" attribute set and then add a "password" attribute here.
                      Note that the peer has to have the same password configured, otherwise the
                      connection will not be established.
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer</type>
                     <name>example-bgp-peer</name>
                     <host>192.0.2.1</host>
                     <holdtimer>180</holdtimer>
                     <rib>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
-						<name>example-bgp-rib</name>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <name>example-bgp-rib</name>
                     </rib>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
@@ -67,12 +67,12 @@
                 </module>
                 -->
 
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
-					<name>example-bgp-rib</name>
-					<rib-id>example-bgp-rib</rib-id>
-					<local-as>64496</local-as>
-					<bgp-id>192.0.2.2</bgp-id>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-impl</type>
+                    <name>example-bgp-rib</name>
+                    <rib-id>example-bgp-rib</rib-id>
+                    <local-as>64496</local-as>
+                    <bgp-id>192.0.2.2</bgp-id>
                     <local-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-unicast</name>
@@ -85,113 +85,113 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>linkstate</name>
                     </local-table>
-					<extensions>
-						<type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
-						<name>global-rib-extensions</name>
-					</extensions>
+                    <extensions>
+                        <type xmlns:ribspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">ribspi:extensions</type>
+                        <name>global-rib-extensions</name>
+                    </extensions>
                     <bgp-dispatcher>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher</type>
-						<name>global-bgp-dispatcher</name>
+                        <name>global-bgp-dispatcher</name>
                     </bgp-dispatcher>
-					<data-provider>
-						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
-						<name>binding-data-broker</name>
-					</data-provider>
-					<session-reconnect-strategy>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
-						<name>example-reconnect-strategy-factory</name>
+                    <data-provider>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <name>binding-data-broker</name>
+                    </data-provider>
+                    <session-reconnect-strategy>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                        <name>example-reconnect-strategy-factory</name>
                     </session-reconnect-strategy>
-					<tcp-reconnect-strategy>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
-						<name>example-reconnect-strategy-factory</name>
-					</tcp-reconnect-strategy>
-				</module>
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv4</type>
-					<name>example-ipv4-topology</name>
-					<data-provider>
-						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
-						<name>binding-data-broker</name>
-					</data-provider>
-					<local-rib>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
-						<name>example-bgp-rib</name>
-					</local-rib>
-					<topology-id>example-ipv4-topology</topology-id>
-				</module>
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv6</type>
-					<name>example-ipv6-topology</name>
-					<data-provider>
-						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
-						<name>binding-data-broker</name>
-					</data-provider>
-					<local-rib>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
-						<name>example-bgp-rib</name>
-					</local-rib>
-					<topology-id>example-ipv6-topology</topology-id>
-				</module>
-				<module>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-linkstate-topology</type>
-					<name>example-linkstate-topology</name>
-					<data-provider>
-						<type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
-						<name>binding-data-broker</name>
-					</data-provider>
-					<local-rib>
-						<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
-						<name>example-bgp-rib</name>
-					</local-rib>
-					<topology-id>example-linkstate-topology</topology-id>
-				</module>
-			</modules>
+                    <tcp-reconnect-strategy>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                        <name>example-reconnect-strategy-factory</name>
+                    </tcp-reconnect-strategy>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv4</type>
+                    <name>example-ipv4-topology</name>
+                    <data-provider>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <name>binding-data-broker</name>
+                    </data-provider>
+                    <local-rib>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <name>example-bgp-rib</name>
+                    </local-rib>
+                    <topology-id>example-ipv4-topology</topology-id>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv6</type>
+                    <name>example-ipv6-topology</name>
+                    <data-provider>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <name>binding-data-broker</name>
+                    </data-provider>
+                    <local-rib>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <name>example-bgp-rib</name>
+                    </local-rib>
+                    <topology-id>example-ipv6-topology</topology-id>
+                </module>
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-linkstate-topology</type>
+                    <name>example-linkstate-topology</name>
+                    <data-provider>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <name>binding-data-broker</name>
+                    </data-provider>
+                    <local-rib>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                        <name>example-bgp-rib</name>
+                    </local-rib>
+                    <topology-id>example-linkstate-topology</topology-id>
+                </module>
+            </modules>
 
-			<services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
-					<instance>
-						<name>example-reconnect-strategy-factory</name>
-						<provider>/config/modules/module[name='timed-reconnect-strategy-factory']/instance[name='example-reconnect-strategy-factory']</provider>
-					</instance>
-				</service>
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
-					<instance>
-						<name>example-ipv4-topology</name>
-						<provider>/config/modules/module[name='bgp-reachability-ipv4']/instance[name='example-ipv4-topology']</provider>
-					</instance>
-				</service>
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
-					<instance>
-						<name>example-bgp-rib</name>
-						<provider>/config/modules/module[name='rib-impl']/instance[name='example-bgp-rib']</provider>
-					</instance>
-				</service>
+            <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:protocol:framework">prefix:reconnect-strategy-factory</type>
+                    <instance>
+                        <name>example-reconnect-strategy-factory</name>
+                        <provider>/config/modules/module[name='timed-reconnect-strategy-factory']/instance[name='example-reconnect-strategy-factory']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
+                    <instance>
+                        <name>example-ipv4-topology</name>
+                        <provider>/config/modules/module[name='bgp-reachability-ipv4']/instance[name='example-ipv4-topology']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
+                    <instance>
+                        <name>example-bgp-rib</name>
+                        <provider>/config/modules/module[name='rib-impl']/instance[name='example-bgp-rib']</provider>
+                    </instance>
+                </service>
                 <service>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:rib-instance</type>
                     <instance>
                         <name>example-bgp-rib</name>
-						<provider>/config/modules/module[name='rib-impl']/instance[name='example-bgp-rib']</provider>
-					</instance>
-				</service>
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
-					<instance>
-						<name>example-ipv6-topology</name>
-						<provider>/config/modules/module[name='bgp-reachability-ipv6']/instance[name='example-ipv6-topology']</provider>
-					</instance>
-				</service>
-				<service>
-					<type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
-					<instance>
-						<name>example-linkstate-topology</name>
-						<provider>/config/modules/module[name='bgp-linkstate-topology']/instance[name='example-linkstate-topology']</provider>
-					</instance>
-				</service>
-			</services>
-		</data>
+                        <provider>/config/modules/module[name='rib-impl']/instance[name='example-bgp-rib']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
+                    <instance>
+                        <name>example-ipv6-topology</name>
+                        <provider>/config/modules/module[name='bgp-reachability-ipv6']/instance[name='example-ipv6-topology']</provider>
+                    </instance>
+                </service>
+                <service>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:topology">prefix:topology-reference</type>
+                    <instance>
+                        <name>example-linkstate-topology</name>
+                        <provider>/config/modules/module[name='bgp-linkstate-topology']/instance[name='example-linkstate-topology']</provider>
+                    </instance>
+                </service>
+            </services>
+        </data>
 
-	</configuration>
+    </configuration>
 </snapshot>

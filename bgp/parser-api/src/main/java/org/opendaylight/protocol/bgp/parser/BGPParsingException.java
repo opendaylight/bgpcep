@@ -7,40 +7,39 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-
 /**
  *
  * Used when something occurs during the parsing to get Update Message.
  *
  */
 public class BGPParsingException extends Exception {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 *
-	 * @param err error message string.
-	 */
-	public BGPParsingException(final String err) {
-		super(err);
-	}
+    /**
+     *
+     * @param err error message string.
+     */
+    public BGPParsingException(final String err) {
+        super(err);
+    }
 
-	/**
-	 *
-	 * @param message exception message
-	 * @param cause primary exception
-	 */
-	public BGPParsingException(final String message, final Exception cause){
-		super(message, cause);
-	}
+    /**
+     *
+     * @param message exception message
+     * @param cause primary exception
+     */
+    public BGPParsingException(final String message, final Exception cause) {
+        super(message, cause);
+    }
 
-	/**
-	 *
-	 * @return error message.
-	 * 
-	 * @deprecated Use getMessage() instead.
-	 */
-	@Deprecated
-	public String getError() {
-		return this.getMessage();
-	}
+    /**
+     *
+     * @return error message.
+     *
+     * @deprecated Use getMessage() instead.
+     */
+    @Deprecated
+    public String getError() {
+        return this.getMessage();
+    }
 }

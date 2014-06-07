@@ -23,23 +23,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 17;
+    public static final int TYPE = 17;
 
-	@Override
-	public SymbolicPathName parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		return new SymbolicPathNameBuilder().setPathName(
-				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
-	}
+    @Override
+    public SymbolicPathName parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        return new SymbolicPathNameBuilder().setPathName(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName(ByteArray.getAllBytes(buffer))).build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null) {
-			throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
-		}
-		final SymbolicPathName spn = (SymbolicPathName) tlv;
-		return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        if (tlv == null) {
+            throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
+        }
+        final SymbolicPathName spn = (SymbolicPathName) tlv;
+        return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
+    }
 }

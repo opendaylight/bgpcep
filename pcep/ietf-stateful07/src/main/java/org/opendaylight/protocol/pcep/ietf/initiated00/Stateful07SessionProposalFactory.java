@@ -19,37 +19,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class Stateful07SessionProposalFactory extends BasePCEPSessionProposalFactory {
 
-	private final boolean stateful, active, instant;
+    private final boolean stateful, active, instant;
 
-	public Stateful07SessionProposalFactory(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
-			final boolean instant) {
-		super(deadTimer, keepAlive);
-		this.stateful = stateful;
-		this.active = active;
-		this.instant = instant;
-	}
+    public Stateful07SessionProposalFactory(final int deadTimer, final int keepAlive, final boolean stateful, final boolean active,
+            final boolean instant) {
+        super(deadTimer, keepAlive);
+        this.stateful = stateful;
+        this.active = active;
+        this.instant = instant;
+    }
 
-	@Override
-	protected void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
-		if (Stateful07SessionProposalFactory.this.stateful) {
-			builder.addAugmentation(
-					Tlvs1.class,
-					new Tlvs1Builder().setStateful(
-							new StatefulBuilder().setLspUpdateCapability(this.active).addAugmentation(Stateful1.class,
-									new Stateful1Builder().setInitiation(this.instant).build()).build()).build()).build();
-		}
-	}
+    @Override
+    protected void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
+        if (Stateful07SessionProposalFactory.this.stateful) {
+            builder.addAugmentation(
+                    Tlvs1.class,
+                    new Tlvs1Builder().setStateful(
+                            new StatefulBuilder().setLspUpdateCapability(this.active).addAugmentation(Stateful1.class,
+                                    new Stateful1Builder().setInitiation(this.instant).build()).build()).build()).build();
+        }
+    }
 
-	public boolean isStateful() {
-		return this.stateful;
-	}
+    public boolean isStateful() {
+        return this.stateful;
+    }
 
-	public boolean isActive() {
-		return this.active;
-	}
+    public boolean isActive() {
+        return this.active;
+    }
 
-	public boolean isInstant() {
-		return this.instant;
-	}
+    public boolean isInstant() {
+        return this.instant;
+    }
 
 }

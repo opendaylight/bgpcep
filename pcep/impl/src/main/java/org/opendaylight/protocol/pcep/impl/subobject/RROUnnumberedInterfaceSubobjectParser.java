@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
@@ -23,61 +25,59 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.UnnumberedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link UnnumberedCase}
  */
 public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
-	public static final int TYPE = 4;
+    public static final int TYPE = 4;
 
-	private static final int FLAGS_F_LENGTH = 1;
-	private static final int ROUTER_ID_NUMBER_LENGTH = 4;
-	private static final int INTERFACE_ID_NUMBER_LENGTH = 4;
+    private static final int FLAGS_F_LENGTH = 1;
+    private static final int ROUTER_ID_NUMBER_LENGTH = 4;
+    private static final int INTERFACE_ID_NUMBER_LENGTH = 4;
 
-	private static final int ROUTER_ID_NUMBER_OFFSET = 2;
-	private static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
+    private static final int ROUTER_ID_NUMBER_OFFSET = 2;
+    private static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
 
-	private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
+    private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
 
-	private static final int LPA_F_OFFSET = 7;
-	private static final int LPIU_F_OFFSET = 6;
+    private static final int LPA_F_OFFSET = 7;
+    private static final int LPIU_F_OFFSET = 6;
 
-	@Override
-	public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		if (buffer.readableBytes() != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
-					+ CONTENT_LENGTH + ".");
-		}
-		final SubobjectBuilder builder = new SubobjectBuilder();
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-		builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
-		builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-		final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-		buffer.readerIndex(buffer.readerIndex() + 1);
-		ubuilder.setRouterId(buffer.readUnsignedInt());
-		ubuilder.setInterfaceId(buffer.readUnsignedInt());
-		builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
-		return builder.build();
-	}
+    @Override
+    public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        if (buffer.readableBytes() != CONTENT_LENGTH) {
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
+                    + CONTENT_LENGTH + ".");
+        }
+        final SubobjectBuilder builder = new SubobjectBuilder();
+        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
+        builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
+        builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
+        final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
+        buffer.readerIndex(buffer.readerIndex() + 1);
+        ubuilder.setRouterId(buffer.readUnsignedInt());
+        ubuilder.setInterfaceId(buffer.readUnsignedInt());
+        builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeSubobject(final Subobject subobject) {
-		if (!(subobject.getSubobjectType() instanceof UnnumberedCase)) {
-			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed UnnumberedCase.");
-		}
-		final byte[] retBytes = new byte[CONTENT_LENGTH];
-		final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
-		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-		flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-		retBytes[0] = ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH)[0];
-		ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
-		System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
-				INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
-	}
+    @Override
+    public byte[] serializeSubobject(final Subobject subobject) {
+        if (!(subobject.getSubobjectType() instanceof UnnumberedCase)) {
+            throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getSubobjectType().getClass()
+                    + ". Needed UnnumberedCase.");
+        }
+        final byte[] retBytes = new byte[CONTENT_LENGTH];
+        final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
+        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        retBytes[0] = ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH)[0];
+        ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
+        System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
+                INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
+        return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
+    }
 }

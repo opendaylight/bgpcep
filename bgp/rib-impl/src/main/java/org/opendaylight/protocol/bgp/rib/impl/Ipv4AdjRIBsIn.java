@@ -25,34 +25,34 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
-	Ipv4AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-		super(trans, rib, key);
-	}
+    Ipv4AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+        super(trans, rib, key);
+    }
 
-	@Override
-	public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
-		return basePath.builder().child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key)).toInstance();
-	}
+    @Override
+    public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
+        return basePath.builder().child(Ipv4Routes.class).child(Ipv4Route.class, new Ipv4RouteKey(key)).toInstance();
+    }
 
-	@Override
-	public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
-		final RIBEntryData<Ipv4Prefix, Ipv4Route> data = new RIBEntryData<Ipv4Prefix, Ipv4Route>(attributes) {
-			@Override
-			protected Ipv4Route getDataObject(final Ipv4Prefix key, final InstanceIdentifier<Ipv4Route> id) {
-				return new Ipv4RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
-			}
-		};
+    @Override
+    public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+        final RIBEntryData<Ipv4Prefix, Ipv4Route> data = new RIBEntryData<Ipv4Prefix, Ipv4Route>(attributes) {
+            @Override
+            protected Ipv4Route getDataObject(final Ipv4Prefix key, final InstanceIdentifier<Ipv4Route> id) {
+                return new Ipv4RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
+            }
+        };
 
-		for (final Ipv4Prefix id : ((DestinationIpv4Case) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationIpv4().getIpv4Prefixes()) {
-			super.add(trans, peer, id, data);
-		}
-	}
+        for (final Ipv4Prefix id : ((DestinationIpv4Case) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationIpv4().getIpv4Prefixes()) {
+            super.add(trans, peer, id, data);
+        }
+    }
 
-	@Override
-	public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
-		for (final Ipv4Prefix id : ((DestinationIpv4Case) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationIpv4().getIpv4Prefixes()) {
-			super.remove(trans, peer, id);
-		}
-	}
+    @Override
+    public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+        for (final Ipv4Prefix id : ((DestinationIpv4Case) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationIpv4().getIpv4Prefixes()) {
+            super.remove(trans, peer, id);
+        }
+    }
 }

@@ -25,8 +25,7 @@ public class SimplePCEPExtensionProviderContextModuleTest extends AbstractConfig
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
-                new SimplePCEPExtensionProviderContextModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 
     @Test
@@ -52,9 +51,11 @@ public class SimplePCEPExtensionProviderContextModuleTest extends AbstractConfig
         return transaction.commit();
     }
 
-    public static ObjectName createPCEPExtensionsModuleInstance(final ConfigTransactionJMXClient transaction, final List<ObjectName> extensions) throws Exception {
+    public static ObjectName createPCEPExtensionsModuleInstance(final ConfigTransactionJMXClient transaction,
+            final List<ObjectName> extensions) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        SimplePCEPExtensionProviderContextModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, SimplePCEPExtensionProviderContextModuleMXBean.class);
+        SimplePCEPExtensionProviderContextModuleMXBean mxBean = transaction.newMXBeanProxy(objectName,
+                SimplePCEPExtensionProviderContextModuleMXBean.class);
         mxBean.setExtension(extensions);
         return objectName;
     }

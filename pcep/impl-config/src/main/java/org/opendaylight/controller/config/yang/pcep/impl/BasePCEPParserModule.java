@@ -21,21 +21,22 @@ import org.opendaylight.protocol.pcep.impl.Activator;
 /**
  *
  */
-public final class BasePCEPParserModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractBasePCEPParserModule
-{
+public final class BasePCEPParserModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractBasePCEPParserModule {
 
-	public BasePCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public BasePCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public BasePCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final BasePCEPParserModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public BasePCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BasePCEPParserModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new Activator();
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new Activator();
+    }
 }

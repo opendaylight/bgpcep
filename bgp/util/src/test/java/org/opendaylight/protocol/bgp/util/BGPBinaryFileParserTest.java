@@ -21,63 +21,63 @@ import org.junit.Test;
 
 public class BGPBinaryFileParserTest {
 
-	private final byte ff = (byte) 255;
+    private final byte ff = (byte) 255;
 
-	@Test
-	public void testCorrectExtraction() throws IOException {
-		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages.bin");
+    @Test
+    public void testCorrectExtraction() throws IOException {
+        final List<byte[]> parsedMessages = extractFromFile("/BgpMessages.bin");
 
-		assertThat(parsedMessages.size(), is(43));
+        assertThat(parsedMessages.size(), is(43));
 
-		// 1st message
-		assertThat(parsedMessages.get(0).length, is(19));
-		checkMarker(parsedMessages);
-		assertThat(parsedMessages.get(0)[16], is((byte) 0));
-		assertThat(parsedMessages.get(0)[17], is((byte) 19));
-		assertThat(parsedMessages.get(0)[18], is((byte) 4));
+        // 1st message
+        assertThat(parsedMessages.get(0).length, is(19));
+        checkMarker(parsedMessages);
+        assertThat(parsedMessages.get(0)[16], is((byte) 0));
+        assertThat(parsedMessages.get(0)[17], is((byte) 19));
+        assertThat(parsedMessages.get(0)[18], is((byte) 4));
 
-		// 39th message
-		assertThat(parsedMessages.get(38).length, is(91));
-		checkMarker(parsedMessages);
-		assertThat(parsedMessages.get(38)[16], is((byte) 0));
-		assertThat(parsedMessages.get(38)[17], is((byte) 91));
-		assertThat(parsedMessages.get(38)[18], is((byte) 2));
-		assertThat(parsedMessages.get(38)[90], is((byte) 236));
+        // 39th message
+        assertThat(parsedMessages.get(38).length, is(91));
+        checkMarker(parsedMessages);
+        assertThat(parsedMessages.get(38)[16], is((byte) 0));
+        assertThat(parsedMessages.get(38)[17], is((byte) 91));
+        assertThat(parsedMessages.get(38)[18], is((byte) 2));
+        assertThat(parsedMessages.get(38)[90], is((byte) 236));
 
-	}
+    }
 
-	private List<byte[]> extractFromFile(final String fileName) throws IOException {
-		final InputStream is = BGPBinaryFileParserTest.class.getResourceAsStream(fileName);
-		assertNotNull("File not found - " + fileName);
-		if (is == null) {
-			throw new IOException("Failed to get resource " + fileName);
-		}
+    private List<byte[]> extractFromFile(final String fileName) throws IOException {
+        final InputStream is = BGPBinaryFileParserTest.class.getResourceAsStream(fileName);
+        assertNotNull("File not found - " + fileName);
+        if (is == null) {
+            throw new IOException("Failed to get resource " + fileName);
+        }
 
-		final ByteArrayOutputStream bis = new ByteArrayOutputStream();
-		final byte[] data = new byte[1000];
-		int nRead = 0;
-		while ((nRead = is.read(data, 0, data.length)) != -1) {
-			bis.write(data, 0, nRead);
-		}
-		bis.flush();
-		return BinaryBGPDumpFileParser.parseMessages(bis.toByteArray());
-	}
+        final ByteArrayOutputStream bis = new ByteArrayOutputStream();
+        final byte[] data = new byte[1000];
+        int nRead = 0;
+        while ((nRead = is.read(data, 0, data.length)) != -1) {
+            bis.write(data, 0, nRead);
+        }
+        bis.flush();
+        return BinaryBGPDumpFileParser.parseMessages(bis.toByteArray());
+    }
 
-	private void checkMarker(final List<byte[]> parsedMessages) {
-		for (int i = 0; i < 16; i++) {
-			assertThat(parsedMessages.get(0)[i], is(this.ff));
-		}
-	}
+    private void checkMarker(final List<byte[]> parsedMessages) {
+        for (int i = 0; i < 16; i++) {
+            assertThat(parsedMessages.get(0)[i], is(this.ff));
+        }
+    }
 
-	/**
-	 * In BgpMessages_wrong_header file, first FF sequence is corrupted
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-	public void testCorruptedHeader() throws IOException {
-		final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header.bin");
-		assertEquals(42, parsedMessages.size());
-	}
+    /**
+     * In BgpMessages_wrong_header file, first FF sequence is corrupted
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testCorruptedHeader() throws IOException {
+        final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header.bin");
+        assertEquals(42, parsedMessages.size());
+    }
 
 }

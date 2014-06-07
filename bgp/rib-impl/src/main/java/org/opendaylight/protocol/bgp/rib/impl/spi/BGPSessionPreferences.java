@@ -18,57 +18,57 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public final class BGPSessionPreferences {
 
-	private final AsNumber as;
+    private final AsNumber as;
 
-	private final int hold;
+    private final int hold;
 
-	private final Ipv4Address bgpId;
+    private final Ipv4Address bgpId;
 
-	private final List<BgpParameters> params;
+    private final List<BgpParameters> params;
 
-	/**
-	 * Creates a new DTO for Open message.
-	 * 
-	 * @param as local AS number
-	 * @param hold preferred hold timer value, in seconds
-	 * @param bgpId local BGP Identifier
-	 * @param param advertized parameters
-	 */
-	public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
-		this.as = as;
-		this.hold = hold;
-		this.bgpId = bgpId;
-		this.params = params;
-	}
+    /**
+     * Creates a new DTO for Open message.
+     *
+     * @param as local AS number
+     * @param hold preferred hold timer value, in seconds
+     * @param bgpId local BGP Identifier
+     * @param param advertized parameters
+     */
+    public BGPSessionPreferences(final AsNumber as, final int hold, final Ipv4Address bgpId, final List<BgpParameters> params) {
+        this.as = as;
+        this.hold = hold;
+        this.bgpId = bgpId;
+        this.params = params;
+    }
 
-	/**
-	 * Returns my AS number.
-	 * 
-	 * @return AS number
-	 */
-	public AsNumber getMyAs() {
-		return this.as;
-	}
+    /**
+     * Returns my AS number.
+     *
+     * @return AS number
+     */
+    public AsNumber getMyAs() {
+        return this.as;
+    }
 
-	/**
-	 * Returns initial value of HoldTimer.
-	 * 
-	 * @return initial value of HoldTimer
-	 */
-	public int getHoldTime() {
-		return this.hold;
-	}
+    /**
+     * Returns initial value of HoldTimer.
+     *
+     * @return initial value of HoldTimer
+     */
+    public int getHoldTime() {
+        return this.hold;
+    }
 
-	/**
-	 * Returns my BGP Identifier.
-	 * 
-	 * @return BGP identifier
-	 */
-	public Ipv4Address getBgpId() {
-		return this.bgpId;
-	}
+    /**
+     * Returns my BGP Identifier.
+     *
+     * @return BGP identifier
+     */
+    public Ipv4Address getBgpId() {
+        return this.bgpId;
+    }
 
-	public List<BgpParameters> getParams() {
-		return this.params;
-	}
+    public List<BgpParameters> getParams() {
+        return this.params;
+    }
 }

@@ -17,47 +17,52 @@ import org.opendaylight.bgpcep.tcpmd5.jni.NativeSupportUnavailableException;
 /**
  * Service representing a way for accessing key informtion.
  */
-public class NativeKeyAccessFactoryModule extends org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.AbstractNativeKeyAccessFactoryModule {
-	private KeyAccessFactory kaf;
+public class NativeKeyAccessFactoryModule extends
+        org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.AbstractNativeKeyAccessFactoryModule {
+    private KeyAccessFactory kaf;
 
-	public NativeKeyAccessFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public NativeKeyAccessFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public NativeKeyAccessFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.NativeKeyAccessFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public NativeKeyAccessFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.NativeKeyAccessFactoryModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void customValidation() {
-		try {
-			kaf = NativeKeyAccessFactory.getInstance();
-		} catch (NativeSupportUnavailableException e) {
-			throw new UnsupportedOperationException("Native support is not available", e);
-		}
-	}
+    @Override
+    public void customValidation() {
+        try {
+            kaf = NativeKeyAccessFactory.getInstance();
+        } catch (NativeSupportUnavailableException e) {
+            throw new UnsupportedOperationException("Native support is not available", e);
+        }
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final KeyAccessFactory kaf = this.kaf;
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final KeyAccessFactory kaf = this.kaf;
 
-		final class CloseableNativeKeyAccessFactory implements AutoCloseable, KeyAccessFactory {
-			@Override
-			public KeyAccess getKeyAccess(final Channel channel) {
-				return kaf.getKeyAccess(channel);
-			}
+        final class CloseableNativeKeyAccessFactory implements AutoCloseable, KeyAccessFactory {
+            @Override
+            public KeyAccess getKeyAccess(final Channel channel) {
+                return kaf.getKeyAccess(channel);
+            }
 
-			@Override
-			public boolean canHandleChannelClass(final Class<? extends Channel> clazz) {
-				return kaf.canHandleChannelClass(clazz);
-			}
+            @Override
+            public boolean canHandleChannelClass(final Class<? extends Channel> clazz) {
+                return kaf.canHandleChannelClass(clazz);
+            }
 
-			@Override
-			public void close() {
-				// Nothing to do
-			}
-		}
+            @Override
+            public void close() {
+                // Nothing to do
+            }
+        }
 
-		return new CloseableNativeKeyAccessFactory();
-	}
+        return new CloseableNativeKeyAccessFactory();
+    }
 }

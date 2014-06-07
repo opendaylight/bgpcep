@@ -1,649 +1,649 @@
 module bgp-linkstate {
-	yang-version 1;
-	namespace "urn:opendaylight:params:xml:ns:yang:bgp-linkstate";
-	prefix "bgp-ls";
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-linkstate";
+    prefix "bgp-ls";
 
-	import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
-	import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
-	import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
-	import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
-	import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
-	import network-concepts { prefix netc; revision-date 2013-11-25; }
-	import rsvp { prefix rsvp; revision-date 2013-08-20; }
+    import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
+    import bgp-message { prefix bgp-msg; revision-date 2013-09-19; }
+    import bgp-multiprotocol { prefix bgp-mp; revision-date 2013-09-19; }
+    import bgp-rib { prefix bgp-rib; revision-date 2013-09-25; }
+    import bgp-types { prefix bgp-t; revision-date 2013-09-19; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import rsvp { prefix rsvp; revision-date 2013-08-20; }
 
-	organization "Cisco Systems, Inc.";
-	contact "Dana Kutenicsova <dkutenic@cisco.com>";
+    organization "Cisco Systems, Inc.";
+    contact "Dana Kutenicsova <dkutenic@cisco.com>";
 
-	description
-		"This module contains the base data model of a BGP message.
-		It rolls up the definitions contained in RFC4271
-		and draft-ietf-idr-ls-distribution-03.
+    description
+        "This module contains the base data model of a BGP message.
+        It rolls up the definitions contained in RFC4271
+        and draft-ietf-idr-ls-distribution-03.
 
-		Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
-		This program and the accompanying materials are made available
-		under the terms of the Eclipse Public License v1.0 which
-		accompanies this distribution, and is available at
-		http://www.eclipse.org/legal/epl-v10.html";
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
 
-	revision "2013-11-25" {
-		description
-			"Updated to cover network-concepts.";
-	}
+    revision "2013-11-25" {
+        description
+            "Updated to cover network-concepts.";
+    }
 
-	revision "2013-09-18" {
-		description
-			"Initial revision.";
-		reference "draft-ietf-idr-ls-distribution-03";
-	}
+    revision "2013-09-18" {
+        description
+            "Initial revision.";
+        reference "draft-ietf-idr-ls-distribution-03";
+    }
 
-	identity linkstate-address-family {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+    identity linkstate-address-family {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
 
-		base bgp-t:address-family;
-	}
+        base bgp-t:address-family;
+    }
 
-	identity linkstate-subsequent-address-family {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+    identity linkstate-subsequent-address-family {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
 
-		base bgp-t:subsequent-address-family;
-	}
+        base bgp-t:subsequent-address-family;
+    }
 
-	typedef nlri-type {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-		type enumeration {
-			enum node {
-				value 1;
-			}
-			enum link {
-				value 2;
-			}
-			enum ipv4-prefix {
-				value 3;
-			}
-			enum ipv6-prefix {
-				value 4;
-			}
-		}
-	}
+    typedef nlri-type {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        type enumeration {
+            enum node {
+                value 1;
+            }
+            enum link {
+                value 2;
+            }
+            enum ipv4-prefix {
+                value 3;
+            }
+            enum ipv6-prefix {
+                value 4;
+            }
+        }
+    }
 
-	typedef protocol-id {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
-		type enumeration {
-			enum unknown {
-				value 0;
-			}
-			enum isis-level1 {
-				value 1;
-			}
-			enum isis-level2 {
-				value 2;
-			}
-			enum ospf {
-				value 3;
-			}
-			enum direct {
-				value 4;
-			}
-			enum static {
-				value 5;
-			}
-		}
-	}
+    typedef protocol-id {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2";
+        type enumeration {
+            enum unknown {
+                value 0;
+            }
+            enum isis-level1 {
+                value 1;
+            }
+            enum isis-level2 {
+                value 2;
+            }
+            enum ospf {
+                value 3;
+            }
+            enum direct {
+                value 4;
+            }
+            enum static {
+                value 5;
+            }
+        }
+    }
 
-	typedef ospf-route-type {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.3.1";
-		type enumeration {
-			enum intra-area {
-				value 1;
-			}
-			enum inter-area {
-				value 2;
-			}
-			enum external1 {
-				value 3;
-			}
-			enum external2 {
-				value 4;
-			}
-			enum nssa1 {
-				value 5;
-			}
-			enum nssa2 {
-				value 6;
-			}
-		}
-	}
+    typedef ospf-route-type {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.3.1";
+        type enumeration {
+            enum intra-area {
+                value 1;
+            }
+            enum inter-area {
+                value 2;
+            }
+            enum external1 {
+                value 3;
+            }
+            enum external2 {
+                value 4;
+            }
+            enum nssa1 {
+                value 5;
+            }
+            enum nssa2 {
+                value 6;
+            }
+        }
+    }
 
-	typedef route-distinguisher {
-		type uint64;
-	}
+    typedef route-distinguisher {
+        type uint64;
+    }
 
-	typedef identifier {
-		type uint64;
-	}
+    typedef identifier {
+        type uint64;
+    }
 
-	typedef domain-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type uint32;
-	}
+    typedef domain-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        type uint32;
+    }
 
-	typedef area-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type uint32;
-	}
+    typedef area-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        type uint32;
+    }
 
-	typedef ipv4-interface-identifier {
-		reference "http://tools.ietf.org/html/rfc5305#section-3.2";
-		type inet:ipv4-address;
-	}
+    typedef ipv4-interface-identifier {
+        reference "http://tools.ietf.org/html/rfc5305#section-3.2";
+        type inet:ipv4-address;
+    }
 
-	typedef ipv6-interface-identifier {
-		reference "http://tools.ietf.org/html/rfc6119#section-4.2";
-		type inet:ipv6-address;
-	}
+    typedef ipv6-interface-identifier {
+        reference "http://tools.ietf.org/html/rfc6119#section-4.2";
+        type inet:ipv6-address;
+    }
 
-	typedef ospf-interface-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		type uint32;
-	}
+    typedef ospf-interface-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        type uint32;
+    }
 
-	typedef topology-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
-		type uint16 {
-			range "0..4095";
-		}
-	}
+    typedef topology-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.5";
+        type uint16 {
+            range "0..4095";
+        }
+    }
 
 
-	grouping isis-router-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		leaf iso-system-id {
-			type netc:iso-system-identifier;
-			mandatory true;
-		}
-	}
+    grouping isis-router-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        leaf iso-system-id {
+            type netc:iso-system-identifier;
+            mandatory true;
+        }
+    }
 
-	grouping isis-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		container is-is-router-identifier {
-			uses isis-router-identifier;
-		}
-		leaf psn {
-			type uint8 {
-				range "1..255";
-			}
-			mandatory true;
-		}
-	}
+    grouping isis-lan-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        container is-is-router-identifier {
+            uses isis-router-identifier;
+        }
+        leaf psn {
+            type uint8 {
+                range "1..255";
+            }
+            mandatory true;
+        }
+    }
 
-	grouping ospf-router-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		leaf ospf-router-id {
-			type uint32;
-			mandatory true;
-		}
-	}
+    grouping ospf-router-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        leaf ospf-router-id {
+            type uint32;
+            mandatory true;
+        }
+    }
 
-	grouping ospf-v2-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		uses ospf-router-identifier;
-		leaf ipv4-address {
-			type ipv4-interface-identifier;
-			mandatory true;
-		}
-	}
+    grouping ospf-v2-lan-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        uses ospf-router-identifier;
+        leaf ipv4-address {
+            type ipv4-interface-identifier;
+            mandatory true;
+        }
+    }
 
-	grouping ospf-v3-lan-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
-		uses ospf-router-identifier;
-		leaf lan-interface {
-			type ospf-interface-identifier;
-			mandatory true;
-		}
-	}
+    grouping ospf-v3-lan-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.2.1.4";
+        uses ospf-router-identifier;
+        leaf lan-interface {
+            type ospf-interface-identifier;
+            mandatory true;
+        }
+    }
 
-	grouping node-identifier {
-		leaf as-number {
-			type inet:as-number;
-		}
-		leaf area-id {
-			type area-identifier;
-		}
-		leaf domain-id {
-			type domain-identifier;
-		}
-		choice c-router-identifier {
-			case isis-node-case {
-				container isis-node {
-					uses isis-router-identifier;
-				}
-			}
+    grouping node-identifier {
+        leaf as-number {
+            type inet:as-number;
+        }
+        leaf area-id {
+            type area-identifier;
+        }
+        leaf domain-id {
+            type domain-identifier;
+        }
+        choice c-router-identifier {
+            case isis-node-case {
+                container isis-node {
+                    uses isis-router-identifier;
+                }
+            }
 
-			case isis-pseudonode-case {
-				container isis-pseudonode {
-					uses isis-lan-identifier;
-				}
-			}
+            case isis-pseudonode-case {
+                container isis-pseudonode {
+                    uses isis-lan-identifier;
+                }
+            }
 
-			case ospf-node-case {
-				container ospf-node {
-					uses ospf-router-identifier;
-				}
-			}
+            case ospf-node-case {
+                container ospf-node {
+                    uses ospf-router-identifier;
+                }
+            }
 
-			case ospf-pseudonode-case {
-				container ospf-pseudonode {
-					uses ospf-v3-lan-identifier;
-				}
-			}
-		}
-	}
+            case ospf-pseudonode-case {
+                container ospf-pseudonode {
+                    uses ospf-v3-lan-identifier;
+                }
+            }
+        }
+    }
 
-	grouping link-lr-identifiers {
-		reference "http://tools.ietf.org/html/rfc5307";
-		leaf link-local-identifier {
-			type uint32;
-		}
-		leaf link-remote-identifier {
-			type uint32;
-		}
-	}
+    grouping link-lr-identifiers {
+        reference "http://tools.ietf.org/html/rfc5307";
+        leaf link-local-identifier {
+            type uint32;
+        }
+        leaf link-remote-identifier {
+            type uint32;
+        }
+    }
 
-	grouping prefix-identifiers {
-		leaf multi-topology-id {
-			type topology-identifier;
-		}
-		leaf ospf-route-type {
-			when "../../protocol-id = 'ospf'";
-			type ospf-route-type;
-		}
-		leaf ip-reachability-information {
-			type inet:ip-prefix;
-		}
-	}
+    grouping prefix-identifiers {
+        leaf multi-topology-id {
+            type topology-identifier;
+        }
+        leaf ospf-route-type {
+            when "../../protocol-id = 'ospf'";
+            type ospf-route-type;
+        }
+        leaf ip-reachability-information {
+            type inet:ip-prefix;
+        }
+    }
 
-	grouping link-identifier {
-		uses link-lr-identifiers;
-		leaf ipv4-interface-address {
-			type ipv4-interface-identifier;
-		}
-		leaf ipv6-interface-address {
-			type ipv6-interface-identifier;
-		}
-		leaf ipv4-neighbor-address {
-			type ipv4-interface-identifier;
-		}
-		leaf ipv6-neighbor-address {
-			type ipv6-interface-identifier;
-		}
-		leaf multi-topology-id {
-			type topology-identifier;
-		}
-	}
+    grouping link-identifier {
+        uses link-lr-identifiers;
+        leaf ipv4-interface-address {
+            type ipv4-interface-identifier;
+        }
+        leaf ipv6-interface-address {
+            type ipv6-interface-identifier;
+        }
+        leaf ipv4-neighbor-address {
+            type ipv4-interface-identifier;
+        }
+        leaf ipv6-neighbor-address {
+            type ipv6-interface-identifier;
+        }
+        leaf multi-topology-id {
+            type topology-identifier;
+        }
+    }
 
-	grouping linkstate-destination {
-		list c-linkstate-destination {
-			leaf nlri-type {
-				type nlri-type;
-			}
-			leaf distinguisher {
-				type route-distinguisher;
-			}
-			leaf protocol-id {
-				type protocol-id;
-			}
-			leaf identifier {
-				type identifier;
-			}
-			container local-node-descriptors {
-				uses node-identifier;
-			}
-			container remote-node-descriptors {
-				when "../nlri-type = link";
-				uses node-identifier;
-			}
-			container link-descriptors {
-				when "../nlri-type = link";
-				uses link-identifier;
-			}
-			container prefix-descriptors {
-				when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-				uses prefix-identifiers;
-			}
-		}
-	}
+    grouping linkstate-destination {
+        list c-linkstate-destination {
+            leaf nlri-type {
+                type nlri-type;
+            }
+            leaf distinguisher {
+                type route-distinguisher;
+            }
+            leaf protocol-id {
+                type protocol-id;
+            }
+            leaf identifier {
+                type identifier;
+            }
+            container local-node-descriptors {
+                uses node-identifier;
+            }
+            container remote-node-descriptors {
+                when "../nlri-type = link";
+                uses node-identifier;
+            }
+            container link-descriptors {
+                when "../nlri-type = link";
+                uses link-identifier;
+            }
+            container prefix-descriptors {
+                when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+                uses prefix-identifiers;
+            }
+        }
+    }
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
-		case destination-linkstate-case {
-			container destination-linkstate {
-				uses linkstate-destination;
-			}
-		}
-	}
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type" {
+        case destination-linkstate-case {
+            container destination-linkstate {
+                uses linkstate-destination;
+            }
+        }
+    }
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
-		case destination-linkstate-case {
-			container destination-linkstate {
-				uses linkstate-destination;
-			}
-		}
-	}
+    augment "/bgp-msg:update/bgp-msg:path-attributes/bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type" {
+        case destination-linkstate-case {
+            container destination-linkstate {
+                uses linkstate-destination;
+            }
+        }
+    }
 
-	typedef node-flag-bits {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.1";
-		type bits {
-			bit overload {
-				position 0;
-			}
-			bit attached {
-				position 1;
-			}
-			bit external {
-				position 2;
-			}
-			bit abr {
-				position 3;
-			}
-		}
-	}
+    typedef node-flag-bits {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.1";
+        type bits {
+            bit overload {
+                position 0;
+            }
+            bit attached {
+                position 1;
+            }
+            bit external {
+                position 2;
+            }
+            bit abr {
+                position 3;
+            }
+        }
+    }
 
-	typedef isis-area-identifier {
-		reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
-		type binary {
-			length "1..20";
-		}
-	}
+    typedef isis-area-identifier {
+        reference "https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.2";
+        type binary {
+            length "1..20";
+        }
+    }
 
-	typedef ipv4-router-identifier {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
-		type inet:ipv4-address;
-	}
+    typedef ipv4-router-identifier {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+        type inet:ipv4-address;
+    }
 
-	typedef ipv6-router-identifier {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
-		type inet:ipv6-address;
-	}
+    typedef ipv6-router-identifier {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1.4";
+        type inet:ipv6-address;
+    }
 
-	grouping node-state {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
-		leaf-list topology-identifier {
-			type topology-identifier;
-		}
-		leaf node-flags {
-			type node-flag-bits;
-		}
-		leaf-list isis-area-id {
-			type isis-area-identifier;
-		}
-		leaf dynamic-hostname {
-			type string;
-		}
-		leaf ipv4-router-id {
-			type ipv4-router-identifier;
-		}
-		leaf ipv6-router-id {
-			type ipv6-router-identifier;
-		}
-	}
+    grouping node-state {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.1";
+        leaf-list topology-identifier {
+            type topology-identifier;
+        }
+        leaf node-flags {
+            type node-flag-bits;
+        }
+        leaf-list isis-area-id {
+            type isis-area-identifier;
+        }
+        leaf dynamic-hostname {
+            type string;
+        }
+        leaf ipv4-router-id {
+            type ipv4-router-identifier;
+        }
+        leaf ipv6-router-id {
+            type ipv6-router-identifier;
+        }
+    }
 
-	typedef link-protection-type {
-		reference "http://tools.ietf.org/html/rfc5307#section-1.2";
-		type enumeration {
-			enum extra-traffic {
-				value 1;
-			}
-			enum unprotected {
-				value 2;
-			}
-			enum shared {
-				value 4;
-			}
-			enum dedicated-1to1 {
-				value 8;
-			}
-			enum dedicated-1plus1 {
-				value 16;
-			}
-			enum enhanced {
-				value 32;
-			}
-		}
-	}
+    typedef link-protection-type {
+        reference "http://tools.ietf.org/html/rfc5307#section-1.2";
+        type enumeration {
+            enum extra-traffic {
+                value 1;
+            }
+            enum unprotected {
+                value 2;
+            }
+            enum shared {
+                value 4;
+            }
+            enum dedicated-1to1 {
+                value 8;
+            }
+            enum dedicated-1plus1 {
+                value 16;
+            }
+            enum enhanced {
+                value 32;
+            }
+        }
+    }
 
-	// linkstate
-	typedef mpls-protocol-mask {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
-		type bits {
-			bit ldp {
-				position 0;
-			}
-			bit rsvpte {
-				position 1;
-			}
-		}
-	}
+    // linkstate
+    typedef mpls-protocol-mask {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2.2";
+        type bits {
+            bit ldp {
+                position 0;
+            }
+            bit rsvpte {
+                position 1;
+            }
+        }
+    }
 
-	typedef administrative-group {
-		type uint32;
-	}
+    typedef administrative-group {
+        type uint32;
+    }
 
-	grouping unreserved-bandwidth {
-		leaf priority {
-			type uint8 {
-				range "0..7";
-			}
-		}
-		leaf bandwidth {
-			type netc:bandwidth;
-		}
-	}
+    grouping unreserved-bandwidth {
+        leaf priority {
+            type uint8 {
+                range "0..7";
+            }
+        }
+        leaf bandwidth {
+            type netc:bandwidth;
+        }
+    }
 
-	grouping link-state {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
-		leaf local-ipv4-router-id {
-			type ipv4-router-identifier;
-		}
-		leaf local-ipv6-router-id {
-			type ipv6-router-identifier;
-		}
-		leaf remote-ipv4-router-id {
-			type ipv4-router-identifier;
-		}
-		leaf remote-ipv6-router-id {
-			type ipv6-router-identifier;
-		}
-		leaf mpls-protocol {
-			type mpls-protocol-mask;
-		}
-		leaf te-metric {
-			type netc:te-metric;
-		}
-		leaf metric {
-			type netc:metric;
-		}
-		leaf-list shared-risk-link-groups {
-			type rsvp:srlg-id;
-		}
-		leaf link-name {
-			type string;
-		}
-		leaf max-link-bandwidth {
-			type netc:bandwidth;
-		}
-		leaf max-reservable-bandwidth {
-			type netc:bandwidth;
-		}
-		list unreserved-bandwidth {
-			key "priority";
-			uses unreserved-bandwidth;
-		}
-		leaf link-protection {
-			type link-protection-type;
-		}
-		leaf admin-group {
-			type administrative-group;
-		}
-	}
+    grouping link-state {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.2";
+        leaf local-ipv4-router-id {
+            type ipv4-router-identifier;
+        }
+        leaf local-ipv6-router-id {
+            type ipv6-router-identifier;
+        }
+        leaf remote-ipv4-router-id {
+            type ipv4-router-identifier;
+        }
+        leaf remote-ipv6-router-id {
+            type ipv6-router-identifier;
+        }
+        leaf mpls-protocol {
+            type mpls-protocol-mask;
+        }
+        leaf te-metric {
+            type netc:te-metric;
+        }
+        leaf metric {
+            type netc:metric;
+        }
+        leaf-list shared-risk-link-groups {
+            type rsvp:srlg-id;
+        }
+        leaf link-name {
+            type string;
+        }
+        leaf max-link-bandwidth {
+            type netc:bandwidth;
+        }
+        leaf max-reservable-bandwidth {
+            type netc:bandwidth;
+        }
+        list unreserved-bandwidth {
+            key "priority";
+            uses unreserved-bandwidth;
+        }
+        leaf link-protection {
+            type link-protection-type;
+        }
+        leaf admin-group {
+            type administrative-group;
+        }
+    }
 
-	typedef route-tag {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.2";
-		type binary {
-			length "4";
-		}
-	}
+    typedef route-tag {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.2";
+        type binary {
+            length "4";
+        }
+    }
 
-	typedef extended-route-tag {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.3";
-		type binary {
-			length "8";
-		}
-	}
+    typedef extended-route-tag {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.3";
+        type binary {
+            length "8";
+        }
+    }
 
-	grouping igp-bits {
-		reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.1";
-		leaf up-down {
-			type bits {
-				bit up-down {
-					position 0;
-				}
-			}
-		}
-	}
+    grouping igp-bits {
+        reference "http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-03#section-3.3.3.1";
+        leaf up-down {
+            type bits {
+                bit up-down {
+                    position 0;
+                }
+            }
+        }
+    }
 
-	grouping prefix-state {
-		container igp-bits {
-			uses igp-bits;
-		}
-		leaf-list route-tags {
-			type route-tag;
-		}
-		leaf-list extended-tags {
-			type extended-route-tag;
-		}
-		leaf prefix-metric {
-			type netc:igp-metric;
-		}
-		leaf ospf-forwarding-address {
-			type inet:ip-address;
-		}
-	}
+    grouping prefix-state {
+        container igp-bits {
+            uses igp-bits;
+        }
+        leaf-list route-tags {
+            type route-tag;
+        }
+        leaf-list extended-tags {
+            type extended-route-tag;
+        }
+        leaf prefix-metric {
+            type netc:igp-metric;
+        }
+        leaf ospf-forwarding-address {
+            type inet:ip-address;
+        }
+    }
 
-	augment "/bgp-msg:update/bgp-msg:path-attributes" {
-		container linkstate-path-attribute {
-			choice link-state-attribute {
-				case node-attributes-case {
-					container node-attributes {
-						when "../../nlri-type = node";
-						uses node-state;
-					}
-				}
-				case link-attributes-case {
-					container link-attributes {
-						when "../../nlri-type = link";
-						uses link-state;
-					}
-				}
-				case prefix-attributes-case {
-					container prefix-attributes {
-						when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
-						uses prefix-state;
-					}
-				}
-			}
-		}
-	}
+    augment "/bgp-msg:update/bgp-msg:path-attributes" {
+        container linkstate-path-attribute {
+            choice link-state-attribute {
+                case node-attributes-case {
+                    container node-attributes {
+                        when "../../nlri-type = node";
+                        uses node-state;
+                    }
+                }
+                case link-attributes-case {
+                    container link-attributes {
+                        when "../../nlri-type = link";
+                        uses link-state;
+                    }
+                }
+                case prefix-attributes-case {
+                    container prefix-attributes {
+                        when "../nlri-type = 'ipv4-prefix' or ../nlri-type = 'ipv6-prefix'";
+                        uses prefix-state;
+                    }
+                }
+            }
+        }
+    }
 
-	augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
-		case linkstate-routes-case {
-			container linkstate-routes {
-				list linkstate-route {
-					description
-						"Link-state information entry. Due to
-						the complexity of link-state information
-						and YANG limitations this is the top-level
-						object from contract perspective. It is
-						keyed by route-key, whose format is
-						internal to the implementation exposing
-						this information. As an explicit example
-						it can rely on information stored in the
-						entry's subtree, so the subtree MUST NOT
-						be modified by outside entities.
-						Augmentations can attach data, but must
-						be explicitly aware that such data, unlike
-						the data modeled directly here, does not
-						have any effects on keys, especially they
-						must not impact equality tests.";
+    augment "/bgp-rib:bgp-rib/bgp-rib:rib/bgp-rib:loc-rib/bgp-rib:tables/bgp-rib:routes" {
+        case linkstate-routes-case {
+            container linkstate-routes {
+                list linkstate-route {
+                    description
+                        "Link-state information entry. Due to
+                        the complexity of link-state information
+                        and YANG limitations this is the top-level
+                        object from contract perspective. It is
+                        keyed by route-key, whose format is
+                        internal to the implementation exposing
+                        this information. As an explicit example
+                        it can rely on information stored in the
+                        entry's subtree, so the subtree MUST NOT
+                        be modified by outside entities.
+                        Augmentations can attach data, but must
+                        be explicitly aware that such data, unlike
+                        the data modeled directly here, does not
+                        have any effects on keys, especially they
+                        must not impact equality tests.";
 
-					leaf route-key {
-						description
-							"The sole function of this leaf
-							to act as the key in the list.
-							Its format does not form the
-							API contract of this model.";
-						type binary;
-					}
-					key "route-key";
+                    leaf route-key {
+                        description
+                            "The sole function of this leaf
+                            to act as the key in the list.
+                            Its format does not form the
+                            API contract of this model.";
+                        type binary;
+                    }
+                    key "route-key";
 
-					leaf distinguisher {
-						type route-distinguisher;
-					}
-					leaf protocol-id {
-						type protocol-id;
-					}
-					leaf identifier {
-						type identifier;
-					}
+                    leaf distinguisher {
+                        type route-distinguisher;
+                    }
+                    leaf protocol-id {
+                        type protocol-id;
+                    }
+                    leaf identifier {
+                        type identifier;
+                    }
 
-					choice object-type {
-						case node-case {
-							container node-descriptors {
-								uses node-identifier;
-							}
-						}
-						case link-case {
-							container local-node-descriptors {
-								uses node-identifier;
-							}
-							container remote-node-descriptors {
-								uses node-identifier;
-							}
-							container link-descriptors {
-								uses link-identifier;
-							}
-						}
-						case prefix-case {
-							container advertising-node-descriptors {
-								uses node-identifier;
-							}
+                    choice object-type {
+                        case node-case {
+                            container node-descriptors {
+                                uses node-identifier;
+                            }
+                        }
+                        case link-case {
+                            container local-node-descriptors {
+                                uses node-identifier;
+                            }
+                            container remote-node-descriptors {
+                                uses node-identifier;
+                            }
+                            container link-descriptors {
+                                uses link-identifier;
+                            }
+                        }
+                        case prefix-case {
+                            container advertising-node-descriptors {
+                                uses node-identifier;
+                            }
 
-							uses prefix-identifiers;
-						}
-					}
+                            uses prefix-identifiers;
+                        }
+                    }
 
-					uses bgp-rib:route {
-						augment attributes {
-							choice attribute-type {
-								case node-case {
-									container node-attributes {
-										uses node-state;
-									}
-								}
-								case link-case {
-									container link-attributes {
-										uses link-state;
-									}
-								}
-								case prefix-case {
-									container prefix-attributes {
-										uses prefix-state;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                    uses bgp-rib:route {
+                        augment attributes {
+                            choice attribute-type {
+                                case node-case {
+                                    container node-attributes {
+                                        uses node-state;
+                                    }
+                                }
+                                case link-case {
+                                    container link-attributes {
+                                        uses link-state;
+                                    }
+                                }
+                                case prefix-case {
+                                    container prefix-attributes {
+                                        uses prefix-state;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -8,7 +8,7 @@ module iana {
 
         description
                 "This module contains the definition of types related to
-		Internet Assigned Numbers Authority.
+        Internet Assigned Numbers Authority.
 
                 Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
 
@@ -23,9 +23,9 @@ module iana {
                 reference "https://www.iana.org/";
         }
 
-	typedef enterprise-number {
-		description "Private enterprise number.";
-		reference "https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers";
-		type uint32;
-	}
+    typedef enterprise-number {
+        description "Private enterprise number.";
+        reference "https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers";
+        type uint32;
+    }
 }

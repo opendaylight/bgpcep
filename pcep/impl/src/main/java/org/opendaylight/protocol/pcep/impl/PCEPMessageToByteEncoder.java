@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,26 +19,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  *
  */
 @Sharable
 public final class PCEPMessageToByteEncoder extends MessageToByteEncoder<Message> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPMessageToByteEncoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPMessageToByteEncoder.class);
 
-	private final MessageRegistry registry;
+    private final MessageRegistry registry;
 
-	public PCEPMessageToByteEncoder(final MessageRegistry registry) {
-		this.registry = Preconditions.checkNotNull(registry);
-	}
+    public PCEPMessageToByteEncoder(final MessageRegistry registry) {
+        this.registry = Preconditions.checkNotNull(registry);
+    }
 
-	@Override
-	protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) {
-		Preconditions.checkNotNull(msg);
-		this.registry.serializeMessage(msg, out);
-		LOG.debug("Encoded : {}", msg);
-	}
+    @Override
+    protected void encode(final ChannelHandlerContext ctx, final Message msg, final ByteBuf out) {
+        Preconditions.checkNotNull(msg);
+        this.registry.serializeMessage(msg, out);
+        LOG.debug("Encoded : {}", msg);
+    }
 }
