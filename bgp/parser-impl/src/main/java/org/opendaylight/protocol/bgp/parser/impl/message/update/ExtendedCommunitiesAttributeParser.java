@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
@@ -17,26 +20,24 @@ import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 public final class ExtendedCommunitiesAttributeParser implements AttributeParser {
-	public static final int TYPE = 16;
+    public static final int TYPE = 16;
 
-	private final ReferenceCache refCache;
+    private final ReferenceCache refCache;
 
-	public ExtendedCommunitiesAttributeParser(final ReferenceCache refCache) {
-		this.refCache = Preconditions.checkNotNull(refCache);
-	}
+    public ExtendedCommunitiesAttributeParser(final ReferenceCache refCache) {
+        this.refCache = Preconditions.checkNotNull(refCache);
+    }
 
-	@Override
-	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
-		final List<ExtendedCommunities> set = Lists.newArrayList();
-		while (buffer.isReadable()) {
-			final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(), CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
-			buffer.skipBytes(CommunitiesParser.EXTENDED_COMMUNITY_LENGTH);
-			set.add(comm);
-		}
-		builder.setExtendedCommunities(set);
-	}
+    @Override
+    public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
+        final List<ExtendedCommunities> set = Lists.newArrayList();
+        while (buffer.isReadable()) {
+            final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(),
+                    CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
+            buffer.skipBytes(CommunitiesParser.EXTENDED_COMMUNITY_LENGTH);
+            set.add(comm);
+        }
+        builder.setExtendedCommunities(set);
+    }
 }

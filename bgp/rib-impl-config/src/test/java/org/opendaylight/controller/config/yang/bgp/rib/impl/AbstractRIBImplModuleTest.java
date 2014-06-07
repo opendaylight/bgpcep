@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,9 +21,11 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -104,8 +107,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         MockitoAnnotations.initMocks(this);
 
         List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories
-                .toArray(new ModuleFactory[moduleFactories.size()])));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
         Filter mockedFilter = mock(Filter.class);
         Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
@@ -116,8 +118,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
-                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
@@ -131,8 +132,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
         Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
-        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext)
-                .getServiceReferences(Matchers.anyString(), Matchers.anyString());
+        Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         // mockedDataProvider = mock(DataProviderService.class);
 
@@ -140,8 +140,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
         //
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext)
-                .getServiceReference(DataProviderService.class);
+        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
 
         Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
 
@@ -149,16 +148,15 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
         Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider)
-                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider)
-                .registerCommitHandler(any(InstanceIdentifier.class), any(DataCommitHandler.class));
+        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+                any(DataCommitHandler.class));
+        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
+                any(DataCommitHandler.class));
 
         Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
         Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
 
-        Mockito.doNothing().when(mockedTransaction)
-                .putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
+        Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
         Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
 
         Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
@@ -172,17 +170,15 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected List<ModuleFactory> getModuleFactories() {
-        return Lists.newArrayList(new RIBImplModuleFactory(), new DataBrokerImplModuleFactory(),
-                new GlobalEventExecutorModuleFactory(), new BGPDispatcherImplModuleFactory(),
-                new NettyThreadgroupModuleFactory(), new TimedReconnectStrategyFactoryModuleFactory(),
-                new SimpleBGPExtensionProviderContextModuleFactory(), new RIBExtensionsImplModuleFactory(),
-                new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
+        return Lists.newArrayList(new RIBImplModuleFactory(), new DataBrokerImplModuleFactory(), new GlobalEventExecutorModuleFactory(),
+                new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
+                new TimedReconnectStrategyFactoryModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(),
+                new RIBExtensionsImplModuleFactory(), new DomBrokerImplModuleFactory(), new RuntimeMappingModuleFactory(),
                 new HashMapDataStoreModuleFactory(), new HashedWheelTimerModuleFactory());
     }
 
     @Override
-    protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(
-            final Class<?> serviceType) {
+    protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
@@ -209,23 +205,20 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId)
-            throws Exception {
+    protected CommitStatus createRIBImplModuleInstance(final RibId ribId, final Long localAs, final Ipv4Address bgpId) throws Exception {
         ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         createRIBImplModuleInstance(transaction, ribId, localAs, bgpId, createDataBrokerInstance(transaction));
         return transaction.commit();
     }
 
-    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId,
-            final Long localAs, final Ipv4Address bgpId, final ObjectName dataBroker) throws Exception {
+    private ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final RibId ribId, final Long localAs,
+            final Ipv4Address bgpId, final ObjectName dataBroker) throws Exception {
         ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, RIBImplModuleMXBean.class);
-        ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction,
-                SESSION_RS_INSTANCE_NAME);
+        ObjectName reconnectObjectName = TimedReconnectStrategyModuleTest.createInstance(transaction, SESSION_RS_INSTANCE_NAME);
         mxBean.setSessionReconnectStrategy(reconnectObjectName);
         mxBean.setDataProvider(dataBroker);
-        ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction,
-                TCP_RS_INSTANCE_NAME);
+        ObjectName reconnectStrategyON = TimedReconnectStrategyModuleTest.createInstance(transaction, TCP_RS_INSTANCE_NAME);
         mxBean.setTcpReconnectStrategy(reconnectStrategyON);
         mxBean.setBgpDispatcher(BGPDispatcherImplModuleTest.createInstance(transaction));
         mxBean.setExtensions(createRibExtensionsInstance(transaction));
@@ -236,15 +229,17 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     protected ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction) throws Exception {
-        return createRIBImplModuleInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID), createDataBrokerInstance(transaction));
+        return createRIBImplModuleInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID),
+                createDataBrokerInstance(transaction));
     }
 
-    public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker) throws Exception {
+    public ObjectName createRIBImplModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBroker)
+            throws Exception {
         return createRIBImplModuleInstance(transaction, new RibId(RIB_ID), 5000L, new Ipv4Address(BGP_ID), dataBroker);
     }
 
-    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException, InstanceNotFoundException {
+    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException,
+            InstanceNotFoundException {
         ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
         DataBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
         mxBean.setDomBroker(createDomBrokerInstance(transaction));
@@ -252,16 +247,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         return nameCreated;
     }
 
-    private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
         DomBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
         mxBean.setDataStore(createDataStoreInstance(transaction));
         return nameCreated;
     }
 
-    private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(HashMapDataStoreModuleFactory.NAME, DATA_STORE_INSTANCE_NAME);
         transaction.newMBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
         return nameCreated;
@@ -270,22 +263,18 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
 
         try {
-            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME,
-                    RuntimeMappingModuleFactory.SINGLETON_NAME);
+            return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
         } catch (InstanceNotFoundException e) {
             try {
-                return transaction.createModule(RuntimeMappingModuleFactory.NAME,
-                        RuntimeMappingModuleFactory.SINGLETON_NAME);
+                return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
             } catch (InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
         }
     }
 
-    private ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME,
-                RIB_EXTENSIONS_INSTANCE_NAME);
+    private ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME, RIB_EXTENSIONS_INSTANCE_NAME);
         transaction.newMBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
         return nameCreated;
     }
@@ -295,7 +284,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 "/META-INF/yang/bgp-message.yang", "/META-INF/yang/bgp-multiprotocol.yang", "/META-INF/yang/bgp-types.yang");
         return paths;
     }
-
 
     // TODO move back to AbstractConfigTest
     private static Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
@@ -309,7 +297,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
                 resources.add(resourceAsStream);
             }
         }
-        Assert.assertEquals("Some files were not found", Collections.<String>emptyList(), failedToFind);
+        Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
 
         return resources;
     }

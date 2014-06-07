@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 
 public interface NlriParser {
-	void parseNlri(ByteBuf nlri, MpUnreachNlriBuilder builder) throws BGPParsingException;
-	void parseNlri(ByteBuf nlri, byte[] nextHop, MpReachNlriBuilder builder) throws BGPParsingException;
+    void parseNlri(ByteBuf nlri, MpUnreachNlriBuilder builder) throws BGPParsingException;
+
+    void parseNlri(ByteBuf nlri, byte[] nextHop, MpReachNlriBuilder builder) throws BGPParsingException;
 }

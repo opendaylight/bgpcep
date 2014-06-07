@@ -15,14 +15,12 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public interface LocRIBListener extends EventListener {
-	/**
-	 * @param trans Modification transaction. The implementation must explicitly commit
-	 *              it if it wishes to have its modifications propagated. The transaction
-	 *              is not shared with any other entity and will be cleaned up by the
-	 *              caller if it is not committed before this method returns.
-	 * @param event Data change event
-	 * @param depth Subscription path depth.
-	 */
-	void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans,
-			DataChangeEvent<InstanceIdentifier<?>, DataObject> event);
+    /**
+     * @param trans Modification transaction. The implementation must explicitly commit it if it wishes to have its
+     *        modifications propagated. The transaction is not shared with any other entity and will be cleaned up by
+     *        the caller if it is not committed before this method returns.
+     * @param event Data change event
+     * @param depth Subscription path depth.
+     */
+    void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans, DataChangeEvent<InstanceIdentifier<?>, DataObject> event);
 }

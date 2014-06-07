@@ -12,5 +12,5 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 public interface AdjRIBsInFactory {
-	AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, TablesKey key);
+    AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, TablesKey key);
 }

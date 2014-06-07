@@ -15,32 +15,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Internal utility class for selecting the best available KeyAccessFactory.
- * We prefer NativeKeyAccessFactory, but fall back to DummyKeyAccessFactory
- * if that is not available.
+ * Internal utility class for selecting the best available KeyAccessFactory. We prefer NativeKeyAccessFactory, but fall
+ * back to DummyKeyAccessFactory if that is not available.
  */
 final class DefaultKeyAccessFactoryFactory {
-	private static final Logger LOG = LoggerFactory.getLogger(DefaultKeyAccessFactoryFactory.class);
-	private static final KeyAccessFactory FACTORY;
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultKeyAccessFactoryFactory.class);
+    private static final KeyAccessFactory FACTORY;
 
-	static {
-		KeyAccessFactory factory;
+    static {
+        KeyAccessFactory factory;
 
-		try {
-			factory = NativeKeyAccessFactory.getInstance();
-		} catch (NativeSupportUnavailableException e) {
-			LOG.debug("Native key access not available, using no-op fallback", e);
-			factory = DummyKeyAccessFactory.getInstance();
-		}
+        try {
+            factory = NativeKeyAccessFactory.getInstance();
+        } catch (NativeSupportUnavailableException e) {
+            LOG.debug("Native key access not available, using no-op fallback", e);
+            factory = DummyKeyAccessFactory.getInstance();
+        }
 
-		FACTORY = factory;
-	}
+        FACTORY = factory;
+    }
 
-	private DefaultKeyAccessFactoryFactory() {
-		throw new UnsupportedOperationException("Utility class should never be instantiated");
-	}
+    private DefaultKeyAccessFactoryFactory() {
+        throw new UnsupportedOperationException("Utility class should never be instantiated");
+    }
 
-	public static KeyAccessFactory getKeyAccessFactory() {
-		return FACTORY;
-	}
+    public static KeyAccessFactory getKeyAccessFactory() {
+        return FACTORY;
+    }
 }

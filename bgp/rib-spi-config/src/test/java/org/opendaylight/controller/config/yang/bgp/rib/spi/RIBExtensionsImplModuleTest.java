@@ -8,7 +8,9 @@
 package org.opendaylight.controller.config.yang.bgp.rib.spi;
 
 import java.util.List;
+
 import javax.management.ObjectName;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -49,7 +51,8 @@ public class RIBExtensionsImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    public static ObjectName createRIBExtensionsModuleInstance(final ConfigTransactionJMXClient transaction, final List<ObjectName> extensions) throws Exception {
+    public static ObjectName createRIBExtensionsModuleInstance(final ConfigTransactionJMXClient transaction,
+            final List<ObjectName> extensions) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         RIBExtensionsImplModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, RIBExtensionsImplModuleMXBean.class);
         mxBean.setExtension(extensions);

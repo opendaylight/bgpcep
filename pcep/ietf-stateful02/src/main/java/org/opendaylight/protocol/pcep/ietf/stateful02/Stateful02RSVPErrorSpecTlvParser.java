@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
@@ -26,75 +28,73 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ErrorSpec.Flags;
 
-import com.google.common.primitives.UnsignedBytes;
-
 /**
  * Parser for {@link RsvpErrorSpec}
  */
 public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 21;
+    public static final int TYPE = 21;
 
-	private static final int IP4_F_LENGTH = 4;
-	private static final int IP6_F_LENGTH = 16;
-	private static final int FLAGS_F_LENGTH = 1;
-	private static final int ERROR_CODE_F_LENGTH = 1;
-	private static final int ERROR_VALUE_F_LENGTH = 2;
+    private static final int IP4_F_LENGTH = 4;
+    private static final int IP6_F_LENGTH = 16;
+    private static final int FLAGS_F_LENGTH = 1;
+    private static final int ERROR_CODE_F_LENGTH = 1;
+    private static final int ERROR_VALUE_F_LENGTH = 2;
 
-	private static final int IN_PLACE_FLAG_OFFSET = 7;
-	private static final int NOT_GUILTY_FLAGS_OFFSET = 6;
+    private static final int IN_PLACE_FLAG_OFFSET = 7;
+    private static final int NOT_GUILTY_FLAGS_OFFSET = 6;
 
-	private static final int V4_RSVP_LENGTH = 8;
-	private static final int V6_RSVP_LENGTH = 20;
+    private static final int V4_RSVP_LENGTH = 8;
+    private static final int V6_RSVP_LENGTH = 20;
 
-	@Override
-	public RsvpErrorSpec parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		final RsvpErrorBuilder builder = new RsvpErrorBuilder();
-		if (buffer.readableBytes() == V4_RSVP_LENGTH) {
-			builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH))));
-		} else if (buffer.readableBytes() == V6_RSVP_LENGTH) {
-			builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH))));
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-		builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
-		final short errorCode = (short) UnsignedBytes.toInt(buffer.readByte());
-		builder.setCode(errorCode);
-		final int errorValue = buffer.readUnsignedShort();
-		builder.setValue(errorValue);
-		return new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
-	}
+    @Override
+    public RsvpErrorSpec parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        final RsvpErrorBuilder builder = new RsvpErrorBuilder();
+        if (buffer.readableBytes() == V4_RSVP_LENGTH) {
+            builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH))));
+        } else if (buffer.readableBytes() == V6_RSVP_LENGTH) {
+            builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH))));
+        }
+        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
+        builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
+        final short errorCode = (short) UnsignedBytes.toInt(buffer.readByte());
+        builder.setCode(errorCode);
+        final int errorValue = buffer.readUnsignedShort();
+        builder.setValue(errorValue);
+        return new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null) {
-			throw new IllegalArgumentException("RSVPErrorSpecTlv is mandatory.");
-		}
-		final RsvpErrorSpec rsvpTlv = (RsvpErrorSpec) tlv;
-		final RsvpError rsvp = rsvpTlv.getRsvpError();
-		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(IN_PLACE_FLAG_OFFSET, rsvp.getFlags().isInPlace());
-		flags.set(NOT_GUILTY_FLAGS_OFFSET, rsvp.getFlags().isNotGuilty());
-		int offset = 0;
-		final IpAddress node = rsvp.getNode();
-		byte[] bytes;
-		if (node.getIpv4Address() != null) {
-			bytes = new byte[V4_RSVP_LENGTH];
-			ByteArray.copyWhole(Ipv4Util.bytesForAddress(node.getIpv4Address()), bytes, offset);
-			offset += IP4_F_LENGTH;
-		} else {
-			bytes = new byte[V6_RSVP_LENGTH];
-			ByteArray.copyWhole(Ipv6Util.bytesForAddress(node.getIpv6Address()), bytes, offset);
-			offset += IP6_F_LENGTH;
-		}
-		bytes[offset] = ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH)[0];
-		offset += FLAGS_F_LENGTH;
-		bytes[offset] = UnsignedBytes.checkedCast(rsvp.getCode());
-		offset += ERROR_CODE_F_LENGTH;
-		final byte[] value = ByteArray.intToBytes(rsvp.getValue().intValue(), ERROR_VALUE_F_LENGTH);
-		ByteArray.copyWhole(value, bytes, offset);
-		return TlvUtil.formatTlv(TYPE, bytes);
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        if (tlv == null) {
+            throw new IllegalArgumentException("RSVPErrorSpecTlv is mandatory.");
+        }
+        final RsvpErrorSpec rsvpTlv = (RsvpErrorSpec) tlv;
+        final RsvpError rsvp = rsvpTlv.getRsvpError();
+        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+        flags.set(IN_PLACE_FLAG_OFFSET, rsvp.getFlags().isInPlace());
+        flags.set(NOT_GUILTY_FLAGS_OFFSET, rsvp.getFlags().isNotGuilty());
+        int offset = 0;
+        final IpAddress node = rsvp.getNode();
+        byte[] bytes;
+        if (node.getIpv4Address() != null) {
+            bytes = new byte[V4_RSVP_LENGTH];
+            ByteArray.copyWhole(Ipv4Util.bytesForAddress(node.getIpv4Address()), bytes, offset);
+            offset += IP4_F_LENGTH;
+        } else {
+            bytes = new byte[V6_RSVP_LENGTH];
+            ByteArray.copyWhole(Ipv6Util.bytesForAddress(node.getIpv6Address()), bytes, offset);
+            offset += IP6_F_LENGTH;
+        }
+        bytes[offset] = ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH)[0];
+        offset += FLAGS_F_LENGTH;
+        bytes[offset] = UnsignedBytes.checkedCast(rsvp.getCode());
+        offset += ERROR_CODE_F_LENGTH;
+        final byte[] value = ByteArray.intToBytes(rsvp.getValue().intValue(), ERROR_VALUE_F_LENGTH);
+        ByteArray.copyWhole(value, bytes, offset);
+        return TlvUtil.formatTlv(TYPE, bytes);
+    }
 }

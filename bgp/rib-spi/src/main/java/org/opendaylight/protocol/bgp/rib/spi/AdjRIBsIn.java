@@ -14,9 +14,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 
 public interface AdjRIBsIn {
-	void addRoutes(DataModificationTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
-	void removeRoutes(DataModificationTransaction trans, Peer peer, MpUnreachNlri nlri);
-	void clear(DataModificationTransaction trans, Peer peer);
-	void markUptodate(DataModificationTransaction trans,  Peer peer);
-	Update endOfRib();
+    void addRoutes(DataModificationTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
+
+    void removeRoutes(DataModificationTransaction trans, Peer peer, MpUnreachNlri nlri);
+
+    void clear(DataModificationTransaction trans, Peer peer);
+
+    void markUptodate(DataModificationTransaction trans, Peer peer);
+
+    Update endOfRib();
 }

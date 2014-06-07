@@ -18,24 +18,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public class InitiatedActivator extends AbstractPCEPExtensionProviderActivator {
-	@Override
-	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-		final List<AutoCloseable> regs = new ArrayList<>();
+    @Override
+    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerMessageParser(PcinitiateMessageParser.TYPE,
-				new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(PcinitiateMessageParser.TYPE,
+                new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE,
-				new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
-		regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE,
+                new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
 
-		regs.add(context.registerTlvParser(LSPCleanupTlvParser.TYPE, new LSPCleanupTlvParser()));
-		regs.add(context.registerTlvSerializer(LspCleanup.class, new LSPCleanupTlvParser()));
+        regs.add(context.registerTlvParser(LSPCleanupTlvParser.TYPE, new LSPCleanupTlvParser()));
+        regs.add(context.registerTlvSerializer(LspCleanup.class, new LSPCleanupTlvParser()));
 
-		regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
-		regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvParser(PCEStatefulCapabilityTlvParser.TYPE, new PCEStatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvSerializer(Stateful.class, new PCEStatefulCapabilityTlvParser()));
 
-		return regs;
-	}
+        return regs;
+    }
 }

@@ -22,31 +22,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class OrderTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 5;
+    public static final int TYPE = 5;
 
-	private static final int ORDR_DEL_LENGTH = 4;
+    private static final int ORDR_DEL_LENGTH = 4;
 
-	private static final int ORDR_SETUP_LENGTH = 4;
+    private static final int ORDR_SETUP_LENGTH = 4;
 
-	@Override
-	public Order parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		return new OrderBuilder().setDelete(buffer.readUnsignedInt()).setSetup(buffer.readUnsignedInt()).build();
-	}
+    @Override
+    public Order parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        return new OrderBuilder().setDelete(buffer.readUnsignedInt()).setSetup(buffer.readUnsignedInt()).build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null) {
-			throw new IllegalArgumentException("OrderTlv is mandatory.");
-		}
-		final Order otlv = (Order) tlv;
-		final byte[] bytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
-		int offset = 0;
-		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getDelete(), ORDR_DEL_LENGTH), bytes, offset);
-		offset += ORDR_DEL_LENGTH;
-		ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
-		return TlvUtil.formatTlv(TYPE, bytes);
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        if (tlv == null) {
+            throw new IllegalArgumentException("OrderTlv is mandatory.");
+        }
+        final Order otlv = (Order) tlv;
+        final byte[] bytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
+        int offset = 0;
+        ByteArray.copyWhole(ByteArray.longToBytes(otlv.getDelete(), ORDR_DEL_LENGTH), bytes, offset);
+        offset += ORDR_DEL_LENGTH;
+        ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
+        return TlvUtil.formatTlv(TYPE, bytes);
+    }
 }

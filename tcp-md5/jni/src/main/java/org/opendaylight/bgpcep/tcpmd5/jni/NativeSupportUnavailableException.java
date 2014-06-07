@@ -10,17 +10,16 @@ package org.opendaylight.bgpcep.tcpmd5.jni;
 import java.io.IOException;
 
 /**
- * Exception thrown when the runtime platform or underlying operating system
- * cannot support native key access.
+ * Exception thrown when the runtime platform or underlying operating system cannot support native key access.
  */
 public final class NativeSupportUnavailableException extends IOException {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public NativeSupportUnavailableException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
+    public NativeSupportUnavailableException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 
-	public NativeSupportUnavailableException(final String message) {
-		super(message);
-	}
+    public NativeSupportUnavailableException(final String message) {
+        super(message);
+    }
 }

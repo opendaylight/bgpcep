@@ -30,42 +30,42 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPCloseMessageParser extends AbstractMessageParser {
 
-	public static final int TYPE = 7;
+    public static final int TYPE = 7;
 
-	public PCEPCloseMessageParser(final ObjectRegistry registry) {
-		super(registry);
-	}
+    public PCEPCloseMessageParser(final ObjectRegistry registry) {
+        super(registry);
+    }
 
-	@Override
-	public void serializeMessage(final Message message, final ByteBuf out) {
-		if (!(message instanceof CloseMessage)) {
-			throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-					+ ". Nedded CloseMessage.");
-		}
-		final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
+    @Override
+    public void serializeMessage(final Message message, final ByteBuf out) {
+        if (!(message instanceof CloseMessage)) {
+            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
+                    + ". Nedded CloseMessage.");
+        }
+        final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
 
-		if (close.getCClose() == null) {
-			throw new IllegalArgumentException("Close Object must be present in Close Message.");
-		}
-		ByteBuf buffer = Unpooled.buffer();
-		buffer.writeBytes(serializeObject(close.getCClose()));
-		MessageUtil.formatMessage(TYPE, buffer, out);
-	}
+        if (close.getCClose() == null) {
+            throw new IllegalArgumentException("Close Object must be present in Close Message.");
+        }
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeBytes(serializeObject(close.getCClose()));
+        MessageUtil.formatMessage(TYPE, buffer, out);
+    }
 
-	@Override
-	protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-		if (objects == null) {
-			throw new IllegalArgumentException("Passed list can't be null.");
-		}
-		if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
-			throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
-		}
-		final Object o = objects.get(0);
-		final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
-		objects.remove(0);
-		if (!objects.isEmpty()) {
-			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-		}
-		return new CloseBuilder().setCCloseMessage(msg).build();
-	}
+    @Override
+    protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        if (objects == null) {
+            throw new IllegalArgumentException("Passed list can't be null.");
+        }
+        if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
+            throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
+        }
+        final Object o = objects.get(0);
+        final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
+        objects.remove(0);
+        if (!objects.isEmpty()) {
+            throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+        }
+        return new CloseBuilder().setCCloseMessage(msg).build();
+    }
 }

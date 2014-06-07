@@ -15,22 +15,22 @@ import org.opendaylight.protocol.pcep.ietf.stateful02.StatefulActivator;
 *
 */
 public final class IetfStateful02PCEPParserModule extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfStateful02PCEPParserModule {
+        org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfStateful02PCEPParserModule {
 
-	public IetfStateful02PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public IetfStateful02PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public IetfStateful02PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final IetfStateful02PCEPParserModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public IetfStateful02PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final IetfStateful02PCEPParserModule oldModule, final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new StatefulActivator();
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new StatefulActivator();
+    }
 }

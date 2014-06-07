@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,26 +20,24 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  *
  */
 @Sharable
 final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
-	private static final Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
-	private final MessageRegistry registry;
+    private static final Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
+    private final MessageRegistry registry;
 
-	BGPMessageToByteEncoder(final MessageRegistry registry) {
-		this.registry = Preconditions.checkNotNull(registry);
-	}
+    BGPMessageToByteEncoder(final MessageRegistry registry) {
+        this.registry = Preconditions.checkNotNull(registry);
+    }
 
-	@Override
-	protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) {
-		LOG.trace("Encoding message: {}", msg);
-		final byte[] bytes = this.registry.serializeMessage(msg);
-		LOG.trace("Encoded message: {}", ByteArray.bytesToHexString(bytes));
-		out.writeBytes(bytes);
-		LOG.debug("Message sent to output: {}", msg);
-	}
+    @Override
+    protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) {
+        LOG.trace("Encoding message: {}", msg);
+        final byte[] bytes = this.registry.serializeMessage(msg);
+        LOG.trace("Encoded message: {}", ByteArray.bytesToHexString(bytes));
+        out.writeBytes(bytes);
+        LOG.debug("Message sent to output: {}", msg);
+    }
 }

@@ -7,6 +7,12 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,147 +44,140 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
-
 /**
  *
  */
 final class ServerSessionManager implements SessionListenerFactory<PCEPSessionListener>, AutoCloseable, TopologySessionRPCs {
-	private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
-	private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
+    private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
+    private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
-	private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
-	private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
-	private final TopologySessionListenerFactory listenerFactory;
-	private final InstanceIdentifier<Topology> topology;
-	private final DataProviderService dataProvider;
+    private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
+    private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
+    private final TopologySessionListenerFactory listenerFactory;
+    private final InstanceIdentifier<Topology> topology;
+    private final DataProviderService dataProvider;
 
-	public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory) {
-		this.dataProvider = Preconditions.checkNotNull(dataProvider);
-		this.topology = Preconditions.checkNotNull(topology);
-		this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
+    public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology,
+            final TopologySessionListenerFactory listenerFactory) {
+        this.dataProvider = Preconditions.checkNotNull(dataProvider);
+        this.topology = Preconditions.checkNotNull(topology);
+        this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
 
-		// Make sure the topology does not exist
-		final Object c = dataProvider.readOperationalData(topology);
-		Preconditions.checkArgument(c == null, "Topology %s already exists", topology);
+        // Make sure the topology does not exist
+        final Object c = dataProvider.readOperationalData(topology);
+        Preconditions.checkArgument(c == null, "Topology %s already exists", topology);
 
-		// Now create the base topology
-		final TopologyKey k = InstanceIdentifier.keyOf(topology);
-		final DataModificationTransaction t = dataProvider.beginTransaction();
-		t.putOperationalData(
-				topology,
-				new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
-						new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
-								new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-										new ArrayList<Node>()).build());
+        // Now create the base topology
+        final TopologyKey k = InstanceIdentifier.keyOf(topology);
+        final DataModificationTransaction t = dataProvider.beginTransaction();
+        t.putOperationalData(topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+                new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
+                        new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
+                new ArrayList<Node>()).build());
 
-		Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
-			@Override
-			public void onSuccess(final RpcResult<TransactionStatus> result) {
-				LOG.trace("Topology {} created successfully", topology);
-			}
+        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+            @Override
+            public void onSuccess(final RpcResult<TransactionStatus> result) {
+                LOG.trace("Topology {} created successfully", topology);
+            }
 
-			@Override
-			public void onFailure(final Throwable t) {
-				LOG.error("Failed to create topology {}", topology);
-			}
-		});
-	}
+            @Override
+            public void onFailure(final Throwable t) {
+                LOG.error("Failed to create topology {}", topology);
+            }
+        });
+    }
 
-	public void releaseNodeState(final TopologyNodeState nodeState) {
-		LOG.debug("Node {} unbound", nodeState.getNodeId());
-		this.nodes.remove(nodeState.getNodeId());
-		nodeState.released();
-	}
+    public void releaseNodeState(final TopologyNodeState nodeState) {
+        LOG.debug("Node {} unbound", nodeState.getNodeId());
+        this.nodes.remove(nodeState.getNodeId());
+        nodeState.released();
+    }
 
-	synchronized TopologyNodeState takeNodeState(final NodeId id, final TopologySessionListener sessionListener) {
-		LOG.debug("Node {} bound to listener {}", id, sessionListener);
+    synchronized TopologyNodeState takeNodeState(final NodeId id, final TopologySessionListener sessionListener) {
+        LOG.debug("Node {} bound to listener {}", id, sessionListener);
 
-		TopologyNodeState ret = this.state.get(id);
-		if (ret == null) {
-			ret = new TopologyNodeState(id, DEFAULT_HOLD_STATE_NANOS);
-			this.state.put(id, ret);
-		}
+        TopologyNodeState ret = this.state.get(id);
+        if (ret == null) {
+            ret = new TopologyNodeState(id, DEFAULT_HOLD_STATE_NANOS);
+            this.state.put(id, ret);
+        }
 
-		this.nodes.put(id, sessionListener);
-		ret.taken();
-		return ret;
-	}
+        this.nodes.put(id, sessionListener);
+        ret.taken();
+        return ret;
+    }
 
-	@Override
-	public PCEPSessionListener getSessionListener() {
-		return listenerFactory.createTopologySessionListener(this);
-	}
+    @Override
+    public PCEPSessionListener getSessionListener() {
+        return listenerFactory.createTopologySessionListener(this);
+    }
 
-	@Override
-	public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-		// Get the listener corresponding to the node
-		final TopologySessionListener l = this.nodes.get(input.getNode());
-		if (l == null) {
-			LOG.debug("Session for node {} not found", input.getNode());
-			return OperationResults.UNSENT.future();
-		}
+    @Override
+    public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+        // Get the listener corresponding to the node
+        final TopologySessionListener l = this.nodes.get(input.getNode());
+        if (l == null) {
+            LOG.debug("Session for node {} not found", input.getNode());
+            return OperationResults.UNSENT.future();
+        }
 
-		return l.addLsp(input);
-	}
+        return l.addLsp(input);
+    }
 
-	@Override
-	public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-		// Get the listener corresponding to the node
-		final TopologySessionListener l = this.nodes.get(input.getNode());
-		if (l == null) {
-			LOG.debug("Session for node {} not found", input.getNode());
-			return OperationResults.UNSENT.future();
-		}
+    @Override
+    public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+        // Get the listener corresponding to the node
+        final TopologySessionListener l = this.nodes.get(input.getNode());
+        if (l == null) {
+            LOG.debug("Session for node {} not found", input.getNode());
+            return OperationResults.UNSENT.future();
+        }
 
-		return l.removeLsp(input);
-	}
+        return l.removeLsp(input);
+    }
 
-	@Override
-	public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-		// Get the listener corresponding to the node
-		final TopologySessionListener l = this.nodes.get(input.getNode());
-		if (l == null) {
-			LOG.debug("Session for node {} not found", input.getNode());
-			return OperationResults.UNSENT.future();
-		}
+    @Override
+    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+        // Get the listener corresponding to the node
+        final TopologySessionListener l = this.nodes.get(input.getNode());
+        if (l == null) {
+            LOG.debug("Session for node {} not found", input.getNode());
+            return OperationResults.UNSENT.future();
+        }
 
-		return l.updateLsp(input);
-	}
+        return l.updateLsp(input);
+    }
 
-	@Override
-	public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-		// Get the listener corresponding to the node
-		final TopologySessionListener l = this.nodes.get(input.getNode());
-		if (l == null) {
-			LOG.debug("Session for node {} not found", input.getNode());
-			return OperationResults.UNSENT.future();
-		}
+    @Override
+    public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+        // Get the listener corresponding to the node
+        final TopologySessionListener l = this.nodes.get(input.getNode());
+        if (l == null) {
+            LOG.debug("Session for node {} not found", input.getNode());
+            return OperationResults.UNSENT.future();
+        }
 
-		return l.ensureLspOperational(input);
-	}
+        return l.ensureLspOperational(input);
+    }
 
-	InstanceIdentifier<Topology> getTopology() {
-		return topology;
-	}
+    InstanceIdentifier<Topology> getTopology() {
+        return topology;
+    }
 
-	DataModificationTransaction beginTransaction() {
-		return dataProvider.beginTransaction();
-	}
+    DataModificationTransaction beginTransaction() {
+        return dataProvider.beginTransaction();
+    }
 
-	@SuppressWarnings("unchecked")
-	<T extends DataObject> T readOperationalData(final InstanceIdentifier<T> id) {
-		return (T)dataProvider.readOperationalData(id);
-	}
+    @SuppressWarnings("unchecked")
+    <T extends DataObject> T readOperationalData(final InstanceIdentifier<T> id) {
+        return (T) dataProvider.readOperationalData(id);
+    }
 
-	@Override
-	public void close() throws InterruptedException, ExecutionException {
-		final DataModificationTransaction t = this.dataProvider.beginTransaction();
-		t.removeOperationalData(this.topology);
-		t.commit().get();
-	}
+    @Override
+    public void close() throws InterruptedException, ExecutionException {
+        final DataModificationTransaction t = this.dataProvider.beginTransaction();
+        t.removeOperationalData(this.topology);
+        t.commit().get();
+    }
 }

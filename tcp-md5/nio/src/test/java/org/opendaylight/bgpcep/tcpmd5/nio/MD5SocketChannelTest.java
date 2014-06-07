@@ -26,50 +26,50 @@ import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.MD5SocketOptions;
 
 public class MD5SocketChannelTest {
-	@Mock
-	private KeyAccessFactory keyAccessFactory;
-	@Mock
-	private KeyAccess keyAccess;
+    @Mock
+    private KeyAccessFactory keyAccessFactory;
+    @Mock
+    private KeyAccess keyAccess;
 
-	@Before
-	public void setup() throws IOException {
-		MockitoAnnotations.initMocks(this);
+    @Before
+    public void setup() throws IOException {
+        MockitoAnnotations.initMocks(this);
 
-		Mockito.doReturn(keyAccess).when(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
-		Mockito.doReturn(null).when(keyAccess).getKeys();
-		Mockito.doNothing().when(keyAccess).setKeys(any(KeyMapping.class));
-	}
+        Mockito.doReturn(keyAccess).when(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
+        Mockito.doReturn(null).when(keyAccess).getKeys();
+        Mockito.doNothing().when(keyAccess).setKeys(any(KeyMapping.class));
+    }
 
-	@Test
-	public void testCreate() throws IOException {
-		try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
+    @Test
+    public void testCreate() throws IOException {
+        try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
 
-		}
+        }
 
-		Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
-	}
+        Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
+    }
 
-	@Test
-	public void testGetKey() throws IOException {
-		try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
+    @Test
+    public void testGetKey() throws IOException {
+        try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
 
-			assertNull(sc.getOption(MD5SocketOptions.TCP_MD5SIG));
-		}
+            assertNull(sc.getOption(MD5SocketOptions.TCP_MD5SIG));
+        }
 
-		Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
-		Mockito.verify(keyAccess).getKeys();
-	}
+        Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
+        Mockito.verify(keyAccess).getKeys();
+    }
 
-	@Test
-	public void testSetKey() throws IOException {
-		final KeyMapping map = new KeyMapping();
-		map.put(InetAddress.getLoopbackAddress(), new byte[] { 1, 2, 3 });
+    @Test
+    public void testSetKey() throws IOException {
+        final KeyMapping map = new KeyMapping();
+        map.put(InetAddress.getLoopbackAddress(), new byte[] { 1, 2, 3 });
 
-		try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
-			assertSame(sc, sc.setOption(MD5SocketOptions.TCP_MD5SIG, map));
-		}
+        try (final MD5SocketChannel sc = MD5SocketChannel.open(keyAccessFactory)) {
+            assertSame(sc, sc.setOption(MD5SocketOptions.TCP_MD5SIG, map));
+        }
 
-		Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
-		Mockito.verify(keyAccess).setKeys(map);
-	}
+        Mockito.verify(keyAccessFactory).getKeyAccess(any(NetworkChannel.class));
+        Mockito.verify(keyAccess).setKeys(map);
+    }
 }

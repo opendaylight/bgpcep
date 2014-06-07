@@ -20,18 +20,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public final class LSPCleanupTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 26;
+    public static final int TYPE = 26;
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		return TlvUtil.formatTlv(TYPE, ByteArray.intToBytes(((LspCleanup) tlv).getTimeout().intValue()));
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        return TlvUtil.formatTlv(TYPE, ByteArray.intToBytes(((LspCleanup) tlv).getTimeout().intValue()));
+    }
 
-	@Override
-	public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		return new LspCleanupBuilder().setTimeout(buffer.readUnsignedInt()).build();
-	}
+    @Override
+    public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        return new LspCleanupBuilder().setTimeout(buffer.readUnsignedInt()).build();
+    }
 }

@@ -12,6 +12,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.Lists;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -30,8 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.data.impl.codec.CodecRegistry;
 import org.opendaylight.yangtools.yang.data.impl.codec.IdentityCodec;
 
-import com.google.common.collect.Lists;
-
 public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
 
     private static final String INSTANCE_NAME = "bgp-peer-module-impl";
@@ -44,8 +44,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     protected CodecRegistry getCodecRegistry() {
         IdentityCodec<?> idCodec = mock(IdentityCodec.class);
         doReturn(Ipv4AddressFamily.class).when(idCodec).deserialize(Ipv4AddressFamily.QNAME);
-        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(
-                MplsLabeledVpnSubsequentAddressFamily.QNAME);
+        doReturn(MplsLabeledVpnSubsequentAddressFamily.class).when(idCodec).deserialize(MplsLabeledVpnSubsequentAddressFamily.QNAME);
 
         CodecRegistry codecReg = super.getCodecRegistry();
         doReturn(idCodec).when(codecReg).getIdentityCodec();
@@ -102,16 +101,16 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         CommitStatus status = createBgpPeerInstance();
         ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(
-                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), BGPPeerModuleMXBean.class);
+        final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+                BGPPeerModuleMXBean.class);
         mxBean.setPort(new PortNumber(10));
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 1, 15);
     }
 
-    private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
-            final PortNumber port) throws Exception {
+    private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host, final PortNumber port)
+            throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
 
@@ -123,8 +122,8 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setAdvertizedTable(Collections.<ObjectName> emptyList());
         mxBean.setRib(createRIBImplModuleInstance(transaction));
         mxBean.setAdvertizedTable(Lists.newArrayList(BGPTableTypeImplModuleTest.createTableInstance(transaction,
-                new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()), new IdentityAttributeRef(
-                        MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
+                new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()),
+                new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
         return nameCreated;
     }
 

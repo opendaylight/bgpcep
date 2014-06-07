@@ -92,7 +92,7 @@
         </plugins>
     </build>
 
-	<dependencies>
+    <dependencies>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -203,8 +203,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>bgp-parser-mock</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-parser-mock</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

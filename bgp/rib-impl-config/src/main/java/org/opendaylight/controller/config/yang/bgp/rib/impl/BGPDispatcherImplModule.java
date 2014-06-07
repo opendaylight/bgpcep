@@ -22,28 +22,22 @@ import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 /**
  *
  */
-public final class BGPDispatcherImplModule
-extends
-org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModule {
+public final class BGPDispatcherImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPDispatcherImplModule {
 
-	public BGPDispatcherImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(name, dependencyResolver);
-	}
+    public BGPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(name, dependencyResolver);
+    }
 
-	public BGPDispatcherImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final BGPDispatcherImplModule oldModule,
-			final java.lang.AutoCloseable oldInstance) {
-		super(name, dependencyResolver, oldModule, oldInstance);
-	}
+    public BGPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPDispatcherImplModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(name, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
-		return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getTimerDependency(),
-				getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
+        return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getTimerDependency(), getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+    }
 }

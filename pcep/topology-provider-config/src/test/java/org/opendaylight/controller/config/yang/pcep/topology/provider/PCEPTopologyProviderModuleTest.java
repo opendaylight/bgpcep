@@ -101,7 +101,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertStatus(status, 0, 1, 15);
     }
 
-    private CommitStatus createInstance(final String listenAddress, final PortNumber listenPort, final TopologyId topologyId) throws Exception {
+    private CommitStatus createInstance(final String listenAddress, final PortNumber listenPort, final TopologyId topologyId)
+            throws Exception {
         ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         createPCEPTopologyProviderModuleInstance(transaction, listenAddress, listenPort, topologyId);
         return transaction.commit();
@@ -111,8 +112,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         return createInstance(LISTEN_ADDRESS, getRandomPortNumber(), TOPOLOGY_ID);
     }
 
-    public static ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
-            final ObjectName bindingBrokerON, final ObjectName schedulerON) throws Exception {
+    public static ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction,
+            final ObjectName dataBrokerON, final ObjectName bindingBrokerON, final ObjectName schedulerON) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, PCEPTopologyProviderModuleMXBean.class);
         mxBean.setDataProvider(dataBrokerON);
@@ -121,7 +122,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setListenPort(getRandomPortNumber());
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);
-        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME, STATEFUL02_TOPOLOGY_INSTANCE_NAME));
+        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
+                STATEFUL02_TOPOLOGY_INSTANCE_NAME));
         mxBean.setTopologyId(TOPOLOGY_ID);
         return objectName;
     }
@@ -140,7 +142,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setListenPort(listenPort);
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, dataBrokerON, bindingBrokerON, notificationBrokerON));
-        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME, STATEFUL02_TOPOLOGY_INSTANCE_NAME));
+        mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
+                STATEFUL02_TOPOLOGY_INSTANCE_NAME));
         mxBean.setTopologyId(topologyId);
         return objectName;
     }

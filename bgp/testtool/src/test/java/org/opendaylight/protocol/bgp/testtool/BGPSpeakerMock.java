@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
@@ -40,52 +42,50 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import com.google.common.base.Preconditions;
-
 public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionListener<M, ?, ?>> extends AbstractDispatcher<S, L> {
 
-	private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
-	private final BGPHandlerFactory factory;
+    private final SessionNegotiatorFactory<M, S, L> negotiatorFactory;
+    private final BGPHandlerFactory factory;
 
-	public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
-			final DefaultPromise<BGPSessionImpl> defaultPromise) {
-		super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
-		this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
-		this.factory = Preconditions.checkNotNull(factory);
-	}
+    public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
+            final DefaultPromise<BGPSessionImpl> defaultPromise) {
+        super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
+        this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
+        this.factory = Preconditions.checkNotNull(factory);
+    }
 
-	public void createServer(final InetSocketAddress address, final SessionListenerFactory<L> listenerFactory) {
-		super.createServer(address, new PipelineInitializer<S>() {
+    public void createServer(final InetSocketAddress address, final SessionListenerFactory<L> listenerFactory) {
+        super.createServer(address, new PipelineInitializer<S>() {
 
-			@Override
-			public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
-				ch.pipeline().addLast(BGPSpeakerMock.this.factory.getDecoders());
-				ch.pipeline().addLast("negotiator",
-						BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
-				ch.pipeline().addLast(BGPSpeakerMock.this.factory.getEncoders());
-			}
-		});
-	}
+            @Override
+            public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
+                ch.pipeline().addLast(BGPSpeakerMock.this.factory.getDecoders());
+                ch.pipeline().addLast("negotiator",
+                        BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(listenerFactory, ch, promise));
+                ch.pipeline().addLast(BGPSpeakerMock.this.factory.getEncoders());
+            }
+        });
+    }
 
-	public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
-		final SessionListenerFactory<BGPSessionListener> f = new SessionListenerFactory<BGPSessionListener>() {
-			@Override
-			public BGPSessionListener getSessionListener() {
-				return new SpeakerSessionListener();
-			}
-		};
+        final SessionListenerFactory<BGPSessionListener> f = new SessionListenerFactory<BGPSessionListener>() {
+            @Override
+            public BGPSessionListener getSessionListener() {
+                return new SpeakerSessionListener();
+            }
+        };
 
-		final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
-		tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-		tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        final Map<Class<? extends AddressFamily>, Class<? extends SubsequentAddressFamily>> tables = new HashMap<>();
+        tables.put(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        tables.put(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-		final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
+        final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
 
-		final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, new AsNumber(72L));
+        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, new AsNumber(72L));
 
-		final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
+        final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
-		mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);
-	}
+        mock.createServer(new InetSocketAddress("127.0.0.2", 12345), f);
+    }
 }

@@ -13,14 +13,14 @@ import org.junit.Test;
 
 public class MD5SocketOptionsTest {
 
-	@Test
-	public void testMd5SigName() {
-		assertEquals("TCP_MD5SIG", MD5SocketOptions.TCP_MD5SIG.name());
-	}
+    @Test
+    public void testMd5SigName() {
+        assertEquals("TCP_MD5SIG", MD5SocketOptions.TCP_MD5SIG.name());
+    }
 
-	@Test
-	public void testMd5SigType() {
-		assertEquals(KeyMapping.class, MD5SocketOptions.TCP_MD5SIG.type());
-	}
+    @Test
+    public void testMd5SigType() {
+        assertEquals(KeyMapping.class, MD5SocketOptions.TCP_MD5SIG.type());
+    }
 
 }

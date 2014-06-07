@@ -14,13 +14,13 @@ import org.junit.Test;
 
 public class APITest {
 
-	@Test
-	public void testDeserializerException() {
-		final PCEPDeserializerException e = new PCEPDeserializerException("Some error message.");
-		assertEquals("Some error message.", e.getMessage());
+    @Test
+    public void testDeserializerException() {
+        final PCEPDeserializerException e = new PCEPDeserializerException("Some error message.");
+        assertEquals("Some error message.", e.getMessage());
 
-		final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.", new IllegalArgumentException());
-		assertEquals("Some error message.", e1.getMessage());
-		assertTrue(e1.getCause() instanceof IllegalArgumentException);
-	}
+        final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.", new IllegalArgumentException());
+        assertEquals("Some error message.", e1.getMessage());
+        assertTrue(e1.getCause() instanceof IllegalArgumentException);
+    }
 }

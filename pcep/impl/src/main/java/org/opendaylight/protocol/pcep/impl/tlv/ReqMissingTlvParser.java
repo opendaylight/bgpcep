@@ -23,24 +23,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 3;
+    public static final int TYPE = 3;
 
-	private static final int REQ_ID_LENGTH = 4;
+    private static final int REQ_ID_LENGTH = 4;
 
-	@Override
-	public ReqMissing parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		return new ReqMissingBuilder().setRequestId(new RequestId(buffer.readUnsignedInt())).build();
-	}
+    @Override
+    public ReqMissing parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        return new ReqMissingBuilder().setRequestId(new RequestId(buffer.readUnsignedInt())).build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null) {
-			throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
-		}
-		final ReqMissing req = (ReqMissing) tlv;
-		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        if (tlv == null) {
+            throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
+        }
+        final ReqMissing req = (ReqMissing) tlv;
+        return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
+    }
 }

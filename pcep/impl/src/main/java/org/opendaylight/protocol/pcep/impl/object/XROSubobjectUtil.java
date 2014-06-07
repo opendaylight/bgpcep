@@ -11,16 +11,16 @@ import com.google.common.primitives.UnsignedBytes;
 
 public final class XROSubobjectUtil {
 
-	private static final int HEADER_SIZE = 2;
+    private static final int HEADER_SIZE = 2;
 
-	private XROSubobjectUtil() {
-	}
+    private XROSubobjectUtil() {
+    }
 
-	public static byte[] formatSubobject(final int type, final boolean mandatory, final byte[] value) {
-		final byte[] bytes = new byte[HEADER_SIZE + value.length];
-		bytes[0] = (byte) (UnsignedBytes.checkedCast(type) | (mandatory ? 1 << 7 : 0));
-		bytes[1] = UnsignedBytes.checkedCast(value.length + HEADER_SIZE);
-		System.arraycopy(value, 0, bytes, HEADER_SIZE, value.length);
-		return bytes;
-	}
+    public static byte[] formatSubobject(final int type, final boolean mandatory, final byte[] value) {
+        final byte[] bytes = new byte[HEADER_SIZE + value.length];
+        bytes[0] = (byte) (UnsignedBytes.checkedCast(type) | (mandatory ? 1 << 7 : 0));
+        bytes[1] = UnsignedBytes.checkedCast(value.length + HEADER_SIZE);
+        System.arraycopy(value, 0, bytes, HEADER_SIZE, value.length);
+        return bytes;
+    }
 }

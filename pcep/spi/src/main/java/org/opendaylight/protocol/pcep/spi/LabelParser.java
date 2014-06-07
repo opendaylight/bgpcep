@@ -12,5 +12,5 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
 public interface LabelParser {
-	LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException;
+    LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException;
 }

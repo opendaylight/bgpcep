@@ -23,20 +23,20 @@ module ieee754 {
         }
 
         typedef float32 {
-		type binary {
-			length 4;
-		}
-	}
+        type binary {
+            length 4;
+        }
+    }
 
         typedef float64 {
-		type binary {
-			length 8;
-		}
-	}
+        type binary {
+            length 8;
+        }
+    }
 
         typedef float128 {
-		type binary {
-			length 16;
-		}
-	}
+        type binary {
+            length 16;
+        }
+    }
 }

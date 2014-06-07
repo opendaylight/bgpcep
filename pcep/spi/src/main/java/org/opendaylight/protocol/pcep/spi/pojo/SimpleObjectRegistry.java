@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -21,56 +23,56 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.base.Preconditions;
-
 /**
  *
  */
 public final class SimpleObjectRegistry implements ObjectRegistry {
-	private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, ObjectParser, ObjectSerializer> handlers = new HandlerRegistry<>();
 
-	private static int createKey(final int objectClass, final int objectType) {
-		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
-		Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
-		return (objectClass << 4) | objectType;
-	}
+    private static int createKey(final int objectClass, final int objectType) {
+        Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        Preconditions.checkArgument(objectType >= 0 && objectType <= 15);
+        return (objectClass << 4) | objectType;
+    }
 
-	public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
-		Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illagal object class %s", objectClass);
-		Preconditions.checkArgument(objectType >= 0 && objectType <= 15, "Illegal object type %s", objectType);
-		return this.handlers.registerParser(createKey(objectClass, objectType), parser);
-	}
+    public AutoCloseable registerObjectParser(final int objectClass, final int objectType, final ObjectParser parser) {
+        Preconditions.checkArgument(objectClass >= 0 && objectClass <= Values.UNSIGNED_BYTE_MAX_VALUE, "Illagal object class %s",
+                objectClass);
+        Preconditions.checkArgument(objectType >= 0 && objectType <= 15, "Illegal object type %s", objectType);
+        return this.handlers.registerParser(createKey(objectClass, objectType), parser);
+    }
 
-	public AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
-		return this.handlers.registerSerializer(objClass, serializer);
-	}
+    public AutoCloseable registerObjectSerializer(final Class<? extends Object> objClass, final ObjectSerializer serializer) {
+        return this.handlers.registerSerializer(objClass, serializer);
+    }
 
-	@Override
-	public Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(objectType >= 0 && objectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
-		final ObjectParser parser = this.handlers.getParser(createKey(objectClass, objectType));
+    @Override
+    public Object parseObject(final int objectClass, final int objectType, final ObjectHeader header, final ByteBuf buffer)
+            throws PCEPDeserializerException {
+        Preconditions.checkArgument(objectType >= 0 && objectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
+        final ObjectParser parser = this.handlers.getParser(createKey(objectClass, objectType));
 
-		if (parser == null) {
-			if(!header.isProcessingRule()) {
-				return null;
-			}
-			for (int type = 1; type <= 15; type++) {
-				final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
-				if(objParser != null) {
-					return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
-				}
-			}
-			return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
-		}
-		return parser.parseObject(header, buffer);
-	}
+        if (parser == null) {
+            if (!header.isProcessingRule()) {
+                return null;
+            }
+            for (int type = 1; type <= 15; type++) {
+                final ObjectParser objParser = this.handlers.getParser(createKey(objectClass, type));
+                if (objParser != null) {
+                    return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_TYPE);
+                }
+            }
+            return new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS);
+        }
+        return parser.parseObject(header, buffer);
+    }
 
-	@Override
-	public byte[] serializeObject(Object object) {
-		final ObjectSerializer serializer = this.handlers.getSerializer(object.getImplementedInterface());
-		if (serializer == null) {
-			return null;
-		}
-		return serializer.serializeObject(object);
-	}
+    @Override
+    public byte[] serializeObject(Object object) {
+        final ObjectSerializer serializer = this.handlers.getSerializer(object.getImplementedInterface());
+        if (serializer == null) {
+            return null;
+        }
+        return serializer.serializeObject(object);
+    }
 }

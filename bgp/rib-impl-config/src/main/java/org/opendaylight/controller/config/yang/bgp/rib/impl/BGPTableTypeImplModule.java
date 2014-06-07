@@ -16,70 +16,69 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
+
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.base.Preconditions;
-
 /**
  *
  */
-public final class BGPTableTypeImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPTableTypeImplModule
-{
+public final class BGPTableTypeImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPTableTypeImplModule {
 
-	public BGPTableTypeImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public BGPTableTypeImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public BGPTableTypeImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final BGPTableTypeImplModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public BGPTableTypeImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPTableTypeImplModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation(){
-		JmxAttributeValidationException.checkNotNull(getAfi(),
-				"value is not set.", afiJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getSafi(),
-				"value is not set.", safiJmxAttribute);
-	}
+    @Override
+    protected void customValidation() {
+        JmxAttributeValidationException.checkNotNull(getAfi(), "value is not set.", afiJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getSafi(), "value is not set.", safiJmxAttribute);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new AutoCloseableBgpTableType(getAfiIdentity(), getSafiIdentity());
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new AutoCloseableBgpTableType(getAfiIdentity(), getSafiIdentity());
+    }
 
-	private static final class AutoCloseableBgpTableType implements AutoCloseable, BgpTableType {
-		private final Class<? extends AddressFamily> afi;
-		private final Class<? extends SubsequentAddressFamily> safi;
+    private static final class AutoCloseableBgpTableType implements AutoCloseable, BgpTableType {
+        private final Class<? extends AddressFamily> afi;
+        private final Class<? extends SubsequentAddressFamily> safi;
 
-		public AutoCloseableBgpTableType(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
-			this.afi = Preconditions.checkNotNull(afi);
-			this.safi = Preconditions.checkNotNull(safi);
-		}
+        public AutoCloseableBgpTableType(final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+            this.afi = Preconditions.checkNotNull(afi);
+            this.safi = Preconditions.checkNotNull(safi);
+        }
 
-		@Override
-		public Class<? extends DataContainer> getImplementedInterface() {
-			return BgpTableType.class;
-		}
+        @Override
+        public Class<? extends DataContainer> getImplementedInterface() {
+            return BgpTableType.class;
+        }
 
-		@Override
-		public Class<? extends AddressFamily> getAfi() {
-			return afi;
-		}
+        @Override
+        public Class<? extends AddressFamily> getAfi() {
+            return afi;
+        }
 
-		@Override
-		public Class<? extends SubsequentAddressFamily> getSafi() {
-			return safi;
-		}
+        @Override
+        public Class<? extends SubsequentAddressFamily> getSafi() {
+            return safi;
+        }
 
-		@Override
-		public void close() {
-			// Nothing to do
-		}
-	}
+        @Override
+        public void close() {
+            // Nothing to do
+        }
+    }
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
@@ -17,42 +19,39 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link Ero}
  */
 public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
-	public static final int CLASS = 7;
+    public static final int CLASS = 7;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	public PCEPExplicitRouteObjectParser(final EROSubobjectRegistry subobjReg) {
-		super(subobjReg);
-	}
+    public PCEPExplicitRouteObjectParser(final EROSubobjectRegistry subobjReg) {
+        super(subobjReg);
+    }
 
-	@Override
-	public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final EroBuilder builder = new EroBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
-		builder.setSubobject(parseSubobjects(buffer));
-		return builder.build();
-	}
+    @Override
+    public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final EroBuilder builder = new EroBuilder();
+        builder.setIgnore(header.isIgnore());
+        builder.setProcessingRule(header.isProcessingRule());
+        builder.setSubobject(parseSubobjects(buffer));
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof Ero)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-					+ ". Needed ExplicitRouteObject.");
-		}
-		final Ero ero = ((Ero) object);
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof Ero)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
+                    + ". Needed ExplicitRouteObject.");
+        }
+        final Ero ero = ((Ero) object);
 
-		assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
+        assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
 
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
-				serializeSubobject(ero.getSubobject()));
-	}
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(ero.getSubobject()));
+    }
 }

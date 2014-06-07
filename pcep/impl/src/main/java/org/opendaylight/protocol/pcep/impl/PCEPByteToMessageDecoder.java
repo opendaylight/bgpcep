@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,60 +24,58 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  * A PCEP message parser which also does validation.
  */
 public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPByteToMessageDecoder.class);
 
-	private final MessageRegistry registry;
+    private final MessageRegistry registry;
 
-	public PCEPByteToMessageDecoder(final MessageRegistry registry) {
-		this.registry = Preconditions.checkNotNull(registry);
-	}
+    public PCEPByteToMessageDecoder(final MessageRegistry registry) {
+        this.registry = Preconditions.checkNotNull(registry);
+    }
 
-	@Override
-	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
-		if (!in.isReadable()) {
-			LOG.debug("No more content in incoming buffer.");
-			return;
-		}
+    @Override
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+        if (!in.isReadable()) {
+            LOG.debug("No more content in incoming buffer.");
+            return;
+        }
 
-		in.markReaderIndex();
-		LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
+        in.markReaderIndex();
+        LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
 
-		final List<Message> errors = new ArrayList<>();
+        final List<Message> errors = new ArrayList<>();
 
-		try {
-			out.add(parse(in, errors));
-		} catch (final PCEPDeserializerException e) {
-			LOG.debug("Failed to decode protocol message", e);
-			this.exceptionCaught(ctx, e);
-		}
-		in.discardReadBytes();
+        try {
+            out.add(parse(in, errors));
+        } catch (final PCEPDeserializerException e) {
+            LOG.debug("Failed to decode protocol message", e);
+            this.exceptionCaught(ctx, e);
+        }
+        in.discardReadBytes();
 
-		if (!errors.isEmpty()) {
-			// We have a bunch of messages, send them out
-			for (final Object e : errors) {
-				ctx.channel().write(e);
-			}
-			ctx.channel().flush();
-		}
-	}
+        if (!errors.isEmpty()) {
+            // We have a bunch of messages, send them out
+            for (final Object e : errors) {
+                ctx.channel().write(e);
+            }
+            ctx.channel().flush();
+        }
+    }
 
-	private Message parse(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
-		buffer.readerIndex(buffer.readerIndex() + 1);
-		final int type = buffer.readUnsignedByte();
-		final int msgLength = buffer.readUnsignedShort();
-		final int actualLength = buffer.readableBytes();
-		final ByteBuf msgBody = buffer.slice();
-		if (actualLength != msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH) {
-			throw new PCEPDeserializerException("Body size " + actualLength + " does not match header size "
-					+ (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
-		}
-		buffer.readerIndex(buffer.readerIndex() + actualLength);
-		return this.registry.parseMessage(type, msgBody, errors);
-	}
+    private Message parse(final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException {
+        buffer.readerIndex(buffer.readerIndex() + 1);
+        final int type = buffer.readUnsignedByte();
+        final int msgLength = buffer.readUnsignedShort();
+        final int actualLength = buffer.readableBytes();
+        final ByteBuf msgBody = buffer.slice();
+        if (actualLength != msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH) {
+            throw new PCEPDeserializerException("Body size " + actualLength + " does not match header size "
+                    + (msgLength - PCEPMessageConstants.COMMON_HEADER_LENGTH));
+        }
+        buffer.readerIndex(buffer.readerIndex() + actualLength);
+        return this.registry.parseMessage(type, msgBody, errors);
+    }
 }

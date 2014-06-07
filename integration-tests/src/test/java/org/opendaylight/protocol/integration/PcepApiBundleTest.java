@@ -7,18 +7,18 @@
  */
 package org.opendaylight.protocol.integration;
 
-import java.util.Collection;
-
 import com.google.common.collect.Lists;
 
-public final class PcepApiBundleTest extends AbstractBundleTest {
-	@Override
-	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("concepts", "rsvp-api", "tcpmd5-api", "util");
-	}
+import java.util.Collection;
 
-	@Override
-	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("pcep-api");
-	}
+public final class PcepApiBundleTest extends AbstractBundleTest {
+    @Override
+    protected Collection<String> prerequisiteBundles() {
+        return Lists.newArrayList("concepts", "rsvp-api", "tcpmd5-api", "util");
+    }
+
+    @Override
+    protected Collection<String> requiredBundles() {
+        return Lists.newArrayList("pcep-api");
+    }
 }

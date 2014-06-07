@@ -11,17 +11,17 @@ package org.opendaylight.protocol.pcep.spi;
  *
  */
 public final class PCEPMessageConstants {
-	/**
-	 * Length of the common message header, in bytes.
-	 */
-	public static final int COMMON_HEADER_LENGTH = 4;
+    /**
+     * Length of the common message header, in bytes.
+     */
+    public static final int COMMON_HEADER_LENGTH = 4;
 
-	/**
-	 * Current supported version of PCEP.
-	 */
-	public static final int PCEP_VERSION = 1;
+    /**
+     * Current supported version of PCEP.
+     */
+    public static final int PCEP_VERSION = 1;
 
-	private PCEPMessageConstants() {
+    private PCEPMessageConstants() {
 
-	}
+    }
 }

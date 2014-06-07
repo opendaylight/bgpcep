@@ -12,5 +12,5 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 
 public interface RROSubobjectParser {
-	Subobject parseSubobject(ByteBuf buffer) throws PCEPDeserializerException;
+    Subobject parseSubobject(ByteBuf buffer) throws PCEPDeserializerException;
 }

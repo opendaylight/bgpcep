@@ -16,34 +16,39 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
- * Context for registering providers of the various types of extension points BGP provides.
- * These are then consumed by extension consumers. It also provides access to the context-wide
- * object cache, which extension providers can use to increase the in-memory efficiency
- * when the same objects are created over and over again.
+ * Context for registering providers of the various types of extension points BGP provides. These are then consumed by
+ * extension consumers. It also provides access to the context-wide object cache, which extension providers can use to
+ * increase the in-memory efficiency when the same objects are created over and over again.
  */
 public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext {
-	AutoCloseable registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
-	AutoCloseable registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
+    AutoCloseable registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
 
-	AutoCloseable registerAttributeParser(int attributeType, AttributeParser parser);
-	AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attributeClass, AttributeSerializer serializer);
+    AutoCloseable registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
 
-	AutoCloseable registerCapabilityParser(int capabilityType, CapabilityParser parser);
-	AutoCloseable registerCapabilitySerializer(Class<? extends CParameters> capabilityClass, CapabilitySerializer serializer);
+    AutoCloseable registerAttributeParser(int attributeType, AttributeParser parser);
 
-	AutoCloseable registerMessageParser(int messageType, MessageParser parser);
-	AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
+    AutoCloseable registerAttributeSerializer(Class<? extends DataObject> attributeClass, AttributeSerializer serializer);
 
-	AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
-	AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
+    AutoCloseable registerCapabilityParser(int capabilityType, CapabilityParser parser);
 
-	AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
-	AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
+    AutoCloseable registerCapabilitySerializer(Class<? extends CParameters> capabilityClass, CapabilitySerializer serializer);
 
-	/**
-	 * Get the context-wide cache for a particular object type.
-	 * 
-	 * @return An object cache instance.
-	 */
-	ReferenceCache getReferenceCache();
+    AutoCloseable registerMessageParser(int messageType, MessageParser parser);
+
+    AutoCloseable registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
+
+    AutoCloseable registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi, NlriParser parser);
+
+    AutoCloseable registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);
+
+    AutoCloseable registerParameterParser(int parameterType, ParameterParser parser);
+
+    AutoCloseable registerParameterSerializer(Class<? extends BgpParameters> paramClass, ParameterSerializer serializer);
+
+    /**
+     * Get the context-wide cache for a particular object type.
+     *
+     * @return An object cache instance.
+     */
+    ReferenceCache getReferenceCache();
 }

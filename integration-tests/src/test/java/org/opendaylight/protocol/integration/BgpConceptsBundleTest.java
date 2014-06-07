@@ -7,18 +7,18 @@
  */
 package org.opendaylight.protocol.integration;
 
-import java.util.Collection;
-
 import com.google.common.collect.Lists;
 
-public final class BgpConceptsBundleTest extends AbstractBundleTest {
-	@Override
-	protected Collection<String> prerequisiteBundles() {
-		return Lists.newArrayList("util", "concepts");
-	}
+import java.util.Collection;
 
-	@Override
-	protected Collection<String> requiredBundles() {
-		return Lists.newArrayList("bgp-concepts");
-	}
+public final class BgpConceptsBundleTest extends AbstractBundleTest {
+    @Override
+    protected Collection<String> prerequisiteBundles() {
+        return Lists.newArrayList("util", "concepts");
+    }
+
+    @Override
+    protected Collection<String> requiredBundles() {
+        return Lists.newArrayList("bgp-concepts");
+    }
 }

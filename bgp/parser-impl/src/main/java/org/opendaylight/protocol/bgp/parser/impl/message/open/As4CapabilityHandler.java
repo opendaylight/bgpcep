@@ -22,22 +22,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.as4.bytes._case.As4BytesCapabilityBuilder;
 
 public final class As4CapabilityHandler implements CapabilityParser, CapabilitySerializer {
-	public static final int CODE = 65;
+    public static final int CODE = 65;
 
-	private static final int AS4_LENGTH = 4;
+    private static final int AS4_LENGTH = 4;
 
-	@Override
-	public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-		return new As4BytesCaseBuilder().setAs4BytesCapability(
-				new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
-	}
+    @Override
+    public CParameters parseCapability(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        return new As4BytesCaseBuilder().setAs4BytesCapability(
+                new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(buffer.readUnsignedInt())).build()).build();
+    }
 
-	@Override
-	public byte[] serializeCapability(final CParameters capability) {
-		return CapabilityUtil.formatCapability(CODE, putAS4BytesParameterValue((As4BytesCase) capability));
-	}
+    @Override
+    public byte[] serializeCapability(final CParameters capability) {
+        return CapabilityUtil.formatCapability(CODE, putAS4BytesParameterValue((As4BytesCase) capability));
+    }
 
-	private static byte[] putAS4BytesParameterValue(final As4BytesCase param) {
-		return ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue(), AS4_LENGTH);
-	}
+    private static byte[] putAS4BytesParameterValue(final As4BytesCase param) {
+        return ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue(), AS4_LENGTH);
+    }
 }

@@ -19,8 +19,7 @@ package org.opendaylight.controller.config.yang.bgp.topology.provider;
 /**
  *
  */
-public class LinkstateTopologyBuilderModuleFactory extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModuleFactory
-{
-
+public class LinkstateTopologyBuilderModuleFactory extends
+        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModuleFactory {
 
 }

@@ -11,5 +11,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface ObjectSerializer {
 
-	byte[] serializeObject(Object object);
+    byte[] serializeObject(Object object);
 }

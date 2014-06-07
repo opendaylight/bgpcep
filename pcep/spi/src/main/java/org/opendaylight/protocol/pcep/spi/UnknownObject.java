@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,54 +18,53 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.base.Preconditions;
-
 /**
- * Placeholder object. This object should be injected by in positions where an
- * object is either completely unknown or has failed semantic validation.
+ * Placeholder object. This object should be injected by in positions where an object is either completely unknown or
+ * has failed semantic validation.
  */
 public final class UnknownObject implements Object {
-	private final Object invalidObject;
-	private final Errors error;
-	private final PCEPErrors e;
+    private final Object invalidObject;
+    private final Errors error;
+    private final PCEPErrors e;
 
-	public UnknownObject(final PCEPErrors error) {
-		this(error, null);
-	}
+    public UnknownObject(final PCEPErrors error) {
+        this(error, null);
+    }
 
-	public UnknownObject(final PCEPErrors error, final Object invalidObject) {
-		this.e = Preconditions.checkNotNull(error);
+    public UnknownObject(final PCEPErrors error, final Object invalidObject) {
+        this.e = Preconditions.checkNotNull(error);
 
-		final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
-		this.error = new ErrorsBuilder().setErrorObject(
-				new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).getType()).setValue(mapping.getFromErrorsEnum(error).getValue()).build()).build();
-		this.invalidObject = invalidObject;
-	}
+        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
+        this.error = new ErrorsBuilder().setErrorObject(
+                new ErrorObjectBuilder().setType(mapping.getFromErrorsEnum(error).getType()).setValue(
+                        mapping.getFromErrorsEnum(error).getValue()).build()).build();
+        this.invalidObject = invalidObject;
+    }
 
-	public List<Errors> getErrors() {
-		return Arrays.asList(this.error);
-	}
+    public List<Errors> getErrors() {
+        return Arrays.asList(this.error);
+    }
 
-	public PCEPErrors getError() {
-		return this.e;
-	}
+    public PCEPErrors getError() {
+        return this.e;
+    }
 
-	public Object getInvalidObject() {
-		return this.invalidObject;
-	}
+    public Object getInvalidObject() {
+        return this.invalidObject;
+    }
 
-	@Override
-	public Class<? extends DataContainer> getImplementedInterface() {
-		return Object.class;
-	}
+    @Override
+    public Class<? extends DataContainer> getImplementedInterface() {
+        return Object.class;
+    }
 
-	@Override
-	public Boolean isIgnore() {
-		return false;
-	}
+    @Override
+    public Boolean isIgnore() {
+        return false;
+    }
 
-	@Override
-	public Boolean isProcessingRule() {
-		return false;
-	}
+    @Override
+    public Boolean isProcessingRule() {
+        return false;
+    }
 }

@@ -13,34 +13,39 @@ import org.opendaylight.bgpcep.tcpmd5.netty.MD5NioSocketChannelFactory;
 /**
  * Service representing a way for accessing key informtion.
  */
-public class MD5ClientChannelFactoryModule extends org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.AbstractMD5ClientChannelFactoryModule {
-	public MD5ClientChannelFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+public class MD5ClientChannelFactoryModule extends
+        org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.AbstractMD5ClientChannelFactoryModule {
+    public MD5ClientChannelFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public MD5ClientChannelFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannelFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public MD5ClientChannelFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.MD5ClientChannelFactoryModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void customValidation() {
-		// add custom validation form module attributes here.
-	}
+    @Override
+    public void customValidation() {
+        // add custom validation form module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final class AutoCloseableMD5NioSocketChannelFactory extends MD5NioSocketChannelFactory implements AutoCloseable {
-			public AutoCloseableMD5NioSocketChannelFactory(final KeyAccessFactory keyAccessFactory) {
-				super(keyAccessFactory);
-			}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final class AutoCloseableMD5NioSocketChannelFactory extends MD5NioSocketChannelFactory implements AutoCloseable {
+            public AutoCloseableMD5NioSocketChannelFactory(final KeyAccessFactory keyAccessFactory) {
+                super(keyAccessFactory);
+            }
 
-			@Override
-			public void close() {
-				// Noop
-			}
-		}
+            @Override
+            public void close() {
+                // Noop
+            }
+        }
 
-		return new AutoCloseableMD5NioSocketChannelFactory(getKeyAccessFactoryDependency());
-	}
+        return new AutoCloseableMD5NioSocketChannelFactory(getKeyAccessFactoryDependency());
+    }
 
 }

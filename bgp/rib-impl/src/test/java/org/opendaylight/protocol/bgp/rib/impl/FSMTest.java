@@ -13,6 +13,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
+import com.google.common.collect.Lists;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -53,116 +56,113 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-import com.google.common.collect.Lists;
-
 public class FSMTest {
 
-	private BGPSessionNegotiator clientSession;
+    private BGPSessionNegotiator clientSession;
 
-	@Mock
-	private Channel speakerListener;
+    @Mock
+    private Channel speakerListener;
 
-	@Mock
-	private ChannelPipeline pipeline;
+    @Mock
+    private ChannelPipeline pipeline;
 
-	private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
-	private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private final BgpTableType linkstatett = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
 
-	private final List<Notification> receivedMsgs = Lists.newArrayList();
+    private final List<Notification> receivedMsgs = Lists.newArrayList();
 
-	private Open classicOpen;
+    private Open classicOpen;
 
-	@Before
-	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-		final List<BgpParameters> tlvs = Lists.newArrayList();
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        final List<BgpParameters> tlvs = Lists.newArrayList();
 
-		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
-		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-						new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build());
-		final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, null, tlvs);
+        tlvs.add(new BgpParametersBuilder().setCParameters(
+                new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+                        new MultiprotocolCapabilityBuilder().setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build()).build()).build());
+        tlvs.add(new BgpParametersBuilder().setCParameters(
+                new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+                        new MultiprotocolCapabilityBuilder().setAfi(this.linkstatett.getAfi()).setSafi(this.linkstatett.getSafi()).build()).build()).build());
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(30L), (short) 3, null, tlvs);
 
-		final ChannelFuture f = mock(ChannelFuture.class);
-		doReturn(null).when(f).addListener(any(GenericFutureListener.class));
-		this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE),
-				this.speakerListener, prefs, new AsNumber(30L), new SimpleSessionListener());
-		doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) {
-				final Object[] args = invocation.getArguments();
-				FSMTest.this.receivedMsgs.add((Notification) args[0]);
-				return f;
-			}
-		}).when(this.speakerListener).writeAndFlush(any(Notification.class));
-		doReturn("TestingChannel").when(this.speakerListener).toString();
-		doReturn(this.pipeline).when(this.speakerListener).pipeline();
-		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
-		doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
-		this.classicOpen = new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpParameters(
-				tlvs).build();
-	}
+        final ChannelFuture f = mock(ChannelFuture.class);
+        doReturn(null).when(f).addListener(any(GenericFutureListener.class));
+        this.clientSession = new BGPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE), this.speakerListener, prefs, new AsNumber(30L), new SimpleSessionListener());
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) {
+                final Object[] args = invocation.getArguments();
+                FSMTest.this.receivedMsgs.add((Notification) args[0]);
+                return f;
+            }
+        }).when(this.speakerListener).writeAndFlush(any(Notification.class));
+        doReturn("TestingChannel").when(this.speakerListener).toString();
+        doReturn(this.pipeline).when(this.speakerListener).pipeline();
+        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(mock(ChannelFuture.class)).when(this.speakerListener).close();
+        this.classicOpen = new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).setBgpParameters(
+                tlvs).build();
+    }
 
-	@Test
-	public void testAccSessionChar() throws InterruptedException {
-		this.clientSession.channelActive(null);
-		assertEquals(1, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(0) instanceof Open);
-		this.clientSession.handleMessage(this.classicOpen);
-		assertEquals(2, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
-		this.clientSession.handleMessage(new KeepaliveBuilder().build());
-		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
-		Thread.sleep(1000);
-		Thread.sleep(100);
-		assertEquals(3, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(2) instanceof Keepalive); // test of keepalive timer
-	}
+    @Test
+    public void testAccSessionChar() throws InterruptedException {
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Open);
+        this.clientSession.handleMessage(this.classicOpen);
+        assertEquals(2, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(1) instanceof Keepalive);
+        this.clientSession.handleMessage(new KeepaliveBuilder().build());
+        assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
+        Thread.sleep(1000);
+        Thread.sleep(100);
+        assertEquals(3, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(2) instanceof Keepalive); // test of keepalive timer
+    }
 
-	@Test
-	public void testNotAccChars() throws InterruptedException {
-		this.clientSession.channelActive(null);
-		assertEquals(1, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(0) instanceof Open);
-		this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(new ProtocolVersion((short) 4)).build());
-		assertEquals(2, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(1) instanceof Notify);
-		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-		assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
-	}
+    @Test
+    public void testNotAccChars() throws InterruptedException {
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Open);
+        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(1).setVersion(new ProtocolVersion((short) 4)).build());
+        assertEquals(2, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(1) instanceof Notify);
+        final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+        assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+    }
 
-	@Test
-	@Ignore
-	// long duration
-	public void testNoOpen() throws InterruptedException {
-		this.clientSession.channelActive(null);
-		assertEquals(1, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(0) instanceof Open);
-		Thread.sleep(BGPSessionNegotiator.INITIAL_HOLDTIMER * 1000 * 60);
-		Thread.sleep(100);
-		final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
-		assertEquals(BGPError.HOLD_TIMER_EXPIRED, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
-	}
+    @Test
+    @Ignore
+    // long duration
+    public void testNoOpen() throws InterruptedException {
+        this.clientSession.channelActive(null);
+        assertEquals(1, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(0) instanceof Open);
+        Thread.sleep(BGPSessionNegotiator.INITIAL_HOLDTIMER * 1000 * 60);
+        Thread.sleep(100);
+        final Notification m = this.receivedMsgs.get(this.receivedMsgs.size() - 1);
+        assertEquals(BGPError.HOLD_TIMER_EXPIRED, BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+    }
 
-	@Test
-	public void sendNotification() {
-		this.clientSession.channelActive(null);
-		this.clientSession.handleMessage(this.classicOpen);
-		this.clientSession.handleMessage(new KeepaliveBuilder().build());
-		assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
-		this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
-		assertEquals(3, this.receivedMsgs.size());
-		assertTrue(this.receivedMsgs.get(2) instanceof Notify);
-		final Notification m = this.receivedMsgs.get(2);
-		assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode().shortValue());
-		assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
-	}
+    @Test
+    public void sendNotification() {
+        this.clientSession.channelActive(null);
+        this.clientSession.handleMessage(this.classicOpen);
+        this.clientSession.handleMessage(new KeepaliveBuilder().build());
+        assertEquals(this.clientSession.getState(), BGPSessionNegotiator.State.Finished);
+        this.clientSession.handleMessage(new OpenBuilder().setMyAsNumber(30).setHoldTimer(3).setVersion(new ProtocolVersion((short) 4)).build());
+        assertEquals(3, this.receivedMsgs.size());
+        assertTrue(this.receivedMsgs.get(2) instanceof Notify);
+        final Notification m = this.receivedMsgs.get(2);
+        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode().shortValue());
+        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode().shortValue());
+    }
 
-	@After
-	public void tearDown() {
+    @After
+    public void tearDown() {
 
-	}
+    }
 }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
@@ -20,24 +22,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 
-import com.google.common.collect.Lists;
-
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
-	@Override
-	protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-		return Lists.newArrayList(
-				context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
-					@Override
-					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-						return new Ipv4AdjRIBsIn(trans, rib, key);
-					}
-				}),
-				context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, new AdjRIBsInFactory() {
-					@Override
-					public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-						return new Ipv6AdjRIBsIn(trans, rib, key);
-					}
-				}));
-	}
+    @Override
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
+        AdjRIBsInFactory adj1 = new AdjRIBsInFactory() {
+            @Override
+            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+                return new Ipv4AdjRIBsIn(trans, rib, key);
+            }
+        };
+
+        AdjRIBsInFactory adj2 = new AdjRIBsInFactory() {
+            @Override
+            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+                return new Ipv6AdjRIBsIn(trans, rib, key);
+            }
+        };
+        return Lists.newArrayList(
+                context.registerAdjRIBsInFactory(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, adj1),
+                context.registerAdjRIBsInFactory(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, adj2));
+    }
 }

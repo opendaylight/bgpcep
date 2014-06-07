@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
@@ -29,58 +33,58 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
-
 public final class AsPathAttributeParser implements AttributeParser {
-	public static final int TYPE = 2;
-	private final ReferenceCache refCache;
+    public static final int TYPE = 2;
+    private final ReferenceCache refCache;
 
-	public AsPathAttributeParser(final ReferenceCache refCache) {
-		this.refCache = Preconditions.checkNotNull(refCache);
-	}
+    public AsPathAttributeParser(final ReferenceCache refCache) {
+        this.refCache = Preconditions.checkNotNull(refCache);
+    }
 
-	/**
-	 * Parses AS_PATH from bytes.
-	 * 
-	 * @param bytes byte array to be parsed
-	 * @return new ASPath object
-	 * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
-	 * @throws BGPParsingException
-	 */
-	private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-		final List<Segments> ases = Lists.newArrayList();
-		boolean isSequence = false;
-		while (buffer.isReadable()) {
-			final int type = UnsignedBytes.toInt(buffer.readByte());
-			final SegmentType segmentType = AsPathSegmentParser.parseType(type);
-			if (segmentType == null) {
-				throw new BGPParsingException("AS Path segment type unknown : " + type);
-			}
-			final int count = UnsignedBytes.toInt(buffer.readByte());
+    /**
+     * Parses AS_PATH from bytes.
+     *
+     * @param bytes byte array to be parsed
+     * @return new ASPath object
+     * @throws BGPDocumentedException if there is no AS_SEQUENCE present (mandatory)
+     * @throws BGPParsingException
+     */
+    private static AsPath parseAsPath(final ReferenceCache refCache, final ByteBuf buffer) throws BGPDocumentedException,
+            BGPParsingException {
+        final List<Segments> ases = Lists.newArrayList();
+        boolean isSequence = false;
+        while (buffer.isReadable()) {
+            final int type = UnsignedBytes.toInt(buffer.readByte());
+            final SegmentType segmentType = AsPathSegmentParser.parseType(type);
+            if (segmentType == null) {
+                throw new BGPParsingException("AS Path segment type unknown : " + type);
+            }
+            final int count = UnsignedBytes.toInt(buffer.readByte());
 
-			if (segmentType == SegmentType.AS_SEQUENCE) {
-				final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(), count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-				ases.add(new SegmentsBuilder().setCSegment(
-						new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
-				isSequence = true;
-			} else {
-				final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count * AsPathSegmentParser.AS_NUMBER_LENGTH));
-				ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
+            if (segmentType == SegmentType.AS_SEQUENCE) {
+                final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(),
+                        count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                ases.add(new SegmentsBuilder().setCSegment(
+                        new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
+                isSequence = true;
+            } else {
+                final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count
+                        * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
 
-			}
-			buffer.skipBytes(count * AsPathSegmentParser.AS_NUMBER_LENGTH);
-		}
+            }
+            buffer.skipBytes(count * AsPathSegmentParser.AS_NUMBER_LENGTH);
+        }
 
-		if (!isSequence && buffer.readableBytes() != 0) {
-			throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
-		}
-		return new AsPathBuilder().setSegments(ases).build();
-	}
+        if (!isSequence && buffer.readableBytes() != 0) {
+            throw new BGPDocumentedException("AS_SEQUENCE must be present in AS_PATH attribute.", BGPError.AS_PATH_MALFORMED);
+        }
+        return new AsPathBuilder().setSegments(ases).build();
+    }
 
-	@Override
-	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException {
-		builder.setAsPath(parseAsPath(this.refCache, buffer));
-	}
+    @Override
+    public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException,
+            BGPParsingException {
+        builder.setAsPath(parseAsPath(this.refCache, buffer));
+    }
 }

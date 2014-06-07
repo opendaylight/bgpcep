@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
@@ -27,155 +29,153 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link Rp}
  */
 public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<RpBuilder> {
 
-	public static final int CLASS = 2;
+    public static final int CLASS = 2;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	/*
-	 * lengths of fields in bytes
-	 */
-	private static final int FLAGS_PRI_MF_LENGTH = 4;
-	private static final int RID_F_LENGTH = 4;
+    /*
+     * lengths of fields in bytes
+     */
+    private static final int FLAGS_PRI_MF_LENGTH = 4;
+    private static final int RID_F_LENGTH = 4;
 
-	/*
-	 * lengths of subfields inside multi-field in bits
-	 */
-	private static final int FLAGS_SF_LENGTH = 29;
+    /*
+     * lengths of subfields inside multi-field in bits
+     */
+    private static final int FLAGS_SF_LENGTH = 29;
 
-	/*
-	 * offsets of field in bytes
-	 */
+    /*
+     * offsets of field in bytes
+     */
 
-	private static final int FLAGS_PRI_MF_OFFSET = 0;
-	private static final int RID_F_OFFSET = FLAGS_PRI_MF_OFFSET + FLAGS_PRI_MF_LENGTH;
-	private static final int TLVS_OFFSET = RID_F_OFFSET + RID_F_LENGTH;
+    private static final int FLAGS_PRI_MF_OFFSET = 0;
+    private static final int RID_F_OFFSET = FLAGS_PRI_MF_OFFSET + FLAGS_PRI_MF_LENGTH;
+    private static final int TLVS_OFFSET = RID_F_OFFSET + RID_F_LENGTH;
 
-	/*
-	 * offsets of subfields inside multi-field in bits
-	 */
+    /*
+     * offsets of subfields inside multi-field in bits
+     */
 
-	private static final int FLAGS_SF_OFFSET = 0;
-	private static final int PRI_SF_OFFSET = FLAGS_SF_OFFSET + FLAGS_SF_LENGTH;
+    private static final int FLAGS_SF_OFFSET = 0;
+    private static final int PRI_SF_OFFSET = FLAGS_SF_OFFSET + FLAGS_SF_LENGTH;
 
-	/*
-	 * flags offsets inside flags sub-field in bits
-	 */
+    /*
+     * flags offsets inside flags sub-field in bits
+     */
 
-	private static final int O_FLAG_OFFSET = 26;
-	private static final int B_FLAG_OFFSET = 27;
-	private static final int R_FLAG_OFFSET = 28;
+    private static final int O_FLAG_OFFSET = 26;
+    private static final int B_FLAG_OFFSET = 27;
+    private static final int R_FLAG_OFFSET = 28;
 
-	/*
-	 * GCO extension flags offsets inside flags sub-field in bits
-	 */
-	private static final int M_FLAG_OFFSET = 21;
-	private static final int D_FLAG_OFFSET = 22;
+    /*
+     * GCO extension flags offsets inside flags sub-field in bits
+     */
+    private static final int M_FLAG_OFFSET = 21;
+    private static final int D_FLAG_OFFSET = 22;
 
-	/*
-	 * Path-key bit (RFC5520)
-	 */
-	private static final int P_FLAG_OFFSET = 23;
-	/*
-	 * OF extension flags offsets inside flags sub.field in bits
-	 */
-	private static final int S_FLAG_OFFSET = 24;
-	/*
-	 * RFC6006 flags
-	 */
-	private static final int F_FLAG_OFFSET = 18;
+    /*
+     * Path-key bit (RFC5520)
+     */
+    private static final int P_FLAG_OFFSET = 23;
+    /*
+     * OF extension flags offsets inside flags sub.field in bits
+     */
+    private static final int S_FLAG_OFFSET = 24;
+    /*
+     * RFC6006 flags
+     */
+    private static final int F_FLAG_OFFSET = 18;
 
-	private static final int N_FLAG_OFFSET = 19;
+    private static final int N_FLAG_OFFSET = 19;
 
-	private static final int E_FLAG_OFFSET = 20;
+    private static final int E_FLAG_OFFSET = 20;
 
-	public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg) {
-		super(tlvReg);
-	}
+    public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg) {
+        super(tlvReg);
+    }
 
-	@Override
-	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_PRI_MF_LENGTH));
-		short priority = 0;
-		priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
-		priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
-		priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
+    @Override
+    public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_PRI_MF_LENGTH));
+        short priority = 0;
+        priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
+        priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
+        priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
 
-		final RpBuilder builder = new RpBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
+        final RpBuilder builder = new RpBuilder();
+        builder.setIgnore(header.isIgnore());
+        builder.setProcessingRule(header.isProcessingRule());
 
-		builder.setPriority(priority);
-		builder.setFragmentation(flags.get(F_FLAG_OFFSET));
-		builder.setP2mp(flags.get(N_FLAG_OFFSET));
-		builder.setEroCompression(flags.get(E_FLAG_OFFSET));
-		builder.setMakeBeforeBreak(flags.get(M_FLAG_OFFSET));
-		builder.setOrder(flags.get(D_FLAG_OFFSET));
-		builder.setPathKey(flags.get(P_FLAG_OFFSET));
-		builder.setSupplyOf(flags.get(S_FLAG_OFFSET));
-		builder.setLoose(flags.get(O_FLAG_OFFSET));
-		builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
-		builder.setReoptimization(flags.get(R_FLAG_OFFSET));
+        builder.setPriority(priority);
+        builder.setFragmentation(flags.get(F_FLAG_OFFSET));
+        builder.setP2mp(flags.get(N_FLAG_OFFSET));
+        builder.setEroCompression(flags.get(E_FLAG_OFFSET));
+        builder.setMakeBeforeBreak(flags.get(M_FLAG_OFFSET));
+        builder.setOrder(flags.get(D_FLAG_OFFSET));
+        builder.setPathKey(flags.get(P_FLAG_OFFSET));
+        builder.setSupplyOf(flags.get(S_FLAG_OFFSET));
+        builder.setLoose(flags.get(O_FLAG_OFFSET));
+        builder.setBiDirectional(flags.get(B_FLAG_OFFSET));
+        builder.setReoptimization(flags.get(R_FLAG_OFFSET));
 
-		builder.setRequestId(new RequestId(bytes.readUnsignedInt()));
-		parseTlvs(builder, bytes.slice());
-		return builder.build();
-	}
+        builder.setRequestId(new RequestId(bytes.readUnsignedInt()));
+        parseTlvs(builder, bytes.slice());
+        return builder.build();
+    }
 
-	@Override
-	public void addTlv(final RpBuilder builder, final Tlv tlv) {
-		if (tlv instanceof Order) {
-			builder.setTlvs(new TlvsBuilder().setOrder((Order) tlv).build());
-		}
-	}
+    @Override
+    public void addTlv(final RpBuilder builder, final Tlv tlv) {
+        if (tlv instanceof Order) {
+            builder.setTlvs(new TlvsBuilder().setOrder((Order) tlv).build());
+        }
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof Rp)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed RpObject.");
-		}
-		final Rp rPObj = (Rp) object;
-		final BitSet flags = new BitSet(FLAGS_PRI_MF_LENGTH * Byte.SIZE);
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof Rp)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed RpObject.");
+        }
+        final Rp rPObj = (Rp) object;
+        final BitSet flags = new BitSet(FLAGS_PRI_MF_LENGTH * Byte.SIZE);
 
-		flags.set(R_FLAG_OFFSET, rPObj.isReoptimization());
-		flags.set(B_FLAG_OFFSET, rPObj.isBiDirectional());
-		flags.set(O_FLAG_OFFSET, rPObj.isLoose());
-		flags.set(M_FLAG_OFFSET, rPObj.isMakeBeforeBreak());
-		flags.set(D_FLAG_OFFSET, rPObj.isOrder());
-		flags.set(P_FLAG_OFFSET, rPObj.isPathKey());
-		flags.set(S_FLAG_OFFSET, rPObj.isSupplyOf());
-		flags.set(F_FLAG_OFFSET, rPObj.isFragmentation());
-		flags.set(N_FLAG_OFFSET, rPObj.isP2mp());
-		flags.set(E_FLAG_OFFSET, rPObj.isEroCompression());
+        flags.set(R_FLAG_OFFSET, rPObj.isReoptimization());
+        flags.set(B_FLAG_OFFSET, rPObj.isBiDirectional());
+        flags.set(O_FLAG_OFFSET, rPObj.isLoose());
+        flags.set(M_FLAG_OFFSET, rPObj.isMakeBeforeBreak());
+        flags.set(D_FLAG_OFFSET, rPObj.isOrder());
+        flags.set(P_FLAG_OFFSET, rPObj.isPathKey());
+        flags.set(S_FLAG_OFFSET, rPObj.isSupplyOf());
+        flags.set(F_FLAG_OFFSET, rPObj.isFragmentation());
+        flags.set(N_FLAG_OFFSET, rPObj.isP2mp());
+        flags.set(E_FLAG_OFFSET, rPObj.isEroCompression());
 
-		flags.set(PRI_SF_OFFSET, (rPObj.getPriority() & 1 << 2) != 0);
-		flags.set(PRI_SF_OFFSET + 1, (rPObj.getPriority() & 1 << 1) != 0);
-		flags.set(PRI_SF_OFFSET + 2, (rPObj.getPriority() & 1) != 0);
+        flags.set(PRI_SF_OFFSET, (rPObj.getPriority() & 1 << 2) != 0);
+        flags.set(PRI_SF_OFFSET + 1, (rPObj.getPriority() & 1 << 1) != 0);
+        flags.set(PRI_SF_OFFSET + 2, (rPObj.getPriority() & 1) != 0);
 
-		final byte[] tlvs = serializeTlvs(rPObj.getTlvs());
-		final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+        final byte[] tlvs = serializeTlvs(rPObj.getTlvs());
+        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);
-		ByteArray.copyWhole(ByteArray.longToBytes(rPObj.getRequestId().getValue(), RID_F_LENGTH), retBytes, RID_F_OFFSET);
-		if (tlvs.length != 0) {
-			ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-		}
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
-	}
+        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);
+        ByteArray.copyWhole(ByteArray.longToBytes(rPObj.getRequestId().getValue(), RID_F_LENGTH), retBytes, RID_F_OFFSET);
+        if (tlvs.length != 0) {
+            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+        }
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+    }
 
-	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs == null) {
-			return new byte[0];
-		} else if (tlvs.getOrder() != null) {
-			return serializeTlv(tlvs.getOrder());
-		}
-		return new byte[0];
-	}
+    public byte[] serializeTlvs(final Tlvs tlvs) {
+        if (tlvs == null) {
+            return new byte[0];
+        } else if (tlvs.getOrder() != null) {
+            return serializeTlv(tlvs.getOrder());
+        }
+        return new byte[0];
+    }
 }

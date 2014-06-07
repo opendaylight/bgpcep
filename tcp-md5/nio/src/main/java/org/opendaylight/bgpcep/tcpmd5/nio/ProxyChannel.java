@@ -10,5 +10,5 @@ package org.opendaylight.bgpcep.tcpmd5.nio;
 import java.nio.channels.spi.AbstractSelectableChannel;
 
 interface ProxyChannel<C extends AbstractSelectableChannel> {
-	C getDelegate();
+    C getDelegate();
 }

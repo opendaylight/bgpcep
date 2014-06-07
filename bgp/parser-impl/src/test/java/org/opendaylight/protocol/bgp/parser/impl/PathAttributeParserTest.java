@@ -21,16 +21,17 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionPr
  * To test incorrect values.
  */
 public class PathAttributeParserTest {
-	@Test
-	public void testOriginParser() throws Exception {
-		try {
-			ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
-			fail("This needs to fail.");
-		} catch (final BGPDocumentedException e) {
-			assertEquals("Unknown Origin type.", e.getMessage());
-			assertArrayEquals(new byte[] { 0x01, 0x01, 0x04 }, e.getData());
-		} catch (final BGPParsingException e) {
-			fail("This exception should not occur.");
-		}
-	}
+    @Test
+    public void testOriginParser() throws Exception {
+        try {
+            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(
+                    Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }));
+            fail("This needs to fail.");
+        } catch (final BGPDocumentedException e) {
+            assertEquals("Unknown Origin type.", e.getMessage());
+            assertArrayEquals(new byte[] { 0x01, 0x01, 0x04 }, e.getData());
+        } catch (final BGPParsingException e) {
+            fail("This exception should not occur.");
+        }
+    }
 }

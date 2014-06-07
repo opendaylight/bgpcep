@@ -22,38 +22,38 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class Stateful02StatefulCapabilityTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 16;
+    public static final int TYPE = 16;
 
-	protected static final int FLAGS_F_LENGTH = 4;
+    protected static final int FLAGS_F_LENGTH = 4;
 
-	protected static final int S_FLAG_OFFSET = 30;
-	protected static final int U_FLAG_OFFSET = 31;
+    protected static final int S_FLAG_OFFSET = 30;
+    protected static final int U_FLAG_OFFSET = 31;
 
-	@Override
-	public Stateful parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		if (buffer.readableBytes() < FLAGS_F_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
-					+ FLAGS_F_LENGTH + ".");
-		}
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-		final StatefulBuilder sb = new StatefulBuilder();
-		sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));
-		sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
-		return sb.build();
-	}
+    @Override
+    public Stateful parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        if (buffer.readableBytes() < FLAGS_F_LENGTH) {
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: >= "
+                    + FLAGS_F_LENGTH + ".");
+        }
+        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
+        final StatefulBuilder sb = new StatefulBuilder();
+        sb.setIncludeDbVersion(flags.get(S_FLAG_OFFSET));
+        sb.setLspUpdateCapability(flags.get(U_FLAG_OFFSET));
+        return sb.build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		if (tlv == null) {
-			throw new IllegalArgumentException("StatefulCapabilityTlv is mandatory.");
-		}
-		final Stateful sct = (Stateful) tlv;
-		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-		flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
-		return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        if (tlv == null) {
+            throw new IllegalArgumentException("StatefulCapabilityTlv is mandatory.");
+        }
+        final Stateful sct = (Stateful) tlv;
+        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
+        return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+    }
 }

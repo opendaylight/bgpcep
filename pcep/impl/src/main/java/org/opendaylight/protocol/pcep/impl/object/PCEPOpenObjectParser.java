@@ -8,6 +8,9 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -29,122 +32,119 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-
 /**
  * Parser for {@link Open}
  */
 public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPOpenObjectParser.class);
 
-	public static final int CLASS = 1;
+    public static final int CLASS = 1;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	/*
-	 * lengths of fields in bytes
-	 */
-	private static final int VER_FLAGS_MF_LENGTH = 1;
-	private static final int KEEPALIVE_F_LENGTH = 1;
-	private static final int DEAD_TIMER_LENGTH = 1;
-	private static final int SID_F_LENGTH = 1;
+    /*
+     * lengths of fields in bytes
+     */
+    private static final int VER_FLAGS_MF_LENGTH = 1;
+    private static final int KEEPALIVE_F_LENGTH = 1;
+    private static final int DEAD_TIMER_LENGTH = 1;
+    private static final int SID_F_LENGTH = 1;
 
-	/*
-	 * lengths of subfields inside multi-field in bits
-	 */
-	private static final int VERSION_SF_LENGTH = 3;
+    /*
+     * lengths of subfields inside multi-field in bits
+     */
+    private static final int VERSION_SF_LENGTH = 3;
 
-	/*
-	 * offsets of field in bytes
-	 */
-	private static final int VER_FLAGS_MF_OFFSET = 0;
-	private static final int KEEPALIVE_F_OFFSET = VER_FLAGS_MF_OFFSET + VER_FLAGS_MF_LENGTH;
-	private static final int DEAD_TIMER_OFFSET = KEEPALIVE_F_OFFSET + KEEPALIVE_F_LENGTH;
-	private static final int SID_F_OFFSET = DEAD_TIMER_OFFSET + DEAD_TIMER_LENGTH;
-	private static final int TLVS_OFFSET = SID_F_OFFSET + SID_F_LENGTH;
+    /*
+     * offsets of field in bytes
+     */
+    private static final int VER_FLAGS_MF_OFFSET = 0;
+    private static final int KEEPALIVE_F_OFFSET = VER_FLAGS_MF_OFFSET + VER_FLAGS_MF_LENGTH;
+    private static final int DEAD_TIMER_OFFSET = KEEPALIVE_F_OFFSET + KEEPALIVE_F_LENGTH;
+    private static final int SID_F_OFFSET = DEAD_TIMER_OFFSET + DEAD_TIMER_LENGTH;
+    private static final int TLVS_OFFSET = SID_F_OFFSET + SID_F_LENGTH;
 
-	/*
-	 * offsets of subfields inside multi-field in bits
-	 */
-	private static final int VERSION_SF_OFFSET = 0;
+    /*
+     * offsets of subfields inside multi-field in bits
+     */
+    private static final int VERSION_SF_OFFSET = 0;
 
-	private static final int PCEP_VERSION = 1;
+    private static final int PCEP_VERSION = 1;
 
-	public PCEPOpenObjectParser(final TlvRegistry tlvReg) {
-		super(tlvReg);
-	}
+    public PCEPOpenObjectParser(final TlvRegistry tlvReg) {
+        super(tlvReg);
+    }
 
-	@Override
-	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final int versionValue = ByteArray.copyBitsRange(bytes.readByte(), VERSION_SF_OFFSET, VERSION_SF_LENGTH);
+    @Override
+    public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final int versionValue = ByteArray.copyBitsRange(bytes.readByte(), VERSION_SF_OFFSET, VERSION_SF_LENGTH);
 
-		final OpenBuilder builder = new OpenBuilder();
-		builder.setVersion(new ProtocolVersion((short) versionValue));
-		builder.setProcessingRule(header.isProcessingRule());
-		builder.setIgnore(header.isIgnore());
-		builder.setKeepalive((short) UnsignedBytes.toInt(bytes.readByte()));
-		builder.setDeadTimer((short) UnsignedBytes.toInt(bytes.readByte()));
-		builder.setSessionId((short) UnsignedBytes.toInt(bytes.readByte()));
+        final OpenBuilder builder = new OpenBuilder();
+        builder.setVersion(new ProtocolVersion((short) versionValue));
+        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.isIgnore());
+        builder.setKeepalive((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setDeadTimer((short) UnsignedBytes.toInt(bytes.readByte()));
+        builder.setSessionId((short) UnsignedBytes.toInt(bytes.readByte()));
 
-		final TlvsBuilder tbuilder = new TlvsBuilder();
-		parseTlvs(tbuilder, bytes.slice());
-		builder.setTlvs(tbuilder.build());
+        final TlvsBuilder tbuilder = new TlvsBuilder();
+        parseTlvs(tbuilder, bytes.slice());
+        builder.setTlvs(tbuilder.build());
 
-		final Open obj = builder.build();
-		if (versionValue != PCEP_VERSION) {
-			// TODO: Should we move this check into the negotiator
-			LOG.debug("Unsupported PCEP version {}", versionValue);
-			return new UnknownObject(PCEPErrors.PCEP_VERSION_NOT_SUPPORTED, obj);
-		}
+        final Open obj = builder.build();
+        if (versionValue != PCEP_VERSION) {
+            // TODO: Should we move this check into the negotiator
+            LOG.debug("Unsupported PCEP version {}", versionValue);
+            return new UnknownObject(PCEPErrors.PCEP_VERSION_NOT_SUPPORTED, obj);
+        }
 
-		return obj;
-	}
+        return obj;
+    }
 
-	@Override
-	public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
-		if (tlv instanceof OfList) {
-			tbuilder.setOfList((OfList) tlv);
-		}
-	}
+    @Override
+    public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
+        if (tlv instanceof OfList) {
+            tbuilder.setOfList((OfList) tlv);
+        }
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof Open)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
-		}
-		final Open open = (Open) object;
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof Open)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
+        }
+        final Open open = (Open) object;
 
-		final byte versionFlagMF = (byte) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
+        final byte versionFlagMF = (byte) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
 
-		final byte[] tlvs = serializeTlvs(open.getTlvs());
+        final byte[] tlvs = serializeTlvs(open.getTlvs());
 
-		final byte[] bytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+        final byte[] bytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
 
-		bytes[VER_FLAGS_MF_OFFSET] = versionFlagMF;
-		bytes[KEEPALIVE_F_OFFSET] = UnsignedBytes.checkedCast(open.getKeepalive());
-		bytes[DEAD_TIMER_OFFSET] = UnsignedBytes.checkedCast(open.getDeadTimer());
-		bytes[SID_F_OFFSET] = UnsignedBytes.checkedCast(open.getSessionId());
-		if (tlvs.length != 0) {
-			ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
-		}
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes);
-	}
+        bytes[VER_FLAGS_MF_OFFSET] = versionFlagMF;
+        bytes[KEEPALIVE_F_OFFSET] = UnsignedBytes.checkedCast(open.getKeepalive());
+        bytes[DEAD_TIMER_OFFSET] = UnsignedBytes.checkedCast(open.getDeadTimer());
+        bytes[SID_F_OFFSET] = UnsignedBytes.checkedCast(open.getSessionId());
+        if (tlvs.length != 0) {
+            ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
+        }
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes);
+    }
 
-	public byte[] serializeTlvs(final Tlvs tlvs) {
-		if (tlvs == null) {
-			return new byte[0];
-		}
-		byte[] ofListBytes = null;
-		if (tlvs.getOfList() != null) {
-			ofListBytes = serializeTlv(tlvs.getOfList());
-		}
-		byte[] result = new byte[0];
-		if (ofListBytes != null) {
-			result = new byte[ofListBytes.length];
-			ByteArray.copyWhole(ofListBytes, result, 0);
-		}
-		return result;
-	}
+    public byte[] serializeTlvs(final Tlvs tlvs) {
+        if (tlvs == null) {
+            return new byte[0];
+        }
+        byte[] ofListBytes = null;
+        if (tlvs.getOfList() != null) {
+            ofListBytes = serializeTlv(tlvs.getOfList());
+        }
+        byte[] result = new byte[0];
+        if (ofListBytes != null) {
+            result = new byte[ofListBytes.length];
+            ByteArray.copyWhole(ofListBytes, result, 0);
+        }
+        return result;
+    }
 }

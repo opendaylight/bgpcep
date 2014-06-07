@@ -19,23 +19,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 
 public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProviderActivator {
-	@Override
-	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-		final List<AutoCloseable> regs = new ArrayList<>();
+    @Override
+    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerMessageParser(CInitiated00PCInitiateMessageParser.TYPE,
-				new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcinitiate.class, new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(CInitiated00PCInitiateMessageParser.TYPE,
+                new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcinitiate.class,
+                new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
 
-		final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
-		regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE, new CInitiated00LspObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg)));
-		regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE, new CInitiated00SrpObjectParser(tlvReg)));
-		regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg)));
+        final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
+        regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE,
+                new CInitiated00LspObjectParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg)));
+        regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE,
+                new CInitiated00SrpObjectParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg)));
 
-		regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE, new CInitiated00StatefulCapabilityTlvParser()));
-		regs.add(context.registerTlvSerializer(Stateful.class, new CInitiated00StatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE, new CInitiated00StatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvSerializer(Stateful.class, new CInitiated00StatefulCapabilityTlvParser()));
 
-		return regs;
-	}
+        return regs;
+    }
 }

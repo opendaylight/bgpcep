@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 import java.util.Set;
 
@@ -18,47 +20,45 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * Listener for the BGP Speaker.
  */
 public class SpeakerSessionListener implements BGPSessionListener {
 
-	public List<Notification> messages = Lists.newArrayList();
+    public List<Notification> messages = Lists.newArrayList();
 
-	public boolean up = false;
+    public boolean up = false;
 
-	public Set<BgpTableType> types;
+    public Set<BgpTableType> types;
 
-	private static final Logger logger = LoggerFactory.getLogger(SpeakerSessionListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SpeakerSessionListener.class);
 
-	public SpeakerSessionListener() {
-	}
+    public SpeakerSessionListener() {
+    }
 
-	@Override
-	public void onMessage(final BGPSession session, final Notification message) {
-		logger.debug("Received message: " + message.getClass() + " " + message);
-		this.messages.add(message);
-	}
+    @Override
+    public void onMessage(final BGPSession session, final Notification message) {
+        LOG.debug("Received message: {} {}", message.getClass(), message);
+        this.messages.add(message);
+    }
 
-	@Override
-	public synchronized void onSessionUp(final BGPSession session) {
-		logger.debug("Session up.");
-		this.up = true;
-		this.types = session.getAdvertisedTableTypes();
-		this.notifyAll();
-	}
+    @Override
+    public synchronized void onSessionUp(final BGPSession session) {
+        LOG.debug("Session up.");
+        this.up = true;
+        this.types = session.getAdvertisedTableTypes();
+        this.notifyAll();
+    }
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
-		logger.debug("Session down.");
-		this.up = false;
-	}
+    @Override
+    public void onSessionDown(final BGPSession session, final Exception e) {
+        LOG.debug("Session down.");
+        this.up = false;
+    }
 
-	@Override
-	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-		logger.debug("Session terminated. Cause : " + cause.toString());
-		this.up = false;
-	}
+    @Override
+    public void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
+        LOG.debug("Session terminated. Cause : {}", cause.toString());
+        this.up = false;
+    }
 }

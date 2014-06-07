@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
+import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
+
 import io.netty.buffer.Unpooled;
 
 import java.io.Closeable;
@@ -29,93 +32,89 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
-
 /**
- * Mock BGP session. It provides a way how to route a set of messages to
- * BGPSessionListener.
+ * Mock BGP session. It provides a way how to route a set of messages to BGPSessionListener.
  */
 @ThreadSafe
 public final class BGPMock implements Closeable {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
 
-	static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
+    static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
-	@GuardedBy("this")
-	private final List<byte[]> allPreviousByteMessages;
-	private final List<Notification> allPreviousBGPMessages;
-	private final EventBus eventBus;
+    @GuardedBy("this")
+    private final List<byte[]> allPreviousByteMessages;
+    private final List<Notification> allPreviousBGPMessages;
+    private final EventBus eventBus;
 
-	@GuardedBy("this")
-	private final List<EventBusRegistration> openRegistrations = Lists.newLinkedList();
+    @GuardedBy("this")
+    private final List<EventBusRegistration> openRegistrations = Lists.newLinkedList();
 
-	public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
-		this.allPreviousByteMessages = Lists.newLinkedList(bgpMessages);
-		this.eventBus = eventBus;
-		this.allPreviousBGPMessages = this.parsePrevious(registry, this.allPreviousByteMessages);
-	}
+    public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
+        this.allPreviousByteMessages = Lists.newLinkedList(bgpMessages);
+        this.eventBus = eventBus;
+        this.allPreviousBGPMessages = this.parsePrevious(registry, this.allPreviousByteMessages);
+    }
 
-	private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
-		final List<Notification> messages = Lists.newArrayList();
-		try {
-			for (final byte[] b : msgs) {
+    private List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
+        final List<Notification> messages = Lists.newArrayList();
+        try {
+            for (final byte[] b : msgs) {
 
-				final byte[] body = ByteArray.cutBytes(b, 1);
+                final byte[] body = ByteArray.cutBytes(b, 1);
 
-				messages.add(registry.parseMessage(Unpooled.copiedBuffer(body)));
-			}
-		} catch (final BGPDocumentedException | BGPParsingException e) {
-			LOG.warn("Failed to parse message {}", e);
-		}
-		return messages;
-	}
+                messages.add(registry.parseMessage(Unpooled.copiedBuffer(body)));
+            }
+        } catch (final BGPDocumentedException | BGPParsingException e) {
+            LOG.warn("Failed to parse message {}", e.getMessage(), e);
+        }
+        return messages;
+    }
 
-	public synchronized void insertConnectionLostEvent() {
-		this.insertMessage(CONNECTION_LOST_MAGIC_MSG);
-	}
+    public synchronized void insertConnectionLostEvent() {
+        this.insertMessage(CONNECTION_LOST_MAGIC_MSG);
+    }
 
-	public synchronized void insertMessages(final List<Notification> messages) {
-		for (final Notification message : messages) {
-			this.insertMessage(message);
-		}
-	}
+    public synchronized void insertMessages(final List<Notification> messages) {
+        for (final Notification message : messages) {
+            this.insertMessage(message);
+        }
+    }
 
-	@GuardedBy("this")
-	private void insertMessage(final Notification message) {
-		this.allPreviousBGPMessages.add(message);
-		this.eventBus.post(message);
-	}
+    @GuardedBy("this")
+    private void insertMessage(final Notification message) {
+        this.allPreviousBGPMessages.add(message);
+        this.eventBus.post(message);
+    }
 
-	@Override
-	public synchronized void close() {
-		// unregister all EventBusRegistration instances
-		for (final EventBusRegistration registration : this.openRegistrations) {
-			registration.close();
-		}
-		this.openRegistrations.clear();
-	}
+    @Override
+    public synchronized void close() {
+        // unregister all EventBusRegistration instances
+        for (final EventBusRegistration registration : this.openRegistrations) {
+            registration.close();
+        }
+        this.openRegistrations.clear();
+    }
 
-	public boolean isMessageListSame(final List<byte[]> newMessages) {
-		if (this.allPreviousBGPMessages.size() != newMessages.size()) {
-			return false;
-		}
-		final Iterator<byte[]> i1 = this.allPreviousByteMessages.iterator();
-		final Iterator<byte[]> i2 = this.allPreviousByteMessages.iterator();
-		for (int i = 0; i < this.allPreviousBGPMessages.size(); i++) {
-			if (!Arrays.equals(i1.next(), i2.next())) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean isMessageListSame(final List<byte[]> newMessages) {
+        if (this.allPreviousBGPMessages.size() != newMessages.size()) {
+            return false;
+        }
+        final Iterator<byte[]> i1 = this.allPreviousByteMessages.iterator();
+        final Iterator<byte[]> i2 = this.allPreviousByteMessages.iterator();
+        for (int i = 0; i < this.allPreviousBGPMessages.size(); i++) {
+            if (!Arrays.equals(i1.next(), i2.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	public EventBus getEventBus() {
-		return this.eventBus;
-	}
+    public EventBus getEventBus() {
+        return this.eventBus;
+    }
 
-	public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {
-		return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
-	}
+    public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {
+        return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
+    }
 }

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
@@ -26,63 +29,61 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-
 /**
  * Parser for {@link IpPrefixCase}
  */
 public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
 
-	public static final int TYPE = 2;
+    public static final int TYPE = 2;
 
-	private static final int IP_F_LENGTH = 16;
+    private static final int IP_F_LENGTH = 16;
 
-	private static final int PREFIX_F_LENGTH = 1;
-	private static final int FLAGS_F_LENGTH = 1;
+    private static final int PREFIX_F_LENGTH = 1;
+    private static final int FLAGS_F_LENGTH = 1;
 
-	private static final int IP_F_OFFSET = 0;
+    private static final int IP_F_OFFSET = 0;
 
-	private static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
-	private static final int FLAGS_F_OFFSET = PREFIX_F_OFFSET + PREFIX_F_LENGTH;
+    private static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
+    private static final int FLAGS_F_OFFSET = PREFIX_F_OFFSET + PREFIX_F_LENGTH;
 
-	private static final int CONTENT_LENGTH = IP_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
+    private static final int CONTENT_LENGTH = IP_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
 
-	private static final int LPA_F_OFFSET = 7;
-	private static final int LPIU_F_OFFSET = 6;
+    private static final int LPA_F_OFFSET = 7;
+    private static final int LPIU_F_OFFSET = 6;
 
-	@Override
-	public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final SubobjectBuilder builder = new SubobjectBuilder();
-		if (buffer.readableBytes() != CONTENT_LENGTH) {
-			throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
-		}
-		final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX_F_OFFSET));
-		IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer, IP_F_LENGTH), length)));
-		buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
-		final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
-		builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
-		builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
-		builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
-		return builder.build();
-	}
+    @Override
+    public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final SubobjectBuilder builder = new SubobjectBuilder();
+        if (buffer.readableBytes() != CONTENT_LENGTH) {
+            throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + ";");
+        }
+        final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX_F_OFFSET));
+        IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
+                IP_F_LENGTH), length)));
+        buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
+        final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
+        builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
+        builder.setProtectionInUse(flags.get(LPIU_F_OFFSET));
+        builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeSubobject(final Subobject subobject) {
-		if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
-			throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
-					+ ". Needed IpPrefixCase.");
-		}
-		final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
-		final IpPrefix prefix = specObj.getIpPrefix();
-		final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-		flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-		flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-		final byte[] retBytes = new byte[CONTENT_LENGTH];
-		ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, IP_F_OFFSET);
-		retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-		ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-		return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
-	}
+    @Override
+    public byte[] serializeSubobject(final Subobject subobject) {
+        if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
+            throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
+                    + ". Needed IpPrefixCase.");
+        }
+        final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
+        final IpPrefix prefix = specObj.getIpPrefix();
+        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        final byte[] retBytes = new byte[CONTENT_LENGTH];
+        ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, IP_F_OFFSET);
+        retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
+        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
+        return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
+    }
 }

@@ -18,23 +18,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class RouteTargetCommunityTest {
 
-	private RouteTargetExtendedCommunity community;
+    private RouteTargetExtendedCommunity community;
 
-	@Before
-	public void init() {
-		final ShortAsNumber globalAdmin = new ShortAsNumber(65535L);
-		final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
-		this.community = new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(globalAdmin).setLocalAdministrator(localAdmin).build();
-	}
+    @Before
+    public void init() {
+        final ShortAsNumber globalAdmin = new ShortAsNumber(65535L);
+        final byte[] localAdmin = new byte[] { 10, 0, 0, 1 };
+        this.community = new RouteTargetExtendedCommunityBuilder().setGlobalAdministrator(globalAdmin).setLocalAdministrator(localAdmin).build();
+    }
 
-	@Test
-	public void testGetGlobalAdmin() {
-		final ShortAsNumber testAsn = new ShortAsNumber(65535L);
-		assertEquals(this.community.getGlobalAdministrator(), testAsn);
-	}
+    @Test
+    public void testGetGlobalAdmin() {
+        final ShortAsNumber testAsn = new ShortAsNumber(65535L);
+        assertEquals(this.community.getGlobalAdministrator(), testAsn);
+    }
 
-	@Test
-	public void testGetLocalAdmin() {
-		assertArrayEquals(new byte[] { 10, 0, 0, 1 }, this.community.getLocalAdministrator());
-	}
+    @Test
+    public void testGetLocalAdmin() {
+        assertArrayEquals(new byte[] { 10, 0, 0, 1 }, this.community.getLocalAdministrator());
+    }
 }

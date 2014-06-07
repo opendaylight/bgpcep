@@ -13,4 +13,3 @@ import io.netty.channel.ServerChannel;
 public interface MD5ServerChannelFactory<C extends ServerChannel> extends ChannelFactory<C> {
 
 }
-

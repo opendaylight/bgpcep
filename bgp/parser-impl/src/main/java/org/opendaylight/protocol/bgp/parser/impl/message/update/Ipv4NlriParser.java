@@ -16,9 +16,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv4._case.DestinationIpv4Builder;
 
 public final class Ipv4NlriParser extends IpNlriParser {
-	@Override
-	protected DestinationIpv4Case parseNlri(final ByteBuf nlri) {
-		return new DestinationIpv4CaseBuilder().setDestinationIpv4(
-				new DestinationIpv4Builder().setIpv4Prefixes(Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri))).build()).build();
-	}
+    @Override
+    protected DestinationIpv4Case parseNlri(final ByteBuf nlri) {
+        return new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                new DestinationIpv4Builder().setIpv4Prefixes(Ipv4Util.prefixListForBytes(ByteArray.readAllBytes(nlri))).build()).build();
+    }
 }

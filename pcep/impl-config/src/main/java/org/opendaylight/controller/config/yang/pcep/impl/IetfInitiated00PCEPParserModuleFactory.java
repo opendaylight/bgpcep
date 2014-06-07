@@ -20,6 +20,6 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 *
 */
 public class IetfInitiated00PCEPParserModuleFactory extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfInitiated00PCEPParserModuleFactory {
+        org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfInitiated00PCEPParserModuleFactory {
 
 }

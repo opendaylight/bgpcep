@@ -7,6 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
+import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
 import io.netty.channel.Channel;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -43,284 +49,278 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-
 @VisibleForTesting
 public class BGPSessionImpl extends AbstractProtocolSession<Notification> implements BGPSession {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
-	private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
+    private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
 
-	/**
-	 * Internal session state.
-	 */
-	public enum State {
-		/**
-		 * The session object is created by the negotiator in OpenConfirm state. While in this state, the session object
-		 * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
-		 * announced to the listener. If the session is torn down in this state, we do not inform the listener.
-		 */
-		OpenConfirm,
-		/**
-		 * The session has been completely established.
-		 */
-		Up,
-		/**
-		 * The session has been closed. It will not be resurrected.
-		 */
-		Idle,
-	}
+    /**
+     * Internal session state.
+     */
+    public enum State {
+        /**
+         * The session object is created by the negotiator in OpenConfirm state. While in this state, the session object
+         * is half-alive, e.g. the timers are running, but the session is not completely up, e.g. it has not been
+         * announced to the listener. If the session is torn down in this state, we do not inform the listener.
+         */
+        OpenConfirm,
+        /**
+         * The session has been completely established.
+         */
+        Up,
+        /**
+         * The session has been closed. It will not be resurrected.
+         */
+        Idle,
+    }
 
-	/**
-	 * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
-	 */
-	@VisibleForTesting
-	protected long lastMessageSentAt;
+    /**
+     * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
+     */
+    @VisibleForTesting
+    protected long lastMessageSentAt;
 
-	/**
-	 * System.nanoTime value about when was received the last message
-	 */
-	private long lastMessageReceivedAt;
+    /**
+     * System.nanoTime value about when was received the last message
+     */
+    private long lastMessageReceivedAt;
 
-	private final BGPSessionListener listener;
+    private final BGPSessionListener listener;
 
-	/**
-	 * Timer object grouping FSM Timers
-	 */
-	private final Timer stateTimer;
+    /**
+     * Timer object grouping FSM Timers
+     */
+    private final Timer stateTimer;
 
-	private final BGPSynchronization sync;
+    private final BGPSynchronization sync;
 
-	private int kaCounter = 0;
+    private int kaCounter = 0;
 
-	private final Channel channel;
+    private final Channel channel;
 
-	@GuardedBy("this")
-	private State state = State.OpenConfirm;
+    @GuardedBy("this")
+    private State state = State.OpenConfirm;
 
+    private final Set<BgpTableType> tableTypes;
+    private final int holdTimerValue;
+    private final int keepAlive;
+    private final AsNumber asNumber;
+    private final Ipv4Address bgpId;
 
-	private final Set<BgpTableType> tableTypes;
-	private final int holdTimerValue;
-	private final int keepAlive;
-	private final AsNumber asNumber;
-	private final Ipv4Address bgpId;
+    BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
+            final int localHoldTimer) {
+        this.listener = Preconditions.checkNotNull(listener);
+        this.stateTimer = Preconditions.checkNotNull(timer);
+        this.channel = Preconditions.checkNotNull(channel);
+        this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
+        LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
+        this.keepAlive = this.holdTimerValue / 3;
+        this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
 
-	BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
-		this.listener = Preconditions.checkNotNull(listener);
-		this.stateTimer = Preconditions.checkNotNull(timer);
-		this.channel = Preconditions.checkNotNull(channel);
-		this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
-		LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
-		this.keepAlive = this.holdTimerValue / 3;
-		this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
+        final Set<TablesKey> tts = Sets.newHashSet();
+        final Set<BgpTableType> tats = Sets.newHashSet();
+        if (remoteOpen.getBgpParameters() != null) {
+            for (final BgpParameters param : remoteOpen.getBgpParameters()) {
+                final CParameters cp = param.getCParameters();
+                if (cp instanceof MultiprotocolCase) {
+                    final TablesKey tt = new TablesKey(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
+                    LOG.trace("Added table type to sync {}", tt);
+                    tts.add(tt);
+                    tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
+                }
+            }
+        }
 
-		final Set<TablesKey> tts = Sets.newHashSet();
-		final Set<BgpTableType> tats = Sets.newHashSet();
-		if (remoteOpen.getBgpParameters() != null) {
-			for (final BgpParameters param : remoteOpen.getBgpParameters()) {
-				final CParameters cp = param.getCParameters();
-				if (cp instanceof MultiprotocolCase) {
-					final TablesKey tt = new TablesKey(((MultiprotocolCase) cp).getMultiprotocolCapability().getAfi(), ((MultiprotocolCase) cp).getMultiprotocolCapability().getSafi());
-					LOG.trace("Added table type to sync {}", tt);
-					tts.add(tt);
-					tats.add(new BgpTableTypeImpl(tt.getAfi(), tt.getSafi()));
-				}
-			}
-		}
+        this.sync = new BGPSynchronization(this, this.listener, tts);
+        this.tableTypes = tats;
 
-		this.sync = new BGPSynchronization(this, this.listener, tts);
-		this.tableTypes = tats;
+        if (this.holdTimerValue != 0) {
+            this.stateTimer.newTimeout(new TimerTask() {
 
-		if (this.holdTimerValue != 0) {
-			this.stateTimer.newTimeout(new TimerTask() {
+                @Override
+                public void run(final Timeout timeout) {
+                    handleHoldTimer();
+                }
+            }, this.holdTimerValue, TimeUnit.SECONDS);
 
-				@Override
-				public void run(final Timeout timeout) {
-					handleHoldTimer();
-				}
-			}, this.holdTimerValue, TimeUnit.SECONDS);
+            this.stateTimer.newTimeout(new TimerTask() {
+                @Override
+                public void run(final Timeout timeout) {
+                    handleKeepaliveTimer();
+                }
+            }, this.keepAlive, TimeUnit.SECONDS);
+        }
+        this.bgpId = remoteOpen.getBgpIdentifier();
+    }
 
-			this.stateTimer.newTimeout(new TimerTask() {
-				@Override
-				public void run(final Timeout timeout) {
-					handleKeepaliveTimer();
-				}
-			}, this.keepAlive, TimeUnit.SECONDS);
-		}
-		this.bgpId = remoteOpen.getBgpIdentifier();
-	}
+    @Override
+    public synchronized void close() {
+        LOG.info("Closing session: {}", this);
+        if (this.state != State.Idle) {
+            this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build());
+            this.channel.close();
+            this.state = State.Idle;
+        }
+    }
 
-	@Override
-	public synchronized void close() {
-		LOG.info("Closing session: {}", this);
-		if (this.state != State.Idle) {
-			this.sendMessage(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build());
-			this.channel.close();
-			this.state = State.Idle;
-		}
-	}
+    /**
+     * Handles incoming message based on their type.
+     *
+     * @param msg incoming message
+     */
+    @Override
+    public void handleMessage(final Notification msg) {
+        // Update last reception time
+        this.lastMessageReceivedAt = System.nanoTime();
 
-	/**
-	 * Handles incoming message based on their type.
-	 *
-	 * @param msg incoming message
-	 */
-	@Override
-	public void handleMessage(final Notification msg) {
-		// Update last reception time
-		this.lastMessageReceivedAt = System.nanoTime();
+        if (msg instanceof Open) {
+            // Open messages should not be present here
+            this.terminate(BGPError.FSM_ERROR);
+        } else if (msg instanceof Notify) {
+            // Notifications are handled internally
+            LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
+                    ((Notify) msg).getErrorSubcode());
+            this.closeWithoutMessage();
+            this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
+                    ((Notify) msg).getErrorSubcode())));
+        } else if (msg instanceof Keepalive) {
+            // Keepalives are handled internally
+            LOG.trace("Received KeepAlive messsage.");
+            this.kaCounter++;
+            if (this.kaCounter >= 2) {
+                this.sync.kaReceived();
+            }
+        } else {
+            // All others are passed up
+            this.listener.onMessage(this, msg);
+            this.sync.updReceived((Update) msg);
+        }
+    }
 
-		if (msg instanceof Open) {
-			// Open messages should not be present here
-			this.terminate(BGPError.FSM_ERROR);
-		} else if (msg instanceof Notify) {
-			// Notifications are handled internally
-			LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-					((Notify) msg).getErrorSubcode());
-			this.closeWithoutMessage();
-			this.listener.onSessionTerminated(this,
-					new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(), ((Notify) msg).getErrorSubcode())));
-		} else if (msg instanceof Keepalive) {
-			// Keepalives are handled internally
-			LOG.trace("Received KeepAlive messsage.");
-			this.kaCounter++;
-			if (this.kaCounter >= 2) {
-				this.sync.kaReceived();
-			}
-		} else {
-			// All others are passed up
-			this.listener.onMessage(this, msg);
-			this.sync.updReceived((Update) msg);
-		}
-	}
+    @Override
+    public synchronized void endOfInput() {
+        if (this.state == State.Up) {
+            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
+        }
+    }
 
-	@Override
-	public synchronized void endOfInput() {
-		if (this.state == State.Up) {
-			this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
-		}
-	}
+    void sendMessage(final Notification msg) {
+        try {
+            this.channel.writeAndFlush(msg);
+            this.lastMessageSentAt = System.nanoTime();
+            LOG.debug("Sent message: {}", msg);
+        } catch (final Exception e) {
+            LOG.warn("Message {} was not sent.", msg, e);
+        }
+    }
 
-	void sendMessage(final Notification msg) {
-		try {
-			this.channel.writeAndFlush(msg);
-			this.lastMessageSentAt = System.nanoTime();
-			LOG.debug("Sent message: {}", msg);
-		} catch (final Exception e) {
-			LOG.warn("Message {} was not sent.", msg, e);
-		}
-	}
+    private synchronized void closeWithoutMessage() {
+        LOG.debug("Closing session: {}", this);
+        this.channel.close();
+        this.state = State.Idle;
+    }
 
-	private synchronized void closeWithoutMessage() {
-		LOG.debug("Closing session: {}", this);
-		this.channel.close();
-		this.state = State.Idle;
-	}
+    /**
+     * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
+     * modified, because he initiated the closing. (To prevent concurrent modification exception).
+     *
+     * @param closeObject
+     */
+    private void terminate(final BGPError error) {
+        this.sendMessage(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
+        this.closeWithoutMessage();
 
-	/**
-	 * Closes PCEP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
-	 * modified, because he initiated the closing. (To prevent concurrent modification exception).
-	 *
-	 * @param closeObject
-	 */
-	private void terminate(final BGPError error) {
-		this.sendMessage(new NotifyBuilder().setErrorCode(error.getCode()).setErrorSubcode(error.getSubcode()).build());
-		this.closeWithoutMessage();
+        this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+    }
 
-		this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
-	}
+    /**
+     * If HoldTimer expires, the session ends. If a message (whichever) was received during this period, the HoldTimer
+     * will be rescheduled by HOLD_TIMER_VALUE + the time that has passed from the start of the HoldTimer to the time at
+     * which the message was received. If the session was closed by the time this method starts to execute (the session
+     * state will become IDLE), then rescheduling won't occur.
+     */
+    private synchronized void handleHoldTimer() {
+        if (this.state == State.Idle) {
+            return;
+        }
 
-	/**
-	 * If HoldTimer expires, the session ends. If a message (whichever) was received during this period, the HoldTimer
-	 * will be rescheduled by HOLD_TIMER_VALUE + the time that has passed from the start of the HoldTimer to the time at
-	 * which the message was received. If the session was closed by the time this method starts to execute (the session
-	 * state will become IDLE), then rescheduling won't occur.
-	 */
-	private synchronized void handleHoldTimer() {
-		if (this.state == State.Idle) {
-			return;
-		}
+        final long ct = System.nanoTime();
+        final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(this.holdTimerValue);
 
-		final long ct = System.nanoTime();
-		final long nextHold = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(this.holdTimerValue);
+        if (ct >= nextHold) {
+            LOG.debug("HoldTimer expired. {}", new Date());
+            this.terminate(BGPError.HOLD_TIMER_EXPIRED);
+        } else {
+            this.stateTimer.newTimeout(new TimerTask() {
+                @Override
+                public void run(final Timeout timeout) {
+                    handleHoldTimer();
+                }
+            }, nextHold - ct, TimeUnit.NANOSECONDS);
+        }
+    }
 
-		if (ct >= nextHold) {
-			LOG.debug("HoldTimer expired. " + new Date());
-			this.terminate(BGPError.HOLD_TIMER_EXPIRED);
-		} else {
-			this.stateTimer.newTimeout(new TimerTask() {
-				@Override
-				public void run(final Timeout timeout) {
-					handleHoldTimer();
-				}
-			}, nextHold - ct, TimeUnit.NANOSECONDS);
-		}
-	}
+    /**
+     * If KeepAlive Timer expires, sends KeepAlive message. If a message (whichever) was send during this period, the
+     * KeepAlive Timer will be rescheduled by KEEP_ALIVE_TIMER_VALUE + the time that has passed from the start of the
+     * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
+     * starts to execute (the session state will become IDLE), that rescheduling won't occur.
+     */
+    private synchronized void handleKeepaliveTimer() {
+        if (this.state == State.Idle) {
+            return;
+        }
 
-	/**
-	 * If KeepAlive Timer expires, sends KeepAlive message. If a message (whichever) was send during this period, the
-	 * KeepAlive Timer will be rescheduled by KEEP_ALIVE_TIMER_VALUE + the time that has passed from the start of the
-	 * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
-	 * starts to execute (the session state will become IDLE), that rescheduling won't occur.
-	 */
-	private synchronized void handleKeepaliveTimer() {
-		if (this.state == State.Idle) {
-			return;
-		}
+        final long ct = System.nanoTime();
+        long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
 
-		final long ct = System.nanoTime();
-		long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
+        if (ct >= nextKeepalive) {
+            this.sendMessage(KEEP_ALIVE);
+            nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
+        }
+        this.stateTimer.newTimeout(new TimerTask() {
+            @Override
+            public void run(final Timeout timeout) {
+                handleKeepaliveTimer();
+            }
+        }, nextKeepalive - ct, TimeUnit.NANOSECONDS);
+    }
 
-		if (ct >= nextKeepalive) {
-			this.sendMessage(KEEP_ALIVE);
-			nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
-		}
-		this.stateTimer.newTimeout(new TimerTask() {
-			@Override
-			public void run(final Timeout timeout) {
-				handleKeepaliveTimer();
-			}
-		}, nextKeepalive - ct, TimeUnit.NANOSECONDS);
-	}
+    @Override
+    public final String toString() {
+        return addToStringAttributes(Objects.toStringHelper(this)).toString();
+    }
 
-	@Override
-	public final String toString() {
-		return addToStringAttributes(Objects.toStringHelper(this)).toString();
-	}
+    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        toStringHelper.add("channel", this.channel);
+        toStringHelper.add("state", this.state);
+        return toStringHelper;
+    }
 
-	protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-		toStringHelper.add("channel", this.channel);
-		toStringHelper.add("state", this.state);
-		return toStringHelper;
-	}
+    @Override
+    public Set<BgpTableType> getAdvertisedTableTypes() {
+        return this.tableTypes;
+    }
 
-	@Override
-	public Set<BgpTableType> getAdvertisedTableTypes() {
-		return this.tableTypes;
-	}
+    @Override
+    protected synchronized void sessionUp() {
+        this.state = State.Up;
+        this.listener.onSessionUp(this);
+    }
 
-	@Override
-	protected synchronized void sessionUp() {
-		this.state = State.Up;
-		this.listener.onSessionUp(this);
-	}
+    public synchronized State getState() {
+        return this.state;
+    }
 
-	public synchronized State getState() {
-		return this.state;
-	}
+    @Override
+    public final Ipv4Address getBgpId() {
+        return this.bgpId;
+    }
 
-	@Override
-	public final Ipv4Address getBgpId() {
-		return this.bgpId;
-	}
-
-	@Override
-	public final AsNumber getAsNumber() {
-		return this.asNumber;
-	}
+    @Override
+    public final AsNumber getAsNumber() {
+        return this.asNumber;
+    }
 }

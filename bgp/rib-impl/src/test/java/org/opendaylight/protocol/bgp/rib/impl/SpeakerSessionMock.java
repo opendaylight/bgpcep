@@ -20,16 +20,16 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  */
 public class SpeakerSessionMock extends BGPSessionImpl {
 
-	private final BGPSessionListener client;
+    private final BGPSessionListener client;
 
-	SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
-		super(new HashedWheelTimer(), listener, mock(Channel.class), new OpenBuilder().setHoldTimer(5).build(), 10);
-		this.client = client;
-	}
+    SpeakerSessionMock(final BGPSessionListener listener, final BGPSessionListener client) {
+        super(new HashedWheelTimer(), listener, mock(Channel.class), new OpenBuilder().setHoldTimer(5).build(), 10);
+        this.client = client;
+    }
 
-	@Override
-	public void sendMessage(final Notification msg) {
-		this.lastMessageSentAt = System.nanoTime();
-		this.client.onMessage(this, msg);
-	}
+    @Override
+    public void sendMessage(final Notification msg) {
+        this.lastMessageSentAt = System.nanoTime();
+        this.client.onMessage(this, msg);
+    }
 }

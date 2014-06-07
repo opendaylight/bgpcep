@@ -9,7 +9,9 @@
 package org.opendaylight.controller.config.yang.bgp.linkstate;
 
 import com.google.common.collect.Lists;
+
 import javax.management.ObjectName;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -28,9 +30,7 @@ public class LinkstateModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
-                new LinkstateModuleFactory(),
-                new SimpleBGPExtensionProviderContextModuleFactory(), new RIBExtensionsImplModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new LinkstateModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(), new RIBExtensionsImplModuleFactory()));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class LinkstateModuleTest extends AbstractConfigTest {
 
     private CommitStatus createLinkstateModuleInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
-        final ObjectName linkstateON =  transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final ObjectName linkstateON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
 
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));
         RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));

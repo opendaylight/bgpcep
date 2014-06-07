@@ -11,20 +11,20 @@ package org.opendaylight.protocol.util;
  * A simple reference cache which actually does not cache anything.
  */
 public final class NoopReferenceCache implements ReferenceCache {
-	private static final class Holder {
-		static final NoopReferenceCache INSTANCE = new NoopReferenceCache();
-	}
+    private static final class Holder {
+        static final NoopReferenceCache INSTANCE = new NoopReferenceCache();
+    }
 
-	private NoopReferenceCache() {
+    private NoopReferenceCache() {
 
-	}
+    }
 
-	@Override
-	public <T> T getSharedReference(final T object) {
-		return object;
-	}
+    @Override
+    public <T> T getSharedReference(final T object) {
+        return object;
+    }
 
-	public static NoopReferenceCache getInstance() {
-		return Holder.INSTANCE;
-	}
+    public static NoopReferenceCache getInstance() {
+        return Holder.INSTANCE;
+    }
 }

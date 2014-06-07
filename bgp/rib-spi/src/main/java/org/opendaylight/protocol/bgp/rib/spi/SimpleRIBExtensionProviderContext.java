@@ -16,33 +16,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-	private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
+    private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
 
-	@Override
-	public final synchronized AbstractRegistration registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
-			final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsInFactory factory) {
-		final TablesKey key = new TablesKey(afi, safi);
+    @Override
+    public final synchronized AbstractRegistration registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsInFactory factory) {
+        final TablesKey key = new TablesKey(afi, safi);
 
-		if (this.factories.containsKey(key)) {
-			throw new IllegalArgumentException("Specified AFI/SAFI combination is already registered");
-		}
+        if (this.factories.containsKey(key)) {
+            throw new IllegalArgumentException("Specified AFI/SAFI combination is already registered");
+        }
 
-		this.factories.put(key, factory);
+        this.factories.put(key, factory);
 
-		final Object lock = this;
-		return new AbstractRegistration() {
-			@Override
-			protected void removeRegistration() {
-				synchronized (lock) {
-					SimpleRIBExtensionProviderContext.this.factories.remove(key);
-				}
-			}
-		};
-	}
+        final Object lock = this;
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (lock) {
+                    SimpleRIBExtensionProviderContext.this.factories.remove(key);
+                }
+            }
+        };
+    }
 
-	@Override
-	public final synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
-			final Class<? extends SubsequentAddressFamily> safi) {
-		return this.factories.get(new TablesKey(afi, safi));
-	}
+    @Override
+    public final synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+            final Class<? extends SubsequentAddressFamily> safi) {
+        return this.factories.get(new TablesKey(afi, safi));
+    }
 }

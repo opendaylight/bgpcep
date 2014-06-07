@@ -13,34 +13,34 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 
 public final class ServiceLoaderPCEPExtensionProviderContext extends SimplePCEPExtensionProviderContext {
-	private static final class Holder {
-		private static final PCEPExtensionProviderContext INSTANCE;
+    private static final class Holder {
+        private static final PCEPExtensionProviderContext INSTANCE;
 
-		static {
-			try {
-				INSTANCE = create();
-			} catch (final Exception e) {
-				throw new ExceptionInInitializerError(e);
-			}
-		}
-	}
+        static {
+            try {
+                INSTANCE = create();
+            } catch (final Exception e) {
+                throw new ExceptionInInitializerError(e);
+            }
+        }
+    }
 
-	private ServiceLoaderPCEPExtensionProviderContext() {
+    private ServiceLoaderPCEPExtensionProviderContext() {
 
-	}
+    }
 
-	public static PCEPExtensionProviderContext create() {
-		final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+    public static PCEPExtensionProviderContext create() {
+        final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
-		final ServiceLoader<PCEPExtensionProviderActivator> loader = ServiceLoader.load(PCEPExtensionProviderActivator.class);
-		for (final PCEPExtensionProviderActivator a : loader) {
-			a.start(ctx);
-		}
+        final ServiceLoader<PCEPExtensionProviderActivator> loader = ServiceLoader.load(PCEPExtensionProviderActivator.class);
+        for (final PCEPExtensionProviderActivator a : loader) {
+            a.start(ctx);
+        }
 
-		return ctx;
-	}
+        return ctx;
+    }
 
-	public static PCEPExtensionProviderContext getSingletonInstance() {
-		return Holder.INSTANCE;
-	}
+    public static PCEPExtensionProviderContext getSingletonInstance() {
+        return Holder.INSTANCE;
+    }
 }

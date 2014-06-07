@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.Arrays;
@@ -23,78 +25,76 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.primitives.UnsignedBytes;
-
 /**
  * Parser for BGPNotification message.
  */
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
-	public static final int TYPE = 3;
+    public static final int TYPE = 3;
 
-	private static final Logger LOG = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
 
-	private static final int ERROR_SIZE = 2;
+    private static final int ERROR_SIZE = 2;
 
-	/**
-	 * Serializes BGP Notification message.
-	 * 
-	 * @param msg to be serialized
-	 * @return BGP Notification message converted to byte array
-	 */
-	@Override
-	public byte[] serializeMessage(final Notification msg) {
-		if (msg == null) {
-			throw new IllegalArgumentException("BGP Notification message cannot be null");
-		}
+    /**
+     * Serializes BGP Notification message.
+     *
+     * @param msg to be serialized
+     * @return BGP Notification message converted to byte array
+     */
+    @Override
+    public byte[] serializeMessage(final Notification msg) {
+        if (msg == null) {
+            throw new IllegalArgumentException("BGP Notification message cannot be null");
+        }
 
-		final Notify ntf = (Notify) msg;
-		LOG.trace("Started serializing Notification message: {}", ntf);
+        final Notify ntf = (Notify) msg;
+        LOG.trace("Started serializing Notification message: {}", ntf);
 
-		final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];
+        final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];
 
-		msgBody[0] = UnsignedBytes.checkedCast(ntf.getErrorCode());
+        msgBody[0] = UnsignedBytes.checkedCast(ntf.getErrorCode());
 
-		msgBody[1] = UnsignedBytes.checkedCast(ntf.getErrorSubcode());
+        msgBody[1] = UnsignedBytes.checkedCast(ntf.getErrorSubcode());
 
-		if (ntf.getData() != null) {
-			System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
-		}
+        if (ntf.getData() != null) {
+            System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
+        }
 
-		final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-		LOG.trace("Notification message serialized to: {}", Arrays.toString(ret));
-		return ret;
-	}
+        final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
+        LOG.trace("Notification message serialized to: {}", Arrays.toString(ret));
+        return ret;
+    }
 
-	/**
-	 * Parses BGP Notification message to bytes.
-	 * 
-	 * @param body byte array to be parsed
-	 * @return BGPNotification message
-	 * @throws BGPDocumentedException
-	 */
-	@Override
-	public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
-		if (body == null) {
-			throw new IllegalArgumentException("Byte array cannot be null.");
-		}
-		LOG.trace("Started parsing of notification message: {}", Arrays.toString(ByteArray.getAllBytes(body)));
+    /**
+     * Parses BGP Notification message to bytes.
+     *
+     * @param body byte array to be parsed
+     * @return BGPNotification message
+     * @throws BGPDocumentedException
+     */
+    @Override
+    public Notify parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
+        if (body == null) {
+            throw new IllegalArgumentException("Byte array cannot be null.");
+        }
+        LOG.trace("Started parsing of notification message: {}", Arrays.toString(ByteArray.getAllBytes(body)));
 
-		if (body.readableBytes() < ERROR_SIZE) {
-			throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
-		}
-		final int errorCode = UnsignedBytes.toInt(body.readByte());
-		final int errorSubcode = UnsignedBytes.toInt(body.readByte());
+        if (body.readableBytes() < ERROR_SIZE) {
+            throw BGPDocumentedException.badMessageLength("Notification message too small.", messageLength);
+        }
+        final int errorCode = UnsignedBytes.toInt(body.readByte());
+        final int errorSubcode = UnsignedBytes.toInt(body.readByte());
 
-		byte[] data = null;
-		if (body.readableBytes() != 0) {
-			data = ByteArray.readAllBytes(body);
-		}
-		final NotifyBuilder builder = new NotifyBuilder().setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
-		if (data != null) {
-			builder.setData(data);
-		}
-		LOG.debug("BGP Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
-				Arrays.toString(data));
-		return builder.build();
-	}
+        byte[] data = null;
+        if (body.readableBytes() != 0) {
+            data = ByteArray.readAllBytes(body);
+        }
+        final NotifyBuilder builder = new NotifyBuilder().setErrorCode((short) errorCode).setErrorSubcode((short) errorSubcode);
+        if (data != null) {
+            builder.setData(data);
+        }
+        LOG.debug("BGP Notification message was parsed: err = {}, data = {}.", BGPError.forValue(errorCode, errorSubcode),
+                Arrays.toString(data));
+        return builder.build();
+    }
 }

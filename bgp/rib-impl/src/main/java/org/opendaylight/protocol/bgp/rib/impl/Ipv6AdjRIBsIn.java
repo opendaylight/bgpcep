@@ -25,34 +25,34 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
-	Ipv6AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-		super(trans, rib, key);
-	}
+    Ipv6AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+        super(trans, rib, key);
+    }
 
-	@Override
-	public InstanceIdentifier<Ipv6Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
-		return basePath.builder().child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key)).toInstance();
-	}
+    @Override
+    public InstanceIdentifier<Ipv6Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv6Prefix key) {
+        return basePath.builder().child(Ipv6Routes.class).child(Ipv6Route.class, new Ipv6RouteKey(key)).toInstance();
+    }
 
-	@Override
-	public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
-		final RIBEntryData<Ipv6Prefix, Ipv6Route> data = new RIBEntryData<Ipv6Prefix, Ipv6Route>(attributes) {
-			@Override
-			protected Ipv6Route getDataObject(final Ipv6Prefix key, final InstanceIdentifier<Ipv6Route> id) {
-				return new Ipv6RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
-			}
-		};
+    @Override
+    public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+        final RIBEntryData<Ipv6Prefix, Ipv6Route> data = new RIBEntryData<Ipv6Prefix, Ipv6Route>(attributes) {
+            @Override
+            protected Ipv6Route getDataObject(final Ipv6Prefix key, final InstanceIdentifier<Ipv6Route> id) {
+                return new Ipv6RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
+            }
+        };
 
-		for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
-			super.add(trans, peer, id, data);
-		}
-	}
+        for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
+            super.add(trans, peer, id, data);
+        }
+    }
 
-	@Override
-	public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
-		for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
-			super.remove(trans, peer, id);
-		}
-	}
+    @Override
+    public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+        for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
+            super.remove(trans, peer, id);
+        }
+    }
 }

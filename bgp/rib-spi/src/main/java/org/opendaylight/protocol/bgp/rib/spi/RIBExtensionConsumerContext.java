@@ -11,12 +11,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 /**
- * Interface for registering AdjRIBsIn factories. In order for a model-driven
- * RIB implementation to work correctly, it has to know how to handle
- * individual NLRI fields, whose encoding is specific to a AFI/SAFI pair. This
- * interface exposes an interface for registration of factories for creating
- * AdjRIBsIn instances, which handle the specifics.
+ * Interface for registering AdjRIBsIn factories. In order for a model-driven RIB implementation to work correctly, it
+ * has to know how to handle individual NLRI fields, whose encoding is specific to a AFI/SAFI pair. This interface
+ * exposes an interface for registration of factories for creating AdjRIBsIn instances, which handle the specifics.
  */
 public interface RIBExtensionConsumerContext {
-	AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi);
+    AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi);
 }

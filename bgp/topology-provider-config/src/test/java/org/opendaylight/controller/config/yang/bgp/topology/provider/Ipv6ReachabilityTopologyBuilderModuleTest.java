@@ -74,8 +74,8 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         createIpv6ReachabilityTopoBuilderModuleInstance();
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final Ipv6ReachabilityTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(
-                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), Ipv6ReachabilityTopologyBuilderModuleMXBean.class);
+        final Ipv6ReachabilityTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
+                INSTANCE_NAME), Ipv6ReachabilityTopologyBuilderModuleMXBean.class);
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -88,8 +88,9 @@ public class Ipv6ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
 
     private CommitStatus createIpv6ReachabilityTopoBuilderModuleInstance(final TopologyId topologyId) throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
-        final ObjectName ipv6ReachabilityBuilderON =  transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final Ipv6ReachabilityTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(ipv6ReachabilityBuilderON, Ipv6ReachabilityTopologyBuilderModuleMXBean.class);
+        final ObjectName ipv6ReachabilityBuilderON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final Ipv6ReachabilityTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(ipv6ReachabilityBuilderON,
+                Ipv6ReachabilityTopologyBuilderModuleMXBean.class);
         final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         mxBean.setDataProvider(dataBrokerON);
         mxBean.setLocalRib(createRIBImplModuleInstance(transaction, dataBrokerON));
