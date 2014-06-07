@@ -10,26 +10,25 @@ package org.opendaylight.bgpcep.tcpmd5;
 import java.net.SocketOption;
 
 /**
- * Utility class holding the singleton socket options used by the TCP-MD5 support
- * library.
+ * Utility class holding the singleton socket options used by the TCP-MD5 support library.
  */
 public final class MD5SocketOptions {
-	/**
-	 * TCP MD5 Signature option, as defined in RFC 2385.
-	 */
-	public static final SocketOption<KeyMapping> TCP_MD5SIG = new SocketOption<KeyMapping>() {
-		@Override
-		public String name() {
-			return "TCP_MD5SIG";
-		}
+    /**
+     * TCP MD5 Signature option, as defined in RFC 2385.
+     */
+    public static final SocketOption<KeyMapping> TCP_MD5SIG = new SocketOption<KeyMapping>() {
+        @Override
+        public String name() {
+            return "TCP_MD5SIG";
+        }
 
-		@Override
-		public Class<KeyMapping> type() {
-			return KeyMapping.class;
-		}
-	};
+        @Override
+        public Class<KeyMapping> type() {
+            return KeyMapping.class;
+        }
+    };
 
-	private MD5SocketOptions() {
-		throw new UnsupportedOperationException("Utility class cannot be instatiated");
-	}
+    private MD5SocketOptions() {
+        throw new UnsupportedOperationException("Utility class cannot be instatiated");
+    }
 }

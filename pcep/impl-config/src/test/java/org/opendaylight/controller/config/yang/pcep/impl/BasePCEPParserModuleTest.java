@@ -7,6 +7,8 @@
  */
 package org.opendaylight.controller.config.yang.pcep.impl;
 
+import com.google.common.collect.Lists;
+
 import javax.management.ObjectName;
 
 import org.junit.Before;
@@ -18,8 +20,6 @@ import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleTest;
 
-import com.google.common.collect.Lists;
-
 public class BasePCEPParserModuleTest extends AbstractConfigTest {
 
     private static final String FACTORY_NAME = BasePCEPParserModuleFactory.NAME;
@@ -27,8 +27,7 @@ public class BasePCEPParserModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BasePCEPParserModuleFactory(),
-                new SimplePCEPExtensionProviderContextModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BasePCEPParserModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 
     @Test
@@ -50,7 +49,7 @@ public class BasePCEPParserModuleTest extends AbstractConfigTest {
 
     private CommitStatus createBasePCEPParserModuleInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
-        final ObjectName baseParserON =  transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        final ObjectName baseParserON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
 
         SimplePCEPExtensionProviderContextModuleTest.createPCEPExtensionsModuleInstance(transaction, Lists.newArrayList(baseParserON));
         return transaction.commit();

@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
 public interface TlvRegistry {
-	Tlv parseTlv(final int type, final ByteBuf buffer) throws PCEPDeserializerException;
-	byte[] serializeTlv(final Tlv tlv);
+    Tlv parseTlv(final int type, final ByteBuf buffer) throws PCEPDeserializerException;
+
+    byte[] serializeTlv(final Tlv tlv);
 }

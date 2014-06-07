@@ -7,29 +7,27 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import io.netty.buffer.ByteBuf;
-
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
+import io.netty.buffer.ByteBuf;
+
 public final class MessageUtil {
 
-	private static final int VERSION_SF_LENGTH = 3;
+    private static final int VERSION_SF_LENGTH = 3;
 
-	private MessageUtil() {
-		throw new UnsupportedOperationException("Utility class should not be instantiated");
-	}
+    private MessageUtil() {
+        throw new UnsupportedOperationException("Utility class should not be instantiated");
+    }
 
-	public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {
-		final int msgLength = body.readableBytes();
-		final byte[] header = new byte[] {
-				UnsignedBytes.checkedCast(PCEPMessageConstants.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH)),
-				UnsignedBytes.checkedCast(messageType),
-				UnsignedBytes.checkedCast((msgLength + PCEPMessageConstants.COMMON_HEADER_LENGTH) / 256),
-				UnsignedBytes.checkedCast((msgLength + PCEPMessageConstants.COMMON_HEADER_LENGTH) % 256)
-		};
-		Preconditions.checkState(header.length == PCEPMessageConstants.COMMON_HEADER_LENGTH);
-		out.writeBytes(header);
-		out.writeBytes(body);
-	}
+    public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {
+        final int msgLength = body.readableBytes();
+        final byte[] header = new byte[] { UnsignedBytes.checkedCast(PCEPMessageConstants.PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH)),
+            UnsignedBytes.checkedCast(messageType),
+            UnsignedBytes.checkedCast((msgLength + PCEPMessageConstants.COMMON_HEADER_LENGTH) / 256),
+            UnsignedBytes.checkedCast((msgLength + PCEPMessageConstants.COMMON_HEADER_LENGTH) % 256) };
+        Preconditions.checkState(header.length == PCEPMessageConstants.COMMON_HEADER_LENGTH);
+        out.writeBytes(header);
+        out.writeBytes(body);
+    }
 }

@@ -7,23 +7,23 @@
  */
 package org.opendaylight.bgpcep.programming.topology;
 
+import com.google.common.base.Preconditions;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.TopologyInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import com.google.common.base.Preconditions;
 
 /**
  *
  */
 public final class TopologyProgrammingUtil {
-	private TopologyProgrammingUtil() {
+    private TopologyProgrammingUtil() {
 
-	}
+    }
 
-	@SuppressWarnings("unchecked")
-	public static InstanceIdentifier<Topology> topologyForInput(final TopologyInstructionInput input) {
-		Preconditions.checkNotNull(input.getNetworkTopologyRef());
-		return (InstanceIdentifier<Topology>) input.getNetworkTopologyRef().getValue();
-	}
+    @SuppressWarnings("unchecked")
+    public static InstanceIdentifier<Topology> topologyForInput(final TopologyInstructionInput input) {
+        Preconditions.checkNotNull(input.getNetworkTopologyRef());
+        return (InstanceIdentifier<Topology>) input.getNetworkTopologyRef().getValue();
+    }
 }

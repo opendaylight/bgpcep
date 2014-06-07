@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi.pojo;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.concepts.HandlerRegistry;
@@ -19,37 +21,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.base.Preconditions;
-
 public final class SimpleEROSubobjectRegistry implements EROSubobjectRegistry {
-	private final HandlerRegistry<DataContainer, EROSubobjectParser, EROSubobjectSerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, EROSubobjectParser, EROSubobjectSerializer> handlers = new HandlerRegistry<>();
 
-	public AutoCloseable registerSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
-		Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
-		return this.handlers.registerParser(subobjectType, parser);
-	}
+    public AutoCloseable registerSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
+        Preconditions.checkArgument(subobjectType >= 0 && subobjectType <= Values.UNSIGNED_SHORT_MAX_VALUE);
+        return this.handlers.registerParser(subobjectType, parser);
+    }
 
-	public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
-			final EROSubobjectSerializer serializer) {
-		return this.handlers.registerSerializer(subobjectClass, serializer);
-	}
+    public AutoCloseable registerSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+            final EROSubobjectSerializer serializer) {
+        return this.handlers.registerSerializer(subobjectClass, serializer);
+    }
 
-	@Override
-	public Subobject parseSubobject(final int type, final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-		Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
-		final EROSubobjectParser parser = this.handlers.getParser(type);
-		if (parser == null) {
-			return null;
-		}
-		return parser.parseSubobject(buffer, loose);
-	}
+    @Override
+    public Subobject parseSubobject(final int type, final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
+        Preconditions.checkArgument(type >= 0 && type <= Values.UNSIGNED_SHORT_MAX_VALUE);
+        final EROSubobjectParser parser = this.handlers.getParser(type);
+        if (parser == null) {
+            return null;
+        }
+        return parser.parseSubobject(buffer, loose);
+    }
 
-	@Override
-	public byte[] serializeSubobject(Subobject subobject) {
-		final EROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
-		if (serializer == null) {
-			return null;
-		}
-		return serializer.serializeSubobject(subobject);
-	}
+    @Override
+    public byte[] serializeSubobject(Subobject subobject) {
+        final EROSubobjectSerializer serializer = this.handlers.getSerializer(subobject.getSubobjectType().getImplementedInterface());
+        if (serializer == null) {
+            return null;
+        }
+        return serializer.serializeSubobject(subobject);
+    }
 }

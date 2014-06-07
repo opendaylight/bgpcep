@@ -13,15 +13,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
  *
  */
 public class SchedulerException extends Exception {
-	private static final long serialVersionUID = 1L;
-	private final Failure failure;
+    private static final long serialVersionUID = 1L;
+    private final Failure failure;
 
-	public SchedulerException(final String message, final Failure failure) {
-		super(message);
-		this.failure = failure;
-	}
+    public SchedulerException(final String message, final Failure failure) {
+        super(message);
+        this.failure = failure;
+    }
 
-	public final Failure getFailure() {
-		return failure;
-	}
+    public final Failure getFailure() {
+        return failure;
+    }
 }

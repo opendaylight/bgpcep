@@ -7,23 +7,23 @@
  */
 package org.opendaylight.protocol.concepts;
 
+import com.google.common.base.Preconditions;
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
-import com.google.common.base.Preconditions;
 
 /**
  *
  */
 public class DefaultInstanceReference<T extends DataObject> implements InstanceReference<T> {
-	private final InstanceIdentifier<T> instanceIdentifier;
+    private final InstanceIdentifier<T> instanceIdentifier;
 
-	public DefaultInstanceReference(final InstanceIdentifier<T> instanceIdentifier) {
-		this.instanceIdentifier = Preconditions.checkNotNull(instanceIdentifier);
-	}
+    public DefaultInstanceReference(final InstanceIdentifier<T> instanceIdentifier) {
+        this.instanceIdentifier = Preconditions.checkNotNull(instanceIdentifier);
+    }
 
-	@Override
-	public final InstanceIdentifier<T> getInstanceIdentifier() {
-		return instanceIdentifier;
-	}
+    @Override
+    public final InstanceIdentifier<T> getInstanceIdentifier() {
+        return instanceIdentifier;
+    }
 }

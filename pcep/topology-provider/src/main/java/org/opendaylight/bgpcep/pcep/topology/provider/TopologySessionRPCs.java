@@ -7,17 +7,20 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspArgs;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 interface TopologySessionRPCs {
-	ListenableFuture<OperationResult> addLsp(AddLspArgs input);
-	ListenableFuture<OperationResult> removeLsp(RemoveLspArgs input);
-	ListenableFuture<OperationResult> updateLsp(UpdateLspArgs input);
-	ListenableFuture<OperationResult> ensureLspOperational(EnsureLspOperationalInput input);
+    ListenableFuture<OperationResult> addLsp(AddLspArgs input);
+
+    ListenableFuture<OperationResult> removeLsp(RemoveLspArgs input);
+
+    ListenableFuture<OperationResult> updateLsp(UpdateLspArgs input);
+
+    ListenableFuture<OperationResult> ensureLspOperational(EnsureLspOperationalInput input);
 }

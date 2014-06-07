@@ -6,6 +6,8 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.controller.config.yang.tcpmd5.jni.cfg;
-public class NativeKeyAccessFactoryModuleFactory extends org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.AbstractNativeKeyAccessFactoryModuleFactory {
+
+public class NativeKeyAccessFactoryModuleFactory extends
+        org.opendaylight.controller.config.yang.tcpmd5.jni.cfg.AbstractNativeKeyAccessFactoryModuleFactory {
 
 }

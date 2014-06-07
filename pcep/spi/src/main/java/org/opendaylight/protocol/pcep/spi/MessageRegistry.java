@@ -14,20 +14,22 @@ import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 
 public interface MessageRegistry {
-	/**
-	 * Finds parser for given message type in the registry. Delegates parsing to found parser.
-	 * @param type message type, key in parser registry
-	 * @param buffer message wrapped in ByteBuf
-	 * @param errors list of error messages, that is filled during parsing
-	 * @return null if the parser for this message could not be found
-	 * @throws PCEPDeserializerException if the parsing did not succeed
-	 */
-	Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException;
+    /**
+     * Finds parser for given message type in the registry. Delegates parsing to found parser.
+     *
+     * @param type message type, key in parser registry
+     * @param buffer message wrapped in ByteBuf
+     * @param errors list of error messages, that is filled during parsing
+     * @return null if the parser for this message could not be found
+     * @throws PCEPDeserializerException if the parsing did not succeed
+     */
+    Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors) throws PCEPDeserializerException;
 
-	/**
-	 * Find serializer for given message. Delegates parsing to found serializer.
-	 * @param message to be parsed
-	 * @param buffer byte buffer that will be filled with serialized message
-	 */
-	void serializeMessage(final Message message, final ByteBuf buffer);
+    /**
+     * Find serializer for given message. Delegates parsing to found serializer.
+     *
+     * @param message to be parsed
+     * @param buffer byte buffer that will be filled with serialized message
+     */
+    void serializeMessage(final Message message, final ByteBuf buffer);
 }

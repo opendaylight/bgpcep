@@ -24,46 +24,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  *
  */
-public final class PCEPDispatcherImplModule
-extends
-org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
+public final class PCEPDispatcherImplModule extends org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule {
 
-	public PCEPDispatcherImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(name, dependencyResolver);
-	}
+    public PCEPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(name, dependencyResolver);
+    }
 
-	public PCEPDispatcherImplModule(
-			final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final PCEPDispatcherImplModule oldModule,
-			final java.lang.AutoCloseable oldInstance) {
-		super(name, dependencyResolver, oldModule, oldInstance);
-	}
+    public PCEPDispatcherImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final PCEPDispatcherImplModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(name, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void validate() {
-		super.validate();
-		JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(),
-				"value is not set.", maxUnknownMessagesJmxAttribute);
-		JmxAttributeValidationException.checkCondition(
-				getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
-						+ "must be greater than 0",
-						maxUnknownMessagesJmxAttribute);
-	}
+    @Override
+    public void validate() {
+        super.validate();
+        JmxAttributeValidationException.checkNotNull(getMaxUnknownMessages(), "value is not set.", maxUnknownMessagesJmxAttribute);
+        JmxAttributeValidationException.checkCondition(getMaxUnknownMessages() > 0, "Parameter 'maxUnknownMessages' "
+                + "must be greater than 0", maxUnknownMessagesJmxAttribute);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		Open localPrefs = getPcepSessionProposalFactoryDependency()
-				.getSessionProposal(null, 0);
-		DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(
-				getTimerDependency(), localPrefs, getMaxUnknownMessages());
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        Open localPrefs = getPcepSessionProposalFactoryDependency().getSessionProposal(null, 0);
+        DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(getTimerDependency(), localPrefs, getMaxUnknownMessages());
 
-		final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(
-				getPcepExtensionsDependency().getMessageHandlerRegistry(),
-				negFactory, getBossGroupDependency(), getWorkerGroupDependency(),
-				getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
-		return instance;
-	}
+        final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+        return instance;
+    }
 }

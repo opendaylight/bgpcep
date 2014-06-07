@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.tcpmd5.netty;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.channel.ChannelException;
 
 import java.io.IOException;
@@ -16,38 +18,36 @@ import org.opendaylight.bgpcep.tcpmd5.KeyAccess;
 import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Utility class for handling MD5 option.
  */
 final class NettyKeyAccess implements KeyAccess {
-	private final KeyAccess delegate;
+    private final KeyAccess delegate;
 
-	private NettyKeyAccess(final KeyAccess delegate) {
-		this.delegate = Preconditions.checkNotNull(delegate);
-	}
+    private NettyKeyAccess(final KeyAccess delegate) {
+        this.delegate = Preconditions.checkNotNull(delegate);
+    }
 
-	public static NettyKeyAccess create(final KeyAccessFactory factory, final NetworkChannel channel) {
-		final KeyAccess access = factory.getKeyAccess(channel);
-		return new NettyKeyAccess(access);
-	}
+    public static NettyKeyAccess create(final KeyAccessFactory factory, final NetworkChannel channel) {
+        final KeyAccess access = factory.getKeyAccess(channel);
+        return new NettyKeyAccess(access);
+    }
 
-	@Override
-	public KeyMapping getKeys() {
-		try {
-			return delegate.getKeys();
-		} catch (IOException e) {
-			throw new ChannelException("Failed to set channel MD5 signature keys", e);
-		}
-	}
+    @Override
+    public KeyMapping getKeys() {
+        try {
+            return delegate.getKeys();
+        } catch (IOException e) {
+            throw new ChannelException("Failed to set channel MD5 signature keys", e);
+        }
+    }
 
-	@Override
-	public void setKeys(final KeyMapping keys) {
-		try {
-			delegate.setKeys(keys);
-		} catch (IOException e) {
-			throw new ChannelException("Failed to set channel MD5 signature key", e);
-		}
-	}
+    @Override
+    public void setKeys(final KeyMapping keys) {
+        try {
+            delegate.setKeys(keys);
+        } catch (IOException e) {
+            throw new ChannelException("Failed to set channel MD5 signature key", e);
+        }
+    }
 }

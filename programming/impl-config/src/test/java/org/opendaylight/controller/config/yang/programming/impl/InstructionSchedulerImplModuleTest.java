@@ -37,8 +37,8 @@ public class InstructionSchedulerImplModuleTest extends AbstractInstructionSched
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
-        createInstructionSchedulerModuleInstance(transaction, dataBrokerON,
-                createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON), notificationBrokerON);
+        createInstructionSchedulerModuleInstance(transaction, dataBrokerON, createBindingBrokerImpl(transaction, dataBrokerON,
+                notificationBrokerON), notificationBrokerON);
         return transaction.commit();
     }
 }

@@ -11,22 +11,22 @@ import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 public class HandlerRegistry<C, P, S> {
-	private final MultiRegistry<Class<? extends C>, S> serializers = new MultiRegistry<>();
-	private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();
+    private final MultiRegistry<Class<? extends C>, S> serializers = new MultiRegistry<>();
+    private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();
 
-	public AbstractRegistration registerParser(final int type, final P parser) {
-		return parsers.register(type, parser);
-	}
+    public AbstractRegistration registerParser(final int type, final P parser) {
+        return parsers.register(type, parser);
+    }
 
-	public P getParser(final int type) {
-		return parsers.get(type);
-	}
+    public P getParser(final int type) {
+        return parsers.get(type);
+    }
 
-	public AbstractRegistration registerSerializer(final Class<? extends C> clazz, final S serializer) {
-		return serializers.register(clazz, serializer);
-	}
+    public AbstractRegistration registerSerializer(final Class<? extends C> clazz, final S serializer) {
+        return serializers.register(clazz, serializer);
+    }
 
-	public S getSerializer(final Class<? extends C> clazz) {
-		return serializers.get(clazz);
-	}
+    public S getSerializer(final Class<? extends C> clazz) {
+        return serializers.get(clazz);
+    }
 }

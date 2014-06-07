@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
@@ -19,27 +21,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link GeneralizedLabelCase}
  */
 public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 
-	public static final int CTYPE = 2;
+    public static final int CTYPE = 2;
 
-	@Override
-	public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(new GeneralizedLabelBuilder().setGeneralizedLabel(ByteArray.readAllBytes(buffer)).build()).build();
-	}
+    @Override
+    public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        return new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
+                new GeneralizedLabelBuilder().setGeneralizedLabel(ByteArray.readAllBytes(buffer)).build()).build();
+    }
 
-	@Override
-	public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
-		if (!(subobject instanceof GeneralizedLabelCase)) {
-			throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-					+ ". Needed GeneralizedLabelCase.");
-		}
-		return LabelUtil.formatLabel(CTYPE, unidirectional, global, ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
-	}
+    @Override
+    public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
+        if (!(subobject instanceof GeneralizedLabelCase)) {
+            throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
+                    + ". Needed GeneralizedLabelCase.");
+        }
+        return LabelUtil.formatLabel(CTYPE, unidirectional, global,
+                ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
+    }
 }

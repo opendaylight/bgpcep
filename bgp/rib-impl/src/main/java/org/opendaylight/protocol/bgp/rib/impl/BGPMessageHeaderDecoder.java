@@ -14,34 +14,34 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
  */
 public final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {
 
-	private static final int MAX_FRAME_SIZE = 4096;
+    private static final int MAX_FRAME_SIZE = 4096;
 
-	private static final int MARKER_SIZE = 16;
+    private static final int MARKER_SIZE = 16;
 
-	/*
-	 * the length field represents the length of the whole message including the header
-	 */
-	private static final int LENGTH_SIZE = 2;
+    /*
+     * the length field represents the length of the whole message including the header
+     */
+    private static final int LENGTH_SIZE = 2;
 
-	/*
-	 	
-	 0                   1                   2                   3
-	  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-	  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	  |                                                               |
-	  |                                                               |
-	  |                                                               |
-	  |                                                               |
-	  |                           Marker                              |
-	  |                                                               |
-	  |                                                               |
-	  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	  |          Length               |      Type     |
-	  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	  
-	 */
+    /*
 
-	public BGPMessageHeaderDecoder() {
-		super(MAX_FRAME_SIZE, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
-	}
+     0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      |                                                               |
+      |                                                               |
+      |                                                               |
+      |                           Marker                              |
+      |                                                               |
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |          Length               |      Type     |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+     */
+
+    public BGPMessageHeaderDecoder() {
+        super(MAX_FRAME_SIZE, MARKER_SIZE, LENGTH_SIZE, -MARKER_SIZE - LENGTH_SIZE, 0);
+    }
 }

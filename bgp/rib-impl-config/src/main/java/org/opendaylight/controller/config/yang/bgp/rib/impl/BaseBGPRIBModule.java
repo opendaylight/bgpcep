@@ -21,26 +21,27 @@ import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 /**
  *
  */
-public final class BaseBGPRIBModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBaseBGPRIBModule
-{
+public final class BaseBGPRIBModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBaseBGPRIBModule {
 
-	public BaseBGPRIBModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public BaseBGPRIBModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public BaseBGPRIBModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final BaseBGPRIBModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public BaseBGPRIBModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BaseBGPRIBModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation(){
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    protected void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new RIBActivator();
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new RIBActivator();
+    }
 }

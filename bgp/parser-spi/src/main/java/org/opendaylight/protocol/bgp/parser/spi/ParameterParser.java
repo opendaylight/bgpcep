@@ -14,5 +14,5 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 
 public interface ParameterParser {
-	BgpParameters parseParameter(ByteBuf buffer) throws BGPParsingException, BGPDocumentedException;
+    BgpParameters parseParameter(ByteBuf buffer) throws BGPParsingException, BGPDocumentedException;
 }

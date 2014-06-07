@@ -26,52 +26,54 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 
 public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
-	@Override
-	protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
-		final List<AutoCloseable> regs = new ArrayList<>();
+    @Override
+    protected List<AutoCloseable> startImpl(final PCEPExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerMessageParser(Stateful02PCUpdateRequestMessageParser.TYPE,
-				new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcupd.class, new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(Stateful02PCUpdateRequestMessageParser.TYPE,
+                new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcupd.class,
+                new Stateful02PCUpdateRequestMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(Stateful02PCReportMessageParser.TYPE,
-				new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(Stateful02PCReportMessageParser.TYPE,
+                new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(Stateful02PCReplyMessageParser.TYPE, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcrep.class, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(Stateful02PCReplyMessageParser.TYPE,
+                new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcrep.class, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerMessageParser(Stateful02PCRequestMessageParser.TYPE,
-				new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
-		regs.add(context.registerMessageSerializer(Pcreq.class, new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageParser(Stateful02PCRequestMessageParser.TYPE,
+                new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
+        regs.add(context.registerMessageSerializer(Pcreq.class, new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(Stateful02LspObjectParser.CLASS, Stateful02LspObjectParser.TYPE,
-				new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
-		regs.add(context.registerObjectSerializer(Lsp.class, new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectParser(Stateful02LspObjectParser.CLASS, Stateful02LspObjectParser.TYPE,
+                new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectSerializer(Lsp.class, new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(Stateful02OpenObjectParser.CLASS, Stateful02OpenObjectParser.TYPE,
-				new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
-		regs.add(context.registerObjectSerializer(Open.class, new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectParser(Stateful02OpenObjectParser.CLASS, Stateful02OpenObjectParser.TYPE,
+                new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectSerializer(Open.class, new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
 
-		regs.add(context.registerObjectParser(Stateful02LspaObjectParser.CLASS, Stateful02LspaObjectParser.TYPE,
-				new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
-		regs.add(context.registerObjectSerializer(Lspa.class, new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectParser(Stateful02LspaObjectParser.CLASS, Stateful02LspaObjectParser.TYPE,
+                new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
+        regs.add(context.registerObjectSerializer(Lspa.class, new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
 
-		regs.add(context.registerTlvParser(Stateful02StatefulCapabilityTlvParser.TYPE, new Stateful02StatefulCapabilityTlvParser()));
-		regs.add(context.registerTlvSerializer(Stateful.class, new Stateful02StatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvParser(Stateful02StatefulCapabilityTlvParser.TYPE, new Stateful02StatefulCapabilityTlvParser()));
+        regs.add(context.registerTlvSerializer(Stateful.class, new Stateful02StatefulCapabilityTlvParser()));
 
-		regs.add(context.registerTlvParser(Stateful02LspDbVersionTlvParser.TYPE, new Stateful02LspDbVersionTlvParser()));
-		regs.add(context.registerTlvSerializer(LspDbVersion.class, new Stateful02LspDbVersionTlvParser()));
+        regs.add(context.registerTlvParser(Stateful02LspDbVersionTlvParser.TYPE, new Stateful02LspDbVersionTlvParser()));
+        regs.add(context.registerTlvSerializer(LspDbVersion.class, new Stateful02LspDbVersionTlvParser()));
 
-		regs.add(context.registerTlvParser(Stateful02NodeIdentifierTlvParser.TYPE, new Stateful02NodeIdentifierTlvParser()));
-		regs.add(context.registerTlvSerializer(NodeIdentifier.class, new Stateful02NodeIdentifierTlvParser()));
+        regs.add(context.registerTlvParser(Stateful02NodeIdentifierTlvParser.TYPE, new Stateful02NodeIdentifierTlvParser()));
+        regs.add(context.registerTlvSerializer(NodeIdentifier.class, new Stateful02NodeIdentifierTlvParser()));
 
-		regs.add(context.registerTlvParser(Stateful02LspSymbolicNameTlvParser.TYPE, new Stateful02LspSymbolicNameTlvParser()));
-		regs.add(context.registerTlvSerializer(SymbolicPathName.class, new Stateful02LspSymbolicNameTlvParser()));
+        regs.add(context.registerTlvParser(Stateful02LspSymbolicNameTlvParser.TYPE, new Stateful02LspSymbolicNameTlvParser()));
+        regs.add(context.registerTlvSerializer(SymbolicPathName.class, new Stateful02LspSymbolicNameTlvParser()));
 
-		regs.add(context.registerTlvParser(Stateful02RSVPErrorSpecTlvParser.TYPE, new Stateful02RSVPErrorSpecTlvParser()));
-		regs.add(context.registerTlvSerializer(RsvpErrorSpec.class, new Stateful02RSVPErrorSpecTlvParser()));
+        regs.add(context.registerTlvParser(Stateful02RSVPErrorSpecTlvParser.TYPE, new Stateful02RSVPErrorSpecTlvParser()));
+        regs.add(context.registerTlvSerializer(RsvpErrorSpec.class, new Stateful02RSVPErrorSpecTlvParser()));
 
-		return regs;
-	}
+        return regs;
+    }
 }

@@ -19,8 +19,7 @@ package org.opendaylight.controller.config.yang.bgp.topology.provider;
 /**
  *
  */
-public class Ipv4ReachabilityTopologyBuilderModuleFactory extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv4ReachabilityTopologyBuilderModuleFactory
-{
-
+public class Ipv4ReachabilityTopologyBuilderModuleFactory extends
+        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
 
 }

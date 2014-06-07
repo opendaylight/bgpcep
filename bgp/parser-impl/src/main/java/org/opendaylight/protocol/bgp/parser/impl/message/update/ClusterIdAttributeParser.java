@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
@@ -17,19 +19,17 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 
-import com.google.common.collect.Lists;
-
 public final class ClusterIdAttributeParser implements AttributeParser {
-	public static final int TYPE = 10;
+    public static final int TYPE = 10;
 
-	private static final int CLUSTER_LENGTH = 4;
+    private static final int CLUSTER_LENGTH = 4;
 
-	@Override
-	public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
-		final List<ClusterIdentifier> list = Lists.newArrayList();
-		while (buffer.isReadable()) {
-			list.add(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, CLUSTER_LENGTH))));
-		}
-		builder.setClusterId(list);
-	}
+    @Override
+    public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
+        final List<ClusterIdentifier> list = Lists.newArrayList();
+        while (buffer.isReadable()) {
+            list.add(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, CLUSTER_LENGTH))));
+        }
+        builder.setClusterId(list);
+    }
 }

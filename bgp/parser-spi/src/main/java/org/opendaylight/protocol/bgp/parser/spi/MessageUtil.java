@@ -7,41 +7,41 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import com.google.common.primitives.UnsignedBytes;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.util.ByteArray;
 
-import com.google.common.primitives.UnsignedBytes;
-
 public final class MessageUtil {
 
-	public static final int LENGTH_FIELD_LENGTH = 2;
-	public static final int MARKER_LENGTH = 16;
-	public static final int TYPE_FIELD_LENGTH = 1;
-	public static final int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
+    public static final int LENGTH_FIELD_LENGTH = 2;
+    public static final int MARKER_LENGTH = 16;
+    public static final int TYPE_FIELD_LENGTH = 1;
+    public static final int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
 
-	private MessageUtil() {
+    private MessageUtil() {
 
-	}
+    }
 
-	/**
-	 * Serializes this BGP Message header to byte array.
-	 * 
-	 * @param type message type to be formatted
-	 * @param body message body
-	 * 
-	 * @return byte array representation of this header
-	 */
-	public static byte[] formatMessage(final int type, final byte[] body) {
-		final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
+    /**
+     * Serializes this BGP Message header to byte array.
+     *
+     * @param type message type to be formatted
+     * @param body message body
+     *
+     * @return byte array representation of this header
+     */
+    public static byte[] formatMessage(final int type, final byte[] body) {
+        final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
 
-		Arrays.fill(retBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
-		System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH, LENGTH_FIELD_LENGTH), 0, retBytes, MARKER_LENGTH,
-				LENGTH_FIELD_LENGTH);
+        Arrays.fill(retBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
+        System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH, LENGTH_FIELD_LENGTH), 0, retBytes, MARKER_LENGTH,
+                LENGTH_FIELD_LENGTH);
 
-		retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(type);
-		ByteArray.copyWhole(body, retBytes, COMMON_HEADER_LENGTH);
+        retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(type);
+        ByteArray.copyWhole(body, retBytes, COMMON_HEADER_LENGTH);
 
-		return retBytes;
-	}
+        return retBytes;
+    }
 }

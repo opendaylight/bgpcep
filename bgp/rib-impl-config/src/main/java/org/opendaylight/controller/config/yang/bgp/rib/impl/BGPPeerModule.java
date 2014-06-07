@@ -16,6 +16,9 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.collect.Lists;
+import com.google.common.net.InetAddresses;
+
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -43,117 +46,111 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.net.InetAddresses;
-
 /**
  *
  */
-public final class BGPPeerModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerModule
-{
-	private static final Logger LOG = LoggerFactory.getLogger(BGPPeerModule.class);
+public final class BGPPeerModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerModule {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerModule.class);
 
-	public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final BGPPeerModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPPeerModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation(){
-		JmxAttributeValidationException.checkNotNull(getHost(),
-				"value is not set.", hostJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getPort(),
-				"value is not set.", portJmxAttribute);
+    @Override
+    protected void customValidation() {
+        JmxAttributeValidationException.checkNotNull(getHost(), "value is not set.", hostJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
-		if (getPassword() != null) {
-			/*
-			 *  This is a nasty hack, but we don't have another clean solution. We cannot allow
-			 *  password being set if the injected dispatcher does not have the optional
-			 *  md5-server-channel-factory set.
-			 *
-			 *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
-			 *         should something like isMd5ServerSupported()
-			 */
-			final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
-			try {
-				final ObjectName ribi = (ObjectName) srv.getAttribute(getRib(), "CurrentImplementation");
+        if (getPassword() != null) {
+            /*
+             *  This is a nasty hack, but we don't have another clean solution. We cannot allow
+             *  password being set if the injected dispatcher does not have the optional
+             *  md5-server-channel-factory set.
+             *
+             *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
+             *         should something like isMd5ServerSupported()
+             */
+            final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
+            try {
+                final ObjectName ribi = (ObjectName) srv.getAttribute(getRib(), "CurrentImplementation");
 
-				// FIXME: AbstractRIBImplModule.bgpDispatcherJmxAttribute.getAttributeName()
-				final ObjectName disp = (ObjectName) srv.getAttribute(ribi, "BgpDispatcher");
+                // FIXME: AbstractRIBImplModule.bgpDispatcherJmxAttribute.getAttributeName()
+                final ObjectName disp = (ObjectName) srv.getAttribute(ribi, "BgpDispatcher");
 
-				final ObjectName dispi = (ObjectName) srv.getAttribute(disp, "CurrentImplementation");
+                final ObjectName dispi = (ObjectName) srv.getAttribute(disp, "CurrentImplementation");
 
-				// FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
-				final Object cf = srv.getAttribute(dispi, "Md5ChannelFactory");
-				JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
-			} catch (AttributeNotFoundException | InstanceNotFoundException
-					| MBeanException | ReflectionException e) {
-				JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);
-			}
-		}
-	}
+                // FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
+                final Object cf = srv.getAttribute(dispi, "Md5ChannelFactory");
+                JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients",
+                        passwordJmxAttribute);
+            } catch (AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
+                JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);
+            }
+        }
+    }
 
-	private InetSocketAddress createAddress() {
-		final IpAddress ip = getHost();
-		if (ip.getIpv4Address() != null) {
-			return new InetSocketAddress(InetAddresses.forString(ip.getIpv4Address().getValue()), getPort().getValue());
-		} else if (ip.getIpv6Address() != null) {
-			return new InetSocketAddress(InetAddresses.forString(ip.getIpv6Address().getValue()), getPort().getValue());
-		} else {
-			throw new IllegalStateException("Failed to handle host " + getHost());
-		}
-	}
+    private InetSocketAddress createAddress() {
+        final IpAddress ip = getHost();
+        if (ip.getIpv4Address() != null) {
+            return new InetSocketAddress(InetAddresses.forString(ip.getIpv4Address().getValue()), getPort().getValue());
+        } else if (ip.getIpv6Address() != null) {
+            return new InetSocketAddress(InetAddresses.forString(ip.getIpv6Address().getValue()), getPort().getValue());
+        } else {
+            throw new IllegalStateException("Failed to handle host " + getHost());
+        }
+    }
 
-	private static String peerName(final IpAddress host) {
-		if (host.getIpv4Address() != null) {
-			return host.getIpv4Address().getValue();
-		}
-		if (host.getIpv6Address() != null) {
-			return host.getIpv6Address().getValue();
-		}
+    private static String peerName(final IpAddress host) {
+        if (host.getIpv4Address() != null) {
+            return host.getIpv4Address().getValue();
+        }
+        if (host.getIpv6Address() != null) {
+            return host.getIpv6Address().getValue();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final RIB r = getRibDependency();
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final RIB r = getRibDependency();
 
-		final List<BgpParameters> tlvs = Lists.newArrayList();
-		tlvs.add(new BgpParametersBuilder().setCParameters(
-				new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
+        final List<BgpParameters> tlvs = Lists.newArrayList();
+        tlvs.add(new BgpParametersBuilder().setCParameters(
+                new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
 
-		for (final BgpTableType t : getAdvertizedTableDependency()) {
-			if (!r.getLocalTables().contains(t)) {
-				LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", t);
-			}
+        for (final BgpTableType t : getAdvertizedTableDependency()) {
+            if (!r.getLocalTables().contains(t)) {
+                LOG.info("RIB instance does not list {} in its local tables. Incoming data will be dropped.", t);
+            }
 
-			tlvs.add(new BgpParametersBuilder().setCParameters(
-					new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-							new MultiprotocolCapabilityBuilder(t).build()).build()).build());
-		}
+            tlvs.add(new BgpParametersBuilder().setCParameters(
+                    new MultiprotocolCaseBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build());
+        }
 
-		// Remote AS number defaults to our local AS
-		final AsNumber remoteAs;
-		if (getRemoteAs() != null) {
-			remoteAs = new AsNumber(getRemoteAs());
-		} else {
-			remoteAs = r.getLocalAs();
-		}
+        // Remote AS number defaults to our local AS
+        final AsNumber remoteAs;
+        if (getRemoteAs() != null) {
+            remoteAs = new AsNumber(getRemoteAs());
+        } else {
+            remoteAs = r.getLocalAs();
+        }
 
-		final String password;
-		if (getPassword() != null) {
-			password = getPassword().getValue();
-		} else {
-			password = null;
-		}
+        final String password;
+        if (getPassword() != null) {
+            password = getPassword().getValue();
+        } else {
+            password = null;
+        }
 
-		return new BGPPeer(peerName(getHost()), createAddress(), password,
-				new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
-	}
+        return new BGPPeer(peerName(getHost()), createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
+    }
 }

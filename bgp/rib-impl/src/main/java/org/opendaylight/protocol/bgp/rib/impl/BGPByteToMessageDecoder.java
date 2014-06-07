@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,26 +22,25 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 /**
  *
  */
 final class BGPByteToMessageDecoder extends ByteToMessageDecoder {
-	private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
-	private final MessageRegistry registry;
+    private static final Logger LOG = LoggerFactory.getLogger(BGPByteToMessageDecoder.class);
+    private final MessageRegistry registry;
 
-	public BGPByteToMessageDecoder(final MessageRegistry registry) {
-		this.registry = Preconditions.checkNotNull(registry);
-	}
+    public BGPByteToMessageDecoder(final MessageRegistry registry) {
+        this.registry = Preconditions.checkNotNull(registry);
+    }
 
-	@Override
-	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BGPDocumentedException, BGPParsingException {
-		if (in.isReadable()) {
-			LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
-			out.add(this.registry.parseMessage(in));
-		} else {
-			LOG.trace("No more content in incoming buffer.");
-		}
-	}
+    @Override
+    protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws BGPDocumentedException,
+            BGPParsingException {
+        if (in.isReadable()) {
+            LOG.trace("Received to decode: {}", ByteBufUtil.hexDump(in));
+            out.add(this.registry.parseMessage(in));
+        } else {
+            LOG.trace("No more content in incoming buffer.");
+        }
+    }
 }

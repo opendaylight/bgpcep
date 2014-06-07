@@ -17,16 +17,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public class IPv4NextHopTest {
 
-	private Ipv4NextHop nextHop;
+    private Ipv4NextHop nextHop;
 
-	@Before
-	public void init() {
-		this.nextHop = new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.1")).build();
-	}
+    @Before
+    public void init() {
+        this.nextHop = new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.1")).build();
+    }
 
-	@Test
-	public void testGetGlobal() {
-		final Ipv4Address address = new Ipv4Address("10.0.0.1");
-		assertEquals(address, this.nextHop.getGlobal());
-	}
+    @Test
+    public void testGetGlobal() {
+        final Ipv4Address address = new Ipv4Address("10.0.0.1");
+        assertEquals(address, this.nextHop.getGlobal());
+    }
 }

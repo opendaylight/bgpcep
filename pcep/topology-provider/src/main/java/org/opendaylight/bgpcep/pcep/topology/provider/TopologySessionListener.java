@@ -10,6 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 
 interface TopologySessionListener extends AutoCloseable, PCEPSessionListener, TopologySessionRPCs {
-	@Override
-	void close();
+    @Override
+    void close();
 }

@@ -13,17 +13,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 
 public class ISOSystemIdentifierTest {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testISOSystemIdentifier() {
-		final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1, 1 };
-		new IsoSystemIdentifier(b);
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void testISOSystemIdentifier() {
+        final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1, 1 };
+        new IsoSystemIdentifier(b);
+    }
 
-	@Test
-	public void testGetBytes() {
-		final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1 };
-		final IsoSystemIdentifier id = new IsoSystemIdentifier(b);
-		Assert.assertArrayEquals(new byte[] { 10, 12, 127, 0, 9, 1 }, id.getValue());
-	}
+    @Test
+    public void testGetBytes() {
+        final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1 };
+        final IsoSystemIdentifier id = new IsoSystemIdentifier(b);
+        Assert.assertArrayEquals(new byte[] { 10, 12, 127, 0, 9, 1 }, id.getValue());
+    }
 
 }

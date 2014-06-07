@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import com.google.common.base.Preconditions;
+
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
@@ -19,36 +21,33 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import com.google.common.base.Preconditions;
-
 public final class PCEPTunnelTopologyProvider implements AutoCloseable {
-	private final ListenerRegistration<DataChangeListener> reg;
-	private final TopologyReference ref;
+    private final ListenerRegistration<DataChangeListener> reg;
+    private final TopologyReference ref;
 
-	private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<DataChangeListener> reg) {
-		this.ref = new DefaultTopologyReference(dst);
-		this.reg = Preconditions.checkNotNull(reg);
-	}
+    private PCEPTunnelTopologyProvider(final InstanceIdentifier<Topology> dst, final ListenerRegistration<DataChangeListener> reg) {
+        this.ref = new DefaultTopologyReference(dst);
+        this.reg = Preconditions.checkNotNull(reg);
+    }
 
-	public static PCEPTunnelTopologyProvider create(final DataProviderService dataProvider,
-			final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
-		final InstanceIdentifier<Topology> dst =
-				InstanceIdentifier.builder(NetworkTopology.class).
-				child(Topology.class, new TopologyKey(targetTopology)).toInstance();
-		final NodeChangedListener ncl = new NodeChangedListener(dataProvider, dst);
+    public static PCEPTunnelTopologyProvider create(final DataProviderService dataProvider,
+            final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
+        final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+                new TopologyKey(targetTopology)).toInstance();
+        final NodeChangedListener ncl = new NodeChangedListener(dataProvider, dst);
 
-		final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
-		final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(src, ncl);
+        final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
+        final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(src, ncl);
 
-		return new PCEPTunnelTopologyProvider(dst, reg);
-	}
+        return new PCEPTunnelTopologyProvider(dst, reg);
+    }
 
-	@Override
-	public void close() {
-		reg.close();
-	}
+    @Override
+    public void close() {
+        reg.close();
+    }
 
-	public TopologyReference getTopologyReference() {
-		return ref;
-	}
+    public TopologyReference getTopologyReference() {
+        return ref;
+    }
 }

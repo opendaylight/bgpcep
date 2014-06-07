@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -19,36 +21,34 @@ import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
-import com.google.common.base.Preconditions;
-
 final class SimpleCapabilityRegistry implements CapabilityRegistry {
-	private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
+    private final HandlerRegistry<DataContainer, CapabilityParser, CapabilitySerializer> handlers = new HandlerRegistry<>();
 
-	AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
-		Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-		return this.handlers.registerParser(messageType, parser);
-	}
+    AutoCloseable registerCapabilityParser(final int messageType, final CapabilityParser parser) {
+        Preconditions.checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
+        return this.handlers.registerParser(messageType, parser);
+    }
 
-	AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
-		return this.handlers.registerSerializer(paramClass, serializer);
-	}
+    AutoCloseable registerCapabilitySerializer(final Class<? extends CParameters> paramClass, final CapabilitySerializer serializer) {
+        return this.handlers.registerSerializer(paramClass, serializer);
+    }
 
-	@Override
-	public CParameters parseCapability(final int type, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
-		final CapabilityParser parser = this.handlers.getParser(type);
-		if (parser == null) {
-			return null;
-		}
-		return parser.parseCapability(buffer);
-	}
+    @Override
+    public CParameters parseCapability(final int type, final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
+        final CapabilityParser parser = this.handlers.getParser(type);
+        if (parser == null) {
+            return null;
+        }
+        return parser.parseCapability(buffer);
+    }
 
-	@Override
-	public byte[] serializeCapability(final CParameters capability) {
-		final CapabilitySerializer serializer = this.handlers.getSerializer(capability.getImplementedInterface());
-		if (serializer == null) {
-			return null;
-		}
+    @Override
+    public byte[] serializeCapability(final CParameters capability) {
+        final CapabilitySerializer serializer = this.handlers.getSerializer(capability.getImplementedInterface());
+        if (serializer == null) {
+            return null;
+        }
 
-		return serializer.serializeCapability(capability);
-	}
+        return serializer.serializeCapability(capability);
+    }
 }

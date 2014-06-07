@@ -40,87 +40,86 @@ import org.slf4j.LoggerFactory;
  *
  */
 abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
 
-	protected AbstractReachabilityTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference, final TopologyId topologyId,
-			final Class<T> idClass) {
-		super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build(), idClass);
-	}
+    protected AbstractReachabilityTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference,
+            final TopologyId topologyId, final Class<T> idClass) {
+        super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().build(), idClass);
+    }
 
-	private NodeId advertizingNode(final Attributes attrs) {
-		final CNextHop nh = attrs.getCNextHop();
-		if (nh instanceof Ipv4NextHopCase) {
-			final Ipv4NextHop ipv4 = ((Ipv4NextHopCase) nh).getIpv4NextHop();
+    private NodeId advertizingNode(final Attributes attrs) {
+        final CNextHop nh = attrs.getCNextHop();
+        if (nh instanceof Ipv4NextHopCase) {
+            final Ipv4NextHop ipv4 = ((Ipv4NextHopCase) nh).getIpv4NextHop();
 
-			return new NodeId(ipv4.getGlobal().getValue());
-		} else if (nh instanceof Ipv6NextHopCase) {
-			final Ipv6NextHop ipv6 = ((Ipv6NextHopCase) nh).getIpv6NextHop();
+            return new NodeId(ipv4.getGlobal().getValue());
+        } else if (nh instanceof Ipv6NextHopCase) {
+            final Ipv6NextHop ipv6 = ((Ipv6NextHopCase) nh).getIpv6NextHop();
 
-			return new NodeId(ipv6.getGlobal().getValue());
-		} else {
-			LOG.warn("Unhandled next hop class {}", nh.getImplementedInterface());
-			return null;
-		}
-	}
+            return new NodeId(ipv6.getGlobal().getValue());
+        } else {
+            LOG.warn("Unhandled next hop class {}", nh.getImplementedInterface());
+            return null;
+        }
+    }
 
-	private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
-		return getInstanceIdentifier().builder().child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
-	}
+    private InstanceIdentifier<Node1> nodeInstanceId(final NodeId ni) {
+        return getInstanceIdentifier().builder().child(Node.class, new NodeKey(ni)).augmentation(Node1.class).toInstance();
+    }
 
-	private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId ni) {
-		final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
-		LOG.debug("Looking for pre-existing node at {}", nii);
+    private InstanceIdentifier<Node1> ensureNodePresent(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId ni) {
+        final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
+        LOG.debug("Looking for pre-existing node at {}", nii);
 
-		if (trans.readOperationalData(nii) == null) {
-			LOG.debug("Create a new node at {}", nii);
-			trans.putOperationalData(
-					nii,
-					new Node1Builder().setIgpNodeAttributes(new IgpNodeAttributesBuilder().setPrefix(new ArrayList<Prefix>()).build()).build());
-		}
+        if (trans.readOperationalData(nii) == null) {
+            LOG.debug("Create a new node at {}", nii);
+            trans.putOperationalData(nii, new Node1Builder().setIgpNodeAttributes(
+                    new IgpNodeAttributesBuilder().setPrefix(new ArrayList<Prefix>()).build()).build());
+        }
 
-		return nii;
-	}
+        return nii;
+    }
 
-	private void removeEmptyNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<Node1> nii) {
-		final Node1 node = (Node1) trans.readOperationalData(nii);
-		if (node != null && node.getIgpNodeAttributes().getPrefix().isEmpty()) {
-			trans.removeOperationalData(nii);
-		}
-	}
+    private void removeEmptyNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<Node1> nii) {
+        final Node1 node = (Node1) trans.readOperationalData(nii);
+        if (node != null && node.getIgpNodeAttributes().getPrefix().isEmpty()) {
+            trans.removeOperationalData(nii);
+        }
+    }
 
-	protected abstract Attributes getAttributes(final T value);
+    protected abstract Attributes getAttributes(final T value);
 
-	protected abstract IpPrefix getPrefix(final T value);
+    protected abstract IpPrefix getPrefix(final T value);
 
-	@Override
-	protected final void createObject(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<T> id,
-			final T value) {
-		final NodeId ni = advertizingNode(getAttributes(value));
-		final InstanceIdentifier<Node1> nii = ensureNodePresent(trans, ni);
+    @Override
+    protected final void createObject(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<T> id,
+            final T value) {
+        final NodeId ni = advertizingNode(getAttributes(value));
+        final InstanceIdentifier<Node1> nii = ensureNodePresent(trans, ni);
 
-		final IpPrefix prefix = getPrefix(value);
-		final PrefixKey pk = new PrefixKey(prefix);
+        final IpPrefix prefix = getPrefix(value);
+        final PrefixKey pk = new PrefixKey(prefix);
 
-		trans.putOperationalData(
-				nii.builder().child(
-						org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-								Prefix.class, pk).toInstance(), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
-	}
+        trans.putOperationalData(
+                nii.builder().child(
+                        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
+                        Prefix.class, pk).toInstance(), new PrefixBuilder().setKey(pk).setPrefix(prefix).build());
+    }
 
-	@Override
-	protected final void removeObject(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<T> id,
-			final T value) {
-		final NodeId ni = advertizingNode(getAttributes(value));
-		final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
+    @Override
+    protected final void removeObject(final DataModification<InstanceIdentifier<?>, DataObject> trans, final InstanceIdentifier<T> id,
+            final T value) {
+        final NodeId ni = advertizingNode(getAttributes(value));
+        final InstanceIdentifier<Node1> nii = nodeInstanceId(ni);
 
-		final IpPrefix prefix = getPrefix(value);
-		final PrefixKey pk = new PrefixKey(prefix);
+        final IpPrefix prefix = getPrefix(value);
+        final PrefixKey pk = new PrefixKey(prefix);
 
-		trans.removeOperationalData(nii.builder().child(
-				org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
-						Prefix.class, pk).toInstance());
+        trans.removeOperationalData(nii.builder().child(
+                org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes.class).child(
+                Prefix.class, pk).toInstance());
 
-		removeEmptyNode(trans, nii);
-	}
+        removeEmptyNode(trans, nii);
+    }
 
 }

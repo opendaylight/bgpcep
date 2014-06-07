@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
@@ -24,96 +28,92 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.Exrs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.ExrsBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
-
 public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectParser, EROSubobjectSerializer {
 
-	public static final int TYPE = 33;
+    public static final int TYPE = 33;
 
-	private static final int HEADER_LENGTH = 2;
+    private static final int HEADER_LENGTH = 2;
 
-	private final XROSubobjectRegistry registry;
+    private final XROSubobjectRegistry registry;
 
-	public EROExplicitExclusionRouteSubobjectParser(final XROSubobjectRegistry registry) {
-		this.registry = registry;
-	}
+    public EROExplicitExclusionRouteSubobjectParser(final XROSubobjectRegistry registry) {
+        this.registry = registry;
+    }
 
-	@Override
-	public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final SubobjectBuilder builder = new SubobjectBuilder();
-		builder.setLoose(loose);
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> list = parseSubobject(buffer);
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs> exrss = Lists.newArrayList();
-		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject s : list) {
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder();
-			b.setAttribute(s.getAttribute());
-			b.setMandatory(s.isMandatory());
-			b.setSubobjectType(s.getSubobjectType());
-			exrss.add(b.build());
-		}
-		builder.setSubobjectType(new ExrsCaseBuilder().setExrs(new ExrsBuilder().setExrs(exrss).build()).build());
-		return builder.build();
-	}
+    @Override
+    public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final SubobjectBuilder builder = new SubobjectBuilder();
+        builder.setLoose(loose);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> list = parseSubobject(buffer);
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs> exrss = Lists.newArrayList();
+        for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject s : list) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.ExrsBuilder();
+            b.setAttribute(s.getAttribute());
+            b.setMandatory(s.isMandatory());
+            b.setSubobjectType(s.getSubobjectType());
+            exrss.add(b.build());
+        }
+        builder.setSubobjectType(new ExrsCaseBuilder().setExrs(new ExrsBuilder().setExrs(exrss).build()).build());
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeSubobject(final Subobject subobject) {
-		if (!(subobject.getSubobjectType() instanceof ExrsCase)) {
-			throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
-					+ ". Needed Exrs.");
-		}
-		final Exrs e = ((ExrsCase) subobject.getSubobjectType()).getExrs();
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> list = new ArrayList<>();
-		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs ex : e.getExrs()) {
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder();
-			b.setAttribute(ex.getAttribute());
-			b.setMandatory(ex.isMandatory());
-			b.setSubobjectType(ex.getSubobjectType());
-			list.add(b.build());
-		}
-		return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), serializeSubobject(list));
-	}
+    @Override
+    public byte[] serializeSubobject(final Subobject subobject) {
+        if (!(subobject.getSubobjectType() instanceof ExrsCase)) {
+            throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
+                    + ". Needed Exrs.");
+        }
+        final Exrs e = ((ExrsCase) subobject.getSubobjectType()).getExrs();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> list = new ArrayList<>();
+        for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.explicit.route.subobjects.subobject.type.exrs._case.exrs.Exrs ex : e.getExrs()) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder b = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder();
+            b.setAttribute(ex.getAttribute());
+            b.setMandatory(ex.isMandatory());
+            b.setSubobjectType(ex.getSubobjectType());
+            list.add(b.build());
+        }
+        return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), serializeSubobject(list));
+    }
 
-	private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> parseSubobject(
-			final ByteBuf buffer) throws PCEPDeserializerException {
-		Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subs = new ArrayList<>();
-		while (buffer.isReadable()) {
-			final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
-			int type = (buffer.readByte() & 0xff) & ~(1 << 7);
-			int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
-			if (length > buffer.readableBytes()) {
-				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
-						+ buffer.readableBytes());
-			}
-			subs.add(this.registry.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), mandatory));
-			buffer.readerIndex(buffer.readerIndex() + length);
-		}
-		return subs;
-	}
+    private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> parseSubobject(
+            final ByteBuf buffer) throws PCEPDeserializerException {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subs = new ArrayList<>();
+        while (buffer.isReadable()) {
+            final boolean mandatory = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
+            int type = (buffer.readByte() & 0xff) & ~(1 << 7);
+            int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            if (length > buffer.readableBytes()) {
+                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                        + buffer.readableBytes());
+            }
+            subs.add(this.registry.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), mandatory));
+            buffer.readerIndex(buffer.readerIndex() + length);
+        }
+        return subs;
+    }
 
-	private byte[] serializeSubobject(
-			final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subobjects) {
+    private byte[] serializeSubobject(
+            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subobjects) {
 
-		final List<byte[]> result = Lists.newArrayList();
+        final List<byte[]> result = Lists.newArrayList();
 
-		int finalLength = 0;
+        int finalLength = 0;
 
-		for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject subobject : subobjects) {
+        for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject subobject : subobjects) {
 
-			final byte[] bytes = this.registry.serializeSubobject(subobject);
-			finalLength += bytes.length;
-			result.add(bytes);
-		}
+            final byte[] bytes = this.registry.serializeSubobject(subobject);
+            finalLength += bytes.length;
+            result.add(bytes);
+        }
 
-		final byte[] resultBytes = new byte[finalLength];
-		int byteOffset = 0;
-		for (final byte[] b : result) {
-			System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
-			byteOffset += b.length;
-		}
-		return resultBytes;
-	}
+        final byte[] resultBytes = new byte[finalLength];
+        int byteOffset = 0;
+        for (final byte[] b : result) {
+            System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
+            byteOffset += b.length;
+        }
+        return resultBytes;
+    }
 }

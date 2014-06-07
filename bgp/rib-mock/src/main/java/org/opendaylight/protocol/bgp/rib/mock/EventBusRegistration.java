@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.mock;
 
+import com.google.common.collect.Sets;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
 import java.util.List;
 import java.util.Set;
 
@@ -25,83 +29,79 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-
 /**
  * This class has @Subscribe annotated methods which receive events from {@link EventBus} . Events are produced by
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
 final class EventBusRegistration extends AbstractListenerRegistration<BGPSessionListener> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EventBusRegistration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EventBusRegistration.class);
 
-	private final EventBus eventBus;
+    private final EventBus eventBus;
 
-	public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
-			final List<Notification> allPreviousMessages) {
-		final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
-		eventBus.register(instance);
-		return instance;
-	}
+    public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
+            final List<Notification> allPreviousMessages) {
+        final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
+        eventBus.register(instance);
+        return instance;
+    }
 
-	private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<Notification> allPreviousMessages) {
-		super(listener);
-		this.eventBus = eventBus;
-		for (final Notification message : allPreviousMessages) {
-			sendMessage(listener, message);
-		}
-	}
+    private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener, final List<Notification> allPreviousMessages) {
+        super(listener);
+        this.eventBus = eventBus;
+        for (final Notification message : allPreviousMessages) {
+            sendMessage(listener, message);
+        }
+    }
 
-	@Subscribe
-	public void onMessage(final Notification message) {
-		sendMessage(this.getInstance(), message);
-	}
+    @Subscribe
+    public void onMessage(final Notification message) {
+        sendMessage(this.getInstance(), message);
+    }
 
-	@Override
-	public synchronized void removeRegistration() {
-		this.eventBus.unregister(this);
-	}
+    @Override
+    public synchronized void removeRegistration() {
+        this.eventBus.unregister(this);
+    }
 
-	private static void sendMessage(final BGPSessionListener listener, final Notification message) {
-		if (BGPMock.CONNECTION_LOST_MAGIC_MSG.equals(message)) {
-			listener.onSessionTerminated(null, null);
-		} else if (message instanceof Open) {
-			final Set<BgpTableType> tts = Sets.newHashSet();
-			for (final BgpParameters param : ((Open) message).getBgpParameters()) {
-				if (param.getCParameters() instanceof MultiprotocolCase) {
-					final MultiprotocolCase p = (MultiprotocolCase) param.getCParameters();
-					LOG.debug("Adding open parameter {}", p);
-					final BgpTableType type = new BgpTableTypeImpl(p.getMultiprotocolCapability().getAfi(), p.getMultiprotocolCapability().getSafi());
-					tts.add(type);
-				}
-			}
+    private static void sendMessage(final BGPSessionListener listener, final Notification message) {
+        if (BGPMock.CONNECTION_LOST_MAGIC_MSG.equals(message)) {
+            listener.onSessionTerminated(null, null);
+        } else if (message instanceof Open) {
+            final Set<BgpTableType> tts = Sets.newHashSet();
+            for (final BgpParameters param : ((Open) message).getBgpParameters()) {
+                if (param.getCParameters() instanceof MultiprotocolCase) {
+                    final MultiprotocolCase p = (MultiprotocolCase) param.getCParameters();
+                    LOG.debug("Adding open parameter {}", p);
+                    final BgpTableType type = new BgpTableTypeImpl(p.getMultiprotocolCapability().getAfi(), p.getMultiprotocolCapability().getSafi());
+                    tts.add(type);
+                }
+            }
 
-			listener.onSessionUp(new BGPSession() {
+            listener.onSessionUp(new BGPSession() {
 
-				@Override
-				public void close() {
-					LOG.debug("Session {} closed", this);
-				}
+                @Override
+                public void close() {
+                    LOG.debug("Session {} closed", this);
+                }
 
-				@Override
-				public Set<BgpTableType> getAdvertisedTableTypes() {
-					return tts;
-				}
+                @Override
+                public Set<BgpTableType> getAdvertisedTableTypes() {
+                    return tts;
+                }
 
-				@Override
-				public Ipv4Address getBgpId() {
-					return new Ipv4Address("127.0.0.1");
-				}
+                @Override
+                public Ipv4Address getBgpId() {
+                    return new Ipv4Address("127.0.0.1");
+                }
 
-				@Override
-				public AsNumber getAsNumber() {
-					return new AsNumber(30L);
-				}
-			});
-		} else if (!(message instanceof Keepalive)) {
-			listener.onMessage(null, message);
-		}
-	}
+                @Override
+                public AsNumber getAsNumber() {
+                    return new AsNumber(30L);
+                }
+            });
+        } else if (!(message instanceof Keepalive)) {
+            listener.onMessage(null, message);
+        }
+    }
 }

@@ -16,11 +16,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 public class ApiTest {
 
-	@Test
-	public void testBGPSessionPreferences() {
-		final BGPSessionPreferences sp = new BGPSessionPreferences(new AsNumber(58L), (short) 5, null, null);
-		assertNull(sp.getBgpId());
-		assertEquals((short) 5, sp.getHoldTime());
-		assertEquals(new AsNumber(58L), sp.getMyAs());
-	}
+    @Test
+    public void testBGPSessionPreferences() {
+        final BGPSessionPreferences sp = new BGPSessionPreferences(new AsNumber(58L), (short) 5, null, null);
+        assertNull(sp.getBgpId());
+        assertEquals((short) 5, sp.getHoldTime());
+        assertEquals(new AsNumber(58L), sp.getMyAs());
+    }
 }

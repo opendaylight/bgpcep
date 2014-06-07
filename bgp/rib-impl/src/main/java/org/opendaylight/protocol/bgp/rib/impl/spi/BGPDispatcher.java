@@ -23,20 +23,22 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public interface BGPDispatcher {
 
-	/**
-	 * Creates BGP client.
-	 *
-	 * @param address Peer address
-	 * @param preferences connection attributes required for connection
-	 * @param listener BGP message listener
-	 * @return Future promising a client session
-	 */
-	Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-			BGPSessionListener listener, ReconnectStrategy strategy);
+    /**
+     * Creates BGP client.
+     *
+     * @param address Peer address
+     * @param preferences connection attributes required for connection
+     * @param listener BGP message listener
+     * @return Future promising a client session
+     */
+    Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
+            BGPSessionListener listener, ReconnectStrategy strategy);
 
-	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-			BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory, ReconnectStrategyFactory reestablishStrategyFactory);
+    Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
+            BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory,
+            ReconnectStrategyFactory reestablishStrategyFactory);
 
-	Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-			BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory, ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
+    Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
+            BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory,
+            ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
 }

@@ -91,7 +91,7 @@
             <groupId>org.opendaylight.yangtools.model</groupId>
             <artifactId>ietf-inet-types</artifactId>
         </dependency>
-        
+
          <!--test dependencies -->
         <dependency>
             <groupId>junit</groupId>

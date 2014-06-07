@@ -3,10 +3,10 @@ module topology-tunnel-pcep-programming {
         namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:programming";
         prefix "ttpp";
 
-	import pcep-types { prefix pcep; revision-date 2013-10-05; }
-	import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
-	import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
-	import topology-tunnel-pcep { prefix ptp; revision-date 2013-08-20; }
+    import pcep-types { prefix pcep; revision-date 2013-10-05; }
+    import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
+    import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
+    import topology-tunnel-pcep { prefix ptp; revision-date 2013-08-20; }
 
         organization "Cisco Systems, Inc.";
         contact "Robert Varga <rovarga@cisco.com>";
@@ -28,38 +28,38 @@ module topology-tunnel-pcep-programming {
                 reference "";
         }
 
-	rpc pcep-create-p2p-tunnel {
-		input {
-			uses ttp:create-p2p-tunnel-input;
+    rpc pcep-create-p2p-tunnel {
+        input {
+            uses ttp:create-p2p-tunnel-input;
 
-			uses p2p:tunnel-p2p-path-cfg-attributes;
-			uses ptp:tunnel-pcep-link-cfg-attributes;
-		}
-		output {
-			uses ttp:create-p2p-tunnel-output;
-		}
-	}
+            uses p2p:tunnel-p2p-path-cfg-attributes;
+            uses ptp:tunnel-pcep-link-cfg-attributes;
+        }
+        output {
+            uses ttp:create-p2p-tunnel-output;
+        }
+    }
 
-	rpc pcep-destroy-tunnel {
-		input {
-			uses ttp:destroy-tunnel-input;
-		}
-		output {
-			uses ttp:destroy-tunnel-output;
-		}
-	}
+    rpc pcep-destroy-tunnel {
+        input {
+            uses ttp:destroy-tunnel-input;
+        }
+        output {
+            uses ttp:destroy-tunnel-output;
+        }
+    }
 
-	rpc pcep-update-tunnel {
-		input {
-			uses ttp:base-tunnel-input;
+    rpc pcep-update-tunnel {
+        input {
+            uses ttp:base-tunnel-input;
 
-			uses p2p:tunnel-p2p-path-cfg-attributes;
-			uses ptp:tunnel-pcep-link-cfg-attributes;
-		}
+            uses p2p:tunnel-p2p-path-cfg-attributes;
+            uses ptp:tunnel-pcep-link-cfg-attributes;
+        }
 
-		output {
-			uses ttp:base-tunnel-output;
-		}
-	}
+        output {
+            uses ttp:base-tunnel-output;
+        }
+    }
 }
 

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,59 +19,57 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
-import com.google.common.base.Preconditions;
-
 @ThreadSafe
 final class TopologyNodeState {
-	private final Map<String, Metadata> metadata = new HashMap<>();
-	private final long holdStateNanos;
-	private final NodeId nodeId;
-	private long lastReleased = 0;
+    private final Map<String, Metadata> metadata = new HashMap<>();
+    private final long holdStateNanos;
+    private final NodeId nodeId;
+    private long lastReleased = 0;
 
-	public TopologyNodeState(final NodeId nodeId, final long holdStateNanos) {
-		Preconditions.checkArgument(holdStateNanos >= 0);
-		this.nodeId = Preconditions.checkNotNull(nodeId);
-		this.holdStateNanos = holdStateNanos;
-	}
+    public TopologyNodeState(final NodeId nodeId, final long holdStateNanos) {
+        Preconditions.checkArgument(holdStateNanos >= 0);
+        this.nodeId = Preconditions.checkNotNull(nodeId);
+        this.holdStateNanos = holdStateNanos;
+    }
 
-	public NodeId getNodeId() {
-		return nodeId;
-	}
+    public NodeId getNodeId() {
+        return nodeId;
+    }
 
-	public synchronized Metadata getLspMetadata(final String name) {
-		return metadata.get(name);
-	}
+    public synchronized Metadata getLspMetadata(final String name) {
+        return metadata.get(name);
+    }
 
-	public synchronized void setLspMetadata(final String name, final Metadata value) {
-		if (value == null) {
-			metadata.remove(name);
-		} else {
-			metadata.put(name, value);
-		}
-	}
+    public synchronized void setLspMetadata(final String name, final Metadata value) {
+        if (value == null) {
+            metadata.remove(name);
+        } else {
+            metadata.put(name, value);
+        }
+    }
 
-	public synchronized void removeLspMetadata(final String name) {
-		metadata.remove(name);
-	}
+    public synchronized void removeLspMetadata(final String name) {
+        metadata.remove(name);
+    }
 
-	public synchronized void cleanupExcept(final Collection<String> values) {
-		final Iterator<String> it = metadata.keySet().iterator();
-		while (it.hasNext()) {
-			if (!values.contains(it.next())) {
-				it.remove();
-			}
-		}
-	}
+    public synchronized void cleanupExcept(final Collection<String> values) {
+        final Iterator<String> it = metadata.keySet().iterator();
+        while (it.hasNext()) {
+            if (!values.contains(it.next())) {
+                it.remove();
+            }
+        }
+    }
 
-	public synchronized void released() {
-		lastReleased = System.nanoTime();
-	}
+    public synchronized void released() {
+        lastReleased = System.nanoTime();
+    }
 
-	public synchronized void taken() {
-		final long now = System.nanoTime();
+    public synchronized void taken() {
+        final long now = System.nanoTime();
 
-		if (now - lastReleased > holdStateNanos) {
-			metadata.clear();
-		}
-	}
+        if (now - lastReleased > holdStateNanos) {
+            metadata.clear();
+        }
+    }
 }

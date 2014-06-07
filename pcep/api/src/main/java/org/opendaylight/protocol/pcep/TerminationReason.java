@@ -7,39 +7,39 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import java.util.Map;
-
 import com.google.common.collect.Maps;
 
+import java.util.Map;
+
 public enum TerminationReason {
-	Unknown((short) 1), ExpDeadtimer((short) 2), MalformedMsg((short) 3), TooManyUnknownReqRep((short) 4), TooManyUnknownMsg((short) 5);
+    Unknown((short) 1), ExpDeadtimer((short) 2), MalformedMsg((short) 3), TooManyUnknownReqRep((short) 4), TooManyUnknownMsg((short) 5);
 
-	private short value;
-	private static final Map<Short, TerminationReason> valueMap;
+    private short value;
+    private static final Map<Short, TerminationReason> valueMap;
 
-	static {
-		valueMap = Maps.newHashMap();
-		for (final TerminationReason enumItem : TerminationReason.values()) {
-			valueMap.put(enumItem.value, enumItem);
-		}
-	}
+    static {
+        valueMap = Maps.newHashMap();
+        for (final TerminationReason enumItem : TerminationReason.values()) {
+            valueMap.put(enumItem.value, enumItem);
+        }
+    }
 
-	private TerminationReason(final short value) {
-		this.value = value;
-	}
+    private TerminationReason(final short value) {
+        this.value = value;
+    }
 
-	/**
-	 * @return integer value
-	 */
-	public short getShortValue() {
-		return this.value;
-	}
+    /**
+     * @return integer value
+     */
+    public short getShortValue() {
+        return this.value;
+    }
 
-	/**
-	 * @param valueArg
-	 * @return corresponding TerminationReason item
-	 */
-	public static TerminationReason forValue(final short valueArg) {
-		return valueMap.get(valueArg);
-	}
+    /**
+     * @param valueArg
+     * @return corresponding TerminationReason item
+     */
+    public static TerminationReason forValue(final short valueArg) {
+        return valueMap.get(valueArg);
+    }
 }

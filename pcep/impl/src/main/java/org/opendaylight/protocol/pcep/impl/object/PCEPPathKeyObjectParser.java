@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
@@ -24,52 +27,49 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeys;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.path.key.PathKeysBuilder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 /**
  * Parser for {@link PathKey}
  */
 public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
 
-	public static final int CLASS = 16;
+    public static final int CLASS = 16;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	public PCEPPathKeyObjectParser(final EROSubobjectRegistry subReg) {
-		super(subReg);
-	}
+    public PCEPPathKeyObjectParser(final EROSubobjectRegistry subReg) {
+        super(subReg);
+    }
 
-	@Override
-	public PathKey parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		final PathKeyBuilder builder = new PathKeyBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
-		final List<PathKeys> pk = new ArrayList<>();
-		final List<Subobject> subs = parseSubobjects(bytes);
-		for (final Subobject s : subs) {
-			final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase k = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase) s.getSubobjectType();
-			pk.add(new PathKeysBuilder().setLoose(s.isLoose()).setPceId(k.getPathKey().getPceId()).setPathKey(k.getPathKey().getPathKey()).build());
-		}
-		builder.setPathKeys(pk);
-		return builder.build();
-	}
+    @Override
+    public PathKey parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        final PathKeyBuilder builder = new PathKeyBuilder();
+        builder.setIgnore(header.isIgnore());
+        builder.setProcessingRule(header.isProcessingRule());
+        final List<PathKeys> pk = new ArrayList<>();
+        final List<Subobject> subs = parseSubobjects(bytes);
+        for (final Subobject s : subs) {
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase k = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCase) s.getSubobjectType();
+            pk.add(new PathKeysBuilder().setLoose(s.isLoose()).setPceId(k.getPathKey().getPceId()).setPathKey(k.getPathKey().getPathKey()).build());
+        }
+        builder.setPathKeys(pk);
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof PathKey)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PathKeyObject.");
-		}
-		final PathKey pkey = (PathKey) object;
-		final List<PathKeys> pk = pkey.getPathKeys();
-		final List<Subobject> subs = Lists.newArrayList();
-		for (final PathKeys p : pk) {
-			subs.add(new SubobjectBuilder().setLoose(p.isLoose()).setSubobjectType(
-					new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder().setPathKey(
-							new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
-									p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
-		}
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));
-	}
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof PathKey)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PathKeyObject.");
+        }
+        final PathKey pkey = (PathKey) object;
+        final List<PathKeys> pk = pkey.getPathKeys();
+        final List<Subobject> subs = Lists.newArrayList();
+        for (final PathKeys p : pk) {
+            subs.add(new SubobjectBuilder().setLoose(p.isLoose()).setSubobjectType(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder().setPathKey(
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
+                                    p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
+        }
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));
+    }
 }

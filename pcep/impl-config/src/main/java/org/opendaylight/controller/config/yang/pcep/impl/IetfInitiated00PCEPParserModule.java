@@ -22,22 +22,22 @@ import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
 *
 */
 public final class IetfInitiated00PCEPParserModule extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfInitiated00PCEPParserModule {
+        org.opendaylight.controller.config.yang.pcep.impl.AbstractIetfInitiated00PCEPParserModule {
 
-	public IetfInitiated00PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public IetfInitiated00PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public IetfInitiated00PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final IetfInitiated00PCEPParserModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public IetfInitiated00PCEPParserModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final IetfInitiated00PCEPParserModule oldModule, final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new CrabbeInitiatedActivator();
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new CrabbeInitiatedActivator();
+    }
 }

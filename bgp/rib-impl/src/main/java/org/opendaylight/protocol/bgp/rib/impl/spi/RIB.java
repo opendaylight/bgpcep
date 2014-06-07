@@ -21,15 +21,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Internal reference to a RIB instance.
  */
 public interface RIB {
-	AsNumber getLocalAs();
-	Ipv4Address getBgpIdentifier();
-	List<? extends BgpTableType> getLocalTables();
+    AsNumber getLocalAs();
 
-	void initTable(Peer bgpPeer, TablesKey key);
-	void clearTable(Peer bgpPeer, TablesKey key);
-	void updateTables(Peer bgpPeer, Update message);
+    Ipv4Address getBgpIdentifier();
 
-	BGPDispatcher getDispatcher();
-	ReconnectStrategyFactory getTcpStrategyFactory();
-	ReconnectStrategyFactory getSessionStrategyFactory();
+    List<? extends BgpTableType> getLocalTables();
+
+    void initTable(Peer bgpPeer, TablesKey key);
+
+    void clearTable(Peer bgpPeer, TablesKey key);
+
+    void updateTables(Peer bgpPeer, Update message);
+
+    BGPDispatcher getDispatcher();
+
+    ReconnectStrategyFactory getTcpStrategyFactory();
+
+    ReconnectStrategyFactory getSessionStrategyFactory();
 }

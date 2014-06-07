@@ -21,24 +21,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
-	private static final int LINKSTATE_AFI = 16388;
+    private static final int LINKSTATE_AFI = 16388;
 
-	private static final int LINKSTATE_SAFI = 71;
+    private static final int LINKSTATE_SAFI = 71;
 
-	@Override
-	protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
-		final List<AutoCloseable> regs = new ArrayList<>();
+    @Override
+    protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
+        final List<AutoCloseable> regs = new ArrayList<>();
 
-		regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
-		regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
+        regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
+        regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
 
-		regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-				new LinkstateNlriParser(false)));
-		regs.add(context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-				new LinkstateNlriParser(true)));
+        regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+                new LinkstateNlriParser(false)));
+        regs.add(context.registerNlriParser(LinkstateAddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+                new LinkstateNlriParser(true)));
 
-		regs.add(context.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser()));
+        regs.add(context.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser()));
 
-		return regs;
-	}
+        return regs;
+    }
 }

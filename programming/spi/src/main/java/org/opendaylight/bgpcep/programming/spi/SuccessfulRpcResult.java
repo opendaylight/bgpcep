@@ -14,28 +14,28 @@ import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 public final class SuccessfulRpcResult<T> implements RpcResult<T> {
-	private final T value;
+    private final T value;
 
-	private SuccessfulRpcResult(final T value) {
-		this.value = value;
-	}
+    private SuccessfulRpcResult(final T value) {
+        this.value = value;
+    }
 
-	public static <T> SuccessfulRpcResult<T> create(final T value) {
-		return new SuccessfulRpcResult<T>(value);
-	}
+    public static <T> SuccessfulRpcResult<T> create(final T value) {
+        return new SuccessfulRpcResult<T>(value);
+    }
 
-	@Override
-	public boolean isSuccessful() {
-		return true;
-	}
+    @Override
+    public boolean isSuccessful() {
+        return true;
+    }
 
-	@Override
-	public T getResult() {
-		return value;
-	}
+    @Override
+    public T getResult() {
+        return value;
+    }
 
-	@Override
-	public Collection<RpcError> getErrors() {
-		return Collections.emptyList();
-	}
+    @Override
+    public Collection<RpcError> getErrors() {
+        return Collections.emptyList();
+    }
 }

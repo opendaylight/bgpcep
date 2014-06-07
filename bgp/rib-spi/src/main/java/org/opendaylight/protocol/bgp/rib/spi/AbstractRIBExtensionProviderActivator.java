@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -14,41 +16,39 @@ import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 public abstract class AbstractRIBExtensionProviderActivator implements AutoCloseable, RIBExtensionProviderActivator {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBExtensionProviderActivator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBExtensionProviderActivator.class);
 
-	@GuardedBy("this")
-	private List<AutoCloseable> registrations;
+    @GuardedBy("this")
+    private List<AutoCloseable> registrations;
 
-	@GuardedBy("this")
-	protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(RIBExtensionProviderContext context);
+    @GuardedBy("this")
+    protected abstract List<AutoCloseable> startRIBExtensionProviderImpl(RIBExtensionProviderContext context);
 
-	@Override
-	public final synchronized void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
-		Preconditions.checkState(this.registrations == null);
+    @Override
+    public final synchronized void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
+        Preconditions.checkState(this.registrations == null);
 
-		this.registrations = Preconditions.checkNotNull(startRIBExtensionProviderImpl(context));
-	}
+        this.registrations = Preconditions.checkNotNull(startRIBExtensionProviderImpl(context));
+    }
 
-	@Override
-	public final synchronized void stopRIBExtensionProvider() {
-		Preconditions.checkState(this.registrations != null);
+    @Override
+    public final synchronized void stopRIBExtensionProvider() {
+        Preconditions.checkState(this.registrations != null);
 
-		for (final AutoCloseable r : this.registrations) {
-			try {
-				r.close();
-			} catch (final Exception e) {
-				LOG.warn("Failed to close registration", e);
-			}
-		}
+        for (final AutoCloseable r : this.registrations) {
+            try {
+                r.close();
+            } catch (final Exception e) {
+                LOG.warn("Failed to close registration", e);
+            }
+        }
 
-		this.registrations = null;
-	}
+        this.registrations = null;
+    }
 
-	@Override
-	public final void close() {
-		stopRIBExtensionProvider();
-	}
+    @Override
+    public final void close() {
+        stopRIBExtensionProvider();
+    }
 }

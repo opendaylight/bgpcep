@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -36,155 +38,153 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.Metric;
 
-import com.google.common.collect.Lists;
-
 /**
  * Parser for {@link Pcupd}
  */
 public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParser {
 
-	public static final int TYPE = 11;
+    public static final int TYPE = 11;
 
-	public Stateful07PCUpdateRequestMessageParser(final ObjectRegistry registry) {
-		super(registry);
-	}
+    public Stateful07PCUpdateRequestMessageParser(final ObjectRegistry registry) {
+        super(registry);
+    }
 
-	@Override
-	public void serializeMessage(final Message message, final ByteBuf out) {
-		if (!(message instanceof Pcupd)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
-					+ ". Nedded PcupdMessage.");
-		}
-		final Pcupd msg = (Pcupd) message;
-		final List<Updates> updates = msg.getPcupdMessage().getUpdates();
-		ByteBuf buffer = Unpooled.buffer();
-		for (final Updates update : updates) {
-			buffer.writeBytes(serializeObject(update.getSrp()));
-			buffer.writeBytes(serializeObject(update.getLsp()));
-			final Path p = update.getPath();
-			if (p != null) {
-				buffer.writeBytes(serializeObject(p.getEro()));
-				if (p.getLspa() != null) {
-					buffer.writeBytes(serializeObject(p.getLspa()));
-				}
-				if (p.getBandwidth() != null) {
-					buffer.writeBytes(serializeObject(p.getBandwidth()));
-				}
-				if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-					for (final Metrics m : p.getMetrics()) {
-						buffer.writeBytes(serializeObject(m.getMetric()));
-					}
-				}
-				if (p.getIro() != null) {
-					buffer.writeBytes(serializeObject(p.getIro()));
-				}
-			}
-		}
-		MessageUtil.formatMessage(TYPE, buffer, out);
-	}
+    @Override
+    public void serializeMessage(final Message message, final ByteBuf out) {
+        if (!(message instanceof Pcupd)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
+                    + ". Nedded PcupdMessage.");
+        }
+        final Pcupd msg = (Pcupd) message;
+        final List<Updates> updates = msg.getPcupdMessage().getUpdates();
+        ByteBuf buffer = Unpooled.buffer();
+        for (final Updates update : updates) {
+            buffer.writeBytes(serializeObject(update.getSrp()));
+            buffer.writeBytes(serializeObject(update.getLsp()));
+            final Path p = update.getPath();
+            if (p != null) {
+                buffer.writeBytes(serializeObject(p.getEro()));
+                if (p.getLspa() != null) {
+                    buffer.writeBytes(serializeObject(p.getLspa()));
+                }
+                if (p.getBandwidth() != null) {
+                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                }
+                if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+                    for (final Metrics m : p.getMetrics()) {
+                        buffer.writeBytes(serializeObject(m.getMetric()));
+                    }
+                }
+                if (p.getIro() != null) {
+                    buffer.writeBytes(serializeObject(p.getIro()));
+                }
+            }
+        }
+        MessageUtil.formatMessage(TYPE, buffer, out);
+    }
 
-	@Override
-	protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-		if (objects == null) {
-			throw new IllegalArgumentException("Passed list can't be null.");
-		}
-		if (objects.isEmpty()) {
-			throw new PCEPDeserializerException("Pcup message cannot be empty.");
-		}
+    @Override
+    protected Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        if (objects == null) {
+            throw new IllegalArgumentException("Passed list can't be null.");
+        }
+        if (objects.isEmpty()) {
+            throw new PCEPDeserializerException("Pcup message cannot be empty.");
+        }
 
-		final List<Updates> updateRequests = Lists.newArrayList();
+        final List<Updates> updateRequests = Lists.newArrayList();
 
-		while (!objects.isEmpty()) {
-			final Updates update = getValidUpdates(objects, errors);
-			if (update != null) {
-				updateRequests.add(update);
-			}
-		}
-		if (!objects.isEmpty()) {
-			throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
-		}
-		return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
-	}
+        while (!objects.isEmpty()) {
+            final Updates update = getValidUpdates(objects, errors);
+            if (update != null) {
+                updateRequests.add(update);
+            }
+        }
+        if (!objects.isEmpty()) {
+            throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
+        }
+        return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
+    }
 
-	private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
-		final UpdatesBuilder builder = new UpdatesBuilder();
-		if (objects.get(0) instanceof Srp) {
-			builder.setSrp((Srp) objects.get(0));
-			objects.remove(0);
-		} else {
-			errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
-			return null;
-		}
-		if (objects.get(0) instanceof Lsp) {
-			builder.setLsp((Lsp) objects.get(0));
-			objects.remove(0);
-		} else {
-			errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
-			return null;
-		}
-		if (!objects.isEmpty()) {
-			final PathBuilder pBuilder = new PathBuilder();
-			if (objects.get(0) instanceof Ero) {
-				pBuilder.setEro((Ero) objects.get(0));
-				objects.remove(0);
-			} else {
-				errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
-				return null;
-			}
-			parsePath(objects, pBuilder);
-			builder.setPath(pBuilder.build());
-		}
-		return builder.build();
-	}
+    private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+        final UpdatesBuilder builder = new UpdatesBuilder();
+        if (objects.get(0) instanceof Srp) {
+            builder.setSrp((Srp) objects.get(0));
+            objects.remove(0);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
+            return null;
+        }
+        if (objects.get(0) instanceof Lsp) {
+            builder.setLsp((Lsp) objects.get(0));
+            objects.remove(0);
+        } else {
+            errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
+            return null;
+        }
+        if (!objects.isEmpty()) {
+            final PathBuilder pBuilder = new PathBuilder();
+            if (objects.get(0) instanceof Ero) {
+                pBuilder.setEro((Ero) objects.get(0));
+                objects.remove(0);
+            } else {
+                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+                return null;
+            }
+            parsePath(objects, pBuilder);
+            builder.setPath(pBuilder.build());
+        }
+        return builder.build();
+    }
 
-	private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
-		final List<Metrics> pathMetrics = Lists.newArrayList();
-		Object obj;
-		State state = State.Init;
-		while (!objects.isEmpty() && !state.equals(State.End)) {
-			obj = objects.get(0);
-			switch (state) {
-			case Init:
-				state = State.LspaIn;
-				if (obj instanceof Lspa) {
-					pBuilder.setLspa((Lspa) obj);
-					break;
-				}
-			case LspaIn:
-				state = State.BandwidthIn;
-				if (obj instanceof Bandwidth) {
-					pBuilder.setBandwidth((Bandwidth) obj);
-					break;
-				}
-			case BandwidthIn:
-				state = State.MetricIn;
-				if (obj instanceof Metric) {
-					pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-					state = State.BandwidthIn;
-					break;
-				}
-			case MetricIn:
-				state = State.IroIn;
-				if (obj instanceof Iro) {
-					pBuilder.setIro((Iro) obj);
-					break;
-				}
-			case IroIn:
-				state = State.End;
-				break;
-			case End:
-				break;
-			}
-			if (!state.equals(State.End)) {
-				objects.remove(0);
-			}
-		}
-		if (!pathMetrics.isEmpty()) {
-			pBuilder.setMetrics(pathMetrics);
-		}
-	}
+    private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
+        final List<Metrics> pathMetrics = Lists.newArrayList();
+        Object obj;
+        State state = State.Init;
+        while (!objects.isEmpty() && !state.equals(State.End)) {
+            obj = objects.get(0);
+            switch (state) {
+            case Init:
+                state = State.LspaIn;
+                if (obj instanceof Lspa) {
+                    pBuilder.setLspa((Lspa) obj);
+                    break;
+                }
+            case LspaIn:
+                state = State.BandwidthIn;
+                if (obj instanceof Bandwidth) {
+                    pBuilder.setBandwidth((Bandwidth) obj);
+                    break;
+                }
+            case BandwidthIn:
+                state = State.MetricIn;
+                if (obj instanceof Metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                    state = State.BandwidthIn;
+                    break;
+                }
+            case MetricIn:
+                state = State.IroIn;
+                if (obj instanceof Iro) {
+                    pBuilder.setIro((Iro) obj);
+                    break;
+                }
+            case IroIn:
+                state = State.End;
+                break;
+            case End:
+                break;
+            }
+            if (!state.equals(State.End)) {
+                objects.remove(0);
+            }
+        }
+        if (!pathMetrics.isEmpty()) {
+            pBuilder.setMetrics(pathMetrics);
+        }
+    }
 
-	private enum State {
-		Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
-	}
+    private enum State {
+        Init, LspaIn, BandwidthIn, MetricIn, IroIn, End
+    }
 }

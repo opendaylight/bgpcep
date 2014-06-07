@@ -23,39 +23,39 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
  *
  */
 public final class SimpleBGPExtensionProviderContextModule extends
-org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensionProviderContextModule {
+        org.opendaylight.controller.config.yang.bgp.parser.spi.AbstractSimpleBGPExtensionProviderContextModule {
 
-	public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final SimpleBGPExtensionProviderContextModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public SimpleBGPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final SimpleBGPExtensionProviderContextModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation() {
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    protected void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final class SimpleBGPExtensionProviderContextAutoCloseable extends SimpleBGPExtensionProviderContext implements AutoCloseable {
-			@Override
-			public void close() {
-				for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
-					e.stop();
-				}
-			}
-		}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final class SimpleBGPExtensionProviderContextAutoCloseable extends SimpleBGPExtensionProviderContext implements AutoCloseable {
+            @Override
+            public void close() {
+                for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
+                    e.stop();
+                }
+            }
+        }
 
-		final SimpleBGPExtensionProviderContextAutoCloseable ret = new SimpleBGPExtensionProviderContextAutoCloseable();
-		for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
-			e.start(ret);
-		}
-		return ret;
-	}
+        final SimpleBGPExtensionProviderContextAutoCloseable ret = new SimpleBGPExtensionProviderContextAutoCloseable();
+        for (final BGPExtensionProviderActivator e : getExtensionDependency()) {
+            e.start(ret);
+        }
+        return ret;
+    }
 }

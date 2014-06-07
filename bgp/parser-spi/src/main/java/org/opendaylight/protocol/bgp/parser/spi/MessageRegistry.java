@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageRegistry {
-	Notification parseMessage(ByteBuf bytes) throws BGPDocumentedException, BGPParsingException;
-	byte[] serializeMessage(Notification message);
+    Notification parseMessage(ByteBuf bytes) throws BGPDocumentedException, BGPParsingException;
+
+    byte[] serializeMessage(Notification message);
 }

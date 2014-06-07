@@ -7,6 +7,9 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.ObjectName;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -21,9 +24,6 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.ObjectName;
-
 public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "bgp-message-fct";
@@ -36,10 +36,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext,
-                new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(),
-                new RIBExtensionsImplModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(),
-                new HashedWheelTimerModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new BGPDispatcherImplModuleFactory(), new NettyThreadgroupModuleFactory(), new RIBExtensionsImplModuleFactory(), new SimpleBGPExtensionProviderContextModuleFactory(), new HashedWheelTimerModuleFactory()));
     }
 
     @Test
@@ -65,11 +62,9 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
         return transaction.commit();
     }
 
-    public static ObjectName createInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    public static ObjectName createInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
-                BGPDispatcherImplModuleMXBean.class);
+        BGPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, BGPDispatcherImplModuleMXBean.class);
         mxBean.setBossGroup(createThreadgroupInstance(transaction, BOSS_TG_INSTANCE_NAME, 10));
         mxBean.setWorkerGroup(createThreadgroupInstance(transaction, WORKER_TG_INSTANCE_NAME, 10));
         mxBean.setBgpExtensions(createBgpExtensionsInstance(transaction));
@@ -77,17 +72,15 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
         return nameCreated;
     }
 
-    private static ObjectName createThreadgroupInstance(final ConfigTransactionJMXClient transaction,
-            final String instanceName, final Integer threadCount) throws InstanceAlreadyExistsException {
+    private static ObjectName createThreadgroupInstance(final ConfigTransactionJMXClient transaction, final String instanceName,
+            final Integer threadCount) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(NettyThreadgroupModuleFactory.NAME, instanceName);
-        NettyThreadgroupModuleMXBean mxBean = transaction
-                .newMBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
+        NettyThreadgroupModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
         mxBean.setThreadCount(threadCount);
         return nameCreated;
     }
 
-    private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction)
-            throws InstanceAlreadyExistsException {
+    private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(HashedWheelTimerModuleFactory.NAME, TIMER_INSTANCE_NAME);
         transaction.newMBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
         return nameCreated;
@@ -96,8 +89,7 @@ public class BGPDispatcherImplModuleTest extends AbstractConfigTest {
 
     private static ObjectName createBgpExtensionsInstance(final ConfigTransactionJMXClient transaction)
             throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME,
-                BGP_EXTENSION_INSTANCE_NAME);
+        ObjectName nameCreated = transaction.createModule(SimpleBGPExtensionProviderContextModuleFactory.NAME, BGP_EXTENSION_INSTANCE_NAME);
         transaction.newMBeanProxy(nameCreated, SimpleBGPExtensionProviderContextModuleMXBean.class);
         return nameCreated;
     }

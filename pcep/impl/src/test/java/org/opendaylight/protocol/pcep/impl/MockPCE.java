@@ -21,57 +21,57 @@ import org.slf4j.LoggerFactory;
 
 public class MockPCE implements PCEPSessionListener {
 
-	private final List<Message> listMsg = new ArrayList<Message>();
+    private final List<Message> listMsg = new ArrayList<Message>();
 
-	private PCEPSessionImpl session = null;
+    private PCEPSessionImpl session = null;
 
-	public boolean up = false;
+    public boolean up = false;
 
-	private static final Logger logger = LoggerFactory.getLogger(MockPCE.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MockPCE.class);
 
-	public boolean down = false;
+    public boolean down = false;
 
-	public MockPCE() {
-	}
+    public MockPCE() {
+    }
 
-	public void sendMessage(final Message msg) {
-		this.session.handleMessage(msg);
-	}
+    public void sendMessage(final Message msg) {
+        this.session.handleMessage(msg);
+    }
 
-	public void sendErrorMessage(final PCEPErrors value, final Open open) {
-		this.sendMessage(Util.createErrorMessage(value, open));
-	}
+    public void sendErrorMessage(final PCEPErrors value, final Open open) {
+        this.sendMessage(Util.createErrorMessage(value, open));
+    }
 
-	public List<Message> getListMsg() {
-		return this.listMsg;
-	}
+    public List<Message> getListMsg() {
+        return this.listMsg;
+    }
 
-	public void addSession(final PCEPSessionImpl l) {
-		this.session = l;
-	}
+    public void addSession(final PCEPSessionImpl l) {
+        this.session = l;
+    }
 
-	@Override
-	public void onMessage(final PCEPSession session, final Message message) {
-		this.listMsg.add(message);
-		logger.debug("Message received: {}", message);
-	}
+    @Override
+    public void onMessage(final PCEPSession session, final Message message) {
+        this.listMsg.add(message);
+        LOG.debug("Message received: {}", message);
+    }
 
-	@Override
-	public void onSessionUp(final PCEPSession session) {
-		logger.debug("Session Up");
-		this.up = true;
-		this.notifyAll();
-	}
+    @Override
+    public void onSessionUp(final PCEPSession session) {
+        LOG.debug("Session Up");
+        this.up = true;
+        this.notifyAll();
+    }
 
-	@Override
-	public void onSessionDown(final PCEPSession session, final Exception e) {
-		logger.debug("Session Down.", e);
-		this.down = true;
-		// this.notifyAll();
-	}
+    @Override
+    public void onSessionDown(final PCEPSession session, final Exception e) {
+        LOG.debug("Session Down.", e);
+        this.down = true;
+        // this.notifyAll();
+    }
 
-	@Override
-	public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
-		logger.debug("Session terminated. Cause : {}", cause);
-	}
+    @Override
+    public void onSessionTerminated(final PCEPSession session, final PCEPTerminationReason cause) {
+        LOG.debug("Session terminated. Cause : {}", cause);
+    }
 }

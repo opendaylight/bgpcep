@@ -25,32 +25,30 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 public final class RIBImplModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModule {
 
-	public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(name, dependencyResolver);
-	}
+    public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(name, dependencyResolver);
+    }
 
-	public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
-			final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final RIBImplModule oldModule,
-			final java.lang.AutoCloseable oldInstance) {
-		super(name, dependencyResolver, oldModule, oldInstance);
-	}
+    public RIBImplModule(final org.opendaylight.controller.config.api.ModuleIdentifier name,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final RIBImplModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(name, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void customValidation() {
-		JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", extensionsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", ribIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", localAsJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", bgpIdJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", tcpReconnectStrategyJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", sessionReconnectStrategyJmxAttribute);
-		JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", localTableJmxAttribute);
-	}
+    @Override
+    public void customValidation() {
+        JmxAttributeValidationException.checkNotNull(getExtensions(), "is not set.", extensionsJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getRibId(), "is not set.", ribIdJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getLocalAs(), "is not set.", localAsJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getBgpId(), "is not set.", bgpIdJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTcpReconnectStrategy(), "is not set.", tcpReconnectStrategyJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getSessionReconnectStrategy(), "is not set.", sessionReconnectStrategyJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getLocalTable(), "is not set.", localTableJmxAttribute);
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpId(), getExtensionsDependency(),
-				getBgpDispatcherDependency(), getTcpReconnectStrategyDependency()
-				,  getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new RIBImpl(getRibId(), new AsNumber(getLocalAs()), getBgpId(), getExtensionsDependency(), getBgpDispatcherDependency(), getTcpReconnectStrategyDependency(), getSessionReconnectStrategyDependency(), getDataProviderDependency(), getLocalTableDependency());
+    }
 }

@@ -88,16 +88,19 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         return createInstance(TOPOLOGY_ID);
     }
 
-    private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction,
-            final TopologyId topologyId) throws Exception {
+    private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final TopologyId topologyId)
+            throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
         final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
-        final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, dataBrokerON, bindingBrokerON, notificationBrokerON);
-        final ObjectName sourceTopology = PCEPTopologyProviderModuleTest.createPCEPTopologyProviderModuleInstance(transaction, dataBrokerON, bindingBrokerON, schedulerON);
+        final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, dataBrokerON, bindingBrokerON,
+                notificationBrokerON);
+        final ObjectName sourceTopology = PCEPTopologyProviderModuleTest.createPCEPTopologyProviderModuleInstance(transaction,
+                dataBrokerON, bindingBrokerON, schedulerON);
 
-        final PCEPTunnelTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, PCEPTunnelTopologyProviderModuleMXBean.class);
+        final PCEPTunnelTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName,
+                PCEPTunnelTopologyProviderModuleMXBean.class);
         mxBean.setDataProvider(dataBrokerON);
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);

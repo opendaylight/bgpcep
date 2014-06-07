@@ -14,10 +14,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * A reference to an object identified by an InstanceIdentifier.
  */
 public interface InstanceReference<T extends DataObject> {
-	/**
-	 * Returns the InstanceIdentifier of the object.
-	 * 
-	 * @return instance identifier
-	 */
-	InstanceIdentifier<T> getInstanceIdentifier();
+    /**
+     * Returns the InstanceIdentifier of the object.
+     *
+     * @return instance identifier
+     */
+    InstanceIdentifier<T> getInstanceIdentifier();
 }

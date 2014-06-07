@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 
 import java.math.BigInteger;
@@ -20,29 +22,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Parser for {@link LspDbVersion}
  */
 public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
-	public static final int TYPE = 23;
+    public static final int TYPE = 23;
 
-	private static final int DBV_F_LENGTH = 8;
+    private static final int DBV_F_LENGTH = 8;
 
-	@Override
-	public LspDbVersion parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-		if (buffer == null) {
-			return null;
-		}
-		return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(buffer.readLong())).build();
-	}
+    @Override
+    public LspDbVersion parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
+        if (buffer == null) {
+            return null;
+        }
+        return new LspDbVersionBuilder().setVersion(BigInteger.valueOf(buffer.readLong())).build();
+    }
 
-	@Override
-	public byte[] serializeTlv(final Tlv tlv) {
-		Preconditions.checkNotNull(tlv, "LspDbVersionTlv is mandatory.");
-		final LspDbVersion lsp = (LspDbVersion) tlv;
-		return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH));
-	}
+    @Override
+    public byte[] serializeTlv(final Tlv tlv) {
+        Preconditions.checkNotNull(tlv, "LspDbVersionTlv is mandatory.");
+        final LspDbVersion lsp = (LspDbVersion) tlv;
+        return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getVersion().longValue(), DBV_F_LENGTH));
+    }
 }

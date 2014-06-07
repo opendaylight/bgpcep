@@ -26,60 +26,61 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 /**
  *
  */
-public final class LinkstateModule extends org.opendaylight.controller.config.yang.bgp.linkstate.AbstractLinkstateModule
-{
+public final class LinkstateModule extends org.opendaylight.controller.config.yang.bgp.linkstate.AbstractLinkstateModule {
 
-	public LinkstateModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public LinkstateModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public LinkstateModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final LinkstateModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public LinkstateModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final LinkstateModule oldModule,
+            final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	public void customValidation() {
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    public void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final class LinkstateExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
-			final BGPExtensionProviderActivator bgpact = new BGPActivator();
-			final RIBExtensionProviderActivator ribact = new RIBActivator();
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final class LinkstateExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
+            final BGPExtensionProviderActivator bgpact = new BGPActivator();
+            final RIBExtensionProviderActivator ribact = new RIBActivator();
 
-			@Override
-			public void close() {
-				if (bgpact != null) {
-					bgpact.stop();
-				}
-				if (ribact != null) {
-					ribact.stopRIBExtensionProvider();
-				}
-			}
+            @Override
+            public void close() {
+                if (bgpact != null) {
+                    bgpact.stop();
+                }
+                if (ribact != null) {
+                    ribact.stopRIBExtensionProvider();
+                }
+            }
 
-			@Override
-			public void startRIBExtensionProvider(
-					final RIBExtensionProviderContext context) {
-				ribact.startRIBExtensionProvider(context);
-			}
+            @Override
+            public void startRIBExtensionProvider(final RIBExtensionProviderContext context) {
+                ribact.startRIBExtensionProvider(context);
+            }
 
-			@Override
-			public void stopRIBExtensionProvider() {
-				ribact.stopRIBExtensionProvider();
-			}
+            @Override
+            public void stopRIBExtensionProvider() {
+                ribact.stopRIBExtensionProvider();
+            }
 
-			@Override
-			public void start(final BGPExtensionProviderContext context) {
-				bgpact.start(context);
-			}
+            @Override
+            public void start(final BGPExtensionProviderContext context) {
+                bgpact.start(context);
+            }
 
-			@Override
-			public void stop() {
-				bgpact.stop();
-			}
-		}
+            @Override
+            public void stop() {
+                bgpact.stop();
+            }
+        }
 
-		return new LinkstateExtension();
-	}
+        return new LinkstateExtension();
+    }
 }

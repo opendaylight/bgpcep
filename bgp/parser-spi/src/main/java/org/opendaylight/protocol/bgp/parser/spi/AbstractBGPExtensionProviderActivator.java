@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import com.google.common.base.Preconditions;
+
 import java.util.List;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -14,41 +16,39 @@ import javax.annotation.concurrent.GuardedBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-
 public abstract class AbstractBGPExtensionProviderActivator implements AutoCloseable, BGPExtensionProviderActivator {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPExtensionProviderActivator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPExtensionProviderActivator.class);
 
-	@GuardedBy("this")
-	private List<AutoCloseable> registrations;
+    @GuardedBy("this")
+    private List<AutoCloseable> registrations;
 
-	@GuardedBy("this")
-	protected abstract List<AutoCloseable> startImpl(BGPExtensionProviderContext context);
+    @GuardedBy("this")
+    protected abstract List<AutoCloseable> startImpl(BGPExtensionProviderContext context);
 
-	@Override
-	public final synchronized void start(final BGPExtensionProviderContext context) {
-		Preconditions.checkState(this.registrations == null);
+    @Override
+    public final synchronized void start(final BGPExtensionProviderContext context) {
+        Preconditions.checkState(this.registrations == null);
 
-		this.registrations = Preconditions.checkNotNull(startImpl(context));
-	}
+        this.registrations = Preconditions.checkNotNull(startImpl(context));
+    }
 
-	@Override
-	public final synchronized void stop() {
-		Preconditions.checkState(this.registrations != null);
+    @Override
+    public final synchronized void stop() {
+        Preconditions.checkState(this.registrations != null);
 
-		for (final AutoCloseable r : this.registrations) {
-			try {
-				r.close();
-			} catch (final Exception e) {
-				LOG.warn("Failed to close registration", e);
-			}
-		}
+        for (final AutoCloseable r : this.registrations) {
+            try {
+                r.close();
+            } catch (final Exception e) {
+                LOG.warn("Failed to close registration", e);
+            }
+        }
 
-		this.registrations = null;
-	}
+        this.registrations = null;
+    }
 
-	@Override
-	public final void close() {
-		stop();
-	}
+    @Override
+    public final void close() {
+        stop();
+    }
 }

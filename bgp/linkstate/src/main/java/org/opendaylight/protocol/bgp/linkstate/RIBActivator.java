@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
+import com.google.common.collect.Lists;
+
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
@@ -19,20 +21,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
-import com.google.common.collect.Lists;
-
 /**
  * Activator for registering Linkstate AFI/SAFI to RIB.
  */
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
-	@Override
-	protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-		return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-				new AdjRIBsInFactory() {
-			@Override
-			public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-				return new LinkstateAdjRIBsIn(trans, rib, key);
-			}
-		}));
-	}
+    @Override
+    protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
+        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+                new AdjRIBsInFactory() {
+                    @Override
+                    public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+                        return new LinkstateAdjRIBsIn(trans, rib, key);
+                    }
+                }));
+    }
 }

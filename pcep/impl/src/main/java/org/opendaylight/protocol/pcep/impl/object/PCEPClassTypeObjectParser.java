@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -22,71 +25,68 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
-
 /**
  * Parser for {@link ClassType}
  */
 public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<ClassTypeBuilder> {
-	private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
 
-	public static final int CLASS = 22;
+    public static final int CLASS = 22;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	/**
-	 * Length of Class Type field in bits.
-	 */
-	private static final int CT_F_LENGTH = 3;
+    /**
+     * Length of Class Type field in bits.
+     */
+    private static final int CT_F_LENGTH = 3;
 
-	/**
-	 * Reserved field bit length.
-	 */
-	private static final int RESERVED = 29;
+    /**
+     * Reserved field bit length.
+     */
+    private static final int RESERVED = 29;
 
-	/**
-	 * Size of the object in bytes.
-	 */
-	private static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
+    /**
+     * Size of the object in bytes.
+     */
+    private static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
 
-	public PCEPClassTypeObjectParser(final TlvRegistry tlvReg) {
-		super(tlvReg);
-	}
+    public PCEPClassTypeObjectParser(final TlvRegistry tlvReg) {
+        super(tlvReg);
+    }
 
-	@Override
-	public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-		Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-		if (!header.isProcessingRule()) {
-			LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
-			return null;
-		}
-		if (bytes.readableBytes() != SIZE) {
-			throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
-					+ bytes.readableBytes());
-		}
-		final ClassTypeBuilder builder = new ClassTypeBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
+    @Override
+    public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
+        Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        if (!header.isProcessingRule()) {
+            LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
+            return null;
+        }
+        if (bytes.readableBytes() != SIZE) {
+            throw new PCEPDeserializerException("Size of byte array doesn't match defined size. Expected: " + SIZE + "; Passed: "
+                    + bytes.readableBytes());
+        }
+        final ClassTypeBuilder builder = new ClassTypeBuilder();
+        builder.setIgnore(header.isIgnore());
+        builder.setProcessingRule(header.isProcessingRule());
 
-		final short ct = (short) bytes.readUnsignedInt();
-		builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
+        final short ct = (short) bytes.readUnsignedInt();
+        builder.setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType(ct));
 
-		final Object obj = builder.build();
-		if (ct < 0 || ct > 8) {
-			LOG.debug("Invalid class type {}", ct);
-			return new UnknownObject(PCEPErrors.INVALID_CT, obj);
-		}
-		return obj;
-	}
+        final Object obj = builder.build();
+        if (ct < 0 || ct > 8) {
+            LOG.debug("Invalid class type {}", ct);
+            return new UnknownObject(PCEPErrors.INVALID_CT, obj);
+        }
+        return obj;
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof ClassType)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
-		}
-		final byte[] retBytes = new byte[SIZE];
-		retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
-	}
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof ClassType)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
+        }
+        final byte[] retBytes = new byte[SIZE];
+        retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+    }
 }

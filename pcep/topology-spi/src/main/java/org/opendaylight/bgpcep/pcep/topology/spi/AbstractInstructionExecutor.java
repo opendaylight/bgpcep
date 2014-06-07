@@ -7,6 +7,11 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.spi;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -18,74 +23,69 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 /**
  *
  */
 public abstract class AbstractInstructionExecutor implements FutureCallback<Instruction> {
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractInstructionExecutor.class);
-	private final SubmitInstructionInput input;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractInstructionExecutor.class);
+    private final SubmitInstructionInput input;
 
-	protected AbstractInstructionExecutor(final SubmitInstructionInput input) {
-		this.input = Preconditions.checkNotNull(input);
-	}
+    protected AbstractInstructionExecutor(final SubmitInstructionInput input) {
+        this.input = Preconditions.checkNotNull(input);
+    }
 
-	public final SubmitInstructionInput getInput() {
-		return input;
-	}
+    public final SubmitInstructionInput getInput() {
+        return this.input;
+    }
 
-	public static FailureCase schedule(final InstructionScheduler scheduler, final AbstractInstructionExecutor fwd) {
-		final ListenableFuture<Instruction> s;
+    public static FailureCase schedule(final InstructionScheduler scheduler, final AbstractInstructionExecutor fwd) {
+        final ListenableFuture<Instruction> s;
 
-		try {
-			s = scheduler.scheduleInstruction(fwd.getInput());
-		} catch (SchedulerException e) {
-			LOG.info("Instuction {} failed to schedule", e);
-			return new FailureCaseBuilder().setFailure(e.getFailure()).build();
-		}
+        try {
+            s = scheduler.scheduleInstruction(fwd.getInput());
+        } catch (SchedulerException e) {
+            LOG.info("Instuction {} failed to schedule", e.getMessage(), e);
+            return new FailureCaseBuilder().setFailure(e.getFailure()).build();
+        }
 
-		Futures.addCallback(s, fwd);
-		return null;
-	}
+        Futures.addCallback(s, fwd);
+        return null;
+    }
 
-	protected abstract ListenableFuture<OperationResult> invokeOperation();
+    protected abstract ListenableFuture<OperationResult> invokeOperation();
 
-	@Override
-	public void onSuccess(final Instruction insn) {
-		if (insn.checkedExecutionStart()) {
-			final ListenableFuture<OperationResult> s = invokeOperation();
-			Futures.addCallback(s, new FutureCallback<OperationResult>() {
-				@Override
-				public void onSuccess(final OperationResult result) {
-					if (result.getFailure() != null) {
-						switch (result.getFailure()) {
-						case Failed:
-						case NoAck:
-							insn.executionCompleted(InstructionStatus.Failed, null);
-							break;
-						case Unsent:
-							insn.executionCompleted(InstructionStatus.Cancelled, null);
-							break;
-						}
-					} else {
-						insn.executionCompleted(InstructionStatus.Successful, null);
-					}
-				}
+    @Override
+    public void onSuccess(final Instruction insn) {
+        if (insn.checkedExecutionStart()) {
+            final ListenableFuture<OperationResult> s = invokeOperation();
+            Futures.addCallback(s, new FutureCallback<OperationResult>() {
+                @Override
+                public void onSuccess(final OperationResult result) {
+                    if (result.getFailure() != null) {
+                        switch (result.getFailure()) {
+                        case Failed:
+                        case NoAck:
+                            insn.executionCompleted(InstructionStatus.Failed, null);
+                            break;
+                        case Unsent:
+                            insn.executionCompleted(InstructionStatus.Cancelled, null);
+                            break;
+                        }
+                    } else {
+                        insn.executionCompleted(InstructionStatus.Successful, null);
+                    }
+                }
 
-				@Override
-				public void onFailure(final Throwable t) {
-					insn.executionCompleted(InstructionStatus.Failed, null);
-				}
-			});
-		}
-	}
+                @Override
+                public void onFailure(final Throwable t) {
+                    insn.executionCompleted(InstructionStatus.Failed, null);
+                }
+            });
+        }
+    }
 
-	@Override
-	public void onFailure(final Throwable t) {
-		LOG.debug("Instruction {} cancelled", input, t);
-	}
+    @Override
+    public void onFailure(final Throwable t) {
+        LOG.debug("Instruction {} cancelled", this.input, t);
+    }
 }

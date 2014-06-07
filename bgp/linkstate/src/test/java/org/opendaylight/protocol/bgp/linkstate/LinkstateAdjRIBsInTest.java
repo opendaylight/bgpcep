@@ -70,148 +70,161 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class LinkstateAdjRIBsInTest {
 
-	@Mock
-	private DataModificationTransaction trans;
+    @Mock
+    private DataModificationTransaction trans;
 
-	@Mock
-	private RibReference rib;
+    @Mock
+    private RibReference rib;
 
-	@Mock
-	private Peer peer;
+    @Mock
+    private Peer peer;
 
+    private LinkstateAdjRIBsIn lrib;
 
+    private CLinkstateDestinationBuilder dBuilder;
 
-	private LinkstateAdjRIBsIn lrib;
+    private final MpReachNlriBuilder builder = new MpReachNlriBuilder();
 
-	private CLinkstateDestinationBuilder dBuilder;
+    private final List<CLinkstateDestination> destinations = new ArrayList<>();
 
-	private final MpReachNlriBuilder builder = new MpReachNlriBuilder();
+    private final HashMap<Object, Object> data = new HashMap<>();
 
-	private final List<CLinkstateDestination> destinations = new ArrayList<>();
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        TablesKey key = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+        final InstanceIdentifier<Rib> iid = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).toInstance();
+        Mockito.doAnswer(new Answer<String>() {
+            @Override
+            public String answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                LinkstateAdjRIBsInTest.this.data.put(args[0], args[1]);
+                return null;
+            }
 
-	private final HashMap<Object, Object> data = new HashMap<>();
+        }).when(this.trans).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
 
-	@Before
-	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-		TablesKey key = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-		final InstanceIdentifier<Rib> iid = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).toInstance();
-		Mockito.doAnswer(new Answer<String>() {
-			@Override
-			public String answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				LinkstateAdjRIBsInTest.this.data.put(args[0], args[1]);
-				return null;
-			}
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                Object result = LinkstateAdjRIBsInTest.this.data.get(args[0]);
+                if (result == null) {
+                    InstanceIdentifier<Attributes> attrId = iid.child(LocRib.class).child(Tables.class).child(Attributes.class);
+                    if (attrId.containsWildcarded((InstanceIdentifier<?>) args[0])) {
+                        result = new AttributesBuilder().setUptodate(Boolean.TRUE).build();
+                    }
+                }
 
-		}).when(this.trans).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
+                return result;
+            }
 
-		Mockito.doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				Object result = LinkstateAdjRIBsInTest.this.data.get(args[0]);
-				if (result == null) {
-					InstanceIdentifier<Attributes> attrId = iid.child(LocRib.class).child(Tables.class).child(Attributes.class);
-					if (attrId.containsWildcarded((InstanceIdentifier<?>) args[0])) {
-						result = new AttributesBuilder().setUptodate(Boolean.TRUE).build();
-					}
-				}
+        }).when(this.trans).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
-				return result;
-			}
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                LinkstateAdjRIBsInTest.this.data.remove(args[0]);
+                return null;
+            }
 
-		}).when(this.trans).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.trans).removeOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				LinkstateAdjRIBsInTest.this.data.remove(args[0]);
-				return null;
-			}
+        Mockito.doReturn(iid).when(this.rib).getInstanceIdentifier();
+        Mockito.doReturn(new Comparator<PathAttributes>() {
 
-		}).when(this.trans).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+            @Override
+            public int compare(PathAttributes o1, PathAttributes o2) {
+                return 0;
+            }
+        }).when(this.peer).getComparator();
+        Mockito.doReturn("test").when(this.peer).toString();
+        this.lrib = new LinkstateAdjRIBsIn(this.trans, this.rib, key);
 
-		Mockito.doReturn(iid).when(this.rib).getInstanceIdentifier();
-		Mockito.doReturn(new Comparator<PathAttributes>() {
+        this.dBuilder = new CLinkstateDestinationBuilder();
 
-			@Override
-			public int compare(PathAttributes o1, PathAttributes o2) {
-				return 0;
-			}
-		}).when(this.peer).getComparator();
-		Mockito.doReturn("test").when(this.peer).toString();
-		this.lrib = new LinkstateAdjRIBsIn(this.trans, this.rib, key);
+        this.dBuilder.setProtocolId(ProtocolId.Direct);
+        this.dBuilder.setIdentifier(new Identifier(new BigInteger(new byte[] { 5 })));
+        this.dBuilder.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber(35L)).build());
+    }
 
-		this.dBuilder = new CLinkstateDestinationBuilder();
+    @Test
+    public void testAddPrefix() {
+        this.dBuilder.setNlriType(NlriType.Ipv4Prefix);
+        this.dBuilder.setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(
+                new IpPrefix(new Ipv4Prefix("12.34.35.55/32"))).build());
+        this.destinations.add(this.dBuilder.build());
+        this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
 
-		this.dBuilder.setProtocolId(ProtocolId.Direct);
-		this.dBuilder.setIdentifier(new Identifier(new BigInteger(new byte[]{5})));
-		this.dBuilder.setLocalNodeDescriptors(new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber(35L)).build());
-	}
+        PathAttributesBuilder pa = new PathAttributesBuilder();
+        pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-	@Test
-	public void testAddPrefix() {
-		this.dBuilder.setNlriType(NlriType.Ipv4Prefix);
-		this.dBuilder.setPrefixDescriptors(new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("12.34.35.55/32"))).build());
-		this.destinations.add(this.dBuilder.build());
-		this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
+        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-		PathAttributesBuilder pa = new PathAttributesBuilder();
-		pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
+        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class));
 
-		this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+        assertEquals(3, this.data.size());
+    }
 
-		Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataObject.class));
+    @Test
+    public void testAddNode() {
+        this.dBuilder.setNlriType(NlriType.Node);
+        this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(
+                new IsisPseudonodeCaseBuilder().setIsisPseudonode(
+                        new IsisPseudonodeBuilder().setIsIsRouterIdentifier(
+                                new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 1, 2, 3, 4, 5, 6 })).build()).build()).build()).build());
+        this.destinations.add(this.dBuilder.build());
+        this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
 
-		assertEquals(3,this.data.size());
-	}
+        PathAttributesBuilder pa = new PathAttributesBuilder();
+        pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-	@Test
-	public void testAddNode() {
-		this.dBuilder.setNlriType(NlriType.Node);
-		this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{1,2,3,4,5,6})).build()).build()).build()).build());
-		this.destinations.add(this.dBuilder.build());
-		this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
+        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-		PathAttributesBuilder pa = new PathAttributesBuilder();
-		pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
+        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class));
+        assertEquals(3, this.data.size());
+    }
 
-		this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+    @Test
+    public void testAddRemoveLink() {
+        this.dBuilder.setNlriType(NlriType.Link);
+        this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(
+                new IsisPseudonodeCaseBuilder().setIsisPseudonode(
+                        new IsisPseudonodeBuilder().setIsIsRouterIdentifier(
+                                new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[] { 1, 2, 3, 4, 5, 6 })).build()).build()).build()).build());
+        this.dBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
+                new Ipv4InterfaceIdentifier(new Ipv4Address("127.0.0.1"))).build());
+        this.destinations.add(this.dBuilder.build());
+        this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+                new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
 
-		Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataObject.class));
-		assertEquals(3,this.data.size());
-	}
+        PathAttributesBuilder pa = new PathAttributesBuilder();
+        pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-	@Test
-	public void testAddRemoveLink() {
-		this.dBuilder.setNlriType(NlriType.Link);
-		this.dBuilder.setRemoteNodeDescriptors(new RemoteNodeDescriptorsBuilder().setCRouterIdentifier(new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder().setIsoSystemId(new IsoSystemIdentifier(new byte[]{1,2,3,4,5,6})).build()).build()).build()).build());
-		this.dBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier(new Ipv4Address("127.0.0.1"))).build());
-		this.destinations.add(this.dBuilder.build());
-		this.builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
+        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-		PathAttributesBuilder pa = new PathAttributesBuilder();
-		pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
+        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class));
+        assertEquals(3, this.data.size());
 
-		this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+        MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
+        builder.setAfi(LinkstateAddressFamily.class);
+        builder.setSafi(LinkstateSubsequentAddressFamily.class);
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
+                                this.destinations).build()).build()).build());
+        this.lrib.removeRoutes(this.trans, this.peer, builder.build());
 
-		Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataObject.class));
-		assertEquals(3,this.data.size());
-
-		MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
-		builder.setAfi(LinkstateAddressFamily.class);
-		builder.setSafi(LinkstateSubsequentAddressFamily.class);
-		builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
-				new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(this.destinations).build()).build()).build());
-		this.lrib.removeRoutes(this.trans, this.peer, builder.build());
-
-		Mockito.verify(this.trans, Mockito.times(2)).removeOperationalData(Matchers.any(InstanceIdentifier.class));
-		assertEquals(2,this.data.size());
-	}
+        Mockito.verify(this.trans, Mockito.times(2)).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        assertEquals(2, this.data.size());
+    }
 }

@@ -17,10 +17,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Common interface for attribute parser implementation.
  */
 public interface AttributeParser {
-	/**
-	 * @param buffer encoded attribute body in Bytebuf
-	 * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type
-	 *                is numerically lower than this attribute's type.
-	 */
-	void parseAttribute(final ByteBuf buffer, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
+    /**
+     * @param buffer encoded attribute body in Bytebuf
+     * @param builder Path attributes builder. Guaranteed to contain all valid attributes whose type is numerically
+     *        lower than this attribute's type.
+     */
+    void parseAttribute(final ByteBuf buffer, PathAttributesBuilder builder) throws BGPDocumentedException, BGPParsingException;
 }

@@ -7,6 +7,10 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Futures;
+
 import java.util.concurrent.Future;
 
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
@@ -26,54 +30,51 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.UpdateLspOutputBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Futures;
-
 final class TopologyRPCs implements NetworkTopologyPcepService {
-	private final ServerSessionManager manager;
+    private final ServerSessionManager manager;
 
-	TopologyRPCs(final ServerSessionManager manager) {
-		this.manager = Preconditions.checkNotNull(manager);
-	}
+    TopologyRPCs(final ServerSessionManager manager) {
+        this.manager = Preconditions.checkNotNull(manager);
+    }
 
-	@Override
-	public Future<RpcResult<AddLspOutput>> addLsp(final AddLspInput input) {
-		return Futures.transform(manager.addLsp(input), new Function<OperationResult, RpcResult<AddLspOutput>>() {
-			@Override
-			public RpcResult<AddLspOutput> apply(final OperationResult input) {
-				return SuccessfulRpcResult.create(new AddLspOutputBuilder(input).build());
-			}
-		});
-	}
+    @Override
+    public Future<RpcResult<AddLspOutput>> addLsp(final AddLspInput input) {
+        return Futures.transform(manager.addLsp(input), new Function<OperationResult, RpcResult<AddLspOutput>>() {
+            @Override
+            public RpcResult<AddLspOutput> apply(final OperationResult input) {
+                return SuccessfulRpcResult.create(new AddLspOutputBuilder(input).build());
+            }
+        });
+    }
 
-	@Override
-	public Future<RpcResult<RemoveLspOutput>> removeLsp(final RemoveLspInput input) {
-		return Futures.transform(manager.removeLsp(input), new Function<OperationResult, RpcResult<RemoveLspOutput>>() {
-			@Override
-			public RpcResult<RemoveLspOutput> apply(final OperationResult input) {
-				return SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input).build());
-			}
-		});
-	}
+    @Override
+    public Future<RpcResult<RemoveLspOutput>> removeLsp(final RemoveLspInput input) {
+        return Futures.transform(manager.removeLsp(input), new Function<OperationResult, RpcResult<RemoveLspOutput>>() {
+            @Override
+            public RpcResult<RemoveLspOutput> apply(final OperationResult input) {
+                return SuccessfulRpcResult.create(new RemoveLspOutputBuilder(input).build());
+            }
+        });
+    }
 
-	@Override
-	public Future<RpcResult<UpdateLspOutput>> updateLsp(final UpdateLspInput input) {
-		return Futures.transform(manager.updateLsp(input), new Function<OperationResult, RpcResult<UpdateLspOutput>>() {
-			@Override
-			public RpcResult<UpdateLspOutput> apply(final OperationResult input) {
-				return SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input).build());
-			}
-		});
-	}
+    @Override
+    public Future<RpcResult<UpdateLspOutput>> updateLsp(final UpdateLspInput input) {
+        return Futures.transform(manager.updateLsp(input), new Function<OperationResult, RpcResult<UpdateLspOutput>>() {
+            @Override
+            public RpcResult<UpdateLspOutput> apply(final OperationResult input) {
+                return SuccessfulRpcResult.create(new UpdateLspOutputBuilder(input).build());
+            }
+        });
+    }
 
-	@Override
-	public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
-		return Futures.transform(manager.ensureLspOperational(input), new Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>() {
-			@Override
-			public RpcResult<EnsureLspOperationalOutput> apply(final OperationResult input) {
-				return SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input).build());
-			}
-		});
-	}
+    @Override
+    public Future<RpcResult<EnsureLspOperationalOutput>> ensureLspOperational(final EnsureLspOperationalInput input) {
+        return Futures.transform(manager.ensureLspOperational(input),
+                new Function<OperationResult, RpcResult<EnsureLspOperationalOutput>>() {
+                    @Override
+                    public RpcResult<EnsureLspOperationalOutput> apply(final OperationResult input) {
+                        return SuccessfulRpcResult.create(new EnsureLspOperationalOutputBuilder(input).build());
+                    }
+                });
+    }
 }

@@ -20,35 +20,35 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * Mock implementation of {@link BGPSessionListener} for testing purposes.
  */
 public final class BGPListenerMock implements BGPSessionListener {
-	private final List<Notification> buffer = Collections.synchronizedList(new ArrayList<Notification>());
-	private boolean connected = false;
+    private final List<Notification> buffer = Collections.synchronizedList(new ArrayList<Notification>());
+    private boolean connected = false;
 
-	protected List<Notification> getBuffer() {
-		return this.buffer;
-	}
+    protected List<Notification> getBuffer() {
+        return this.buffer;
+    }
 
-	protected boolean isConnected() {
-		return this.connected;
-	}
+    protected boolean isConnected() {
+        return this.connected;
+    }
 
-	@Override
-	public void onMessage(final BGPSession session, final Notification message) {
-		this.buffer.add(message);
-	}
+    @Override
+    public void onMessage(final BGPSession session, final Notification message) {
+        this.buffer.add(message);
+    }
 
-	@Override
-	public void onSessionUp(final BGPSession session) {
-		this.connected = true;
-	}
+    @Override
+    public void onSessionUp(final BGPSession session) {
+        this.connected = true;
+    }
 
-	@Override
-	public void onSessionDown(final BGPSession session, final Exception e) {
-		this.connected = false;
+    @Override
+    public void onSessionDown(final BGPSession session, final Exception e) {
+        this.connected = false;
 
-	}
+    }
 
-	@Override
-	public void onSessionTerminated(final BGPSession session, final BGPTerminationReason reason) {
-		this.connected = false;
-	}
+    @Override
+    public void onSessionTerminated(final BGPSession session, final BGPTerminationReason reason) {
+        this.connected = false;
+    }
 }

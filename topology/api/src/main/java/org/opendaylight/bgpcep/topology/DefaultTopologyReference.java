@@ -15,7 +15,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  */
 public class DefaultTopologyReference extends DefaultInstanceReference<Topology> implements TopologyReference {
-	public DefaultTopologyReference(final InstanceIdentifier<Topology> instanceIdentifier) {
-		super(instanceIdentifier);
-	}
+    public DefaultTopologyReference(final InstanceIdentifier<Topology> instanceIdentifier) {
+        super(instanceIdentifier);
+    }
 }

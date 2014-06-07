@@ -21,33 +21,36 @@ import org.opendaylight.bgpcep.pcep.topology.provider.Stateful07TopologySessionL
 /**
  *
  */
-public final class Stateful07TopologySessionListenerModule extends org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful07TopologySessionListenerModule
-{
+public final class Stateful07TopologySessionListenerModule extends
+        org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractStateful07TopologySessionListenerModule {
 
-	public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-			final Stateful07TopologySessionListenerModule oldModule, final java.lang.AutoCloseable oldInstance) {
+    public Stateful07TopologySessionListenerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final Stateful07TopologySessionListenerModule oldModule, final java.lang.AutoCloseable oldInstance) {
 
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation(){
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    protected void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		return new AutoCloseableStateful07TopologySessionListenerFactory();
-	}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        return new AutoCloseableStateful07TopologySessionListenerFactory();
+    }
 
-	private static final class AutoCloseableStateful07TopologySessionListenerFactory extends Stateful07TopologySessionListenerFactory implements AutoCloseable {
-		@Override
-		public void close() {
-			// Nothing to do
-		}
-	}
+    private static final class AutoCloseableStateful07TopologySessionListenerFactory extends Stateful07TopologySessionListenerFactory
+            implements AutoCloseable {
+        @Override
+        public void close() {
+            // Nothing to do
+        }
+    }
 }

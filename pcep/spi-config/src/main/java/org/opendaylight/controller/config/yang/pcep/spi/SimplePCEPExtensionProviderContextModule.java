@@ -22,38 +22,41 @@ import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContex
 /**
  *
  */
-public final class SimplePCEPExtensionProviderContextModule extends org.opendaylight.controller.config.yang.pcep.spi.AbstractSimplePCEPExtensionProviderContextModule
-{
+public final class SimplePCEPExtensionProviderContextModule extends
+        org.opendaylight.controller.config.yang.pcep.spi.AbstractSimplePCEPExtensionProviderContextModule {
 
-	public SimplePCEPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
-		super(identifier, dependencyResolver);
-	}
+    public SimplePCEPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        super(identifier, dependencyResolver);
+    }
 
-	public SimplePCEPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier, final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final SimplePCEPExtensionProviderContextModule oldModule, final java.lang.AutoCloseable oldInstance) {
-		super(identifier, dependencyResolver, oldModule, oldInstance);
-	}
+    public SimplePCEPExtensionProviderContextModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final SimplePCEPExtensionProviderContextModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        super(identifier, dependencyResolver, oldModule, oldInstance);
+    }
 
-	@Override
-	protected void customValidation() {
-		// Add custom validation for module attributes here.
-	}
+    @Override
+    protected void customValidation() {
+        // Add custom validation for module attributes here.
+    }
 
-	@Override
-	public java.lang.AutoCloseable createInstance() {
-		final class PCEPExtensionProviderContextImplCloseable extends SimplePCEPExtensionProviderContext implements AutoCloseable {
-			@Override
-			public void close() {
-				for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
-					e.stop();
-				}
-			}
-		}
+    @Override
+    public java.lang.AutoCloseable createInstance() {
+        final class PCEPExtensionProviderContextImplCloseable extends SimplePCEPExtensionProviderContext implements AutoCloseable {
+            @Override
+            public void close() {
+                for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
+                    e.stop();
+                }
+            }
+        }
 
-		final PCEPExtensionProviderContextImplCloseable ret = new PCEPExtensionProviderContextImplCloseable();
-		for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
-			e.start(ret);
-		}
+        final PCEPExtensionProviderContextImplCloseable ret = new PCEPExtensionProviderContextImplCloseable();
+        for (PCEPExtensionProviderActivator e : getExtensionDependency()) {
+            e.start(ret);
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 }

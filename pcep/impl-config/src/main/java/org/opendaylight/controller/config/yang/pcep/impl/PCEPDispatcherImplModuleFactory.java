@@ -19,8 +19,7 @@ package org.opendaylight.controller.config.yang.pcep.impl;
 /**
 *
 */
-public class PCEPDispatcherImplModuleFactory
-		extends
-		org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModuleFactory {
+public class PCEPDispatcherImplModuleFactory extends
+        org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModuleFactory {
 
 }
