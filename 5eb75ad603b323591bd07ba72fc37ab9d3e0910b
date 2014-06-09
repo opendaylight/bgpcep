@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_b364cbe5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "We\u0027ve talked about this. Remove MP_REACH, MP_UNREACH stuff from this commit.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5363ffdb",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "body.isReadable (didn\u0027t I comment on this before here?)",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_139d77bc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Be consistent, use ByteBufUtil.hexDump(messageBody)",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_735e4314",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Be consistent when writing to log. Use this throughout the project instead of .array()",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_33a0bbf3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Still not a meaningful message, missing a verb.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_b3ab6bd5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d37dcf6f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "AsSet is not mandatory, this can throw NPE.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f3801348",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_738c0380",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Create the variable before the check, so that you can use it in the check itself.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_13eb3714",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "else if",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_33ee7b23",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Variable before check.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_93de676c",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Why do we need another registry?",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_53e8df0f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPMessageToByteEncoder.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T13:49:31Z",
+      "side": 1,
+      "message": "Be consistent.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
