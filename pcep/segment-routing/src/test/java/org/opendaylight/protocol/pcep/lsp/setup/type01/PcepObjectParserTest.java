@@ -24,8 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.cra
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs3Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
@@ -76,8 +76,8 @@ public class PcepObjectParserTest {
         builder.setEroCompression(false);
         builder.setPriority((short) 5);
         builder.setRequestId(new RequestId(0xdeadbeefL));
-        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs3.class,
-                new Tlvs3Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
+        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class,
+                new Tlvs1Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build()).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(rpObjectWithPstTlvBytes);
         assertEquals(builder.build(),
