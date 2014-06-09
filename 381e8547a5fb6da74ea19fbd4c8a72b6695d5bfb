@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_739ba372",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "regs.add",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_138a571b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_338d1b32",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "regs.add",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d3838f02",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AdvertizedRoutesSerializer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "2014",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f386d312",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_937d071f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "Remove from commit.",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_53777f3a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/WithdrawnRoutesSerializer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "2014",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7372c34a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/WithdrawnRoutesSerializer.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-09T14:41:24Z",
+      "side": 1,
+      "message": "foreach?",
+      "revId": "381e8547a5fb6da74ea19fbd4c8a72b6695d5bfb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
