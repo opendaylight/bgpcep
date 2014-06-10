@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_36bbc9c5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b364cbe5",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_5363ffdb",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
         "patchSetId": 18
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "body.isReadable (didn\u0027t I comment on this before here?)",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d6b13de2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_5363ffdb",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_f6b481d2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_139d77bc",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_735e4314",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 18
@@ -64,6 +118,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "Be consistent when writing to log. Use this throughout the project instead of .array()",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_96cbb552",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_735e4314",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_b6c6f947",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_33a0bbf3",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b3ab6bd5",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
         "patchSetId": 18
@@ -98,6 +188,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "spacing",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_56c52d3a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b3ab6bd5",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_76c0712a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_d37dcf6f",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_f3801348",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
         "patchSetId": 18
@@ -132,6 +258,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "spacing",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_16dfa50e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_f3801348",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_96d2d5fe",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MultiExitDiscriminatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_738c0380",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_13eb3714",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
         "patchSetId": 18
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_b6cd995f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_13eb3714",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_33ee7b23",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
         "patchSetId": 18
@@ -183,6 +363,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "Variable before check.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_56dc4d12",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_33ee7b23",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -217,6 +415,24 @@
       "writtenOn": "2014-06-09T13:49:31Z",
       "side": 1,
       "message": "Be consistent.",
+      "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_76d711ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPMessageToByteEncoder.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T10:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_53e8df0f",
       "revId": "5eb75ad603b323591bd07ba72fc37ab9d3e0910b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
