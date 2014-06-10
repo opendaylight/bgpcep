@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_b14043a6",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:03:47Z",
+      "side": 1,
+      "message": "final double bits \u003d 12;\n\t\tint bytes \u003d (int) bits / 8;\t\t// equals 1\n\t\tint ceiledBytes \u003d (int) Math.ceil(bits / 8); // equals 2, if bits would be int, it would equal 1 as well",
+      "parentUuid": "fa82b9bf_33d51b43",
+      "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_f3ced3b3",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-09T13:58:55Z",
       "side": 1,
       "message": "MessageUtil needs to be converted to use ByteBuf as well. If you won\u0027t do it in this commit, write a FIXME here so that we know that you are aware of it and plan to do it.",
+      "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9173bf14",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_f3ced3b3",
       "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_3162f33e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_93c50790",
+      "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b3c04b7d",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/IpNlriParser.java",
         "patchSetId": 7
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_115faf73",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/IpNlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b3c04b7d",
+      "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_d342af0f",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv4NlriParser.java",
         "patchSetId": 7
@@ -81,6 +153,24 @@
       "writtenOn": "2014-06-09T13:58:55Z",
       "side": 1,
       "message": "spacing",
+      "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_f1d24bd1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/Ipv4NlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:03:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_d342af0f",
       "revId": "95346bd3128b2b0c2e0bbd6b092799c3c1b2dc66",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
