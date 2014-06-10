@@ -5,20 +5,20 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.concepts;
+package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
+import io.netty.buffer.ByteBuf;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 
@@ -54,6 +54,16 @@ public final class Ipv6Util {
      */
     public static Ipv6Address addressForBytes(final byte[] bytes) {
         return new Ipv6Address(InetAddresses.toAddrString(getAddress(bytes)));
+    }
+
+    /**
+     * Reads from ByteBuf buffer and converts bytes to Ipv6Address.
+     *
+     * @param buffer containing Ipv6 address, starting at reader index
+     * @return Ipv4Address
+     */
+    public static Ipv6Address addressForByteBuf(final ByteBuf buffer) {
+        return addressForBytes(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
     /**

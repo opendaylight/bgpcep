@@ -52,11 +52,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>rsvp-api</artifactId>

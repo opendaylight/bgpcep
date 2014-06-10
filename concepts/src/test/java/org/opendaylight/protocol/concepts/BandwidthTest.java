@@ -16,7 +16,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;

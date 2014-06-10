@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
