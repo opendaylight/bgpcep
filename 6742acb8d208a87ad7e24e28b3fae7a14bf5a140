@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_b18a83bd",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_136017a4",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3363dbb2",
         "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "address",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_11a48f55",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_3363dbb2",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_f1a00b45",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_d3594fff",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_33319ba2",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 15
@@ -64,6 +118,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "spacing",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d185c7ad",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_33319ba2",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_918f3fcc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_d3270f63",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_f32a532b",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
         "patchSetId": 15
@@ -98,6 +188,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "Variable before check.",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_31be7366",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_f32a532b",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_51c1b7e2",
+        "filename": "bgp/parser-impl/src/test/java/org/opendaylight/protocol/bgp/parser/impl/BGPUpdateAttributesSerializationTest.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_9321874f",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b31ccb14",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/NlriRegistry.java",
         "patchSetId": 15
@@ -132,6 +258,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "final parameters",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_11bb2f73",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/NlriRegistry.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b31ccb14",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_d1ace737",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_531bff1a",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_731643f3",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
         "patchSetId": 15
@@ -166,6 +328,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "spacing",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_71ab9b1d",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_731643f3",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_91a65f52",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "fa82b9bf_13d5771b",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_33d8bb52",
         "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
         "patchSetId": 15
@@ -200,6 +398,24 @@
       "writtenOn": "2014-06-09T14:23:33Z",
       "side": 1,
       "message": "Again, why is this method here, if one that does exactly the same is in Ipv4Util?",
+      "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_11724fe5",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-10T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_33d8bb52",
       "revId": "6742acb8d208a87ad7e24e28b3fae7a14bf5a140",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
