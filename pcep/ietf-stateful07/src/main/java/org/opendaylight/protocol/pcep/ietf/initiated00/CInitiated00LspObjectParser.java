@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Lsp}
  */
-public final class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
+public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
 
     private static final int CREATE_FLAG_OFFSET = 8;
 
