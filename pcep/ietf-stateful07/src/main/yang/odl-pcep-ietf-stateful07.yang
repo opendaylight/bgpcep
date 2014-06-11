@@ -343,6 +343,11 @@ module odl-pcep-ietf-stateful07 {
         uses lsp-object;
     }
 
+    augment "/topo:update-lsp/topo:input/topo:arguments" {
+        ext:augment-identifier arguments-3;
+        uses lsp-object;
+    }
+
     typedef administrative-status {
         type enumeration {
             enum active;
