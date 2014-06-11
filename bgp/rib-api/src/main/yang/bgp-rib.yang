@@ -91,6 +91,15 @@ module bgp-rib {
             }
             key id;
 
+            list peers {
+                container adj-rib-in {
+                    uses rib;
+                }
+                container adj-rib-out {
+                    uses rib;
+                }
+            }
+
             container loc-rib {
                 uses rib;
             }
