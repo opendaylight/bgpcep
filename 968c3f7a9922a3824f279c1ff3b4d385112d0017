@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_82160bf0",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_31df530f",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_f1e80bb6",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-10T13:41:48Z",
       "side": 1,
       "message": "This looks like MessageUtil.formatMessage() should be changed instead...",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_022bdb30",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "That\u0027s planned in future commit.",
+      "parentUuid": "fa82b9bf_f1e80bb6",
       "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_e2def73e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_51e217d6",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_11ec8fc6",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
         "patchSetId": 20
@@ -64,6 +118,24 @@
       "writtenOn": "2014-06-10T13:41:48Z",
       "side": 1,
       "message": "looks like a candidate for else ...",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_22d5bf1b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_11ec8fc6",
       "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_42d80353",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b1d283fe",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_d1cdc75e",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
         "patchSetId": 20
@@ -98,6 +188,24 @@
       "writtenOn": "2014-06-10T13:41:48Z",
       "side": 1,
       "message": "Why are we dropping the enumeration?",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_02e2fb02",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "It\u0027s not dropped just moved to the end of file.",
+      "parentUuid": "fa82b9bf_d1cdc75e",
       "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_c2e3b303",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_71dcfb12",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_91d73fed",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
         "patchSetId": 20
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_42bfa3d0",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/NextHopAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_91d73fed",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_31067387",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
         "patchSetId": 20
@@ -149,6 +293,24 @@
       "writtenOn": "2014-06-10T13:41:48Z",
       "side": 1,
       "message": "(origin !\u003d null) {  byteAggregator ...\n\nthe single return is simply ugly",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e2b597ee",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-11T07:25:32Z",
+      "side": 1,
+      "message": "I don\u0027t agree. This just makes code readable and clear that nothing will be done if origin \u003d\u003d null. You don\u0027t need to look at the end of method if there is something more after if ( obj !\u003d null)",
+      "parentUuid": "fa82b9bf_31067387",
       "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
