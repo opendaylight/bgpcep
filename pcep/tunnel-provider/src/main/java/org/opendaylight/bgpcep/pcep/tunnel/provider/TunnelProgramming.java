@@ -24,7 +24,6 @@ import org.opendaylight.controller.sal.binding.api.data.DataModificationTransact
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepCreateP2pTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcepUpdateTunnelInput1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.classtype.object.ClassTypeBuilder;
@@ -211,7 +210,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     @Override
     public ListenableFuture<RpcResult<PcepCreateP2pTunnelOutput>> pcepCreateP2pTunnel(final PcepCreateP2pTunnelInput input) {
         final PcepCreateP2pTunnelOutputBuilder b = new PcepCreateP2pTunnelOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
@@ -240,10 +239,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 args.setEro(buildEro(input.getExplicitHops()));
                 args.setLspa(new LspaBuilder(input).build());
 
-                final PcepCreateP2pTunnelInput1 ia = input.getAugmentation(PcepCreateP2pTunnelInput1.class);
-                if (ia != null) {
-                    args.setAdministrative(ia.getAdministrativeStatus() == AdministrativeStatus.Active);
-                }
+                //FIXME: add LSP here
 
                 ab.setArguments(args.build());
 
@@ -269,7 +265,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     @Override
     public ListenableFuture<RpcResult<PcepDestroyTunnelOutput>> pcepDestroyTunnel(final PcepDestroyTunnelInput input) {
         final PcepDestroyTunnelOutputBuilder b = new PcepDestroyTunnelOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
@@ -307,7 +303,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     @Override
     public ListenableFuture<RpcResult<PcepUpdateTunnelOutput>> pcepUpdateTunnel(final PcepUpdateTunnelInput input) {
         final PcepUpdateTunnelOutputBuilder b = new PcepUpdateTunnelOutputBuilder();
-        b.setResult(AbstractInstructionExecutor.schedule(scheduler, new AbstractInstructionExecutor(input) {
+        b.setResult(AbstractInstructionExecutor.schedule(this.scheduler, new AbstractInstructionExecutor(input) {
             @Override
             protected ListenableFuture<OperationResult> invokeOperation() {
 
