@@ -152,10 +152,6 @@ module network-topology-pcep {
         uses lsp-id;
 
         container arguments {
-            leaf administrative {
-                type boolean;
-                default true;
-            }
 
             uses pcep:endpoints-object;
 
@@ -193,10 +189,6 @@ module network-topology-pcep {
         uses lsp-id;
 
         container arguments {
-            leaf administrative {
-                type boolean;
-                default true;
-            }
 
             uses pcep:path-definition;
 
