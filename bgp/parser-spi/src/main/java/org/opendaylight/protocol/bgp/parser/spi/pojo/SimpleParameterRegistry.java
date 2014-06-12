@@ -42,12 +42,11 @@ final class SimpleParameterRegistry implements ParameterRegistry {
         return parser.parseParameter(buffer);
     }
 
-    @Override
-    public byte[] serializeParameter(final BgpParameters parameter) {
+    public void serializeParameter(final BgpParameters parameter, ByteBuf bytes) {
         final ParameterSerializer serializer = this.handlers.getSerializer(parameter.getImplementedInterface());
         if (serializer == null) {
-            return null;
+            return;
         }
-        return serializer.serializeParameter(parameter);
+        serializer.serializeParameter(parameter,bytes);
     }
 }
