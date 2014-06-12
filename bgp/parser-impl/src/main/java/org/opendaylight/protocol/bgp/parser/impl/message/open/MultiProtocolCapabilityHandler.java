@@ -12,6 +12,7 @@ import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
 
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -56,7 +57,7 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
     }
 
     @Override
-    public byte[] serializeCapability(final CParameters capability) {
+    public void serializeCapability(final CParameters capability, ByteBuf byteAggregator) {
         final MultiprotocolCase mp = (MultiprotocolCase) capability;
 
         final Class<? extends AddressFamily> afi = mp.getMultiprotocolCapability().getAfi();
@@ -67,7 +68,7 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
         final Integer safival = this.safiReg.numberForClass(safi);
         Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
 
-        return CapabilityUtil.formatCapability(CODE, new byte[] { UnsignedBytes.checkedCast(afival / 256),
-            UnsignedBytes.checkedCast(afival % 256), 0, UnsignedBytes.checkedCast(safival) });
+        byteAggregator.writeBytes(CapabilityUtil.formatCapability(CODE, Unpooled.copiedBuffer(new byte[] { UnsignedBytes.checkedCast(afival / 256),
+            UnsignedBytes.checkedCast(afival % 256), 0, UnsignedBytes.checkedCast(safival) })));
     }
 }

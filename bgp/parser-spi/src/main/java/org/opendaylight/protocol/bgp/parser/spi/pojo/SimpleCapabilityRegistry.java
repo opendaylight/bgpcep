@@ -43,12 +43,12 @@ final class SimpleCapabilityRegistry implements CapabilityRegistry {
     }
 
     @Override
-    public byte[] serializeCapability(final CParameters capability) {
+    public void serializeCapability(final CParameters capability, ByteBuf bytes) {
         final CapabilitySerializer serializer = this.handlers.getSerializer(capability.getImplementedInterface());
         if (serializer == null) {
-            return null;
+            return;
         }
 
-        return serializer.serializeCapability(capability);
+        serializer.serializeCapability(capability, bytes);
     }
 }

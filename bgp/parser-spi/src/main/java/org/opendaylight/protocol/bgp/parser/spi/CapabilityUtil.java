@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.primitives.UnsignedBytes;
-
-import org.opendaylight.protocol.util.ByteArray;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public final class CapabilityUtil {
 
@@ -19,11 +19,11 @@ public final class CapabilityUtil {
 
     }
 
-    public static byte[] formatCapability(final int code, final byte[] value) {
-        final byte[] ret = new byte[HEADER_SIZE + value.length];
-        ret[0] = UnsignedBytes.checkedCast(code);
-        ret[1] = UnsignedBytes.checkedCast(value.length);
-        ByteArray.copyWhole(value, ret, HEADER_SIZE);
+    public static ByteBuf formatCapability(final int code, final ByteBuf value) {
+        final ByteBuf ret = Unpooled.buffer(HEADER_SIZE + value.writerIndex());
+        ret.writeByte(UnsignedBytes.checkedCast(code));
+        ret.writeByte(UnsignedBytes.checkedCast(value.writerIndex()));
+        ret.writeBytes(value);
         return ret;
     }
 }
