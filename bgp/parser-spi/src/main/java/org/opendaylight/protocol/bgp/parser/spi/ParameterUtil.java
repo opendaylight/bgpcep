@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.primitives.UnsignedBytes;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 public final class ParameterUtil {
 
@@ -17,11 +19,11 @@ public final class ParameterUtil {
 
     }
 
-    public static byte[] formatParameter(final int type, final byte[] value) {
-        final byte[] bytes = new byte[HEADER_SIZE + value.length];
-        bytes[0] = UnsignedBytes.checkedCast(type);
-        bytes[1] = UnsignedBytes.checkedCast(value.length);
-        System.arraycopy(value, 0, bytes, HEADER_SIZE, value.length);
+    public static ByteBuf formatParameter(final int type, final ByteBuf value) {
+        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + value.writerIndex());
+        bytes.writeByte(UnsignedBytes.checkedCast(type));
+        bytes.writeByte(UnsignedBytes.checkedCast(value.writerIndex()));
+        bytes.writeBytes(value);
         return bytes;
     }
 }

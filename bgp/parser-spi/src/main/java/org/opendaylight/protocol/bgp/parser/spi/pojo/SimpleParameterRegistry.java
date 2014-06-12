@@ -47,6 +47,6 @@ final class SimpleParameterRegistry implements ParameterRegistry {
         if (serializer == null) {
             return;
         }
-        bytes.writeBytes(serializer.serializeParameter(parameter));
+        serializer.serializeParameter(parameter,bytes);
     }
 }

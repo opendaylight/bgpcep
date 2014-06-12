@@ -16,5 +16,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public interface CapabilityRegistry {
     CParameters parseCapability(int type, ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
 
-    byte[] serializeCapability(CParameters capability);
+    void serializeCapability(CParameters capability, ByteBuf bytes);
 }
