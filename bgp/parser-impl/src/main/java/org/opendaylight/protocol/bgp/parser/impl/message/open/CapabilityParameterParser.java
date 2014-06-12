@@ -63,7 +63,8 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
         LOG.trace("Started serializing BGP Capability: {}", cap);
 
-        ByteBuf bytes = Unpooled.wrappedBuffer(this.reg.serializeCapability(cap));
+        ByteBuf bytes = Unpooled.buffer();
+        this.reg.serializeCapability(cap,bytes);
         if (bytes == null) {
             throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
         }
