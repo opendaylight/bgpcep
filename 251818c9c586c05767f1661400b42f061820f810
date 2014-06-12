@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_c75982ff",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/Stateful07TopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-06-12T08:53:19Z",
+      "side": 1,
+      "message": "VsTlv should be also added in updateLsp method.",
+      "revId": "251818c9c586c05767f1661400b42f061820f810",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
