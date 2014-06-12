@@ -8,11 +8,8 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -31,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlv;
 
 /**
  * Parser for {@link Lsp}
@@ -94,6 +92,8 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
         } else if (tlv instanceof SymbolicPathName) {
             builder.setSymbolicPathName((SymbolicPathName) tlv);
+        } else if (tlv instanceof VsTlv) {
+            builder.setVsTlv((VsTlv) tlv);
         }
     }
 
@@ -141,6 +141,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         byte[] lspIdBytes = null;
         byte[] rsvpErrBytes = null;
         byte[] symbBytes = null;
+        byte[] vsTlvBytes = null;
         if (tlvs.getLspErrorCode() != null) {
             lspErrBytes = serializeTlv(tlvs.getLspErrorCode());
             finalLength += lspErrBytes.length;
@@ -156,6 +157,10 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         if (tlvs.getSymbolicPathName() != null) {
             symbBytes = serializeTlv(tlvs.getSymbolicPathName());
             finalLength += symbBytes.length;
+        }
+        if (tlvs.getVsTlv() != null) {
+            vsTlvBytes = serializeTlv(tlvs.getVsTlv());
+            finalLength += vsTlvBytes.length;
         }
         int offset = 0;
         final byte[] result = new byte[finalLength];
@@ -174,6 +179,10 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         if (symbBytes != null) {
             ByteArray.copyWhole(symbBytes, result, offset);
             offset += symbBytes.length;
+        }
+        if (vsTlvBytes != null) {
+            ByteArray.copyWhole(vsTlvBytes, result, offset);
+            offset += vsTlvBytes.length;
         }
         return result;
     }

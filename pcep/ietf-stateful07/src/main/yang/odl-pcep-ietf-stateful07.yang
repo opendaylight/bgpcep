@@ -192,6 +192,8 @@ module odl-pcep-ietf-stateful07 {
                 uses rsvp-error-spec-tlv;
 
                 uses symbolic-path-name-tlv;
+
+                uses pcep:vs-tlv;
             }
 
             leaf plsp-id {

@@ -219,11 +219,17 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         Preconditions.checkState(inputLsp != null, "Reported LSP does not contain LSP object.");
 
         rb.fieldsFrom(input.getArguments());
+
+        TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        tlvsBuilder.setSymbolicPathName(
+                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
+        if (inputLsp.getTlvs() != null) {
+            tlvsBuilder.setVsTlv(inputLsp.getTlvs().getVsTlv());
+        }
+
         rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
         rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
-                new PlspId(0L)).setTlvs(
-                        new TlvsBuilder().setSymbolicPathName(
-                                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build()).build()).build());
+                new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
 
         final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
         ib.setRequests(ImmutableList.of(rb.build()));
