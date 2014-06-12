@@ -153,7 +153,7 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         }
 
         LOG.trace("Update message serialized to {}", ByteBufUtil.hexDump(messageBody));
-        //FIXME: switch to ByteBuf
-        bytes.writeBytes(MessageUtil.formatMessage(TYPE, ByteArray.getAllBytes(messageBody)));
+
+        MessageUtil.formatMessage(TYPE,messageBody,bytes);
     }
 }
