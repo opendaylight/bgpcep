@@ -22,7 +22,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
     public static final int TYPE = 4;
-    private static final ByteBuf bytes = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, new byte[0]));
+    private static final ByteBuf bytes = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, Unpooled.buffer(0)));
     private static final Keepalive msg = new KeepaliveBuilder().build();
 
     @Override
