@@ -9,15 +9,12 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -41,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * Parser for BGP Open message.
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
-
     public static final int TYPE = 1;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenMessageParser.class);
@@ -78,17 +74,10 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         LOG.trace("Started serializing open message: {}", msg);
         final Open open = (Open) msg;
 
-        final Map<byte[], Integer> optParams = Maps.newHashMap();
-
-        int optParamsLength = 0;
-
+        final ByteBuf paramsBuffer = Unpooled.buffer();
         if (open.getBgpParameters() != null) {
             for (final BgpParameters param : open.getBgpParameters()) {
-                final byte[] p = this.reg.serializeParameter(param);
-                if (p != null) {
-                    optParams.put(p, p.length);
-                    optParamsLength += p.length;
-                }
+                this.reg.serializeParameter(param, paramsBuffer);
             }
         }
         final ByteBuf msgBody = Unpooled.buffer();
@@ -104,14 +93,9 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeShort(open.getHoldTimer());
         msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
-        msgBody.writeByte(optParamsLength);
+        msgBody.writeByte(paramsBuffer.writerIndex());
+        msgBody.writeBytes(paramsBuffer);
 
-        if (optParams != null) {
-            for (final Entry<byte[], Integer> entry : optParams.entrySet()) {
-                // FIXME: to be switched to ByteBuf later
-                msgBody.writeBytes(entry.getKey());
-            }
-        }
         MessageUtil.formatMessage(TYPE, msgBody, bytes);
         LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(bytes));
     }
