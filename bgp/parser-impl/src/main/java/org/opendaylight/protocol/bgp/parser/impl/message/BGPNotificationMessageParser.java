@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -49,14 +50,15 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
         final Notify ntf = (Notify) msg;
         LOG.trace("Started serializing Notification message: {}", ntf);
 
-        final byte[] msgBody = (ntf.getData() == null) ? new byte[ERROR_SIZE] : new byte[ERROR_SIZE + ntf.getData().length];
+        final int size = ntf.getData() == null ? ERROR_SIZE : ERROR_SIZE + ntf.getData().length;
+        final ByteBuf msgBody = Unpooled.buffer(size);
 
-        msgBody[0] = UnsignedBytes.checkedCast(ntf.getErrorCode());
+        msgBody.writeByte(UnsignedBytes.checkedCast(ntf.getErrorCode()));
 
-        msgBody[1] = UnsignedBytes.checkedCast(ntf.getErrorSubcode());
+        msgBody.writeByte(UnsignedBytes.checkedCast(ntf.getErrorSubcode()));
 
         if (ntf.getData() != null) {
-            System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
+            msgBody.writeBytes(ntf.getData());
         }
 
         bytes.writeBytes(MessageUtil.formatMessage(TYPE, msgBody));
