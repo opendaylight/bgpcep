@@ -9,12 +9,10 @@ package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -66,11 +64,11 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     }
 
     @Override
-    public byte[] serializeCapability(final CParameters capability) {
+    public void serializeCapability(final CParameters capability, ByteBuf byteAggregator) {
         final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
         final List<Tables> tables = grace.getTables();
 
-        final byte[] bytes = new byte[HEADER_SIZE + PER_AFI_SAFI_SIZE * tables.size()];
+        final ByteBuf bytes = Unpooled.buffer(HEADER_SIZE + PER_AFI_SAFI_SIZE * tables.size());
 
         int flagBits = 0;
         final RestartFlags flags = grace.getRestartFlags();
@@ -85,10 +83,9 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             Preconditions.checkArgument(time >= 0 && time <= 4095);
             timeval = time;
         }
-        bytes[0] = UnsignedBytes.checkedCast(flagBits + timeval / 256);
-        bytes[1] = UnsignedBytes.checkedCast(timeval % 256);
+        bytes.writeByte(flagBits + timeval / 256);
+        bytes.writeByte(timeval % 256);
 
-        int index = HEADER_SIZE;
         for (final Tables t : tables) {
             final Class<? extends AddressFamily> afi = t.getAfi();
             final Integer afival = this.afiReg.numberForClass(afi);
@@ -98,15 +95,14 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             final Integer safival = this.safiReg.numberForClass(safi);
             Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
 
-            bytes[index] = UnsignedBytes.checkedCast(afival / 256);
-            bytes[index + 1] = UnsignedBytes.checkedCast(afival % 256);
-            bytes[index + 2] = UnsignedBytes.checkedCast(safival);
+            bytes.writeByte(afival / 256);
+            bytes.writeByte(afival % 256);
+            bytes.writeByte(safival);
             if (t.getAfiFlags().isForwardingState()) {
-                bytes[index + 3] = UnsignedBytes.checkedCast(AFI_FLAG_FORWARDING_STATE);
+                bytes.writeByte(AFI_FLAG_FORWARDING_STATE);
             }
-            index += PER_AFI_SAFI_SIZE;
         }
-        return CapabilityUtil.formatCapability(CODE, bytes);
+        CapabilityUtil.formatCapability(CODE, bytes,byteAggregator);
     }
 
     @Override

@@ -8,13 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilitySerializer;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
@@ -33,11 +32,11 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
     }
 
     @Override
-    public byte[] serializeCapability(final CParameters capability) {
-        return CapabilityUtil.formatCapability(CODE, putAS4BytesParameterValue((As4BytesCase) capability));
+    public void serializeCapability(final CParameters capability, ByteBuf bytes) {
+        CapabilityUtil.formatCapability(CODE, putAS4BytesParameterValue((As4BytesCase) capability),bytes);
     }
 
-    private static byte[] putAS4BytesParameterValue(final As4BytesCase param) {
-        return ByteArray.longToBytes(param.getAs4BytesCapability().getAsNumber().getValue(), AS4_LENGTH);
+    private static ByteBuf putAS4BytesParameterValue(final As4BytesCase param) {
+        return Unpooled.copyInt(param.getAs4BytesCapability().getAsNumber().getValue().intValue());
     }
 }

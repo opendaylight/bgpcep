@@ -7,9 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import com.google.common.primitives.UnsignedBytes;
-
-import org.opendaylight.protocol.util.ByteArray;
+import io.netty.buffer.ByteBuf;
 
 public final class CapabilityUtil {
 
@@ -19,11 +17,9 @@ public final class CapabilityUtil {
 
     }
 
-    public static byte[] formatCapability(final int code, final byte[] value) {
-        final byte[] ret = new byte[HEADER_SIZE + value.length];
-        ret[0] = UnsignedBytes.checkedCast(code);
-        ret[1] = UnsignedBytes.checkedCast(value.length);
-        ByteArray.copyWhole(value, ret, HEADER_SIZE);
-        return ret;
+    public static void formatCapability(final int code, final ByteBuf value, final ByteBuf byteAggregator) {
+        byteAggregator.writeByte(code);
+        byteAggregator.writeByte(value.writerIndex());
+        byteAggregator.writeBytes(value);
     }
 }
