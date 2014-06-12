@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.spi;
 
 import com.google.common.primitives.UnsignedBytes;
-
+import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
-
-import org.opendaylight.protocol.util.ByteArray;
 
 public final class MessageUtil {
 
@@ -19,9 +17,13 @@ public final class MessageUtil {
     public static final int MARKER_LENGTH = 16;
     public static final int TYPE_FIELD_LENGTH = 1;
     public static final int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
+    private static final byte[] markerBytes = new byte[MARKER_LENGTH];
+
+    static {
+        Arrays.fill(markerBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
+    }
 
     private MessageUtil() {
-
     }
 
     /**
@@ -32,16 +34,10 @@ public final class MessageUtil {
      *
      * @return byte array representation of this header
      */
-    public static byte[] formatMessage(final int type, final byte[] body) {
-        final byte[] retBytes = new byte[COMMON_HEADER_LENGTH + body.length];
-
-        Arrays.fill(retBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
-        System.arraycopy(ByteArray.intToBytes(body.length + COMMON_HEADER_LENGTH, LENGTH_FIELD_LENGTH), 0, retBytes, MARKER_LENGTH,
-                LENGTH_FIELD_LENGTH);
-
-        retBytes[MARKER_LENGTH + LENGTH_FIELD_LENGTH] = UnsignedBytes.checkedCast(type);
-        ByteArray.copyWhole(body, retBytes, COMMON_HEADER_LENGTH);
-
-        return retBytes;
+    public static void formatMessage(final int type, final ByteBuf body, final ByteBuf buffer) {
+        buffer.writeBytes(markerBytes);
+        buffer.writeShort(body.writerIndex() + COMMON_HEADER_LENGTH);
+        buffer.writeByte(type);
+        buffer.writeBytes(body);
     }
 }

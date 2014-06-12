@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -90,37 +91,28 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 }
             }
         }
-        final byte[] msgBody = new byte[MIN_MSG_LENGTH + optParamsLength];
+        final ByteBuf msgBody = Unpooled.buffer();
 
-        int offset = 0;
-
-        msgBody[offset] = UnsignedBytes.checkedCast(BGP_VERSION);
-        offset += VERSION_SIZE;
+        msgBody.writeByte(BGP_VERSION);
 
         // When our AS number does not fit into two bytes, we report it as AS_TRANS
         int openAS = open.getMyAsNumber();
         if (openAS > Values.UNSIGNED_SHORT_MAX_VALUE) {
             openAS = AS_TRANS;
         }
-        System.arraycopy(ByteArray.longToBytes(openAS, AS_SIZE), 0, msgBody, offset, AS_SIZE);
-        offset += AS_SIZE;
+        msgBody.writeShort(openAS);
+        msgBody.writeShort(open.getHoldTimer());
+        msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
-        System.arraycopy(ByteArray.intToBytes(open.getHoldTimer(), HOLD_TIME_SIZE), 0, msgBody, offset, HOLD_TIME_SIZE);
-        offset += HOLD_TIME_SIZE;
+        msgBody.writeByte(optParamsLength);
 
-        System.arraycopy(Ipv4Util.bytesForAddress(open.getBgpIdentifier()), 0, msgBody, offset, BGP_ID_SIZE);
-        offset += BGP_ID_SIZE;
-
-        msgBody[offset] = UnsignedBytes.checkedCast(optParamsLength);
-
-        int index = MIN_MSG_LENGTH;
         if (optParams != null) {
             for (final Entry<byte[], Integer> entry : optParams.entrySet()) {
-                System.arraycopy(entry.getKey(), 0, msgBody, index, entry.getValue());
-                index += entry.getValue();
+                // FIXME: to be switched to ByteBuf later
+                msgBody.writeBytes(entry.getKey());
             }
         }
-        bytes.writeBytes(MessageUtil.formatMessage(TYPE, msgBody));
+        MessageUtil.formatMessage(TYPE, msgBody, bytes);
         LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(bytes));
     }
 
