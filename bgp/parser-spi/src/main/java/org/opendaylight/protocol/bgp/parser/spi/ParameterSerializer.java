@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 
 public interface ParameterSerializer {
-    byte[] serializeParameter(BgpParameters parameter);
+    void serializeParameter(BgpParameters parameter, ByteBuf byteAggregator);
 }
