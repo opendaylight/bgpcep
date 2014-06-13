@@ -54,11 +54,11 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         this.registry = Preconditions.checkNotNull(registry);
     }
 
-    protected byte[] serializeObject(final Object object) {
+    protected void serializeObject(final Object object, final ByteBuf buffer) {
         if (object == null) {
-            return new byte[] {};
+            return;
         }
-        return this.registry.serializeObject(object);
+        this.registry.serializeObject(object, buffer);
     }
 
     private List<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {
@@ -112,9 +112,9 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
                 new PcerrMessageBuilder().setErrorType(
                         new RequestCaseBuilder().setRequest(
                                 new RequestBuilder().setRps(Lists.newArrayList(new RpsBuilder().setRp(rp).build())).build()).build()).setErrors(
-                        Arrays.asList(new ErrorsBuilder().setErrorObject(
-                                new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
-                                        maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
+                                        Arrays.asList(new ErrorsBuilder().setErrorObject(
+                                                new ErrorObjectBuilder().setType(maping.getFromErrorsEnum(e).getType()).setValue(
+                                                        maping.getFromErrorsEnum(e).getValue()).build()).build())).build()).build();
     }
 
     protected abstract Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException;

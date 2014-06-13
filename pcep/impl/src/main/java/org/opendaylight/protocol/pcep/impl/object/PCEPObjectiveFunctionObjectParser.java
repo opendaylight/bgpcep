@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
@@ -30,16 +30,8 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
     public static final int CLASS = 21;
 
     public static final int TYPE = 1;
-    /*
-     * lengths of fields
-     */
-    private static final int OF_CODE_F_LENGTH = 2;
 
-    /*
-     * offsets of fields
-     */
-    private static final int OF_CODE_F_OFFSET = 0;
-    private static final int TLVS_OFFSET = OF_CODE_F_OFFSET + OF_CODE_F_LENGTH + 2;
+    private static final int RESERVED = 2;
 
     public PCEPObjectiveFunctionObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -56,14 +48,12 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Of)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-                    + ". Needed PCEPObjectiveFunction.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Of, "Wrong instance of PCEPObject. Passed %s. Needed OfObject.", object.getClass());
         final Of specObj = (Of) object;
-        final byte[] retBytes = new byte[TLVS_OFFSET + 0];
-        ByteArray.copyWhole(ByteArray.shortToBytes(specObj.getCode().getValue().shortValue()), retBytes, OF_CODE_F_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        final ByteBuf body = Unpooled.buffer();
+        body.writeShort(specObj.getCode().getValue().shortValue());
+        body.writeZero(RESERVED);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -43,26 +44,9 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     public static final int TYPE = 1;
 
     /*
-     * lengths of fields in bytes
-     */
-    private static final int VER_FLAGS_MF_LENGTH = 1;
-    private static final int KEEPALIVE_F_LENGTH = 1;
-    private static final int DEAD_TIMER_LENGTH = 1;
-    private static final int SID_F_LENGTH = 1;
-
-    /*
      * lengths of subfields inside multi-field in bits
      */
     private static final int VERSION_SF_LENGTH = 3;
-
-    /*
-     * offsets of field in bytes
-     */
-    private static final int VER_FLAGS_MF_OFFSET = 0;
-    private static final int KEEPALIVE_F_OFFSET = VER_FLAGS_MF_OFFSET + VER_FLAGS_MF_LENGTH;
-    private static final int DEAD_TIMER_OFFSET = KEEPALIVE_F_OFFSET + KEEPALIVE_F_LENGTH;
-    private static final int SID_F_OFFSET = DEAD_TIMER_OFFSET + DEAD_TIMER_LENGTH;
-    private static final int TLVS_OFFSET = SID_F_OFFSET + SID_F_LENGTH;
 
     /*
      * offsets of subfields inside multi-field in bits
@@ -110,26 +94,17 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Open)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Open, "Wrong instance of PCEPObject. Passed %s. Needed OpenObject.", object.getClass());
         final Open open = (Open) object;
-
-        final byte versionFlagMF = (byte) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
-
-        final byte[] tlvs = serializeTlvs(open.getTlvs());
-
-        final byte[] bytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-
-        bytes[VER_FLAGS_MF_OFFSET] = versionFlagMF;
-        bytes[KEEPALIVE_F_OFFSET] = UnsignedBytes.checkedCast(open.getKeepalive());
-        bytes[DEAD_TIMER_OFFSET] = UnsignedBytes.checkedCast(open.getDeadTimer());
-        bytes[SID_F_OFFSET] = UnsignedBytes.checkedCast(open.getSessionId());
-        if (tlvs.length != 0) {
-            ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
-        }
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes);
+        final ByteBuf body = Unpooled.buffer();
+        body.writeByte(PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
+        body.writeByte(open.getKeepalive());
+        body.writeByte(open.getDeadTimer());
+        body.writeByte(open.getSessionId());
+        //FIXME: switch to ByteBuf
+        body.writeBytes(serializeTlvs(open.getTlvs()));
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

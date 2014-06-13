@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,19 +57,20 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof PathKey)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PathKeyObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof PathKey, "Wrong instance of PCEPObject. Passed %s. Needed PathKeyObject.", object.getClass());
         final PathKey pkey = (PathKey) object;
+        final ByteBuf body = Unpooled.buffer();
         final List<PathKeys> pk = pkey.getPathKeys();
-        final List<Subobject> subs = Lists.newArrayList();
+        final List<Subobject> subs = new ArrayList<>();
         for (final PathKeys p : pk) {
             subs.add(new SubobjectBuilder().setLoose(p.isLoose()).setSubobjectType(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.PathKeyCaseBuilder().setPathKey(
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
                                     p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
         }
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));
+        // FIXME: switch to ByteBuf
+        body.writeBytes(serializeSubobject(subs));
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

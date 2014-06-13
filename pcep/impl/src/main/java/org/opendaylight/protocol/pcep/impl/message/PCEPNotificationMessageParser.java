@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
@@ -44,24 +45,21 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof PcntfMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-                    + ". Needed PcntfMessage.");
-        }
+        Preconditions.checkArgument(message instanceof PcntfMessage, "Wrong instance of Message. Passed instance of %s. Need PcntfMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.PcntfMessage msg = ((PcntfMessage) message).getPcntfMessage();
 
         ByteBuf buffer = Unpooled.buffer();
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications n : msg.getNotifications()) {
             if (n.getRps() != null && !n.getRps().isEmpty()) {
                 for (final Rps rps : n.getRps()) {
-                    buffer.writeBytes(serializeObject(rps.getRp()));
+                    serializeObject(rps.getRp(), buffer);
                 }
             }
             if (n.getNotifications() == null || n.getNotifications().isEmpty()) {
                 throw new IllegalArgumentException("Message must contain at least one notification object");
             } else {
                 for (final Notifications not : n.getNotifications()) {
-                    buffer.writeBytes(serializeObject(not.getCNotification()));
+                    serializeObject(not.getCNotification(), buffer);
                 }
             }
         }

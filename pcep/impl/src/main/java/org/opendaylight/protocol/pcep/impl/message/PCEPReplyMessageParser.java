@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
@@ -58,10 +59,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof Pcrep)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-                    + ". Nedded PcrepMessage.");
-        }
+        Preconditions.checkArgument(message instanceof Pcrep, "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
         if (repMsg.getReplies() == null || repMsg.getReplies().isEmpty()) {
             throw new IllegalArgumentException("Replies cannot be null or empty.");
@@ -71,45 +69,45 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             if (reply.getRp() == null) {
                 throw new IllegalArgumentException("Reply must contain RP object.");
             }
-            buffer.writeBytes(serializeObject(reply.getRp()));
+            serializeObject(reply.getRp(), buffer);
             if (reply.getResult() != null) {
                 if (reply.getResult() instanceof FailureCase) {
                     final FailureCase f = ((FailureCase) reply.getResult());
-                    buffer.writeBytes(serializeObject(f.getNoPath()));
+                    serializeObject(f.getNoPath(), buffer);
                     if (f.getLspa() != null) {
-                        buffer.writeBytes(serializeObject(f.getLspa()));
+                        serializeObject(f.getLspa(), buffer);
                     }
                     if (f.getBandwidth() != null) {
-                        buffer.writeBytes(serializeObject(f.getBandwidth()));
+                        serializeObject(f.getBandwidth(), buffer);
                     }
                     if (f.getMetrics() != null && !f.getMetrics().isEmpty()) {
                         for (final Metrics m : f.getMetrics()) {
-                            buffer.writeBytes(serializeObject(m.getMetric()));
+                            serializeObject(m.getMetric(), buffer);
                         }
                     }
                     if (f.getIro() != null) {
-                        buffer.writeBytes(serializeObject(f.getIro()));
+                        serializeObject(f.getIro(), buffer);
                     }
                 } else {
                     final SuccessCase s = (SuccessCase) reply.getResult();
                     for (final Paths p : s.getSuccess().getPaths()) {
-                        buffer.writeBytes(serializeObject(p.getEro()));
+                        serializeObject(p.getEro(), buffer);
                         if (p.getLspa() != null) {
-                            buffer.writeBytes(serializeObject(p.getLspa()));
+                            serializeObject(p.getLspa(), buffer);
                         }
                         if (p.getOf() != null) {
-                            buffer.writeBytes(serializeObject(p.getOf()));
+                            serializeObject(p.getOf(), buffer);
                         }
                         if (p.getBandwidth() != null) {
-                            buffer.writeBytes(serializeObject(p.getBandwidth()));
+                            serializeObject(p.getBandwidth(), buffer);
                         }
                         if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                             for (final Metrics m : p.getMetrics()) {
-                                buffer.writeBytes(serializeObject(m.getMetric()));
+                                serializeObject(m.getMetric(), buffer);
                             }
                         }
                         if (p.getIro() != null) {
-                            buffer.writeBytes(serializeObject(p.getIro()));
+                            serializeObject(p.getIro(), buffer);
                         }
                     }
                 }

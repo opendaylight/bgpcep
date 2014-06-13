@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
@@ -50,31 +51,28 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof Pcupd)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPMessage. Passed instance of " + message.getClass()
-                    + ". Nedded PcupdMessage.");
-        }
+        Preconditions.checkArgument(message instanceof Pcupd, "Wrong instance of Message. Passed instance of %s. Need Pcupd.", message.getClass());
         final Pcupd msg = (Pcupd) message;
         final List<Updates> updates = msg.getPcupdMessage().getUpdates();
         ByteBuf buffer = Unpooled.buffer();
         for (final Updates update : updates) {
-            buffer.writeBytes(serializeObject(update.getLsp()));
+            serializeObject(update.getLsp(), buffer);
             final Path p = update.getPath();
             if (p != null) {
-                buffer.writeBytes(serializeObject(p.getEro()));
+                serializeObject(p.getEro(), buffer);
                 if (p.getLspa() != null) {
-                    buffer.writeBytes(serializeObject(p.getLspa()));
+                    serializeObject(p.getLspa(), buffer);
                 }
                 if (p.getBandwidth() != null) {
-                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                    serializeObject(p.getBandwidth(), buffer);
                 }
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
                 if (p.getIro() != null) {
-                    buffer.writeBytes(serializeObject(p.getIro()));
+                    serializeObject(p.getIro(), buffer);
                 }
             }
         }

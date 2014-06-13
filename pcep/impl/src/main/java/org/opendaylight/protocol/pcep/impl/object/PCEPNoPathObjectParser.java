@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -40,17 +41,8 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
     /*
      * lengths of fields in bytes
      */
-    private static final int NI_F_LENGTH = 1;
     private static final int FLAGS_F_LENGTH = 2;
     private static final int RESERVED_F_LENGTH = 1;
-
-    /*
-     * offsets of field in bytes
-     */
-    private static final int NI_F_OFFSET = 0;
-    private static final int FLAGS_F_OFFSET = NI_F_OFFSET + NI_F_LENGTH;
-    private static final int RESERVED_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-    private static final int TLVS_OFFSET = RESERVED_F_OFFSET + RESERVED_F_LENGTH;
 
     /*
      * defined flags
@@ -72,7 +64,7 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
         final byte[] flagsByte = ByteArray.readBytes(bytes, FLAGS_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
-        bytes.readerIndex(TLVS_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + RESERVED_F_LENGTH);
         parseTlvs(builder, bytes.slice());
         return builder.build();
     }
@@ -85,23 +77,23 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof NoPath)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NoPathObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof NoPath, "Wrong instance of PCEPObject. Passed %s. Needed NoPathObject.", object.getClass());
         final NoPath nPObj = (NoPath) object;
-
-        final byte[] tlvs = serializeTlvs(nPObj.getTlvs());
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-        if (tlvs != null) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
+        final ByteBuf body = Unpooled.buffer();
+        body.writeByte(nPObj.getNatureOfIssue());
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
-        retBytes[NI_F_OFFSET] = UnsignedBytes.checkedCast(nPObj.getNatureOfIssue());
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        if (nPObj.isUnsatisfiedConstraints() != null) {
+            flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        body.writeZero(RESERVED_F_LENGTH);
+        // FIXME: switch to ByteBuf
+        final byte[] tlvs = serializeTlvs(nPObj.getTlvs());
+        if (tlvs != null) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

@@ -7,9 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 
 public interface ObjectSerializer {
 
-    byte[] serializeObject(Object object);
+    /**
+     * Serializes given object to bytes wrapped in given ByteBuf.
+     * @param message PCEP object to be serialized
+     * @param buffer ByteBuf wrapper around serialized object
+     */
+    void serializeObject(final Object object, final ByteBuf buffer);
 }

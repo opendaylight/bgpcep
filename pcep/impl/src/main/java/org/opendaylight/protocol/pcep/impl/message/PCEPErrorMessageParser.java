@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -51,10 +53,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof PcerrMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass()
-                    + ". Nedded ErrorMessage.");
-        }
+        Preconditions.checkArgument(message instanceof PcerrMessage, "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
 
         if (err.getErrors() == null || err.getErrors().isEmpty()) {
@@ -64,15 +63,15 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
-                buffer.writeBytes(serializeObject(r.getRp()));
+                serializeObject(r.getRp(), buffer);
             }
         }
         for (final Errors e : err.getErrors()) {
-            buffer.writeBytes(serializeObject(e.getErrorObject()));
+            serializeObject(e.getErrorObject(), buffer);
         }
 
         if (err.getErrorType() instanceof SessionCase) {
-            buffer.writeBytes(serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen()));
+            serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen(), buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
     }

@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 import java.util.List;
@@ -39,13 +40,11 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
      * field lengths in bytes
      */
     private static final int FLAGS_F_LENGTH = 3;
-    private static final int REQ_LIST_ITEM_LENGTH = 4;
 
     /*
      * fields offsets in bytes
      */
     private static final int FLAGS_F_OFFSET = 1;
-    private static final int REQ_ID_LIST_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
 
     /*
      * flags offsets inside flags field in bits
@@ -93,26 +92,28 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Svec)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SvecObject.");
-        }
-
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Svec, "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.", object.getClass());
         final Svec svecObj = (Svec) object;
-        final byte[] retBytes = new byte[svecObj.getRequestsIds().size() * REQ_LIST_ITEM_LENGTH + REQ_ID_LIST_OFFSET];
-        final List<RequestId> requestIDs = svecObj.getRequestsIds();
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(FLAGS_F_OFFSET);
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
-        flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
-        flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
-
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-
-        for (int i = 0; i < requestIDs.size(); i++) {
-            System.arraycopy(ByteArray.longToBytes(requestIDs.get(i).getValue(), REQ_LIST_ITEM_LENGTH), 0, retBytes, REQ_LIST_ITEM_LENGTH
-                    * i + REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
+        if (svecObj.isLinkDiverse() != null) {
+            flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
         }
+        if (svecObj.isNodeDiverse() != null) {
+            flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
+        }
+        if (svecObj.isSrlgDiverse() != null) {
+            flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+
+        final List<RequestId> requestIDs = svecObj.getRequestsIds();
         assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        for (int i = 0; i < requestIDs.size(); i++) {
+            body.writeInt(requestIDs.get(i).getValue().intValue());
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

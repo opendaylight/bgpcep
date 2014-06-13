@@ -67,23 +67,20 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
-                buffer.writeBytes(serializeObject(r.getRp()));
+                serializeObject(r.getRp(), buffer);
             }
         }
-
         if (err.getErrorType() instanceof StatefulCase) {
             final List<Srps> srps = ((StatefulCase) err.getErrorType()).getStateful().getSrps();
             for (final Srps s : srps) {
-                buffer.writeBytes(serializeObject(s.getSrp()));
+                serializeObject(s.getSrp(), buffer);
             }
         }
-
         for (final Errors e : err.getErrors()) {
-            buffer.writeBytes(serializeObject(e.getErrorObject()));
+            serializeObject(e.getErrorObject(), buffer);
         }
-
         if (err.getErrorType() instanceof SessionCase) {
-            buffer.writeBytes(serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen()));
+            serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen(), buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
