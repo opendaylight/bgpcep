@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -30,11 +32,12 @@ public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Bandwidth)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
         }
         final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

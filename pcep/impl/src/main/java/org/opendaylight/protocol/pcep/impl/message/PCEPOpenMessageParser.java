@@ -45,7 +45,7 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
             throw new IllegalArgumentException("Open Object must be present in Open Message.");
         }
         ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes(serializeObject(open.getOpen()));
+        serializeObject(open.getOpen(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 

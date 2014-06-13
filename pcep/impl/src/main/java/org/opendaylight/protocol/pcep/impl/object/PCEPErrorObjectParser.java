@@ -69,7 +69,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof ErrorObject)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PcepErrorObject.");
         }
@@ -83,7 +83,8 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
         }
         retBytes[ET_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getType());
         retBytes[EV_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getValue());
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

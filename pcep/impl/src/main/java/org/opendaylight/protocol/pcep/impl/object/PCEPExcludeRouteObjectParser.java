@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2013 Cisco Systems, Inc. and others. All rights reserved.
  *
-* This program and the accompanying materials are made available under the
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
@@ -49,7 +49,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Xro)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ExcludeRouteObject.");
         }
@@ -61,6 +61,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
             result[FLAGS_OFFSET] = 1;
         }
         ByteArray.copyWhole(bytes, result, FLAGS_OFFSET + 1);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), result);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), result));
     }
 }

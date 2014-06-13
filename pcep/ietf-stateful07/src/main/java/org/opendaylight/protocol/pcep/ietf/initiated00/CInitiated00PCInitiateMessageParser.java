@@ -57,27 +57,27 @@ public final class CInitiated00PCInitiateMessageParser extends AbstractMessagePa
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
         ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
-            buffer.writeBytes(serializeObject(req.getSrp()));
-            buffer.writeBytes(serializeObject(req.getLsp()));
+            serializeObject(req.getSrp(), buffer);
+            serializeObject(req.getLsp(), buffer);
             if (req.getEndpointsObj() != null) {
-                buffer.writeBytes(serializeObject(req.getEndpointsObj()));
+                serializeObject(req.getEndpointsObj(), buffer);
             }
             if (req.getEro() != null) {
-                buffer.writeBytes(serializeObject(req.getEro()));
+                serializeObject(req.getEro(), buffer);
             }
             if (req.getLspa() != null) {
-                buffer.writeBytes(serializeObject(req.getLspa()));
+                serializeObject(req.getLspa(), buffer);
             }
             if (req.getBandwidth() != null) {
-                buffer.writeBytes(serializeObject(req.getBandwidth()));
+                serializeObject(req.getBandwidth(), buffer);
             }
             if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
                 for (final Metrics m : req.getMetrics()) {
-                    buffer.writeBytes(serializeObject(m.getMetric()));
+                    serializeObject(m.getMetric(), buffer);
                 }
             }
             if (req.getIro() != null) {
-                buffer.writeBytes(serializeObject(req.getIro()));
+                serializeObject(req.getIro(), buffer);
             }
         }
         MessageUtil.formatMessage(TYPE, buffer, out);

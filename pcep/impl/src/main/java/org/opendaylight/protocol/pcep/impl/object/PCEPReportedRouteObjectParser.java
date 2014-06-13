@@ -43,13 +43,14 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Rro)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
                     + ". Needed ReportedRouteObject.");
         }
         final Rro obj = (Rro) object;
         assert !(obj.getSubobject().isEmpty()) : "Empty Reported Route Object.";
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(obj.getSubobject()));
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(obj.getSubobject())));
     }
 }

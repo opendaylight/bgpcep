@@ -52,17 +52,17 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
         ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
-            buffer.writeBytes(serializeObject(req.getEndpointsObj()));
-            buffer.writeBytes(serializeObject(req.getLspa()));
+            serializeObject(req.getEndpointsObj(), buffer);
+            serializeObject(req.getLspa(), buffer);
             if (req.getEro() != null) {
-                buffer.writeBytes(serializeObject(req.getEro()));
+                serializeObject(req.getEro(), buffer);
             }
             if (req.getBandwidth() != null) {
-                buffer.writeBytes(serializeObject(req.getBandwidth()));
+                serializeObject(req.getBandwidth(), buffer);
             }
             if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
                 for (final Metrics m : req.getMetrics()) {
-                    buffer.writeBytes(serializeObject(m.getMetric()));
+                    serializeObject(m.getMetric(), buffer);
                 }
             }
         }

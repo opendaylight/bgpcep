@@ -61,28 +61,28 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
         ByteBuf buffer = Unpooled.buffer();
         for (final Reports report : reports) {
             if (report.getSrp() != null) {
-                buffer.writeBytes(serializeObject(report.getSrp()));
+                serializeObject(report.getSrp(), buffer);
             }
-            buffer.writeBytes(serializeObject(report.getLsp()));
+            serializeObject(report.getLsp(), buffer);
             final Path p = report.getPath();
             if (p != null) {
-                buffer.writeBytes(serializeObject(p.getEro()));
+                serializeObject(p.getEro(), buffer);
                 if (p.getLspa() != null) {
-                    buffer.writeBytes(serializeObject(p.getLspa()));
+                    serializeObject(p.getLspa(), buffer);
                 }
                 if (p.getBandwidth() != null) {
-                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                    serializeObject(p.getBandwidth(), buffer);
                 }
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
                 if (p.getIro() != null) {
-                    buffer.writeBytes(serializeObject(p.getIro()));
+                    serializeObject(p.getIro(), buffer);
                 }
                 if (p.getRro() != null) {
-                    buffer.writeBytes(serializeObject(p.getRro()));
+                    serializeObject(p.getRro(), buffer);
                 }
             }
         }

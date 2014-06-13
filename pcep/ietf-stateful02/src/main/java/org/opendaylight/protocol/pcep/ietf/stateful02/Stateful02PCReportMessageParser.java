@@ -58,25 +58,25 @@ public final class Stateful02PCReportMessageParser extends AbstractMessageParser
         final List<Reports> reports = msg.getPcrptMessage().getReports();
         ByteBuf buffer = Unpooled.buffer();
         for (final Reports report : reports) {
-            buffer.writeBytes(serializeObject(report.getLsp()));
+            serializeObject(report.getLsp(), buffer);
             final Path p = report.getPath();
             if (p != null) {
                 if (p.getEro() != null) {
-                    buffer.writeBytes(serializeObject(p.getEro()));
+                    serializeObject(p.getEro(), buffer);
                 }
                 if (p.getLspa() != null) {
-                    buffer.writeBytes(serializeObject(p.getLspa()));
+                    serializeObject(p.getLspa(), buffer);
                 }
                 if (p.getBandwidth() != null) {
-                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                    serializeObject(p.getBandwidth(), buffer);
                 }
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
                 if (p.getIro() != null) {
-                    buffer.writeBytes(serializeObject(p.getRro()));
+                    serializeObject(p.getRro(), buffer);
                 }
             }
         }

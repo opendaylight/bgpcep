@@ -58,23 +58,23 @@ public final class Stateful02PCUpdateRequestMessageParser extends AbstractMessag
         final List<Updates> updates = msg.getPcupdMessage().getUpdates();
         ByteBuf buffer = Unpooled.buffer();
         for (final Updates update : updates) {
-            buffer.writeBytes(serializeObject(update.getLsp()));
+            serializeObject(update.getLsp(), buffer);
             final Path p = update.getPath();
             if (p != null) {
-                buffer.writeBytes(serializeObject(p.getEro()));
+                serializeObject(p.getEro(), buffer);
                 if (p.getLspa() != null) {
-                    buffer.writeBytes(serializeObject(p.getLspa()));
+                    serializeObject(p.getLspa(), buffer);
                 }
                 if (p.getBandwidth() != null) {
-                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                    serializeObject(p.getBandwidth(), buffer);
                 }
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
                 if (p.getIro() != null) {
-                    buffer.writeBytes(serializeObject(p.getIro()));
+                    serializeObject(p.getIro(), buffer);
                 }
             }
         }

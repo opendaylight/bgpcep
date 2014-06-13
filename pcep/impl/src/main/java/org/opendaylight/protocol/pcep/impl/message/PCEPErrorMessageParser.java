@@ -64,15 +64,15 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
-                buffer.writeBytes(serializeObject(r.getRp()));
+                serializeObject(r.getRp(), buffer);
             }
         }
         for (final Errors e : err.getErrors()) {
-            buffer.writeBytes(serializeObject(e.getErrorObject()));
+            serializeObject(e.getErrorObject(), buffer);
         }
 
         if (err.getErrorType() instanceof SessionCase) {
-            buffer.writeBytes(serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen()));
+            serializeObject(((SessionCase) err.getErrorType()).getSession().getOpen(), buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
     }

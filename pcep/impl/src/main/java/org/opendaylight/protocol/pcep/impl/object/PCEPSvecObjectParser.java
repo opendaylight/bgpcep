@@ -93,7 +93,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Svec)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SvecObject.");
         }
@@ -113,6 +113,7 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
                     * i + REQ_ID_LIST_OFFSET, REQ_LIST_ITEM_LENGTH);
         }
         assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

@@ -88,7 +88,7 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Lsp)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
         }
@@ -114,7 +114,8 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             retBytes[3] |= 1 << (Byte.SIZE - (OPERATIONAL_FLAG_OFFSET - Byte.SIZE) - 1);
         }
         ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        //FIXME : switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

@@ -54,14 +54,14 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcntf.message.pcntf.message.Notifications n : msg.getNotifications()) {
             if (n.getRps() != null && !n.getRps().isEmpty()) {
                 for (final Rps rps : n.getRps()) {
-                    buffer.writeBytes(serializeObject(rps.getRp()));
+                    serializeObject(rps.getRp(), buffer);
                 }
             }
             if (n.getNotifications() == null || n.getNotifications().isEmpty()) {
                 throw new IllegalArgumentException("Message must contain at least one notification object");
             } else {
                 for (final Notifications not : n.getNotifications()) {
-                    buffer.writeBytes(serializeObject(not.getCNotification()));
+                    serializeObject(not.getCNotification(), buffer);
                 }
             }
         }

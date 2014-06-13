@@ -48,7 +48,7 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
             throw new IllegalArgumentException("Close Object must be present in Close Message.");
         }
         ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes(serializeObject(close.getCClose()));
+        serializeObject(close.getCClose(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 

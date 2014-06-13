@@ -76,9 +76,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
         ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : msg.getRequests()) {
-            buffer.writeBytes(serializeObject(req.getRp()));
+            serializeObject(req.getRp(), buffer);
             if (req.getPathKeyExpansion() != null) {
-                buffer.writeBytes(serializeObject(req.getPathKeyExpansion().getPathKey()));
+                serializeObject(req.getPathKeyExpansion().getPathKey(), buffer);
             }
             if (req.getSegmentComputation() != null) {
                 final SegmentComputation sc = req.getSegmentComputation();
@@ -89,19 +89,19 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
         if (msg.getSvec() != null) {
             for (final Svec s : msg.getSvec()) {
-                buffer.writeBytes(serializeObject(s.getSvec()));
+                serializeObject(s.getSvec(), buffer);
                 if (s.getOf() != null) {
-                    buffer.writeBytes(serializeObject(s.getOf()));
+                    serializeObject(s.getOf(), buffer);
                 }
                 if (s.getGc() != null) {
-                    buffer.writeBytes(serializeObject(s.getGc()));
+                    serializeObject(s.getGc(), buffer);
                 }
                 if (s.getXro() != null) {
-                    buffer.writeBytes(serializeObject(s.getXro()));
+                    serializeObject(s.getXro(), buffer);
                 }
                 if (s.getMetric() != null) {
                     for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.svec.Metric m : s.getMetric()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
             }
@@ -111,45 +111,45 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     protected void serializeP2P(final ByteBuf buffer, final P2p p2p) {
         if (p2p.getEndpointsObj() != null) {
-            buffer.writeBytes(serializeObject(p2p.getEndpointsObj()));
+            serializeObject(p2p.getEndpointsObj(), buffer);
         }
         if (p2p.getReportedRoute() != null) {
             final ReportedRoute rr = p2p.getReportedRoute();
             if (rr.getRro() != null) {
-                buffer.writeBytes(serializeObject(rr.getRro()));
+                serializeObject(rr.getRro(), buffer);
             }
             if (rr.getBandwidth() != null) {
-                buffer.writeBytes(serializeObject(rr.getBandwidth()));
+                serializeObject(rr.getBandwidth(), buffer);
             }
         }
         if (p2p.getLoadBalancing() != null) {
-            buffer.writeBytes(serializeObject(p2p.getLoadBalancing()));
+            serializeObject(p2p.getLoadBalancing(), buffer);
         }
         if (p2p.getLspa() != null) {
-            buffer.writeBytes(serializeObject(p2p.getLspa()));
+            serializeObject(p2p.getLspa(), buffer);
         }
         if (p2p.getBandwidth() != null) {
-            buffer.writeBytes(serializeObject(p2p.getBandwidth()));
+            serializeObject(p2p.getBandwidth(), buffer);
         }
         if (p2p.getMetrics() != null) {
             for (final Metrics m : p2p.getMetrics()) {
-                buffer.writeBytes(serializeObject(m.getMetric()));
+                serializeObject(m.getMetric(), buffer);
             }
         }
         if (p2p.getIro() != null) {
-            buffer.writeBytes(serializeObject(p2p.getIro()));
+            serializeObject(p2p.getIro(), buffer);
         }
         if (p2p.getRro() != null) {
-            buffer.writeBytes(serializeObject(p2p.getRro()));
+            serializeObject(p2p.getRro(), buffer);
         }
         if (p2p.getXro() != null) {
-            buffer.writeBytes(serializeObject(p2p.getXro()));
+            serializeObject(p2p.getXro(), buffer);
         }
         if (p2p.getOf() != null) {
-            buffer.writeBytes(serializeObject(p2p.getOf()));
+            serializeObject(p2p.getOf(), buffer);
         }
         if (p2p.getClassType() != null) {
-            buffer.writeBytes(serializeObject(p2p.getClassType()));
+            serializeObject(p2p.getClassType(), buffer);
         }
     }
 
@@ -327,7 +327,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 && builder.getBandwidth() != null
                 && builder.getReportedRoute().getBandwidth().getBandwidth() != new BandwidthBuilder().setBandwidth(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(new byte[] { 0 })).build()
-                && builder.getReportedRoute().getRro() == null) {
+                        && builder.getReportedRoute().getRro() == null) {
             errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, rp));
             return null;
         }

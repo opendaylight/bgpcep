@@ -72,7 +72,7 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof EndpointsObj)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
         }
@@ -86,6 +86,7 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
         final byte[] retBytes = new byte[Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH];
         ByteArray.copyWhole(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getSourceIpv4Address()), retBytes, SRC4_F_OFFSET);
         ByteArray.copyWhole(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getDestinationIpv4Address()), retBytes, DEST4_F_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

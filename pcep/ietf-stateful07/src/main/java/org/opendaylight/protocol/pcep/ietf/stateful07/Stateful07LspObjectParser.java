@@ -8,8 +8,11 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+
 import java.util.BitSet;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -98,7 +101,7 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Lsp)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
         }
@@ -129,7 +132,8 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             retBytes[3] |= (op & 7) << 4;
         }
         ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

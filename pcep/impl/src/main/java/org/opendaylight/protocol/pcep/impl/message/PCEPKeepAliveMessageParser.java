@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -35,10 +37,7 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof KeepaliveMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-                    + ". Need KeepaliveMessage.");
-        }
+        Preconditions.checkArgument(message instanceof KeepaliveMessage, String.format("Wrong instance of Message. Passed instance of %s. Need KeepaliveMessage.", message.getClass()));
         MessageUtil.formatMessage(TYPE, Unpooled.EMPTY_BUFFER, out);
     }
 
