@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_cae98981",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-13T09:25:25Z",
+      "side": 1,
+      "message": "why do we need the iterator here? a simple for() should be enough...",
+      "revId": "0420e7b3ac3e91ec329febfcb6025dca34996026",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8a038141",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-13T09:25:25Z",
+      "side": 1,
+      "message": "bits or bytes? add documentation, too",
+      "revId": "0420e7b3ac3e91ec329febfcb6025dca34996026",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
