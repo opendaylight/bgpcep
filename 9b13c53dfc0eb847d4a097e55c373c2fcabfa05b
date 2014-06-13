@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_cd0a0321",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T10:33:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_4afd7939",
+      "revId": "9b13c53dfc0eb847d4a097e55c373c2fcabfa05b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_6af87d49",
         "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
         "patchSetId": 15
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-13T09:33:59Z",
       "side": 1,
       "message": "for() ?",
+      "revId": "9b13c53dfc0eb847d4a097e55c373c2fcabfa05b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8d14fb44",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T10:33:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_6af87d49",
       "revId": "9b13c53dfc0eb847d4a097e55c373c2fcabfa05b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
