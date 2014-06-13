@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_8a7861c5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/As4CapabilityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-13T09:49:26Z",
+      "side": 1,
+      "message": "wrappedBuffer() to prevent a copy, as we are not retaining the byte[] reference anyway?",
+      "revId": "4e02e184182ac728fc5dd2f35d8d9d3d1d6bdbce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_aa73e5e5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/MultiProtocolCapabilityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-13T09:49:26Z",
+      "side": 1,
+      "message": "wrappedBuffer()",
+      "revId": "4e02e184182ac728fc5dd2f35d8d9d3d1d6bdbce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
