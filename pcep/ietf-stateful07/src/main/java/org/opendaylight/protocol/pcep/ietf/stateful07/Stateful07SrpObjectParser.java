@@ -73,7 +73,7 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Srp)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
         }
@@ -86,7 +86,8 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
         }
         System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
         ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

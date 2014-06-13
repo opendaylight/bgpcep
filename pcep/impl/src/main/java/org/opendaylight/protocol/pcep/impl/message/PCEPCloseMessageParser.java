@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -38,17 +40,14 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof CloseMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-                    + ". Nedded CloseMessage.");
-        }
+        Preconditions.checkArgument(message instanceof CloseMessage, "Wrong instance of Message. Passed instance of %s. Need CloseMessage.", message.getClass());
         final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
 
         if (close.getCClose() == null) {
             throw new IllegalArgumentException("Close Object must be present in Close Message.");
         }
         ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes(serializeObject(close.getCClose()));
+        serializeObject(close.getCClose(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 

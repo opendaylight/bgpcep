@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
@@ -52,37 +53,34 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof Pcrpt)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance of " + message.getClass()
-                    + ". Nedded PcrptMessage.");
-        }
+        Preconditions.checkArgument(message instanceof Pcrpt, "Wrong instance of Message. Passed instance of %s. Need Pcrpt.", message.getClass());
         final Pcrpt msg = (Pcrpt) message;
         final List<Reports> reports = msg.getPcrptMessage().getReports();
         ByteBuf buffer = Unpooled.buffer();
         for (final Reports report : reports) {
             if (report.getSrp() != null) {
-                buffer.writeBytes(serializeObject(report.getSrp()));
+                serializeObject(report.getSrp(), buffer);
             }
-            buffer.writeBytes(serializeObject(report.getLsp()));
+            serializeObject(report.getLsp(), buffer);
             final Path p = report.getPath();
             if (p != null) {
-                buffer.writeBytes(serializeObject(p.getEro()));
+                serializeObject(p.getEro(), buffer);
                 if (p.getLspa() != null) {
-                    buffer.writeBytes(serializeObject(p.getLspa()));
+                    serializeObject(p.getLspa(), buffer);
                 }
                 if (p.getBandwidth() != null) {
-                    buffer.writeBytes(serializeObject(p.getBandwidth()));
+                    serializeObject(p.getBandwidth(), buffer);
                 }
                 if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
                     for (final Metrics m : p.getMetrics()) {
-                        buffer.writeBytes(serializeObject(m.getMetric()));
+                        serializeObject(m.getMetric(), buffer);
                     }
                 }
                 if (p.getIro() != null) {
-                    buffer.writeBytes(serializeObject(p.getIro()));
+                    serializeObject(p.getIro(), buffer);
                 }
                 if (p.getRro() != null) {
-                    buffer.writeBytes(serializeObject(p.getRro()));
+                    serializeObject(p.getRro(), buffer);
                 }
             }
         }

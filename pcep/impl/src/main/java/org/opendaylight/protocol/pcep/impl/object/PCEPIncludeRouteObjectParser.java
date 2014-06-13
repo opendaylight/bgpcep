@@ -53,7 +53,7 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Iro)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed IncludeRouteObject.");
         }
@@ -67,6 +67,7 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
             subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setLoose(
                     false).setSubobjectType(s.getSubobjectType()).build());
         }
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));
+	// FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs)));
     }
 }

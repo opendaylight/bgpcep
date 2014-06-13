@@ -62,7 +62,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Gc)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed GcObject.");
         }
@@ -72,6 +72,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
         retBytes[MAX_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxUtilization());
         retBytes[MIN_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMinUtilization());
         retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getOverBookingFactor());
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

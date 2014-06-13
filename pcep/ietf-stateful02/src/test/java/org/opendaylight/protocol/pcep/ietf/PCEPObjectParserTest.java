@@ -78,7 +78,9 @@ public class PCEPObjectParserTest {
                 Tlvs2.class, statBuilder.build()).addAugmentation(Tlvs1.class, cleanupBuilder.build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -114,7 +116,9 @@ public class PCEPObjectParserTest {
                         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class).getSymbolicPathName());
         // assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
         // 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -136,6 +140,8 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(
                 tlv2).build());
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 }

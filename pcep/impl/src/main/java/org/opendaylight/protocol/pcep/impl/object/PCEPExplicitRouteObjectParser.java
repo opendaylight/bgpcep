@@ -44,7 +44,7 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Ero)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
                     + ". Needed ExplicitRouteObject.");
@@ -52,7 +52,7 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
         final Ero ero = ((Ero) object);
 
         assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
-
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(ero.getSubobject()));
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(ero.getSubobject())));
     }
 }

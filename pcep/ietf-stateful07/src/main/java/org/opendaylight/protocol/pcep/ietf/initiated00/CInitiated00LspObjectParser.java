@@ -65,7 +65,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Lsp)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
         }
@@ -98,6 +98,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
             retBytes[3] |= (op & 7) << 4;
         }
         ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

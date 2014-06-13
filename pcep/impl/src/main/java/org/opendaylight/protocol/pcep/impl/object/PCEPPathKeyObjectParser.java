@@ -57,7 +57,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof PathKey)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PathKeyObject.");
         }
@@ -70,6 +70,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
                                     p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
         }
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs));
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs)));
     }
 }

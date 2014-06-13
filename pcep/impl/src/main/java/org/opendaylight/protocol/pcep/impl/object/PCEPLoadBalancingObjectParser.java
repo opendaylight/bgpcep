@@ -63,7 +63,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof LoadBalancing)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
                     + ". Needed LoadBalancingObject.");
@@ -72,6 +72,7 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
         final byte[] retBytes = new byte[SIZE];
         retBytes[MAX_LSP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxLsp());
         ByteArray.copyWhole(specObj.getMinBandwidth().getValue(), retBytes, MIN_BAND_F_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

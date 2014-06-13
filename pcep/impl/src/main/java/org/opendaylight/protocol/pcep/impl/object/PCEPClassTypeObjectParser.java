@@ -81,12 +81,13 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof ClassType)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
         }
         final byte[] retBytes = new byte[SIZE];
         retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

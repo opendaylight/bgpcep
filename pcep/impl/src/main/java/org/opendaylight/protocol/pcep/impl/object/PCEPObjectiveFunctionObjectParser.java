@@ -56,7 +56,7 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Of)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
                     + ". Needed PCEPObjectiveFunction.");
@@ -64,6 +64,7 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
         final Of specObj = (Of) object;
         final byte[] retBytes = new byte[TLVS_OFFSET + 0];
         ByteArray.copyWhole(ByteArray.shortToBytes(specObj.getCode().getValue().shortValue()), retBytes, OF_CODE_F_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 }

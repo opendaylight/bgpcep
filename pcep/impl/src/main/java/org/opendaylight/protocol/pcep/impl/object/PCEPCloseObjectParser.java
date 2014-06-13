@@ -66,7 +66,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof CClose)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
         }
@@ -83,7 +83,8 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
             ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
         }
         retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(obj.getReason());
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

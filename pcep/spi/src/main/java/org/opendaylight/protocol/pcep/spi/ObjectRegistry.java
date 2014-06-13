@@ -29,7 +29,7 @@ public interface ObjectRegistry {
      * Find serializer for given object. Delegates parsing to found serializer.
      *
      * @param object to be parsed
-     * @return null if the serializer for this object could not be found
+     * @param buffer ByteBuf wrapped aroung bytes representing given object
      */
-    byte[] serializeObject(final Object object);
+    void serializeObject(final Object object, final ByteBuf buffer);
 }

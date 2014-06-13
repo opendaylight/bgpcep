@@ -110,7 +110,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
+    public void serializeObject(final Object object, final ByteBuf buffer) {
         if (!(object instanceof Open)) {
             throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed OpenObject.");
         }
@@ -129,7 +129,8 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         if (tlvs.length != 0) {
             ByteArray.copyWhole(tlvs, bytes, TLVS_OFFSET);
         }
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes);
+        // FIXME: switch to ByteBuf
+        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), bytes));
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {
