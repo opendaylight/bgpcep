@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_0d9d4bbc",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T11:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_4a9499e1",
+      "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_6a8f1dcd",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-13T09:38:59Z",
       "side": 1,
       "message": "do not introduce this space!",
+      "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2da04ff3",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/BGPActivator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T11:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_6a8f1dcd",
       "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_0d846b5c",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AdvertizedRoutesSerializer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T11:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_2ac115e4",
+      "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_cab74985",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/WithdrawnRoutesSerializer.java",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2014-06-13T09:38:59Z",
       "side": 1,
       "message": "why iterator?",
+      "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2d87ef62",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/WithdrawnRoutesSerializer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-13T11:09:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_cab74985",
       "revId": "0f458a97be0e6defdbff99c31f26e4d31b70f8da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
