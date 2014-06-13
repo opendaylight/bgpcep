@@ -81,7 +81,9 @@ public class PCEPObjectParserTest {
                 Tlvs1.class, statBuilder.build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -106,7 +108,9 @@ public class PCEPObjectParserTest {
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspErrorCode(
                 tlv1).setSymbolicPathName(tlv2).build());
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -137,7 +141,9 @@ public class PCEPObjectParserTest {
         assertEquals(tlv, ((Lspa) o).getTlvs().getAugmentation(Tlvs2.class).getSymbolicPathName());
         // assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), ByteArray.cutBytes(result,
         // 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -153,6 +159,8 @@ public class PCEPObjectParserTest {
         builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(result.array(), parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
     }
 }

@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -38,15 +39,12 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
      * lengths of fields in bytes
      */
     private static final int FLAGS_F_LENGTH = 1;
-    private static final int TYPE_F_LENGTH = 1;
     private static final int METRIC_VALUE_F_LENGTH = 4;
 
     /*
      * offsets of fields in bytes
      */
-    private static final int FLAGS_F_OFFSET = 2;
-    private static final int TYPE_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-    private static final int METRIC_VALUE_F_OFFSET = TYPE_F_OFFSET + TYPE_F_LENGTH;
+    private static final int RESERVED = 2;
 
     /*
      * flags offsets inside flags field in bits
@@ -54,7 +52,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
     private static final int C_FLAG_OFFSET = 6;
     private static final int B_FLAG_OFFSET = 7;
 
-    private static final int SIZE = METRIC_VALUE_F_OFFSET + METRIC_VALUE_F_LENGTH;
+    private static final int SIZE = 4 + METRIC_VALUE_F_LENGTH;
 
     public PCEPMetricObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -67,7 +65,7 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes() + "; Expected: " + SIZE
                     + ".");
         }
-        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + RESERVED);
         final byte[] flagBytes = { bytes.readByte() };
         final BitSet flags = ByteArray.bytesToBitSet(flagBytes);
         final MetricBuilder builder = new MetricBuilder();
@@ -81,18 +79,21 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Metric)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed MetricObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Metric, "Wrong instance of PCEPObject. Passed %s. Needed MetricObject.", object.getClass());
         final Metric mObj = (Metric) object;
-        final byte[] retBytes = new byte[SIZE];
+        final ByteBuf body = Unpooled.buffer(SIZE);
+        body.writeZero(RESERVED);
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(C_FLAG_OFFSET, mObj.isComputed());
-        flags.set(B_FLAG_OFFSET, mObj.isBound());
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-        retBytes[TYPE_F_OFFSET] = UnsignedBytes.checkedCast(mObj.getMetricType());
-        System.arraycopy(mObj.getValue().getValue(), 0, retBytes, METRIC_VALUE_F_OFFSET, METRIC_VALUE_F_LENGTH);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        if (mObj.isComputed() != null) {
+            flags.set(C_FLAG_OFFSET, mObj.isComputed());
+        }
+        if (mObj.isBound() != null) {
+            flags.set(B_FLAG_OFFSET, mObj.isBound());
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        body.writeByte(mObj.getMetricType());
+        body.writeBytes(mObj.getValue().getValue());
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

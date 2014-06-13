@@ -10,15 +10,16 @@ package org.opendaylight.protocol.pcep.segment.routing02;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapabilityBuilder;
@@ -47,7 +48,7 @@ public class PcepObjectParserTest {
 
     @Test
     public void testOpenObjectWithSpcTlv() throws PCEPDeserializerException {
-        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(tlvRegistry);
+        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(this.tlvRegistry);
 
         final OpenBuilder builder = new OpenBuilder();
         builder.setProcessingRule(false);
@@ -64,7 +65,9 @@ public class PcepObjectParserTest {
         final ByteBuf result = Unpooled.wrappedBuffer(openObjectBytes);
         assertEquals(builder.build(),
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        assertArrayEquals(openObjectBytes, parser.serializeObject(builder.build()));
+        ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(openObjectBytes,ByteArray.getAllBytes(buf));
     }
 
 }

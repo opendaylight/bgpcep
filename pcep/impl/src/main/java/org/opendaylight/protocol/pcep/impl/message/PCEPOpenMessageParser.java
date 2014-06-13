@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.message;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -36,16 +38,14 @@ public class PCEPOpenMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof OpenMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass() + ". Needed OpenMessage.");
-        }
+        Preconditions.checkArgument(message instanceof OpenMessage, "Wrong instance of Message. Passed instance of %s. Need OpenMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessage open = ((OpenMessage) message).getOpenMessage();
 
         if (open.getOpen() == null) {
             throw new IllegalArgumentException("Open Object must be present in Open Message.");
         }
         ByteBuf buffer = Unpooled.buffer();
-        buffer.writeBytes(serializeObject(open.getOpen()));
+        serializeObject(open.getOpen(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 

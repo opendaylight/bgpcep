@@ -13,5 +13,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public interface MessageSerializer {
 
+    /**
+     * Serializes given message to bytes wrapped in given ByteBuf.
+     * @param message PCEP message to be serialized
+     * @param buffer ByteBuf wrapper around serialized message
+     */
     void serializeMessage(Message message, ByteBuf buffer);
 }

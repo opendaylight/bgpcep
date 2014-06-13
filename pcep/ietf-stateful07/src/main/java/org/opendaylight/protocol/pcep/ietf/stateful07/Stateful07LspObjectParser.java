@@ -8,8 +8,12 @@
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.BitSet;
+
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -98,14 +102,12 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Lsp)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Lsp, "Wrong instance of PCEPObject. Passed %s . Needed LspObject.", object.getClass());
         final Lsp specObj = (Lsp) object;
+        final ByteBuf body = Unpooled.buffer();
 
-        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
+        final byte[] retBytes = new byte[4];
 
         Preconditions.checkArgument(specObj.getPlspId() != null, "PLSP-ID not present");
         final int lspID = specObj.getPlspId().getValue().intValue();
@@ -128,8 +130,11 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             final int op = specObj.getOperational().getIntValue();
             retBytes[3] |= (op & 7) << 4;
         }
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes);
+        body.writeBytes(retBytes);
+        // FIXME: switch to ByteBuf
+        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
+        body.writeBytes(tlvs);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

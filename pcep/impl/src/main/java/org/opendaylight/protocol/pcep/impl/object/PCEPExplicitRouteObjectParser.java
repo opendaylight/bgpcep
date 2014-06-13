@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -44,15 +45,13 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
     }
 
     @Override
-    public byte[] serializeObject(final Object object) {
-        if (!(object instanceof Ero)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-                    + ". Needed ExplicitRouteObject.");
-        }
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Ero, "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
         final Ero ero = ((Ero) object);
-
-        assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
-
-        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(ero.getSubobject()));
+        final ByteBuf body = Unpooled.buffer();
+        // FIXME: switch to ByteBuf
+        final byte[] bytes = serializeSubobject(ero.getSubobject());
+        body.writeBytes(bytes);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }
