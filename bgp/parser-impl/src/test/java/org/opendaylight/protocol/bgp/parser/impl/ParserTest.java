@@ -18,6 +18,7 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.net.UnknownHostException;
@@ -56,29 +57,31 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class ParserTest {
 
     public static final byte[] openBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4, (byte) 0x14, (byte) 0x14,
-        (byte) 0x14, (byte) 0x14, (byte) 0x00 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x1d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x64, (byte) 0x00, (byte) 0xb4,
+        (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00 };
 
     public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
     public static final byte[] notificationBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x17, (byte) 0x03, (byte) 0x02, (byte) 0x04, (byte) 0x04, (byte) 0x09 };
 
     public static final byte[] openWithCpblt1 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4, (byte) 0xac, (byte) 0x14,
-        (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00,
-        (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+        (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40,
+        (byte) 0x04, (byte) 0x00, (byte) 0x47 };
 
     public static final byte[] openWithCpblt2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4, (byte) 0xac, (byte) 0x14,
-        (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x40, (byte) 0x04, (byte) 0x00,
-        (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x2d, (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x48, (byte) 0x00, (byte) 0xb4,
+        (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
+        (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
+        (byte) 0x01, (byte) 0x00, (byte) 0x01 };
 
     static MessageRegistry reg;
 
@@ -89,8 +92,7 @@ public class ParserTest {
 
     @Test
     public void testHeaderErrors() throws BGPParsingException, BGPDocumentedException {
-        byte[] wrong = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00 };
+        byte[] wrong = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00 };
         wrong = ByteArray.cutBytes(wrong, 16);
         try {
             ParserTest.reg.parseMessage(Unpooled.copiedBuffer(wrong));
@@ -104,7 +106,7 @@ public class ParserTest {
 
     @Test
     public void testBadMsgType() throws BGPParsingException {
-        final byte[] bytes = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        final byte[] bytes = { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x13, (byte) 0x08 };
         try {
@@ -120,10 +122,11 @@ public class ParserTest {
     @Test
     public void testKeepAliveMsg() throws BGPParsingException, BGPDocumentedException {
         final Notification keepAlive = new KeepaliveBuilder().build();
-        final byte[] bytes = ParserTest.reg.serializeMessage(keepAlive);
-        assertArrayEquals(keepAliveBMsg, bytes);
+        ByteBuf buffer = Unpooled.buffer();
+        ParserTest.reg.serializeMessage(keepAlive, buffer);
+        assertArrayEquals(keepAliveBMsg, ByteArray.getAllBytes(buffer));
 
-        final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
+        final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)));
 
         assertTrue(m instanceof Keepalive);
     }
@@ -149,8 +152,9 @@ public class ParserTest {
     public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
         final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
                 new ProtocolVersion((short) 4)).build();
-        final byte[] bytes = ParserTest.reg.serializeMessage(open);
-        assertArrayEquals(openBMsg, bytes);
+        ByteBuf bytes = Unpooled.buffer();
+        ParserTest.reg.serializeMessage(open, bytes);
+        assertArrayEquals(openBMsg, ByteArray.getAllBytes(bytes));
 
         final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -217,8 +221,9 @@ public class ParserTest {
     public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
         Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
                 BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
-        byte[] bytes = ParserTest.reg.serializeMessage(notMsg);
-        assertArrayEquals(notificationBMsg, bytes);
+        ByteBuf bytes = Unpooled.buffer();
+        ParserTest.reg.serializeMessage(notMsg, bytes);
+        assertArrayEquals(notificationBMsg, ByteArray.subByte(bytes.array(),0,bytes.writerIndex()));
 
         Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -228,7 +233,10 @@ public class ParserTest {
 
         notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
                 BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
-        bytes = ParserTest.reg.serializeMessage(notMsg);
+
+        bytes.clear();
+
+        ParserTest.reg.serializeMessage(notMsg, bytes);
 
         m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes));
 
@@ -292,9 +300,10 @@ public class ParserTest {
         final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
                 new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
 
-        final byte[] result = ParserTest.reg.serializeMessage(open);
+        ByteBuf result = Unpooled.buffer();
+        ParserTest.reg.serializeMessage(open, result);
 
         // the capabilities can be swapped.
-        assertTrue(Arrays.equals(openWithCpblt1, result) || Arrays.equals(openWithCpblt2, result));
+        assertTrue(Arrays.equals(openWithCpblt1, ByteArray.getAllBytes(result)) || Arrays.equals(openWithCpblt2, ByteArray.getAllBytes(result)));
     }
 }

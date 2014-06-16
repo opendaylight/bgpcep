@@ -8,11 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.ByteBufUtil;
 import java.util.Arrays;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -29,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * Parser for BGPNotification message.
  */
 public final class BGPNotificationMessageParser implements MessageParser, MessageSerializer {
+
     public static final int TYPE = 3;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPNotificationMessageParser.class);
@@ -42,7 +41,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      * @return BGP Notification message converted to byte array
      */
     @Override
-    public byte[] serializeMessage(final Notification msg) {
+    public void serializeMessage(final Notification msg, ByteBuf bytes) {
         if (msg == null) {
             throw new IllegalArgumentException("BGP Notification message cannot be null");
         }
@@ -60,9 +59,8 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
             System.arraycopy(ntf.getData(), 0, msgBody, ERROR_SIZE, ntf.getData().length);
         }
 
-        final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-        LOG.trace("Notification message serialized to: {}", Arrays.toString(ret));
-        return ret;
+        bytes.writeBytes(MessageUtil.formatMessage(TYPE, msgBody));
+        LOG.trace("Notification message serialized to: {}", ByteBufUtil.hexDump(bytes));
     }
 
     /**
