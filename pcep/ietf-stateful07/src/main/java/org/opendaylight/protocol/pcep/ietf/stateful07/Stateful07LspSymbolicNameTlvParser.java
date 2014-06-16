@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import io.netty.buffer.ByteBuf;
+import com.google.common.base.Preconditions;
 
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
@@ -35,11 +38,8 @@ public final class Stateful07LspSymbolicNameTlvParser implements TlvParser, TlvS
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("SymbolicPathNameTlv is mandatory.");
-        }
-        final SymbolicPathName spn = (SymbolicPathName) tlv;
-        return TlvUtil.formatTlv(TYPE, spn.getPathName().getValue());
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "SymbolicPathNameTlv is mandatory.");
+        TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(((SymbolicPathName) tlv).getPathName().getValue()), buffer);
     }
 }

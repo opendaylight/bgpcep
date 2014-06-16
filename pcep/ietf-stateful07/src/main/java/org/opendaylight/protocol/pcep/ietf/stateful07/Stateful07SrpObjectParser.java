@@ -76,22 +76,19 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Srp, String.format("Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass()));
         final Srp srp = (Srp) object;
-        ByteBuf body = Unpooled.buffer();
-        //FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(srp.getTlvs());
+        final ByteBuf body = Unpooled.buffer();
         body.writerIndex(body.writerIndex() + FLAGS_SIZE);
         final Long id = srp.getOperationId().getValue();
         body.writeInt(id.intValue());
-        body.writeBytes(tlvs);
+        serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         } else if (tlvs.getSymbolicPathName() != null) {
-            return serializeTlv(tlvs.getSymbolicPathName());
+            serializeTlv(tlvs.getSymbolicPathName(), body);
         }
-        return new byte[0];
     }
 }

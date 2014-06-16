@@ -7,13 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import io.netty.buffer.ByteBuf;
+import com.google.common.base.Preconditions;
 
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -25,8 +27,6 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 
     public static final int TYPE = 20;
 
-    private static final int UPDATE_ERR_CODE_LENGTH = 4;
-
     @Override
     public LspErrorCode parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -36,11 +36,8 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("LspErrorCodeTlv is mandatory.");
-        }
-        final LspErrorCode lsp = (LspErrorCode) tlv;
-        return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(lsp.getErrorCode(), UPDATE_ERR_CODE_LENGTH));
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "LspErrorCodeTlv is mandatory.");
+        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((LspErrorCode) tlv).getErrorCode().intValue()), buffer);
     }
 }

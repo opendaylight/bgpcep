@@ -14,5 +14,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public interface TlvRegistry {
     Tlv parseTlv(final int type, final ByteBuf buffer) throws PCEPDeserializerException;
 
-    byte[] serializeTlv(final Tlv tlv);
+    void serializeTlv(final Tlv tlv, final ByteBuf buffer);
 }

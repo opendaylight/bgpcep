@@ -88,20 +88,16 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
         }
         body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
         body.writeZero(RESERVED_F_LENGTH);
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(nPObj.getTlvs());
-        if (tlvs != null) {
-            body.writeBytes(tlvs);
-        }
+        serializeTlvs(nPObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
-        } else if (tlvs.getNoPathVector() != null) {
-            return serializeTlv(tlvs.getNoPathVector());
+            return;
         }
-        return new byte[0];
+        if (tlvs.getNoPathVector() != null) {
+            serializeTlv(tlvs.getNoPathVector(), body);
+        }
     }
 }

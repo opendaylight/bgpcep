@@ -10,8 +10,9 @@ package org.opendaylight.protocol.pcep.lsp.setup.type01;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -26,9 +27,10 @@ public class PcepTlvParserTest {
     public void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
         final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(true).build();
-
         assertEquals(pstTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pstTlvBytes, 4))));
-        assertArrayEquals(pstTlvBytes, parser.serializeTlv(pstTlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(pstTlv, buff);
+        assertArrayEquals(pstTlvBytes, ByteArray.getAllBytes(buff));
     }
 
 }

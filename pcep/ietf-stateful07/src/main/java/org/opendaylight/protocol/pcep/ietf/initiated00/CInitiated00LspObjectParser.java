@@ -98,9 +98,7 @@ public class CInitiated00LspObjectParser extends Stateful07LspObjectParser {
             retBytes[3] |= (op & 7) << 4;
         }
         body.writeBytes(retBytes);
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
-        body.writeBytes(tlvs);
+        serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

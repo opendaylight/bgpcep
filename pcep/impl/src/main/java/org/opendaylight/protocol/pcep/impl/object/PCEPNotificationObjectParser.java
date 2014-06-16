@@ -72,20 +72,16 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
         body.writeZero(NT_F_OFFSET);
         body.writeByte(notObj.getType());
         body.writeByte(notObj.getValue());
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(notObj.getTlvs());
-        if (tlvs.length != 0) {
-            body.writeBytes(tlvs);
-        }
+        serializeTlvs(notObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
-        } else if (tlvs.getOverloadDuration() != null) {
-            return serializeTlv(tlvs.getOverloadDuration());
+            return;
         }
-        return new byte[0];
+        if (tlvs.getOverloadDuration() != null) {
+            serializeTlv(tlvs.getOverloadDuration(), body);
+        }
     }
 }

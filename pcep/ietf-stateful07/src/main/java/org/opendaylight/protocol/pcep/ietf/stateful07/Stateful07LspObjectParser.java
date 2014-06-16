@@ -131,64 +131,28 @@ public class Stateful07LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             retBytes[3] |= (op & 7) << 4;
         }
         body.writeBytes(retBytes);
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
-        body.writeBytes(tlvs);
+        serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        int finalLength = 0;
-        byte[] lspErrBytes = null;
-        byte[] lspIdBytes = null;
-        byte[] rsvpErrBytes = null;
-        byte[] symbBytes = null;
-        byte[] vsTlvBytes = null;
         if (tlvs.getLspErrorCode() != null) {
-            lspErrBytes = serializeTlv(tlvs.getLspErrorCode());
-            finalLength += lspErrBytes.length;
+            serializeTlv(tlvs.getLspErrorCode(), body);
         }
         if (tlvs.getLspIdentifiers() != null) {
-            lspIdBytes = serializeTlv(tlvs.getLspIdentifiers());
-            finalLength += lspIdBytes.length;
+            serializeTlv(tlvs.getLspIdentifiers(), body);
         }
         if (tlvs.getRsvpErrorSpec() != null) {
-            rsvpErrBytes = serializeTlv(tlvs.getRsvpErrorSpec());
-            finalLength += rsvpErrBytes.length;
+            serializeTlv(tlvs.getRsvpErrorSpec(), body);
         }
         if (tlvs.getSymbolicPathName() != null) {
-            symbBytes = serializeTlv(tlvs.getSymbolicPathName());
-            finalLength += symbBytes.length;
+            serializeTlv(tlvs.getSymbolicPathName(), body);
         }
         if (tlvs.getVsTlv() != null) {
-            vsTlvBytes = serializeTlv(tlvs.getVsTlv());
-            finalLength += vsTlvBytes.length;
+            serializeTlv(tlvs.getVsTlv(), body);
         }
-        int offset = 0;
-        final byte[] result = new byte[finalLength];
-        if (lspErrBytes != null) {
-            ByteArray.copyWhole(lspErrBytes, result, offset);
-            offset += lspErrBytes.length;
-        }
-        if (lspIdBytes != null) {
-            ByteArray.copyWhole(lspIdBytes, result, offset);
-            offset += lspIdBytes.length;
-        }
-        if (rsvpErrBytes != null) {
-            ByteArray.copyWhole(rsvpErrBytes, result, offset);
-            offset += rsvpErrBytes.length;
-        }
-        if (symbBytes != null) {
-            ByteArray.copyWhole(symbBytes, result, offset);
-            offset += symbBytes.length;
-        }
-        if (vsTlvBytes != null) {
-            ByteArray.copyWhole(vsTlvBytes, result, offset);
-            offset += vsTlvBytes.length;
-        }
-        return result;
     }
 }

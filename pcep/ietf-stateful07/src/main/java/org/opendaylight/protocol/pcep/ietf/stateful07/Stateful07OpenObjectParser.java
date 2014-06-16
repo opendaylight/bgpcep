@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
@@ -43,36 +44,19 @@ public class Stateful07OpenObjectParser extends PCEPOpenObjectParser {
     }
 
     @Override
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        final byte[] prev = super.serializeTlvs(tlvs);
-        int finalLength = prev.length;
-        byte[] ofListBytes = null;
-        byte[] statefulBytes = null;
+        super.serializeTlvs(tlvs, body);
         if (tlvs.getOfList() != null) {
-            ofListBytes = serializeTlv(tlvs.getOfList());
-            finalLength += ofListBytes.length;
+            serializeTlv(tlvs.getOfList(), body);
         }
         if (tlvs.getAugmentation(Tlvs1.class) != null) {
             final Tlvs1 statefulTlvs = tlvs.getAugmentation(Tlvs1.class);
             if (statefulTlvs.getStateful() != null) {
-                statefulBytes = serializeTlv(statefulTlvs.getStateful());
-                finalLength += statefulBytes.length;
+                serializeTlv(statefulTlvs.getStateful(), body);
             }
         }
-        final byte[] result = new byte[finalLength];
-        ByteArray.copyWhole(prev, result, 0);
-        int offset = prev.length;
-        if (ofListBytes != null) {
-            ByteArray.copyWhole(ofListBytes, result, offset);
-            offset += ofListBytes.length;
-        }
-        if (statefulBytes != null) {
-            ByteArray.copyWhole(statefulBytes, result, offset);
-            offset += statefulBytes.length;
-        }
-        return result;
     }
 }

@@ -62,16 +62,14 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Srp, String.format("Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass()));
         final Srp srp = (Srp) object;
-        ByteBuf body = Unpooled.buffer();
-        //FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(srp.getTlvs());
+        final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_SIZE * Byte.SIZE);
         if (srp.getAugmentation(Srp1.class) != null && srp.getAugmentation(Srp1.class).isRemove()) {
             flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
         }
         body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_SIZE));
         body.writeInt(srp.getOperationId().getValue().intValue());
-        body.writeBytes(tlvs);
+        serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

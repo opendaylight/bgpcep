@@ -7,13 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.NoPathVectorTlv.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -53,21 +57,37 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlvs) {
-        if (tlvs == null) {
-            throw new IllegalArgumentException("NoPathVectorTlv is mandatory.");
-        }
-        final NoPathVector tlv = (NoPathVector) tlvs;
-
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "NoPathVectorTlv is mandatory.");
+        final NoPathVector noPath = (NoPathVector) tlv;
+        final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(REACHABLITY_PROBLEM, tlv.getFlags().isP2mpUnreachable());
-        flags.set(NO_GCO_SOLUTION, tlv.getFlags().isNoGcoSolution());
-        flags.set(NO_GCO_MIGRATION_PATH, tlv.getFlags().isNoGcoMigration());
-        flags.set(PATH_KEY, tlv.getFlags().isPathKey());
-        flags.set(CHAIN_UNAVAILABLE, tlv.getFlags().isChainUnavailable());
-        flags.set(UNKNOWN_SRC, tlv.getFlags().isUnknownSource());
-        flags.set(UNKNOWN_DEST, tlv.getFlags().isUnknownDestination());
-        flags.set(PCE_UNAVAILABLE, tlv.getFlags().isPceUnavailable());
-        return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        Flags f = noPath.getFlags();
+        if (f.isP2mpUnreachable() != null) {
+            flags.set(REACHABLITY_PROBLEM, f.isP2mpUnreachable());
+        }
+        if (f.isNoGcoSolution() != null) {
+            flags.set(NO_GCO_SOLUTION, f.isNoGcoSolution());
+        }
+        if (f.isNoGcoMigration() != null) {
+            flags.set(NO_GCO_MIGRATION_PATH, f.isNoGcoMigration());
+        }
+        if (f.isPathKey() != null) {
+            flags.set(PATH_KEY, f.isPathKey());
+        }
+        if (f.isChainUnavailable() != null) {
+            flags.set(CHAIN_UNAVAILABLE, f.isChainUnavailable());
+        }
+        if (f.isUnknownSource() != null) {
+            flags.set(UNKNOWN_SRC, f.isUnknownSource());
+        }
+        if (f.isUnknownDestination() != null) {
+            flags.set(UNKNOWN_DEST, f.isUnknownDestination());
+        }
+        if (f.isPceUnavailable() != null) {
+            flags.set(PCE_UNAVAILABLE, f.isPceUnavailable());
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

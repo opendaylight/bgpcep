@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier;
@@ -49,37 +50,19 @@ public class Stateful02OpenObjectParser extends PCEPOpenObjectParser {
     }
 
     @Override
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        final byte[] prev = super.serializeTlvs(tlvs);
-        int finalLength = prev.length;
-        byte[] statefulBytes = null;
-        byte[] nodeIdBytes = null;
+        super.serializeTlvs(tlvs, body);
         if (tlvs.getAugmentation(Tlvs2.class) != null) {
             final Tlvs2 statefulTlvs = tlvs.getAugmentation(Tlvs2.class);
             if (statefulTlvs.getStateful() != null) {
-                statefulBytes = serializeTlv(statefulTlvs.getStateful());
-                finalLength += statefulBytes.length;
+                serializeTlv(statefulTlvs.getStateful(), body);
             }
             if (statefulTlvs.getNodeIdentifier() != null) {
-                nodeIdBytes = serializeTlv(statefulTlvs.getNodeIdentifier());
-                finalLength += nodeIdBytes.length;
+                serializeTlv(statefulTlvs.getNodeIdentifier(), body);
             }
         }
-
-        final byte[] result = new byte[finalLength];
-        ByteArray.copyWhole(prev, result, 0);
-        int offset = prev.length;
-        if (statefulBytes != null) {
-            ByteArray.copyWhole(statefulBytes, result, offset);
-            offset += statefulBytes.length;
-        }
-        if (nodeIdBytes != null) {
-            ByteArray.copyWhole(nodeIdBytes, result, offset);
-            offset += nodeIdBytes.length;
-        }
-        return result;
     }
 }
