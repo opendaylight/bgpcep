@@ -16,6 +16,24 @@
       "revId": "bb2af51772d6aba4e61dd2318418cc3ac23e67b4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_73e878e2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-16T13:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_53e3f432",
+      "revId": "bb2af51772d6aba4e61dd2318418cc3ac23e67b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
