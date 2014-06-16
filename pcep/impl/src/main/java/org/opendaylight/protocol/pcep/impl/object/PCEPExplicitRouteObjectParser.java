@@ -49,9 +49,7 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
         Preconditions.checkArgument(object instanceof Ero, "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
         final Ero ero = ((Ero) object);
         final ByteBuf body = Unpooled.buffer();
-        // FIXME: switch to ByteBuf
-        final byte[] bytes = serializeSubobject(ero.getSubobject());
-        body.writeBytes(bytes);
+        serializeSubobject(ero.getSubobject(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }
