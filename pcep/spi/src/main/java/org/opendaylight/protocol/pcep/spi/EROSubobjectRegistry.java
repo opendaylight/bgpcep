@@ -27,7 +27,7 @@ public interface EROSubobjectRegistry {
      * Find serializer for given subobject. Delegates parsing to found serializer.
      *
      * @param subobject to be parsed
-     * @return null if the serializer for this subobject could not be found
+     * @param buffer buffer where the serialized subobject will be parsed
      */
-    byte[] serializeSubobject(final Subobject subobject);
+    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
 }

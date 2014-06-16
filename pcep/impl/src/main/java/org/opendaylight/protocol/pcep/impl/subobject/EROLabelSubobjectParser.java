@@ -11,12 +11,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
-import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -71,14 +72,15 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof LabelCase, "Unknown subobject instance. Passed %s. Needed LabelCase.", subobject.getSubobjectType().getClass());
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
+        // FIXME: switch to ByteBuf
         final byte[] labelbytes = this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType());
         if (labelbytes == null) {
             throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
                     + label.getLabelType().getImplementedInterface());
         }
-        return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), labelbytes);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), Unpooled.copiedBuffer(labelbytes), buffer);
     }
 }
