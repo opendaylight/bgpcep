@@ -11,12 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
@@ -35,19 +35,8 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
     /*
      * lengths of fields in bytes
      */
+    private static final int RESERVED = 2;
     private static final int FLAGS_F_LENGTH = 1;
-    private static final int REASON_F_LENGTH = 1;
-
-    /*
-     * offsets of fields in bytes
-     */
-    private static final int FLAGS_F_OFFSET = 2;
-    private static final int REASON_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-
-    /*
-     * total size of object in bytes
-     */
-    private static final int TLVS_OFFSET = REASON_F_OFFSET + REASON_F_LENGTH;
 
     public PCEPCloseObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -59,7 +48,7 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
         final CCloseBuilder builder = new CCloseBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + REASON_F_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_LENGTH + RESERVED);
         builder.setReason((short) UnsignedBytes.toInt(bytes.readByte()));
         parseTlvs(builder, bytes.slice());
         return builder.build();
@@ -67,24 +56,17 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof CClose)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed CloseObject.");
-        }
+        Preconditions.checkArgument(object instanceof CClose, "Wrong instance of PCEPObject. Passed %s. Needed CCloseObject.", object.getClass());
         final CClose obj = (CClose) object;
-
-        final byte[] tlvs = serializeTlvs(obj.getTlvs());
-        int tlvsLength = 0;
-        if (tlvs != null) {
-            tlvsLength = tlvs.length;
-        }
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvsLength + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-
-        if (tlvs != null) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
-        retBytes[REASON_F_OFFSET] = UnsignedBytes.checkedCast(obj.getReason());
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(RESERVED + FLAGS_F_LENGTH);
+        body.writeByte(obj.getReason());
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final byte[] tlvs = serializeTlvs(obj.getTlvs());
+        if (tlvs != null) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

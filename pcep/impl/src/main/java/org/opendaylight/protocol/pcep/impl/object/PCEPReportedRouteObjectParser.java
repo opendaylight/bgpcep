@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -44,13 +45,12 @@ public class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjectsPars
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Rro)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-                    + ". Needed ReportedRouteObject.");
-        }
+        Preconditions.checkArgument(object instanceof Rro, "Wrong instance of PCEPObject. Passed %s. Needed RroObject.", object.getClass());
         final Rro obj = (Rro) object;
-        assert !(obj.getSubobject().isEmpty()) : "Empty Reported Route Object.";
+        final ByteBuf body = Unpooled.buffer();
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(obj.getSubobject())));
+        final byte[] subs = serializeSubobject(obj.getSubobject());
+        body.writeBytes(subs);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

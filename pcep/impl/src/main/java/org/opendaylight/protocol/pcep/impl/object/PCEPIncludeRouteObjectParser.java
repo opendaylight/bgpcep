@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,20 +54,17 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Iro)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed IncludeRouteObject.");
-        }
+        Preconditions.checkArgument(object instanceof Iro, "Wrong instance of PCEPObject. Passed %s. Needed IroObject.", object.getClass());
         final Iro iro = ((Iro) object);
-
-        assert !(iro.getSubobject().isEmpty()) : "Empty Include Route Object.";
-
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> subs = Lists.newArrayList();
-
+        final ByteBuf body = Unpooled.buffer();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> subs = new ArrayList<>();
         for (final Subobject s : iro.getSubobject()) {
             subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setLoose(
                     false).setSubobjectType(s.getSubobjectType()).build());
         }
-	// FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(subs)));
+        //FIXME: switch to Bytebuf
+        byte[] bytes = serializeSubobject(subs);
+        body.writeBytes(bytes);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

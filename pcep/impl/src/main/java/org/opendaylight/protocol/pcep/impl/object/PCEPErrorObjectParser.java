@@ -11,12 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -36,13 +36,8 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
     public static final int TYPE = 1;
 
     private static final int FLAGS_F_LENGTH = 1;
-    private static final int ET_F_LENGTH = 1;
-    private static final int EV_F_LENGTH = 1;
 
-    private static final int FLAGS_F_OFFSET = 1;
-    private static final int ET_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-    private static final int EV_F_OFFSET = ET_F_OFFSET + ET_F_LENGTH;
-    private static final int TLVS_OFFSET = EV_F_OFFSET + EV_F_LENGTH;
+    private static final int RESERVED  = 1;
 
     public PCEPErrorObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -54,7 +49,7 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
         final ErrorObjectBuilder builder = new ErrorObjectBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + ET_F_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + FLAGS_F_LENGTH + RESERVED);
         builder.setType((short) UnsignedBytes.toInt(bytes.readByte()));
         builder.setValue((short) UnsignedBytes.toInt(bytes.readByte()));
         parseTlvs(builder, bytes.slice());
@@ -70,21 +65,18 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof ErrorObject)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed PcepErrorObject.");
-        }
+        Preconditions.checkArgument(object instanceof ErrorObject, "Wrong instance of PCEPObject. Passed %s. Needed ErrorObject.", object.getClass());
         final ErrorObject errObj = (ErrorObject) object;
-
-        final byte[] tlvs = serializeTlvs(errObj.getTlvs());
-
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-        if (tlvs.length != 0) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
-        retBytes[ET_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getType());
-        retBytes[EV_F_OFFSET] = UnsignedBytes.checkedCast(errObj.getValue());
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(FLAGS_F_LENGTH + RESERVED);
+        body.writeByte(errObj.getType());
+        body.writeByte(errObj.getValue());
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final byte[] tlvs = serializeTlvs(errObj.getTlvs());
+        if (tlvs.length != 0) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

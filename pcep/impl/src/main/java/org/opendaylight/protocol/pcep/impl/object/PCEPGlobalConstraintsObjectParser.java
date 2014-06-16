@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -29,18 +30,6 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
     public static final int CLASS = 24;
 
     public static final int TYPE = 1;
-
-    private static final int MAX_HOP_F_LENGTH = 1;
-    private static final int MAX_UTIL_F_LENGTH = 1;
-    private static final int MIN_UTIL_F_LENGTH = 1;
-    private static final int OVER_BOOKING_FACTOR_F_LENGTH = 1;
-
-    private static final int MAX_HOP_F_OFFSET = 0;
-    private static final int MAX_UTIL_F_OFFSET = MAX_HOP_F_OFFSET + MAX_HOP_F_LENGTH;
-    private static final int MIN_UTIL_F_OFFSET = MAX_UTIL_F_OFFSET + MAX_UTIL_F_LENGTH;
-    private static final int OVER_BOOKING_FACTOR_F_OFFSET = MIN_UTIL_F_OFFSET + MIN_UTIL_F_LENGTH;
-
-    private static final int TLVS_OFFSET = OVER_BOOKING_FACTOR_F_OFFSET + OVER_BOOKING_FACTOR_F_LENGTH;
 
     public PCEPGlobalConstraintsObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -63,16 +52,13 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Gc)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed GcObject.");
-        }
+        Preconditions.checkArgument(object instanceof Gc, "Wrong instance of PCEPObject. Passed %s. Needed GcObject.", object.getClass());
         final Gc specObj = (Gc) object;
-        final byte[] retBytes = new byte[TLVS_OFFSET + 0];
-        retBytes[MAX_HOP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxHop());
-        retBytes[MAX_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxUtilization());
-        retBytes[MIN_UTIL_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMinUtilization());
-        retBytes[OVER_BOOKING_FACTOR_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getOverBookingFactor());
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final ByteBuf body = Unpooled.buffer();
+        body.writeByte(specObj.getMaxHop());
+        body.writeByte(specObj.getMaxUtilization());
+        body.writeByte(specObj.getMinUtilization());
+        body.writeByte(specObj.getOverBookingFactor());
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

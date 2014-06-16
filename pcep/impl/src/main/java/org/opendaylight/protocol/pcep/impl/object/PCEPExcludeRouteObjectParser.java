@@ -10,11 +10,11 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.Xro;
@@ -50,18 +50,16 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Xro)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ExcludeRouteObject.");
-        }
+        Preconditions.checkArgument(object instanceof Xro, "Wrong instance of PCEPObject. Passed %s. Needed XroObject.", object.getClass());
         final Xro obj = (Xro) object;
-        assert !(obj.getSubobject().isEmpty()) : "Empty Excluded Route Object.";
-        final byte[] bytes = serializeSubobject(obj.getSubobject());
-        final byte[] result = new byte[FLAGS_OFFSET + 1 + bytes.length];
-        if (obj.getFlags().isFail()) {
-            result[FLAGS_OFFSET] = 1;
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(FLAGS_OFFSET);
+        if (obj.getFlags().isFail() != null) {
+            body.writeBoolean(obj.getFlags().isFail());
         }
-        ByteArray.copyWhole(bytes, result, FLAGS_OFFSET + 1);
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), result));
+        final byte[] bytes = serializeSubobject(obj.getSubobject());
+        body.writeBytes(bytes);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

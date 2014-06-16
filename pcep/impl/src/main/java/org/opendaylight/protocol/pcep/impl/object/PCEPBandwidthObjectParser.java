@@ -9,15 +9,11 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import io.netty.buffer.ByteBuf;
 
-import java.util.Arrays;
-
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 
 /**
- * Parser for {@link Bandwidth}
+ * Parser for Bandwidth
  */
 public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
 
@@ -25,19 +21,12 @@ public class PCEPBandwidthObjectParser extends AbstractBandwidthParser {
 
     public static final int TYPE = 1;
 
-    private static final int BANDWIDTH_LENGTH = 4;
-
     public PCEPBandwidthObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
     }
 
     @Override
-    public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Bandwidth)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed BandwidthObject.");
-        }
-        final byte[] retBytes = Arrays.copyOf(((Bandwidth) object).getBandwidth().getValue(), BANDWIDTH_LENGTH);
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+    protected void formatBandwidth(boolean processed, boolean ignored, ByteBuf body, ByteBuf buffer) {
+        ObjectUtil.formatSubobject(TYPE, CLASS, processed, ignored, body, buffer);
     }
 }
