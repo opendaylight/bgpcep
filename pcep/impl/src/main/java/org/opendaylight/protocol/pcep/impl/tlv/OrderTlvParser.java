@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.order.tlv.OrderBuilder;
@@ -24,10 +27,6 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 5;
 
-    private static final int ORDR_DEL_LENGTH = 4;
-
-    private static final int ORDR_SETUP_LENGTH = 4;
-
     @Override
     public Order parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -37,16 +36,12 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("OrderTlv is mandatory.");
-        }
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "OrderTlv is mandatory.");
         final Order otlv = (Order) tlv;
-        final byte[] bytes = new byte[ORDR_DEL_LENGTH + ORDR_SETUP_LENGTH];
-        int offset = 0;
-        ByteArray.copyWhole(ByteArray.longToBytes(otlv.getDelete(), ORDR_DEL_LENGTH), bytes, offset);
-        offset += ORDR_DEL_LENGTH;
-        ByteArray.copyWhole(ByteArray.longToBytes(otlv.getSetup(), ORDR_SETUP_LENGTH), bytes, offset);
-        return TlvUtil.formatTlv(TYPE, bytes);
+        final ByteBuf body = Unpooled.buffer();
+        body.writeInt(otlv.getDelete().intValue());
+        body.writeInt(otlv.getSetup().intValue());
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

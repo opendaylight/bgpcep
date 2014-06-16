@@ -91,15 +91,11 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         }
         body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
         body.writeZero(RESERVED);
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(lspaObj.getTlvs());
-        if (tlvs.length != 0) {
-            body.writeBytes(tlvs);
-        }
+        serializeTlvs(lspaObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
-        return new byte[0];
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+        return;
     }
 }

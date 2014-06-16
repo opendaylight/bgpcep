@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
-import io.netty.buffer.ByteBuf;
+import com.google.common.base.Preconditions;
 
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifierBuilder;
@@ -23,10 +26,9 @@ public final class Stateful02NodeIdentifierTlvParser implements TlvParser, TlvSe
     public static final int TYPE = 24;
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        return TlvUtil.formatTlv(
-                TYPE,
-                ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier) tlv).getNodeId().getValue());
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "NodeIdentifierTlv is mandatory.");
+        TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier) tlv).getNodeId().getValue()), buffer);
     }
 
     @Override

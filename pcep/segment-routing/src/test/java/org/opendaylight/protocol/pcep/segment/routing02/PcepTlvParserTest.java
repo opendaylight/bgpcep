@@ -10,8 +10,9 @@ package org.opendaylight.protocol.pcep.segment.routing02;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -27,7 +28,9 @@ public class PcepTlvParserTest {
         final SrPceCapabilityTlvParser parser = new SrPceCapabilityTlvParser();
         final SrPceCapability spcTlv = new SrPceCapabilityBuilder().setMsd((short) 1).build();
         assertEquals(spcTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(spcTlvBytes, 4))));
-        assertArrayEquals(spcTlvBytes, parser.serializeTlv(spcTlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(spcTlv, buff);
+        assertArrayEquals(spcTlvBytes, ByteArray.getAllBytes(buff));
     }
 
 }

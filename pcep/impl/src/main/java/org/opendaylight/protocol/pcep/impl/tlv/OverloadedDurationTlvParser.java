@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.overload.duration.tlv.OverloadDurationBuilder;
@@ -24,8 +27,6 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 2;
 
-    private static final int OVERLOADED_DURATION_LENGTH = 4;
-
     @Override
     public OverloadDuration parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -35,11 +36,8 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("OverloadedTlv is mandatory.");
-        }
-        final OverloadDuration odt = (OverloadDuration) tlv;
-        return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(odt.getDuration(), OVERLOADED_DURATION_LENGTH));
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "OverloadedTlv is mandatory.");
+        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((OverloadDuration) tlv).getDuration().intValue()), buffer);
     }
 }

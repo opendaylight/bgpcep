@@ -7,13 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -35,11 +38,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 
     public static final int TYPE = 18;
 
-    private static final int IP4_F_LENGTH = 4;
     private static final int EX_TUNNEL_ID4_F_LENGTH = 4;
-
-    private static final int LSP_ID_F_LENGTH = 2;
-    private static final int TUNNEL_ID_F_LENGTH = 2;
 
     private static final int V4_LENGTH = 16;
 
@@ -52,40 +51,31 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
             throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv4 tlv length.");
         }
         final Ipv4Builder builder = new Ipv4Builder();
-        builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH)));
+        builder.setIpv4TunnelSenderAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH)));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
         builder.setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer,
                 EX_TUNNEL_ID4_F_LENGTH))));
-        builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH)));
+        builder.setIpv4TunnelEndpointAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH)));
         final AddressFamily afi = new Ipv4CaseBuilder().setIpv4(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("LspIdentifiersTlv is mandatory.");
-        }
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final AddressFamily afi = lsp.getAddressFamily();
-
+        final ByteBuf body = Unpooled.buffer();
         if (afi.getImplementedInterface().equals(Ipv6Case.class)) {
-            return new Stateful07LSPIdentifierIpv6TlvParser().serializeTlv(tlv);
+            new Stateful07LSPIdentifierIpv6TlvParser().serializeTlv(tlv, buffer);
         }
-
-        final byte[] bytes = new byte[V4_LENGTH];
-        int offset = 0;
         final Ipv4 ipv4 = ((Ipv4Case) afi).getIpv4();
-        ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelSenderAddress()), bytes, offset);
-        offset += IP4_F_LENGTH;
-        ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);
-        offset += LSP_ID_F_LENGTH;
-        ByteArray.copyWhole(ByteArray.intToBytes(lsp.getTunnelId().getValue(), TUNNEL_ID_F_LENGTH), bytes, offset);
-        offset += TUNNEL_ID_F_LENGTH;
-        ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()), bytes, offset);
-        offset += EX_TUNNEL_ID4_F_LENGTH;
-        ByteArray.copyWhole(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()), bytes, offset);
-        return TlvUtil.formatTlv(TYPE, bytes);
+        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelSenderAddress()));
+        body.writeShort(lsp.getLspId().getValue().shortValue());
+        body.writeShort(lsp.getTunnelId().getValue().shortValue());
+        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()));
+        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()));
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

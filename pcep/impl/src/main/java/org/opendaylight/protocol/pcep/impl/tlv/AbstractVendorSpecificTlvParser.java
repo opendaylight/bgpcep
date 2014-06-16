@@ -7,11 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -26,21 +30,15 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
     protected static final int ENTERPRISE_NUM_LENGTH = 4;
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("Vendor Specific Tlv is mandatory.");
-        }
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "Vendor Specific Tlv is mandatory.");
         final VsTlv vsTlv = (VsTlv) tlv;
+        final ByteBuf body = Unpooled.buffer();
         if (vsTlv.getEnterpriseNumber().getValue() == getEnterpriseNumber()) {
-            final byte[] payloadBytes = serializeVendorPayload(vsTlv.getVendorPayload());
-            final byte[] ianaNumBytes = ByteArray.longToBytes(vsTlv.getEnterpriseNumber().getValue(), ENTERPRISE_NUM_LENGTH);
-
-            final byte[] bytes = new byte[ianaNumBytes.length + payloadBytes.length];
-            System.arraycopy(ianaNumBytes, 0, bytes, 0, ENTERPRISE_NUM_LENGTH);
-            System.arraycopy(payloadBytes, 0, bytes, ENTERPRISE_NUM_LENGTH, payloadBytes.length);
-            return TlvUtil.formatTlv(TYPE, bytes);
+            body.writeInt(vsTlv.getEnterpriseNumber().getValue().intValue());
+            body.writeBytes(serializeVendorPayload(vsTlv.getVendorPayload()));
+            TlvUtil.formatTlv(TYPE, body, buffer);
         }
-        return new byte[0];
     }
 
     @Override

@@ -5,12 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.lsp.setup.type01;
+
+import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
@@ -44,28 +44,16 @@ public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectPars
     }
 
     @Override
-    public byte[] serializeTlvs(Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        final byte[] prev = super.serializeTlvs(tlvs);
-        int finalLength = prev.length;
-        byte[] nameBytes = null;
+        super.serializeTlvs(tlvs, body);
         if (tlvs.getAugmentation(Tlvs1.class) != null) {
             final Tlvs1 nameTlvs = tlvs.getAugmentation(Tlvs1.class);
             if (nameTlvs.getPathSetupType() != null) {
-                nameBytes = serializeTlv(nameTlvs.getPathSetupType());
-                finalLength += nameBytes.length;
+                serializeTlv(nameTlvs.getPathSetupType(), body);
             }
         }
-        final byte[] result = new byte[finalLength];
-        ByteArray.copyWhole(prev, result, 0);
-        int offset = prev.length;
-        if (nameBytes != null) {
-            ByteArray.copyWhole(nameBytes, result, offset);
-            offset += nameBytes.length;
-        }
-        return result;
     }
-
 }

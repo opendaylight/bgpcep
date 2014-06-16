@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02OpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.lsp.cleanup.tlv.LspCleanup;
@@ -56,27 +57,16 @@ public final class PCEPOpenObjectParser extends Stateful02OpenObjectParser {
     }
 
     @Override
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        final byte[] prev = super.serializeTlvs(tlvs);
-        int finalLength = prev.length;
-        byte[] cleanupBytes = null;
+        super.serializeTlvs(tlvs, body);
         if (tlvs.getAugmentation(Tlvs1.class) != null) {
             final Tlvs1 cleanupTlv = tlvs.getAugmentation(Tlvs1.class);
             if (cleanupTlv.getLspCleanup() != null) {
-                cleanupBytes = serializeTlv(cleanupTlv.getLspCleanup());
-                finalLength += cleanupBytes.length;
+                serializeTlv(cleanupTlv.getLspCleanup(), body);
             }
         }
-        final byte[] result = new byte[finalLength];
-        ByteArray.copyWhole(prev, result, 0);
-        int offset = prev.length;
-        if (cleanupBytes != null) {
-            ByteArray.copyWhole(cleanupBytes, result, offset);
-            offset += cleanupBytes.length;
-        }
-        return result;
     }
 }
