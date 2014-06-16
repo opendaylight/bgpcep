@@ -105,46 +105,22 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
             flags.set(OPERATIONAL_FLAG_OFFSET);
         }
         body.writeByte(ByteArray.bitSetToBytes(flags, 2)[1]);
-        //FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
-        body.writeBytes(tlvs);
+        serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        int finalLength = 0;
-        byte[] rsvpErrBytes = null;
-        byte[] symbBytes = null;
-        byte[] dbvBytes = null;
         if (tlvs.getRsvpErrorSpec() != null) {
-            rsvpErrBytes = serializeTlv(tlvs.getRsvpErrorSpec());
-            finalLength += rsvpErrBytes.length;
+            serializeTlv(tlvs.getRsvpErrorSpec(), body);
         }
         if (tlvs.getSymbolicPathName() != null) {
-            symbBytes = serializeTlv(tlvs.getSymbolicPathName());
-            finalLength += symbBytes.length;
+            serializeTlv(tlvs.getSymbolicPathName(), body);
         }
         if (tlvs.getLspDbVersion() != null) {
-            dbvBytes = serializeTlv(tlvs.getLspDbVersion());
-            finalLength += dbvBytes.length;
+            serializeTlv(tlvs.getLspDbVersion(), body);
         }
-        int offset = 0;
-        final byte[] result = new byte[finalLength];
-        if (rsvpErrBytes != null) {
-            ByteArray.copyWhole(rsvpErrBytes, result, offset);
-            offset += rsvpErrBytes.length;
-        }
-        if (symbBytes != null) {
-            ByteArray.copyWhole(symbBytes, result, offset);
-            offset += symbBytes.length;
-        }
-        if (dbvBytes != null) {
-            ByteArray.copyWhole(dbvBytes, result, offset);
-            offset += dbvBytes.length;
-        }
-        return result;
     }
 }

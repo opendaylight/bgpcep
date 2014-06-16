@@ -71,20 +71,15 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
         body.writeZero(FLAGS_F_LENGTH + RESERVED);
         body.writeByte(errObj.getType());
         body.writeByte(errObj.getValue());
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(errObj.getTlvs());
-        if (tlvs.length != 0) {
-            body.writeBytes(tlvs);
-        }
+        serializeTlvs(errObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         } else if (tlvs.getReqMissing() != null) {
-            return serializeTlv(tlvs.getReqMissing());
+            serializeTlv(tlvs.getReqMissing(), body);
         }
-        return new byte[0];
     }
 }

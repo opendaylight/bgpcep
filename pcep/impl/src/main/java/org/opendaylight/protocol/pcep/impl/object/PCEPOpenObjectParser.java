@@ -102,24 +102,16 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         body.writeByte(open.getKeepalive());
         body.writeByte(open.getDeadTimer());
         body.writeByte(open.getSessionId());
-        //FIXME: switch to ByteBuf
-        body.writeBytes(serializeTlvs(open.getTlvs()));
+        serializeTlvs(open.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        byte[] ofListBytes = null;
         if (tlvs.getOfList() != null) {
-            ofListBytes = serializeTlv(tlvs.getOfList());
+            serializeTlv(tlvs.getOfList(), body);
         }
-        byte[] result = new byte[0];
-        if (ofListBytes != null) {
-            result = new byte[ofListBytes.length];
-            ByteArray.copyWhole(ofListBytes, result, 0);
-        }
-        return result;
     }
 }

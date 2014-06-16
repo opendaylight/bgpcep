@@ -7,13 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
@@ -34,11 +37,7 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 
     public static final int TYPE = 19;
 
-    private static final int IP6_F_LENGTH = 16;
     private static final int EX_TUNNEL_ID6_F_LENGTH = 16;
-
-    private static final int LSP_ID_F_LENGTH = 2;
-    private static final int TUNNEL_ID_F_LENGTH = 2;
 
     private static final int V6_LENGTH = 52;
 
@@ -51,34 +50,27 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
             throw new IllegalArgumentException("Length " + buffer.readableBytes() + " does not match LSP Identifiers Ipv6 tlv length.");
         }
         final Ipv6Builder builder = new Ipv6Builder();
-        builder.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH)));
+        builder.setIpv6TunnelSenderAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH)));
         final LspId lspId = new LspId((long) buffer.readUnsignedShort());
         final TunnelId tunnelId = new TunnelId(buffer.readUnsignedShort());
         builder.setIpv6ExtendedTunnelId(new Ipv6ExtendedTunnelId(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer,
                 EX_TUNNEL_ID6_F_LENGTH))));
-        builder.setIpv6TunnelEndpointAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, IP6_F_LENGTH)));
+        builder.setIpv6TunnelEndpointAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH)));
         final AddressFamily afi = new Ipv6CaseBuilder().setIpv6(builder.build()).build();
         return new LspIdentifiersBuilder().setAddressFamily(afi).setLspId(lspId).setTunnelId(tunnelId).build();
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("LspIdentifiersTlv is mandatory.");
-        }
-        final byte[] bytes = new byte[V6_LENGTH];
-        int offset = 0;
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
+        final ByteBuf body = Unpooled.buffer();
         final Ipv6 ipv6 = ((Ipv6Case) lsp.getAddressFamily()).getIpv6();
-        ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelSenderAddress()), bytes, offset);
-        offset += IP6_F_LENGTH;
-        ByteArray.copyWhole(ByteArray.longToBytes(lsp.getLspId().getValue(), LSP_ID_F_LENGTH), bytes, offset);
-        offset += LSP_ID_F_LENGTH;
-        ByteArray.copyWhole(ByteArray.intToBytes(lsp.getTunnelId().getValue(), TUNNEL_ID_F_LENGTH), bytes, offset);
-        offset += TUNNEL_ID_F_LENGTH;
-        ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6ExtendedTunnelId()), bytes, offset);
-        offset += EX_TUNNEL_ID6_F_LENGTH;
-        ByteArray.copyWhole(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelEndpointAddress()), bytes, offset);
-        return TlvUtil.formatTlv(TYPE, bytes);
+        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelSenderAddress()));
+        body.writeShort(lsp.getLspId().getValue().shortValue());
+        body.writeShort(lsp.getTunnelId().getValue().shortValue());
+        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6ExtendedTunnelId()));
+        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelEndpointAddress()));
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

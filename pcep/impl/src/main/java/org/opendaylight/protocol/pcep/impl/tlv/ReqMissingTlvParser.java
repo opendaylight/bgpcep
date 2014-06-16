@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
@@ -25,8 +28,6 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 3;
 
-    private static final int REQ_ID_LENGTH = 4;
-
     @Override
     public ReqMissing parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -36,11 +37,11 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("ReqMissingTlv is mandatory.");
-        }
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "ReqMissingTlv is mandatory.");
         final ReqMissing req = (ReqMissing) tlv;
-        return TlvUtil.formatTlv(TYPE, ByteArray.longToBytes(req.getRequestId().getValue(), REQ_ID_LENGTH));
+        final ByteBuf body = Unpooled.buffer();
+        body.writeInt(req.getRequestId().getValue().intValue());
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

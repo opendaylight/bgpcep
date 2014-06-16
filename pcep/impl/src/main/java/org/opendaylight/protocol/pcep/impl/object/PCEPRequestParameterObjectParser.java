@@ -171,20 +171,15 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         }
         body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH));
         body.writeInt(rpObj.getRequestId().getValue().intValue());
-        //FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(rpObj.getTlvs());
-        if (tlvs.length != 0) {
-            body.writeBytes(tlvs);
-        }
+        serializeTlvs(rpObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         } else if (tlvs.getOrder() != null) {
-            return serializeTlv(tlvs.getOrder());
+            serializeTlv(tlvs.getOrder(), body);
         }
-        return new byte[0];
     }
 }
