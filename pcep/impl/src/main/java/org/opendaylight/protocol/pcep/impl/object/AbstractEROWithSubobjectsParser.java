@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
@@ -62,24 +61,9 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
         return subs;
     }
 
-    protected final byte[] serializeSubobject(final List<Subobject> subobjects) {
-        final List<byte[]> result = Lists.newArrayList();
-        int finalLength = 0;
+    protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
         for (final Subobject subobject : subobjects) {
-            final byte[] bytes = this.subobjReg.serializeSubobject(subobject);
-            if (bytes == null) {
-                LOG.warn("Could not find serializer for subobject type: {}. Skipping subobject.", subobject.getSubobjectType());
-            } else {
-                finalLength += bytes.length;
-                result.add(bytes);
-            }
+            this.subobjReg.serializeSubobject(subobject, buffer);
         }
-        final byte[] resultBytes = new byte[finalLength];
-        int byteOffset = 0;
-        for (final byte[] b : result) {
-            System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
-            byteOffset += b.length;
-        }
-        return resultBytes;
     }
 }

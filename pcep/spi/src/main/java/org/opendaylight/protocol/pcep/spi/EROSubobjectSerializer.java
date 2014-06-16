@@ -7,9 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 
 public interface EROSubobjectSerializer {
 
-    byte[] serializeSubobject(Subobject subobject);
+    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
 }

@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.UnnumberedSubobject;
@@ -30,13 +30,9 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
 
     public static final int TYPE = 4;
 
-    private static final int ROUTER_ID_NUMBER_LENGTH = 4;
-    private static final int INTERFACE_ID_NUMBER_LENGTH = 4;
+    private static final int RESERVED = 2;
 
-    private static final int ROUTER_ID_NUMBER_OFFSET = 2;
-    private static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
-
-    private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
+    private static final int CONTENT_LENGTH = 10;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
@@ -48,7 +44,7 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setLoose(loose);
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder();
-        buffer.readerIndex(buffer.readerIndex() + ROUTER_ID_NUMBER_OFFSET);
+        buffer.readerIndex(buffer.readerIndex() + RESERVED);
         ubuilder.setRouterId(buffer.readUnsignedInt());
         ubuilder.setInterfaceId(buffer.readUnsignedInt());
         builder.setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
@@ -56,17 +52,13 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof UnnumberedCase)) {
-            throw new IllegalArgumentException("Unknown ExplicitRouteSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-                    + ". Needed UnnumberedCase.");
-        }
-        byte[] retBytes;
-        retBytes = new byte[CONTENT_LENGTH];
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
-        ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
-        System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
-                INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-        return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        body.writeZero(RESERVED);
+        body.writeInt(specObj.getRouterId().intValue());
+        body.writeInt(specObj.getInterfaceId().intValue());
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.pcep.impl.object.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder;
@@ -31,11 +31,7 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
 
     public static final int TYPE = 32;
 
-    public static final int AS_NUMBER_LENGTH = 2;
-
-    public static final int AS_NUMBER_OFFSET = 0;
-
-    public static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
+    public static final int CONTENT_LENGTH = 2;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean loose) throws PCEPDeserializerException {
@@ -50,19 +46,9 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof AsNumberCase)) {
-            throw new IllegalArgumentException("Unknown subobject instance. Passed " + subobject.getSubobjectType().getClass()
-                    + ". Needed AsNumberCase.");
-        }
-
-        final byte[] retBytes = new byte[CONTENT_LENGTH];
-
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final AsNumberSubobject s = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
-
-        System.arraycopy(ByteArray.longToBytes(s.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
-                AS_NUMBER_LENGTH);
-
-        return EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), retBytes);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), Unpooled.copyShort(s.getAsNumber().getValue().shortValue()), buffer);
     }
 }
