@@ -69,8 +69,7 @@ public class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsParser {
                             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKeyBuilder().setPathKey(
                                     p.getPathKey()).setPceId(p.getPceId()).build()).build()).build());
         }
-        // FIXME: switch to ByteBuf
-        body.writeBytes(serializeSubobject(subs));
+        serializeSubobject(subs, body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

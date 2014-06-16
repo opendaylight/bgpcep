@@ -62,9 +62,7 @@ public class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobjectsParse
             subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setLoose(
                     false).setSubobjectType(s.getSubobjectType()).build());
         }
-        //FIXME: switch to Bytebuf
-        byte[] bytes = serializeSubobject(subs);
-        body.writeBytes(bytes);
+        serializeSubobject(subs, body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }
