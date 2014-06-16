@@ -335,6 +335,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_b3de003e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-16T13:11:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_13d56c42",
+      "revId": "968c3f7a9922a3824f279c1ff3b4d385112d0017",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_5109b793",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/PathAttributeSerializer.java",
         "patchSetId": 20
