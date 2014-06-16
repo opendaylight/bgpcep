@@ -12,8 +12,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 
-import java.util.Arrays;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,15 +53,11 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         }
     }
 
-    protected final byte[] serializeTlv(final Tlv tlv) {
+    protected final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkNotNull(tlv, "PCEP TLV is mandatory.");
         LOG.trace("Serializing PCEP TLV {}", tlv);
-        final byte[] ret = this.tlvReg.serializeTlv(tlv);
-        if (ret == null) {
-            LOG.warn("TLV serializer for type {} could not be found.", tlv);
-        }
-        LOG.trace("Serialized PCEP TLV {}.", Arrays.toString(ret));
-        return ret;
+        this.tlvReg.serializeTlv(tlv, buffer);
+        LOG.trace("Serialized PCEP TLV {}.", ByteBufUtil.hexDump(buffer));
     }
 
     protected void addTlv(final T builder, final Tlv tlv) {

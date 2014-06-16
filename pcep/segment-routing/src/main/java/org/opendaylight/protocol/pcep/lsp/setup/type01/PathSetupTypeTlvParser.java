@@ -5,15 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.lsp.setup.type01;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -26,14 +28,17 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     private static final int OFFSET = 4 - PST_LENGTH;
 
     @Override
-    public byte[] serializeTlv(Tlv tlv) {
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkNotNull(tlv, "PathSetupType is mandatory.");
         final PathSetupType pstTlv = (PathSetupType) tlv;
-        return TlvUtil.formatTlv(TYPE, new byte[] { 0, 0, 0, (byte) (pstTlv.isPst() ? 1 : 0) });
+        ByteBuf body = Unpooled.buffer();
+        body.writeZero(OFFSET);
+        body.writeBoolean((pstTlv.isPst() != null) ? pstTlv.isPst() : false);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
     @Override
-    public Tlv parseTlv(ByteBuf buffer) throws PCEPDeserializerException {
+    public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
             return null;
         }

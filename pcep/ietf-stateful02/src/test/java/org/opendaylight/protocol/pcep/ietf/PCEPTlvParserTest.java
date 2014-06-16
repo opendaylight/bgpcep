@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.math.BigInteger;
@@ -54,7 +55,9 @@ public class PCEPTlvParserTest {
         final Stateful02StatefulCapabilityTlvParser parser = new Stateful02StatefulCapabilityTlvParser();
         final Stateful tlv = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).setIncludeDbVersion(false).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(statefulBytes, 4))));
-        assertArrayEquals(statefulBytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(statefulBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -63,7 +66,9 @@ public class PCEPTlvParserTest {
         final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName("Med test of symbolic name".getBytes())).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(symbolicNameBytes, 4, 25))));
-        assertArrayEquals(symbolicNameBytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(symbolicNameBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -73,7 +78,9 @@ public class PCEPTlvParserTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.NodeIdentifier(ByteArray.subByte(
                         nodeIdentifierBytes, 4, 25))).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(nodeIdentifierBytes, 4, 25))));
-        assertArrayEquals(nodeIdentifierBytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(nodeIdentifierBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -86,7 +93,9 @@ public class PCEPTlvParserTest {
         builder.setValue(5634);
         final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(rsvpErrorBytes, 4, 8))));
-        assertArrayEquals(rsvpErrorBytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(rsvpErrorBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -101,7 +110,9 @@ public class PCEPTlvParserTest {
         builder.setValue(50649);
         final RsvpErrorSpec tlv = new RsvpErrorSpecBuilder().setRsvpError(builder.build()).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(rsvpError6Bytes, 4, 20))));
-        assertArrayEquals(rsvpError6Bytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(rsvpError6Bytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -109,7 +120,9 @@ public class PCEPTlvParserTest {
         final Stateful02LspDbVersionTlvParser parser = new Stateful02LspDbVersionTlvParser();
         final LspDbVersion tlv = new LspDbVersionBuilder().setVersion(BigInteger.valueOf(180L)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(lspDbBytes, 4))));
-        assertArrayEquals(lspDbBytes, parser.serializeTlv(tlv));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(lspDbBytes, ByteArray.getAllBytes(buff));
 
     }
 }

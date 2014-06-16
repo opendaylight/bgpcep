@@ -7,14 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
-import org.opendaylight.protocol.pcep.impl.tlv.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.stateful.capability.tlv.StatefulBuilder;
@@ -46,14 +49,18 @@ public class Stateful02StatefulCapabilityTlvParser implements TlvParser, TlvSeri
     }
 
     @Override
-    public byte[] serializeTlv(final Tlv tlv) {
-        if (tlv == null) {
-            throw new IllegalArgumentException("StatefulCapabilityTlv is mandatory.");
-        }
+    public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
+        Preconditions.checkArgument(tlv != null, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
+        final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
-        flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
-        return TlvUtil.formatTlv(TYPE, ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        if (sct.isLspUpdateCapability() != null) {
+            flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        }
+        if (sct.isIncludeDbVersion() != null) {
+            flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

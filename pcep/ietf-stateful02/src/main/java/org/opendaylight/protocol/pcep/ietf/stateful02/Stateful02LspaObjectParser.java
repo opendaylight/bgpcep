@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.pcep.impl.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.symbolic.path.name.tlv.SymbolicPathName;
@@ -43,27 +44,16 @@ public class Stateful02LspaObjectParser extends PCEPLspaObjectParser {
     }
 
     @Override
-    public byte[] serializeTlvs(final Tlvs tlvs) {
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
-            return new byte[0];
+            return;
         }
-        final byte[] prev = super.serializeTlvs(tlvs);
-        int finalLength = prev.length;
-        byte[] nameBytes = null;
+        super.serializeTlvs(tlvs, body);
         if (tlvs.getAugmentation(Tlvs2.class) != null) {
             final Tlvs2 nameTlvs = tlvs.getAugmentation(Tlvs2.class);
             if (nameTlvs.getSymbolicPathName() != null) {
-                nameBytes = serializeTlv(nameTlvs.getSymbolicPathName());
-                finalLength += nameBytes.length;
+                serializeTlv(nameTlvs.getSymbolicPathName(), body);
             }
         }
-        final byte[] result = new byte[finalLength];
-        ByteArray.copyWhole(prev, result, 0);
-        int offset = prev.length;
-        if (nameBytes != null) {
-            ByteArray.copyWhole(nameBytes, result, offset);
-            offset += nameBytes.length;
-        }
-        return result;
     }
 }
