@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -39,11 +40,6 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     /*
      * lengths of fields in bytes
      */
-    private static final int EXC_ANY_F_LENGTH = 4;
-    private static final int INC_ANY_F_LENGTH = 4;
-    private static final int INC_ALL_F_LENGTH = 4;
-    private static final int SET_PRIO_F_LENGTH = 1;
-    private static final int HOLD_PRIO_F_LENGTH = 1;
     private static final int FLAGS_F_LENGTH = 1;
 
     /*
@@ -51,16 +47,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
      */
     private static final int L_FLAG_OFFSET = 7;
 
-    /*
-     * offsets of fields in bytes
-     */
-    private static final int EXC_ANY_F_OFFSET = 0;
-    private static final int INC_ANY_F_OFFSET = EXC_ANY_F_OFFSET + EXC_ANY_F_LENGTH;
-    private static final int INC_ALL_F_OFFSET = INC_ANY_F_OFFSET + INC_ANY_F_LENGTH;
-    private static final int SET_PRIO_F_OFFSET = INC_ALL_F_OFFSET + INC_ALL_F_LENGTH;
-    private static final int HOLD_PRIO_F_OFFSET = SET_PRIO_F_OFFSET + SET_PRIO_F_LENGTH;
-    private static final int FLAGS_F_OFFSET = HOLD_PRIO_F_OFFSET + HOLD_PRIO_F_LENGTH;
-    private static final int TLVS_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH + 1;
+    private static final int RESERVED = 1;
 
     public PCEPLspaObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -82,7 +69,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final BitSet flags = ByteArray.bytesToBitSet(new byte[] { bytes.readByte() });
         builder.setLocalProtectionDesired(flags.get(L_FLAG_OFFSET));
         final TlvsBuilder tbuilder = new TlvsBuilder();
-        bytes.readerIndex(TLVS_F_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + RESERVED);
         parseTlvs(tbuilder, bytes.slice());
         builder.setTlvs(tbuilder.build());
         return builder.build();
@@ -90,41 +77,26 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Lspa)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspaObject.");
-        }
+        Preconditions.checkArgument(object instanceof Lspa, String.format("Wrong instance of PCEPObject. Passed %s . Needed LspaObject.", object.getClass()));
         final Lspa lspaObj = (Lspa) object;
-
-        final byte[] tlvs = serializeTlvs(lspaObj.getTlvs());
-        final byte[] retBytes = new byte[TLVS_F_OFFSET + tlvs.length + getPadding(TLVS_F_OFFSET + tlvs.length, PADDED_TO)];
-
-        if (lspaObj.getExcludeAny() != null) {
-            System.arraycopy(ByteArray.longToBytes(lspaObj.getExcludeAny().getValue(), EXC_ANY_F_LENGTH), 0, retBytes, EXC_ANY_F_OFFSET,
-                    EXC_ANY_F_LENGTH);
-        }
-        if (lspaObj.getIncludeAny() != null) {
-            System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAny().getValue(), INC_ANY_F_LENGTH), 0, retBytes, INC_ANY_F_OFFSET,
-                    INC_ANY_F_LENGTH);
-        }
-        if (lspaObj.getIncludeAll() != null) {
-            System.arraycopy(ByteArray.longToBytes(lspaObj.getIncludeAll().getValue(), INC_ALL_F_LENGTH), 0, retBytes, INC_ALL_F_OFFSET,
-                    INC_ALL_F_LENGTH);
-        }
-        if (lspaObj.getSetupPriority() != null) {
-            retBytes[SET_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getSetupPriority());
-        }
-        if (lspaObj.getHoldPriority() != null) {
-            retBytes[HOLD_PRIO_F_OFFSET] = UnsignedBytes.checkedCast(lspaObj.getHoldPriority());
-        }
-
+        final ByteBuf body = Unpooled.buffer();
+        body.writeInt(lspaObj.getExcludeAny().getValue().intValue());
+        body.writeInt(lspaObj.getIncludeAny().getValue().intValue());
+        body.writeInt(lspaObj.getIncludeAll().getValue().intValue());
+        body.writeByte(lspaObj.getSetupPriority());
+        body.writeByte(lspaObj.getHoldPriority());
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        if (lspaObj.isLocalProtectionDesired() != null && lspaObj.isLocalProtectionDesired()) {
+        if (lspaObj.isLocalProtectionDesired() != null) {
             flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
         }
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_F_OFFSET);
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        body.writeZero(RESERVED);
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final byte[] tlvs = serializeTlvs(lspaObj.getTlvs());
+        if (tlvs.length != 0) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

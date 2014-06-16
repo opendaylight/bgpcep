@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -59,26 +60,18 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Srp)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
-        }
+        Preconditions.checkArgument(object instanceof Srp, String.format("Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass()));
         final Srp srp = (Srp) object;
+        ByteBuf body = Unpooled.buffer();
+        //FIXME: switch to ByteBuf
         final byte[] tlvs = serializeTlvs(srp.getTlvs());
-        final Long id = srp.getOperationId().getValue();
-
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-        if (tlvs != null) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
         final BitSet flags = new BitSet(FLAGS_SIZE * Byte.SIZE);
         if (srp.getAugmentation(Srp1.class) != null && srp.getAugmentation(Srp1.class).isRemove()) {
             flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
         }
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_SIZE), retBytes, 0);
-
-        System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        // FIXME : switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_SIZE));
+        body.writeInt(srp.getOperationId().getValue().intValue());
+        body.writeBytes(tlvs);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

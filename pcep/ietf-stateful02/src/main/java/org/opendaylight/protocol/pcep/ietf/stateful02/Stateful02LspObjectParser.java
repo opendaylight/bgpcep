@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful02;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -40,18 +41,12 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
     public static final int TYPE = 1;
 
     /*
-     * offset of TLVs offset of other fields are not defined as constants
-     * because of non-standard mapping of bits
-     */
-    private static final int TLVS_OFFSET = 4;
-
-    /*
-     * 12b extended to 16b so first 4b are restricted (belongs to LSP ID)
+     * first 4b are restricted
      */
     private static final int DELEGATE_FLAG_OFFSET = 15;
     private static final int SYNC_FLAG_OFFSET = 14;
-    private static final int REMOVE_FLAG_OFFSET = 12;
     private static final int OPERATIONAL_FLAG_OFFSET = 13;
+    private static final int REMOVE_FLAG_OFFSET = 12;
 
     public Stateful02LspObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -63,7 +58,7 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final LspBuilder builder = new LspBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        int[] plspIdRaw = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
+        int[] plspIdRaw = { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2) };
         builder.setPlspId(new PlspId((long) ((plspIdRaw[0] << 12) | (plspIdRaw[1] << 4) | (plspIdRaw[2] >> 4))));
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, 2));
         builder.setDelegate(flags.get(DELEGATE_FLAG_OFFSET));
@@ -89,33 +84,31 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Lsp)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed LspObject.");
-        }
+        Preconditions.checkArgument(object instanceof Lsp, String.format("Wrong instance of PCEPObject. Passed %s . Needed LspObject.", object.getClass()));
         final Lsp specObj = (Lsp) object;
+        final ByteBuf body = Unpooled.buffer();
+        final PlspId plsp = specObj.getPlspId();
+        Preconditions.checkArgument(plsp != null, "PLSP-ID not present");
+        body.writeMedium(plsp.getValue().intValue() << 4);
 
-        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-
-        final int lspID = specObj.getPlspId().getValue().intValue();
-        retBytes[0] = (byte) (lspID >> 12);
-        retBytes[1] = (byte) (lspID >> 4);
-        retBytes[2] = (byte) (lspID << 4);
+        BitSet flags = new BitSet(2 * Byte.SIZE);
         if (specObj.isDelegate() != null && specObj.isDelegate()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (DELEGATE_FLAG_OFFSET - Byte.SIZE) - 1);
+            flags.set(DELEGATE_FLAG_OFFSET);
         }
         if (specObj.isRemove() != null && specObj.isRemove()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (REMOVE_FLAG_OFFSET - Byte.SIZE) - 1);
+            flags.set(REMOVE_FLAG_OFFSET);
         }
         if (specObj.isSync() != null && specObj.isSync()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (SYNC_FLAG_OFFSET - Byte.SIZE) - 1);
+            flags.set(SYNC_FLAG_OFFSET);
         }
         if (specObj.isOperational() != null && specObj.isOperational()) {
-            retBytes[3] |= 1 << (Byte.SIZE - (OPERATIONAL_FLAG_OFFSET - Byte.SIZE) - 1);
+            flags.set(OPERATIONAL_FLAG_OFFSET);
         }
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        //FIXME : switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        body.writeByte(ByteArray.bitSetToBytes(flags, 2)[1]);
+        //FIXME: switch to ByteBuf
+        final byte[] tlvs = serializeTlvs(specObj.getTlvs());
+        body.writeBytes(tlvs);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

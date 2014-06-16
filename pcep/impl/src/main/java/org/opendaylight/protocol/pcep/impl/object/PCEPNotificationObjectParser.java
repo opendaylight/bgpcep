@@ -11,12 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -36,19 +36,9 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
     public static final int TYPE = 1;
 
     /*
-     * lengths of fields
-     */
-    private static final int FLAGS_F_LENGTH = 1;
-    private static final int NT_F_LENGTH = 1;
-    private static final int NV_F_LENGTH = 1;
-
-    /*
      * offsets of fields
      */
-    private static final int FLAGS_F_OFFSET = 1;
-    private static final int NT_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-    private static final int NV_F_OFFSET = NT_F_OFFSET + NT_F_LENGTH;
-    private static final int TLVS_OFFSET = NV_F_OFFSET + NV_F_LENGTH;
+    private static final int NT_F_OFFSET = 2;
 
     public PCEPNotificationObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -76,21 +66,18 @@ public class PCEPNotificationObjectParser extends AbstractObjectWithTlvsParser<C
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof CNotification)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed NotificationObject.");
-        }
+        Preconditions.checkArgument(object instanceof CNotification, String.format("Wrong instance of PCEPObject. Passed %s . Needed CNotificationObject.", object.getClass()));
         final CNotification notObj = (CNotification) object;
-
-        final byte[] tlvs = serializeTlvs(notObj.getTlvs());
-
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-        if (tlvs.length != 0) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
-        retBytes[NT_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getType());
-        retBytes[NV_F_OFFSET] = UnsignedBytes.checkedCast(notObj.getValue());
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(NT_F_OFFSET);
+        body.writeByte(notObj.getType());
+        body.writeByte(notObj.getValue());
         // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final byte[] tlvs = serializeTlvs(notObj.getTlvs());
+        if (tlvs.length != 0) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

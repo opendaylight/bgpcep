@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.concepts.Ipv6Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -38,13 +39,8 @@ public class PCEPEndPointsIpv6ObjectParser extends AbstractObjectWithTlvsParser<
     private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv6ObjectParser.class);
 
     public static final int CLASS = 4;
-    public static final int TYPE = 2;
 
-    /*
-     * fields lengths and offsets for IPv6 in bytes
-     */
-    private static final int SRC6_F_OFFSET = 0;
-    private static final int DEST6_F_OFFSET = SRC6_F_OFFSET + Ipv6Util.IPV6_LENGTH;
+    public static final int TYPE = 2;
 
     public PCEPEndPointsIpv6ObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -72,20 +68,13 @@ public class PCEPEndPointsIpv6ObjectParser extends AbstractObjectWithTlvsParser<
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof EndpointsObj)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
-        }
+        Preconditions.checkArgument(object instanceof EndpointsObj, String.format("Wrong instance of PCEPObject. Passed %s . Needed EndpointsObject.", object.getClass()));
         final EndpointsObj ePObj = (EndpointsObj) object;
-
         final AddressFamily afi = ePObj.getAddressFamily();
-
-        if (!(afi instanceof Ipv6Case)) {
-            throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + afi.getClass() + ". Needed IPv4");
-        }
-        final byte[] retBytes = new byte[Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH];
-        ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getSourceIpv6Address()), retBytes, SRC6_F_OFFSET);
-        ByteArray.copyWhole(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getDestinationIpv6Address()), retBytes, DEST6_F_OFFSET);
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        Preconditions.checkArgument(afi instanceof Ipv6Case, String.format("Wrong instance of NetworkAddress. Passed %s. Needed IPv6", afi.getClass()));
+        final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH);
+        body.writeBytes(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getSourceIpv6Address()));
+        body.writeBytes(Ipv6Util.bytesForAddress((((Ipv6Case) afi).getIpv6()).getDestinationIpv6Address()));
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

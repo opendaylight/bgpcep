@@ -10,11 +10,13 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
@@ -40,4 +42,14 @@ abstract class AbstractBandwidthParser extends AbstractObjectWithTlvsParser<Band
         builder.setBandwidth(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth(ByteArray.getAllBytes(bytes)));
         return builder.build();
     }
+
+    @Override
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        Preconditions.checkArgument(object instanceof Bandwidth, String.format("Wrong instance of PCEPObject. Passed %s . Needed BandwidthObject.", object.getClass()));
+        final ByteBuf body = Unpooled.buffer();
+        body.writeBytes(((Bandwidth) object).getBandwidth().getValue());
+        formatBandwidth(object.isProcessingRule(), object.isIgnore(), body, buffer);
+    }
+
+    protected abstract void formatBandwidth(final boolean processed, final boolean ignored, final ByteBuf body, final ByteBuf buffer);
 }

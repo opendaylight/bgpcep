@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
@@ -74,20 +74,16 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Srp)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed SrpObject.");
-        }
+        Preconditions.checkArgument(object instanceof Srp, String.format("Wrong instance of PCEPObject. Passed %s . Needed SrpObject.", object.getClass()));
         final Srp srp = (Srp) object;
+        ByteBuf body = Unpooled.buffer();
+        //FIXME: switch to ByteBuf
         final byte[] tlvs = serializeTlvs(srp.getTlvs());
+        body.writerIndex(body.writerIndex() + FLAGS_SIZE);
         final Long id = srp.getOperationId().getValue();
-        final byte[] retBytes = new byte[MIN_SIZE];
-        if (tlvs != null) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        }
-        System.arraycopy(ByteArray.intToBytes(id.intValue(), SRP_ID_SIZE), 0, retBytes, FLAGS_SIZE, SRP_ID_SIZE);
-        ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        body.writeInt(id.intValue());
+        body.writeBytes(tlvs);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.object;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
@@ -38,14 +39,8 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
     private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv4ObjectParser.class);
 
     public static final int CLASS = 4;
+
     public static final int TYPE = 1;
-
-    /*
-     * fields lengths and offsets for IPv4 in bytes
-     */
-
-    private static final int SRC4_F_OFFSET = 0;
-    private static final int DEST4_F_OFFSET = SRC4_F_OFFSET + Ipv4Util.IP4_LENGTH;
 
     public PCEPEndPointsIpv4ObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -73,20 +68,13 @@ public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof EndpointsObj)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed EndpointsObject.");
-        }
+        Preconditions.checkArgument(object instanceof EndpointsObj, String.format("Wrong instance of PCEPObject. Passed %s . Needed EndpointsObject.", object.getClass()));
         final EndpointsObj ePObj = (EndpointsObj) object;
-
         final AddressFamily afi = ePObj.getAddressFamily();
-
-        if (!(afi instanceof Ipv4Case)) {
-            throw new IllegalArgumentException("Wrong instance of NetworkAddress. Passed " + afi.getClass() + ". Needed IPv4");
-        }
-        final byte[] retBytes = new byte[Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH];
-        ByteArray.copyWhole(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getSourceIpv4Address()), retBytes, SRC4_F_OFFSET);
-        ByteArray.copyWhole(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getDestinationIpv4Address()), retBytes, DEST4_F_OFFSET);
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        Preconditions.checkArgument(afi instanceof Ipv4Case, String.format("Wrong instance of NetworkAddress. Passed %s. Needed IPv4", afi.getClass()));
+        final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH);
+        body.writeBytes(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getSourceIpv4Address()));
+        body.writeBytes(Ipv4Util.bytesForAddress((((Ipv4Case) afi).getIpv4()).getDestinationIpv4Address()));
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

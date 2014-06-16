@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -32,15 +33,10 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
 
     public static final int TYPE = 1;
 
+    private static final int RESERVED = 2;
     private static final int FLAGS_F_LENGTH = 1;
-    private static final int MAX_LSP_F_LENGTH = 1;
-    private static final int MIN_BAND_F_LENGTH = 4;
 
-    private static final int FLAGS_F_OFFSET = 2;
-    private static final int MAX_LSP_F_OFFSET = FLAGS_F_OFFSET + FLAGS_F_LENGTH;
-    private static final int MIN_BAND_F_OFFSET = MAX_LSP_F_OFFSET + MAX_LSP_F_LENGTH;
-
-    private static final int SIZE = MIN_BAND_F_OFFSET + MIN_BAND_F_LENGTH;
+    private static final int SIZE = 8;
 
     public PCEPLoadBalancingObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -56,23 +52,20 @@ public class PCEPLoadBalancingObjectParser extends AbstractObjectWithTlvsParser<
         final LoadBalancingBuilder builder = new LoadBalancingBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
-        bytes.readerIndex(bytes.readerIndex() + MAX_LSP_F_OFFSET);
+        bytes.readerIndex(bytes.readerIndex() + RESERVED + FLAGS_F_LENGTH);
         builder.setMaxLsp((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setMinBandwidth(new Bandwidth(ByteArray.readBytes(bytes, MIN_BAND_F_LENGTH)));
+        builder.setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)));
         return builder.build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof LoadBalancing)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-                    + ". Needed LoadBalancingObject.");
-        }
+        Preconditions.checkArgument(object instanceof LoadBalancing, String.format("Wrong instance of PCEPObject. Passed %s . Needed LoadBalancingObject.", object.getClass()));
         final LoadBalancing specObj = (LoadBalancing) object;
-        final byte[] retBytes = new byte[SIZE];
-        retBytes[MAX_LSP_F_OFFSET] = UnsignedBytes.checkedCast(specObj.getMaxLsp());
-        ByteArray.copyWhole(specObj.getMinBandwidth().getValue(), retBytes, MIN_BAND_F_OFFSET);
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        final ByteBuf body = Unpooled.buffer(SIZE);
+        body.writeZero(RESERVED + FLAGS_F_LENGTH);
+        body.writeByte(specObj.getMaxLsp());
+        body.writeBytes(specObj.getMinBandwidth().getValue());
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

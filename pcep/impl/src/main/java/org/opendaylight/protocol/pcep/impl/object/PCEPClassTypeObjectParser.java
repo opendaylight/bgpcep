@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -48,7 +48,7 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
     /**
      * Size of the object in bytes.
      */
-    private static final int SIZE = (RESERVED + CT_F_LENGTH) / 8;
+    private static final int SIZE = (RESERVED + CT_F_LENGTH) / Byte.SIZE;
 
     public PCEPClassTypeObjectParser(final TlvRegistry tlvReg) {
         super(tlvReg);
@@ -82,12 +82,10 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof ClassType)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed ClasstypeObject.");
-        }
-        final byte[] retBytes = new byte[SIZE];
-        retBytes[SIZE - 1] = UnsignedBytes.checkedCast(((ClassType) object).getClassType().getValue());
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        Preconditions.checkArgument(object instanceof ClassType, String.format("Wrong instance of PCEPObject. Passed %s . Needed ClassTypeObject.", object.getClass()));
+        final ByteBuf body = Unpooled.buffer(SIZE);
+        body.writeZero(SIZE -1);
+        body.writeByte(((ClassType) object).getClassType().getValue());
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

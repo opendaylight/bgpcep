@@ -9,8 +9,10 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
@@ -42,20 +44,11 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
      * lengths of fields in bytes
      */
     private static final int FLAGS_PRI_MF_LENGTH = 4;
-    private static final int RID_F_LENGTH = 4;
 
     /*
      * lengths of subfields inside multi-field in bits
      */
     private static final int FLAGS_SF_LENGTH = 29;
-
-    /*
-     * offsets of field in bytes
-     */
-
-    private static final int FLAGS_PRI_MF_OFFSET = 0;
-    private static final int RID_F_OFFSET = FLAGS_PRI_MF_OFFSET + FLAGS_PRI_MF_LENGTH;
-    private static final int TLVS_OFFSET = RID_F_OFFSET + RID_F_LENGTH;
 
     /*
      * offsets of subfields inside multi-field in bits
@@ -103,15 +96,15 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(bytes, FLAGS_PRI_MF_LENGTH));
-        short priority = 0;
-        priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
-        priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
-        priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
 
         final RpBuilder builder = new RpBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
 
+        short priority = 0;
+        priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
+        priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
+        priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;
         builder.setPriority(priority);
         builder.setFragmentation(flags.get(F_FLAG_OFFSET));
         builder.setP2mp(flags.get(N_FLAG_OFFSET));
@@ -138,37 +131,52 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        if (!(object instanceof Rp)) {
-            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass() + ". Needed RpObject.");
-        }
-        final Rp rPObj = (Rp) object;
+        Preconditions.checkArgument(object instanceof Rp, String.format("Wrong instance of PCEPObject. Passed %s . Needed RPObject.", object.getClass()));
+        final ByteBuf body = Unpooled.buffer();
+        final Rp rpObj = (Rp) object;
         final BitSet flags = new BitSet(FLAGS_PRI_MF_LENGTH * Byte.SIZE);
-
-        flags.set(R_FLAG_OFFSET, rPObj.isReoptimization());
-        flags.set(B_FLAG_OFFSET, rPObj.isBiDirectional());
-        flags.set(O_FLAG_OFFSET, rPObj.isLoose());
-        flags.set(M_FLAG_OFFSET, rPObj.isMakeBeforeBreak());
-        flags.set(D_FLAG_OFFSET, rPObj.isOrder());
-        flags.set(P_FLAG_OFFSET, rPObj.isPathKey());
-        flags.set(S_FLAG_OFFSET, rPObj.isSupplyOf());
-        flags.set(F_FLAG_OFFSET, rPObj.isFragmentation());
-        flags.set(N_FLAG_OFFSET, rPObj.isP2mp());
-        flags.set(E_FLAG_OFFSET, rPObj.isEroCompression());
-
-        flags.set(PRI_SF_OFFSET, (rPObj.getPriority() & 1 << 2) != 0);
-        flags.set(PRI_SF_OFFSET + 1, (rPObj.getPriority() & 1 << 1) != 0);
-        flags.set(PRI_SF_OFFSET + 2, (rPObj.getPriority() & 1) != 0);
-
-        final byte[] tlvs = serializeTlvs(rPObj.getTlvs());
-        final byte[] retBytes = new byte[TLVS_OFFSET + tlvs.length + getPadding(TLVS_OFFSET + tlvs.length, PADDED_TO)];
-
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH), retBytes, FLAGS_PRI_MF_OFFSET);
-        ByteArray.copyWhole(ByteArray.longToBytes(rPObj.getRequestId().getValue(), RID_F_LENGTH), retBytes, RID_F_OFFSET);
-        if (tlvs.length != 0) {
-            ByteArray.copyWhole(tlvs, retBytes, TLVS_OFFSET);
+        if (rpObj.isReoptimization() != null) {
+            flags.set(R_FLAG_OFFSET, rpObj.isReoptimization());
         }
-        // FIXME: switch to ByteBuf
-        buffer.writeBytes(ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), retBytes));
+        if (rpObj.isBiDirectional() != null) {
+            flags.set(B_FLAG_OFFSET, rpObj.isBiDirectional());
+        }
+        if (rpObj.isLoose() != null) {
+            flags.set(O_FLAG_OFFSET, rpObj.isLoose());
+        }
+        if (rpObj.isMakeBeforeBreak() != null) {
+            flags.set(M_FLAG_OFFSET, rpObj.isMakeBeforeBreak());
+        }
+        if (rpObj.isOrder() != null) {
+            flags.set(D_FLAG_OFFSET, rpObj.isOrder());
+        }
+        if (rpObj.isPathKey() != null) {
+            flags.set(P_FLAG_OFFSET, rpObj.isPathKey());
+        }
+        if (rpObj.isSupplyOf() != null) {
+            flags.set(S_FLAG_OFFSET, rpObj.isSupplyOf());
+        }
+        if (rpObj.isFragmentation() != null) {
+            flags.set(F_FLAG_OFFSET, rpObj.isFragmentation());
+        }
+        if (rpObj.isP2mp() != null) {
+            flags.set(N_FLAG_OFFSET, rpObj.isP2mp());
+        }
+        if (rpObj.isEroCompression() != null) {
+            flags.set(E_FLAG_OFFSET, rpObj.isEroCompression());
+        }
+        if (rpObj.getPriority() != null) {
+            final byte[] p = { 0, 0, 0, UnsignedBytes.checkedCast(rpObj.getPriority().shortValue())};
+            flags.or(ByteArray.bytesToBitSet(p));
+        }
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_PRI_MF_LENGTH));
+        body.writeInt(rpObj.getRequestId().getValue().intValue());
+        //FIXME: switch to ByteBuf
+        final byte[] tlvs = serializeTlvs(rpObj.getTlvs());
+        if (tlvs.length != 0) {
+            body.writeBytes(tlvs);
+        }
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
     public byte[] serializeTlvs(final Tlvs tlvs) {
