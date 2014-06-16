@@ -11,14 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
+import io.netty.buffer.ByteBufUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -42,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * Parser for BGP Open message.
  */
 public final class BGPOpenMessageParser implements MessageParser, MessageSerializer {
+
     public static final int TYPE = 1;
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPOpenMessageParser.class);
@@ -71,7 +70,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * @return BGP Open message converted to byte array
      */
     @Override
-    public byte[] serializeMessage(final Notification msg) {
+    public void serializeMessage(final Notification msg, ByteBuf bytes) {
         if (msg == null) {
             throw new IllegalArgumentException("BGPOpen message cannot be null");
         }
@@ -121,9 +120,8 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
                 index += entry.getValue();
             }
         }
-        final byte[] ret = MessageUtil.formatMessage(TYPE, msgBody);
-        LOG.trace("Open message serialized to: {}", Arrays.toString(ret));
-        return ret;
+        bytes.writeBytes(MessageUtil.formatMessage(TYPE, msgBody));
+        LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(bytes));
     }
 
     /**

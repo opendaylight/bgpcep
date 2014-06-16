@@ -26,7 +26,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     protected abstract Notification parseBody(final int type, final ByteBuf body, final int messageLength) throws BGPDocumentedException;
 
-    protected abstract byte[] serializeMessageImpl(final Notification message);
+    protected abstract void serializeMessageImpl(final Notification message, final ByteBuf buffer);
 
     static {
         MARKER = new byte[MessageUtil.MARKER_LENGTH];
@@ -66,10 +66,8 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public final byte[] serializeMessage(final Notification message) {
+    public final void serializeMessage(final Notification message, final ByteBuf buffer) {
         Preconditions.checkNotNull(message, "BGPMessage is mandatory.");
-        final byte[] ret = serializeMessageImpl(message);
-        Preconditions.checkNotNull(ret, "Unknown instance of BGPMessage. Passed ", message.getClass());
-        return ret;
+        serializeMessageImpl(message, buffer);
     }
 }

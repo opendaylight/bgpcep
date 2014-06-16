@@ -256,7 +256,7 @@ public class ComplementaryTest {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
         String ex = "";
         try {
-            msgReg.serializeMessage(null);
+            msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER);
         } catch (final NullPointerException e) {
             ex = e.getMessage();
         }

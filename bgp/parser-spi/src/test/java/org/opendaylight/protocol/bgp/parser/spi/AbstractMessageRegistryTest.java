@@ -15,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.KeepaliveBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -22,14 +23,14 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class AbstractMessageRegistryTest {
 
     public static final byte[] keepAliveBMsg = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
-        (byte) 0x00, (byte) 0x13, (byte) 0x04 };
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0x00, (byte) 0x13, (byte) 0x04 };
 
     private final AbstractMessageRegistry registry = new AbstractMessageRegistry() {
 
         @Override
-        protected byte[] serializeMessageImpl(Notification message) {
-            return keepAliveBMsg;
+        protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
+            buffer.writeBytes(keepAliveBMsg);
         }
 
         @Override
@@ -41,8 +42,9 @@ public class AbstractMessageRegistryTest {
     @Test
     public void testRegistry() throws BGPDocumentedException, BGPParsingException {
         final Notification keepAlive = new KeepaliveBuilder().build();
-        final byte[] serialized = this.registry.serializeMessage(keepAlive);
-        assertArrayEquals(keepAliveBMsg, serialized);
+        final ByteBuf buffer = Unpooled.buffer();
+        this.registry.serializeMessage(keepAlive, buffer);
+        assertArrayEquals(keepAliveBMsg, ByteArray.getAllBytes(buffer));
 
         final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(keepAliveBMsg));
         assertTrue(not instanceof Keepalive);
