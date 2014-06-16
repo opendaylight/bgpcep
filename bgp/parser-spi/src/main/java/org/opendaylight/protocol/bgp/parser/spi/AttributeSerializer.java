@@ -7,8 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeSerializer {
-    byte[] serializeAttribute(final DataObject attribute);
+
+    void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator);
+
 }

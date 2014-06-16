@@ -18,6 +18,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class SimpleMessageRegistry extends AbstractMessageRegistry {
+
     private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
     @Override
@@ -31,13 +32,12 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     }
 
     @Override
-    protected byte[] serializeMessageImpl(final Notification message) {
+    protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
         final MessageSerializer serializer = this.handlers.getSerializer(message.getImplementedInterface());
         if (serializer == null) {
-            return null;
+            return;
         }
-
-        return serializer.serializeMessage(message);
+        serializer.serializeMessage(message, buffer);
     }
 
     AutoCloseable registerMessageParser(final int messageType, final MessageParser parser) {
