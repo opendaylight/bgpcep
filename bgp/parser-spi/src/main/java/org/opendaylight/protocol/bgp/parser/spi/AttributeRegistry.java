@@ -15,7 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public interface AttributeRegistry {
-    PathAttributes parseAttributes(ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
 
-    byte[] serializeAttribute(DataObject attribute);
+    PathAttributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException;
+
+    void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator);
 }

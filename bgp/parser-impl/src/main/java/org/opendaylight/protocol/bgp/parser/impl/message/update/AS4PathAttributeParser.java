@@ -13,6 +13,7 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 
 public final class AS4PathAttributeParser implements AttributeParser {
+
     public static final int TYPE = 18;
 
     @Override
