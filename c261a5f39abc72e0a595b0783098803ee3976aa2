@@ -172,6 +172,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_5e453bb1",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:23:32Z",
+      "side": 1,
+      "message": "\u0027public static void\u0027 of course",
+      "parentUuid": "fa82b9bf_9ef42388",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3ef3979f",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
         "patchSetId": 3
