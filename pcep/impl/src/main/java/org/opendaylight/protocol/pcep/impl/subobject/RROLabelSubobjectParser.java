@@ -11,14 +11,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
-import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder;
@@ -74,7 +75,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final byte[] labelbytes = this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType());
@@ -82,6 +83,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
             throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
                     + label.getLabelType().getImplementedInterface());
         }
-        return RROSubobjectUtil.formatSubobject(TYPE, labelbytes);
+        //FIXME: switch to ByteBuf
+        RROSubobjectUtil.formatSubobject(TYPE, Unpooled.copiedBuffer(labelbytes), buffer);
     }
 }
