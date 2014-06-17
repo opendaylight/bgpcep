@@ -30,7 +30,7 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 
 	@Override
 	public Ero parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
+		if (bytes == null) {
 			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
 		}
 		final EroBuilder builder = new EroBuilder();
