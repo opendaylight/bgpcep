@@ -19,7 +19,10 @@ public class UtilsTest {
     @Test
     public void testLabelUtil() {
         byte[] expected = { (byte) 0x81, 0x04, 0x01, 0x02, 0x03, 0x04 };
-        assertArrayEquals(expected, LabelUtil.formatLabel(4, true, true, new byte[] { 1, 2, 3, 4 }));
+        ByteBuf out = Unpooled.buffer();
+        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
+        LabelUtil.formatLabel(4, true, true, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 
     @Test
