@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_beffa766",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "Unpooled.EMPTY_BUFFER",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_de02ab6e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "better than storing the size of the data, store the data and get its size",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7ef91f7f",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "no need for the cast",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_fe2c4f04",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "You don\u0027t have to know the size of the buffer,",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1e301355",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "no cast",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_be36c750",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "writeLong",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_de394b42",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "writeInt",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7e403fa5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "why subByte is needed?",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9e3bc337",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "// FIXME: to be switched to ByteBuf later",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9ef42388",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "public static ByteBuf formatMessage(final int type, final ByteBuf body, final ByteBuf buffer) {\n\n// buffer is the final buffer where you write first the header, than writeBytes(body)",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3ef3979f",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "buffer.writeInt",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5eee9bb5",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-17T08:21:34Z",
+      "side": 1,
+      "message": "no need for the cast",
+      "revId": "c261a5f39abc72e0a595b0783098803ee3976aa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
