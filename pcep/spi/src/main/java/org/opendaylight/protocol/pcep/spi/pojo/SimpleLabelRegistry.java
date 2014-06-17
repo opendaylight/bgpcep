@@ -43,11 +43,11 @@ public class SimpleLabelRegistry implements LabelRegistry {
     }
 
     @Override
-    public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType label) {
+    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType label, final ByteBuf buffer) {
         final LabelSerializer serializer = this.handlers.getSerializer(label.getImplementedInterface());
         if (serializer == null) {
-            return null;
+            return;
         }
-        return serializer.serializeLabel(unidirectional, global, label);
+        serializer.serializeLabel(unidirectional, global, label, buffer);
     }
 }

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
@@ -36,12 +37,9 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
     }
 
     @Override
-    public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
-        if (!(subobject instanceof GeneralizedLabelCase)) {
-            throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-                    + ". Needed GeneralizedLabelCase.");
-        }
-        return LabelUtil.formatLabel(CTYPE, unidirectional, global,
-                ((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
+    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject instanceof GeneralizedLabelCase, "Unknown Label Subobject instance. Passed {}. Needed GeneralizedLabelCase.", subobject.getClass());
+        final ByteBuf body = Unpooled.copiedBuffer(((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
+        LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }
