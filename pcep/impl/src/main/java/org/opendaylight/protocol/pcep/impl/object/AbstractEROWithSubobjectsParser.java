@@ -38,7 +38,8 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
     }
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        // Explicit approval of empty ERO
+        Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
             boolean loose = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
