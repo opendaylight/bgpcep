@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_531694f2",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-17T07:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_4a4fb9bd",
+      "revId": "7f32b25ec8a96274f1908d3e28060bf868fda687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_0af0d165",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-13T09:16:13Z",
       "side": 1,
       "message": "We keep on repeating these ... pull the bits into separate constants and use bitwise-or to define these",
+      "revId": "7f32b25ec8a96274f1908d3e28060bf868fda687",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bedec73d",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/OriginAttributeParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-17T07:12:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_0af0d165",
       "revId": "7f32b25ec8a96274f1908d3e28060bf868fda687",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
