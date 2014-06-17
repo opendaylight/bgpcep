@@ -9,9 +9,16 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
+public final class RROSubobjectUtil {
 
-public interface RROSubobjectSerializer {
+    private static final int HEADER_SIZE = 2;
 
-    void serializeSubobject(final Subobject subobject, final ByteBuf buffer);
+    private RROSubobjectUtil() {
+    }
+
+    public static void formatSubobject(final int type, final ByteBuf body, final ByteBuf buffer) {
+        buffer.writeByte(type);
+        buffer.writeByte(body.writerIndex() + HEADER_SIZE);
+        buffer.writeBytes(body);
+    }
 }

@@ -11,15 +11,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
-import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
@@ -36,17 +36,12 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     public static final int TYPE = 2;
 
-    private static final int IP_F_LENGTH = 16;
-
     private static final int PREFIX_F_LENGTH = 1;
     private static final int FLAGS_F_LENGTH = 1;
 
-    private static final int IP_F_OFFSET = 0;
+    private static final int PREFIX_F_OFFSET = Ipv6Util.IPV6_LENGTH;
 
-    private static final int PREFIX_F_OFFSET = IP_F_OFFSET + IP_F_LENGTH;
-    private static final int FLAGS_F_OFFSET = PREFIX_F_OFFSET + PREFIX_F_LENGTH;
-
-    private static final int CONTENT_LENGTH = IP_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
+    private static final int CONTENT_LENGTH = Ipv6Util.IPV6_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
 
     private static final int LPA_F_OFFSET = 7;
     private static final int LPIU_F_OFFSET = 6;
@@ -60,7 +55,7 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         }
         final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX_F_OFFSET));
         IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
-                IP_F_LENGTH), length)));
+                Ipv6Util.IPV6_LENGTH), length)));
         buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
@@ -70,20 +65,20 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
-            throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
-                    + ". Needed IpPrefixCase.");
-        }
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-        final byte[] retBytes = new byte[CONTENT_LENGTH];
-        ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, IP_F_OFFSET);
-        retBytes[PREFIX_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS_F_OFFSET);
-        return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
+        if (subobject.isProtectionAvailable() != null) {
+            flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+        }
+        if (subobject.isProtectionInUse() != null) {
+            flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        }
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        body.writeBytes(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()));
+        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

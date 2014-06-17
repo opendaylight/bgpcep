@@ -11,14 +11,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import java.util.BitSet;
 
 import org.opendaylight.protocol.concepts.Ipv4Util;
-import org.opendaylight.protocol.pcep.impl.object.RROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject;
@@ -35,17 +36,12 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
 
     public static final int TYPE = 1;
 
-    private static final int IP4_F_LENGTH = 4;
-
     private static final int PREFIX_F_LENGTH = 1;
     private static final int FLAGS_F_LENGTH = 1;
 
-    private static final int IP_F_OFFSET = 0;
+    private static final int PREFIX4_F_OFFSET = 0 + Ipv4Util.IP4_LENGTH;
 
-    private static final int PREFIX4_F_OFFSET = IP_F_OFFSET + IP4_F_LENGTH;
-    private static final int FLAGS4_F_OFFSET = PREFIX4_F_OFFSET + PREFIX_F_LENGTH;
-
-    private static final int CONTENT4_LENGTH = IP4_F_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
+    private static final int CONTENT4_LENGTH = Ipv4Util.IP4_LENGTH + PREFIX_F_LENGTH + FLAGS_F_LENGTH;
 
     private static final int LPA_F_OFFSET = 7;
     private static final int LPIU_F_OFFSET = 6;
@@ -59,7 +55,7 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         final SubobjectBuilder builder = new SubobjectBuilder();
         final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX4_F_OFFSET));
         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.record.route.subobjects.subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder().setIpPrefix(
-                new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, IP4_F_LENGTH), length))).build();
+                new IpPrefix(Ipv4Util.prefixForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH), length))).build();
         buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setProtectionAvailable(flags.get(LPA_F_OFFSET));
@@ -69,28 +65,25 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
-            throw new IllegalArgumentException("Unknown ReportedRouteSubobject instance. Passed " + subobject.getClass()
-                    + ". Needed IpPrefixCase.");
-        }
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-
-        if (prefix.getIpv4Prefix() == null && prefix.getIpv6Prefix() == null) {
-            throw new IllegalArgumentException("Unknown AbstractPrefix instance. Passed " + prefix.getClass() + ".");
-        }
-        final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
-        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
-
+        Preconditions.checkArgument(prefix.getIpv4Prefix() != null || prefix.getIpv6Prefix() != null, "Unknown AbstractPrefix instance. Passed %s.", prefix.getClass());
         if (prefix.getIpv6Prefix() != null) {
-            return new RROIpv6PrefixSubobjectParser().serializeSubobject(subobject);
+            new RROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
+        } else {
+            final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
+            if (subobject.isProtectionAvailable() != null) {
+                flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
+            }
+            if (subobject.isProtectionInUse() != null) {
+                flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+            }
+            final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
+            body.writeBytes(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()));
+            body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+            RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
         }
-        final byte[] retBytes = new byte[CONTENT4_LENGTH];
-        ByteArray.copyWhole(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()), retBytes, IP_F_OFFSET);
-        retBytes[PREFIX4_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-        ByteArray.copyWhole(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH), retBytes, FLAGS4_F_OFFSET);
-        return RROSubobjectUtil.formatSubobject(TYPE, retBytes);
     }
 }
