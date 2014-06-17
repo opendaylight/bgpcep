@@ -10,11 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PceId;
@@ -31,13 +32,9 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
 
     public static final int TYPE = 64;
 
-    private static final int PK_F_LENGTH = 2;
     private static final int PCE_ID_F_LENGTH = 4;
 
-    private static final int PK_F_OFFSET = 0;
-    private static final int PCE_ID_F_OFFSET = PK_F_OFFSET + PK_F_LENGTH;
-
-    private static final int CONTENT_LENGTH = PCE_ID_F_OFFSET + PCE_ID_F_LENGTH;
+    private static final int CONTENT_LENGTH = 2 + PCE_ID_F_LENGTH;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
@@ -58,13 +55,12 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof PathKeyCase, "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.subobject.subobject.type.path.key._case.PathKey pk = ((PathKeyCase) subobject.getSubobjectType()).getPathKey();
-        final int pathKey = pk.getPathKey().getValue();
-        final byte[] pceId = pk.getPceId().getBinary();
-        final byte[] retBytes = new byte[PK_F_LENGTH + pceId.length];
-        System.arraycopy(ByteArray.shortToBytes((short) pathKey), 0, retBytes, PK_F_OFFSET, PK_F_LENGTH);
-        System.arraycopy(pceId, 0, retBytes, PCE_ID_F_OFFSET, pceId.length);
-        return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
+        final ByteBuf body = Unpooled.buffer();
+        body.writeShort(pk.getPathKey().getValue().shortValue());
+        body.writeBytes(pk.getPceId().getBinary());
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
