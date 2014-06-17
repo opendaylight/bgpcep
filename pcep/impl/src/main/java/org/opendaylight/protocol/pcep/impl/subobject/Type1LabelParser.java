@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCaseBuilder;
@@ -41,12 +41,9 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
     }
 
     @Override
-    public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
-        if (!(subobject instanceof Type1LabelCase)) {
-            throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-                    + ". Needed Type1LabelCase.");
-        }
-        return LabelUtil.formatLabel(CTYPE, unidirectional, global, ByteArray.longToBytes(
-                ((Type1LabelCase) subobject).getType1Label().getType1Label().longValue(), LABEL_LENGTH));
+    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject instanceof Type1LabelCase, "Unknown Label Subobject instance. Passed {}. Needed Type1LabelCase.", subobject.getClass());
+        LabelUtil.formatLabel(CTYPE, unidirectional, global, Unpooled.copyInt(
+                ((Type1LabelCase) subobject).getType1Label().getType1Label().intValue()), buffer);
     }
 }

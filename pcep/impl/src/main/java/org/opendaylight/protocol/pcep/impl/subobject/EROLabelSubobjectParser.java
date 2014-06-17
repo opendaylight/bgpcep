@@ -75,12 +75,8 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof LabelCase, "Unknown subobject instance. Passed %s. Needed LabelCase.", subobject.getSubobjectType().getClass());
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
-        // FIXME: switch to ByteBuf
-        final byte[] labelbytes = this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType());
-        if (labelbytes == null) {
-            throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
-                    + label.getLabelType().getImplementedInterface());
-        }
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), Unpooled.copiedBuffer(labelbytes), buffer);
+        final ByteBuf body = Unpooled.buffer();
+        this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType(), body);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

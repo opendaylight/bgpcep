@@ -78,12 +78,8 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkNotNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
-        final byte[] labelbytes = this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType());
-        if (labelbytes == null) {
-            throw new IllegalArgumentException("Unknown EROLabelSubobject instance. Passed "
-                    + label.getLabelType().getImplementedInterface());
-        }
-        //FIXME: switch to ByteBuf
-        RROSubobjectUtil.formatSubobject(TYPE, Unpooled.copiedBuffer(labelbytes), buffer);
+        final ByteBuf body = Unpooled.buffer();
+        this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType(), body);
+        RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }
