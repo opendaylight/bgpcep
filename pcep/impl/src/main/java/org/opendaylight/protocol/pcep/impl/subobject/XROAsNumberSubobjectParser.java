@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
@@ -31,11 +31,7 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
 
     public static final int TYPE = 32;
 
-    private static final int AS_NUMBER_LENGTH = 2;
-
-    private static final int AS_NUMBER_OFFSET = 0;
-
-    private static final int CONTENT_LENGTH = AS_NUMBER_LENGTH + AS_NUMBER_OFFSET;
+    private static final int CONTENT_LENGTH = 2;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
@@ -50,15 +46,9 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof AsNumberCase)) {
-            throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-                    + ". Needed AsNumberCase.");
-        }
-        final byte[] retBytes = new byte[CONTENT_LENGTH];
-        final AsNumberSubobject obj = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
-        System.arraycopy(ByteArray.longToBytes(obj.getAsNumber().getValue(), AS_NUMBER_LENGTH), 0, retBytes, AS_NUMBER_OFFSET,
-                AS_NUMBER_LENGTH);
-        return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
+        final AsNumberSubobject s = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), Unpooled.copyShort(s.getAsNumber().getValue().shortValue()), buffer);
     }
 }

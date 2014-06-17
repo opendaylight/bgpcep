@@ -11,12 +11,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
@@ -32,15 +32,9 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
 
     public static final int TYPE = 4;
 
-    private static final int ATTRIBUTE_LENGTH = 1;
-    private static final int ROUTER_ID_NUMBER_LENGTH = 4;
-    private static final int INTERFACE_ID_NUMBER_LENGTH = 4;
+    private static final int RESERVED = 1;
 
-    private static final int ATTRIBUTE_OFFSET = 1;
-    private static final int ROUTER_ID_NUMBER_OFFSET = ATTRIBUTE_OFFSET + ATTRIBUTE_LENGTH;
-    private static final int INTERFACE_ID_NUMBER_OFFSET = ROUTER_ID_NUMBER_OFFSET + ROUTER_ID_NUMBER_LENGTH;
-
-    private static final int CONTENT_LENGTH = INTERFACE_ID_NUMBER_OFFSET + INTERFACE_ID_NUMBER_LENGTH;
+    private static final int CONTENT_LENGTH = 10;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
@@ -49,7 +43,7 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes() + "; Expected: "
                     + CONTENT_LENGTH + ".");
         }
-        buffer.readerIndex(buffer.readerIndex() + ATTRIBUTE_OFFSET);
+        buffer.readerIndex(buffer.readerIndex() + RESERVED);
         final SubobjectBuilder builder = new SubobjectBuilder();
         builder.setMandatory(mandatory);
         builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
@@ -61,19 +55,14 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof UnnumberedCase)) {
-            throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-                    + ". Needed UnnumberedCase.");
-        }
-
-        final byte[] retBytes = new byte[CONTENT_LENGTH];
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof UnnumberedCase, "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
-
-        retBytes[ATTRIBUTE_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
-        ByteArray.copyWhole(ByteArray.longToBytes(specObj.getRouterId(), ROUTER_ID_NUMBER_LENGTH), retBytes, ROUTER_ID_NUMBER_OFFSET);
-        System.arraycopy(ByteArray.longToBytes(specObj.getInterfaceId(), INTERFACE_ID_NUMBER_LENGTH), 0, retBytes,
-                INTERFACE_ID_NUMBER_OFFSET, INTERFACE_ID_NUMBER_LENGTH);
-        return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        body.writeZero(RESERVED);
+        body.writeByte(subobject.getAttribute().getIntValue());
+        body.writeInt(specObj.getRouterId().intValue());
+        body.writeInt(specObj.getInterfaceId().intValue());
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
