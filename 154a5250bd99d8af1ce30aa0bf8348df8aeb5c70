@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_5e721b4a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-17T07:51:04Z",
+      "side": 1,
+      "message": "Keep a comment why this is a noop",
+      "revId": "154a5250bd99d8af1ce30aa0bf8348df8aeb5c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_de9dcb5a",
+        "filename": "bgp/parser-mock/src/main/java/org/opendaylight/protocol/bgp/parser/mock/BGPMessageParserMock.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-17T07:51:04Z",
+      "side": 1,
+      "message": "add a comment why this is a no-op",
+      "revId": "154a5250bd99d8af1ce30aa0bf8348df8aeb5c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
