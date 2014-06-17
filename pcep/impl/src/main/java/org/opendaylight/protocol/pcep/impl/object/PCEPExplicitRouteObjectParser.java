@@ -20,37 +20,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsParser {
 
-	public static final int CLASS = 7;
+    public static final int CLASS = 7;
 
-	public static final int TYPE = 1;
+    public static final int TYPE = 1;
 
-	public PCEPExplicitRouteObjectParser(final EROSubobjectRegistry subobjReg) {
-		super(subobjReg);
-	}
+    public PCEPExplicitRouteObjectParser(final EROSubobjectRegistry subobjReg) {
+        super(subobjReg);
+    }
 
-	@Override
-	public Ero parseObject(final ObjectHeader header, final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null || bytes.length == 0) {
-			throw new IllegalArgumentException("Byte array is mandatory. Can't be null or empty.");
-		}
-		final EroBuilder builder = new EroBuilder();
-		builder.setIgnore(header.isIgnore());
-		builder.setProcessingRule(header.isProcessingRule());
-		builder.setSubobject(parseSubobjects(bytes));
-		return builder.build();
-	}
+    @Override
+    public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+        // Explicit approval of empty ERO
+        Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
+        final EroBuilder builder = new EroBuilder();
+        builder.setIgnore(header.isIgnore());
+        builder.setProcessingRule(header.isProcessingRule());
+        builder.setSubobject(parseSubobjects(buffer));
+        return builder.build();
+    }
 
-	@Override
-	public byte[] serializeObject(final Object object) {
-		if (!(object instanceof Ero)) {
-			throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
-					+ ". Needed ExplicitRouteObject.");
-		}
-		final Ero ero = ((Ero) object);
+    @Override
+    public byte[] serializeObject(final Object object) {
+        if (!(object instanceof Ero)) {
+            throw new IllegalArgumentException("Wrong instance of PCEPObject. Passed " + object.getClass()
+                    + ". Needed ExplicitRouteObject.");
+        }
+        final Ero ero = ((Ero) object);
 
-		assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
+        assert !(ero.getSubobject().isEmpty()) : "Empty Explicit Route Object.";
 
-		return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(),
-				serializeSubobject(ero.getSubobject()));
-	}
+        return ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), serializeSubobject(ero.getSubobject()));
+    }
 }

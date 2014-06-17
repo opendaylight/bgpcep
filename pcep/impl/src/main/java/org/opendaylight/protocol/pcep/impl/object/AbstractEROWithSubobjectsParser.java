@@ -23,80 +23,59 @@ import com.google.common.collect.Lists;
 
 public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, ObjectSerializer {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractEROWithSubobjectsParser.class);
 
-	private static final int SUB_TYPE_FLAG_F_LENGTH = 1;
-	private static final int SUB_LENGTH_F_LENGTH = 1;
+    private static final int HEADER_LENGTH = 2;
 
-	private static final int TYPE_FLAG_F_OFFSET = 0;
-	private static final int LENGTH_F_OFFSET = TYPE_FLAG_F_OFFSET + SUB_TYPE_FLAG_F_LENGTH;
-	private static final int SO_CONTENTS_OFFSET = LENGTH_F_OFFSET + SUB_LENGTH_F_LENGTH;
+    private final EROSubobjectRegistry subobjReg;
 
-	private final EROSubobjectRegistry subobjReg;
+    protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
+        this.subobjReg = Preconditions.checkNotNull(subobjReg);
+    }
 
-	protected AbstractEROWithSubobjectsParser(final EROSubobjectRegistry subobjReg) {
-		this.subobjReg = Preconditions.checkNotNull(subobjReg);
-	}
+    protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
+        // Explicit approval of empty ERO
+        Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
+        final List<Subobject> subs = new ArrayList<>();
+        while (buffer.isReadable()) {
+            boolean loose = ((buffer.getByte(buffer.readerIndex()) & (1 << 7)) != 0) ? true : false;
+            int type = (buffer.readByte() & 0xff) & ~(1 << 7);
+            int length = UnsignedBytes.toInt(buffer.readByte()) - HEADER_LENGTH;
+            if (length > buffer.readableBytes()) {
+                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                        + buffer.readableBytes());
+            }
+            LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
+            final Subobject sub = this.subobjReg.parseSubobject(type, buffer.slice(buffer.readerIndex(), length), loose);
+            if (sub == null) {
+                LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
+            } else {
+                LOG.debug("Subobject was parsed. {}", sub);
+                subs.add(sub);
+            }
+            buffer.readerIndex(buffer.readerIndex() + length);
+        }
+        return subs;
+    }
 
-	protected List<Subobject> parseSubobjects(final byte[] bytes) throws PCEPDeserializerException {
-		if (bytes == null) {
-			throw new IllegalArgumentException("Byte array is mandatory.");
-		}
-
-		boolean loose = false;
-		int type;
-		byte[] soContentsBytes;
-		int length;
-		int offset = 0;
-
-		final List<Subobject> subs = Lists.newArrayList();
-
-		while (offset < bytes.length) {
-
-			loose = ((bytes[offset + TYPE_FLAG_F_OFFSET] & (1 << 7)) != 0) ? true : false;
-			length = ByteArray.bytesToInt(ByteArray.subByte(bytes, offset + LENGTH_F_OFFSET, SUB_LENGTH_F_LENGTH));
-
-			type = (bytes[offset + TYPE_FLAG_F_OFFSET] & 0xff) & ~(1 << 7);
-
-			if (length > bytes.length - offset) {
-				throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
-						+ (bytes.length - offset));
-			}
-
-			soContentsBytes = new byte[length - SO_CONTENTS_OFFSET];
-			System.arraycopy(bytes, offset + SO_CONTENTS_OFFSET, soContentsBytes, 0, length - SO_CONTENTS_OFFSET);
-
-			LOG.debug("Attempt to parse subobject from bytes: {}", ByteArray.bytesToHexString(soContentsBytes));
-			final Subobject sub = this.subobjReg.parseSubobject(type, soContentsBytes, loose);
-			if (sub == null) {
-				LOG.warn("Unknown subobject type: {}. Ignoring subobject.", type);
-			} else {
-				LOG.debug("Subobject was parsed. {}", sub);
-				subs.add(sub);
-			}
-			offset += length;
-		}
-		return subs;
-	}
-
-	protected final byte[] serializeSubobject(final List<Subobject> subobjects) {
-		final List<byte[]> result = Lists.newArrayList();
-		int finalLength = 0;
-		for (final Subobject subobject : subobjects) {
-			final byte[] bytes = this.subobjReg.serializeSubobject(subobject);
-			if (bytes == null) {
-				LOG.warn("Could not find serializer for subobject type: {}. Skipping subobject.", subobject.getSubobjectType());
-			} else  {
-				finalLength += bytes.length;
-				result.add(bytes);
-			}
-		}
-		final byte[] resultBytes = new byte[finalLength];
-		int byteOffset = 0;
-		for (final byte[] b : result) {
-			System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
-			byteOffset += b.length;
-		}
-		return resultBytes;
-	}
+    protected final byte[] serializeSubobject(final List<Subobject> subobjects) {
+        final List<byte[]> result = Lists.newArrayList();
+        int finalLength = 0;
+        for (final Subobject subobject : subobjects) {
+            final byte[] bytes = this.subobjReg.serializeSubobject(subobject);
+            if (bytes == null) {
+                LOG.warn("Could not find serializer for subobject type: {}. Skipping subobject.", subobject.getSubobjectType());
+            } else {
+                finalLength += bytes.length;
+                result.add(bytes);
+            }
+        }
+        final byte[] resultBytes = new byte[finalLength];
+        int byteOffset = 0;
+        for (final byte[] b : result) {
+            System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
+            byteOffset += b.length;
+        }
+        return resultBytes;
+    }
 }
