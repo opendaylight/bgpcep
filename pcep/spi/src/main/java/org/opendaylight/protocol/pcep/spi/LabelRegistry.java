@@ -25,10 +25,10 @@ public interface LabelRegistry {
     /**
      * Find serializer for given label. Delegates parsing to found serializer.
      *
-     * @param label to be parsed
      * @param unidirectional label common header flag
      * @param global label commom header flag
-     * @return null if the serializer for this label could not be found
+     * @param label to be parsed
+     * @param buffer buffer where the serialized label will be parsed
      */
-    byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType label);
+    void serializeLabel(final boolean unidirectional, final boolean global, final LabelType label, final ByteBuf buffer);
 }

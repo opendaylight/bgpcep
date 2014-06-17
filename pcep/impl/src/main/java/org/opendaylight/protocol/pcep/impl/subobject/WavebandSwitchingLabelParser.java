@@ -10,12 +10,12 @@ package org.opendaylight.protocol.pcep.impl.subobject;
 import com.google.common.base.Preconditions;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.WavebandSwitchingLabelCaseBuilder;
@@ -50,17 +50,13 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
     }
 
     @Override
-    public byte[] serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject) {
-        if (!(subobject instanceof WavebandSwitchingLabelCase)) {
-            throw new IllegalArgumentException("Unknown Label Subobject instance. Passed " + subobject.getClass()
-                    + ". Needed WavebandSwitchingLabelCase.");
-        }
-        final byte[] retBytes = new byte[CONTENT_LENGTH];
+    public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject instanceof WavebandSwitchingLabelCase, "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.", subobject.getClass());
         final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();
-        System.arraycopy(ByteArray.intToBytes(obj.getWavebandId().intValue(), WAVEB_F_LENGTH), 0, retBytes, 0, WAVEB_F_LENGTH);
-        System.arraycopy(ByteArray.intToBytes(obj.getStartLabel().intValue(), START_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH, START_F_LENGTH);
-        System.arraycopy(ByteArray.intToBytes(obj.getEndLabel().intValue(), END_F_LENGTH), 0, retBytes, WAVEB_F_LENGTH + START_F_LENGTH,
-                END_F_LENGTH);
-        return LabelUtil.formatLabel(CTYPE, unidirectional, global, retBytes);
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        body.writeInt(obj.getWavebandId().intValue());
+        body.writeInt(obj.getStartLabel().intValue());
+        body.writeInt(obj.getEndLabel().intValue());
+        LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }
