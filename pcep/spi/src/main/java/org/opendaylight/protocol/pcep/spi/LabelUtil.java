@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import com.google.common.primitives.UnsignedBytes;
+import io.netty.buffer.ByteBuf;
 
 import java.util.BitSet;
 
@@ -17,14 +17,6 @@ public final class LabelUtil {
 
     private static final int RES_F_LENGTH = 1;
 
-    private static final int C_TYPE_F_LENGTH = 1;
-
-    private static final int RES_F_OFFSET = 0;
-
-    private static final int C_TYPE_F_OFFSET = RES_F_OFFSET + RES_F_LENGTH;
-
-    private static final int HEADER_OFFSET = C_TYPE_F_OFFSET + C_TYPE_F_LENGTH;
-
     private static final int U_FLAG_OFFSET = 0;
 
     private static final int G_FLAG_OFFSET = 7;
@@ -33,17 +25,12 @@ public final class LabelUtil {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
-    public static byte[] formatLabel(final int type, final boolean unidirectional, final boolean global, final byte[] labelbytes) {
-
-        final byte[] retBytes = new byte[labelbytes.length + HEADER_OFFSET];
-
-        System.arraycopy(labelbytes, 0, retBytes, HEADER_OFFSET, labelbytes.length);
-
-        final BitSet reserved = new BitSet();
+    public static void formatLabel(final int type, final boolean unidirectional, final boolean global, final ByteBuf body, final ByteBuf buffer) {
+        final BitSet reserved = new BitSet(RES_F_LENGTH * Byte.SIZE);
         reserved.set(U_FLAG_OFFSET, unidirectional);
         reserved.set(G_FLAG_OFFSET, global);
-        System.arraycopy(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH), 0, retBytes, RES_F_OFFSET, RES_F_LENGTH);
-        retBytes[C_TYPE_F_OFFSET] = UnsignedBytes.checkedCast(type);
-        return retBytes;
+        buffer.writeBytes(ByteArray.bitSetToBytes(reserved, RES_F_LENGTH));
+        buffer.writeByte(type);
+        buffer.writeBytes(body);
     }
 }

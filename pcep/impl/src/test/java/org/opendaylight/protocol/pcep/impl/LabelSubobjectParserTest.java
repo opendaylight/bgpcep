@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import org.junit.Test;
@@ -40,7 +41,9 @@ public class LabelSubobjectParserTest {
         iBuilder.setGeneralizedLabel(ByteArray.cutBytes(generalizedLabelBytes, 2));
         final GeneralizedLabelCaseBuilder builder = new GeneralizedLabelCaseBuilder().setGeneralizedLabel(iBuilder.build());
         assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(generalizedLabelBytes, 2))));
-        assertArrayEquals(generalizedLabelBytes, parser.serializeLabel(true, false, builder.build()));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeLabel(true, false, builder.build(), buff);
+        assertArrayEquals(generalizedLabelBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -52,7 +55,9 @@ public class LabelSubobjectParserTest {
         iBuilder.setEndLabel(0x1111L);
         final WavebandSwitchingLabelCaseBuilder builder = new WavebandSwitchingLabelCaseBuilder().setWavebandSwitchingLabel(iBuilder.build());
         assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(wavebandLabelBytes, 2))));
-        assertArrayEquals(wavebandLabelBytes, parser.serializeLabel(false, true, builder.build()));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeLabel(false, true, builder.build(), buff);
+        assertArrayEquals(wavebandLabelBytes, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -62,6 +67,8 @@ public class LabelSubobjectParserTest {
         iBuilder.setType1Label(0x120025ffL);
         final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder().setType1Label(iBuilder.build());
         assertEquals(builder.build(), parser.parseLabel(Unpooled.wrappedBuffer(ByteArray.cutBytes(typeOneLabelBytes, 2))));
-        assertArrayEquals(typeOneLabelBytes, parser.serializeLabel(true, true, builder.build()));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeLabel(true, true,  builder.build(), buff);
+        assertArrayEquals(typeOneLabelBytes, ByteArray.getAllBytes(buff));
     }
 }
