@@ -34,7 +34,8 @@ public class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjectsPars
 
     @Override
     public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        // Explicit approval of empty ERO
+        Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final EroBuilder builder = new EroBuilder();
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
