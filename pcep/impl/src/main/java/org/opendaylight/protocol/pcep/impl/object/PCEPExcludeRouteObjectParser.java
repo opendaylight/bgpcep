@@ -57,9 +57,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
         if (obj.getFlags().isFail() != null) {
             body.writeBoolean(obj.getFlags().isFail());
         }
-        // FIXME: switch to ByteBuf
-        final byte[] bytes = serializeSubobject(obj.getSubobject());
-        body.writeBytes(bytes);
+        serializeSubobject(obj.getSubobject(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

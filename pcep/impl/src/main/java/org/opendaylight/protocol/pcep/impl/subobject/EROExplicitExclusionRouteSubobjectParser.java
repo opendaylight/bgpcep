@@ -71,8 +71,9 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
             b.setSubobjectType(ex.getSubobjectType());
             list.add(b.build());
         }
-        //FIXME: switch to ByteBuf
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), Unpooled.copiedBuffer(serializeSubobject(list)), buffer);
+        final ByteBuf body = Unpooled.buffer();
+        serializeSubobject(list, body);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 
     private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> parseSubobject(
@@ -93,26 +94,10 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         return subs;
     }
 
-    private byte[] serializeSubobject(
-            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subobjects) {
-
-        final List<byte[]> result = Lists.newArrayList();
-
-        int finalLength = 0;
-
+    private void serializeSubobject(
+            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject> subobjects, final ByteBuf body) {
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject subobject : subobjects) {
-
-            final byte[] bytes = this.registry.serializeSubobject(subobject);
-            finalLength += bytes.length;
-            result.add(bytes);
+            this.registry.serializeSubobject(subobject, body);
         }
-
-        final byte[] resultBytes = new byte[finalLength];
-        int byteOffset = 0;
-        for (final byte[] b : result) {
-            System.arraycopy(b, 0, resultBytes, byteOffset, b.length);
-            byteOffset += b.length;
-        }
-        return resultBytes;
     }
 }

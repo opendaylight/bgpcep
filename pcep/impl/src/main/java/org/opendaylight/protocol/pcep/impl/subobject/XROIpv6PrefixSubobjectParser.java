@@ -11,13 +11,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
-import org.opendaylight.protocol.concepts.Ipv4Util;
 import org.opendaylight.protocol.concepts.Ipv6Util;
-import org.opendaylight.protocol.pcep.impl.object.XROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
+import org.opendaylight.protocol.pcep.spi.XROSubobjectUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
@@ -36,15 +36,10 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
     public static final int TYPE = 2;
 
     private static final int PREFIX_F_LENGTH = 1;
-    private static final int ATTRIBUTE_LENGTH = 1;
 
-    private static final int IP_F_OFFSET = 0;
+    private static final int PREFIX6_F_OFFSET = Ipv6Util.IPV6_LENGTH;
 
-    private static final int IP6_F_LENGTH = 16;
-    private static final int PREFIX6_F_OFFSET = IP_F_OFFSET + IP6_F_LENGTH;
-    private static final int ATTRIBUTE6_OFFSET = PREFIX6_F_OFFSET + PREFIX_F_LENGTH;
-
-    private static final int CONTENT6_LENGTH = ATTRIBUTE6_OFFSET + ATTRIBUTE_LENGTH;
+    private static final int CONTENT6_LENGTH = PREFIX6_F_OFFSET + PREFIX_F_LENGTH + 1;
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
@@ -56,7 +51,7 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         }
         final int length = UnsignedBytes.toInt(buffer.getByte(PREFIX6_F_OFFSET));
         IpPrefixBuilder prefix = new IpPrefixBuilder().setIpPrefix(new IpPrefix(Ipv6Util.prefixForBytes(ByteArray.readBytes(buffer,
-                IP6_F_LENGTH), length)));
+                Ipv6Util.IPV6_LENGTH), length)));
         builder.setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(prefix.build()).build());
         buffer.readerIndex(buffer.readerIndex() + PREFIX_F_LENGTH);
         builder.setAttribute(Attribute.forValue(UnsignedBytes.toInt(buffer.readByte())));
@@ -64,21 +59,13 @@ public class XROIpv6PrefixSubobjectParser implements XROSubobjectParser, XROSubo
     }
 
     @Override
-    public byte[] serializeSubobject(final Subobject subobject) {
-        if (!(subobject.getSubobjectType() instanceof IpPrefixCase)) {
-            throw new IllegalArgumentException("Unknown PCEPXROSubobject instance. Passed " + subobject.getSubobjectType().getClass()
-                    + ". Needed IpPrefixCase.");
-        }
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof IpPrefixCase, "Unknown subobject instance. Passed %s. Needed IpPrefixCase.", subobject.getSubobjectType().getClass());
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
-
-        if (prefix.getIpv6Prefix() == null) {
-            throw new IllegalArgumentException("Unknown AbstractPrefix instance. Passed " + prefix.getClass() + ".");
-        }
-        final byte[] retBytes = new byte[CONTENT6_LENGTH];
-        ByteArray.copyWhole(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()), retBytes, IP_F_OFFSET);
-        retBytes[PREFIX6_F_OFFSET] = UnsignedBytes.checkedCast(Ipv4Util.getPrefixLength(prefix));
-        retBytes[ATTRIBUTE6_OFFSET] = UnsignedBytes.checkedCast(subobject.getAttribute().getIntValue());
-        return XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), retBytes);
+        final ByteBuf body = Unpooled.buffer(CONTENT6_LENGTH);
+        body.writeBytes(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()));
+        body.writeByte(subobject.getAttribute().getIntValue());
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
