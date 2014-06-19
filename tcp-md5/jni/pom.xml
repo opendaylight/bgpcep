@@ -28,7 +28,7 @@
 
     <properties>
         <nar.groupId>com.github.maven-nar</nar.groupId>
-        <nar.version>3.0.0</nar.version>
+        <nar.version>3.1.0</nar.version>
         <copy.version>0.2.5</copy.version>
     </properties>
 
