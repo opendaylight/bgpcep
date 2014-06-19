@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_4416c5f2",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/AttributeFlags.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_c1b407d3",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_61cbbb53",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 18
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-19T09:06:57Z",
       "side": 1,
       "message": "update.getWitdrawnRoutes can be a separate variable",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_04319da1",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_61cbbb53",
       "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_241b811c",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_e1deeb10",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_c1eba7ae",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
         "patchSetId": 18
@@ -81,6 +135,24 @@
       "writtenOn": "2014-06-19T09:06:57Z",
       "side": 1,
       "message": "int vs short...",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_2404e1be",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_c1eba7ae",
       "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_84f5adcc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_212133fb",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_a18463d4",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
         "patchSetId": 18
@@ -115,6 +205,24 @@
       "writtenOn": "2014-06-19T09:06:57Z",
       "side": 1,
       "message": "remove UNUSED",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_64fae9be",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_a18463d4",
       "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_c413b50b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_6155fb4e",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_41f8f748",
         "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
         "patchSetId": 18
@@ -149,6 +275,24 @@
       "writtenOn": "2014-06-19T09:06:57Z",
       "side": 1,
       "message": "spacing",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a410f101",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-19T11:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_41f8f748",
       "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
