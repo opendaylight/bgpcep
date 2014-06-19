@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_c1b407d3",
+        "filename": "bgp/parser-api/src/main/java/org/opendaylight/protocol/bgp/parser/AttributeFlags.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "$variable",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_61cbbb53",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "update.getWitdrawnRoutes can be a separate variable",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_81c6ff47",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "why don\u0027t you parse it as IP adress?  (no need for subByte then)",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e1deeb10",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "variable for update.getNlri()",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c1eba7ae",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "int vs short...",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_212133fb",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathSegmentParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "fix also parsing and test for 2B AS number",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a18463d4",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AtomicAggregateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "remove UNUSED",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6155fb4e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/CommunitiesAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "so put it like this and fix test if needed",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_41f8f748",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-19T09:06:57Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "b2ffbba365e5cce9c010574a38855650a0a13e93",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
