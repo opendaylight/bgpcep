@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_dfb702d7",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T08:42:04Z",
+      "side": 1,
+      "message": "no cast",
+      "revId": "02621b425ff421b680dd61426593ca7857f93627",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1fc56a3b",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPUnreachAttributeParser.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T08:42:04Z",
+      "side": 1,
+      "message": "byteAggregator.writeByte(TYPE);\nbyteAggregator.writeByte(unreachBuffer.writerIndex());\n\ncan be put after if/else",
+      "revId": "02621b425ff421b680dd61426593ca7857f93627",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ffe1a6d0",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T08:42:04Z",
+      "side": 1,
+      "message": "spacing",
+      "revId": "02621b425ff421b680dd61426593ca7857f93627",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
