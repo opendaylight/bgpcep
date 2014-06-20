@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_fa78d490",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_5f6e9230",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_7f691624",
         "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
         "patchSetId": 26
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "... else ...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7aab64d6",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_7f691624",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_3a471c4d",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Due to some special attributes (OriginatorId which is of type Ip4Address) we have changed serialization logic. It iterates pathAttributes trough all serializers and every serializer serializes only what it recognizes. Throwing an exception would render serialization unusable.",
+      "parentUuid": "fa82b9bf_1f780af1",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_7f50365e",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
         "patchSetId": 26
@@ -64,6 +118,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "why is this needed at all? It seems like a useless allocation...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9a6f48c5",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_7f50365e",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_1a6338dd",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_bf5ebe74",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_9f5bba86",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
         "patchSetId": 26
@@ -98,6 +188,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "... else ...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7a64c4e4",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_9f5bba86",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_5a69c0bc",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Due to some special attributes (OriginatorId which is of type Ip4Address) we have changed serialization logic. It iterates pathAttributes trough all serializers and every serializer serializes only what it recognizes. Throwing an exception would render serialization unusable.",
+      "parentUuid": "fa82b9bf_5f55324e",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_1f4faabe",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
         "patchSetId": 26
@@ -132,6 +258,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "why is this buffer needed?",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3a5e3c13",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_1f4faabe",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_da9cf0c2",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_3f4aaeac",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3f738e16",
         "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
         "patchSetId": 26
@@ -166,6 +328,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "creates a nexus warning, e.g. eliminate the useless temp variable",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_fa9f74b2",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_3f738e16",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_1aba5823",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_dfc86224",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_ffcbe61b",
         "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
         "patchSetId": 26
@@ -200,6 +398,24 @@
       "writtenOn": "2014-06-20T09:56:00Z",
       "side": 1,
       "message": "duplicate space",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3ab5dc30",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-20T13:57:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_ffcbe61b",
       "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
