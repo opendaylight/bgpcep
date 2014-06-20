@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ff1686a6",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T09:16:47Z",
+      "side": 1,
+      "message": "type?",
+      "revId": "80c733c62f43ff5196fc96b45d0594f2a2994e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5f277212",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T09:16:47Z",
+      "side": 1,
+      "message": "does it need to be public?",
+      "revId": "80c733c62f43ff5196fc96b45d0594f2a2994e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f227602",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T09:16:47Z",
+      "side": 1,
+      "message": "variable before check",
+      "revId": "80c733c62f43ff5196fc96b45d0594f2a2994e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3f1ceec0",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T09:16:47Z",
+      "side": 1,
+      "message": "use final in parameters",
+      "revId": "80c733c62f43ff5196fc96b45d0594f2a2994e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_df7aa2f0",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-20T09:16:47Z",
+      "side": 1,
+      "message": "you can use BitSet and then writeBytes(ByteArray.bitSetToBytes()), just to avoid \u0027magic numbers\u0027",
+      "revId": "80c733c62f43ff5196fc96b45d0594f2a2994e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
