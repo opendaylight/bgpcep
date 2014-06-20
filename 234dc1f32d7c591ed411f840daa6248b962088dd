@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_5f6e9230",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "why do we need the temporary buffer?",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f691624",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "... else ...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f780af1",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/protocol/bgp/concepts/util/NextHopUtil.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "... else {\n throw IllegalArgumentException(...);\n}",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_7f50365e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPUpdateMessageParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "why is this needed at all? It seems like a useless allocation...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bf5ebe74",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "... save to local var ...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9f5bba86",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "... else ...",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_5f55324e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/MPReachAttributeParser.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "... else {\n   throw IllegalArgumentException(...)\n}",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1f4faabe",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "why is this buffer needed?",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3f4aaeac",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleNlriRegistry.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "retain the space, please",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3f738e16",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv4Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "creates a nexus warning, e.g. eliminate the useless temp variable",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_dfc86224",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "useless temp variable, sonar warning",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_ffcbe61b",
+        "filename": "concepts/src/main/java/org/opendaylight/protocol/concepts/Ipv6Util.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-06-20T09:56:00Z",
+      "side": 1,
+      "message": "duplicate space",
+      "revId": "234dc1f32d7c591ed411f840daa6248b962088dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
