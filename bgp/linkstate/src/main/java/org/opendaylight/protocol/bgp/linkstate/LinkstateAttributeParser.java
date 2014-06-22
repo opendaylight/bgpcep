@@ -334,7 +334,7 @@ public class LinkstateAttributeParser implements AttributeParser {
             switch (key) {
             case TlvCode.IGP_FLAGS:
                 final boolean[] flags = ByteArray.parseBits(value[0]);
-                final boolean upDownBit = flags[2];
+                final boolean upDownBit = flags[0];
                 builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
                 LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
                 break;
