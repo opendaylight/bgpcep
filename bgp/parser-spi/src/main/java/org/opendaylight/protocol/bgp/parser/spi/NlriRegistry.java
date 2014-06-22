@@ -18,4 +18,5 @@ public interface NlriRegistry {
     MpUnreachNlri parseMpUnreach(final ByteBuf buffer) throws BGPParsingException;
     void serializeMpReach(final MpReachNlri mpReachNlri,final ByteBuf byteAggregator);
     void serializeMpUnReach(final MpUnreachNlri mpUnreachNlri,final ByteBuf byteAggregator);
+    Iterable<NlriSerializer> getSerializers();
 }
