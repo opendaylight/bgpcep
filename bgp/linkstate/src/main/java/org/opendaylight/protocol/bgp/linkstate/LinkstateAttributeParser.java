@@ -210,9 +210,9 @@ public class LinkstateAttributeParser implements AttributeParser {
                 LOG.debug("Parsed Metric {}", builder.getTeMetric());
                 break;
             case TlvCode.LINK_PROTECTION_TYPE:
-                final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[0]));
+                final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[1]));
                 if (lpt == null) {
-                    LOG.warn("Link Protection Type not recognized: {}", UnsignedBytes.toInt(value[0]));
+                    LOG.warn("Link Protection Type not recognized: {}", UnsignedBytes.toInt(value[1]));
                     break;
                 }
                 builder.setLinkProtection(lpt);
