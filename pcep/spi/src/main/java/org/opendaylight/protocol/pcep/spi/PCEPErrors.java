@@ -255,5 +255,13 @@ public enum PCEPErrors {
     /**
      * LSP instantiation error: RSVP signaling error
      */
-    LSP_RSVP_ERROR
+    LSP_RSVP_ERROR,
+    /**
+     * Segment Routing error: Non-identical ERO subobjects
+     */
+    NON_IDENTICAL_ERO_SUBOBJECTS,
+    /**
+     * Segment Routing error: ERO subobject with invalid SID value;
+     * */
+    BAD_LABEL_VALUE,
 }
