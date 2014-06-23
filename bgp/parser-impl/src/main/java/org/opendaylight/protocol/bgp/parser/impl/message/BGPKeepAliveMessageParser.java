@@ -22,7 +22,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializer {
     public static final int TYPE = 4;
-    private static final ByteBuf bytes = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, new byte[0]));
+    private static final ByteBuf kaBytes = Unpooled.copiedBuffer(MessageUtil.formatMessage(TYPE, new byte[0]));
     private static final Keepalive msg = new KeepaliveBuilder().build();
 
     @Override
@@ -30,12 +30,14 @@ public class BGPKeepAliveMessageParser implements MessageParser, MessageSerializ
         if (body.isReadable()) {
             throw BGPDocumentedException.badMessageLength("Message length field not within valid range.", messageLength);
         }
-        return this.msg;
+        return msg;
     }
 
     @Override
     public void serializeMessage(final Notification message, ByteBuf bytes) {
         Preconditions.checkArgument(message instanceof Keepalive);
-        bytes.writeBytes(this.bytes);
+        kaBytes.markReaderIndex();
+        bytes.writeBytes(kaBytes);
+        kaBytes.resetReaderIndex();
     }
 }
