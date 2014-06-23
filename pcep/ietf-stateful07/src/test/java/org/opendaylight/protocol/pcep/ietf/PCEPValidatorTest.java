@@ -9,16 +9,14 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00PCInitiateMessageParser;
@@ -403,5 +401,35 @@ public class PCEPValidatorTest {
             parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
         }
+    }
+
+    @Test
+    public void testMissingLspObjectErrorInPcRptMsg() throws PCEPDeserializerException {
+        final byte[] statefulMsg= {
+            0x20,0x0B,0x00,0x1C,
+            /* srp-object */
+            0x21,0x10,0x00,0x0C,
+            0x00,0x00,0x00,0x001,
+            0x00,0x00,0x00,0x01,
+            /* lsp-object is missing*/
+            /* sr-ero-object */
+            0x07,0x10,0x00,0x0C,
+            /* ipv4 prefix subobject */
+            (byte) 0x81,0x08,(byte) 0xFF,(byte) 0xFF,
+            (byte) 0xFF,(byte) 0xFF,0x16,0x00};
+
+        final Stateful07PCReportMessageParser parser = new Stateful07PCReportMessageParser(this.ctx.getObjectHandlerRegistry());
+
+        final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
+        errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder().setErrorObject(
+                new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
+        final PcerrBuilder builder = new PcerrBuilder();
+        builder.setPcerrMessage(errMsgBuilder.build());
+
+        ByteBuf buf = Unpooled.wrappedBuffer(statefulMsg);
+        final List<Message> errors = Lists.<Message>newArrayList();
+        parser.parseMessage(buf.slice(4, buf.readableBytes() - 4), errors);
+        assertFalse(errors.isEmpty());
+        assertEquals(builder.build(), errors.get(0));
     }
 }

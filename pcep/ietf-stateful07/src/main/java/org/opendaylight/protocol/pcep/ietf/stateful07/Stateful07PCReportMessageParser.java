@@ -9,12 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -43,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcrpt}
  */
-public final class Stateful07PCReportMessageParser extends AbstractMessageParser {
+public class Stateful07PCReportMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 10;
 
@@ -58,33 +55,37 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
         final List<Reports> reports = msg.getPcrptMessage().getReports();
         ByteBuf buffer = Unpooled.buffer();
         for (final Reports report : reports) {
-            if (report.getSrp() != null) {
-                serializeObject(report.getSrp(), buffer);
-            }
-            serializeObject(report.getLsp(), buffer);
-            final Path p = report.getPath();
-            if (p != null) {
-                serializeObject(p.getEro(), buffer);
-                if (p.getLspa() != null) {
-                    serializeObject(p.getLspa(), buffer);
-                }
-                if (p.getBandwidth() != null) {
-                    serializeObject(p.getBandwidth(), buffer);
-                }
-                if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-                    for (final Metrics m : p.getMetrics()) {
-                        serializeObject(m.getMetric(), buffer);
-                    }
-                }
-                if (p.getIro() != null) {
-                    serializeObject(p.getIro(), buffer);
-                }
-                if (p.getRro() != null) {
-                    serializeObject(p.getRro(), buffer);
-                }
-            }
+            serializeReport(report, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
+    }
+
+    protected void serializeReport(final Reports report, final ByteBuf buffer) {
+        if (report.getSrp() != null) {
+            serializeObject(report.getSrp(), buffer);
+        }
+        serializeObject(report.getLsp(), buffer);
+        final Path p = report.getPath();
+        if (p != null) {
+            serializeObject(p.getEro(), buffer);
+            if (p.getLspa() != null) {
+                serializeObject(p.getLspa(), buffer);
+            }
+            if (p.getBandwidth() != null) {
+                serializeObject(p.getBandwidth(), buffer);
+            }
+            if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+                for (final Metrics m : p.getMetrics()) {
+                    serializeObject(m.getMetric(), buffer);
+                }
+            }
+            if (p.getIro() != null) {
+                serializeObject(p.getIro(), buffer);
+            }
+            if (p.getRro() != null) {
+                serializeObject(p.getRro(), buffer);
+            }
+        }
     }
 
     @Override
@@ -100,14 +101,15 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
 
         while (!objects.isEmpty()) {
             final Reports report = getValidReports(objects, errors);
-            if (reports != null) {
+            if (report != null) {
                 reports.add(report);
             }
         }
         return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
     }
 
-    private Reports getValidReports(final List<Object> objects, final List<Message> errors) {
+    protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
+        boolean isValid = true;
         final ReportsBuilder builder = new ReportsBuilder();
         if (objects.get(0) instanceof Srp) {
             builder.setSrp((Srp) objects.get(0));
@@ -118,14 +120,24 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
             objects.remove(0);
         } else {
             errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
-            return null;
+            isValid = false;
         }
         if (!objects.isEmpty()) {
             final PathBuilder pBuilder = new PathBuilder();
+            if (objects.get(0) instanceof Ero) {
+                pBuilder.setEro((Ero) objects.get(0));
+                objects.remove(0);
+            } else {
+                errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
+                isValid = false;
+            }
             parsePath(objects, pBuilder);
             builder.setPath(pBuilder.build());
         }
-        return builder.build();
+        if(isValid) {
+            return builder.build();
+        }
+        return null;
     }
 
     private void parsePath(final List<Object> objects, final PathBuilder builder) {
@@ -136,12 +148,6 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
             obj = objects.get(0);
             switch (state) {
             case Init:
-                state = State.EroIn;
-                if (obj instanceof Ero) {
-                    builder.setEro((Ero) obj);
-                    break;
-                }
-            case EroIn:
                 state = State.LspaIn;
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
@@ -188,6 +194,6 @@ public final class Stateful07PCReportMessageParser extends AbstractMessageParser
     }
 
     private enum State {
-        Init, EroIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, End
+        Init, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, End
     }
 }

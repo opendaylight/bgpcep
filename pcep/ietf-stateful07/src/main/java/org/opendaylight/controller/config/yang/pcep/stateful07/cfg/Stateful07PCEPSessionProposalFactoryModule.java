@@ -8,9 +8,7 @@
 package org.opendaylight.controller.config.yang.pcep.stateful07.cfg;
 
 import com.google.common.base.Preconditions;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.initiated00.Stateful07SessionProposalFactory;
