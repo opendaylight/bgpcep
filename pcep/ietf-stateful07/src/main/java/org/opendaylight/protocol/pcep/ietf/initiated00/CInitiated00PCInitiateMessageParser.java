@@ -9,12 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -41,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcinitiate}
  */
-public final class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
+public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 12;
 
@@ -55,30 +52,34 @@ public final class CInitiated00PCInitiateMessageParser extends AbstractMessagePa
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
         ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
-            serializeObject(req.getSrp(), buffer);
-            serializeObject(req.getLsp(), buffer);
-            if (req.getEndpointsObj() != null) {
-                serializeObject(req.getEndpointsObj(), buffer);
-            }
-            if (req.getEro() != null) {
-                serializeObject(req.getEro(), buffer);
-            }
-            if (req.getLspa() != null) {
-                serializeObject(req.getLspa(), buffer);
-            }
-            if (req.getBandwidth() != null) {
-                serializeObject(req.getBandwidth(), buffer);
-            }
-            if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
-                for (final Metrics m : req.getMetrics()) {
-                    serializeObject(m.getMetric(), buffer);
-                }
-            }
-            if (req.getIro() != null) {
-                serializeObject(req.getIro(), buffer);
-            }
+            serializeRequest(req, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
+    }
+
+    protected void serializeRequest(final Requests req, final ByteBuf buffer) {
+        serializeObject(req.getSrp(), buffer);
+        serializeObject(req.getLsp(), buffer);
+        if (req.getEndpointsObj() != null) {
+            serializeObject(req.getEndpointsObj(), buffer);
+        }
+        if (req.getEro() != null) {
+            serializeObject(req.getEro(), buffer);
+        }
+        if (req.getLspa() != null) {
+            serializeObject(req.getLspa(), buffer);
+        }
+        if (req.getBandwidth() != null) {
+            serializeObject(req.getBandwidth(), buffer);
+        }
+        if (req.getMetrics() != null && !req.getMetrics().isEmpty()) {
+            for (final Metrics m : req.getMetrics()) {
+                serializeObject(m.getMetric(), buffer);
+            }
+        }
+        if (req.getIro() != null) {
+            serializeObject(req.getIro(), buffer);
+        }
     }
 
     @Override
@@ -100,7 +101,7 @@ public final class CInitiated00PCInitiateMessageParser extends AbstractMessagePa
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
     }
 
-    private Requests getValidRequest(final List<Object> objects) {
+    protected Requests getValidRequest(final List<Object> objects) {
         final RequestsBuilder builder = new RequestsBuilder();
         builder.setSrp((Srp) objects.get(0));
         objects.remove(0);
