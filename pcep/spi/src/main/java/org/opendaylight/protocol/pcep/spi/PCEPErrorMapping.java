@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.spi;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,6 +129,8 @@ public final class PCEPErrorMapping {
         this.fillIn(new PCEPErrorIdentifier((short) 9, (short) 0), PCEPErrors.ATTEMPT_2ND_SESSION);
 
         this.fillIn(new PCEPErrorIdentifier((short) 10, (short) 1), PCEPErrors.P_FLAG_NOT_SET);
+        this.fillIn(new PCEPErrorIdentifier((short)10, (short)2), PCEPErrors.BAD_LABEL_VALUE);
+        this.fillIn(new PCEPErrorIdentifier((short)10, (short)5), PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS);
 
         this.fillIn(new PCEPErrorIdentifier((short) 12, (short) 1), PCEPErrors.UNSUPPORTED_CT);
         this.fillIn(new PCEPErrorIdentifier((short) 12, (short) 2), PCEPErrors.INVALID_CT);
