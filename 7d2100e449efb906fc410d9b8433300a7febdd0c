@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_66b18646",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/GracefulCapabilityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:33:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_55d3ce03",
+      "revId": "7d2100e449efb906fc410d9b8433300a7febdd0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_15d9c621",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilitySerializer.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_86ae0ae5",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilitySerializer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:33:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_15d9c621",
+      "revId": "7d2100e449efb906fc410d9b8433300a7febdd0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_35d64af2",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilityUtil.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2014-06-23T16:51:54Z",
       "side": 1,
       "message": "cast",
+      "revId": "7d2100e449efb906fc410d9b8433300a7febdd0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_26b7fe3b",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilityUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:33:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_35d64af2",
       "revId": "7d2100e449efb906fc410d9b8433300a7febdd0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
