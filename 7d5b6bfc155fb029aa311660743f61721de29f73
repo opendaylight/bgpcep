@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_785da946",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParser.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T05:56:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b87011dd",
+      "revId": "7d5b6bfc155fb029aa311660743f61721de29f73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_986bcdf0",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AdvertizedRoutesSerializer.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-24T05:35:39Z",
       "side": 1,
       "message": "move before check",
+      "revId": "7d5b6bfc155fb029aa311660743f61721de29f73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1856dd2a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AdvertizedRoutesSerializer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T05:56:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_986bcdf0",
       "revId": "7d5b6bfc155fb029aa311660743f61721de29f73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2014-06-24T05:35:39Z",
       "side": 1,
       "message": "why do we need an iterator? simple for(:) seems to be enough",
+      "revId": "7d5b6bfc155fb029aa311660743f61721de29f73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3853a13a",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/WithdrawnRoutesSerializer.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T05:56:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_787609d9",
       "revId": "7d5b6bfc155fb029aa311660743f61721de29f73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
