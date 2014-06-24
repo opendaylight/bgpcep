@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_06f19a01",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/As4CapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T14:49:31Z",
+      "side": 1,
+      "message": "Unpooled.copiedLong",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_46e24230",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilityUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T14:49:31Z",
+      "side": 1,
+      "message": "public static void ByteBuf formatCapability(final int code, final ByteBuf value, final ByteBuf aggregator) like the other *Util classes",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_06d8ba79",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/UtilsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T14:49:31Z",
+      "side": 1,
+      "message": "wrappedBuffer",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
