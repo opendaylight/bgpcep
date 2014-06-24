@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_06551afa",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:27:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_5b977f48",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_bbaecb96",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_86404a35",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:27:00Z",
+      "side": 1,
+      "message": "this was fixed in previous commit on which this one would be rebased.",
+      "parentUuid": "fa82b9bf_bbaecb96",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3b9abb6e",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleParameterRegistry.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2014-06-24T08:15:45Z",
       "side": 1,
       "message": "shouldn\u0027t it be serializer.serializeParameter(parameter, bytes) ?",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_8667eae8",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleParameterRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T14:27:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_3b9abb6e",
       "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
