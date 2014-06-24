@@ -8,14 +8,17 @@
 package org.opendaylight.protocol.pcep.lsp.setup.type01;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.PathSetupTypeTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs5;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 
@@ -28,10 +31,10 @@ public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObject
     @Override
     public void addTlv(SrpBuilder builder, Tlv tlv) {
         super.addTlv(builder, tlv);
-        final Tlvs8Builder tlvBuilder = new Tlvs8Builder();
+        final Tlvs7Builder tlvBuilder = new Tlvs7Builder();
         if (builder.getTlvs() != null) {
-            if (builder.getTlvs().getAugmentation(Tlvs8.class) != null) {
-                final Tlvs8 t = builder.getTlvs().getAugmentation(Tlvs8.class);
+            if (builder.getTlvs().getAugmentation(Tlvs7.class) != null) {
+                final Tlvs7 t = builder.getTlvs().getAugmentation(Tlvs7.class);
                 if (t.getPathSetupType() != null) {
                     tlvBuilder.setPathSetupType(t.getPathSetupType());
                 }
@@ -40,7 +43,7 @@ public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObject
         if (tlv instanceof PathSetupType) {
             tlvBuilder.setPathSetupType((PathSetupType) tlv);
         }
-        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs8.class, tlvBuilder.build()).build());
+        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs7.class, tlvBuilder.build()).build());
     }
 
     @Override
@@ -49,11 +52,20 @@ public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObject
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.getAugmentation(Tlvs8.class) != null) {
-            final Tlvs8 nameTlvs = tlvs.getAugmentation(Tlvs8.class);
-            if (nameTlvs.getPathSetupType() != null) {
-                serializeTlv(nameTlvs.getPathSetupType(), body);
-            }
+        if (tlvs.getAugmentation(Tlvs5.class) != null) {
+            serializePathSetupType(tlvs.getAugmentation(Tlvs5.class), body);
+        } else if (tlvs.getAugmentation(Tlvs6.class) != null) {
+            serializePathSetupType(tlvs.getAugmentation(Tlvs6.class), body);
+        } else if (tlvs.getAugmentation(Tlvs7.class) != null) {
+            serializePathSetupType(tlvs.getAugmentation(Tlvs7.class), body);
+        } else if (tlvs.getAugmentation(Tlvs8.class) != null) {
+            serializePathSetupType(tlvs.getAugmentation(Tlvs8.class), body);
+        }
+    }
+
+    private void serializePathSetupType(final PathSetupTypeTlv pstTlv, final ByteBuf body) {
+        if (pstTlv.getPathSetupType() != null) {
+            serializeTlv(pstTlv.getPathSetupType(), body);
         }
     }
 }
