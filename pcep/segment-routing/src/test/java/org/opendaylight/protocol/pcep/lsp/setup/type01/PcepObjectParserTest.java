@@ -10,9 +10,9 @@ package org.opendaylight.protocol.pcep.lsp.setup.type01;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.segment.routing02.SegmentRoutingActivator;
@@ -27,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs8Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs7Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
@@ -83,7 +83,7 @@ public class PcepObjectParserTest {
         final ByteBuf result = Unpooled.wrappedBuffer(rpObjectWithPstTlvBytes);
         assertEquals(builder.build(),
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(rpObjectWithPstTlvBytes,ByteArray.getAllBytes(buf));
     }
@@ -96,14 +96,14 @@ public class PcepObjectParserTest {
         builder.setIgnore(false);
         builder.setOperationId(new SrpIdNumber(1L));
         builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().addAugmentation(Tlvs8.class,
-                new Tlvs8Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().addAugmentation(Tlvs7.class,
+                new Tlvs7Builder().setPathSetupType(new PathSetupTypeBuilder().setPst(true).build()).build())
                 .build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(srpObjectWithPstTlvBytes);
         assertEquals(builder.build(),
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        ByteBuf buf = Unpooled.buffer();
+        final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(srpObjectWithPstTlvBytes,ByteArray.getAllBytes(buf));
     }
