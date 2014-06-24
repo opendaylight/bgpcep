@@ -19,7 +19,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 
-public class PcepTlvParserTest {
+public class SrTlvParserTest {
 
     private static final byte[] spcTlvBytes = { 0x0, 0x1a, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
 

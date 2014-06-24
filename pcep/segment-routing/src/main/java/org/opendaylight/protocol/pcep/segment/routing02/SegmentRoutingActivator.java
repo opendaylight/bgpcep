@@ -10,11 +10,18 @@ package org.opendaylight.protocol.pcep.segment.routing02;
 
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.opendaylight.protocol.pcep.lsp.setup.type01.CInitiated00SrpObjectWithPstTlvParser;
 import org.opendaylight.protocol.pcep.lsp.setup.type01.PathSetupTypeTlvParser;
+import org.opendaylight.protocol.pcep.lsp.setup.type01.PcepRpObjectWithPstTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing._02.rev140506.sr.pce.capability.tlv.SrPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
 
 public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActivator {
 
@@ -22,11 +29,26 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
     protected List<AutoCloseable> startImpl(PCEPExtensionProviderContext context) {
         final List<AutoCloseable> regs = Lists.newArrayList();
 
+        /* Tlvs */
         regs.add(context.registerTlvParser(SrPceCapabilityTlvParser.TYPE, new SrPceCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(SrPceCapability.class, new SrPceCapabilityTlvParser()));
 
         regs.add(context.registerTlvParser(PathSetupTypeTlvParser.TYPE, new PathSetupTypeTlvParser()));
         regs.add(context.registerTlvSerializer(PathSetupType.class, new PathSetupTypeTlvParser()));
+
+        /* Subobjects */
+        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, new SrEroSubobjectParser()));
+        context.registerEROSubobjectSerializer(SrEroType.class, new SrEroSubobjectParser());
+
+        /* Objects */
+        final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
+        regs.add(context.registerObjectParser(CInitiated00SrpObjectWithPstTlvParser.CLASS, CInitiated00SrpObjectWithPstTlvParser.TYPE, new CInitiated00SrpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectParser(PcepRpObjectWithPstTlvParser.CLASS, PcepRpObjectWithPstTlvParser.TYPE, new PcepRpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectParser(PcepOpenObjectWithSpcTlvParser.CLASS, PcepOpenObjectWithSpcTlvParser.TYPE, new PcepOpenObjectWithSpcTlvParser(tlvReg)));
+
+        regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(Rp.class, new PcepRpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(Open.class, new PcepOpenObjectWithSpcTlvParser(tlvReg)));
         return regs;
     }
 }
