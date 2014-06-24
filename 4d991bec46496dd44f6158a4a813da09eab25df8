@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_86128a55",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPKeepAliveMessageParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T13:50:15Z",
+      "side": 1,
+      "message": "Done, except on static initialization of KEEPALIVE_BYTES",
+      "parentUuid": "fa82b9bf_bbb7abf4",
+      "revId": "4d991bec46496dd44f6158a4a813da09eab25df8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_1bc6d768",
         "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_c60c123e",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T13:50:15Z",
+      "side": 1,
+      "message": "Robert suggested this in previous patchset, ERROR_SIZE used instead of number 2.",
+      "parentUuid": "fa82b9bf_1bc6d768",
+      "revId": "4d991bec46496dd44f6158a4a813da09eab25df8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_3bc39b58",
         "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/UtilsTest.java",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2014-06-24T08:09:22Z",
       "side": 1,
       "message": "wrappedBuffer",
+      "revId": "4d991bec46496dd44f6158a4a813da09eab25df8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6615063f",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/UtilsTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T13:50:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_3bc39b58",
       "revId": "4d991bec46496dd44f6158a4a813da09eab25df8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
