@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_fb96933e",
+        "filename": "pcep/ietf-stateful07/src/main/java/org/opendaylight/controller/config/yang/pcep/stateful07/cfg/Stateful07PCEPSessionProposalFactoryModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T08:56:58Z",
+      "side": 1,
+      "message": "Do not commit files without actual changes. Whitespace is not a change.",
+      "revId": "b36906cfef57582e03b59e09d8da1fa30da1c0c3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
