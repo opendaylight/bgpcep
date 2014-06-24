@@ -1,0 +1,86 @@
+// vi: set smarttab et sw=4 tabstop=4:
+module odl-pcep-segment-routing02-cfg {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:sr02:cfg";
+    prefix "pcep-sr02";
+
+    import config { prefix config; revision-date 2013-04-05; }
+    import pcep { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-ietf-stateful07-cfg { prefix pcep-stateful07; revision-date 2014-02-21; }
+    import config-pcep-spi { prefix spi; revision-date 2013-11-15; }
+
+    organization "Cisco Systems, Inc.";
+
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the base YANG definitions for
+         draft-sivabalan-pce-segment-routing-02 extensions.
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.;
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2014-06-09" {
+        description
+            "Initial revision.";
+    }
+
+    identity pcep-parser-segment-routing02 {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix SegmentRouting02PCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-segment-routing02 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-segment-routing02'";
+        }
+    }
+
+    identity pcep-session-proposal-factory-sr02 {
+        base config:module-type;
+        config:java-name-prefix "Sr02PCEPSessionProposalFactory";
+        config:provided-service pcep:pcep-session-proposal-factory;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-session-proposal-factory-sr02 {
+            when "/config:modules/config:module/config:type = 'pcep-session-proposal-factory-sr02'";
+
+            leaf dead-timer-value {
+                type uint8;
+                default 120;
+            }
+
+            leaf keep-alive-timer-value {
+                type uint8;
+                default 30;
+            }
+
+            leaf initiated {
+                type boolean;
+                default true;
+            }
+
+            leaf stateful {
+                type boolean;
+                default true;
+            }
+
+            leaf active {
+                type boolean;
+                default true;
+            }
+
+            leaf sr-capable {
+                type boolean;
+                default true;
+            }
+        }
+    }
+}
+
