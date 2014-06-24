@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_864a8a24",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/open/As4CapabilityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T15:30:24Z",
+      "side": 1,
+      "message": "Unpooled.copyInt would be used.",
+      "parentUuid": "fa82b9bf_06f19a01",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_46e24230",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilityUtil.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_c644121d",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/CapabilityUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T15:30:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_46e24230",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_06d8ba79",
         "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/UtilsTest.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2014-06-24T14:49:31Z",
       "side": 1,
       "message": "wrappedBuffer",
+      "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a63f8e86",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/UtilsTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T15:30:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_06d8ba79",
       "revId": "03b735ecd117cdf422bd3a06797a5a544ac63d38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
