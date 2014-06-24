@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_0690ba48",
+        "filename": "pcep/segment-routing/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:34:11Z",
+      "side": 1,
+      "message": "put scope test if they are only used for testing",
+      "revId": "425f9cfb945235081681cf854dc6518131a758d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a680eef7",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing02/SegmentRoutingActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:34:11Z",
+      "side": 1,
+      "message": "regs.add",
+      "revId": "425f9cfb945235081681cf854dc6518131a758d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_4671e242",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing02/SrEroSubobjectParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:34:11Z",
+      "side": 1,
+      "message": "Preconditions.checkArgument",
+      "revId": "425f9cfb945235081681cf854dc6518131a758d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_867b6a27",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing02/SrEroSubobjectParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:34:11Z",
+      "side": 1,
+      "message": "why is reverseBits needed?",
+      "revId": "425f9cfb945235081681cf854dc6518131a758d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_06975a3c",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing02/SrEroSubobjectParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:34:11Z",
+      "side": 1,
+      "message": "put the numbers in static final int fields and reffer to them in parsing as well (avoiding magic numbers)",
+      "revId": "425f9cfb945235081681cf854dc6518131a758d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
