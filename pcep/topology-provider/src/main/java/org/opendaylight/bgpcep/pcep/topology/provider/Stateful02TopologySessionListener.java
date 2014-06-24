@@ -230,7 +230,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         Lsp reportedLsp = ra.getLsp();
         Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
         Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
-        Preconditions.checkState(args != null, "Input is missing operational tag.");
+        Preconditions.checkArgument(args != null, "Input is missing operational tag.");
 
         // Build the PCUpd request and send it
         final UpdatesBuilder rb = new UpdatesBuilder();
