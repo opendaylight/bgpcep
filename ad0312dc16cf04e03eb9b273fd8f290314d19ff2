@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fa82b9bf_fb2d3396",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPNotificationMessageParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T06:47:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_9842ed66",
+      "revId": "ad0312dc16cf04e03eb9b273fd8f290314d19ff2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa82b9bf_b847b176",
         "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2014-06-24T05:43:59Z",
       "side": 1,
       "message": "private static final field...",
+      "revId": "ad0312dc16cf04e03eb9b273fd8f290314d19ff2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_9b6c27d2",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/MessageUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 917
+      },
+      "writtenOn": "2014-06-24T06:47:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_b847b176",
       "revId": "ad0312dc16cf04e03eb9b273fd8f290314d19ff2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
