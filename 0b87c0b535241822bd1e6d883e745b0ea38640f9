@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_5b977f48",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T08:15:45Z",
+      "side": 1,
+      "message": "We don\u0027t need to know the size, so the whole calculation of optParamsLength is unnecessary.\n\nWe did serialize the parameters beforehand, so that we know the exact length of open message. With ByteBuf this is not necessary, as we can stack the optParams sequentially after mandatory fields in Open message.\n\nIn other words: optParams map is unnecessary, put: this.reg.serializeParameter(param,p); \nwriteBytes(p);",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bbaecb96",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/BGPOpenMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T08:15:45Z",
+      "side": 1,
+      "message": "writeLong",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_3b9abb6e",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/SimpleParameterRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T08:15:45Z",
+      "side": 1,
+      "message": "shouldn\u0027t it be serializer.serializeParameter(parameter, bytes) ?",
+      "revId": "0b87c0b535241822bd1e6d883e745b0ea38640f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
