@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_26ab7e76",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-06-24T16:37:41Z",
+      "side": 1,
+      "message": "Can\u0027t be the basic stateful07 proposal augmented by just that one leaf sr-capable?",
+      "revId": "ce5e466769447c05b6b5c328dd70545954207125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
