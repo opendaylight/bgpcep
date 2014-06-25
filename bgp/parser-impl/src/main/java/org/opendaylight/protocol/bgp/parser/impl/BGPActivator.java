@@ -20,6 +20,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapability
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4AggregatorAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AS4PathAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.AdvertizedRoutesSerializer;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AggregatorAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AtomicAggregateAttributeParser;
@@ -35,6 +36,7 @@ import org.opendaylight.protocol.bgp.parser.impl.message.update.MultiExitDiscrim
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
+import org.opendaylight.protocol.bgp.parser.impl.message.update.WithdrawnRoutesSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -57,10 +59,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Origin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.GracefulRestartCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.open.bgp.parameters.c.parameters.MultiprotocolCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.MplsLabeledVpnSubsequentAddressFamily;
@@ -72,6 +76,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
+
+        regs.add(context.registerNlriSerializer(AdvertizedRoutes.class, new AdvertizedRoutesSerializer()));
+        regs.add(context.registerNlriSerializer(WithdrawnRoutes.class, new WithdrawnRoutesSerializer()));
 
         final AddressFamilyRegistry afiReg = context.getAddressFamilyRegistry();
         regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
@@ -125,12 +132,12 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         final ClusterIdAttributeParser clusterIdAttributeParser = new ClusterIdAttributeParser();
         regs.add(context.registerAttributeParser(ClusterIdAttributeParser.TYPE, clusterIdAttributeParser));
 
-        MPReachAttributeParser mpReachAttributeParser  = new MPReachAttributeParser(nlriReg);
-        regs.add(context.registerAttributeSerializer(MpReachNlri.class,mpReachAttributeParser));
-        regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, mpReachAttributeParser ));
+        MPReachAttributeParser mpReachAttributeParser = new MPReachAttributeParser(nlriReg);
+        regs.add(context.registerAttributeSerializer(MpReachNlri.class, mpReachAttributeParser));
+        regs.add(context.registerAttributeParser(MPReachAttributeParser.TYPE, mpReachAttributeParser));
 
         MPUnreachAttributeParser mpUnreachAttributeParser = new MPUnreachAttributeParser(nlriReg);
-        regs.add(context.registerAttributeSerializer(MpUnreachNlri.class,mpUnreachAttributeParser));
+        regs.add(context.registerAttributeSerializer(MpUnreachNlri.class, mpUnreachAttributeParser));
         regs.add(context.registerAttributeParser(MPUnreachAttributeParser.TYPE, mpUnreachAttributeParser));
 
         final ExtendedCommunitiesAttributeParser extendedCommunitiesAttributeParser = new ExtendedCommunitiesAttributeParser(context.getReferenceCache());
