@@ -16,6 +16,24 @@
       "revId": "ce5e466769447c05b6b5c328dd70545954207125",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_21fa8843",
+        "filename": "pcep/segment-routing/src/main/yang/odl-pcep-segment-routing02-cfg.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-06-25T07:18:39Z",
+      "side": 1,
+      "message": "Unfortunately, such kind of augmentation is not supported by config subsystem.",
+      "parentUuid": "fa82b9bf_26ab7e76",
+      "revId": "ce5e466769447c05b6b5c328dd70545954207125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
