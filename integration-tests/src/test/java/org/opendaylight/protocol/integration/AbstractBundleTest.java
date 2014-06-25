@@ -84,6 +84,7 @@ public abstract class AbstractBundleTest {
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-core-spi").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-api").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-broker-impl").versionAsInProject());
+		ret.add(mavenBundle("org.opendaylight.controller", "sal-inmemory-datastore").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-config").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-binding-util").versionAsInProject());
 		ret.add(mavenBundle("org.opendaylight.controller", "sal-broker-impl").versionAsInProject());
