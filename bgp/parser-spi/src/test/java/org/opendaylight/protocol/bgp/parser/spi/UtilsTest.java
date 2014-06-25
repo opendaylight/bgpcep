@@ -28,7 +28,9 @@ public class UtilsTest {
     @Test
     public void testCapabilityUtil() {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
-        assertArrayEquals(result, CapabilityUtil.formatCapability(1, new byte[] { 4, 8 }));
+        ByteBuf aggregator = Unpooled.buffer();
+        CapabilityUtil.formatCapability(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }),aggregator);
+        assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
 
     @Test
