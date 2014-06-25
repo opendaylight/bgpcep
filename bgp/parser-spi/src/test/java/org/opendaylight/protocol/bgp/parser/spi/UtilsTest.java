@@ -38,7 +38,7 @@ public class UtilsTest {
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, 0, 23, 3, 32, 5, 14, 21 };
         ByteBuf formattedMessage = Unpooled.buffer();
-        MessageUtil.formatMessage(3, Unpooled.wrappedBuffer(new byte[]{32, 5, 14, 21}),formattedMessage);
+        MessageUtil.formatMessage(3, Unpooled.wrappedBuffer(new byte[] { 32, 5, 14, 21 }), formattedMessage);
         assertArrayEquals(result, ByteArray.getAllBytes(formattedMessage));
     }
 
@@ -87,6 +87,8 @@ public class UtilsTest {
     @Test
     public void testParameterUtil() {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
-        assertArrayEquals(result, ParameterUtil.formatParameter(1, new byte[] { 4, 8 }));
+        ByteBuf aggregator = Unpooled.buffer();
+        ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);
+        assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
 }

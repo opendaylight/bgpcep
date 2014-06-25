@@ -12,6 +12,8 @@ import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
 
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -56,18 +58,18 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     }
 
     @Override
-    public byte[] serializeParameter(final BgpParameters parameter) {
+    public void serializeParameter(final BgpParameters parameter, ByteBuf byteAggregator) {
         final CParameters cap = parameter.getCParameters();
 
         LOG.trace("Started serializing BGP Capability: {}", cap);
 
-        byte[] bytes = this.reg.serializeCapability(cap);
+        ByteBuf bytes = Unpooled.wrappedBuffer(this.reg.serializeCapability(cap));
         if (bytes == null) {
             throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
         }
 
-        LOG.trace("BGP capability serialized to: {}", Arrays.toString(bytes));
+        LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
 
-        return ParameterUtil.formatParameter(TYPE, bytes);
+        ParameterUtil.formatParameter(TYPE, bytes,byteAggregator);
     }
 }
