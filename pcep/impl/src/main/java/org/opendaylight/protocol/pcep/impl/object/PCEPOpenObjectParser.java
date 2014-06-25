@@ -10,10 +10,8 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -68,8 +66,14 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         builder.setVersion(new ProtocolVersion((short) versionValue));
         builder.setProcessingRule(header.isProcessingRule());
         builder.setIgnore(header.isIgnore());
-        builder.setKeepalive((short) UnsignedBytes.toInt(bytes.readByte()));
-        builder.setDeadTimer((short) UnsignedBytes.toInt(bytes.readByte()));
+        final short keepalive = (short) UnsignedBytes.toInt(bytes.readByte());
+        builder.setKeepalive(keepalive);
+        final short deadTimer = (short) UnsignedBytes.toInt(bytes.readByte());
+        if(keepalive == 0) {
+            builder.setDeadTimer((short) 0);
+        } else {
+            builder.setDeadTimer(deadTimer);
+        }
         builder.setSessionId((short) UnsignedBytes.toInt(bytes.readByte()));
 
         final TlvsBuilder tbuilder = new TlvsBuilder();

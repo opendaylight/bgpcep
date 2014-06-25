@@ -209,17 +209,15 @@ module pcep-types {
             }
 
             leaf keepalive {
-                // Note: non-presence is equal to '0'
                 type uint8 {
-                    range 1..255;
+                    range 0..255;
                 }
                 mandatory true;
             }
 
             leaf dead-timer {
-                // Note: non-presence is equal to '0'
                 type uint8 {
-                    range 1..255;
+                    range 0..255;
                 }
                 mandatory true;
             }

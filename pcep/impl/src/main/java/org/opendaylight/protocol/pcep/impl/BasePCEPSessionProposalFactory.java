@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
@@ -31,10 +30,10 @@ public class BasePCEPSessionProposalFactory implements PCEPSessionProposalFactor
     public final Open getSessionProposal(final InetSocketAddress address, final int sessionId) {
         final OpenBuilder oBuilder = new OpenBuilder();
         oBuilder.setSessionId((short) sessionId);
-        if (this.keepAlive != 0) {
-            oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
-        }
-        if (this.deadTimer != 0) {
+        oBuilder.setKeepalive((short) BasePCEPSessionProposalFactory.this.keepAlive);
+        if(BasePCEPSessionProposalFactory.this.keepAlive == 0) {
+            oBuilder.setDeadTimer((short) 0);
+        } else {
             oBuilder.setDeadTimer((short) BasePCEPSessionProposalFactory.this.deadTimer);
         }
 
