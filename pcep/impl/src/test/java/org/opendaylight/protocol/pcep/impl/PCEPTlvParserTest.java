@@ -11,12 +11,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.tlv.AbstractVendorSpecificTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
@@ -58,12 +55,12 @@ public class PCEPTlvParserTest {
     private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
 
         @Override
-        protected byte[] serializeVendorPayload(VendorPayload payload) {
-            return new byte[] { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05 };
+        protected void serializeVendorPayload(final VendorPayload payload, final ByteBuf buffer) {
+            buffer.writeBytes(new byte[] { 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05 });
         }
 
         @Override
-        protected VendorPayload parseVendorPayload(byte[] payloadBytes) throws PCEPDeserializerException {
+        protected VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException {
             return PCEPTlvParserTest.this.vp;
         }
 

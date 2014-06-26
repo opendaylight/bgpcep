@@ -8,15 +8,12 @@
 package org.opendaylight.protocol.pcep.impl.tlv;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlv;
@@ -36,7 +33,7 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         final ByteBuf body = Unpooled.buffer();
         if (vsTlv.getEnterpriseNumber().getValue() == getEnterpriseNumber()) {
             body.writeInt(vsTlv.getEnterpriseNumber().getValue().intValue());
-            body.writeBytes(serializeVendorPayload(vsTlv.getVendorPayload()));
+            serializeVendorPayload(vsTlv.getVendorPayload(), body);
             TlvUtil.formatTlv(TYPE, body, buffer);
         }
     }
@@ -46,15 +43,14 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         if (buffer == null) {
             return null;
         }
-        VsTlvBuilder vsTlvBuider = new VsTlvBuilder();
-        long en = buffer.readUnsignedInt();
+        final VsTlvBuilder vsTlvBuider = new VsTlvBuilder();
+        final long en = buffer.readUnsignedInt();
         if (en == getEnterpriseNumber()) {
             vsTlvBuider.setEnterpriseNumber(new EnterpriseNumber(getEnterpriseNumber()));
             VendorPayload vendorPayload = null;
             if (buffer.isReadable()) {
-                ByteBuf payloadBytes = buffer.slice();
-                // FIXME: change this to ByteBuf
-                vendorPayload = parseVendorPayload(ByteArray.getAllBytes(payloadBytes));
+                final ByteBuf payloadBytes = buffer.slice();
+                vendorPayload = parseVendorPayload(payloadBytes);
                 if (vendorPayload != null) {
                     vsTlvBuider.setVendorPayload(vendorPayload);
                 }
@@ -63,13 +59,9 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         return vsTlvBuider.build();
     }
 
-    protected abstract byte[] serializeVendorPayload(VendorPayload payload);
+    protected abstract void serializeVendorPayload(final VendorPayload payload, final ByteBuf buffer);
 
     protected abstract long getEnterpriseNumber();
 
-    protected abstract VendorPayload parseVendorPayload(byte[] payloadBytes) throws PCEPDeserializerException;
-
-    protected static int getPadding(final int length, final int padding) {
-        return (padding - (length % padding)) % padding;
-    }
+    protected abstract VendorPayload parseVendorPayload(final ByteBuf payloadBytes) throws PCEPDeserializerException;
 }
