@@ -80,11 +80,31 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         Preconditions.checkArgument(object instanceof Lspa, "Wrong instance of PCEPObject. Passed %s. Needed LspaObject.", object.getClass());
         final Lspa lspaObj = (Lspa) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeInt(lspaObj.getExcludeAny().getValue().intValue());
-        body.writeInt(lspaObj.getIncludeAny().getValue().intValue());
-        body.writeInt(lspaObj.getIncludeAll().getValue().intValue());
-        body.writeByte(lspaObj.getSetupPriority());
-        body.writeByte(lspaObj.getHoldPriority());
+        if (lspaObj.getExcludeAny() != null) {
+            body.writeInt(lspaObj.getExcludeAny().getValue().intValue());
+        } else {
+            body.writeZero(Integer.SIZE / Byte.SIZE);
+        }
+        if (lspaObj.getIncludeAny() != null) {
+            body.writeInt(lspaObj.getIncludeAny().getValue().intValue());
+        } else {
+            body.writeZero(Integer.SIZE / Byte.SIZE);
+        }
+        if (lspaObj.getIncludeAll() != null) {
+            body.writeInt(lspaObj.getIncludeAll().getValue().intValue());
+        } else {
+            body.writeZero(Integer.SIZE / Byte.SIZE);
+        }
+        if (lspaObj.getSetupPriority() != null) {
+            body.writeByte(lspaObj.getSetupPriority());
+        } else {
+            body.writeZero(1);
+        }
+        if (lspaObj.getHoldPriority() != null) {
+            body.writeByte(lspaObj.getHoldPriority());
+        } else {
+            body.writeZero(1);
+        }
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
         if (lspaObj.isLocalProtectionDesired() != null) {
             flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
