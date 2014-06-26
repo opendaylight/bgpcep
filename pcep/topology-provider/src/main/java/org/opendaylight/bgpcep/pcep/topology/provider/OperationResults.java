@@ -10,6 +10,10 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -24,17 +28,31 @@ enum OperationResults implements OperationResult {
             return FailureType.NoAck;
         }
 
+        @Override
+        public List<Errors> getErrors() {
+            return Collections.emptyList();
+        }
     },
     SUCCESS {
         @Override
         public FailureType getFailure() {
             return null;
         }
+
+        @Override
+        public List<Errors> getErrors() {
+            return Collections.emptyList();
+        }
     },
     UNSENT {
         @Override
         public FailureType getFailure() {
             return FailureType.Unsent;
+        }
+
+        @Override
+        public List<Errors> getErrors() {
+            return Collections.emptyList();
         }
     };
 
