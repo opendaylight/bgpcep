@@ -7,43 +7,70 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.operation.result.Error;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.operation.result.ErrorBuilder;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 /**
  *
  */
-enum OperationResults implements OperationResult {
-    NOACK {
-        @Override
-        public FailureType getFailure() {
-            return FailureType.NoAck;
-        }
+final class OperationResults implements OperationResult {
+    static final OperationResults NOACK = new OperationResults(FailureType.NoAck);
+    static final OperationResults SUCCESS = new OperationResults((FailureType)null);
+    static final OperationResults UNSENT = new OperationResults(FailureType.Unsent);
 
-    },
-    SUCCESS {
+    private static final Function<Errors, Error> CONVERT_ERRORS = new Function<Errors, Error>() {
         @Override
-        public FailureType getFailure() {
-            return null;
-        }
-    },
-    UNSENT {
-        @Override
-        public FailureType getFailure() {
-            return FailureType.Unsent;
+        public Error apply(final Errors input) {
+            return new ErrorBuilder(input).build();
         }
     };
 
-    @Override
-    public Class<? extends DataContainer> getImplementedInterface() {
-        return OperationResult.class;
+    private final FailureType failure;
+    private final List<Error> error;
+
+    private OperationResults(final FailureType failure) {
+        this.failure = failure;
+        this.error = null;
+    }
+
+    private OperationResults(final List<Error> error) {
+        this.failure = FailureType.Failed;
+        this.error = error;
     }
 
     ListenableFuture<OperationResult> future() {
         return Futures.<OperationResult> immediateFuture(this);
+    }
+
+    public static OperationResults createFailed(final List<Errors> errors) {
+        final List<Errors> e = errors != null ? errors : Collections.<Errors>emptyList();
+        return new OperationResults(Lists.transform(e, CONVERT_ERRORS));
+    }
+
+    @Override
+    public FailureType getFailure() {
+        return failure;
+    }
+
+    @Override
+    public List<Error> getError() {
+        return error;
+
+    }
+    @Override
+    public Class<? extends DataContainer> getImplementedInterface() {
+        return OperationResult.class;
     }
 }
