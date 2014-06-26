@@ -115,7 +115,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     if (id.getValue() != 0) {
                         final PCEPRequest req = removeRequest(id);
                         if (req != null) {
-                            req.setResult(OperationResults.SUCCESS);
+                            req.setResult(OperationResults.createFailed(errMsg.getErrors()));
                         } else {
                             LOG.warn("Request ID {} not found in outstanding DB", id);
                         }
