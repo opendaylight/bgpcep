@@ -75,16 +75,33 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         return builder.build();
     }
 
+    private static void writeFilter(final AttributeFilter f, final ByteBuf output) {
+        if (f != null) {
+            output.writeInt(f.getValue().intValue());
+        } else {
+            output.writeZero(Integer.SIZE / Byte.SIZE);
+        }
+    }
+
+    private static void writePriority(final Short priority, final ByteBuf output) {
+        if (priority != null) {
+            output.writeByte(priority);
+        } else {
+            output.writeZero(1);
+        }
+    }
+
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Lspa, "Wrong instance of PCEPObject. Passed %s. Needed LspaObject.", object.getClass());
         final Lspa lspaObj = (Lspa) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeInt(lspaObj.getExcludeAny().getValue().intValue());
-        body.writeInt(lspaObj.getIncludeAny().getValue().intValue());
-        body.writeInt(lspaObj.getIncludeAll().getValue().intValue());
-        body.writeByte(lspaObj.getSetupPriority());
-        body.writeByte(lspaObj.getHoldPriority());
+        writeFilter(lspaObj.getExcludeAny(), body);
+        writeFilter(lspaObj.getIncludeAny(), body);
+        writeFilter(lspaObj.getIncludeAll(), body);
+        writePriority(lspaObj.getSetupPriority(), body);
+        writePriority(lspaObj.getHoldPriority(), body);
+
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
         if (lspaObj.isLocalProtectionDesired() != null) {
             flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
