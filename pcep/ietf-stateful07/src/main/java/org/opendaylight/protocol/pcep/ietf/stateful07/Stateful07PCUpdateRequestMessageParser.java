@@ -9,12 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.stateful07;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -42,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Pcupd}
  */
-public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParser {
+public class Stateful07PCUpdateRequestMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 11;
 
@@ -57,28 +54,32 @@ public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessag
         final List<Updates> updates = msg.getPcupdMessage().getUpdates();
         ByteBuf buffer = Unpooled.buffer();
         for (final Updates update : updates) {
-            serializeObject(update.getSrp(), buffer);
-            serializeObject(update.getLsp(), buffer);
-            final Path p = update.getPath();
-            if (p != null) {
-                serializeObject(p.getEro(), buffer);
-                if (p.getLspa() != null) {
-                    serializeObject(p.getLspa(), buffer);
-                }
-                if (p.getBandwidth() != null) {
-                    serializeObject(p.getBandwidth(), buffer);
-                }
-                if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
-                    for (final Metrics m : p.getMetrics()) {
-                        serializeObject(m.getMetric(), buffer);
-                    }
-                }
-                if (p.getIro() != null) {
-                    serializeObject(p.getIro(), buffer);
-                }
-            }
+            serializeUpdate(update, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
+    }
+
+    protected void serializeUpdate(final Updates update, final ByteBuf buffer) {
+        serializeObject(update.getSrp(), buffer);
+        serializeObject(update.getLsp(), buffer);
+        final Path p = update.getPath();
+        if (p != null) {
+            serializeObject(p.getEro(), buffer);
+            if (p.getLspa() != null) {
+                serializeObject(p.getLspa(), buffer);
+            }
+            if (p.getBandwidth() != null) {
+                serializeObject(p.getBandwidth(), buffer);
+            }
+            if (p.getMetrics() != null && !p.getMetrics().isEmpty()) {
+                for (final Metrics m : p.getMetrics()) {
+                    serializeObject(m.getMetric(), buffer);
+                }
+            }
+            if (p.getIro() != null) {
+                serializeObject(p.getIro(), buffer);
+            }
+        }
     }
 
     @Override
@@ -93,9 +94,9 @@ public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessag
         final List<Updates> updateRequests = Lists.newArrayList();
 
         while (!objects.isEmpty()) {
-            final Updates update = getValidUpdates(objects, errors);
-            if (update != null) {
-                updateRequests.add(update);
+            final Updates upd = getValidUpdates(objects, errors);
+            if(upd != null) {
+                updateRequests.add(upd);
             }
         }
         if (!objects.isEmpty()) {
@@ -104,21 +105,22 @@ public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessag
         return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
     }
 
-    private Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+    protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+        boolean isValid = true;
         final UpdatesBuilder builder = new UpdatesBuilder();
         if (objects.get(0) instanceof Srp) {
             builder.setSrp((Srp) objects.get(0));
             objects.remove(0);
         } else {
             errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
-            return null;
+            isValid = false;
         }
         if (objects.get(0) instanceof Lsp) {
             builder.setLsp((Lsp) objects.get(0));
             objects.remove(0);
         } else {
             errors.add(createErrorMsg(PCEPErrors.LSP_MISSING));
-            return null;
+            isValid = false;
         }
         if (!objects.isEmpty()) {
             final PathBuilder pBuilder = new PathBuilder();
@@ -127,12 +129,15 @@ public final class Stateful07PCUpdateRequestMessageParser extends AbstractMessag
                 objects.remove(0);
             } else {
                 errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
-                return null;
+                isValid = false;
             }
             parsePath(objects, pBuilder);
             builder.setPath(pBuilder.build());
         }
-        return builder.build();
+        if(isValid) {
+            return builder.build();
+        }
+        return null;
     }
 
     private void parsePath(final List<Object> objects, final PathBuilder pBuilder) {
