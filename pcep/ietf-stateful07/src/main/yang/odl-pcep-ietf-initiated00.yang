@@ -104,7 +104,7 @@ module odl-pcep-ietf-initiated00 {
 		uses initiated-capability-tlv;
 	}
 
-	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/stateful:lsp" {
+	augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path/stateful:lsp" {
 		reference "http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp-00#section-5.3.1";
 		leaf create {
 			type boolean;

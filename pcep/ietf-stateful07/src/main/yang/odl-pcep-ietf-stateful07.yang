@@ -323,7 +323,7 @@ module odl-pcep-ietf-stateful07 {
         ext:augment-identifier tlvs-3;
     }
 
-    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp" {
+    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path" {
         uses lsp-object;
     }
 

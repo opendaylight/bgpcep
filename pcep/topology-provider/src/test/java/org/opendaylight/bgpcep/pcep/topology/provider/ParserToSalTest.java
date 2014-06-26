@@ -11,13 +11,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
+import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Promise;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -27,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.ReportsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
@@ -68,160 +70,158 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 public class ParserToSalTest {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ParserToSalTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParserToSalTest.class);
 
-	private List<Notification> receivedMsgs;
+    private List<Notification> receivedMsgs;
 
-	private PCEPSessionImpl session;
+    private PCEPSessionImpl session;
 
-	@Mock
-	private Channel clientListener;
+    @Mock
+    private Channel clientListener;
 
-	@Mock
-	private ChannelPipeline pipeline;
+    @Mock
+    private ChannelPipeline pipeline;
 
-	@Mock
-	DataProviderService providerService;
+    @Mock
+    DataProviderService providerService;
 
-	@Mock
-	DataModificationTransaction mockedTransaction;
+    @Mock
+    DataModificationTransaction mockedTransaction;
 
-	private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setTlvs(
-			new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
+    private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setTlvs(
+        new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
 
-	private Pcrpt rptmsg;
+    private Pcrpt rptmsg;
 
-	private ServerSessionManager manager;
+    private ServerSessionManager manager;
 
-	@Before
-	public void setUp() throws IOException {
-		MockitoAnnotations.initMocks(this);
+    @Before
+    public void setUp() throws IOException {
+        MockitoAnnotations.initMocks(this);
 
-		doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) {
-				final Object[] args = invocation.getArguments();
-				ParserToSalTest.this.receivedMsgs.add((Notification) args[0]);
-				return mock(ChannelFuture.class);
-			}
-		}).when(this.clientListener).writeAndFlush(any(Notification.class));
-		doReturn("TestingChannel").when(this.clientListener).toString();
-		doReturn(this.pipeline).when(this.clientListener).pipeline();
-		doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
-		doReturn(true).when(this.clientListener).isActive();
-		final SocketAddress ra = new InetSocketAddress("127.0.0.1", 4189);
-		doReturn(ra).when(this.clientListener).remoteAddress();
-		final SocketAddress la = new InetSocketAddress("127.0.0.1", 30000);
-		doReturn(la).when(this.clientListener).localAddress();
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) {
+                final Object[] args = invocation.getArguments();
+                ParserToSalTest.this.receivedMsgs.add((Notification) args[0]);
+                return mock(ChannelFuture.class);
+            }
+        }).when(this.clientListener).writeAndFlush(any(Notification.class));
+        doReturn("TestingChannel").when(this.clientListener).toString();
+        doReturn(this.pipeline).when(this.clientListener).pipeline();
+        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(true).when(this.clientListener).isActive();
+        final SocketAddress ra = new InetSocketAddress("127.0.0.1", 4189);
+        doReturn(ra).when(this.clientListener).remoteAddress();
+        final SocketAddress la = new InetSocketAddress("127.0.0.1", 30000);
+        doReturn(la).when(this.clientListener).localAddress();
 
-		doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
+        doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-		Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
-		Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
-			int i = 0;
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
+        Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
+            int i = 0;
 
-			@Override
-			public boolean cancel(final boolean mayInterruptIfRunning) {
-				LOG.debug("Cancel.");
-				return false;
-			}
+            @Override
+            public boolean cancel(final boolean mayInterruptIfRunning) {
+                LOG.debug("Cancel.");
+                return false;
+            }
 
-			@Override
-			public boolean isCancelled() {
-				LOG.debug("Is cancelled.");
-				return false;
-			}
+            @Override
+            public boolean isCancelled() {
+                LOG.debug("Is cancelled.");
+                return false;
+            }
 
-			@Override
-			public boolean isDone() {
-				this.i++;
-				LOG.debug("Done. {}", this.i);
-				return true;
-			}
+            @Override
+            public boolean isDone() {
+                this.i++;
+                LOG.debug("Done. {}", this.i);
+                return true;
+            }
 
-			@Override
-			public RpcResult<TransactionStatus> get() throws InterruptedException, ExecutionException {
-				return null;
-			}
+            @Override
+            public RpcResult<TransactionStatus> get() throws InterruptedException, ExecutionException {
+                return null;
+            }
 
-			@Override
-			public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException, TimeoutException {
-				return null;
-			}
-		}).when(this.mockedTransaction).commit();
+            @Override
+            public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
+            ExecutionException, TimeoutException {
+                return null;
+            }
+        }).when(this.mockedTransaction).commit();
 
-		final HashMap<Object, Object> data = new HashMap<>();
+        final HashMap<Object, Object> data = new HashMap<>();
 
-		Mockito.doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				LOG.debug("Get key {}", args[0]);
-				return data.get(args[0]);
-			}
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                LOG.debug("Get key {}", args[0]);
+                return data.get(args[0]);
+            }
 
-		}).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doAnswer(new Answer<Object>() {
-			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				LOG.debug("Get key {}", args[0]);
-				return data.get(args[0]);
-			}
+        Mockito.doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                LOG.debug("Get key {}", args[0]);
+                return data.get(args[0]);
+            }
 
-		}).when(this.providerService).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.providerService).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doAnswer(new Answer<Object>() {
+        Mockito.doAnswer(new Answer<Object>() {
 
-			@Override
-			public Object answer(final InvocationOnMock invocation) throws Throwable {
-				data.remove(invocation.getArguments()[0]);
-				return null;
-			}
+            @Override
+            public Object answer(final InvocationOnMock invocation) throws Throwable {
+                data.remove(invocation.getArguments()[0]);
+                return null;
+            }
 
-		}).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
 
-		Mockito.doAnswer(new Answer<String>() {
-			@Override
-			public String answer(final InvocationOnMock invocation) throws Throwable {
-				final Object[] args = invocation.getArguments();
-				LOG.debug("Put key {} value {}", args[0]);
-				LOG.debug("Put value {}", args[1]);
-				data.put(args[0], args[1]);
-				return null;
-			}
+        Mockito.doAnswer(new Answer<String>() {
+            @Override
+            public String answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
+                LOG.debug("Put key {} value {}", args[0]);
+                LOG.debug("Put value {}", args[1]);
+                data.put(args[0], args[1]);
+                return null;
+            }
 
-		}).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
-		this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
-				Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
-		final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
-		this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
+        this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
+            Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
+        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
 
-		final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setLsp(
-				new LspBuilder().setPlspId(new PlspId(5L)).setSync(false).setRemove(false).setTlvs(
-						new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(
-								new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(new byte[] { 22, 34 })).build()).build()).build()).build());
-		this.rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
-	}
+        final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setPath(new PathBuilder().setEro(new EroBuilder().build()).build()).setLsp(
+            new LspBuilder().setPlspId(new PlspId(5L)).setSync(false).setRemove(false).setTlvs(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(
+                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(new byte[] { 22, 34 })).build()).build()).build()).build());
+        this.rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
+    }
 
-	@After
-	public void tearDown() throws InterruptedException, ExecutionException {
-		this.manager.close();
-	}
+    @After
+    public void tearDown() throws InterruptedException, ExecutionException {
+        this.manager.close();
+    }
 
-	@Test
-	public void testUnknownLsp() {
-		this.session.sessionUp();
-		this.session.handleMessage(this.rptmsg);
-		Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-				Matchers.any(DataObject.class));
-		Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
-	}
+    @Test
+    public void testUnknownLsp() {
+        this.session.sessionUp();
+        this.session.handleMessage(this.rptmsg);
+        Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+            Matchers.any(DataObject.class));
+        Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
+    }
 }
