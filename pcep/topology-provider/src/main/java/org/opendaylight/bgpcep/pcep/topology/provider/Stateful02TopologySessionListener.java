@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.net.InetAddress;
@@ -126,7 +127,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             if (r.getPath() != null) {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
                 pb.fieldsFrom(r.getPath());
-                rlb.setPath(pb.build());
+                rlb.setPath(Lists.newArrayList(pb.build()));
             }
             boolean solicited = false;
 
@@ -144,7 +145,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             }
 
             if (!lsp.isRemove()) {
-                updateLsp(trans, id, name, rlb, solicited);
+                updateLsp(trans, id, name, rlb, solicited, false);
                 LOG.debug("LSP {} updated", lsp);
             } else {
                 removeLsp(trans, id);
