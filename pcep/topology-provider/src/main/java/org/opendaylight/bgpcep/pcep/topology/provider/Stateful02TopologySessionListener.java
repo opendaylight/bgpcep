@@ -126,7 +126,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             if (r.getPath() != null) {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
                 pb.fieldsFrom(r.getPath());
-                rlb.setPath(pb.build());
+                rlb.setPath(Collections.singletonList(pb.build()));
             }
             boolean solicited = false;
 
@@ -144,7 +144,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
             }
 
             if (!lsp.isRemove()) {
-                updateLsp(trans, id, name, rlb, solicited);
+                updateLsp(trans, id, name, rlb, solicited, false);
                 LOG.debug("LSP {} updated", lsp);
             } else {
                 removeLsp(trans, id);

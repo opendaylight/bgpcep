@@ -24,7 +24,7 @@ import org.opendaylight.controller.sal.binding.api.data.DataModificationTransact
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.ReportedLsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv6Case;
@@ -198,7 +198,8 @@ public final class NodeChangedListener implements DataChangeListener {
 
     private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
         final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
-        final ReportedLsp1 rl = value.getAugmentation(ReportedLsp1.class);
+
+        final Path1 rl = value.getPath().get(0).getAugmentation(Path1.class);
 
         final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
@@ -218,9 +219,9 @@ public final class NodeChangedListener implements DataChangeListener {
             throw new IllegalArgumentException("Unsupported address family: " + af.getImplementedInterface());
         }
 
-        final Link1Builder lab = new Link1Builder(value.getPath().getLspa());
-        lab.setBandwidth(value.getPath().getBandwidth().getBandwidth());
-        lab.setClassType(value.getPath().getClassType().getClassType());
+        final Link1Builder lab = new Link1Builder(value.getPath().get(0).getLspa());
+        lab.setBandwidth(value.getPath().get(0).getBandwidth().getBandwidth());
+        lab.setClassType(value.getPath().get(0).getClassType().getClassType());
         lab.setSymbolicPathName(value.getName());
 
         final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
