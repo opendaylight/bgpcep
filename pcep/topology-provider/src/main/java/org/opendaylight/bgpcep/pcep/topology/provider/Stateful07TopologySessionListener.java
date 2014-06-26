@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.net.InetAddress;
@@ -29,11 +30,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.ReportedLsp1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.ReportedLsp1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.StatefulTlv1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.StatefulTlv1Builder;
@@ -55,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
@@ -130,24 +132,20 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         }
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
-        for (final Reports r : rpt.getReports()) {
-            final Lsp lsp = r.getLsp();
+        for (final Reports report : rpt.getReports()) {
+            final Lsp lsp = report.getLsp();
+            final PlspId plspid = lsp.getPlspId();
 
-            if (!lsp.isSync() && (lsp.getPlspId() == null || lsp.getPlspId().getValue() == 0)) {
+            if (!lsp.isSync() && (lsp.getPlspId() == null || plspid.getValue() == 0)) {
                 stateSynchronizationAchieved(trans);
                 continue;
             }
 
             final ReportedLspBuilder rlb = new ReportedLspBuilder();
-            rlb.addAugmentation(ReportedLsp1.class, new ReportedLsp1Builder(r).build());
-            if (r.getPath() != null) {
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
-                pb.fieldsFrom(r.getPath());
-                rlb.setPath(pb.build());
-            }
+
             boolean solicited = false;
 
-            final Srp srp = r.getSrp();
+            final Srp srp = report.getSrp();
             if (srp != null) {
                 final SrpIdNumber id = srp.getOperationId();
                 if (id.getValue() != 0) {
@@ -172,27 +170,30 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                         // up...
                         break;
                     }
+
                 }
             }
-
-            final PlspId id = lsp.getPlspId();
-            if (!lsp.isRemove()) {
-                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = r.getLsp().getTlvs();
-                final String name;
-                if (tlvs != null && tlvs.getSymbolicPathName() != null) {
-                    name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
-                } else {
-                    name = null;
-                }
-
-                updateLsp(trans, id, name, rlb, solicited);
-                LOG.debug("LSP {} updated", lsp);
+            final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.Tlvs tlvs = report.getLsp().getTlvs();
+            final String name;
+            if (tlvs != null && tlvs.getSymbolicPathName() != null) {
+                name = Charsets.UTF_8.decode(ByteBuffer.wrap(tlvs.getSymbolicPathName().getPathName().getValue())).toString();
             } else {
-                removeLsp(trans, id);
-                LOG.debug("LSP {} removed", lsp);
+                name = null;
             }
+            LspId lspid = null;
+            if (tlvs != null && tlvs.getLspIdentifiers() != null) {
+                lspid = tlvs.getLspIdentifiers().getLspId();
+            }
+            if (report.getPath() != null) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
+                pb.fieldsFrom(report.getPath());
+                pb.addAugmentation(Path1.class, new Path1Builder().setLsp(report.getLsp()).build());
+                pb.setLspId(lspid);
+                rlb.setPath(Lists.newArrayList(pb.build()));
+            }
+            updateLsp(trans, plspid, name, rlb, solicited, lsp.isRemove());
+            LOG.debug("LSP {} updated", lsp);
         }
-
         return false;
     }
 
@@ -242,6 +243,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null, "Mandatory XML tags are missing.");
+        LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
         final ReportedLsp rep = readOperationalData(lsp);
@@ -249,8 +251,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
             return OperationResults.UNSENT.future();
         }
-
-        final ReportedLsp1 ra = rep.getAugmentation(ReportedLsp1.class);
+        // it doesn't matter how many lsps there are in the path list, we only need delegate & plspid that is the same in eeach path
+        final Path1 ra = rep.getPath().get(0).getAugmentation(Path1.class);
         Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
         Lsp reportedLsp = ra.getLsp();
         Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
@@ -268,6 +270,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
         final ReportedLsp rep = readOperationalData(lsp);
@@ -275,7 +278,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
             return OperationResults.UNSENT.future();
         }
-        final ReportedLsp1 ra = rep.getAugmentation(ReportedLsp1.class);
+        // it doesn't matter how many lsps there are in the path list, we only need plspid that is the same in each path
+        final Path1 ra = rep.getPath().get(0).getAugmentation(Path1.class);
         Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
         Lsp reportedLsp = ra.getLsp();
         Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
@@ -315,14 +319,20 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
             return OperationResults.UNSENT.future();
         }
-
-        final ReportedLsp1 ra = rep.getAugmentation(ReportedLsp1.class);
-        if (ra == null) {
-            LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
-            return OperationResults.UNSENT.future();
+        boolean operational = false;
+        // check if at least one of the paths has the same status as requested
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path p : rep.getPath()) {
+            Path1 p1 = p.getAugmentation(Path1.class);
+            if (p1 == null) {
+                LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
+                return OperationResults.UNSENT.future();
+            }
+            Lsp l = p1.getLsp();
+            if (l.getOperational().equals(op)) {
+                operational = true;
+            }
         }
-
-        if (ra.getLsp().getOperational().equals(op)) {
+        if (operational) {
             return OperationResults.SUCCESS.future();
         } else {
             return OperationResults.UNSENT.future();
