@@ -26,7 +26,7 @@ public class PCEPExistingBandwidthObjectParser extends AbstractBandwidthParser {
     }
 
     @Override
-    protected void formatBandwidth(boolean processed, boolean ignored, ByteBuf body, ByteBuf buffer) {
+    protected void formatBandwidth(Boolean processed, Boolean ignored, ByteBuf body, ByteBuf buffer) {
         ObjectUtil.formatSubobject(TYPE, CLASS, processed, ignored, body, buffer);
     }
 }
