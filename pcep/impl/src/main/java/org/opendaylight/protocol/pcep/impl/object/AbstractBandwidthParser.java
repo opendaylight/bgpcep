@@ -51,5 +51,5 @@ abstract class AbstractBandwidthParser extends AbstractObjectWithTlvsParser<Band
         formatBandwidth(object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    protected abstract void formatBandwidth(final boolean processed, final boolean ignored, final ByteBuf body, final ByteBuf buffer);
+    protected abstract void formatBandwidth(final Boolean processed, final Boolean ignored, final ByteBuf body, final ByteBuf buffer);
 }
