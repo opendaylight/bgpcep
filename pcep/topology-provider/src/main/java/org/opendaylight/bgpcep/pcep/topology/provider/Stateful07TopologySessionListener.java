@@ -182,13 +182,15 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             if (tlvs != null && tlvs.getLspIdentifiers() != null) {
                 lspid = tlvs.getLspIdentifiers().getLspId();
             }
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
             if (report.getPath() != null) {
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder();
                 pb.fieldsFrom(report.getPath());
-                pb.addAugmentation(Path1.class, new Path1Builder().setLsp(report.getLsp()).build());
-                pb.setLspId(lspid);
-                rlb.setPath(Lists.newArrayList(pb.build()));
             }
+            // LSP is mandatory (if there is none, parser will throw an exception)
+            // this is to ensure a path will be created at any rate
+            pb.addAugmentation(Path1.class, new Path1Builder().setLsp(report.getLsp()).build());
+            pb.setLspId(lspid);
+            rlb.setPath(Lists.newArrayList(pb.build()));
             updateLsp(trans, plspid, name, rlb, solicited, lsp.isRemove());
             LOG.debug("LSP {} updated", lsp);
         }
