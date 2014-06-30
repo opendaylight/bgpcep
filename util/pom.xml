@@ -40,7 +40,6 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>${commonscodec.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -51,8 +50,8 @@
             <artifactId>netty-buffer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools.model</groupId>
-            <artifactId>ietf-inet-types</artifactId>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>concepts</artifactId>
         </dependency>
 
         <!-- Testing dependencies -->
