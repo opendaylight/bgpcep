@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import java.util.Comparator;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * Marker interface identifying a BGP peer.
@@ -28,4 +30,6 @@ public interface Peer {
      * @return Path attribute comparator, as viewed from the peer.
      */
     Comparator<PathAttributes> getComparator();
+
+    InstanceIdentifier<Rib> getRibInstanceIdentifier();
 }

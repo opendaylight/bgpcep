@@ -79,7 +79,7 @@ public class LinkstateAdjRIBsInTest {
     @Mock
     private Peer peer;
 
-    private LinkstateAdjRIBsIn lrib;
+    private LinkstateAdjRIBIn lrib;
 
     private CLinkstateDestinationBuilder dBuilder;
 
@@ -131,7 +131,7 @@ public class LinkstateAdjRIBsInTest {
 
         }).when(this.trans).removeOperationalData(Matchers.any(InstanceIdentifier.class));
 
-        Mockito.doReturn(iid).when(this.rib).getInstanceIdentifier();
+        Mockito.doReturn(iid).when(this.peer).getRibInstanceIdentifier();
         Mockito.doReturn(new Comparator<PathAttributes>() {
 
             @Override
@@ -140,7 +140,7 @@ public class LinkstateAdjRIBsInTest {
             }
         }).when(this.peer).getComparator();
         Mockito.doReturn("test").when(this.peer).toString();
-        this.lrib = new LinkstateAdjRIBsIn(this.trans, this.rib, key);
+        this.lrib = new LinkstateAdjRIBIn(this.trans, key, this.peer);
 
         this.dBuilder = new CLinkstateDestinationBuilder();
 
@@ -162,7 +162,7 @@ public class LinkstateAdjRIBsInTest {
         PathAttributesBuilder pa = new PathAttributesBuilder();
         pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+        this.lrib.addRoutes(this.trans, this.builder.build(), pa.build());
 
         Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
@@ -185,7 +185,7 @@ public class LinkstateAdjRIBsInTest {
         PathAttributesBuilder pa = new PathAttributesBuilder();
         pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+        this.lrib.addRoutes(this.trans, this.builder.build(), pa.build());
 
         Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
@@ -209,7 +209,7 @@ public class LinkstateAdjRIBsInTest {
         PathAttributesBuilder pa = new PathAttributesBuilder();
         pa.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
 
-        this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
+        this.lrib.addRoutes(this.trans, this.builder.build(), pa.build());
 
         Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
@@ -222,7 +222,7 @@ public class LinkstateAdjRIBsInTest {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
                                 this.destinations).build()).build()).build());
-        this.lrib.removeRoutes(this.trans, this.peer, builder.build());
+        this.lrib.removeRoutes(this.trans, builder.build());
 
         Mockito.verify(this.trans, Mockito.times(2)).removeOperationalData(Matchers.any(InstanceIdentifier.class));
         assertEquals(2, this.data.size());
