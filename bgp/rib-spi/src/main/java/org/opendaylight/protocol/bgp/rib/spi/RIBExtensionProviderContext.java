@@ -21,9 +21,9 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      *
      * @param afi Address Family identifier
      * @param safi Subsequent Address Family identifier
-     * @param factory AdjRIBsInFactory
+     * @param factory AdjRIBInFactory
      * @return Registration handle. Call its close() method to remove it.
      */
-    AutoCloseable registerAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
-            AdjRIBsInFactory factory);
+    AutoCloseable registerAdjRIBInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
+            AdjRIBInFactory factory);
 }

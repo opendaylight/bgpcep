@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
@@ -25,8 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
-    Ipv6AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-        super(trans, rib, key);
+    Ipv6AdjRIBsIn(final DataModificationTransaction trans, final TablesKey key, final Peer peer) {
+        super(trans, key, peer);
     }
 
     @Override
@@ -35,7 +34,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
     }
 
     @Override
-    public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
+    public void addRoutes(final DataModificationTransaction trans, final MpReachNlri nlri,
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         final RIBEntryData<Ipv6Prefix, Ipv6Route> data = new RIBEntryData<Ipv6Prefix, Ipv6Route>(attributes) {
             @Override
@@ -45,14 +44,14 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
         };
 
         for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
-            super.add(trans, peer, id, data);
+            super.add(trans, id, data);
         }
     }
 
     @Override
-    public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+    public void removeRoutes(final DataModificationTransaction trans, final MpUnreachNlri nlri) {
         for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
-            super.remove(trans, peer, id);
+            super.remove(trans, id);
         }
     }
 }
