@@ -12,10 +12,10 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBIn;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBInFactory;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -25,14 +25,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Activator for registering Linkstate AFI/SAFI to RIB.
  */
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+
+    AdjRIBInFactory adj =  new AdjRIBInFactory() {
+        @Override
+        public AdjRIBIn createAdjRIBIn(final DataModificationTransaction trans, final Peer peer, final TablesKey key) {
+            return new LinkstateAdjRIBIn(trans, key, peer);
+        }
+    };
+
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-                new AdjRIBsInFactory() {
-                    @Override
-                    public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-                        return new LinkstateAdjRIBsIn(trans, rib, key);
-                    }
-                }));
+        return Lists.newArrayList(context.registerAdjRIBInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, this.adj));
     }
 }
