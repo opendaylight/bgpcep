@@ -33,6 +33,7 @@ import javax.management.ReflectionException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.GlobalBGPSessionRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -151,6 +152,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             password = null;
         }
 
-        return new BGPPeer(peerName(getHost()), createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
+        return new BGPPeer(peerName(getHost()), createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r, GlobalBGPSessionRegistry.DroppingBGPSessionRegistry.getInstance());
     }
 }

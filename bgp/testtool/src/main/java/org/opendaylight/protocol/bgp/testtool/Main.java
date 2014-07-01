@@ -65,7 +65,7 @@ public final class Main {
 
     private Main() throws Exception {
         BGPActivator bgpActivator = new BGPActivator();
-        bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+//        bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new HashedWheelTimer(), new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 

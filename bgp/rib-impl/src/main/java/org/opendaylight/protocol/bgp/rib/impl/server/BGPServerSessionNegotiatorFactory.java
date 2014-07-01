@@ -1,35 +1,35 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.impl.server;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiator;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiator;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
+public final class BGPServerSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
     private final BGPSessionPreferences initialPrefs;
-    private final BGPClientSessionValidator validator;
     private final Timer timer;
+    private final BGPSessionValidator validator;
 
-    public BGPSessionNegotiatorFactory(final Timer timer, final BGPSessionPreferences initialPrefs, final AsNumber remoteAs) {
+    public BGPServerSessionNegotiatorFactory(final Timer timer, final BGPSessionPreferences initialPrefs, final BGPSessionValidator sessionValidator) {
         this.timer = Preconditions.checkNotNull(timer);
         this.initialPrefs = Preconditions.checkNotNull(initialPrefs);
-        this.validator = new BGPClientSessionValidator(remoteAs, initialPrefs);
+        this.validator = Preconditions.checkNotNull(sessionValidator);
     }
 
     @Override
