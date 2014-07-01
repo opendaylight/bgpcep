@@ -152,6 +152,40 @@ module bgp-rib-impl {
         config:java-name-prefix BGPPeer;
     }
 
+    identity bgp-peer-acceptor {
+        description
+            "BGP peer acceptor for remote bgp sessions";
+
+        base "config:service-type";
+        config:java-class "org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerAcceptor";
+    }
+
+    identity strict-bgp-peer-acceptor {
+        description
+            "BGP peer acceptor that permits only one BGP connection between 2 peers.";
+
+        base config:module-type;
+        config:java-name-prefix StrictBGPPeerAcceptor;
+    }
+
+     augment "/config:modules/config:module/config:configuration" {
+        case strict-bgp-peer-acceptor {
+            when "/config:modules/config:module/config:type = 'strict-bgp-peer-acceptor'";
+
+            leaf binding-address {
+                description "IP address to bound to";
+                type inet:ip-address;
+                default "0.0.0.0";
+            }
+
+            leaf binding-port {
+                description "Port to bound to";
+                type inet:port-number;
+                default "179";
+            }
+        }
+    }
+
     identity bgp-table-type {
         description
             "Service representing a AFI/SAFI pair";
@@ -209,6 +243,11 @@ module bgp-rib-impl {
                 default 180;
             }
 
+            leaf initiate-connection {
+                type boolean;
+                default true;
+            }
+
             list advertized-table {
                 uses config:service-ref {
                     refine type {
@@ -235,6 +274,16 @@ module bgp-rib-impl {
                     refine type {
                         mandatory true;
                         config:required-identity rib-instance;
+                    }
+                }
+            }
+
+            container peer-acceptor {
+                description "Optional Peer acceptor dependency, if the acceptor is not provided, connections initiated by this peer will not be accepted";
+                uses config:service-ref {
+                    refine type {
+                        mandatory false;
+                        config:required-identity bgp-peer-acceptor;
                     }
                 }
             }

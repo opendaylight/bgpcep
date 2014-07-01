@@ -18,20 +18,18 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
-
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
+import org.opendaylight.protocol.bgp.rib.impl.DroppingBGPSessionRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.client.BGPClientPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -66,6 +64,8 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
     @Override
     protected void customValidation() {
+        // TODO validate if initiate connection == true or peer acceptor is configured. At least one of them has to be or the peer will never be connected.
+
         JmxAttributeValidationException.checkNotNull(getHost(), "value is not set.", hostJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getPort(), "value is not set.", portJmxAttribute);
 
@@ -108,17 +108,6 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    private static String peerName(final IpAddress host) {
-        if (host.getIpv4Address() != null) {
-            return host.getIpv4Address().getValue();
-        }
-        if (host.getIpv6Address() != null) {
-            return host.getIpv6Address().getValue();
-        }
-
-        return null;
-    }
-
     @Override
     public java.lang.AutoCloseable createInstance() {
         final RIB r = getRibDependency();
@@ -151,6 +140,29 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             password = null;
         }
 
-        return new BGPPeer(peerName(getHost()), createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
+        final BGPClientPeer bgpClientPeer = new BGPClientPeer(getHost(), r, DroppingBGPSessionRegistry.getInstance());
+
+        // Register to peer acceptor if configured
+        if(getPeerAcceptorDependency() != null) {
+            getPeerAcceptorDependency().addPeer(bgpClientPeer);
+        }
+
+        // Initiate connection
+        if(getInitiateConnection()) {
+            bgpClientPeer.initiateConnection(createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs);
+        }
+
+        return new AutoCloseable() {
+            @Override
+            public void close() throws Exception {
+                // Remove from peer acceptor if possible
+                if(getPeerAcceptorDependency() != null) {
+                    getPeerAcceptorDependency().removePeer(bgpClientPeer);
+                }
+
+                bgpClientPeer.close();
+            }
+        };
     }
+
 }

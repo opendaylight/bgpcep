@@ -8,25 +8,30 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelFactory;
 import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelOption;
 import org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.client.BGPClientSessionNegotiatorFactory;
+import org.opendaylight.protocol.bgp.rib.impl.server.BGPServerPeer;
+import org.opendaylight.protocol.bgp.rib.impl.server.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPServerDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -36,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, AutoCloseable {
+public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, BGPServerDispatcher, AutoCloseable {
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
@@ -60,7 +65,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
             final AsNumber remoteAs, final BGPSessionListener listener, final ReconnectStrategy strategy) {
-        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences, remoteAs);
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.timer, preferences, remoteAs);
         final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
             @Override
             public BGPSessionListener getSessionListener() {
@@ -93,7 +98,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address, final BGPSessionPreferences preferences,
             final AsNumber remoteAs, final BGPSessionListener listener, final ReconnectStrategyFactory connectStrategyFactory,
             final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
-        final BGPSessionNegotiatorFactory snf = new BGPSessionNegotiatorFactory(this.timer, preferences, remoteAs);
+        final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(this.timer, preferences, remoteAs);
         final SessionListenerFactory<BGPSessionListener> slf = new SessionListenerFactory<BGPSessionListener>() {
             @Override
             public BGPSessionListener getSessionListener() {
@@ -111,6 +116,31 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
                         ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
                     }
                 });
+        this.keys = null;
+
+        return ret;
+    }
+
+    @Override
+    public ChannelFuture createServer(final InetSocketAddress address, final BGPSessionPreferences preferences, final RIB rib, final BGPSessionValidator sessionValidator) {
+        return this.createServer(address, preferences, rib, sessionValidator, null);
+    }
+
+    @Override
+    public ChannelFuture createServer(final InetSocketAddress address, final BGPSessionPreferences preferences, final BGPSessionValidator sessionValidator, final BGPPeerRegistry registry, final KeyMapping keys) {
+
+
+        final BGPServerSessionNegotiatorFactory snf = new BGPServerSessionNegotiatorFactory(this.timer, preferences, sessionValidator, registry);
+
+        this.keys = keys;
+        final ChannelFuture ret = super.createServer(address, new PipelineInitializer<BGPSessionImpl>() {
+            @Override
+            public void initializeChannel(final SocketChannel ch, final Promise<BGPSessionImpl> promise) {
+                ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getDecoders());
+                ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(null, ch, promise));
+                ch.pipeline().addLast(BGPDispatcherImpl.this.hf.getEncoders());
+            }
+        });
         this.keys = null;
 
         return ret;

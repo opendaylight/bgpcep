@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  *
  * @param <T> Actual object state reference
  */
-final class BGPObjectComparator implements Comparator<PathAttributes> {
+public final class BGPObjectComparator implements Comparator<PathAttributes> {
     private final byte[] localId, remoteId;
     private final AsNumber ourAS;
 

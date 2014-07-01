@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Dispatcher class for creating BGP clients.
  */
-public interface BGPDispatcher {
+public interface BGPDispatcher extends BGPServerDispatcher {
 
     /**
      * Creates BGP client.

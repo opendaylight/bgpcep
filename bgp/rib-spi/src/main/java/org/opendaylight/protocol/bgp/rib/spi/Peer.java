@@ -28,4 +28,6 @@ public interface Peer {
      * @return Path attribute comparator, as viewed from the peer.
      */
     Comparator<PathAttributes> getComparator();
+
+    void drop();
 }

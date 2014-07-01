@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,18 +7,24 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
+import io.netty.channel.Channel;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
+import io.netty.util.concurrent.Promise;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
@@ -36,20 +42,11 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-
-import io.netty.channel.Channel;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
-import io.netty.util.concurrent.Promise;
-
 /**
  * Bgp Session negotiator. Common for local -> remote and remote -> local connections.
  * Only difference is session validation performed by injected BGPSessionValidator.
  */
-public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
+public final class BGPServerSessionNegotiator extends AbstractSessionNegotiator<Notification, BGPSessionImpl> {
     // 4 minutes recommended in http://tools.ietf.org/html/rfc4271#section-8.2.2
     protected static final int INITIAL_HOLDTIMER = 4;
 
@@ -79,10 +76,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
         Finished,
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(BGPSessionNegotiator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BGPServerSessionNegotiator.class);
     private final BGPSessionPreferences localPref;
-    private final BGPSessionListener listener;
     private final Timer timer;
+    private final BGPPeerRegistry registry;
     private final BGPSessionValidator sessionValidator;
 
     @GuardedBy("this")
@@ -91,11 +88,11 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
     @GuardedBy("this")
     private BGPSessionImpl session;
 
-    public BGPSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
-                                final BGPSessionPreferences initialPrefs, final BGPSessionListener listener, final BGPSessionValidator sessionValidator) {
+    public BGPServerSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
+                                      final BGPSessionPreferences initialPrefs, final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
         super(promise, channel);
+        this.registry = registry;
         this.sessionValidator = sessionValidator;
-        this.listener = Preconditions.checkNotNull(listener);
         this.localPref = Preconditions.checkNotNull(initialPrefs);
         this.timer = Preconditions.checkNotNull(timer);
     }
@@ -117,10 +114,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
             @Override
             public void run(final Timeout timeout) {
                 synchronized (lock) {
-                    if (BGPSessionNegotiator.this.state != State.Finished) {
-                        BGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                    if (BGPServerSessionNegotiator.this.state != State.Finished) {
+                        BGPServerSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
                         negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                        BGPSessionNegotiator.this.state = State.Finished;
+                        BGPServerSessionNegotiator.this.state = State.Finished;
                     }
                 }
             }
@@ -167,8 +164,10 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
     }
 
     private void handleOpen(final Open openObj) {
+        final IpAddress ipAddress = getIpAddress(channel.remoteAddress());
+
         try {
-            sessionValidator.validate(openObj, getIpAddress(channel.remoteAddress()));
+            sessionValidator.validate(openObj, ipAddress);
         } catch (final BGPDocumentedException e) {
             this.sendMessage(buildErrorNotify(e.getError()));
             negotiationFailed(e);
@@ -176,16 +175,29 @@ public final class BGPSessionNegotiator extends AbstractSessionNegotiator<Notifi
             return;
         }
 
-        this.sendMessage(new KeepaliveBuilder().build());
-        this.session = new BGPSessionImpl(this.timer, this.listener, this.channel, openObj, this.localPref.getHoldTime());
-        this.state = State.OpenConfirm;
-        LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
+        try {
+            final BGPSessionListener peer = registry.getPeer(getSourceId(openObj, localPref), getDestinationId(openObj, localPref));
+            this.sendMessage(new KeepaliveBuilder().build());
+            this.session = new BGPSessionImpl(this.timer, peer, this.channel, openObj, this.localPref.getHoldTime());
+            this.state = State.OpenConfirm;
+            LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
+        } catch (final BGPDocumentedException e) {
+            negotiationFailed(e);
+        }
+    }
+
+    private Ipv4Address getDestinationId(final Open openMsg, final BGPSessionPreferences preferences) {
+        return preferences.getBgpId();
+    }
+
+    private Ipv4Address getSourceId(final Open openMsg, final BGPSessionPreferences preferences) {
+        return openMsg.getBgpIdentifier();
     }
 
     /**
      * Create IpAddress from SocketAddress. Only Inet4Address and Inet6Address are expected.
      *
-     * @throws java.lang.IllegalArgumentException if submitted socket address is not ipv4 or ipv6
+     * @throws IllegalArgumentException if submitted socket address is not ipv4 or ipv6
      * @param socketAddress socket address to transform
      */
     private static IpAddress getIpAddress(final SocketAddress socketAddress) {

@@ -24,8 +24,8 @@ import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
-import org.opendaylight.protocol.bgp.rib.impl.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
+import org.opendaylight.protocol.bgp.rib.impl.client.BGPClientSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ProtocolSession;
@@ -82,7 +82,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
 
         final BGPSessionPreferences prefs = new BGPSessionProposalImpl((short) 90, new AsNumber(72L), new Ipv4Address("127.0.0.2"), tables).getProposal();
 
-        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPSessionNegotiatorFactory(new HashedWheelTimer(), prefs, new AsNumber(72L));
+        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPClientSessionNegotiatorFactory(new HashedWheelTimer(), prefs, new AsNumber(72L));
 
         final BGPSpeakerMock<Notification, BGPSessionImpl, BGPSessionListener> mock = new BGPSpeakerMock<>(snf, new BGPHandlerFactory(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry()), new DefaultPromise<BGPSessionImpl>(GlobalEventExecutor.INSTANCE));
 
