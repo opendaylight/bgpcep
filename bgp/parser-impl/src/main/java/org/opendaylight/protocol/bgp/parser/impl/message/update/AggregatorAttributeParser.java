@@ -8,11 +8,13 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
@@ -49,20 +51,17 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
-        Aggregator aggregator = pathAttributes.getAggregator();
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final PathAttributes pathAttributes = (PathAttributes) attribute;
+        final Aggregator aggregator = pathAttributes.getAggregator();
         if (aggregator == null) {
             return;
         }
         Preconditions.checkArgument(aggregator.getAsNumber() != null, "Missing AS number that formed the aggregate route (encoded as 2 octets).");
-        ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
-        byteAggregator.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.TRANSITIVE);
-        byteAggregator.writeByte(TYPE);
-        ByteBuf aggregatorBuffer = Unpooled.buffer();
-        aggregatorBuffer.writeInt(shortAsNumber.getValue().intValue());
-        aggregatorBuffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
-        byteAggregator.writeByte(aggregatorBuffer.writerIndex());
-        byteAggregator.writeBytes(aggregatorBuffer);
+        final ShortAsNumber shortAsNumber = new ShortAsNumber(aggregator.getAsNumber());
+        final ByteBuf buffer = Unpooled.buffer();
+        buffer.writeInt(shortAsNumber.getValue().intValue());
+        buffer.writeBytes(Ipv4Util.bytesForAddress(aggregator.getNetworkAddress()));
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, buffer, byteAggregator);
     }
 }

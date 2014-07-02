@@ -9,13 +9,16 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.Communities;
@@ -46,20 +49,17 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
-        List<Communities> communities = pathAttributes.getCommunities();
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final PathAttributes pathAttributes = (PathAttributes) attribute;
+        final List<Communities> communities = pathAttributes.getCommunities();
         if (communities == null) {
             return;
         }
-        ByteBuf communitiesBuffer = Unpooled.buffer();
-        for (Community community : communities) {
+        final ByteBuf communitiesBuffer = Unpooled.buffer();
+        for (final Community community : communities) {
             communitiesBuffer.writeShort(community.getAsNumber().getValue().shortValue());
             communitiesBuffer.writeShort(community.getSemantics().shortValue());
         }
-        byteAggregator.writeByte(AttributeFlags.TRANSITIVE | AttributeFlags.PARTIAL);
-        byteAggregator.writeByte(CommunitiesAttributeParser.TYPE);
-        byteAggregator.writeByte(communitiesBuffer.writerIndex());
-        byteAggregator.writeBytes(communitiesBuffer);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE | AttributeUtil.PARTIAL, TYPE, communitiesBuffer, byteAggregator);
     }
 }

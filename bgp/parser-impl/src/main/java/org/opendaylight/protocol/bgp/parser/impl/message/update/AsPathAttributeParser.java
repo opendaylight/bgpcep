@@ -13,14 +13,16 @@ import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
@@ -97,17 +99,13 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
-        AsPath asPath = pathAttributes.getAsPath();
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final PathAttributes pathAttributes = (PathAttributes) attribute;
+        final AsPath asPath = pathAttributes.getAsPath();
         if (asPath == null) {
             return;
         }
-
-        byteAggregator.writeByte(AttributeFlags.TRANSITIVE);
-        byteAggregator.writeByte(TYPE);
-
-        ByteBuf segmentsBuffer = Unpooled.buffer();
+        final ByteBuf segmentsBuffer = Unpooled.buffer();
         if (asPath.getSegments().size()>0) {
             for (Segments segments : asPath.getSegments()) {
                 if (segments.getCSegment() instanceof AListCase) {
@@ -121,7 +119,6 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
                 }
             }
         }
-        byteAggregator.writeByte(segmentsBuffer.writerIndex());
-        byteAggregator.writeBytes(segmentsBuffer);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, segmentsBuffer, byteAggregator);
     }
 }

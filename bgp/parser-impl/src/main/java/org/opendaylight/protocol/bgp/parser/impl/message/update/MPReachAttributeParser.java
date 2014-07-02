@@ -8,14 +8,16 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
@@ -30,7 +32,6 @@ public final class MPReachAttributeParser implements AttributeParser, AttributeS
 
     public static final int TYPE = 14;
     public static final int ATTR_LENGTH = 2;
-    public static final int MAX_ATTR_LENGTH_FOR_SINGLE_BYTE = 127;
     private final NlriRegistry reg;
 
     public MPReachAttributeParser(final NlriRegistry reg) {
@@ -48,29 +49,19 @@ public final class MPReachAttributeParser implements AttributeParser, AttributeS
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
-        PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final PathAttributes pathAttributes = (PathAttributes) attribute;
+        final PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
         }
-        MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
-        ByteBuf reachBuffer = Unpooled.buffer();
+        final MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
+        final ByteBuf reachBuffer = Unpooled.buffer();
         this.reg.serializeMpReach(mpReachNlri, reachBuffer);
 
-        for (NlriSerializer nlriSerializer : this.reg.getSerializers()) {
+        for (final NlriSerializer nlriSerializer : this.reg.getSerializers()) {
             nlriSerializer.serializeAttribute(attribute, reachBuffer);
         }
-
-        if (reachBuffer.writerIndex() > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE) {
-            byteAggregator.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.EXTENDED);
-            byteAggregator.writeByte(TYPE);
-            byteAggregator.writeShort(reachBuffer.writerIndex());
-        } else {
-            byteAggregator.writeByte(AttributeFlags.OPTIONAL);
-            byteAggregator.writeByte(TYPE);
-            byteAggregator.writeByte(reachBuffer.writerIndex());
-        }
-        byteAggregator.writeBytes(reachBuffer);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, reachBuffer, byteAggregator);
     }
 }
