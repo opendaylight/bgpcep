@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -38,6 +38,8 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         Preconditions.checkArgument(tlv != null, "OverloadedTlv is mandatory.");
-        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((OverloadDuration) tlv).getDuration().intValue()), buffer);
+        final ByteBuf body = Unpooled.buffer();
+        writeUnsignedInt(((OverloadDuration) tlv).getDuration(), body);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

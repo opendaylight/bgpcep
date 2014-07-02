@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
@@ -53,8 +54,10 @@ public class XROSRLGSubobjectParser implements XROSubobjectParser, XROSubobjectS
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrlgCase, "Unknown subobject instance. Passed %s. Needed SrlgCase.", subobject.getSubobjectType().getClass());
         final SrlgSubobject specObj = ((SrlgCase) subobject.getSubobjectType()).getSrlg();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeInt(specObj.getSrlgId().getValue().intValue());
-        body.writeByte(subobject.getAttribute().getIntValue());
+        Preconditions.checkArgument(specObj.getSrlgId() != null, "SrlgId is mandatory.");
+        writeUnsignedInt(specObj.getSrlgId().getValue(), body);
+        Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
+        writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }
