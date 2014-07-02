@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -60,17 +60,13 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
         final CClose obj = (CClose) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
-        body.writeByte(obj.getReason());
-        // FIXME: switch to ByteBuf
-        final byte[] tlvs = serializeTlvs(obj.getTlvs());
-        if (tlvs != null) {
-            body.writeBytes(tlvs);
-        }
+        Preconditions.checkArgument(obj.getReason() != null, "Reason is mandatory.");
+        writeUnsignedByte(obj.getReason(), body);
+        serializeTlvs(obj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 
-    public byte[] serializeTlvs(final Tlvs tlvs) {
-        // No tlvs defined
-        return new byte[0];
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+        return;
     }
 }

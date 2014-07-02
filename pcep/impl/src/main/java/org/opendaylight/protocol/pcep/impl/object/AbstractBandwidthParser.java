@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
@@ -47,7 +47,7 @@ abstract class AbstractBandwidthParser extends AbstractObjectWithTlvsParser<Band
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Bandwidth, "Wrong instance of PCEPObject. Passed %s. Needed BandwidthObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();
-        body.writeBytes(((Bandwidth) object).getBandwidth().getValue());
+        writeFloat32(((Bandwidth) object).getBandwidth(), body);
         formatBandwidth(object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 

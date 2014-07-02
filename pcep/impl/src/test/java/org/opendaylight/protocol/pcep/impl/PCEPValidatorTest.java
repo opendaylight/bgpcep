@@ -11,14 +11,11 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;

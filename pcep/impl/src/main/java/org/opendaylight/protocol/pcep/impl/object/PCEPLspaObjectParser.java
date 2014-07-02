@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -80,36 +81,16 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         Preconditions.checkArgument(object instanceof Lspa, "Wrong instance of PCEPObject. Passed %s. Needed LspaObject.", object.getClass());
         final Lspa lspaObj = (Lspa) object;
         final ByteBuf body = Unpooled.buffer();
-        if (lspaObj.getExcludeAny() != null) {
-            body.writeInt(lspaObj.getExcludeAny().getValue().intValue());
-        } else {
-            body.writeZero(Integer.SIZE / Byte.SIZE);
-        }
-        if (lspaObj.getIncludeAny() != null) {
-            body.writeInt(lspaObj.getIncludeAny().getValue().intValue());
-        } else {
-            body.writeZero(Integer.SIZE / Byte.SIZE);
-        }
-        if (lspaObj.getIncludeAll() != null) {
-            body.writeInt(lspaObj.getIncludeAll().getValue().intValue());
-        } else {
-            body.writeZero(Integer.SIZE / Byte.SIZE);
-        }
-        if (lspaObj.getSetupPriority() != null) {
-            body.writeByte(lspaObj.getSetupPriority());
-        } else {
-            body.writeZero(1);
-        }
-        if (lspaObj.getHoldPriority() != null) {
-            body.writeByte(lspaObj.getHoldPriority());
-        } else {
-            body.writeZero(1);
-        }
+        writeAttributeFilter(lspaObj.getExcludeAny(), body);
+        writeAttributeFilter(lspaObj.getIncludeAny(), body);
+        writeAttributeFilter(lspaObj.getIncludeAll(), body);
+        writeUnsignedByte(lspaObj.getSetupPriority(), body);
+        writeUnsignedByte(lspaObj.getHoldPriority(), body);
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
         if (lspaObj.isLocalProtectionDesired() != null) {
             flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
         body.writeZero(RESERVED);
         serializeTlvs(lspaObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
@@ -117,5 +98,9 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         return;
+    }
+
+    private void writeAttributeFilter(final AttributeFilter attributeFilter, final ByteBuf body) {
+        writeUnsignedInt(attributeFilter != null ? attributeFilter.getValue() : null, body);
     }
 }

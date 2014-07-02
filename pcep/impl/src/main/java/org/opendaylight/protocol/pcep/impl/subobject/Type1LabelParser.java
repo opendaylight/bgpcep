@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.Type1LabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.type1.label._case.Type1Label;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.type1.label._case.Type1LabelBuilder;
 
 /**
@@ -43,7 +44,10 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
     @Override
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject instanceof Type1LabelCase, "Unknown Label Subobject instance. Passed {}. Needed Type1LabelCase.", subobject.getClass());
-        LabelUtil.formatLabel(CTYPE, unidirectional, global, Unpooled.copyInt(
-                ((Type1LabelCase) subobject).getType1Label().getType1Label().intValue()), buffer);
+        final ByteBuf body = Unpooled.buffer(LABEL_LENGTH);
+        final Type1Label type1Label = ((Type1LabelCase) subobject).getType1Label();
+        Preconditions.checkArgument(type1Label != null, "Type1Label is mandatory.");
+        writeUnsignedInt(type1Label.getType1Label(), body);
+        LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }

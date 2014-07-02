@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -107,12 +107,12 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
         if (svecObj.isSrlgDiverse() != null) {
             flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
         assert !(requestIDs.isEmpty()) : "Empty Svec Object - no request ids.";
-        for (int i = 0; i < requestIDs.size(); i++) {
-            body.writeInt(requestIDs.get(i).getValue().intValue());
+        for(final RequestId requestId : requestIDs) {
+            writeUnsignedInt(requestId.getValue(), body);
         }
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -85,7 +85,9 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
         Preconditions.checkArgument(object instanceof ClassType, "Wrong instance of PCEPObject. Passed %s. Needed ClassTypeObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(SIZE -1);
-        body.writeByte(((ClassType) object).getClassType().getValue());
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType classType = ((ClassType) object).getClassType();
+        Preconditions.checkArgument(classType != null, "ClassType is mandatory.");
+        writeUnsignedByte(classType.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

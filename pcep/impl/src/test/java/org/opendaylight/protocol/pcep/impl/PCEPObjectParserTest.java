@@ -138,7 +138,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -263,7 +263,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -295,7 +295,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -316,7 +316,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -356,7 +356,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPErrorObject3.bin"));
 
@@ -367,7 +367,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -389,7 +389,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject2UpperBounds.bin"));
 
@@ -403,7 +403,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -422,7 +422,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPMetricObject2UpperBounds.bin"));
 
@@ -434,7 +434,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -451,7 +451,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject2WithTLV.bin"));
 
@@ -466,7 +466,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -495,7 +495,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -540,7 +540,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -559,7 +559,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPSvecObject1_10ReqIDs.bin"));
 
@@ -584,7 +584,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -600,7 +600,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -624,7 +624,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -643,7 +643,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -659,7 +659,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -678,7 +678,7 @@ public class PCEPObjectParserTest {
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
-        assertArrayEquals(result.array(),ByteArray.getAllBytes(buf));
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 
     @Test
@@ -701,5 +701,20 @@ public class PCEPObjectParserTest {
         assertNotNull(object);
         assertTrue(object instanceof UnknownObject);
         assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_CLASS, ((UnknownObject) object).getError());
+    }
+
+    @Test
+    public void testLspaObjectSerializerDefence() throws IOException, PCEPDeserializerException {
+        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+        ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
+
+        final LspaBuilder builder = new LspaBuilder();
+        builder.setProcessingRule(true);
+        builder.setIgnore(true);
+        builder.setLocalProtectionDesired(false);
+
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 }
