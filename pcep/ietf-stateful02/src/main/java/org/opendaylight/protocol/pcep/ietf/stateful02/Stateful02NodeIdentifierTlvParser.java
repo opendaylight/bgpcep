@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -27,7 +25,7 @@ public final class Stateful02NodeIdentifierTlvParser implements TlvParser, TlvSe
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "NodeIdentifierTlv is mandatory.");
+        Preconditions.checkArgument(tlv != null && tlv instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier, "NodeIdentifierTlv is mandatory.");
         TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier) tlv).getNodeId().getValue()), buffer);
     }
 
