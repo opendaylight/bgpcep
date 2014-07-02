@@ -12,9 +12,11 @@ import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -22,6 +24,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.concepts.AbstractRegistration;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Values;
@@ -49,14 +52,30 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private static final int PARTIAL_BIT = 2;
     private static final int EXTENDED_LENGTH_BIT = 3;
     private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
+    private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
+    private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
+            new AtomicReference<Iterable<AttributeSerializer>>(serializers.values());
 
     AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
         Preconditions.checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
         return this.handlers.registerParser(attributeType, parser);
     }
 
-    AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
-        return this.handlers.registerSerializer(paramClass, serializer);
+    synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
+        final AbstractRegistration reg = this.handlers.registerSerializer(paramClass, serializer);
+
+        serializers.put(reg, serializer);
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (SimpleAttributeRegistry.this) {
+                    serializers.remove(reg);
+                    roSerializers.set(serializers.values());
+                }
+
+                reg.close();
+            }
+        };
     }
 
     private int addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
@@ -116,7 +135,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
 
     @Override
     public void serializeAttribute(final DataObject attribute,final ByteBuf byteAggregator) {
-        for (AttributeSerializer serializer : this.handlers.getAllSerializers()) {
+        for (AttributeSerializer serializer : this.roSerializers.get()) {
             serializer.serializeAttribute(attribute, byteAggregator);
         }
     }

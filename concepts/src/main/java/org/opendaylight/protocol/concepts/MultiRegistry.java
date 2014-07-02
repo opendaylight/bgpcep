@@ -10,11 +10,14 @@ package org.opendaylight.protocol.concepts;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +71,10 @@ public final class MultiRegistry<K, V> {
         this.candidates.put(key, value);
         updateCurrent(key);
 
-        final Object lock = this;
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                synchronized (lock) {
+                synchronized (MultiRegistry.this) {
                     MultiRegistry.this.candidates.remove(key, value);
                     updateCurrent(key);
                 }
