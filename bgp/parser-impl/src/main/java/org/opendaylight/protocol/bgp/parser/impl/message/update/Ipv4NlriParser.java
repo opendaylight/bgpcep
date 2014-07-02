@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
+
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -27,9 +28,9 @@ public final class Ipv4NlriParser extends IpNlriParser implements NlriSerializer
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        Nlri nlri = (Nlri) attribute;
-        for (Ipv4Prefix ipv4Prefix : nlri.getNlri()) {
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final Nlri nlri = (Nlri) attribute;
+        for (final Ipv4Prefix ipv4Prefix : nlri.getNlri()) {
             byteAggregator.writeBytes(Ipv4Util.bytesForPrefix(ipv4Prefix));
         }
     }
