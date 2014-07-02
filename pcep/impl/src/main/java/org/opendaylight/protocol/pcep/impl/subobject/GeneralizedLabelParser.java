@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.impl.subobject;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
@@ -20,6 +18,7 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.GeneralizedLabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.label.type.generalized.label._case.GeneralizedLabelBuilder;
 
 /**
@@ -39,7 +38,9 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
     @Override
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject instanceof GeneralizedLabelCase, "Unknown Label Subobject instance. Passed {}. Needed GeneralizedLabelCase.", subobject.getClass());
-        final ByteBuf body = Unpooled.wrappedBuffer(((GeneralizedLabelCase) subobject).getGeneralizedLabel().getGeneralizedLabel());
+        final GeneralizedLabel gl = ((GeneralizedLabelCase) subobject).getGeneralizedLabel();
+        Preconditions.checkArgument(gl != null, "GeneralizedLabel is mandatory.");
+        final ByteBuf body = Unpooled.wrappedBuffer(gl.getGeneralizedLabel());
         LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }

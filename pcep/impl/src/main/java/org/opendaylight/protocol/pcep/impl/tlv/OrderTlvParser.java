@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -40,8 +40,8 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
         Preconditions.checkArgument(tlv != null, "OrderTlv is mandatory.");
         final Order otlv = (Order) tlv;
         final ByteBuf body = Unpooled.buffer();
-        body.writeInt(otlv.getDelete().intValue());
-        body.writeInt(otlv.getSetup().intValue());
+        writeUnsignedInt(otlv.getDelete(), body);
+        writeUnsignedInt(otlv.getSetup(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

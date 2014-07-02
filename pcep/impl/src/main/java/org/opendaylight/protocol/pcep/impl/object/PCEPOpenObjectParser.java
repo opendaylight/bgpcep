@@ -8,6 +8,8 @@
 
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -102,10 +104,11 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         Preconditions.checkArgument(object instanceof Open, "Wrong instance of PCEPObject. Passed %s. Needed OpenObject.", object.getClass());
         final Open open = (Open) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeByte(PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH));
-        body.writeByte(open.getKeepalive());
-        body.writeByte(open.getDeadTimer());
-        body.writeByte(open.getSessionId());
+        writeUnsignedByte((short) (PCEP_VERSION << (Byte.SIZE - VERSION_SF_LENGTH)), body);
+        writeUnsignedByte(open.getKeepalive(), body);
+        writeUnsignedByte(open.getDeadTimer(), body);
+        Preconditions.checkArgument(open.getSessionId() != null, "SessionId is mandatory.");
+        writeUnsignedByte(open.getSessionId(), body);
         serializeTlvs(open.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

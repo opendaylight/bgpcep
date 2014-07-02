@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
@@ -57,8 +57,10 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        body.writeInt(specObj.getRouterId().intValue());
-        body.writeInt(specObj.getInterfaceId().intValue());
+        Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
+        writeUnsignedInt(specObj.getRouterId(), body);
+        Preconditions.checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory");
+        writeUnsignedInt(specObj.getInterfaceId(), body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

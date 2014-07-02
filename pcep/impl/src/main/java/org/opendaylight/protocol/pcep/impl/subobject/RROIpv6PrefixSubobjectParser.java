@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -74,8 +77,8 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
             flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
         }
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeBytes(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()));
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeIpv6Prefix(prefix.getIpv6Prefix(), body);
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

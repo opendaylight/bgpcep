@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Prefix;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -59,7 +61,7 @@ public class EROIpv6PrefixSubobjectParser implements EROSubobjectParser, EROSubo
         final IpPrefixSubobject specObj = ((IpPrefixCase) subobject.getSubobjectType()).getIpPrefix();
         final IpPrefix prefix = specObj.getIpPrefix();
         final ByteBuf body = Unpooled.buffer();
-        body.writeBytes(Ipv6Util.bytesForPrefix(prefix.getIpv6Prefix()));
+        writeIpv6Prefix(prefix.getIpv6Prefix(), body);
         body.writeZero(RESERVED);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }

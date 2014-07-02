@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
@@ -48,7 +48,10 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase, "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
-        final AsNumberSubobject s = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), Unpooled.copyShort(s.getAsNumber().getValue().shortValue()), buffer);
+        final AsNumberSubobject asNumber = ((AsNumberCase) subobject.getSubobjectType()).getAsNumber();
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        Preconditions.checkArgument(asNumber.getAsNumber() != null, "AsNumber is mandatory.");
+        writeShort(asNumber.getAsNumber().getValue().shortValue(), body);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
     }
 }

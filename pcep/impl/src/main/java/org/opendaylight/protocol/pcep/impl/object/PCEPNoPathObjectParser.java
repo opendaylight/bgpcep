@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -81,12 +81,13 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
         Preconditions.checkArgument(object instanceof NoPath, "Wrong instance of PCEPObject. Passed %s. Needed NoPathObject.", object.getClass());
         final NoPath nPObj = (NoPath) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeByte(nPObj.getNatureOfIssue());
+        Preconditions.checkArgument(nPObj.getNatureOfIssue() != null, "NatureOfIssue is mandatory.");
+        writeUnsignedByte(nPObj.getNatureOfIssue(), body);
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
         if (nPObj.isUnsatisfiedConstraints() != null) {
             flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
         body.writeZero(RESERVED_F_LENGTH);
         serializeTlvs(nPObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);

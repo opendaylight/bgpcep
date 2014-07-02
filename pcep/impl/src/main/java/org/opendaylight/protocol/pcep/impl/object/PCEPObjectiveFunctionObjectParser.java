@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -52,7 +52,8 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
         Preconditions.checkArgument(object instanceof Of, "Wrong instance of PCEPObject. Passed %s. Needed OfObject.", object.getClass());
         final Of specObj = (Of) object;
         final ByteBuf body = Unpooled.buffer();
-        body.writeShort(specObj.getCode().getValue().shortValue());
+        Preconditions.checkArgument(specObj.getCode() != null, "Code is mandatory");
+        writeUnsignedShort(specObj.getCode().getValue(), body);
         body.writeZero(RESERVED);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

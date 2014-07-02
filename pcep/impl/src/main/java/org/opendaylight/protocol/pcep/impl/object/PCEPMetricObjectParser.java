@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -91,9 +92,10 @@ public class PCEPMetricObjectParser extends AbstractObjectWithTlvsParser<MetricB
         if (mObj.isBound() != null) {
             flags.set(B_FLAG_OFFSET, mObj.isBound());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
-        body.writeByte(mObj.getMetricType());
-        body.writeBytes(mObj.getValue().getValue());
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        Preconditions.checkArgument(mObj.getMetricType() != null, "MetricType is mandatory.");
+        writeUnsignedByte(mObj.getMetricType(), body);
+        writeFloat32(mObj.getValue(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
 }

@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
@@ -72,10 +72,12 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
             flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
         }
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
         body.writeZero(RESERVED);
-        body.writeInt(specObj.getRouterId().intValue());
-        body.writeInt(specObj.getInterfaceId().intValue());
+        Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
+        writeUnsignedInt(specObj.getRouterId(), body);
+        Preconditions.checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
+        writeUnsignedInt(specObj.getInterfaceId(), body);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }
