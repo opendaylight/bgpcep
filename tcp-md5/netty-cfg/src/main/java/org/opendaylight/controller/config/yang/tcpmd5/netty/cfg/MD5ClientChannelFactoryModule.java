@@ -11,7 +11,7 @@ import org.opendaylight.bgpcep.tcpmd5.KeyAccessFactory;
 import org.opendaylight.bgpcep.tcpmd5.netty.MD5NioSocketChannelFactory;
 
 /**
- * Service representing a way for accessing key informtion.
+ * Service representing a way for accessing key information.
  */
 public class MD5ClientChannelFactoryModule extends
         org.opendaylight.controller.config.yang.tcpmd5.netty.cfg.AbstractMD5ClientChannelFactoryModule {

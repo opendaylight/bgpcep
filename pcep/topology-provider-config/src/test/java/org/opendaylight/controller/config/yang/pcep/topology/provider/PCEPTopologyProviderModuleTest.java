@@ -19,7 +19,6 @@ import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
-import org.opendaylight.controller.config.api.jmx.ObjectNameUtil;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
@@ -107,6 +106,25 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertStatus(status, 0, 1, 17);
     }
 
+    @Test
+    public void testMd5ValidationFailure() throws Exception {
+        createInstance();
+        // remove dispatcher's Md5ServerChannelFactory
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(
+                transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), PCEPTopologyProviderModuleMXBean.class);
+        ObjectName dispatcherON = mxBean.getDispatcher();
+        PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
+        dispatcher.setMd5ServerChannelFactory(null);
+        try {
+            transaction.validateConfig();
+            fail();
+        }catch(ValidationException e){
+            assertTrue(e.getMessage(), e.getMessage().contains("Client password is not compatible with selected dispatcher"));
+        }
+    }
+
     private CommitStatus createInstance(final String listenAddress, final PortNumber listenPort, final TopologyId topologyId)
             throws Exception {
         ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
@@ -142,7 +160,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         md5Factory.setServerKeyAccessFactory(jniON);
 
 
-        ObjectName dispatcherON = ObjectNameUtil.withTransactionName(mxBean.getDispatcher(), transaction.getTransactionName());
+        ObjectName dispatcherON = mxBean.getDispatcher();
         PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
         dispatcher.setMd5ServerChannelFactory(md5ServerChannelFactoryON);
     }

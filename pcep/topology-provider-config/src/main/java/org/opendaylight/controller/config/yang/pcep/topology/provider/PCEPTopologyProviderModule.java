@@ -21,14 +21,10 @@ import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.config.yang.pcep.impl.AbstractPCEPDispatcherImplModule;
+import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -103,15 +99,12 @@ public final class PCEPTopologyProviderModule extends
              *         should something like isMd5ServerSupported()
              */
 
+            PCEPDispatcherImplModuleMXBean dispatcherProxy = dependencyResolver.newMXBeanProxy(getDispatcher(),
+                    PCEPDispatcherImplModuleMXBean.class);
+            boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
+            JmxAttributeValidationException.checkCondition(md5ServerSupported,
+                    "password is not compatible with selected dispatcher", clientJmxAttribute);
 
-            try {
-                Object scf = dependencyResolver.getAttribute(getDispatcher(),
-                        AbstractPCEPDispatcherImplModule.md5ServerChannelFactoryJmxAttribute.getAttributeName());
-                JmxAttributeValidationException.checkCondition(scf != null, "password is not compatible with selected dispatcher",
-                        clientJmxAttribute);
-            } catch (AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-                JmxAttributeValidationException.wrap(e, "password support could not be validated", clientJmxAttribute);
-            }
         }
     }
 
