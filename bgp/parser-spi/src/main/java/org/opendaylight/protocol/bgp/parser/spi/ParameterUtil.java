@@ -15,9 +15,16 @@ public final class ParameterUtil {
 
     }
 
-    public static void formatParameter(final int type, final ByteBuf value, final ByteBuf byteAggregator) {
-        byteAggregator.writeByte(type);
-        byteAggregator.writeByte(value.writerIndex());
-        byteAggregator.writeBytes(value);
+    /**
+     * Adds header to parameter value.
+     *
+     * @param type of the parameter
+     * @param value parameter value
+     * @param buffer ByteBuf where the parameter will be copied with its header
+     */
+    public static void formatParameter(final int type, final ByteBuf value, final ByteBuf buffer) {
+        buffer.writeByte(type);
+        buffer.writeByte(value.writerIndex());
+        buffer.writeBytes(value);
     }
 }
