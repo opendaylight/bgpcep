@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
@@ -55,7 +54,7 @@ public final class PCEStatefulCapabilityTlvParser extends Stateful02StatefulCapa
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "StatefulCapabilityTlv is mandatory.");
+        Preconditions.checkArgument(tlv != null && tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
         final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);
@@ -69,7 +68,7 @@ public final class PCEStatefulCapabilityTlvParser extends Stateful02StatefulCapa
         if (sct.isIncludeDbVersion() != null) {
             flags.set(S_FLAG_OFFSET, sct.isIncludeDbVersion());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

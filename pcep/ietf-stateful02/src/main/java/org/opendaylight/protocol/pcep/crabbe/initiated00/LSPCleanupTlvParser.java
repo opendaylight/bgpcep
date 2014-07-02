@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -24,10 +24,14 @@ public final class LSPCleanupTlvParser implements TlvParser, TlvSerializer {
 
     public static final int TYPE = 26;
 
+    private static final int CONTENT_LENGTH = 4;
+
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "LSPCleanupTlv is mandatory.");
-        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((LspCleanup) tlv).getTimeout().intValue()), buffer);
+        Preconditions.checkArgument(tlv != null && tlv instanceof LspCleanup, "LSPCleanupTlv is mandatory.");
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        writeUnsignedInt(((LspCleanup) tlv).getTimeout(), body);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
     @Override
