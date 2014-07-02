@@ -20,7 +20,6 @@ import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
@@ -116,7 +115,7 @@ public class UtilsTest {
         System.arraycopy(header, 0, result, 0, header.length);
         System.arraycopy(value, 0, result, 4, value.length);
         ByteBuf aggregator = Unpooled.buffer();
-        AttributeUtil.formatAttribute(AttributeFlags.TRANSITIVE , 3 , Unpooled.wrappedBuffer(value), aggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE , 3 , Unpooled.wrappedBuffer(value), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
 }

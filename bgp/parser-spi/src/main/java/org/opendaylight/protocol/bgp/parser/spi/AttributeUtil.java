@@ -9,11 +9,14 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
 
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
-
 public final class AttributeUtil {
 
     private static final int MAX_ATTR_LENGTH_FOR_SINGLE_BYTE = 255;
+
+    public static final int OPTIONAL = 128;
+    public static final int TRANSITIVE = 64;
+    public static final int PARTIAL = 32;
+    private static final int EXTENDED = 16;
 
     private AttributeUtil() {
 
@@ -30,7 +33,7 @@ public final class AttributeUtil {
     public static void formatAttribute(final int flags, final int type, final ByteBuf value, final ByteBuf buffer) {
         final int length = value.writerIndex();
         final boolean extended = (length > MAX_ATTR_LENGTH_FOR_SINGLE_BYTE) ? true : false;
-        buffer.writeByte((extended) ? (flags | AttributeFlags.EXTENDED) : flags);
+        buffer.writeByte((extended) ? (flags | EXTENDED) : flags);
         buffer.writeByte(type);
         if (extended) {
             buffer.writeShort(length);

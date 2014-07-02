@@ -10,10 +10,11 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
-
 import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
@@ -86,7 +87,7 @@ public final class AsPathSegmentParser {
         return coll;
     }
 
-    static void serializeAsSet(ASetCase aSetCase, ByteBuf byteAggregator) {
+    static void serializeAsSet(final ASetCase aSetCase, final ByteBuf byteAggregator) {
         ASet aset = aSetCase.getASet();
         if (aset == null || aset.getAsSet() == null) {
             return;
@@ -94,21 +95,19 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte(serializeType(AS_SET));
         byteAggregator.writeByte(aset.getAsSet().size());
         for (AsNumber asNumber : aset.getAsSet()) {
-            ShortAsNumber shortAsNumber = new ShortAsNumber(asNumber);
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeShort(new ShortAsNumber(asNumber).getValue().shortValue());
         }
     }
 
-    static void serializeAsSequence(AListCase aListCase, ByteBuf byteAggregator) {
-        AList alist = aListCase.getAList();
+    static void serializeAsSequence(final AListCase aListCase, final ByteBuf byteAggregator) {
+        final AList alist = aListCase.getAList();
         if (alist == null || alist.getAsSequence() == null) {
             return;
         }
         byteAggregator.writeByte(serializeType(AS_SEQUENCE));
         byteAggregator.writeByte(alist.getAsSequence().size());
         for (AsSequence value : alist.getAsSequence()) {
-            ShortAsNumber shortAsNumber = new ShortAsNumber(value.getAs());
-            byteAggregator.writeShort(shortAsNumber.getValue().shortValue());
+            byteAggregator.writeShort(new ShortAsNumber(value.getAs()).getValue().shortValue());
         }
     }
 }

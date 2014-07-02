@@ -10,14 +10,21 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import io.netty.buffer.ByteBuf;
 
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
-public final class AS4AggregatorAttributeParser implements AttributeParser {
+public final class AS4AggregatorAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 17;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
+        // AS4 Aggregator is ignored
+    }
+
+    @Override
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         // AS4 Aggregator is ignored
     }
 }

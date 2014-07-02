@@ -8,13 +8,15 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.collect.Lists;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.util.List;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
-import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
@@ -30,24 +32,21 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
         final List<ClusterIdentifier> list = Lists.newArrayList();
         while (buffer.isReadable()) {
-            list.add(new ClusterIdentifier(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, ATTR_LENGTH))));
+            list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
         }
         builder.setClusterId(list);
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final PathAttributes pathAttributes = (PathAttributes) attribute;
         if (pathAttributes.getClusterId() == null) {
             return;
         }
-        ByteBuf clusterIdBuffer = Unpooled.buffer();
-        for (ClusterIdentifier clusterIdentifier : pathAttributes.getClusterId()) {
+        final ByteBuf clusterIdBuffer = Unpooled.buffer();
+        for (final ClusterIdentifier clusterIdentifier : pathAttributes.getClusterId()) {
             clusterIdBuffer.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));
         }
-        byteAggregator.writeByte(AttributeFlags.OPTIONAL);
-        byteAggregator.writeByte(TYPE);
-        byteAggregator.writeByte(clusterIdBuffer.writerIndex());
-        byteAggregator.writeBytes(clusterIdBuffer);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, clusterIdBuffer, byteAggregator);
     }
 }
