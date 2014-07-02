@@ -7,35 +7,37 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
+
 import java.util.Arrays;
 
 public final class MessageUtil {
 
-    public static final int LENGTH_FIELD_LENGTH = 2;
+    @VisibleForTesting
     public static final int MARKER_LENGTH = 16;
-    public static final int TYPE_FIELD_LENGTH = 1;
-    public static final int COMMON_HEADER_LENGTH = LENGTH_FIELD_LENGTH + TYPE_FIELD_LENGTH + MARKER_LENGTH;
-    private static final byte[] markerBytes = new byte[MARKER_LENGTH];
+    @VisibleForTesting
+    public static final int COMMON_HEADER_LENGTH = 3 + MARKER_LENGTH;
+    private static final byte[] MARKER = new byte[MARKER_LENGTH];
 
     static {
-        Arrays.fill(markerBytes, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
+        Arrays.fill(MARKER, 0, MARKER_LENGTH, UnsignedBytes.MAX_VALUE);
     }
 
     private MessageUtil() {
     }
 
     /**
-     * Serializes this BGP Message header to byte array.
+     * Adds header to message value.
      *
-     * @param type message type to be formatted
-     * @param body message body
-     *
-     * @return byte array representation of this header
+     * @param type of the message
+     * @param value message value
+     * @param buffer ByteBuf where the message will be copied with its header
      */
     public static void formatMessage(final int type, final ByteBuf body, final ByteBuf buffer) {
-        buffer.writeBytes(markerBytes);
+        buffer.writeBytes(MARKER);
         buffer.writeShort(body.writerIndex() + COMMON_HEADER_LENGTH);
         buffer.writeByte(type);
         buffer.writeBytes(body);
