@@ -8,9 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
@@ -28,16 +30,11 @@ public final class LocalPreferenceAttributeParser implements AttributeParser,Att
     }
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes pathAttributes = (PathAttributes) attribute;
-        LocalPref lp = pathAttributes.getLocalPref();
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        final LocalPref lp = ((PathAttributes) attribute).getLocalPref();
         if (lp == null) {
             return;
         }
-
-        byteAggregator.writeByte(AttributeFlags.TRANSITIVE);
-        byteAggregator.writeByte(TYPE);
-        byteAggregator.writeByte(LOCAL_PREFS_LENGTH);
-        byteAggregator.writeInt(lp.getPref().intValue());
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, Unpooled.copyInt(lp.getPref().intValue()), byteAggregator);
     }
 }

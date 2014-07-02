@@ -13,21 +13,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
-import org.opendaylight.protocol.bgp.parser.AttributeFlags;
+
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
-import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.AdministrativeGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.ExtendedRouteTag;
@@ -419,30 +421,21 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
      */
 
     @Override
-    public void serializeAttribute(final DataObject attribute, final ByteBuf linkstateAttrBuffer) {
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
         }
         final LinkStateAttribute linkState = pathAttributes1.getLinkstatePathAttribute().getLinkStateAttribute();
-        final ByteBuf byteAggregator = Unpooled.buffer();
+        final ByteBuf lsBuffer = Unpooled.buffer();
         if (linkState instanceof LinkAttributesCase) {
-            serializeLinkAttributes((LinkAttributesCase) linkState, byteAggregator);
+            serializeLinkAttributes((LinkAttributesCase) linkState, lsBuffer);
         } else if (linkState instanceof NodeAttributesCase) {
-            serializeNodeAttributes((NodeAttributesCase) linkState, byteAggregator);
+            serializeNodeAttributes((NodeAttributesCase) linkState, lsBuffer);
         } else if (linkState instanceof PrefixAttributesCase) {
-            serializePrefixAttributes((PrefixAttributesCase) linkState, byteAggregator);
+            serializePrefixAttributes((PrefixAttributesCase) linkState, lsBuffer);
         }
-        if (byteAggregator.writerIndex() > Values.UNSIGNED_BYTE_MAX_VALUE) {
-            linkstateAttrBuffer.writeByte(AttributeFlags.OPTIONAL | AttributeFlags.EXTENDED);
-            linkstateAttrBuffer.writeByte(TYPE);
-            linkstateAttrBuffer.writeShort(byteAggregator.writerIndex());
-        } else {
-            linkstateAttrBuffer.writeByte(AttributeFlags.OPTIONAL);
-            linkstateAttrBuffer.writeByte(TYPE);
-            linkstateAttrBuffer.writeByte(byteAggregator.writerIndex());
-        }
-        linkstateAttrBuffer.writeBytes(byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, lsBuffer, byteAggregator);
     }
 
     private void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf byteAggregator) {
