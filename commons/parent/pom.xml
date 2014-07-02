@@ -197,7 +197,11 @@
                 <scope>test</scope>
                 <type>test-jar</type>
            </dependency>
-
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcpmd5-jni-cfg</artifactId>
+            <version>0.3.1-SNAPSHOT</version>
+          </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
