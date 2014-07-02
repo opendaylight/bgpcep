@@ -13,9 +13,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
+import java.util.Arrays;
+
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.AttributeFlags;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
@@ -91,6 +96,27 @@ public class UtilsTest {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
         ByteBuf aggregator = Unpooled.buffer();
         ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);
+        assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test
+    public void testAttributeUtil() {
+        final byte[] result = new byte[] { 0x40, 03, 04, 10, 00, 00, 02 };
+        ByteBuf aggregator = Unpooled.buffer();
+        AttributeUtil.formatAttribute(64 , 3 , Unpooled.wrappedBuffer(new byte[] { 10, 0, 0, 2 }), aggregator);
+        assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
+    }
+
+    @Test
+    public void testAttributeUtilExtended() {
+        final byte[] value = new byte[258];
+        Arrays.fill(value, 0, 258, UnsignedBytes.MAX_VALUE);
+        final byte[] header = new byte[] { (byte) 0x50, 03, 01, 02 };
+        final byte[] result = new byte[262];
+        System.arraycopy(header, 0, result, 0, header.length);
+        System.arraycopy(value, 0, result, 4, value.length);
+        ByteBuf aggregator = Unpooled.buffer();
+        AttributeUtil.formatAttribute(AttributeFlags.TRANSITIVE , 3 , Unpooled.wrappedBuffer(value), aggregator);
         assertArrayEquals(result, ByteArray.getAllBytes(aggregator));
     }
 }

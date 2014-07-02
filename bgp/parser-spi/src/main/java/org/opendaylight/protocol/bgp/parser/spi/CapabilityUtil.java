@@ -11,15 +11,20 @@ import io.netty.buffer.ByteBuf;
 
 public final class CapabilityUtil {
 
-    private static final int HEADER_SIZE = 2;
-
     private CapabilityUtil() {
 
     }
 
-    public static void formatCapability(final int code, final ByteBuf value, final ByteBuf byteAggregator) {
-        byteAggregator.writeByte(code);
-        byteAggregator.writeByte(value.writerIndex());
-        byteAggregator.writeBytes(value);
+    /**
+     * Adds header to capability value.
+     *
+     * @param type of the capability
+     * @param value capability value
+     * @param buffer ByteBuf where the capability will be copied with its header
+     */
+    public static void formatCapability(final int code, final ByteBuf value, final ByteBuf buffer) {
+        buffer.writeByte(code);
+        buffer.writeByte(value.writerIndex());
+        buffer.writeBytes(value);
     }
 }
