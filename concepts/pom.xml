@@ -74,8 +74,8 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>util</artifactId>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
