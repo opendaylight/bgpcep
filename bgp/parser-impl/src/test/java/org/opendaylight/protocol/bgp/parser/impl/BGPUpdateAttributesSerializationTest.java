@@ -79,8 +79,7 @@ public class BGPUpdateAttributesSerializationTest {
 
     private Update readUpdateMessageBytes(ByteBuf messageBytes) throws BGPDocumentedException {
         final byte[] body = ByteArray.cutBytes(ByteArray.getAllBytes(messageBytes), MessageUtil.COMMON_HEADER_LENGTH);
-        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(ByteArray.getAllBytes(messageBytes), MessageUtil.MARKER_LENGTH,
-                MessageUtil.LENGTH_FIELD_LENGTH));
+        final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(ByteArray.getAllBytes(messageBytes), MessageUtil.MARKER_LENGTH, 2));
         return BGPUpdateAttributesSerializationTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
     }
 
