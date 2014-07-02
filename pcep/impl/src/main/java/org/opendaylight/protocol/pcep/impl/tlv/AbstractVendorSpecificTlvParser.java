@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -32,7 +34,8 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
         final VsTlv vsTlv = (VsTlv) tlv;
         final ByteBuf body = Unpooled.buffer();
         if (vsTlv.getEnterpriseNumber().getValue() == getEnterpriseNumber()) {
-            body.writeInt(vsTlv.getEnterpriseNumber().getValue().intValue());
+            Preconditions.checkArgument(vsTlv.getEnterpriseNumber() != null, "EnterpriseNumber is mandatory.");
+            writeUnsignedInt(vsTlv.getEnterpriseNumber().getValue(), body);
             serializeVendorPayload(vsTlv.getVendorPayload(), body);
             TlvUtil.formatTlv(TYPE, body, buffer);
         }

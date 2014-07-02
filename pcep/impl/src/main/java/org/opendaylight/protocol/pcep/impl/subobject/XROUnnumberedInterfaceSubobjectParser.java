@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
@@ -60,9 +61,11 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
-        body.writeByte(subobject.getAttribute().getIntValue());
-        body.writeInt(specObj.getRouterId().intValue());
-        body.writeInt(specObj.getInterfaceId().intValue());
+        writeUnsignedByte(subobject.getAttribute() != null ? (short) subobject.getAttribute().getIntValue() : null, body);
+        Preconditions.checkArgument(specObj.getRouterId() != null, "RouterId is mandatory.");
+        writeUnsignedInt(specObj.getRouterId(), body);
+        Preconditions.checkArgument(specObj.getInterfaceId() != null, "InterfaceId is mandatory.");
+        writeUnsignedInt(specObj.getInterfaceId(), body);
         XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
     }
 }

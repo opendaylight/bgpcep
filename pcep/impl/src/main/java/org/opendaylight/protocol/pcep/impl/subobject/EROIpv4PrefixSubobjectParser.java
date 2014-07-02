@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -63,7 +65,8 @@ public class EROIpv4PrefixSubobjectParser implements EROSubobjectParser, EROSubo
             new EROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
         } else {
             final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()));
+            Preconditions.checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
+            writeIpv4Prefix(prefix.getIpv4Prefix(), body);
             body.writeZero(RESERVED);
             EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
         }

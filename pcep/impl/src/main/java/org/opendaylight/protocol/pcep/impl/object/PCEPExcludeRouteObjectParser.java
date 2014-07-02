@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.object;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBoolean;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
@@ -54,9 +54,7 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
         final Xro obj = (Xro) object;
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_OFFSET);
-        if (obj.getFlags().isFail() != null) {
-            body.writeBoolean(obj.getFlags().isFail());
-        }
+        writeBoolean(obj.getFlags() != null ? obj.getFlags().isFail() : null, body);
         serializeSubobject(obj.getSubobject(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
