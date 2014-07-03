@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +20,9 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,6 +54,7 @@ import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
 import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.core.api.data.DataProviderService;
+import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -167,6 +165,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
 
         Mockito.doReturn(null).when(mockedDataProvider).readConfigurationData(any(InstanceIdentifier.class));
+
+        GlobalBundleScanningSchemaServiceImpl.createInstance(mockedContext);
+
     }
 
     protected List<ModuleFactory> getModuleFactories() {
@@ -197,6 +198,8 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     @After
     public void closeAllModules() throws Exception {
         super.destroyAllConfigBeans();
+        GlobalBundleScanningSchemaServiceImpl.destroyInstance();
+
     }
 
     protected CommitStatus createInstance() throws Exception {

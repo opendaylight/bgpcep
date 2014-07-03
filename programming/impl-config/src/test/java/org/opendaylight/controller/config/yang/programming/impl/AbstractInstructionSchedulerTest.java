@@ -26,6 +26,7 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Matchers;
@@ -56,6 +57,7 @@ import org.opendaylight.controller.sal.core.api.data.DataProviderService;
 import org.opendaylight.controller.sal.core.api.mount.MountProvisionService;
 import org.opendaylight.controller.sal.core.api.mount.MountProvisionService.MountProvisionListener;
 import org.opendaylight.controller.sal.core.api.notify.NotificationPublishService;
+import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
@@ -182,6 +184,13 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
 
         Mockito.doReturn(null).when(mockedDataProvider).readConfigurationData(any(InstanceIdentifier.class));
+
+        GlobalBundleScanningSchemaServiceImpl.createInstance(mockedContext);
+    }
+
+    @After
+    public void tearDownGlobalBundleScanningSchemaServiceImpl(){
+        GlobalBundleScanningSchemaServiceImpl.destroyInstance();
     }
 
     public ObjectName createInstructionSchedulerModuleInstance(final ConfigTransactionJMXClient transaction, final ObjectName dataBrokerON,
