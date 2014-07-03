@@ -18,18 +18,8 @@ package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-
-import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -78,22 +68,15 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
              *  FIXME: this is a use case for Module interfaces, e.g. RibImplModule
              *         should something like isMd5ServerSupported()
              */
-            final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
-            try {
-                final ObjectName ribi = (ObjectName) srv.getAttribute(getRib(), "CurrentImplementation");
 
-                // FIXME: AbstractRIBImplModule.bgpDispatcherJmxAttribute.getAttributeName()
-                final ObjectName disp = (ObjectName) srv.getAttribute(ribi, "BgpDispatcher");
+            RIBImplModuleMXBean ribProxy = dependencyResolver.newMXBeanProxy(getRib(), RIBImplModuleMXBean.class);
+            BGPDispatcherImplModuleMXBean bgpDispatcherProxy = dependencyResolver.newMXBeanProxy(
+                    ribProxy.getBgpDispatcher(), BGPDispatcherImplModuleMXBean.class);
+            boolean isMd5Supported = bgpDispatcherProxy.getMd5ChannelFactory() != null;
 
-                final ObjectName dispi = (ObjectName) srv.getAttribute(disp, "CurrentImplementation");
+            JmxAttributeValidationException.checkCondition(isMd5Supported,
+                    "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
 
-                // FIXME: AbstractBGPDispatcherImplModule.md5ChannelFactoryJmxAttribute.getAttributeName()
-                final Object cf = srv.getAttribute(dispi, "Md5ChannelFactory");
-                JmxAttributeValidationException.checkCondition(cf != null, "Underlying dispatcher does not support MD5 clients",
-                        passwordJmxAttribute);
-            } catch (AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-                JmxAttributeValidationException.wrap(e, "support could not be validated", passwordJmxAttribute);
-            }
         }
     }
 
