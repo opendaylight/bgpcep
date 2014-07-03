@@ -18,22 +18,13 @@ package org.opendaylight.controller.config.yang.pcep.topology.provider;
 
 import com.google.common.base.Charsets;
 import com.google.common.net.InetAddresses;
-
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
+import org.opendaylight.controller.config.yang.pcep.impl.PCEPDispatcherImplModuleMXBean;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -77,6 +68,7 @@ public final class PCEPTopologyProviderModule extends
         return ret;
     }
 
+
     private String getAddressString(final IpAddress address) {
         if (address.getIpv4Address() != null) {
             return address.getIpv4Address().getValue();
@@ -87,6 +79,7 @@ public final class PCEPTopologyProviderModule extends
 
         throw new IllegalArgumentException(String.format("Address %s is invalid", address));
     }
+
 
     @Override
     public void customValidation() {
@@ -105,18 +98,13 @@ public final class PCEPTopologyProviderModule extends
              *  FIXME: this is a use case for Module interfaces, e.g. PCEPDispatcherImplModule
              *         should something like isMd5ServerSupported()
              */
-            final MBeanServer srv = ManagementFactory.getPlatformMBeanServer();
-            Object scf;
-            try {
-                final ObjectName ci = (ObjectName) srv.getAttribute(getDispatcher(), "CurrentImplementation");
 
-                // FIXME: AbstractPCEPDispatcherImplModule.md5ServerChannelFactoryJmxAttribute.getAttributeName()
-                scf = srv.getAttribute(ci, "Md5ServerChannelFactory");
-                JmxAttributeValidationException.checkCondition(scf != null, "password is not compatible with selected dispatcher",
-                        clientJmxAttribute);
-            } catch (AttributeNotFoundException | InstanceNotFoundException | MBeanException | ReflectionException e) {
-                JmxAttributeValidationException.wrap(e, "password support could not be validated", clientJmxAttribute);
-            }
+            PCEPDispatcherImplModuleMXBean dispatcherProxy = dependencyResolver.newMXBeanProxy(getDispatcher(),
+                    PCEPDispatcherImplModuleMXBean.class);
+            boolean md5ServerSupported = dispatcherProxy.getMd5ServerChannelFactory() != null;
+            JmxAttributeValidationException.checkCondition(md5ServerSupported,
+                    "password is not compatible with selected dispatcher", clientJmxAttribute);
+
         }
     }
 
