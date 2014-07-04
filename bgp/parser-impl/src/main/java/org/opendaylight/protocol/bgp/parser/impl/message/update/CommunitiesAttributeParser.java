@@ -60,6 +60,6 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
             communitiesBuffer.writeShort(community.getAsNumber().getValue().shortValue());
             communitiesBuffer.writeShort(community.getSemantics().shortValue());
         }
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE | AttributeUtil.PARTIAL, TYPE, communitiesBuffer, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, communitiesBuffer, byteAggregator);
     }
 }

@@ -33,6 +33,6 @@ public final class AtomicAggregateAttributeParser implements AttributeParser,Att
         if (pathAttributes.getAtomicAggregate() == null) {
             return;
         }
-        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE | AttributeUtil.PARTIAL, TYPE, Unpooled.EMPTY_BUFFER, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.TRANSITIVE, TYPE, Unpooled.EMPTY_BUFFER, byteAggregator);
     }
 }

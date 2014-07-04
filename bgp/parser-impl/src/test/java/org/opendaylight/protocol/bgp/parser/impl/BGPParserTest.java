@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -14,6 +15,7 @@ import static org.junit.Assert.assertNull;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayOutputStream;
@@ -119,6 +121,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
+import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BGPParserTest {
 
@@ -189,7 +192,7 @@ public class BGPParserTest {
      * 04 <- attribute type code (multi exit disc)
      * 04 <- attribute length
      * 00 00 00 00 <- value
-     * 64 <- attribute flags
+     * 60 <- attribute flags
      * 06 <- attribute type code (atomic aggregate)
      * 00 <- attribute length
      * 64 <- attribute flags
@@ -274,13 +277,17 @@ public class BGPParserTest {
         builder.setPathAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(0), ByteArray.readAllBytes(buffer));
     }
 
     /*
      * Tests IPv6 NEXT_HOP, NLRI, ORIGIN.IGP, MULTI_EXIT_DISC, ORIGINATOR-ID, CLUSTER_LIST.
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 6f <- length (111) - including header
+     * 00 7e <- length (126) - including header
      * 02 <- message type
      * 00 00 <- withdrawn routes length
      * 00 67 <- total path attribute length (103)
@@ -294,6 +301,10 @@ public class BGPParserTest {
      * 02 <- AS_SEQUENCE
      * 01 <- path segment count
      * fd e9 <- path segment value (65001)
+     * 40 <- attribute flags
+     * 03 <- attribute type code (next hop)
+     * 04 <- attribute length
+     * 0a 00 00 00 <- next hop value (10.0.0.0)
      * 80 <- attribute flags
      * 04 <- attribute type code (multi exit disc)
      * 04 <- attribute length
@@ -392,6 +403,10 @@ public class BGPParserTest {
 
         builder.setPathAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(1), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -487,6 +502,10 @@ public class BGPParserTest {
         builder.setPathAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(2), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -516,7 +535,7 @@ public class BGPParserTest {
      * 05 <- attribute type (Local Pref)
      * 04 <- attribute length
      * 00 00 00 64 <- value (100)
-     * 80 <- attribute flags
+     * c0 <- attribute flags
      * 10 <- attribute type (extended community)
      * 08 <- attribute length
      * 01 04 <- value (type - Ipv4 Address Specific Extended Community)
@@ -586,6 +605,10 @@ public class BGPParserTest {
         // check API message
         builder.setPathAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(3), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -612,6 +635,10 @@ public class BGPParserTest {
                 new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build()).build();
 
         assertEquals(expectedMessage.getWithdrawnRoutes(), message.getWithdrawnRoutes());
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(4), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -630,6 +657,10 @@ public class BGPParserTest {
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength);
 
         assertEquals(new UpdateBuilder().build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(5), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -657,6 +688,10 @@ public class BGPParserTest {
 
         assertEquals(Ipv6AddressFamily.class, afi);
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(6), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -684,6 +719,10 @@ public class BGPParserTest {
 
         assertEquals(LinkstateAddressFamily.class, afi);
         assertEquals(LinkstateSubsequentAddressFamily.class, safi);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(7), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -948,6 +987,10 @@ public class BGPParserTest {
         // check API message
         builder.setPathAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(8), ByteArray.readAllBytes(buffer));
     }
 
     /*
@@ -1117,17 +1160,21 @@ public class BGPParserTest {
         // check API message
         builder.setPathAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        BGPParserTest.updateParser.serializeMessage(message, buffer);
+        assertArrayEquals(inputBytes.get(9), ByteArray.readAllBytes(buffer));
     }
 
     /*
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 98 <- length (69) - including header
+     * 00 3d <- length (61) - including header
      * 01 <- message type
      * 04 <- BGP version
      * 00 64 <- My AS Number (AS TRANS in this case)
      * 00 b4 <- Hold Time
      * 00 00 00 00 <- BGP Identifier
-     * 28 <- Optional Parameters Length
+     * 20 <- Optional Parameters Length
      * 02 <- opt. param. type (capabilities)
      * 06 <- length
      * 01 <- capability code (MP Extensions for BGP4)
@@ -1144,14 +1191,6 @@ public class BGPParserTest {
      * 04 <- length
      * 40 04 00 47 <- AFI 16388, SAFI 71
      * 02 <- opt. param. type (capabilities)
-     * 02 <- length
-     * 80 <- capability code (private)
-     * 00 <- length
-     * 02 <- opt. param. type (capabilities)
-     * 02 <- length
-     * 02 <- capability code (Route refresh)
-     * 00 <- length
-     * 02 <- opt. param. type (capabilities)
      * 06 <- length
      * 41 <- capability code (AS4 octet support)
      * 04 <- length
@@ -1160,7 +1199,8 @@ public class BGPParserTest {
     @Test
     public void testOpenMessage() throws Exception {
         final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
-        final Open open = (Open) msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(13)));
+        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(inputBytes.get(13)));
+        final Open open = (Open) o;
         final Set<BgpTableType> types = Sets.newHashSet();
         for (final BgpParameters param : open.getBgpParameters()) {
             final CParameters p = param.getCParameters();
@@ -1174,5 +1214,9 @@ public class BGPParserTest {
         expected.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         expected.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
         assertEquals(expected, types);
+
+        final ByteBuf buffer = Unpooled.buffer();
+        msgReg.serializeMessage(o, buffer);
+        assertArrayEquals(inputBytes.get(13), ByteArray.readAllBytes(buffer));
     }
 }
