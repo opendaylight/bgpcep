@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_a7b9b716",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-04T07:40:43Z",
+      "side": 1,
+      "message": "final",
+      "revId": "1c0e1b2a641ca0c8994785fb367757cdbb424751",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e7c33f87",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-04T07:40:43Z",
+      "side": 1,
+      "message": "a space after if ...",
+      "revId": "1c0e1b2a641ca0c8994785fb367757cdbb424751",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_87bcb307",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-04T07:40:43Z",
+      "side": 1,
+      "message": "\"outputLength\"",
+      "revId": "1c0e1b2a641ca0c8994785fb367757cdbb424751",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
