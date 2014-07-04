@@ -54,17 +54,16 @@ import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgrou
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyFactoryModuleFactory;
 import org.opendaylight.controller.config.yang.protocol.framework.TimedReconnectStrategyModuleTest;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
-import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.core.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
-import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.data.api.CompositeNode;
-import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
@@ -93,10 +92,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private static final String RIB_EXTENSIONS_INSTANCE_NAME = "rib-extensions-impl";
 
     @Mock
-    private DataModificationTransaction mockedTransaction;
+    private ReadWriteTransaction mockedTransaction;
 
     @Mock
-    private DataProviderService mockedDataProvider;
+    private DataBroker mockedDataProvider;
 
     @Mock
     private Future<RpcResult<TransactionStatus>> mockedFuture;
@@ -143,24 +142,18 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
         //
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
+        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataBroker.class);
 
         Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
 
         // Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
+        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).newReadWriteTransaction();
 
-        Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
-        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
-
-        Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
-        Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
+        Mockito.doReturn(null).when(mockedTransaction).read(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class));
+        Mockito.doNothing().when(mockedTransaction).put(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class), any(DataObject.class));
+        Mockito.doNothing().when(mockedTransaction).delete(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class));
 
         Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
         Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
@@ -168,8 +161,6 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doReturn(mockedResult).when(mockedFuture).get();
         Mockito.doReturn(true).when(mockedResult).isSuccessful();
         Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
-
-        Mockito.doReturn(null).when(mockedDataProvider).readConfigurationData(any(InstanceIdentifier.class));
 
         GlobalBundleScanningSchemaServiceImpl.createInstance(mockedContext);
 
