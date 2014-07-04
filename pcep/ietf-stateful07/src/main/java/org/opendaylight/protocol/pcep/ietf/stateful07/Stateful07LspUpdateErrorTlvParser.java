@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -27,6 +27,8 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 
     public static final int TYPE = 20;
 
+    private static final int CONTENT_LENGTH = Integer.SIZE / Byte.SIZE;
+
     @Override
     public LspErrorCode parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -37,7 +39,9 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "LspErrorCodeTlv is mandatory.");
-        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((LspErrorCode) tlv).getErrorCode().intValue()), buffer);
+        Preconditions.checkArgument(tlv != null && tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        writeUnsignedInt(((LspErrorCode) tlv).getErrorCode(), body);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }
