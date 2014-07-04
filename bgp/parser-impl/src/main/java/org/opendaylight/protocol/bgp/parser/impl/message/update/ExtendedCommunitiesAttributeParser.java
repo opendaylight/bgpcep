@@ -109,7 +109,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
                 extendedCommunitiesBuffer.writeShort(routeOriginExtendedCommunity.getRouteOriginExtendedCommunity().getGlobalAdministrator().getValue().shortValue());
                 extendedCommunitiesBuffer.writeBytes(routeOriginExtendedCommunity.getRouteOriginExtendedCommunity().getLocalAdministrator());
             }
-            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, extendedCommunitiesBuffer, byteAggregator);
+            AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL | AttributeUtil.TRANSITIVE, TYPE, extendedCommunitiesBuffer, byteAggregator);
         }
     }
 }
