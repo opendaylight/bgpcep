@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +21,11 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -59,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -72,7 +75,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
     private final BGPDispatcher dispatcher;
-    private final DataProviderService dps;
+    private final DataBroker dps;
     private final AsNumber localAs;
     private final Ipv4Address bgpIdentifier;
     private final List<BgpTableType> localTables;
@@ -80,7 +83,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     public RIBImpl(final RibId ribId, final AsNumber localAs, final Ipv4Address localBgpId, final RIBExtensionConsumerContext extensions,
             final BGPDispatcher dispatcher, final ReconnectStrategyFactory tcpStrategyFactory,
-            final ReconnectStrategyFactory sessionStrategyFactory, final DataProviderService dps, final List<BgpTableType> localTables) {
+            final ReconnectStrategyFactory sessionStrategyFactory, final DataBroker dps, final List<BgpTableType> localTables) {
         super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
         this.dps = Preconditions.checkNotNull(dps);
         this.localAs = Preconditions.checkNotNull(localAs);
@@ -93,11 +96,16 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         LOG.debug("Instantiating RIB table {} at {}", ribId, getInstanceIdentifier());
 
-        final DataModificationTransaction trans = dps.beginTransaction();
-        final Object o = trans.readOperationalData(getInstanceIdentifier());
-        Preconditions.checkState(o == null, "Data provider conflict detected on object {}", getInstanceIdentifier());
+        final ReadWriteTransaction trans = dps.newReadWriteTransaction();
+        Optional<DataObject> o;
+        try {
+            o = trans.read(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier()).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IllegalStateException("Failed to read topology", e);
+        }
+        Preconditions.checkState(!o.isPresent(), "Data provider conflict detected on object {}", getInstanceIdentifier());
 
-        trans.putOperationalData(getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier(), new RibBuilder().setKey(new RibKey(ribId)).setId(ribId).setLocRib(
                 new LocRibBuilder().setTables(Collections.<Tables> emptyList()).build()).build());
 
         for (BgpTableType t : localTables) {
@@ -107,7 +115,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
         }
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Change committed successfully");
@@ -125,7 +133,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final DataModificationTransaction trans = this.dps.beginTransaction();
+        final WriteTransaction trans = this.dps.newWriteOnlyTransaction();
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
@@ -165,9 +173,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 if (ari != null) {
                     final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
                             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                            new AdvertizedRoutesBuilder().setDestinationType(
-                                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                            new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
+                                    new AdvertizedRoutesBuilder().setDestinationType(
+                                            new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                                    new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
                     if (attrs != null) {
                         b.setCNextHop(attrs.getCNextHop());
                     }
@@ -204,7 +212,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
         }
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.debug("RIB modification successfully committed.");
@@ -221,10 +229,10 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn ari = this.tables.get(key);
         if (ari != null) {
-            final DataModificationTransaction trans = this.dps.beginTransaction();
+            final WriteTransaction trans = this.dps.newWriteOnlyTransaction();
             ari.clear(trans, peer);
 
-            Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+            Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
                 @Override
                 public void onSuccess(final RpcResult<TransactionStatus> result) {
                     // Nothing to do
@@ -249,8 +257,8 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        final DataModificationTransaction t = this.dps.beginTransaction();
-        t.removeOperationalData(getInstanceIdentifier());
+        final WriteTransaction t = this.dps.newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
         t.commit().get();
     }
 
