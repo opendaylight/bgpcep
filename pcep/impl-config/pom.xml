@@ -134,6 +134,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                        <Export-Package>
+                           org.opendaylight.controller.config.yang.pcep.impl.*,
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
