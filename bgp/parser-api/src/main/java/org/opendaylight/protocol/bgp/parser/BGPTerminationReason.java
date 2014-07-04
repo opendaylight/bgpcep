@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
+import com.google.common.base.Objects;
 import org.opendaylight.protocol.framework.TerminationReason;
 
 public final class BGPTerminationReason implements TerminationReason {
@@ -19,5 +20,12 @@ public final class BGPTerminationReason implements TerminationReason {
     @Override
     public String getErrorMessage() {
         return error.toString();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("error", error)
+                .toString();
     }
 }

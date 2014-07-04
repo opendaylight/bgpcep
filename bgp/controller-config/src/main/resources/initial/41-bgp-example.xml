@@ -35,6 +35,25 @@
                     </executor>
                 </module>
 
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-acceptor</type>
+                    <name>bgp-peer-server</name>
+
+                    <!--Default parameters-->
+                    <!--<binding-address>0.0.0.0</binding-address>-->
+                    <!--<binding-port>179</binding-port>-->
+
+                    <bgp-dispatcher>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher</type>
+                        <name>global-bgp-dispatcher</name>
+                    </bgp-dispatcher>
+                    <peer-registry>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
+                        <name>global-bgp-peer-registry</name>
+                    </peer-registry>
+
+                </module>
+
                 <!--
                      A single BGP peer. Note this section is deactivated because a misconfigured peer
                      tends to log rather nasty error messages.
@@ -52,6 +71,10 @@
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg">prefix:rib</type>
                         <name>example-bgp-rib</name>
                     </rib>
+                    <peer-registry>
+                        <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
+                        <name>global-bgp-peer-registry</name>
+                    </peer-registry>
                     <advertized-table>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-table-type</type>
                         <name>ipv4-unicast</name>
