@@ -292,7 +292,7 @@ module bgp-rib-impl {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity mdsb:binding-data-broker;
+                        config:required-identity mdsb:binding-async-data-broker;
                     }
                 }
             }

@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
@@ -30,7 +30,7 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
         return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
                 new AdjRIBsInFactory() {
                     @Override
-                    public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+                    public AdjRIBsIn createAdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
                         return new LinkstateAdjRIBsIn(trans, rib, key);
                     }
                 }));
