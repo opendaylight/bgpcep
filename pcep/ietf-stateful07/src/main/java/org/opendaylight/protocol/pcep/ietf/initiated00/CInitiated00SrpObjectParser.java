@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated00;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -67,8 +67,9 @@ public class CInitiated00SrpObjectParser extends Stateful07SrpObjectParser {
         if (srp.getAugmentation(Srp1.class) != null && srp.getAugmentation(Srp1.class).isRemove()) {
             flags.set(REMOVE_FLAG, srp.getAugmentation(Srp1.class).isRemove());
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_SIZE));
-        body.writeInt(srp.getOperationId().getValue().intValue());
+        writeBitSet(flags, FLAGS_SIZE, body);
+        Preconditions.checkArgument(srp.getOperationId() != null, "OperationId is mandatory.");
+        writeUnsignedInt(srp.getOperationId().getValue(), body);
         serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }

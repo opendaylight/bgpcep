@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -78,8 +78,9 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
         final Srp srp = (Srp) object;
         final ByteBuf body = Unpooled.buffer();
         body.writerIndex(body.writerIndex() + FLAGS_SIZE);
-        final Long id = srp.getOperationId().getValue();
-        body.writeInt(id.intValue());
+        final SrpIdNumber srpId = srp.getOperationId();
+        Preconditions.checkArgument(srpId != null, "SrpId is mandatory.");
+        writeUnsignedInt(srpId.getValue(), body);
         serializeTlvs(srp.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
     }
