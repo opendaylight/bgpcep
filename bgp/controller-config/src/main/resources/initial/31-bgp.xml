@@ -38,6 +38,11 @@
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:base-bgp-parser</type>
                     <name>base-bgp-parser</name>
                 </module>
+                <!-- Global bgp peer registry that should contain all configured bgp peers -->
+                <module>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:strict-bgp-peer-registry</type>
+                    <name>global-bgp-peer-registry</name>
+                </module>
                 <module>
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi">prefix:bgp-rib-extensions-impl</type>
                     <name>global-rib-extensions</name>
@@ -114,6 +119,13 @@
             </modules>
 
             <services xmlns="urn:opendaylight:params:xml:ns:yang:controller:config">
+                <service>
+                    <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">bgpspi:bgp-peer-registry</type>
+                    <instance>
+                        <name>global-bgp-peer-registry</name>
+                        <provider>/modules/module[type='strict-bgp-peer-registry'][name='global-bgp-peer-registry']</provider>
+                    </instance>
+                </service>
                 <service>
                     <type xmlns:bgpspi="urn:opendaylight:params:xml:ns:yang:controller:bgp:parser:spi">bgpspi:extensions</type>
                     <instance>
