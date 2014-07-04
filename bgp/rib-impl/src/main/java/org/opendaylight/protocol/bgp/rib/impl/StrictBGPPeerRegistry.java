@@ -1,0 +1,227 @@
+/*
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.protocol.bgp.rib.impl;
+
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.Map;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
+import org.opendaylight.protocol.bgp.parser.BGPError;
+import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Address;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * BGP peer registry that allows only 1 session per BGP peer.
+ * If second session with peer is established, one of the sessions will be dropped.
+ * The session with lower source BGP id will be dropped.
+ */
+@ThreadSafe
+public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
+
+    // TODO remove backwards compatibility
+    public static StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
+
+    @GuardedBy("this")
+    private final Map<IpAddress, ReusableBGPPeer> peers = Maps.newHashMap();
+    @GuardedBy("this")
+    private final Map<IpAddress, BGPSessionId> sessionIds = Maps.newHashMap();
+    @GuardedBy("this")
+    private final Map<IpAddress, BGPSessionPreferences> peerPreferences = Maps.newHashMap();
+
+    @Override
+    public synchronized void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
+        Preconditions.checkNotNull(ip);
+        Preconditions.checkArgument(peers.containsKey(ip) == false, "Peer for %s already present", ip);
+        peers.put(ip, Preconditions.checkNotNull(peer));
+        peerPreferences.put(ip, Preconditions.checkNotNull(preferences));
+    }
+
+    @Override
+    public synchronized void removePeer(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        peers.remove(ip);
+    }
+
+    @Override
+    public boolean isPeerConfigured(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        return peers.containsKey(ip);
+    }
+
+    private void checkPeerConfigured(final IpAddress ip) {
+        Preconditions.checkState(isPeerConfigured(ip), "BGP peer with ip: %s not configured, configured peers are: %s", ip, peers.keySet());
+    }
+
+    @Override
+    public synchronized BGPSessionListener getPeer(final IpAddress ip,
+            final Ipv4Address sourceId, final Ipv4Address remoteId)
+            throws BGPDocumentedException {
+        Preconditions.checkNotNull(ip);
+        Preconditions.checkNotNull(sourceId);
+        Preconditions.checkNotNull(remoteId);
+
+        checkPeerConfigured(ip);
+
+        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId);
+
+        if (sessionIds.containsKey(ip)) {
+            LOG.warn("Duplicate BGP session established with {}", ip);
+
+            final BGPSessionId previousConnection = sessionIds.get(ip);
+
+            // Session reestablished with different ids
+            if (previousConnection.equals(currentConnection) == false) {
+                LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
+                throw new BGPDocumentedException(
+                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
+                                ip, currentConnection, previousConnection),
+                        BGPError.CEASE);
+
+                // Session reestablished with lower source bgp id, dropping current
+            } else if (previousConnection.isHigherDirection(currentConnection)) {
+                LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
+                throw new BGPDocumentedException(
+                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                                ip, currentConnection),
+                        BGPError.CEASE);
+
+                // Session reestablished with higher source bgp id, dropping previous
+            } else if (currentConnection.isHigherDirection(previousConnection)) {
+                LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
+                peers.get(ip).releaseConnection();
+                return peers.get(ip);
+
+                // Session reestablished with same source bgp id, dropping current as duplicate
+            } else {
+                LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
+                throw new BGPDocumentedException(
+                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                                ip, currentConnection),
+                        BGPError.CEASE);
+            }
+        }
+
+        // Map session id to peer IP address
+        sessionIds.put(ip, currentConnection);
+        return peers.get(ip);
+    }
+
+    @Override
+    public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
+        Preconditions.checkNotNull(ip);
+        checkPeerConfigured(ip);
+        return peerPreferences.get(ip);
+    }
+
+    /**
+     * Create IpAddress from SocketAddress. Only InetSocketAddress is accepted with inner address: Inet4Address and Inet6Address.
+     *
+     * @throws IllegalArgumentException if submitted socket address is not InetSocketAddress[ipv4 | ipv6]
+     * @param socketAddress socket address to transform
+     */
+    public static IpAddress getIpAddress(final SocketAddress socketAddress) {
+        Preconditions.checkNotNull(socketAddress);
+        Preconditions.checkArgument(socketAddress instanceof InetSocketAddress, "Expecting InetSocketAddress but was %s", socketAddress.getClass());
+        final InetAddress inetAddress = ((InetSocketAddress) socketAddress).getAddress();
+
+        if(inetAddress instanceof Inet4Address) {
+            return new IpAddress(new Ipv4Address(inetAddress.getHostAddress()));
+        } else if(inetAddress instanceof Inet6Address) {
+            return new IpAddress(new Ipv6Address(inetAddress.getHostAddress()));
+        }
+
+        throw new IllegalArgumentException("Expecting " + Inet4Address.class + " or " + Inet6Address.class + " but was " + inetAddress.getClass());
+    }
+
+    @Override
+    public synchronized void close() throws Exception {
+        peers.clear();
+        sessionIds.clear();
+    }
+
+    /**
+     * Session identifier that contains (source Bgp Id) -> (destination Bgp Id)
+     */
+    private static final class BGPSessionId {
+        private final Ipv4Address from, to;
+
+        BGPSessionId(final Ipv4Address from, final Ipv4Address to) {
+            this.from = Preconditions.checkNotNull(from);
+            this.to = Preconditions.checkNotNull(to);
+        }
+
+        /**
+         * Equals does not take direction of connection into account id1 -> id2 and id2 -> id1 are equal
+         */
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            final BGPSessionId BGPSessionId = (BGPSessionId) o;
+
+            if (!from.equals(BGPSessionId.from) && !from.equals(BGPSessionId.to)) return false;
+            if (!to.equals(BGPSessionId.to) && !to.equals(BGPSessionId.from)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = from.hashCode() + to.hashCode();
+            result = 31 * result;
+            return result;
+        }
+
+        /**
+         * Check if this connection is equal to other and if it contains higher source bgp id
+         */
+        boolean isHigherDirection(final BGPSessionId other) {
+            Preconditions.checkState(this.isSameDirection(other) == false, "Equal sessions with same direction");
+            return toLong(from) > toLong(other.from);
+        }
+
+        private long toLong(final Ipv4Address from) {
+            return Long.valueOf(from.getValue().replaceAll("[^0-9]", ""));
+        }
+
+        /**
+         * Check if 2 connections are equal and face same direction
+         */
+        boolean isSameDirection(final BGPSessionId other) {
+            Preconditions.checkState(this.equals(other), "Only equal sessions can be compared");
+            return from.equals(other.from);
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                    .add("from", from)
+                    .add("to", to)
+                    .toString();
+        }
+    }
+}

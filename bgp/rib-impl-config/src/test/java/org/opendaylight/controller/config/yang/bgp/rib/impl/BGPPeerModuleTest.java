@@ -15,6 +15,7 @@ import static org.mockito.Mockito.mock;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
+import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.opendaylight.bgpcep.tcpmd5.jni.NativeTestSupport;
@@ -60,6 +61,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         moduleFactories.add(new BGPTableTypeImplModuleFactory());
         moduleFactories.add(new NativeKeyAccessFactoryModuleFactory());
         moduleFactories.add(new MD5ClientChannelFactoryModuleFactory());
+        moduleFactories.add(new StrictBgpPeerRegistryModuleFactory());
         return moduleFactories;
     }
 
@@ -87,7 +89,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         final CommitStatus status = createBgpPeerInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 16, 0, 0);
+        assertStatus(status, 17, 0, 0);
     }
 
     @Test
@@ -95,7 +97,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         NativeTestSupport.assumeSupportedPlatform();
         final CommitStatus status = createBgpPeerInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 18, 0, 0);
+        assertStatus(status, 19, 0, 0);
     }
 
     @Test
@@ -123,7 +125,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 16);
+        assertStatus(status, 0, 0, 17);
     }
 
     @Test
@@ -136,7 +138,7 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setPort(new PortNumber(10));
         status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 15);
+        assertStatus(status, 0, 1, 16);
     }
 
     private ObjectName createBgpPeerInstance(final ConfigTransactionJMXClient transaction, final String host,
@@ -144,6 +146,8 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
             throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final BGPPeerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BGPPeerModuleMXBean.class);
+
+        mxBean.setPeerRegistry(createPeerRegistry(transaction));
 
         // FIXME JMX crashes if union was not created via artificial constructor - Bug:1276
         // annotated for JMX as value
@@ -174,6 +178,10 @@ public class BGPPeerModuleTest extends AbstractRIBImplModuleTest {
                 new IdentityAttributeRef(Ipv4AddressFamily.QNAME.toString()),
                 new IdentityAttributeRef(MplsLabeledVpnSubsequentAddressFamily.QNAME.toString()))));
         return nameCreated;
+    }
+
+    private ObjectName createPeerRegistry(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        return transaction.createModule(StrictBgpPeerRegistryModuleFactory.NAME, "peer-registry");
     }
 
     private BGPDispatcherImplModuleMXBean getBgpDispatcherImplModuleMXBean(ConfigTransactionJMXClient transaction,

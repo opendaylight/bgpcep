@@ -16,12 +16,19 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import io.netty.util.concurrent.Future;
+
 import java.net.InetSocketAddress;
 import java.util.List;
+
+import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
+import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -91,21 +98,64 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    private static String peerName(final IpAddress host) {
-        if (host.getIpv4Address() != null) {
-            return host.getIpv4Address().getValue();
-        }
-        if (host.getIpv6Address() != null) {
-            return host.getIpv6Address().getValue();
-        }
-
-        return null;
-    }
-
     @Override
     public java.lang.AutoCloseable createInstance() {
         final RIB r = getRibDependency();
 
+        final List<BgpParameters> tlvs = getTlvs(r);
+        final AsNumber remoteAs = getAsOrDefault(r);
+        final String password = getPasswordOrNull();
+
+        final BGPSessionPreferences prefs = new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs);
+        final BGPPeer bgpClientPeer = new BGPPeer(peerName(getHostWithoutValue()), r);
+
+        getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
+
+        final AutoCloseable peerCloseable = new AutoCloseable() {
+            @Override
+            public void close() throws Exception {
+                bgpClientPeer.close();
+                getPeerRegistryBackwards().removePeer(getHostWithoutValue());
+            }
+        };
+
+        // Initiate connection
+        if(getInitiateConnection()) {
+            final Future<Void> cf = initiateConnection(createAddress(), password, remoteAs, getPeerRegistryBackwards());
+            return new AutoCloseable() {
+                @Override
+                public void close() throws Exception {
+                    cf.cancel(true);
+                    peerCloseable.close();
+                }
+            };
+        } else {
+            return peerCloseable;
+        }
+    }
+
+    private String getPasswordOrNull() {
+        final String password;
+        if (getPassword() != null) {
+            password = getPassword().getValue();
+        } else {
+            password = null;
+        }
+        return password;
+    }
+
+    private AsNumber getAsOrDefault(RIB r) {
+        // Remote AS number defaults to our local AS
+        final AsNumber remoteAs;
+        if (getRemoteAs() != null) {
+            remoteAs = new AsNumber(getRemoteAs());
+        } else {
+            remoteAs = r.getLocalAs();
+        }
+        return remoteAs;
+    }
+
+    private List<BgpParameters> getTlvs(RIB r) {
         final List<BgpParameters> tlvs = Lists.newArrayList();
         tlvs.add(new BgpParametersBuilder().setCParameters(
                 new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
@@ -118,22 +168,49 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             tlvs.add(new BgpParametersBuilder().setCParameters(
                     new MultiprotocolCaseBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build());
         }
-
-        // Remote AS number defaults to our local AS
-        final AsNumber remoteAs;
-        if (getRemoteAs() != null) {
-            remoteAs = new AsNumber(getRemoteAs());
-        } else {
-            remoteAs = r.getLocalAs();
-        }
-
-        final String password;
-        if (getPassword() != null) {
-            password = getPassword().getValue();
-        } else {
-            password = null;
-        }
-
-        return new BGPPeer(peerName(getHost()), createAddress(), password, new BGPSessionPreferences(r.getLocalAs(), getHoldtimer(), r.getBgpIdentifier(), tlvs), remoteAs, r);
+        return tlvs;
     }
+
+    public IpAddress getHostWithoutValue() {
+        // FIXME we need to remove field "value" from IpAddress since equals does not work as expected when value being present
+        // Remove after this bug is fixed https://bugs.opendaylight.org/show_bug.cgi?id=1276
+        final IpAddress host = super.getHost();
+        if(host.getIpv4Address() != null) {
+            return new IpAddress(host.getIpv4Address());
+        } else if(host.getIpv6Address() != null){
+            return new IpAddress(host.getIpv6Address());
+        }
+
+        throw new IllegalArgumentException("Unexpected host " + host);
+    }
+
+    private io.netty.util.concurrent.Future<Void> initiateConnection(final InetSocketAddress address, final String password, final AsNumber remoteAs, final BGPPeerRegistry registry) {
+        final KeyMapping keys;
+        if (password != null) {
+            keys = new KeyMapping();
+            keys.put(address.getAddress(), password.getBytes(Charsets.US_ASCII));
+        } else {
+            keys = null;
+        }
+
+        final RIB rib = getRibDependency();
+        return rib.getDispatcher().createReconnectingClient(address, remoteAs, registry, rib.getTcpStrategyFactory(),
+                rib.getSessionStrategyFactory(), keys);
+    }
+
+    private BGPPeerRegistry getPeerRegistryBackwards() {
+        return getPeerRegistry() == null ? StrictBGPPeerRegistry.GLOBAL : getPeerRegistryDependency();
+    }
+
+    private static String peerName(final IpAddress host) {
+        if (host.getIpv4Address() != null) {
+            return host.getIpv4Address().getValue();
+        }
+        if (host.getIpv6Address() != null) {
+            return host.getIpv6Address().getValue();
+        }
+
+        return null;
+    }
+
 }
