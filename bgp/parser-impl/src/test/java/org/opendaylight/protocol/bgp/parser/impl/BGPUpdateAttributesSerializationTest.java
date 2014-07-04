@@ -104,7 +104,7 @@ public class BGPUpdateAttributesSerializationTest {
             assertEquals(left.getAtomicAggregate() != null, right.getAtomicAggregate() != null);
         }
         if (left.getClusterId() != null) {
-            assertEqualsClusterId(left.getClusterId(), right.getClusterId());
+            assertEqualsClusterId(left.getClusterId().getCluster(), right.getClusterId().getCluster());
         }
         if (left.getLocalPref() != null) {
             assertEquals(left.getLocalPref().getPref(), right.getLocalPref().getPref());
@@ -116,7 +116,7 @@ public class BGPUpdateAttributesSerializationTest {
             assertEquals(left.getOrigin().getValue().getIntValue(), right.getOrigin().getValue().getIntValue());
         }
         if (left.getOriginatorId() != null) {
-            assertEquals(left.getOriginatorId().getValue(), right.getOriginatorId().getValue());
+            assertEquals(left.getOriginatorId().getOriginator().getValue(), right.getOriginatorId().getOriginator().getValue());
         }
         if (left.getAugmentation(PathAttributes1.class) != null) {
             assertNotNull(right.getAugmentation(PathAttributes1.class));

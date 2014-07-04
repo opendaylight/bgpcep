@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.OriginBuilder;
@@ -84,9 +85,9 @@ public class BestPathSelectionTest {
         builder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(12L).build());
         this.attr5 = builder.build();
         builder.setAsPath(new AsPathBuilder().setSegments(new ArrayList<Segments>()).build());
-        builder.setClusterId(new ArrayList<ClusterIdentifier>());
+        builder.setClusterId(new ClusterIdBuilder().setCluster(new ArrayList<ClusterIdentifier>()).build());
         this.attr6 = builder.build();
-        builder.setClusterId(clusters);
+        builder.setClusterId(new ClusterIdBuilder().setCluster(clusters).build());
         this.attr7 = builder.build();
     }
 

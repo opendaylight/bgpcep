@@ -37,6 +37,18 @@ module bgp-message {
         }
     }
 
+    grouping originator-id {
+        leaf originator {
+            type inet:ipv4-address;
+        }
+    }
+
+    grouping cluster-id {
+        leaf-list cluster {
+            type bgp-t:cluster-identifier;
+        }
+    }
+
     notification open {
         description "Open Message";
         reference "http://tools.ietf.org/html/rfc4271#section-4.2";
@@ -112,11 +124,11 @@ module bgp-message {
         list extended-communities {
             uses bgp-t:extended-community;
         }
-        leaf originator-id {
-            type inet:ipv4-address;
+        container originator-id {
+            uses originator-id;
         }
-        leaf-list cluster-id {
-            type bgp-t:cluster-identifier;
+        container cluster-id {
+            uses cluster-id;
         }
     }
 
