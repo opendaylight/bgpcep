@@ -8,20 +8,23 @@
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Arguments2;
@@ -46,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.RemoveLspInputBuilder;
@@ -79,6 +83,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.TerminationPointType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
+import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -87,10 +93,10 @@ import org.slf4j.LoggerFactory;
 public final class TunnelProgramming implements TopologyTunnelPcepProgrammingService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelProgramming.class);
     private final NetworkTopologyPcepService topologyService;
-    private final DataProviderService dataProvider;
+    private final DataBroker dataProvider;
     private final InstructionScheduler scheduler;
 
-    public TunnelProgramming(final InstructionScheduler scheduler, final DataProviderService dataProvider,
+    public TunnelProgramming(final InstructionScheduler scheduler, final DataBroker dataProvider,
             final NetworkTopologyPcepService topologyService) {
         this.scheduler = Preconditions.checkNotNull(scheduler);
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
@@ -98,23 +104,31 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
     }
 
     private static final class TpReader {
-        private final DataModificationTransaction t;
+        private final ReadTransaction t;
         private final InstanceIdentifier<Node> nii;
         private final InstanceIdentifier<TerminationPoint> tii;
 
-        TpReader(final DataModificationTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
+        TpReader(final ReadTransaction t, final InstanceIdentifier<Topology> topo, final TpReference ref) {
             this.t = Preconditions.checkNotNull(t);
 
             this.nii = topo.child(Node.class, new NodeKey(ref.getNode()));
             this.tii = this.nii.child(TerminationPoint.class, new TerminationPointKey(ref.getTp()));
         }
 
+        private DataObject read(final InstanceIdentifier<?> id) {
+            try {
+                return this.t.read(LogicalDatastoreType.OPERATIONAL, this.nii).get().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IllegalStateException("Failed to read " + id, e);
+            }
+        }
+
         private Node getNode() {
-            return (Node) this.t.readOperationalData(this.nii);
+            return (Node) read(this.nii);
         }
 
         private TerminationPoint getTp() {
-            return (TerminationPoint) this.t.readOperationalData(this.tii);
+            return (TerminationPoint) read(this.tii);
         }
     }
 
@@ -221,7 +235,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
             protected ListenableFuture<OperationResult> invokeOperation() {
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
 
-                final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
+                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
 
                 final TpReader dr = new TpReader(t, tii, input.getDestination());
                 final TpReader sr = new TpReader(t, tii, input.getSource());
@@ -236,7 +250,7 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
 
                 // The link has to be non-existent
                 final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, ab.getNode(), ab.getName());
-                Preconditions.checkState(t.readOperationalData(lii) == null);
+                Preconditions.checkState(t.read(LogicalDatastoreType.OPERATIONAL, lii) == null);
 
                 final ArgumentsBuilder args = new ArgumentsBuilder();
                 args.setBandwidth(new BandwidthBuilder().setBandwidth(input.getBandwidth()).build());
@@ -267,8 +281,10 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
         return Futures.immediateFuture(res);
     }
 
-    private Node sourceNode(final DataModificationTransaction t, final InstanceIdentifier<Topology> topology, final Link link) {
-        return (Node) t.readOperationalData(topology.child(Node.class, new NodeKey(link.getSource().getSourceNode())));
+    private Node sourceNode(final ReadTransaction t, final InstanceIdentifier<Topology> topology, final Link link) throws InterruptedException, ExecutionException {
+        Optional<DataObject> o = t.read(LogicalDatastoreType.OPERATIONAL,
+                topology.child(Node.class, new NodeKey(link.getSource().getSourceNode()))).get();
+        return (Node)o.get();
     }
 
     @Override
@@ -280,15 +296,29 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
-                final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
+                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
+                final Node node;
+                final Link link;
 
-                // The link has to exist
-                final Link link = (Link) t.readOperationalData(lii);
-                Preconditions.checkState(link != null);
+                try {
+                    // The link has to exist
+                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
 
-                // The source node has to exist
-                final Node node = sourceNode(t, tii, link);
-                Preconditions.checkState(node != null);
+                    // The source node has to exist
+                    node = sourceNode(t, tii, link);
+                } catch (InterruptedException | ExecutionException e) {
+                    return Futures.<OperationResult>immediateFuture(new OperationResult() {
+                        @Override
+                        public Class<? extends DataContainer> getImplementedInterface() {
+                            return OperationResult.class;
+                        }
+
+                        @Override
+                        public FailureType getFailure() {
+                            return FailureType.Unsent;
+                        }
+                    });
+                }
 
                 final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
                 ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
@@ -319,15 +349,29 @@ public final class TunnelProgramming implements TopologyTunnelPcepProgrammingSer
                 final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(input);
                 final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, input);
 
-                final DataModificationTransaction t = TunnelProgramming.this.dataProvider.beginTransaction();
+                final ReadTransaction t = TunnelProgramming.this.dataProvider.newReadOnlyTransaction();
+                final Link link;
+                final Node node;
 
-                // The link has to exist
-                final Link link = (Link) t.readOperationalData(lii);
-                Preconditions.checkState(link != null);
+                try {
+                    // The link has to exist
+                    link = (Link) t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
 
-                // The source node has to exist
-                final Node node = sourceNode(t, tii, link);
-                Preconditions.checkState(node != null);
+                    // The source node has to exist
+                    node = sourceNode(t, tii, link);
+                } catch (InterruptedException | ExecutionException e) {
+                    return Futures.<OperationResult>immediateFuture(new OperationResult() {
+                        @Override
+                        public Class<? extends DataContainer> getImplementedInterface() {
+                            return OperationResult.class;
+                        }
+
+                        @Override
+                        public FailureType getFailure() {
+                            return FailureType.Unsent;
+                        }
+                    });
+                }
 
                 final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
                 ab.setName(link.getAugmentation(Link1.class).getSymbolicPathName());
