@@ -5,36 +5,35 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.impl.client;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiator;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public final class BGPSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
-    private final BGPSessionPreferences initialPrefs;
-    private final AsNumber remoteAs;
+public final class BGPClientSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
+    private final BGPClientSessionValidator validator;
     private final Timer timer;
+    private final BGPPeerRegistry peerRegistry;
 
-    public BGPSessionNegotiatorFactory(final Timer timer, final BGPSessionPreferences initialPrefs, final AsNumber remoteAs) {
+    public BGPClientSessionNegotiatorFactory(final Timer timer, final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
+        this.peerRegistry = peerRegistry;
         this.timer = Preconditions.checkNotNull(timer);
-        this.initialPrefs = Preconditions.checkNotNull(initialPrefs);
-        this.remoteAs = Preconditions.checkNotNull(remoteAs);
+        this.validator = new BGPClientSessionValidator(remoteAs, peerRegistry);
     }
 
     @Override
     public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
             final Channel channel, final Promise<BGPSessionImpl> promise) {
-        return new BGPSessionNegotiator(this.timer, promise, channel, this.initialPrefs, remoteAs, factory.getSessionListener());
+        return new BGPClientSessionNegotiator(this.timer, promise, channel, peerRegistry, validator);
     }
 }

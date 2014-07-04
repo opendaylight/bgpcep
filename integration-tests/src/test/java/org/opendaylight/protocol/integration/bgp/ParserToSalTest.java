@@ -12,9 +12,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
-
 import io.netty.util.concurrent.GlobalEventExecutor;
-
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,9 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import javax.annotation.Nullable;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +35,13 @@ import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
-import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.RIBActivator;
 import org.opendaylight.protocol.bgp.rib.impl.RIBImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -188,8 +183,8 @@ public class ParserToSalTest {
         }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
-                Mockito.any(InetSocketAddress.class), Mockito.any(BGPSessionPreferences.class), Mockito.any(AsNumber.class),
-                Mockito.any(BGPSessionListener.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy),
+                Mockito.any(InetSocketAddress.class), Mockito.any(AsNumber.class),
+                Mockito.any(BGPPeerRegistry.class), Mockito.eq(this.tcpStrategyFactory), Mockito.eq(this.sessionStrategy),
                 Mockito.any(KeyMapping.class));
 
         this.ext = new SimpleRIBExtensionProviderContext();
@@ -208,7 +203,7 @@ public class ParserToSalTest {
 
     private void runTestWithTables(final List<BgpTableType> tables) {
         final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
-        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), null, null, null, rib.getLocalAs(), rib);
+        final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();

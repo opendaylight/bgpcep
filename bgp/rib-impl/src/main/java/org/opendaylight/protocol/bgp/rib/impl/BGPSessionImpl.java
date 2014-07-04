@@ -109,8 +109,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
 
-    BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-            final int localHoldTimer) {
+    public BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
+                          final int localHoldTimer) {
         this.listener = Preconditions.checkNotNull(listener);
         this.stateTimer = Preconditions.checkNotNull(timer);
         this.channel = Preconditions.checkNotNull(channel);
