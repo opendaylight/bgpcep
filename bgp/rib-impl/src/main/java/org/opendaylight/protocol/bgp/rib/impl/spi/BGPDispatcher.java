@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.util.concurrent.Future;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
-import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -21,24 +18,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Dispatcher class for creating BGP clients.
  */
-public interface BGPDispatcher {
+public interface BGPDispatcher extends BGPServerDispatcher {
 
     /**
      * Creates BGP client.
      *
      * @param address Peer address
-     * @param preferences connection attributes required for connection
-     * @param listener BGP message listener
+     * @param peerRegistry BGP peer registry
      * @return Future promising a client session
      */
-    Future<? extends BGPSession> createClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-            BGPSessionListener listener, ReconnectStrategy strategy);
+    Future<? extends BGPSession> createClient(InetSocketAddress address, AsNumber remoteAs,
+            BGPPeerRegistry peerRegistry, ReconnectStrategy strategy);
 
-    Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-            BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory,
+    Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
+                                          BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
             ReconnectStrategyFactory reestablishStrategyFactory);
 
-    Future<Void> createReconnectingClient(InetSocketAddress address, BGPSessionPreferences preferences, AsNumber remoteAs,
-            BGPSessionListener listener, ReconnectStrategyFactory connectStrategyFactory,
+    Future<Void> createReconnectingClient(InetSocketAddress address, AsNumber remoteAs,
+                                          BGPPeerRegistry peerRegistry, ReconnectStrategyFactory connectStrategyFactory,
             ReconnectStrategyFactory reestablishStrategyFactory, KeyMapping keys);
 }
