@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 public final class AttributeUtil {
 
-    private static final int MAX_ATTR_LENGTH_FOR_SINGLE_BYTE = 255;
+    private static final int MAX_ATTR_LENGTH_FOR_SINGLE_BYTE = 127;
 
     public static final int OPTIONAL = 128;
     public static final int TRANSITIVE = 64;
