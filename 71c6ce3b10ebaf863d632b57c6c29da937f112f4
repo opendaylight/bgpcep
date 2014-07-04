@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_ca04024c",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/AttributeUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-04T22:26:46Z",
+      "side": 1,
+      "message": "This needs an explanation -- the field is unsigned, thus holding logical values upto 255 for single byte and 65535 (theory) for two bytes.",
+      "revId": "71c6ce3b10ebaf863d632b57c6c29da937f112f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
