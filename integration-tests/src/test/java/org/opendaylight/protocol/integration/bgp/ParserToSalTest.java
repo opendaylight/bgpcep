@@ -32,9 +32,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -82,10 +83,10 @@ public class ParserToSalTest {
     private RIBExtensionProviderContext ext;
 
     @Mock
-    DataModificationTransaction mockedTransaction;
+    ReadWriteTransaction mockedTransaction;
 
     @Mock
-    DataProviderService providerService;
+    DataBroker providerService;
 
     @Mock
     BGPDispatcher dispatcher;
@@ -102,7 +103,7 @@ public class ParserToSalTest {
         final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(this.hex_messages));
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
-        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newWriteOnlyTransaction();
 
         Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
             int i = 0;
@@ -148,7 +149,7 @@ public class ParserToSalTest {
                 return null;
             }
 
-        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+        }).when(this.mockedTransaction).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -160,7 +161,7 @@ public class ParserToSalTest {
                 data.remove(id);
                 return null;
             }
-        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).delete(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -180,7 +181,7 @@ public class ParserToSalTest {
                 return null;
             }
 
-        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).read(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
                 Mockito.any(InetSocketAddress.class), Mockito.any(AsNumber.class),
@@ -217,7 +218,7 @@ public class ParserToSalTest {
                 (BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
 
-        Mockito.verify(this.mockedTransaction, Mockito.times(83)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.mockedTransaction, Mockito.times(83)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
     }
 
@@ -225,7 +226,7 @@ public class ParserToSalTest {
     public void testWithoutLinkstate() {
         runTestWithTables(ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
 
-        Mockito.verify(this.mockedTransaction, Mockito.times(28)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.mockedTransaction, Mockito.times(28)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
     }
 

@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 public interface AdjRIBsInFactory {
-    AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, TablesKey key);
+    AdjRIBsIn createAdjRIBsIn(WriteTransaction trans, final RibReference rib, TablesKey key);
 }
