@@ -14,11 +14,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
+import io.netty.buffer.Unpooled;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
 public class BandwidthTest {
@@ -26,15 +26,15 @@ public class BandwidthTest {
 
     @Before
     public void setUp() {
-        this.b1 = new Bandwidth(ByteArray.intToBytes(1000, 4));
-        this.b2 = new Bandwidth(ByteArray.intToBytes(2000, 4));
-        this.b3 = new Bandwidth(ByteArray.intToBytes(2000, 4));
-        this.b4 = new Bandwidth(ByteArray.intToBytes(100, 4));
+        this.b1 = new Bandwidth(Unpooled.copyInt(1000).array());
+        this.b2 = new Bandwidth(Unpooled.copyInt(2000).array());
+        this.b3 = new Bandwidth(Unpooled.copyInt(2000).array());
+        this.b4 = new Bandwidth(Unpooled.copyInt(100).array());
     }
 
     @Test
     public void testBitsBytes() {
-        assertEquals(1000.0, ByteArray.bytesToLong(this.b1.getValue()), 0.1);
+        assertEquals(1000.0, Unpooled.wrappedBuffer(this.b1.getValue()).readInt(), 0.1);
     }
 
     @Test
