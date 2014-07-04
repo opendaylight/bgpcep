@@ -11,8 +11,10 @@ import com.google.common.base.Preconditions;
 
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
-import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -30,14 +32,14 @@ public final class PCEPTunnelTopologyProvider implements AutoCloseable {
         this.reg = Preconditions.checkNotNull(reg);
     }
 
-    public static PCEPTunnelTopologyProvider create(final DataProviderService dataProvider,
+    public static PCEPTunnelTopologyProvider create(final DataBroker dataProvider,
             final InstanceIdentifier<Topology> sourceTopology, final TopologyId targetTopology) {
         final InstanceIdentifier<Topology> dst = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(targetTopology)).toInstance();
         final NodeChangedListener ncl = new NodeChangedListener(dataProvider, dst);
 
         final InstanceIdentifier<Node> src = sourceTopology.child(Node.class);
-        final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(src, ncl);
+        final ListenerRegistration<DataChangeListener> reg = dataProvider.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, src, ncl, DataChangeScope.SUBTREE);
 
         return new PCEPTunnelTopologyProvider(dst, reg);
     }

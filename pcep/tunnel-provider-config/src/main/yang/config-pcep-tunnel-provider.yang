@@ -54,7 +54,7 @@ module config-pcep-tunnel-provider {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
-                        config:required-identity mdsal:binding-data-broker;
+                        config:required-identity mdsal:binding-async-data-broker;
                     }
                 }
             }
