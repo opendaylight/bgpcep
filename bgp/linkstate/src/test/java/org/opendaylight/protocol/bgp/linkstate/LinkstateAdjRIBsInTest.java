@@ -23,7 +23,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -71,7 +72,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class LinkstateAdjRIBsInTest {
 
     @Mock
-    private DataModificationTransaction trans;
+    private ReadWriteTransaction trans;
 
     @Mock
     private RibReference rib;
@@ -102,7 +103,7 @@ public class LinkstateAdjRIBsInTest {
                 return null;
             }
 
-        }).when(this.trans).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
+        }).when(this.trans).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -119,7 +120,7 @@ public class LinkstateAdjRIBsInTest {
                 return result;
             }
 
-        }).when(this.trans).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.trans).read(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
@@ -129,13 +130,13 @@ public class LinkstateAdjRIBsInTest {
                 return null;
             }
 
-        }).when(this.trans).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.trans).delete(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(iid).when(this.rib).getInstanceIdentifier();
         Mockito.doReturn(new Comparator<PathAttributes>() {
 
             @Override
-            public int compare(PathAttributes o1, PathAttributes o2) {
+            public int compare(final PathAttributes o1, final PathAttributes o2) {
                 return 0;
             }
         }).when(this.peer).getComparator();
@@ -164,7 +165,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
 
         assertEquals(3, this.data.size());
@@ -187,7 +188,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
         assertEquals(3, this.data.size());
     }
@@ -211,7 +212,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
         assertEquals(3, this.data.size());
 
@@ -224,7 +225,7 @@ public class LinkstateAdjRIBsInTest {
                                 this.destinations).build()).build()).build());
         this.lrib.removeRoutes(this.trans, this.peer, builder.build());
 
-        Mockito.verify(this.trans, Mockito.times(2)).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        Mockito.verify(this.trans, Mockito.times(2)).delete(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
         assertEquals(2, this.data.size());
     }
 }
