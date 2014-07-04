@@ -8,7 +8,8 @@
  and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <scm>
@@ -97,31 +98,38 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-manager</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>config-util</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-event-executor-config</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>netty-threadgroup-config</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -132,6 +140,18 @@
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>protocol-framework</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcpmd5-jni-cfg</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>tcpmd5-jni</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
