@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -58,8 +58,7 @@ import org.slf4j.LoggerFactory;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
-    private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-            RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+    private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends RIBEntryData<CLinkstateDestination, LinkstateRoute> {
         private final A lsattr;
 
         protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -94,7 +93,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
 
-    LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+    LinkstateAdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
         super(trans, rib, key);
     }
 
@@ -105,7 +104,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
     }
 
     @Override
-    public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
+    public void addRoutes(final WriteTransaction trans, final Peer peer, final MpReachNlri nlri,
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         LOG.debug("Passed nlri {}", nlri);
         final LinkstateDestination keys = ((DestinationLinkstateCase) nlri.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
@@ -194,7 +193,7 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
     }
 
     @Override
-    public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+    public void removeRoutes(final WriteTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
         final DestinationLinkstate keys = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationLinkstate();
 
         for (final CLinkstateDestination key : keys.getCLinkstateDestination()) {

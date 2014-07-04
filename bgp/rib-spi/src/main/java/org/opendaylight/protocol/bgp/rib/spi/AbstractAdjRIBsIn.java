@@ -19,7 +19,8 @@ import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
@@ -106,17 +107,17 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return newState;
         }
 
-        private void electCandidate(final DataModificationTransaction transaction, final RIBEntryData<I, D> candidate) {
+        private void electCandidate(final WriteTransaction transaction, final RIBEntryData<I, D> candidate) {
             LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
             if (this.currentState == null || !this.currentState.equals(candidate)) {
                 LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.putOperationalData(getName(), candidate.getDataObject(this.key, getName()));
+                transaction.put(LogicalDatastoreType.OPERATIONAL, getName(), candidate.getDataObject(this.key, getName()));
                 this.currentState = candidate;
             }
         }
 
-        synchronized boolean removeState(final DataModificationTransaction transaction, final Peer peer) {
+        synchronized boolean removeState(final WriteTransaction transaction, final Peer peer) {
             final RIBEntryData<I, D> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
 
@@ -125,13 +126,13 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
                 electCandidate(transaction, candidate);
             } else {
                 LOG.trace("Final candidate disappeared, removing entry {}", getName());
-                transaction.removeOperationalData(getName());
+                transaction.delete(LogicalDatastoreType.OPERATIONAL, getName());
             }
 
             return this.candidates.isEmpty();
         }
 
-        synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
+        synchronized void setState(final WriteTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
             this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
             electCandidate(transaction, findCandidate(state, peer.getComparator()));
         }
@@ -147,7 +148,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
     @GuardedBy("this")
     private final Map<Peer, Boolean> peers = new HashMap<>();
 
-    protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+    protected AbstractAdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
         this.basePath = rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
 
         this.eor = new UpdateBuilder().setPathAttributes(
@@ -156,24 +157,17 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
                         new PathAttributes1Builder().setMpReachNlri(
                                 new MpReachNlriBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).build()).build()).build()).build();
 
-        trans.putOperationalData(this.basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setAttributes(
+        trans.put(LogicalDatastoreType.OPERATIONAL, this.basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setAttributes(
                 new AttributesBuilder().setUptodate(Boolean.TRUE).build()).build());
     }
 
-    private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
+    private void setUptodate(final WriteTransaction trans, final Boolean uptodate) {
         final InstanceIdentifier<Attributes> aid = this.basePath.child(Attributes.class);
-        final Attributes a = (Attributes) trans.readOperationalData(aid);
-        Preconditions.checkState(a != null);
-
-        if (!uptodate.equals(a.isUptodate())) {
-            LOG.debug("Table {} switching uptodate to {}", this.basePath, uptodate);
-            trans.removeOperationalData(aid);
-            trans.putOperationalData(aid, new AttributesBuilder().setUptodate(uptodate).build());
-        }
+        trans.put(LogicalDatastoreType.OPERATIONAL, aid, new AttributesBuilder().setUptodate(uptodate).build());
     }
 
     @Override
-    public synchronized void clear(final DataModificationTransaction trans, final Peer peer) {
+    public synchronized void clear(final WriteTransaction trans, final Peer peer) {
         final Iterator<Map.Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
         while (i.hasNext()) {
             final Map.Entry<I, RIBEntry> e = i.next();
@@ -196,7 +190,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      */
     protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
-    protected synchronized void add(final DataModificationTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
+    protected synchronized void add(final WriteTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
         RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
@@ -212,7 +206,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
         }
     }
 
-    protected synchronized void remove(final DataModificationTransaction trans, final Peer peer, final I id) {
+    protected synchronized void remove(final WriteTransaction trans, final Peer peer, final I id) {
         final RIBEntry e = this.entries.get(id);
         if (e != null && e.removeState(trans, peer)) {
             LOG.debug("Removed last state, removing entry for {}", id);
@@ -221,7 +215,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
     }
 
     @Override
-    public final void markUptodate(final DataModificationTransaction trans, final Peer peer) {
+    public final void markUptodate(final WriteTransaction trans, final Peer peer) {
         this.peers.put(peer, Boolean.TRUE);
         setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
     }
