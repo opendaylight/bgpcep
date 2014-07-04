@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
-    Ipv4AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+    Ipv4AdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
         super(trans, rib, key);
     }
 
@@ -35,7 +35,7 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
     }
 
     @Override
-    public void addRoutes(final DataModificationTransaction trans, final Peer peer, final MpReachNlri nlri,
+    public void addRoutes(final WriteTransaction trans, final Peer peer, final MpReachNlri nlri,
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         final RIBEntryData<Ipv4Prefix, Ipv4Route> data = new RIBEntryData<Ipv4Prefix, Ipv4Route>(attributes) {
             @Override
@@ -50,7 +50,7 @@ final class Ipv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
     }
 
     @Override
-    public void removeRoutes(final DataModificationTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+    public void removeRoutes(final WriteTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
         for (final Ipv4Prefix id : ((DestinationIpv4Case) nlri.getWithdrawnRoutes().getDestinationType()).getDestinationIpv4().getIpv4Prefixes()) {
             super.remove(trans, peer, id);
         }
