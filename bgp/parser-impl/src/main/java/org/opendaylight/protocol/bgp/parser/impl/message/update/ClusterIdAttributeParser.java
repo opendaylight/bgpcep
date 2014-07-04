@@ -19,6 +19,8 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -34,17 +36,17 @@ public final class ClusterIdAttributeParser implements AttributeParser, Attribut
         while (buffer.isReadable()) {
             list.add(new ClusterIdentifier(Ipv4Util.addressForByteBuf(buffer)));
         }
-        builder.setClusterId(list);
+        builder.setClusterId(new ClusterIdBuilder().setCluster(list).build());
     }
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
-        final PathAttributes pathAttributes = (PathAttributes) attribute;
-        if (pathAttributes.getClusterId() == null) {
+        final ClusterId cid = ((PathAttributes) attribute).getClusterId();
+        if (cid == null) {
             return;
         }
         final ByteBuf clusterIdBuffer = Unpooled.buffer();
-        for (final ClusterIdentifier clusterIdentifier : pathAttributes.getClusterId()) {
+        for (final ClusterIdentifier clusterIdentifier : cid.getCluster()) {
             clusterIdBuffer.writeBytes(Ipv4Util.bytesForAddress(clusterIdentifier));
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, clusterIdBuffer, byteAggregator);

@@ -120,10 +120,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
         byte[] oid1 = this.localId;
         byte[] oid2 = this.remoteId;
         if (o1.getOriginatorId() != null) {
-            oid1 = InetAddresses.forString(o1.getOriginatorId().getValue()).getAddress();
+            oid1 = InetAddresses.forString(o1.getOriginatorId().getOriginator().getValue()).getAddress();
         }
         if (o2.getOriginatorId() != null) {
-            oid2 = InetAddresses.forString(o2.getOriginatorId().getValue()).getAddress();
+            oid2 = InetAddresses.forString(o2.getOriginatorId().getOriginator().getValue()).getAddress();
         }
         if (!Arrays.equals(oid1, oid2)) {
             return compareByteArrays(oid1, oid2);
@@ -132,10 +132,10 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
         int cluster1 = 0;
         int cluster2 = 0;
         if (o1.getClusterId() != null) {
-            cluster1 = o1.getClusterId().size();
+            cluster1 = o1.getClusterId().getCluster().size();
         }
         if (o2.getClusterId() != null) {
-            cluster2 = o2.getClusterId().size();
+            cluster2 = o2.getClusterId().getCluster().size();
         }
         if (cluster1 != cluster2) {
             return ((Integer) cluster1).compareTo(cluster2);

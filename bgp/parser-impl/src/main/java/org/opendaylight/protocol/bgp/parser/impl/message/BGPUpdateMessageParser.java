@@ -9,16 +9,17 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 
 
 import com.google.common.base.Preconditions;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 import java.util.List;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.ClusterIdAttributeParser;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginatorIdAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
@@ -130,12 +131,6 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         if (update.getPathAttributes() != null) {
             ByteBuf pathAttributesBuf = Unpooled.buffer();
             this.reg.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
-            ClusterIdAttributeParser clusterIdAttributeParser = new ClusterIdAttributeParser();
-            clusterIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
-
-            OriginatorIdAttributeParser originatorIdAttributeParser = new OriginatorIdAttributeParser();
-            originatorIdAttributeParser.serializeAttribute(update.getPathAttributes(), pathAttributesBuf);
-
             messageBody.writeShort(pathAttributesBuf.writerIndex());
             messageBody.writeBytes(pathAttributesBuf);
         } else {
