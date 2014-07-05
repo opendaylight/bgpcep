@@ -39,9 +39,10 @@ public final class NextHopUtil {
             byteAggregator.writeBytes(Ipv4Util.bytesForAddress(((Ipv4NextHopCase) cnextHop).getIpv4NextHop().getGlobal()));
         } else if (cnextHop instanceof Ipv6NextHopCase) {
             final Ipv6NextHop nextHop = ((Ipv6NextHopCase) cnextHop).getIpv6NextHop();
-            if (nextHop.getGlobal() != null) {
-                byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
+            if (nextHop.getGlobal() == null) {
+                throw new IllegalArgumentException("Ipv6 Next Hop is missing Global address.");
             }
+            byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getGlobal()));
             if (nextHop.getLinkLocal() != null) {
                 byteAggregator.writeBytes(Ipv6Util.bytesForAddress(nextHop.getLinkLocal()));
             }
