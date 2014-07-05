@@ -21,7 +21,9 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
@@ -34,8 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class Ipv6ReachabilityTopologyBuilderModule extends
-        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv6ReachabilityTopologyBuilderModule {
+public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv6ReachabilityTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
     public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
@@ -59,7 +60,7 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends
     public java.lang.AutoCloseable createInstance() {
         final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
         final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
-        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
+        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, i, b, DataChangeScope.SUBTREE);
         LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
 
         final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
