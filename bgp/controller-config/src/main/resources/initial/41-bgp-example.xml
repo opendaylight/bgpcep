@@ -133,7 +133,7 @@
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv4</type>
                     <name>example-ipv4-topology</name>
                     <data-provider>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
                         <name>binding-data-broker</name>
                     </data-provider>
                     <local-rib>
@@ -146,7 +146,7 @@
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv6</type>
                     <name>example-ipv6-topology</name>
                     <data-provider>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
                         <name>binding-data-broker</name>
                     </data-provider>
                     <local-rib>
@@ -159,7 +159,7 @@
                     <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-linkstate-topology</type>
                     <name>example-linkstate-topology</name>
                     <data-provider>
-                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
+                        <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-async-data-broker</type>
                         <name>binding-data-broker</name>
                     </data-provider>
                     <local-rib>
