@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_fd7af275",
+        "filename": "bgp/concepts/src/main/java/org/opendaylight/bgp/concepts/NextHopUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-05T14:30:59Z",
+      "side": 1,
+      "message": "why not just return it .. ?",
+      "revId": "89d0d235a5348d73e9657e729558eb461ca5c199",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
