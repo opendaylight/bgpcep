@@ -84,7 +84,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
         createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
+        PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
                 INSTANCE_NAME), PCEPSessionProposalFactoryImplModuleMXBean.class);
         mxBean.setKeepAliveTimerValue((short) 180);
         final CommitStatus status = transaction.commit();
@@ -105,7 +105,7 @@ public class PCEPSessionProposalFactoryImplModuleTest extends AbstractConfigTest
     public static ObjectName createSessionInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer,
             final Short keepAlive) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
+        final PCEPSessionProposalFactoryImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
                 PCEPSessionProposalFactoryImplModuleMXBean.class);
         mxBean.setDeadTimerValue(deadTimer);
         mxBean.setKeepAliveTimerValue(keepAlive);

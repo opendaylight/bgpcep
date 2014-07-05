@@ -91,7 +91,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         createDispatcherInstance(5);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+        final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 PCEPDispatcherImplModuleMXBean.class);
         mxBean.setMaxUnknownMessages(10);
         final CommitStatus status = transaction.commit();
@@ -108,7 +108,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
     public static ObjectName createDispatcherInstance(final ConfigTransactionJMXClient transaction, final Integer maxUnknownMessages)
             throws Exception {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, PCEPDispatcherImplModuleMXBean.class);
+        final PCEPDispatcherImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, PCEPDispatcherImplModuleMXBean.class);
         mxBean.setPcepSessionProposalFactory(Stateful02PCEPSessionProposalFactoryModuleTest.createStateful02SessionProposalInstance(transaction));
         mxBean.setMaxUnknownMessages(maxUnknownMessages);
         mxBean.setBossGroup(createThreadGroupInstance(transaction, 10, BOSS_TG_INSTANCE_NAME));
@@ -120,7 +120,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
     private static ObjectName createExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(EXTENSION_FACTORYNAME, EXTENSION_INSTANCE_NAME);
-        transaction.newMBeanProxy(nameCreated, SimplePCEPExtensionProviderContextModuleMXBean.class);
+        transaction.newMXBeanProxy(nameCreated, SimplePCEPExtensionProviderContextModuleMXBean.class);
 
         return nameCreated;
     }
@@ -128,14 +128,14 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
     private static ObjectName createThreadGroupInstance(final ConfigTransactionJMXClient transaction, final Integer threadCount,
             final String instanceName) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(THREADGROUP_FACTORY_NAME, instanceName);
-        final NettyThreadgroupModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
+        final NettyThreadgroupModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
         mxBean.setThreadCount(threadCount);
         return nameCreated;
     }
 
     private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(TIMER_FACTORY_NAME, TIMER_INSTANCE_NAME);
-        transaction.newMBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
+        transaction.newMXBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
         return nameCreated;
     }
 

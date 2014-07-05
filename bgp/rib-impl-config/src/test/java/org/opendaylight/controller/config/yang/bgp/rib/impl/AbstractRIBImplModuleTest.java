@@ -11,18 +11,22 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.io.InputStream;
+import com.google.common.io.ByteSource;
+import com.google.common.io.Resources;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Future;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,9 +65,10 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.model.api.Module;
+import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
-import org.opendaylight.yangtools.yang.model.parser.api.YangModelParser;
+import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
+import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
@@ -183,11 +188,16 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         if (serviceType.equals(SchemaServiceListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
-                public void handleServiceRegistration(Class<?> clazz, Object serviceInstance, Dictionary<String, ?> props) {
+                public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
                     SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
-                    YangModelParser parser = new YangParserImpl();
-                    Map<InputStream, Module> inputStreamModuleMap = parser.parseYangModelsFromStreamsMapped(new ArrayList<>(getFilesAsInputStreams(getYangModelsPaths())));
-                    listener.onGlobalContextUpdated(parser.resolveSchemaContext(Sets.newHashSet(inputStreamModuleMap.values())));
+                    YangContextParser parser = new YangParserImpl();
+                    final SchemaContext context;
+                    try {
+                        context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+                    } catch (IOException | YangSyntaxErrorException e) {
+                        throw new IllegalStateException("Failed to parse models", e);
+                    }
+                    listener.onGlobalContextUpdated(context);
                 }
             };
         }
@@ -242,9 +252,9 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException,
-            InstanceNotFoundException {
+    InstanceNotFoundException {
         ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
-        DataBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
+        DataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
         mxBean.setDomBroker(createDomBrokerInstance(transaction));
         mxBean.setMappingService(lookupMappingServiceInstance(transaction));
         return nameCreated;
@@ -252,14 +262,14 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
-        DomBrokerImplModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
+        DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
         mxBean.setDataStore(createDataStoreInstance(transaction));
         return nameCreated;
     }
 
     private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(HashMapDataStoreModuleFactory.NAME, DATA_STORE_INSTANCE_NAME);
-        transaction.newMBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
+        transaction.newMXBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
         return nameCreated;
     }
 
@@ -278,7 +288,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     private ObjectName createRibExtensionsInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
         ObjectName nameCreated = transaction.createModule(RIBExtensionsImplModuleFactory.NAME, RIB_EXTENSIONS_INSTANCE_NAME);
-        transaction.newMBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
+        transaction.newMXBeanProxy(nameCreated, RIBExtensionsImplModuleMXBean.class);
         return nameCreated;
     }
 
@@ -289,15 +299,15 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     }
 
     // TODO move back to AbstractConfigTest
-    private static Collection<InputStream> getFilesAsInputStreams(List<String> paths) {
-        final Collection<InputStream> resources = new ArrayList<>();
+    private static Collection<ByteSource> getFilesAsByteSources(final List<String> paths) {
+        final Collection<ByteSource> resources = new ArrayList<>();
         List<String> failedToFind = new ArrayList<>();
         for (String path : paths) {
-            InputStream resourceAsStream = AbstractRIBImplModuleTest.class.getResourceAsStream(path);
-            if (resourceAsStream == null) {
+            URL url = AbstractRIBImplModuleTest.class.getResource(path);
+            if (url == null) {
                 failedToFind.add(path);
             } else {
-                resources.add(resourceAsStream);
+                resources.add(Resources.asByteSource(url));
             }
         }
         Assert.assertEquals("Some files were not found", Collections.<String> emptyList(), failedToFind);
