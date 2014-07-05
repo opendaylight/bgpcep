@@ -19,7 +19,7 @@ public final class MessageUtil {
     @VisibleForTesting
     public static final int MARKER_LENGTH = 16;
     @VisibleForTesting
-    public static final int COMMON_HEADER_LENGTH = 3 + MARKER_LENGTH;
+    public static final int COMMON_HEADER_LENGTH = 19;
     private static final byte[] MARKER = new byte[MARKER_LENGTH];
 
     static {
