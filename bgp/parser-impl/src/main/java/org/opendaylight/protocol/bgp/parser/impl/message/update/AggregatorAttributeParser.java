@@ -15,7 +15,6 @@ import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -46,7 +45,7 @@ public final class AggregatorAttributeParser implements AttributeParser, Attribu
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
         final AsNumber asNumber = this.refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()));
-        final Ipv4Address address = Ipv4Util.addressForBytes(ByteArray.readAllBytes(buffer));
+        final Ipv4Address address = Ipv4Util.addressForByteBuf(buffer);
         builder.setAggregator(new AggregatorBuilder().setAsNumber(asNumber).setNetworkAddress(address).build());
     }
 

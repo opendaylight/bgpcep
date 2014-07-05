@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class SimpleAttributeRegistry implements AttributeRegistry {
+
     private static final class RawAttribute {
         private final AttributeParser parser;
         private final ByteBuf buffer;
@@ -49,12 +50,13 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleAttributeRegistry.class);
     private static final int OPTIONAL_BIT = 0;
     private static final int TRANSITIVE_BIT = 1;
+    @SuppressWarnings("unused")
     private static final int PARTIAL_BIT = 2;
     private static final int EXTENDED_LENGTH_BIT = 3;
     private final HandlerRegistry<DataContainer, AttributeParser, AttributeSerializer> handlers = new HandlerRegistry<>();
     private final Map<AbstractRegistration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
-            new AtomicReference<Iterable<AttributeSerializer>>(serializers.values());
+        new AtomicReference<Iterable<AttributeSerializer>>(this.serializers.values());
 
     AutoCloseable registerAttributeParser(final int attributeType, final AttributeParser parser) {
         Preconditions.checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
@@ -64,32 +66,23 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
     synchronized AutoCloseable registerAttributeSerializer(final Class<? extends DataObject> paramClass, final AttributeSerializer serializer) {
         final AbstractRegistration reg = this.handlers.registerSerializer(paramClass, serializer);
 
-        serializers.put(reg, serializer);
+        this.serializers.put(reg, serializer);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (SimpleAttributeRegistry.this) {
-                    serializers.remove(reg);
-                    roSerializers.set(serializers.values());
+                    SimpleAttributeRegistry.this.serializers.remove(reg);
+                    SimpleAttributeRegistry.this.roSerializers.set(SimpleAttributeRegistry.this.serializers.values());
                 }
-
                 reg.close();
             }
         };
     }
 
-    private int addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
+    private void addAttribute(final ByteBuf buffer, final Map<Integer, RawAttribute> attributes) throws BGPDocumentedException {
         final boolean[] flags = ByteArray.parseBits(buffer.readByte());
-        final Integer type = UnsignedBytes.toInt(buffer.readByte());
-        final int hdrlen;
-        final int len;
-        if (flags[EXTENDED_LENGTH_BIT]) {
-            len = UnsignedBytes.toInt(buffer.readByte()) * 256 + UnsignedBytes.toInt(buffer.readByte());
-            hdrlen = 4;
-        } else {
-            len = UnsignedBytes.toInt(buffer.readByte());
-            hdrlen = 3;
-        }
+        final int type = UnsignedBytes.toInt(buffer.readByte());
+        final int len = (flags[EXTENDED_LENGTH_BIT]) ? buffer.readShort() : UnsignedBytes.toInt(buffer.readByte());
         if (!attributes.containsKey(type)) {
             final AttributeParser parser = this.handlers.getParser(type);
             if (parser == null) {
@@ -109,13 +102,12 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         } else {
             LOG.debug("Ignoring duplicate attribute type {}", type);
         }
-        return hdrlen + len;
     }
 
     @Override
     public PathAttributes parseAttributes(final ByteBuf buffer) throws BGPDocumentedException, BGPParsingException {
         final TreeMap<Integer, RawAttribute> attributes = new TreeMap<>();
-        while (buffer.readableBytes() != 0) {
+        while (buffer.isReadable()) {
             addAttribute(buffer, attributes);
         }
         /*
@@ -129,7 +121,6 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             final RawAttribute a = e.getValue();
             a.parser.parseAttribute(a.buffer, builder);
         }
-
         return builder.build();
     }
 
