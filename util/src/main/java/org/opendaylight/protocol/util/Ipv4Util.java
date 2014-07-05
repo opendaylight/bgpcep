@@ -12,13 +12,16 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -106,10 +109,10 @@ public final class Ipv4Util {
     }
 
     /**
-     * Converts Ipv4Prefix to byte array.
+     * Converts Ipv4Prefix to byte array. Prefix length at the end.
      *
      * @param prefix Ipv4Prefix to be converted
-     * @return byte array
+     * @return byte array with prefix length at the end
      */
     public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
         final String p = prefix.getValue();
@@ -118,6 +121,23 @@ public final class Ipv4Util {
         Preconditions.checkArgument(a instanceof Inet4Address);
         final byte[] bytes = a.getAddress();
         return Bytes.concat(bytes, new byte[] { Byte.valueOf(p.substring(sep + 1, p.length())) });
+    }
+
+    /**
+     * Converts Ipv4Prefix to byte array. Prefix length at the beginning.
+     * Prefix bytes are trimmed from the end to match prefix length.
+     *
+     * @param prefix Ipv4Prefix to be converted
+     * @return byte array with the prefix length at the beginning
+     */
+    public static byte[] bytesForPrefixBegin(final Ipv4Prefix prefix) {
+        final String p = prefix.getValue();
+        final int sep = p.indexOf('/');
+        final InetAddress a = InetAddresses.forString(p.substring(0, sep));
+        Preconditions.checkArgument(a instanceof Inet4Address);
+        final byte[] bytes = a.getAddress();
+        final int length = getPrefixLength(p);
+        return Bytes.concat(new byte[] { UnsignedBytes.checkedCast(length) }, ByteArray.subByte(bytes, 0 , getPrefixLengthBytes(p)));
     }
 
     /**
@@ -173,7 +193,7 @@ public final class Ipv4Util {
     }
 
     /**
-     * Obtains prefix length from given prefix.
+     * Obtains prefix length from given string prefix.
      *
      * @param prefixValue value of prefix
      * @return prefix length
