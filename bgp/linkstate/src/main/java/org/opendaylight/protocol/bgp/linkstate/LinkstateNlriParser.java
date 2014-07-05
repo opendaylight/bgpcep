@@ -10,15 +10,17 @@ package org.opendaylight.protocol.bgp.linkstate;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.NlriUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -212,10 +214,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             } else {
                 final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
                         new IsoSystemIdentifier(ByteArray.subByte(value, 0, ISO_SYSTEM_ID_LENGTH))).build();
-                return new IsisPseudonodeCaseBuilder().setIsisPseudonode(
-                        new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn(
-                                (short) UnsignedBytes.toInt(value[ISO_SYSTEM_ID_LENGTH])).build()
-                ).build();
+                return new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder().setIsIsRouterIdentifier(iri).setPsn(
+                        (short) UnsignedBytes.toInt(value[ISO_SYSTEM_ID_LENGTH])).build()).build();
             }
         }
         if (value.length == 4) {
@@ -357,13 +357,11 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
-                                dst).build()
-                ).build()
-        ).build());
+                                dst).build()).build()).build());
     }
 
     @Override
-    public void parseNlri(final ByteBuf nlri, final byte[] nextHop, final MpReachNlriBuilder builder) throws BGPParsingException {
+    public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
@@ -371,9 +369,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
                 new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                        new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build()
-        ).build());
-        NlriUtil.parseNextHop(nextHop, builder);
+                        new DestinationLinkstateBuilder().setCLinkstateDestination(dst).build()).build()).build());
     }
 
     /**
@@ -553,10 +549,10 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             MpReachNlri mpReachNlri = pathAttributes1.getMpReachNlri();
             if (mpReachNlri.getAdvertizedRoutes() != null &&
                     mpReachNlri.getAdvertizedRoutes().getDestinationType()
-                            instanceof
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
+                    instanceof
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase
-                        linkstateCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) mpReachNlri.getAdvertizedRoutes().getDestinationType();
+                linkstateCase = (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase) mpReachNlri.getAdvertizedRoutes().getDestinationType();
                 for (CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
                     byteAggregator.writeBytes(serializeNlri(cLinkstateDestination));
                 }

@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public class LinkstateNlriParserTest {
@@ -68,15 +67,11 @@ public class LinkstateNlriParserTest {
         (byte) 0x02, (byte) 0x00, (byte) 0x0F, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x01, (byte) 0x03, (byte) 0x01, (byte) 0x09,
         (byte) 0x00, (byte) 0x03, (byte) 0x10, (byte) 0xFF, (byte) 0xFF };
 
-    private final byte[] nextHop = new byte[] { (byte) 0x0a, (byte) 0x19, (byte) 0x02, (byte) 0x1b };
-
     @Test
     public void testNodeNlri() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.nodeNlri), this.nextHop, builder);
-
-        assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+        parser.parseNlri(Unpooled.copiedBuffer(this.nodeNlri), builder);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
@@ -107,9 +102,7 @@ public class LinkstateNlriParserTest {
     public void testLinkNlri() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.linkNlri), this.nextHop, builder);
-
-        assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+        parser.parseNlri(Unpooled.copiedBuffer(this.linkNlri), builder);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
@@ -146,9 +139,7 @@ public class LinkstateNlriParserTest {
     public void testPrefixNlri() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.prefixNlri), this.nextHop, builder);
-
-        assertEquals("10.25.2.27", ((Ipv4NextHopCase) builder.getCNextHop()).getIpv4NextHop().getGlobal().getValue());
+        parser.parseNlri(Unpooled.copiedBuffer(this.prefixNlri), builder);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
 
