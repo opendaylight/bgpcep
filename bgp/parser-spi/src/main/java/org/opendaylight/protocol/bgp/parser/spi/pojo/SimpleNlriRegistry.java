@@ -17,7 +17,7 @@ import io.netty.buffer.Unpooled;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.opendaylight.protocol.bgp.concepts.util.NextHopUtil;
+import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -26,7 +26,6 @@ import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
 import org.opendaylight.protocol.concepts.AbstractRegistration;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
@@ -123,12 +122,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public void serializeMpReach(MpReachNlri mpReachNlri, ByteBuf byteAggregator) {
-
         byteAggregator.writeShort(this.afiReg.numberForClass(mpReachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpReachNlri.getSafi()));
 
-        ByteBuf nextHopBuffer = Unpooled.buffer();
-        NextHopUtil.serializeNextHopSimple(mpReachNlri.getCNextHop(), nextHopBuffer);
+        final ByteBuf nextHopBuffer = Unpooled.buffer();
+        NextHopUtil.serializeNextHop(mpReachNlri.getCNextHop(), nextHopBuffer);
 
         byteAggregator.writeByte(nextHopBuffer.writerIndex());
         byteAggregator.writeBytes(nextHopBuffer);
@@ -137,7 +135,6 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public void serializeMpUnReach(MpUnreachNlri mpUnreachNlri, ByteBuf byteAggregator) {
-
         byteAggregator.writeShort(this.afiReg.numberForClass(mpUnreachNlri.getAfi()));
         byteAggregator.writeByte(this.safiReg.numberForClass(mpUnreachNlri.getSafi()));
     }
@@ -156,11 +153,11 @@ final class SimpleNlriRegistry implements NlriRegistry {
         final NlriParser parser = this.handlers.get(createKey(builder.getAfi(), builder.getSafi()));
 
         final int nextHopLength = UnsignedBytes.toInt(buffer.readByte());
-        final byte[] nextHop = ByteArray.readBytes(buffer, nextHopLength);
-        buffer.skipBytes(RESERVED);
+        builder.setCNextHop(NextHopUtil.parseNextHop(buffer.slice(buffer.readerIndex(), nextHopLength)));
+        buffer.skipBytes(nextHopLength + RESERVED);
 
         final ByteBuf nlri = buffer.slice();
-        parser.parseNlri(nlri, nextHop, builder);
+        parser.parseNlri(nlri, builder);
         return builder.build();
     }
 }
