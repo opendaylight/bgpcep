@@ -151,7 +151,7 @@ public class ParserTest {
     @Test
     public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
         final Notification open = new OpenBuilder().setMyAsNumber(100).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("20.20.20.20")).setVersion(
-                new ProtocolVersion((short) 4)).build();
+            new ProtocolVersion((short) 4)).build();
         ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(open, bytes);
         assertArrayEquals(openBMsg, ByteArray.getAllBytes(bytes));
@@ -220,7 +220,7 @@ public class ParserTest {
     @Test
     public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
         Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode()).setErrorSubcode(
-                BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
+            BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(notMsg, bytes);
         assertArrayEquals(notificationBMsg, ByteArray.subByte(bytes.array(),0,bytes.writerIndex()));
@@ -232,7 +232,7 @@ public class ParserTest {
         assertArrayEquals(new byte[] { 4, 9 }, ((Notify) m).getData());
 
         notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
-                BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
+            BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
 
         bytes.clear();
 
@@ -287,18 +287,18 @@ public class ParserTest {
         final List<BgpParameters> tlvs = Lists.newArrayList();
 
         tlvs.add(new BgpParametersBuilder().setCParameters(
-                new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                        new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
-                                LinkstateSubsequentAddressFamily.class).build()).build()).build());
+            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+                new MultiprotocolCapabilityBuilder().setAfi(LinkstateAddressFamily.class).setSafi(
+                    LinkstateSubsequentAddressFamily.class).build()).build()).build());
         tlvs.add(new BgpParametersBuilder().setCParameters(
-                new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                        new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
+            new MultiprotocolCaseBuilder().setMultiprotocolCapability(
+                new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build()).build()).build());
 
         final Map<BgpTableType, Boolean> tableTypes = Maps.newHashMap();
         tableTypes.put(t1, true);
         tableTypes.put(t2, true);
         final Open open = new OpenBuilder().setMyAsNumber(72).setHoldTimer(180).setBgpIdentifier(new Ipv4Address("172.20.160.170")).setVersion(
-                new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
+            new ProtocolVersion((short) 4)).setBgpParameters(tlvs).build();
 
         ByteBuf result = Unpooled.buffer();
         ParserTest.reg.serializeMessage(open, result);
