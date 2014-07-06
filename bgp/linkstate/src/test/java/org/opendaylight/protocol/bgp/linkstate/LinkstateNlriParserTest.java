@@ -10,12 +10,18 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import com.google.common.collect.Lists;
+
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.DomainIdentifier;
@@ -36,8 +42,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public class LinkstateNlriParserTest {
@@ -67,106 +86,131 @@ public class LinkstateNlriParserTest {
         (byte) 0x02, (byte) 0x00, (byte) 0x0F, (byte) 0x01, (byte) 0x08, (byte) 0x00, (byte) 0x01, (byte) 0x03, (byte) 0x01, (byte) 0x09,
         (byte) 0x00, (byte) 0x03, (byte) 0x10, (byte) 0xFF, (byte) 0xFF };
 
-    @Test
-    public void testNodeNlri() throws BGPParsingException {
+    private CLinkstateDestination dest;
+
+    private void setUp(final byte[] data) throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser(false);
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.nodeNlri), builder);
+        parser.parseNlri(Unpooled.copiedBuffer(data), builder);
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
-
         assertEquals(1, ls.getCLinkstateDestination().size());
 
-        final CLinkstateDestination dest = ls.getCLinkstateDestination().get(0);
+        this.dest = ls.getCLinkstateDestination().get(0);
+    }
 
-        assertEquals(NlriType.Node, dest.getNlriType());
-        assertNull(dest.getDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
-        assertEquals(BigInteger.ONE, dest.getIdentifier().getValue());
+    @Test
+    public void testNodeNlri() throws BGPParsingException {
+        setUp(this.nodeNlri);
 
-        final LocalNodeDescriptors nodeD = dest.getLocalNodeDescriptors();
+        assertEquals(NlriType.Node, this.dest.getNlriType());
+        assertNull(this.dest.getDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
+        assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
+
+        final LocalNodeDescriptors nodeD = this.dest.getLocalNodeDescriptors();
         assertEquals(new AsNumber(72L), nodeD.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
-                new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
-                        new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                                new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                                    (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
+            new IsisPseudonodeBuilder().setPsn((short) 5).setIsIsRouterIdentifier(
+                new IsIsRouterIdentifierBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x39 })).build()).build()).build(), nodeD.getCRouterIdentifier());
 
-        assertNull(dest.getRemoteNodeDescriptors());
+        assertNull(this.dest.getRemoteNodeDescriptors());
 
-        assertArrayEquals(this.nodeNlri, LinkstateNlriParser.serializeNlri(dest));
+        final ByteBuf buffer = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        assertArrayEquals(this.nodeNlri, ByteArray.readAllBytes(buffer));
     }
 
     @Test
     public void testLinkNlri() throws BGPParsingException {
-        final LinkstateNlriParser parser = new LinkstateNlriParser(false);
-        final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.linkNlri), builder);
+        setUp(this.linkNlri);
 
-        final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
+        assertEquals(NlriType.Link, this.dest.getNlriType());
+        assertNull(this.dest.getDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
+        assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
-        assertEquals(1, ls.getCLinkstateDestination().size());
-
-        final CLinkstateDestination dest = ls.getCLinkstateDestination().get(0);
-
-        assertEquals(NlriType.Link, dest.getNlriType());
-        assertNull(dest.getDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
-        assertEquals(BigInteger.ONE, dest.getIdentifier().getValue());
-
-        final LocalNodeDescriptors local = dest.getLocalNodeDescriptors();
+        final LocalNodeDescriptors local = this.dest.getLocalNodeDescriptors();
         assertEquals(new AsNumber(72L), local.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
         assertEquals(
-                new IsisNodeCaseBuilder().setIsisNode(
-                        new IsisNodeBuilder().setIsoSystemId(
-                                new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                                    (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
-        final RemoteNodeDescriptors remote = dest.getRemoteNodeDescriptors();
+            new IsisNodeCaseBuilder().setIsisNode(
+                new IsisNodeBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
+        final RemoteNodeDescriptors remote = this.dest.getRemoteNodeDescriptors();
         assertEquals(new AsNumber(72L), remote.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), remote.getDomainId());
         assertEquals(new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x00000040L).build()).build(),
-                remote.getCRouterIdentifier());
-        final LinkDescriptors ld = dest.getLinkDescriptors();
+            remote.getCRouterIdentifier());
+        final LinkDescriptors ld = this.dest.getLinkDescriptors();
         assertEquals("197.20.160.42", ld.getIpv4InterfaceAddress().getValue());
         assertEquals("197.20.160.40", ld.getIpv4NeighborAddress().getValue());
 
-        assertArrayEquals(this.linkNlri, LinkstateNlriParser.serializeNlri(dest));
+        final ByteBuf buffer = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        assertArrayEquals(this.linkNlri, ByteArray.readAllBytes(buffer));
     }
 
     @Test
     public void testPrefixNlri() throws BGPParsingException {
-        final LinkstateNlriParser parser = new LinkstateNlriParser(false);
-        final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        parser.parseNlri(Unpooled.copiedBuffer(this.prefixNlri), builder);
+        setUp(this.prefixNlri);
 
-        final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate();
+        assertEquals(NlriType.Ipv4Prefix, this.dest.getNlriType());
+        assertNull(this.dest.getDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
+        assertEquals(BigInteger.ONE, this.dest.getIdentifier().getValue());
 
-        assertEquals(1, ls.getCLinkstateDestination().size());
-
-        final CLinkstateDestination dest = ls.getCLinkstateDestination().get(0);
-
-        assertEquals(NlriType.Ipv4Prefix, dest.getNlriType());
-        assertNull(dest.getDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
-        assertEquals(BigInteger.ONE, dest.getIdentifier().getValue());
-
-        final LocalNodeDescriptors local = dest.getLocalNodeDescriptors();
+        final LocalNodeDescriptors local = this.dest.getLocalNodeDescriptors();
         assertEquals(new AsNumber(72L), local.getAsNumber());
         assertEquals(new DomainIdentifier(0x28282828L), local.getDomainId());
         assertEquals(
-                new IsisNodeCaseBuilder().setIsisNode(
-                        new IsisNodeBuilder().setIsoSystemId(
-                                new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-                                    (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
-        assertNull(dest.getRemoteNodeDescriptors());
+            new IsisNodeCaseBuilder().setIsisNode(
+                new IsisNodeBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+                        (byte) 0x42 })).build()).build(), local.getCRouterIdentifier());
+        assertNull(this.dest.getRemoteNodeDescriptors());
 
-        final PrefixDescriptors pd = dest.getPrefixDescriptors();
+        final PrefixDescriptors pd = this.dest.getPrefixDescriptors();
         assertEquals(OspfRouteType.External1, pd.getOspfRouteType());
         assertEquals(new TopologyIdentifier(15), pd.getMultiTopologyId());
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), pd.getIpReachabilityInformation().getIpv4Prefix());
 
-        assertArrayEquals(this.prefixNlri, LinkstateNlriParser.serializeNlri(dest));
+        final ByteBuf buffer = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(this.dest, buffer);
+        assertArrayEquals(this.prefixNlri, ByteArray.readAllBytes(buffer));
+    }
+
+    @Test
+    public void testSerializeAttribute() throws BGPParsingException {
+        final LinkstateNlriParser parser = new LinkstateNlriParser(true);
+        setUp(this.prefixNlri);
+        final List<CLinkstateDestination> dests = Lists.newArrayList( this.dest );
+        final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build();
+        final AdvertizedRoutes aroutes = new AdvertizedRoutesBuilder().setDestinationType(dlc).build();
+        final PathAttributes1 reach = new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder().setAdvertizedRoutes(aroutes).build()).build();
+
+        PathAttributes pa = new PathAttributesBuilder().addAugmentation(PathAttributes1.class, reach).build();
+
+        ByteBuf result = Unpooled.buffer();
+        parser.serializeAttribute(pa, result);
+        assertArrayEquals(this.prefixNlri, ByteArray.getAllBytes(result));
+
+        setUp(this.nodeNlri);
+        final List<CLinkstateDestination> destsU = Lists.newArrayList( this.dest );
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase dlcU =
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(destsU).build()).build();
+        final WithdrawnRoutes wroutes = new WithdrawnRoutesBuilder().setDestinationType(dlcU).build();
+        final PathAttributes2 unreach = new PathAttributes2Builder().setMpUnreachNlri(new MpUnreachNlriBuilder().setWithdrawnRoutes(wroutes).build()).build();
+
+        pa = new PathAttributesBuilder().addAugmentation(PathAttributes2.class, unreach).build();
+
+        result = Unpooled.buffer();
+        parser.serializeAttribute(pa, result);
+        assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
     }
 }
