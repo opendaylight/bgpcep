@@ -8,13 +8,15 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.primitives.UnsignedBytes;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -22,7 +24,6 @@ import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.ParameterRegistry;
-import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -64,22 +65,13 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * Serializes given BGP Open message to byte array, without the header.
      *
      * @param msg BGP Open message to be serialized.
-     * @return BGP Open message converted to byte array
+     * @param bytes ByteBuf where the message will be serialized
      */
     @Override
-    public void serializeMessage(final Notification msg, ByteBuf bytes) {
-        if (msg == null) {
-            throw new IllegalArgumentException("BGPOpen message cannot be null");
-        }
+    public void serializeMessage(final Notification msg, final ByteBuf bytes) {
+        Preconditions.checkArgument(msg != null, "BGP Open message cannot be null");
         LOG.trace("Started serializing open message: {}", msg);
         final Open open = (Open) msg;
-
-        final ByteBuf paramsBuffer = Unpooled.buffer();
-        if (open.getBgpParameters() != null) {
-            for (final BgpParameters param : open.getBgpParameters()) {
-                this.reg.serializeParameter(param, paramsBuffer);
-            }
-        }
         final ByteBuf msgBody = Unpooled.buffer();
 
         msgBody.writeByte(BGP_VERSION);
@@ -93,11 +85,17 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         msgBody.writeShort(open.getHoldTimer());
         msgBody.writeBytes(Ipv4Util.bytesForAddress(open.getBgpIdentifier()));
 
+        final ByteBuf paramsBuffer = Unpooled.buffer();
+        if (open.getBgpParameters() != null) {
+            for (final BgpParameters param : open.getBgpParameters()) {
+                this.reg.serializeParameter(param, paramsBuffer);
+            }
+        }
         msgBody.writeByte(paramsBuffer.writerIndex());
         msgBody.writeBytes(paramsBuffer);
 
-        MessageUtil.formatMessage(TYPE, msgBody, bytes);
         LOG.trace("Open message serialized to: {}", ByteBufUtil.hexDump(bytes));
+        MessageUtil.formatMessage(TYPE, msgBody, bytes);
     }
 
     /**
@@ -109,15 +107,13 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public Open parseMessageBody(final ByteBuf body, final int messageLength) throws BGPDocumentedException {
-        if (body == null) {
-            throw new IllegalArgumentException("Byte array cannot be null.");
-        }
-        LOG.trace("Started parsing of open message: {}", Arrays.toString(ByteArray.getAllBytes(body)));
+        Preconditions.checkArgument(body != null, "Byte array cannot be null.");
+        LOG.trace("Started parsing of open message: {}", ByteBufUtil.hexDump(body));
 
         if (body.readableBytes() < MIN_MSG_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
         }
-        int version = UnsignedBytes.toInt(body.readByte());
+        int version = body.readUnsignedByte();
         if (version != BGP_VERSION) {
             throw new BGPDocumentedException("BGP Protocol version " + version + " not supported.", BGPError.VERSION_NOT_SUPPORTED);
         }
@@ -128,30 +124,30 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         }
         Ipv4Address bgpId = null;
         try {
-            bgpId = Ipv4Util.addressForBytes(ByteArray.readBytes(body, BGP_ID_SIZE));
+            bgpId = Ipv4Util.addressForByteBuf(body);
         } catch (final IllegalArgumentException e) {
             throw new BGPDocumentedException("BGP Identifier is not a valid IPv4 Address", BGPError.BAD_BGP_ID, e);
         }
-        final int optLength = UnsignedBytes.toInt(body.readByte());
+        final int optLength = body.readUnsignedByte();
 
-        final List<BgpParameters> optParams = Lists.newArrayList();
+        final List<BgpParameters> optParams = new ArrayList<>();
         if (optLength > 0) {
             fillParams(body.slice(body.readerIndex(), optLength), optParams);
         }
         LOG.debug("BGP Open message was parsed: AS = {}, holdTimer = {}, bgpId = {}, optParams = {}", as, holdTime, bgpId, optParams);
         return new OpenBuilder().setMyAsNumber(as.getValue().intValue()).setHoldTimer(holdTime).setBgpIdentifier(bgpId).setBgpParameters(
-                optParams).build();
+            optParams).build();
     }
 
     private void fillParams(final ByteBuf buffer, final List<BgpParameters> params) throws BGPDocumentedException {
-        Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
-        LOG.trace("Started parsing of BGP parameter: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
-        while (buffer.readableBytes() != 0) {
+        Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Byte array cannot be null or empty.");
+        LOG.trace("Started parsing of BGP parameter: {}", ByteBufUtil.hexDump(buffer));
+        while (buffer.isReadable()) {
             if (buffer.readableBytes() <= 2) {
                 throw new BGPDocumentedException("Malformed parameter encountered (" + buffer.readableBytes() + " bytes left)", BGPError.OPT_PARAM_NOT_SUPPORTED);
             }
-            final int paramType = UnsignedBytes.toInt(buffer.readByte());
-            final int paramLength = UnsignedBytes.toInt(buffer.readByte());
+            final int paramType = buffer.readUnsignedByte();
+            final int paramLength = buffer.readUnsignedByte();
             final ByteBuf paramBody = buffer.slice(buffer.readerIndex(), paramLength);
 
             final BgpParameters param;
