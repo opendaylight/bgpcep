@@ -31,15 +31,4 @@ public class BGPParsingException extends Exception {
     public BGPParsingException(final String message, final Exception cause) {
         super(message, cause);
     }
-
-    /**
-     *
-     * @return error message.
-     *
-     * @deprecated Use getMessage() instead.
-     */
-    @Deprecated
-    public String getError() {
-        return this.getMessage();
-    }
 }
