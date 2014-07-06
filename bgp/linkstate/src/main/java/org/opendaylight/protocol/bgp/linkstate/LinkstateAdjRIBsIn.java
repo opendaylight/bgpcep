@@ -10,10 +10,14 @@ package org.opendaylight.protocol.bgp.linkstate;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.LinkstateRoutes;
@@ -58,8 +62,7 @@ import org.slf4j.LoggerFactory;
 
 final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, LinkstateRoute> {
 
-    private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends
-            RIBEntryData<CLinkstateDestination, LinkstateRoute> {
+    private abstract static class LinkstateRIBEntryData<A extends LinkStateAttribute> extends RIBEntryData<CLinkstateDestination, LinkstateRoute> {
         private final A lsattr;
 
         protected LinkstateRIBEntryData(final PathAttributes attributes, final A lsattr) {
@@ -100,8 +103,10 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
     @Override
     public InstanceIdentifier<LinkstateRoute> identifierForKey(final InstanceIdentifier<Tables> basePath, final CLinkstateDestination key) {
+        final ByteBuf keyBuf = Unpooled.buffer();
+        LinkstateNlriParser.serializeNlri(key, keyBuf);
         return basePath.builder().child(LinkstateRoutes.class).child(LinkstateRoute.class,
-                new LinkstateRouteKey(LinkstateNlriParser.serializeNlri(key))).toInstance();
+                new LinkstateRouteKey(ByteArray.readAllBytes(keyBuf))).toInstance();
     }
 
     @Override
