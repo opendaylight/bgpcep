@@ -8,12 +8,11 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 
 import io.netty.buffer.ByteBuf;
-
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -46,8 +45,8 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
     public BgpParameters parseParameter(final ByteBuf buffer) throws BGPParsingException, BGPDocumentedException {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() != 0, "Byte array cannot be null or empty.");
         LOG.trace("Started parsing of BGP Capability: {}", Arrays.toString(ByteArray.getAllBytes(buffer)));
-        final int capCode = UnsignedBytes.toInt(buffer.readByte());
-        final int capLength = UnsignedBytes.toInt(buffer.readByte());
+        final int capCode = buffer.readUnsignedByte();
+        final int capLength = buffer.readUnsignedByte();
         final ByteBuf paramBody = buffer.slice(buffer.readerIndex(), capLength);
         final CParameters ret = this.reg.parseCapability(capCode, paramBody);
         if (ret == null) {
@@ -63,14 +62,12 @@ public final class CapabilityParameterParser implements ParameterParser, Paramet
 
         LOG.trace("Started serializing BGP Capability: {}", cap);
 
-        ByteBuf bytes = Unpooled.buffer();
+        final ByteBuf bytes = Unpooled.buffer();
         this.reg.serializeCapability(cap,bytes);
         if (bytes == null) {
             throw new IllegalArgumentException("Unhandled capability class" + cap.getImplementedInterface());
         }
-
         LOG.trace("BGP capability serialized to: {}", ByteBufUtil.hexDump(bytes));
-
         ParameterUtil.formatParameter(TYPE, bytes,byteAggregator);
     }
 }
