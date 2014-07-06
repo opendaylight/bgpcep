@@ -12,17 +12,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.net.InetAddresses;
-import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
-
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -93,8 +90,6 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     private static final int EXTENDED_ROUTE_TAG_LENGTH = 8;
 
-    private static final int SRLG_LENGTH = 4;
-
     private static final int UNRESERVED_BW_COUNT = 8;
 
     private static final int BANDWIDTH_LENGTH = 4;
@@ -108,6 +103,8 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     // MPLS protection mask bits
     private static final int LDP_BIT = 7;
     private static final int RSVP_BIT = 6;
+
+    private static final int UP_DOWN_BIT = 7;
 
     private NlriType getNlriType(final PathAttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
@@ -150,12 +147,13 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         /*
          * e.g. IS-IS Area Identifier TLV can occur multiple times
          */
-        final Multimap<Integer, byte[]> map = HashMultimap.create();
+        final Multimap<Integer, ByteBuf> map = HashMultimap.create();
         while (buffer.isReadable()) {
             final int type = buffer.readUnsignedShort();
             final int length = buffer.readUnsignedShort();
-            final byte[] value = ByteArray.readBytes(buffer, length);
+            final ByteBuf value = buffer.slice(buffer.readerIndex(), length);
             map.put(type, value);
+            buffer.skipBytes(length);
         }
         final LinkstatePathAttributeBuilder builder = new LinkstatePathAttributeBuilder();
 
@@ -180,94 +178,92 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
      * @param attributes key is the tlv type and value is the value of the tlv
      * @return {@link LinkStateAttribute}
      */
-    private static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, byte[]> attributes) {
+    private static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes) {
         final LinkAttributesBuilder builder = new LinkAttributesBuilder();
-        for (final Entry<Integer, byte[]> entry : attributes.entries()) {
+        for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             LOG.trace("Link attribute TLV {}", entry.getKey());
             final int key = entry.getKey();
-            final byte[] value = entry.getValue();
+            final ByteBuf value = entry.getValue();
             switch (key) {
             case TlvCode.LOCAL_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier lipv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
+                final Ipv4RouterIdentifier lipv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
                 builder.setLocalIpv4RouterId(lipv4);
                 LOG.debug("Parsed IPv4 Router-ID of local node: {}", lipv4);
                 break;
             case TlvCode.LOCAL_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier lipv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
+                final Ipv6RouterIdentifier lipv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
                 builder.setLocalIpv6RouterId(lipv6);
                 LOG.debug("Parsed IPv6 Router-ID of local node: {}", lipv6);
                 break;
             case TlvCode.REMOTE_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier ripv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
+                final Ipv4RouterIdentifier ripv4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
                 builder.setRemoteIpv4RouterId(ripv4);
                 LOG.debug("Parsed IPv4 Router-ID of remote node: {}", ripv4);
                 break;
             case TlvCode.REMOTE_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier ripv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
+                final Ipv6RouterIdentifier ripv6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
                 builder.setRemoteIpv6RouterId(ripv6);
                 LOG.debug("Parsed IPv6 Router-ID of remote node: {}", ripv6);
                 break;
             case TlvCode.ADMIN_GROUP:
-                builder.setAdminGroup(new AdministrativeGroup(ByteArray.bytesToLong(value)));
+                builder.setAdminGroup(new AdministrativeGroup(value.readUnsignedInt()));
                 LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
                 break;
             case TlvCode.MAX_BANDWIDTH:
-                builder.setMaxLinkBandwidth(new Bandwidth(value));
+                builder.setMaxLinkBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
                 LOG.debug("Parsed Max Bandwidth {}", builder.getMaxLinkBandwidth());
                 break;
             case TlvCode.MAX_RESERVABLE_BANDWIDTH:
-                builder.setMaxReservableBandwidth(new Bandwidth(value));
+                builder.setMaxReservableBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
                 LOG.debug("Parsed Max Reservable Bandwidth {}", builder.getMaxReservableBandwidth());
                 break;
             case TlvCode.UNRESERVED_BANDWIDTH:
-                int index = 0;
-                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.link.state.UnreservedBandwidth> unreservedBandwidth = Lists.newArrayList();
+                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.link.state.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
                 for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
-                    final byte[] v = ByteArray.subByte(value, index, BANDWIDTH_LENGTH);
-                    unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(v)).setPriority((short) i).build());
-                    index += BANDWIDTH_LENGTH;
+                    final ByteBuf v = value.slice(value.readerIndex(), BANDWIDTH_LENGTH);
+                    unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(new Bandwidth(ByteArray.readAllBytes(v))).setPriority((short) i).build());
+                    value.skipBytes(BANDWIDTH_LENGTH);
                 }
                 builder.setUnreservedBandwidth(unreservedBandwidth);
                 LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
                 break;
             case TlvCode.TE_METRIC:
-                builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(value)));
+                builder.setTeMetric(new TeMetric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
                 LOG.debug("Parsed Metric {}", builder.getTeMetric());
                 break;
             case TlvCode.LINK_PROTECTION_TYPE:
-                final LinkProtectionType lpt = LinkProtectionType.forValue(UnsignedBytes.toInt(value[1]));
+                final int l = value.readShort();
+                final LinkProtectionType lpt = LinkProtectionType.forValue(l);
                 if (lpt == null) {
-                    LOG.warn("Link Protection Type not recognized: {}", UnsignedBytes.toInt(value[1]));
+                    LOG.warn("Link Protection Type not recognized: {}", l);
                     break;
                 }
                 builder.setLinkProtection(lpt);
                 LOG.debug("Parsed Link Protection Type {}", lpt);
                 break;
             case TlvCode.MPLS_PROTOCOL:
-                final boolean[] bits = ByteArray.parseBits(value[0]);
-                builder.setMplsProtocol(new MplsProtocolMask(bits[0], bits[1]));
+                final BitSet bits = BitSet.valueOf(ByteArray.readAllBytes(value));
+                builder.setMplsProtocol(new MplsProtocolMask(bits.get(LDP_BIT), bits.get(RSVP_BIT)));
                 LOG.debug("Parsed MPLS Protocols: {}", builder.getMplsProtocol());
                 break;
             case TlvCode.METRIC:
-                builder.setMetric(new Metric(ByteArray.bytesToLong(value)));
+                // length can 3, 2 or 1
+                builder.setMetric(new Metric(ByteArray.bytesToLong(ByteArray.readAllBytes(value))));
                 LOG.debug("Parsed Metric {}", builder.getMetric());
                 break;
             case TlvCode.SHARED_RISK_LINK_GROUP:
-                int i = 0;
-                final List<SrlgId> sharedRiskLinkGroups = Lists.newArrayList();
-                while (i != value.length) {
-                    sharedRiskLinkGroups.add(new SrlgId(ByteArray.bytesToLong(ByteArray.subByte(value, i, SRLG_LENGTH))));
-                    i += SRLG_LENGTH;
+                final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
+                while (value.isReadable()) {
+                    sharedRiskLinkGroups.add(new SrlgId(value.readUnsignedInt()));
                 }
                 builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
                 LOG.debug("Parsed Shared Risk Link Groups {}", Arrays.toString(sharedRiskLinkGroups.toArray()));
                 break;
             case TlvCode.LINK_OPAQUE:
-                final byte[] opaque = value;
-                LOG.debug("Parsed Opaque value : {}", Arrays.toString(opaque));
+                LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
                 break;
             case TlvCode.LINK_NAME:
-                final String name = new String(value, Charsets.US_ASCII);
+                final String name = new String(ByteArray.readAllBytes(value), Charsets.US_ASCII);
                 builder.setLinkName(name);
                 LOG.debug("Parsed Link Name : {}", name);
                 break;
@@ -285,49 +281,47 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
      * @param attributes key is the tlv type and value is the value of the tlv
      * @return {@link LinkStateAttribute}
      */
-    private static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, byte[]> attributes) {
+    private static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes) {
         final List<TopologyIdentifier> topologyMembership = Lists.newArrayList();
         final List<IsisAreaIdentifier> areaMembership = Lists.newArrayList();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
-        for (final Entry<Integer, byte[]> entry : attributes.entries()) {
+        for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             final int key = entry.getKey();
-            final byte[] value = entry.getValue();
+            final ByteBuf value = entry.getValue();
             LOG.trace("Node attribute TLV {}", key);
             switch (key) {
             case TlvCode.MULTI_TOPOLOGY_ID:
-                int i = 0;
-                while (i != value.length) {
-                    final TopologyIdentifier topId = new TopologyIdentifier(ByteArray.bytesToInt(ByteArray.subByte(value, i, 2)) & 0x3fff);
+                while (value.isReadable()) {
+                    final TopologyIdentifier topId = new TopologyIdentifier(value.readUnsignedShort() & LinkstateNlriParser.TOPOLOGY_ID_OFFSET);
                     topologyMembership.add(topId);
                     LOG.debug("Parsed Topology Identifier: {}", topId);
-                    i += 2;
                 }
                 break;
             case TlvCode.NODE_FLAG_BITS:
-                final boolean[] flags = ByteArray.parseBits(value[0]);
-                builder.setNodeFlags(new NodeFlagBits(flags[0], flags[1], flags[2], flags[3]));
-                LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.", flags[0], flags[1],
-                        flags[2], flags[3]);
+                final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
+                builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT)));
+                LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
+                    flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
                 break;
             case TlvCode.NODE_OPAQUE:
-                LOG.debug("Ignoring opaque value: {}.", Arrays.toString(value));
+                LOG.debug("Ignoring opaque value: {}.", ByteBufUtil.hexDump(value));
                 break;
             case TlvCode.DYNAMIC_HOSTNAME:
-                builder.setDynamicHostname(new String(value, Charsets.US_ASCII));
+                builder.setDynamicHostname(new String(ByteArray.readAllBytes(value), Charsets.US_ASCII));
                 LOG.debug("Parsed Node Name {}", builder.getDynamicHostname());
                 break;
             case TlvCode.ISIS_AREA_IDENTIFIER:
-                final IsisAreaIdentifier ai = new IsisAreaIdentifier(value);
+                final IsisAreaIdentifier ai = new IsisAreaIdentifier(ByteArray.readAllBytes(value));
                 areaMembership.add(ai);
                 LOG.debug("Parsed AreaIdentifier {}", ai);
                 break;
             case TlvCode.LOCAL_IPV4_ROUTER_ID:
-                final Ipv4RouterIdentifier ip4 = new Ipv4RouterIdentifier(Ipv4Util.addressForBytes(value));
+                final Ipv4RouterIdentifier ip4 = new Ipv4RouterIdentifier(Ipv4Util.addressForByteBuf(value));
                 builder.setIpv4RouterId(ip4);
                 LOG.debug("Parsed IPv4 Router Identifier {}", ip4);
                 break;
             case TlvCode.LOCAL_IPV6_ROUTER_ID:
-                final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForBytes(value));
+                final Ipv6RouterIdentifier ip6 = new Ipv6RouterIdentifier(Ipv6Util.addressForByteBuf(value));
                 builder.setIpv6RouterId(ip6);
                 LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
                 break;
@@ -347,61 +341,57 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
      * @param attributes key is the tlv type and value are the value bytes of the tlv
      * @return {@link LinkStateAttribute}
      */
-    private static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, byte[]> attributes) {
+    private static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes) {
         final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
         final List<RouteTag> routeTags = Lists.newArrayList();
         final List<ExtendedRouteTag> exRouteTags = Lists.newArrayList();
-        for (final Entry<Integer, byte[]> entry : attributes.entries()) {
+        for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             final int key = entry.getKey();
-            final byte[] value = entry.getValue();
+            final ByteBuf value = entry.getValue();
             LOG.trace("Prefix attribute TLV {}", key);
             switch (key) {
             case TlvCode.IGP_FLAGS:
-                final boolean[] flags = ByteArray.parseBits(value[0]);
-                final boolean upDownBit = flags[0];
+                final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
+                final boolean upDownBit = flags.get(UP_DOWN_BIT);
                 builder.setIgpBits(new IgpBitsBuilder().setUpDown(new UpDown(upDownBit)).build());
                 LOG.debug("Parsed IGP flag (up/down bit) : {}", upDownBit);
                 break;
             case TlvCode.ROUTE_TAG:
-                int offset = 0;
-                while (offset != value.length) {
-                    final RouteTag routeTag = new RouteTag(ByteArray.subByte(value, offset, ROUTE_TAG_LENGTH));
+                while (value.isReadable()) {
+                    final RouteTag routeTag = new RouteTag(ByteArray.readBytes(value, ROUTE_TAG_LENGTH));
                     routeTags.add(routeTag);
                     LOG.debug("Parsed Route Tag: {}", routeTag);
-                    offset += ROUTE_TAG_LENGTH;
                 }
                 break;
             case TlvCode.EXTENDED_ROUTE_TAG:
-                offset = 0;
-                while (offset != value.length) {
-                    final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.subByte(value, offset, EXTENDED_ROUTE_TAG_LENGTH));
+                while (value.isReadable()) {
+                    final ExtendedRouteTag exRouteTag = new ExtendedRouteTag(ByteArray.readBytes(value, EXTENDED_ROUTE_TAG_LENGTH));
                     exRouteTags.add(exRouteTag);
                     LOG.debug("Parsed Extended Route Tag: {}", exRouteTag);
-                    offset += EXTENDED_ROUTE_TAG_LENGTH;
                 }
                 break;
             case TlvCode.PREFIX_METRIC:
-                final IgpMetric metric = new IgpMetric(ByteArray.bytesToLong(value));
+                final IgpMetric metric = new IgpMetric(value.readUnsignedInt());
                 builder.setPrefixMetric(metric);
                 LOG.debug("Parsed Metric: {}", metric);
                 break;
             case TlvCode.FORWARDING_ADDRESS:
                 IpAddress fwdAddress = null;
-                switch (value.length) {
+                switch (value.readableBytes()) {
                 case Ipv4Util.IP4_LENGTH:
-                    fwdAddress = new IpAddress(Ipv4Util.addressForBytes(value));
+                    fwdAddress = new IpAddress(Ipv4Util.addressForByteBuf(value));
                     break;
                 case Ipv6Util.IPV6_LENGTH:
-                    fwdAddress = new IpAddress(Ipv6Util.addressForBytes(value));
+                    fwdAddress = new IpAddress(Ipv6Util.addressForByteBuf(value));
                     break;
                 default:
-                    LOG.debug("Ignoring unsupported forwarding address length {}", value.length);
+                    LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
                 }
                 builder.setOspfForwardingAddress(fwdAddress);
                 LOG.debug("Parsed FWD Address: {}", fwdAddress);
                 break;
             case TlvCode.PREFIX_OPAQUE:
-                LOG.debug("Parsed Opaque value: {}, not preserving it", ByteArray.bytesToHexString(value));
+                LOG.debug("Parsed Opaque value: {}, not preserving it", ByteBufUtil.hexDump(value));
                 break;
             default:
                 LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
@@ -558,7 +548,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             BitSet igpBit = new BitSet();
             Boolean bit = prefixAtrributes.getIgpBits().getUpDown().isUpDown();
             if (bit != null) {
-                igpBit.set(7, bit);
+                igpBit.set(UP_DOWN_BIT, bit);
             }
             writeTLV(TlvCode.IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.toByteArray()), byteAggregator);
         }
@@ -597,7 +587,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
      * @param value TLV value
      * @param byteAggregator final ByteBuf where the tlv should be serialized
      */
-    private static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
+    protected static void writeTLV(final int type, final ByteBuf value, final ByteBuf byteAggregator){
         byteAggregator.writeShort(type);
         byteAggregator.writeShort(value.writerIndex());
         byteAggregator.writeBytes(value);
