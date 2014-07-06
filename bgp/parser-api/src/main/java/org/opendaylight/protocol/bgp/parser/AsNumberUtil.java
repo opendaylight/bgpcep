@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 public final class AsNumberUtil {
 
     private AsNumberUtil() {
-        throw new UnsupportedOperationException("Utility class should never be instantiated");
     }
 
     /**
