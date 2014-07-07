@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeMedium;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -89,7 +88,7 @@ public class Stateful02LspObjectParser extends AbstractObjectWithTlvsParser<Tlvs
         final ByteBuf body = Unpooled.buffer();
         final PlspId plsp = specObj.getPlspId();
         Preconditions.checkArgument(plsp != null, "PLSP-ID not present");
-        body.writeMedium(plsp.getValue().intValue() << 4);
+        writeMedium(plsp.getValue().intValue() << 4, body);
 
         BitSet flags = new BitSet(2 * Byte.SIZE);
         if (specObj.isDelegate() != null && specObj.isDelegate()) {

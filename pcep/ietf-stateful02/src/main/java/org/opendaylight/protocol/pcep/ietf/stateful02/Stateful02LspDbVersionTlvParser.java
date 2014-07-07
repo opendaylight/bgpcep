@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedLong;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.math.BigInteger;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -29,6 +28,8 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 
     public static final int TYPE = 23;
 
+    private static final int CONTENT_LENGTH = Long.SIZE / Byte.SIZE;
+
     @Override
     public LspDbVersion parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
         if (buffer == null) {
@@ -39,7 +40,11 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkNotNull(tlv, "LspDbVersionTlv is mandatory.");
-        TlvUtil.formatTlv(TYPE, Unpooled.copyLong(((LspDbVersion) tlv).getVersion().longValue()), buffer);
+        Preconditions.checkArgument(tlv != null && tlv instanceof LspDbVersion, "LspDbVersionTlv is mandatory.");
+        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
+        final LspDbVersion ldvTlv = (LspDbVersion) tlv;
+        Preconditions.checkArgument(ldvTlv.getVersion() != null, "Version is mandatory.");
+        writeUnsignedLong(ldvTlv.getVersion(), body);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

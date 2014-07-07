@@ -7,6 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful02;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -77,14 +83,17 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
             flags.set(NOT_GUILTY_FLAGS_OFFSET, f.isNotGuilty());
         }
         final IpAddress node = rsvp.getNode();
+        Preconditions.checkArgument(node != null, "Node is mandatory.");
         if (node.getIpv4Address() != null) {
-            body.writeBytes(Ipv4Util.bytesForAddress(node.getIpv4Address()));
+            writeIpv4Address(node.getIpv4Address(), body);
         } else {
-            body.writeBytes(Ipv6Util.bytesForAddress(node.getIpv6Address()));
+            writeIpv6Address(node.getIpv6Address(), body);
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
-        body.writeByte(rsvp.getCode());
-        body.writeShort(rsvp.getValue().shortValue());
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");
+        writeUnsignedByte(rsvp.getCode(), body);
+        Preconditions.checkArgument(rsvp.getValue() != null, "Value is mandatory.");
+        writeUnsignedShort(rsvp.getValue(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }
