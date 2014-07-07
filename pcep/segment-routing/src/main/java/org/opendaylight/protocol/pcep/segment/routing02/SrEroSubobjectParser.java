@@ -50,6 +50,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
     private static final int FLAGS_OFFSET = 1;
     private static final int HEADER_LENGTH = FLAGS_OFFSET + 1;
     private static final int MINIMAL_LENGTH = SID_LENGTH + HEADER_LENGTH;
+    private static final int SID_TYPE_BITS_OFFSET = 4;
 
     private static final int M_FLAG_POSITION = 7;
     private static final int C_FLAG_POSITION = 6;
@@ -64,7 +65,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
 
         final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
         final ByteBuf body = Unpooled.buffer(MINIMAL_LENGTH);
-        writeUnsignedByte((short)(srEroSubobject.getSidType().getIntValue() << 4), body);
+        writeUnsignedByte((short)(srEroSubobject.getSidType().getIntValue() << SID_TYPE_BITS_OFFSET), body);
 
         final Flags flags = srEroSubobject.getFlags();
         final BitSet bits = new BitSet();
@@ -116,7 +117,7 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
                     + ";");
         }
         final SrEroTypeBuilder srEroSubobjectBuilder = new SrEroTypeBuilder();
-        final int sidTypeByte = buffer.readByte() >> 4;
+        final int sidTypeByte = buffer.readByte() >> SID_TYPE_BITS_OFFSET;
         final SidType sidType = SidType.forValue(sidTypeByte);
         srEroSubobjectBuilder.setSidType(sidType);
 

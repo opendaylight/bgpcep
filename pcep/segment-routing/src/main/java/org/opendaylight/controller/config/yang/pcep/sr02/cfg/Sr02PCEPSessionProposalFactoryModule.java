@@ -19,6 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Sr02PCEPSessionProposalFactoryModule extends org.opendaylight.controller.config.yang.pcep.sr02.cfg.AbstractSr02PCEPSessionProposalFactoryModule {
+
+    private static final String VALUE_IS_NOT_SET = "value is not set.";
+
+    private static final int DEADTIMER_KEEPALIVE_RATIO = 4;
+
     private static final Logger LOG = LoggerFactory.getLogger(Sr02PCEPSessionProposalFactoryModule.class);
 
     public Sr02PCEPSessionProposalFactoryModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -31,22 +36,22 @@ public class Sr02PCEPSessionProposalFactoryModule extends org.opendaylight.contr
 
     @Override
     public void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", activeJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", initiatedJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getActive(), VALUE_IS_NOT_SET, activeJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getInitiated(), VALUE_IS_NOT_SET, initiatedJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), VALUE_IS_NOT_SET, deadTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), VALUE_IS_NOT_SET, keepAliveTimerValueJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
                     keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
+            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != DEADTIMER_KEEPALIVE_RATIO)) {
                 LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
             }
         }
         if (getActive() && !getStateful()) {
             setStateful(true);
         }
-        JmxAttributeValidationException.checkNotNull(getStateful(), "value is not set.", statefulJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getSrCapable(), "value is not set.", srCapableJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getStateful(), VALUE_IS_NOT_SET, statefulJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getSrCapable(), VALUE_IS_NOT_SET, srCapableJmxAttribute);
     }
 
     @Override

@@ -33,11 +33,9 @@ public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObject
         super.addTlv(builder, tlv);
         final Tlvs7Builder tlvBuilder = new Tlvs7Builder();
         if (builder.getTlvs() != null) {
-            if (builder.getTlvs().getAugmentation(Tlvs7.class) != null) {
-                final Tlvs7 t = builder.getTlvs().getAugmentation(Tlvs7.class);
-                if (t.getPathSetupType() != null) {
-                    tlvBuilder.setPathSetupType(t.getPathSetupType());
-                }
+            final Tlvs7 tlvs = builder.getTlvs().getAugmentation(Tlvs7.class);
+            if (tlvs != null && tlvs.getPathSetupType() != null) {
+                tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
             }
         }
         if (tlv instanceof PathSetupType) {
