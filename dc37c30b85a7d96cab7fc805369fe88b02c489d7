@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_6007151a",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-07T07:53:37Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "dc37c30b85a7d96cab7fc805369fe88b02c489d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
