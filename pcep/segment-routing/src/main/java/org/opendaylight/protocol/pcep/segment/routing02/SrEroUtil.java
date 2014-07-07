@@ -14,20 +14,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject;
 
-public class SrEroUtil {
+public final class SrEroUtil {
 
     private static final int MPLS_LABEL_MIN_VALUE = 16;
 
+    private SrEroUtil() {
+    }
+
     protected static PCEPErrors validateSrEroSubobjects(final Ero ero) {
-        if(ero.getSubobject() == null || ero.getSubobject().isEmpty()) {
+        if (ero.getSubobject() == null || ero.getSubobject().isEmpty()) {
             return null;
         }
-        for(final Subobject subobject : ero.getSubobject()) {
-            if(!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
+        for (final Subobject subobject : ero.getSubobject()) {
+            if (!(subobject.getSubobjectType() instanceof SrEroSubobject)) {
                 return PCEPErrors.NON_IDENTICAL_ERO_SUBOBJECTS;
             }
-            final SrEroSubobject srEroSubobject  = (SrEroSubobject) subobject.getSubobjectType();
-            if(srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
+            final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
+            if (srEroSubobject.getFlags().isM() && srEroSubobject.getSid() < MPLS_LABEL_MIN_VALUE) {
                 return PCEPErrors.BAD_LABEL_VALUE;
             }
         }
@@ -35,8 +38,8 @@ public class SrEroUtil {
     }
 
     protected static boolean isPst(final PathSetupTypeTlv tlv) {
-        if(tlv != null && tlv.getPathSetupType() != null) {
-            if(tlv.getPathSetupType().isPst()) {
+        if (tlv != null && tlv.getPathSetupType() != null) {
+            if (tlv.getPathSetupType().isPst()) {
                 return true;
             }
         }

@@ -38,7 +38,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
     @Override
     protected void serializeReply(Replies reply, ByteBuf buffer) {
         final Rp rp = reply.getRp();
-        if(isSegmentRoutingPath(rp)) {
+        if (isSegmentRoutingPath(rp)) {
             serializeObject(rp, buffer);
             if (reply.getResult() != null) {
                 if (reply.getResult() instanceof SuccessCase) {
@@ -61,7 +61,7 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
             return null;
         }
         final Rp rp = (Rp) objects.get(0);
-        if(isSegmentRoutingPath(rp)) {
+        if (isSegmentRoutingPath(rp)) {
             objects.remove(0);
             Result res = null;
             if (!objects.isEmpty()) {
@@ -71,10 +71,10 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
                     final PathsBuilder pBuilder = new PathsBuilder();
                     while (!objects.isEmpty()) {
                         final Object object = objects.get(0);
-                        if(object instanceof Ero) {
+                        if (object instanceof Ero) {
                             final Ero ero = (Ero) object;
                             final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
-                            if(error != null) {
+                            if (error != null) {
                                 errors.add(createErrorMsg(error));
                                 return null;
                             } else {
@@ -93,8 +93,9 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
     }
 
     private boolean isSegmentRoutingPath(final Rp rp) {
-        if(rp.getTlvs() != null) {
-            return SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs1.class)) || SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs2.class));
+        if (rp.getTlvs() != null) {
+            return SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs1.class))
+                    || SrEroUtil.isPst(rp.getTlvs().getAugmentation(Tlvs2.class));
         }
         return false;
     }

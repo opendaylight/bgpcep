@@ -54,11 +54,11 @@ public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectPars
         super.serializeTlvs(tlvs, body);
         if (tlvs.getAugmentation(Tlvs1.class) != null) {
             serializePathSetupType(tlvs.getAugmentation(Tlvs1.class), body);
-        } else if(tlvs.getAugmentation(Tlvs2.class) != null) {
+        } else if (tlvs.getAugmentation(Tlvs2.class) != null) {
             serializePathSetupType(tlvs.getAugmentation(Tlvs2.class), body);
-        } else if(tlvs.getAugmentation(Tlvs3.class) != null) {
+        } else if (tlvs.getAugmentation(Tlvs3.class) != null) {
             serializePathSetupType(tlvs.getAugmentation(Tlvs3.class), body);
-        } else if(tlvs.getAugmentation(Tlvs4.class) != null) {
+        } else if (tlvs.getAugmentation(Tlvs4.class) != null) {
             serializePathSetupType(tlvs.getAugmentation(Tlvs4.class), body);
         }
     }
