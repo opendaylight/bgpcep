@@ -28,8 +28,10 @@ public class SegmentRouting02SessionProposalFactory extends Stateful07SessionPro
     @Override
     protected void addTlvs(InetSocketAddress address, TlvsBuilder builder) {
         super.addTlvs(address, builder);
-        if(this.isSegmentRoutingCapable) {
-            builder.addAugmentation(Tlvs1.class, new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short)0).build()).build());
+        if (this.isSegmentRoutingCapable) {
+            builder.addAugmentation(Tlvs1.class,
+                    new Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder().setMsd((short) 0).build())
+                            .build());
         }
     }
 

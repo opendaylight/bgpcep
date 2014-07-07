@@ -8,8 +8,14 @@
 
 package org.opendaylight.protocol.pcep.segment.routing02;
 
+import static com.google.common.primitives.UnsignedBytes.checkedCast;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
@@ -18,6 +24,7 @@ import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.ByteBufWriteUtil;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -52,47 +59,49 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
 
     @Override
     public void serializeSubobject(Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrEroSubobject, "Unknown subobject instance. Passed %s. Needed SrEroSubobject.", subobject.getSubobjectType().getClass());
+        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrEroSubobject,
+                "Unknown subobject instance. Passed %s. Needed SrEroSubobject.", subobject.getSubobjectType()
+                        .getClass());
 
         final SrEroSubobject srEroSubobject = (SrEroSubobject) subobject.getSubobjectType();
         final ByteBuf body = Unpooled.buffer(MINIMAL_LENGTH);
-        body.writeByte(UnsignedBytes.checkedCast(srEroSubobject.getSidType().getIntValue()) << 4);
+        writeByte((byte) (checkedCast(srEroSubobject.getSidType().getIntValue()) << 4), body);
 
         final Flags flags = srEroSubobject.getFlags();
         final BitSet bits = new BitSet();
-        bits.set(M_FLAG_POSITION, flags.isM());
-        bits.set(C_FLAG_POSITION, flags.isC());
-        bits.set(S_FLAG_POSITION, flags.isS());
-        bits.set(F_FLAG_POSITION, flags.isF());
-        body.writeByte(ByteArray.bitSetToBytes(bits, FLAGS_OFFSET)[0]);
-
-        if(srEroSubobject.getSid() != null) {
-            body.writeInt(srEroSubobject.getSid().intValue());
+        if (flags != null) {
+            bits.set(M_FLAG_POSITION, flags.isM());
+            bits.set(C_FLAG_POSITION, flags.isC());
+            bits.set(S_FLAG_POSITION, flags.isS());
+            bits.set(F_FLAG_POSITION, flags.isF());
         }
+        writeBitSet(bits, FLAGS_OFFSET, body);
+
+        writeUnsignedInt(srEroSubobject.getSid(), body);
 
         final Nai nai = srEroSubobject.getNai();
-        if(nai != null) {
+        if (nai != null) {
             switch (srEroSubobject.getSidType()) {
             case Ipv4NodeId:
-                body.writeBytes(Ipv4Util.bytesForAddress(((IpNodeId)nai).getIpAddress().getIpv4Address()));
+                writeIpv4Address(((IpNodeId) nai).getIpAddress().getIpv4Address(), body);
                 break;
             case Ipv6NodeId:
-                body.writeBytes(Ipv6Util.bytesForAddress(((IpNodeId)nai).getIpAddress().getIpv6Address()));
+                writeIpv6Address(((IpNodeId) nai).getIpAddress().getIpv6Address(), body);
                 break;
             case Ipv4Adjacency:
-                body.writeBytes(Ipv4Util.bytesForAddress(((IpAdjacency)nai).getLocalIpAddress().getIpv4Address()));
-                body.writeBytes(Ipv4Util.bytesForAddress(((IpAdjacency)nai).getRemoteIpAddress().getIpv4Address()));
+                writeIpv4Address(((IpAdjacency) nai).getLocalIpAddress().getIpv4Address(), body);
+                writeIpv4Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv4Address(), body);
                 break;
             case Ipv6Adjacency:
-                body.writeBytes(Ipv6Util.bytesForAddress(((IpAdjacency)nai).getLocalIpAddress().getIpv6Address()));
-                body.writeBytes(Ipv6Util.bytesForAddress(((IpAdjacency)nai).getRemoteIpAddress().getIpv6Address()));
+                writeIpv6Address(((IpAdjacency) nai).getLocalIpAddress().getIpv6Address(), body);
+                writeIpv6Address(((IpAdjacency) nai).getRemoteIpAddress().getIpv6Address(), body);
                 break;
             case Unnumbered:
-                final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency)nai;
-                body.writeInt(unnumbered.getLocalNodeId().intValue());
-                body.writeInt(unnumbered.getLocalInterfaceId().intValue());
-                body.writeInt(unnumbered.getRemoteNodeId().intValue());
-                body.writeInt(unnumbered.getRemoteInterfaceId().intValue());
+                final UnnumberedAdjacency unnumbered = (UnnumberedAdjacency) nai;
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalNodeId(), body);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getLocalInterfaceId(), body);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteNodeId(), body);
+                ByteBufWriteUtil.writeUnsignedInt(unnumbered.getRemoteInterfaceId(), body);
                 break;
             }
         }
@@ -122,21 +131,24 @@ public class SrEroSubobjectParser implements EROSubobjectParser, EROSubobjectSer
 
         final long sid = buffer.readUnsignedInt();
         srEroSubobjectBuilder.setSid(sid);
-        if(sidType != null) {
+        if (sidType != null) {
             switch (sidType) {
             case Ipv4NodeId:
-                srEroSubobjectBuilder.setNai(new IpNodeIdBuilder()
-                        .setIpAddress(new IpAddress(new Ipv4Address(Ipv4Util.addressForByteBuf(buffer)))).build());
+                srEroSubobjectBuilder.setNai(new IpNodeIdBuilder().setIpAddress(
+                        new IpAddress(new Ipv4Address(Ipv4Util.addressForByteBuf(buffer)))).build());
                 break;
             case Ipv6NodeId:
-                srEroSubobjectBuilder.setNai(new IpNodeIdBuilder().setIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build());
+                srEroSubobjectBuilder.setNai(new IpNodeIdBuilder().setIpAddress(
+                        new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build());
                 break;
             case Ipv4Adjacency:
-                srEroSubobjectBuilder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)))
+                srEroSubobjectBuilder.setNai(new IpAdjacencyBuilder()
+                        .setLocalIpAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer)))
                         .setRemoteIpAddress(new IpAddress(Ipv4Util.addressForByteBuf(buffer))).build());
                 break;
             case Ipv6Adjacency:
-                srEroSubobjectBuilder.setNai(new IpAdjacencyBuilder().setLocalIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer)))
+                srEroSubobjectBuilder.setNai(new IpAdjacencyBuilder()
+                        .setLocalIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer)))
                         .setRemoteIpAddress(new IpAddress(Ipv6Util.addressForByteBuf(buffer))).build());
                 break;
             case Unnumbered:

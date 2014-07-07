@@ -47,9 +47,12 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
 
         /* Objects */
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
-        regs.add(context.registerObjectParser(CInitiated00SrpObjectWithPstTlvParser.CLASS, CInitiated00SrpObjectWithPstTlvParser.TYPE, new CInitiated00SrpObjectWithPstTlvParser(tlvReg)));
-        regs.add(context.registerObjectParser(PcepRpObjectWithPstTlvParser.CLASS, PcepRpObjectWithPstTlvParser.TYPE, new PcepRpObjectWithPstTlvParser(tlvReg)));
-        regs.add(context.registerObjectParser(PcepOpenObjectWithSpcTlvParser.CLASS, PcepOpenObjectWithSpcTlvParser.TYPE, new PcepOpenObjectWithSpcTlvParser(tlvReg)));
+        regs.add(context.registerObjectParser(CInitiated00SrpObjectWithPstTlvParser.CLASS,
+                CInitiated00SrpObjectWithPstTlvParser.TYPE, new CInitiated00SrpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectParser(PcepRpObjectWithPstTlvParser.CLASS, PcepRpObjectWithPstTlvParser.TYPE,
+                new PcepRpObjectWithPstTlvParser(tlvReg)));
+        regs.add(context.registerObjectParser(PcepOpenObjectWithSpcTlvParser.CLASS,
+                PcepOpenObjectWithSpcTlvParser.TYPE, new PcepOpenObjectWithSpcTlvParser(tlvReg)));
 
         regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectWithPstTlvParser(tlvReg)));
         regs.add(context.registerObjectSerializer(Rp.class, new PcepRpObjectWithPstTlvParser(tlvReg)));
@@ -58,7 +61,8 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
         /* Messages */
         final ObjectRegistry objRegistry = context.getObjectHandlerRegistry();
         regs.add(context.registerMessageParser(SrPcRepMessageParser.TYPE, new SrPcRepMessageParser(objRegistry)));
-        regs.add(context.registerMessageParser(SrPcInitiateMessageParser.TYPE, new SrPcInitiateMessageParser(objRegistry)));
+        regs.add(context.registerMessageParser(SrPcInitiateMessageParser.TYPE, new SrPcInitiateMessageParser(
+                objRegistry)));
         regs.add(context.registerMessageParser(SrPcRptMessageParser.TYPE, new SrPcRptMessageParser(objRegistry)));
         regs.add(context.registerMessageParser(SrPcUpdMessageParser.TYPE, new SrPcUpdMessageParser(objRegistry)));
 

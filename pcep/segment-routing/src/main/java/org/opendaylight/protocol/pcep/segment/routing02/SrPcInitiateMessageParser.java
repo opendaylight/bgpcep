@@ -29,13 +29,13 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
 
     @Override
     protected void serializeRequest(Requests req, ByteBuf buffer) {
-        if(isSegmentRoutingPath(req.getSrp())) {
+        if (isSegmentRoutingPath(req.getSrp())) {
             serializeObject(req.getSrp(), buffer);
-            if(req.getLsp() != null) {
+            if (req.getLsp() != null) {
                 serializeObject(req.getLsp(), buffer);
             }
             final Ero srEro = req.getEro();
-            if(srEro != null) {
+            if (srEro != null) {
                 serializeObject(srEro, buffer);
             }
         } else {
@@ -46,7 +46,7 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
     @Override
     protected Requests getValidRequest(List<Object> objects) {
         final Srp srp = (Srp) objects.get(0);
-        if(isSegmentRoutingPath(srp)) {
+        if (isSegmentRoutingPath(srp)) {
             final RequestsBuilder builder = new RequestsBuilder();
             builder.setSrp(srp);
             objects.remove(0);
@@ -54,9 +54,9 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
             objects.remove(0);
 
             final Object obj = objects.get(0);
-            if(obj != null) {
-                if(obj instanceof Ero) {
-                    builder.setEro((Ero)obj);
+            if (obj != null) {
+                if (obj instanceof Ero) {
+                    builder.setEro((Ero) obj);
                     objects.remove(0);
                 }
             }
@@ -66,8 +66,9 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
     }
 
     private boolean isSegmentRoutingPath(final Srp srp) {
-        if(srp != null && srp.getTlvs() != null) {
-            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs5.class)) || SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
+        if (srp != null && srp.getTlvs() != null) {
+            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs5.class))
+                    || SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
         }
         return false;
     }

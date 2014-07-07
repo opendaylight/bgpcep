@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.lsp.setup.type01;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBoolean;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -29,11 +29,11 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkNotNull(tlv, "PathSetupType is mandatory.");
+        Preconditions.checkArgument(tlv != null && tlv instanceof PathSetupType, "PathSetupType is mandatory.");
         final PathSetupType pstTlv = (PathSetupType) tlv;
-        ByteBuf body = Unpooled.buffer();
+        ByteBuf body = Unpooled.buffer(OFFSET + PST_LENGTH);
         body.writeZero(OFFSET);
-        body.writeBoolean((pstTlv.isPst() != null) ? pstTlv.isPst() : false);
+        writeBoolean(pstTlv.isPst(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 

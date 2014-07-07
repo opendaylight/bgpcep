@@ -32,13 +32,13 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
 
     @Override
     protected void serializeUpdate(Updates update, ByteBuf buffer) {
-        if(isSegmentRoutingPath(update.getSrp())) {
+        if (isSegmentRoutingPath(update.getSrp())) {
             serializeObject(update.getSrp(), buffer);
-            if(update.getLsp() != null) {
+            if (update.getLsp() != null) {
                 serializeObject(update.getLsp(), buffer);
             }
             final Ero srEro = update.getPath().getEro();
-            if(srEro != null) {
+            if (srEro != null) {
                 serializeObject(srEro, buffer);
             }
         } else {
@@ -48,7 +48,7 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
 
     @Override
     protected Updates getValidUpdates(List<Object> objects, List<Message> errors) {
-        if(objects.get(0) instanceof Srp && isSegmentRoutingPath((Srp) objects.get(0))) {
+        if (objects.get(0) instanceof Srp && isSegmentRoutingPath((Srp) objects.get(0))) {
             boolean isValid = true;
             final Srp srp = (Srp) objects.get(0);
             final UpdatesBuilder builder = new UpdatesBuilder();
@@ -63,10 +63,10 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
             }
 
             final Object obj = objects.get(0);
-            if(obj instanceof Ero) {
+            if (obj instanceof Ero) {
                 final Ero ero = (Ero) obj;
                 final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
-                if(error != null) {
+                if (error != null) {
                     errors.add(createErrorMsg(error));
                     isValid = false;
                 } else {
@@ -77,7 +77,7 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
                 errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
                 isValid = false;
             }
-            if(isValid) {
+            if (isValid) {
                 return builder.build();
             }
             return null;
@@ -86,8 +86,9 @@ public class SrPcUpdMessageParser extends Stateful07PCUpdateRequestMessageParser
     }
 
     private boolean isSegmentRoutingPath(final Srp srp) {
-        if(srp != null && srp.getTlvs() != null) {
-            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs6.class)) || SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
+        if (srp != null && srp.getTlvs() != null) {
+            return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs6.class))
+                    || SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
         }
         return false;
     }

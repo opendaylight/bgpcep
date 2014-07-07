@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing02;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -29,8 +29,11 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkNotNull(tlv, "SrPceCapability is mandatory.");
-        TlvUtil.formatTlv(TYPE, Unpooled.copyInt(((SrPceCapability) tlv).getMsd()), buffer);
+        Preconditions.checkArgument(tlv != null && tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
+        final ByteBuf body = Unpooled.buffer(MSD_LENGTH + OFFSET);
+        body.writerIndex(OFFSET);
+        writeUnsignedByte(((SrPceCapability) tlv).getMsd(), body);
+        TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
     @Override
