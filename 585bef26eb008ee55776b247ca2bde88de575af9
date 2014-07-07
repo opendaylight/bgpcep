@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_3b15c29b",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-07T18:58:09Z",
+      "side": 1,
+      "message": "allocate UNRESERVED_BW_COUNT elements in ArrayList",
+      "revId": "585bef26eb008ee55776b247ca2bde88de575af9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
