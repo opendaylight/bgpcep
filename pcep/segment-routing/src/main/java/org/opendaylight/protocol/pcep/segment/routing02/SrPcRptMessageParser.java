@@ -31,11 +31,11 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
 
     @Override
     protected void serializeReport(Reports report, ByteBuf buffer) {
-        if(isSegmentRoutingPath(report.getSrp())) {
+        if (isSegmentRoutingPath(report.getSrp())) {
             serializeObject(report.getSrp(), buffer);
             serializeObject(report.getLsp(), buffer);
             final Ero srEro = report.getPath().getEro();
-            if(srEro != null) {
+            if (srEro != null) {
                 serializeObject(srEro, buffer);
             }
         } else {
@@ -45,11 +45,11 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
 
     @Override
     protected Reports getValidReports(List<Object> objects, List<Message> errors) {
-        if(!(objects.get(0) instanceof Srp)) {
+        if (!(objects.get(0) instanceof Srp)) {
             errors.add(createErrorMsg(PCEPErrors.SRP_MISSING));
         }
         final Srp srp = (Srp) objects.get(0);
-        if(isSegmentRoutingPath(srp)) {
+        if (isSegmentRoutingPath(srp)) {
             boolean isValid = true;
             final ReportsBuilder builder = new ReportsBuilder();
             builder.setSrp(srp);
@@ -63,10 +63,10 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
             }
 
             final Object obj = objects.get(0);
-            if(obj instanceof Ero) {
+            if (obj instanceof Ero) {
                 final Ero ero = (Ero) obj;
                 final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
-                if(error != null) {
+                if (error != null) {
                     errors.add(createErrorMsg(error));
                     isValid = false;
                 } else {
@@ -77,7 +77,7 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
                 errors.add(createErrorMsg(PCEPErrors.ERO_MISSING));
                 isValid = false;
             }
-            if(isValid) {
+            if (isValid) {
                 return builder.build();
             }
             return null;
@@ -86,7 +86,7 @@ public class SrPcRptMessageParser extends Stateful07PCReportMessageParser {
     }
 
     private boolean isSegmentRoutingPath(final Srp srp) {
-        if(srp != null && srp.getTlvs() != null) {
+        if (srp != null && srp.getTlvs() != null) {
             return SrEroUtil.isPst(srp.getTlvs().getAugmentation(Tlvs7.class));
         }
         return false;
