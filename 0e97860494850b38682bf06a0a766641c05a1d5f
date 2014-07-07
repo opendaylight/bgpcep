@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_5d20beab",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-07T07:32:11Z",
+      "side": 1,
+      "message": "duplicate code... if both methods are needed, call on from the other",
+      "revId": "0e97860494850b38682bf06a0a766641c05a1d5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_fd10b25a",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-07T07:32:11Z",
+      "side": 1,
+      "message": "specify in the comment, where is the prefix_length field (in the end)",
+      "revId": "0e97860494850b38682bf06a0a766641c05a1d5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_1d16b655",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-07T07:32:11Z",
+      "side": 1,
+      "message": "same here, specify where the prefix_length field is",
+      "revId": "0e97860494850b38682bf06a0a766641c05a1d5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_bd0eaa39",
+        "filename": "util/src/main/java/org/opendaylight/protocol/util/ByteBufWriteUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-07T07:32:11Z",
+      "side": 1,
+      "message": "specify byte order in the comment",
+      "revId": "0e97860494850b38682bf06a0a766641c05a1d5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
