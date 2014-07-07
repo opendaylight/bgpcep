@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -60,15 +64,20 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "LspIdentifiersTlv is mandatory.");
+        Preconditions.checkArgument(tlv != null && tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final ByteBuf body = Unpooled.buffer();
         final Ipv6 ipv6 = ((Ipv6Case) lsp.getAddressFamily()).getIpv6();
-        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelSenderAddress()));
-        body.writeShort(lsp.getLspId().getValue().shortValue());
-        body.writeShort(lsp.getTunnelId().getValue().shortValue());
-        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6ExtendedTunnelId()));
-        body.writeBytes(Ipv6Util.bytesForAddress(ipv6.getIpv6TunnelEndpointAddress()));
+        Preconditions.checkArgument(ipv6.getIpv6TunnelSenderAddress() != null, "Ipv6TunnelSenderAddress is mandatory.");
+        writeIpv6Address(ipv6.getIpv6TunnelSenderAddress(), body);
+        Preconditions.checkArgument(lsp.getLspId() != null, "LspId is mandatory.");
+        writeShort(lsp.getLspId().getValue().shortValue(), body);
+        Preconditions.checkArgument(lsp.getTunnelId() != null, "TunnelId is mandatory.");
+        writeUnsignedShort(lsp.getTunnelId().getValue(), body);
+        Preconditions.checkArgument(ipv6.getIpv6ExtendedTunnelId() != null, "Ipv6ExtendedTunnelId is mandatory.");
+        writeIpv6Address(ipv6.getIpv6ExtendedTunnelId(), body);
+        Preconditions.checkArgument(ipv6.getIpv6TunnelEndpointAddress() != null, "Ipv6TunnelEndpointAddress is mandatory.");
+        writeIpv6Address(ipv6.getIpv6TunnelEndpointAddress(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }

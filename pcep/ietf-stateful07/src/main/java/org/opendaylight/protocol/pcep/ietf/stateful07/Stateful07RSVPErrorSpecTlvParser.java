@@ -7,6 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeBitSet;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv6Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -101,10 +108,12 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes();
         body.writeByte(USER_ERROR_CLASS_NUM);
         body.writeByte(USER_ERROR_CLASS_TYPE);
-        body.writeInt(ue.getEnterprise().getValue().intValue());
-        body.writeByte(ue.getSubOrg());
+        Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
+        writeUnsignedInt(ue.getEnterprise().getValue(), body);
+        writeUnsignedByte(ue.getSubOrg(), body);
         body.writeByte(desc.length);
-        body.writeShort(ue.getValue().shortValue());
+        Preconditions.checkArgument(ue.getValue() != null, "Value is mandatory.");
+        writeUnsignedShort(ue.getValue(), body);
         body.writeBytes(desc);
     }
 
@@ -129,17 +138,20 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         flags.set(IN_PLACE_FLAG_OFFSET, rsvp.getFlags().isInPlace());
         flags.set(NOT_GUILTY_FLAGS_OFFSET, rsvp.getFlags().isNotGuilty());
         final IpAddress node = rsvp.getNode();
+        Preconditions.checkArgument(node != null, "Node is mandatory.");
         if (node.getIpv4Address() != null) {
             body.writeByte(RSVP_ERROR_CLASS_NUM);
             body.writeByte(RSVP_IPV4_ERROR_CLASS_TYPE);
-            body.writeBytes(Ipv4Util.bytesForAddress(node.getIpv4Address()));
+            writeIpv4Address(node.getIpv4Address(), body);
         } else {
             body.writeByte(RSVP_ERROR_CLASS_NUM);
             body.writeByte(RSVP_IPV6_ERROR_CLASS_TYPE);
-            body.writeBytes(Ipv6Util.bytesForAddress(node.getIpv6Address()));
+            writeIpv6Address(node.getIpv6Address(), body);
         }
-        body.writeBytes(ByteArray.bitSetToBytes(flags, FLAGS_F_LENGTH));
-        body.writeByte(rsvp.getCode());
-        body.writeShort(rsvp.getValue().shortValue());
+        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");
+        writeUnsignedByte(rsvp.getCode(), body);
+        Preconditions.checkArgument(rsvp.getValue() != null, "Value is mandatory.");
+        writeUnsignedShort(rsvp.getValue(), body);
     }
 }

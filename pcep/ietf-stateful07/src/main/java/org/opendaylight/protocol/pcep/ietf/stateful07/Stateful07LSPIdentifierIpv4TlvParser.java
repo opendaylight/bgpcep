@@ -7,6 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeShort;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -61,7 +65,7 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "LspIdentifiersTlv is mandatory.");
+        Preconditions.checkArgument(tlv != null && tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final AddressFamily afi = lsp.getAddressFamily();
         final ByteBuf body = Unpooled.buffer();
@@ -69,11 +73,16 @@ public final class Stateful07LSPIdentifierIpv4TlvParser implements TlvParser, Tl
             new Stateful07LSPIdentifierIpv6TlvParser().serializeTlv(tlv, buffer);
         }
         final Ipv4 ipv4 = ((Ipv4Case) afi).getIpv4();
-        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelSenderAddress()));
-        body.writeShort(lsp.getLspId().getValue().shortValue());
-        body.writeShort(lsp.getTunnelId().getValue().shortValue());
-        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4ExtendedTunnelId()));
-        body.writeBytes(Ipv4Util.bytesForAddress(ipv4.getIpv4TunnelEndpointAddress()));
+        Preconditions.checkArgument(ipv4.getIpv4TunnelSenderAddress() != null, "Ipv4TunnelSenderAddress is mandatory.");
+        writeIpv4Address(ipv4.getIpv4TunnelSenderAddress(), body);
+        Preconditions.checkArgument(lsp.getLspId() != null, "LspId is mandatory.");
+        writeShort(lsp.getLspId().getValue().shortValue(), body);
+        Preconditions.checkArgument(lsp.getTunnelId() != null, "TunnelId is mandatory.");
+        writeUnsignedShort(lsp.getTunnelId().getValue(), body);
+        Preconditions.checkArgument(ipv4.getIpv4ExtendedTunnelId() != null, "Ipv4ExtendedTunnelId is mandatory.");
+        writeIpv4Address(ipv4.getIpv4ExtendedTunnelId(), body);
+        Preconditions.checkArgument(ipv4.getIpv4TunnelEndpointAddress() != null, "Ipv4TunnelEndpointAddress is mandatory.");
+        writeIpv4Address(ipv4.getIpv4TunnelEndpointAddress(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 }
