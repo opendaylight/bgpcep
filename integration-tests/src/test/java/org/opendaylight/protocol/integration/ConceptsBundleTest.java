@@ -8,13 +8,13 @@
 package org.opendaylight.protocol.integration;
 
 import com.google.common.collect.Lists;
-
 import java.util.Collection;
+import java.util.Collections;
 
 public final class ConceptsBundleTest extends AbstractBundleTest {
     @Override
     protected Collection<String> prerequisiteBundles() {
-        return Lists.newArrayList("util");
+        return Collections.emptyList();
     }
 
     @Override
