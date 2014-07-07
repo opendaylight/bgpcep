@@ -33,11 +33,9 @@ public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectPars
         super.addTlv(builder, tlv);
         final Tlvs1Builder tlvBuilder = new Tlvs1Builder();
         if (builder.getTlvs() != null) {
-            if (builder.getTlvs().getAugmentation(Tlvs1.class) != null) {
-                final Tlvs1 t = builder.getTlvs().getAugmentation(Tlvs1.class);
-                if (t.getPathSetupType() != null) {
-                    tlvBuilder.setPathSetupType(t.getPathSetupType());
-                }
+            final Tlvs1 tlvs = builder.getTlvs().getAugmentation(Tlvs1.class);
+            if (tlvs != null && tlvs.getPathSetupType() != null) {
+                tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
             }
         }
         if (tlv instanceof PathSetupType) {

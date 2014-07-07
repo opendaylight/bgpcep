@@ -54,11 +54,9 @@ public class SrPcInitiateMessageParser extends CInitiated00PCInitiateMessagePars
             objects.remove(0);
 
             final Object obj = objects.get(0);
-            if (obj != null) {
-                if (obj instanceof Ero) {
-                    builder.setEro((Ero) obj);
-                    objects.remove(0);
-                }
+            if (obj != null && obj instanceof Ero) {
+                builder.setEro((Ero) obj);
+                objects.remove(0);
             }
             return builder.build();
         }
