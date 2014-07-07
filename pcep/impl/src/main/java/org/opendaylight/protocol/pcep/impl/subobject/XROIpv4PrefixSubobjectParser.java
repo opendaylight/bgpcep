@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Prefix;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
+
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
@@ -66,8 +69,10 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
             new XROIpv6PrefixSubobjectParser().serializeSubobject(subobject, buffer);
         } else {
             final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForPrefix(prefix.getIpv4Prefix()));
-            body.writeByte(subobject.getAttribute().getIntValue());
+            Preconditions.checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
+            writeIpv4Prefix(prefix.getIpv4Prefix(), body);
+            Preconditions.checkArgument(subobject.getAttribute() != null, "Attribute is mandatory.");
+            writeUnsignedByte((short) subobject.getAttribute().getIntValue(), body);
             XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
         }
     }

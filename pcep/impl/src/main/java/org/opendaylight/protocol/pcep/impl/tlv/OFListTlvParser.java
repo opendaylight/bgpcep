@@ -7,14 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl.tlv;
 
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -55,7 +54,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
         final ByteBuf body = Unpooled.buffer();
         final List<OfId> ofCodes = oft.getCodes();
         for (OfId id : ofCodes) {
-            body.writeShort(id.getValue().shortValue());
+            writeUnsignedShort(id.getValue(), body);
         }
         TlvUtil.formatTlv(TYPE, body, buffer);
     }

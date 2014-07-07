@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.impl.subobject;
 
-import com.google.common.base.Preconditions;
+import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
@@ -54,9 +54,12 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
         Preconditions.checkArgument(subobject instanceof WavebandSwitchingLabelCase, "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.", subobject.getClass());
         final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeInt(obj.getWavebandId().intValue());
-        body.writeInt(obj.getStartLabel().intValue());
-        body.writeInt(obj.getEndLabel().intValue());
+        Preconditions.checkArgument(obj.getWavebandId() != null, "WavebandId is mandatory.");
+        writeUnsignedInt(obj.getWavebandId(), body);
+        Preconditions.checkArgument(obj.getStartLabel() != null, "StartLabel is mandatory.");
+        writeUnsignedInt(obj.getStartLabel(), body);
+        Preconditions.checkArgument(obj.getEndLabel() != null, "EndLabel is mandatory.");
+        writeUnsignedInt(obj.getEndLabel(), body);
         LabelUtil.formatLabel(CTYPE, unidirectional, global, body, buffer);
     }
 }
