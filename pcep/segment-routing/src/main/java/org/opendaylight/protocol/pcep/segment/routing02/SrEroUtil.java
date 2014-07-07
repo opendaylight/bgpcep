@@ -38,10 +38,8 @@ public final class SrEroUtil {
     }
 
     protected static boolean isPst(final PathSetupTypeTlv tlv) {
-        if (tlv != null && tlv.getPathSetupType() != null) {
-            if (tlv.getPathSetupType().isPst()) {
-                return true;
-            }
+        if (tlv != null && tlv.getPathSetupType() != null && tlv.getPathSetupType().isPst()) {
+            return true;
         }
         return false;
     }
