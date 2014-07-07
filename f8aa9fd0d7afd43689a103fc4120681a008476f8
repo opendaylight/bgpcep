@@ -16,6 +16,24 @@
       "revId": "f8aa9fd0d7afd43689a103fc4120681a008476f8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_00b5e97c",
+        "filename": "pcep/segment-routing/src/main/java/org/opendaylight/controller/config/yang/pcep/sr02/cfg/Sr02PCEPSessionProposalFactoryModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-07-07T11:57:32Z",
+      "side": 1,
+      "message": "It would be unnecessary - checkNotNull does it it for us.\n    public static \u003cT\u003e T checkNotNull(T param, String message,\n            JmxAttribute jmxAttribute) {\n        if (param \u003d\u003d null) {\n            throw new JmxAttributeValidationException(\n                    jmxAttribute.getAttributeName() + \" \" + message,\n                    jmxAttribute);\n        }\n        return param;\n    }",
+      "parentUuid": "fa82b9bf_20a34d50",
+      "revId": "f8aa9fd0d7afd43689a103fc4120681a008476f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
