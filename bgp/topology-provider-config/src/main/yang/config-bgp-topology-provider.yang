@@ -7,7 +7,7 @@ module config-bgp-topology-provider {
     import config { prefix config; revision-date 2013-04-05; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import config-bgp-rib { prefix ribapi; revision-date 2013-07-01; }
-    import config-topology-api { prefix topo; revision-date 2013-11-15; }
+    import odl-topology-api-cfg { prefix topo; revision-date 2013-11-15; }
     import opendaylight-md-sal-binding { prefix mdsal; revision-date 2013-10-28; }
 
     organization "Cisco Systems, Inc.";

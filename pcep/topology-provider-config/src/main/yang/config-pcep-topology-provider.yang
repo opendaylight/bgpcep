@@ -6,7 +6,7 @@ module config-pcep-topology-provider {
 
     import config { prefix config; revision-date 2013-04-05; }
     import odl-programming-spi-cfg { prefix pgmspi; revision-date 2013-11-15; }
-    import config-topology-api { prefix topo; revision-date 2013-11-15; }
+    import odl-topology-api-cfg { prefix topo; revision-date 2013-11-15; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import pcep { prefix pcep; revision-date 2013-04-09; }
