@@ -28,7 +28,7 @@ public final class LSPCleanupTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof LspCleanup, "LSPCleanupTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof LspCleanup, "LSPCleanupTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         writeUnsignedInt(((LspCleanup) tlv).getTimeout(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);

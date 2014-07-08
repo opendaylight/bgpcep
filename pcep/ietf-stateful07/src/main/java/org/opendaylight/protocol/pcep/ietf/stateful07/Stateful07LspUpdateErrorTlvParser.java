@@ -39,7 +39,7 @@ public final class Stateful07LspUpdateErrorTlvParser implements TlvParser, TlvSe
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof LspErrorCode, "LspErrorCodeTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         writeUnsignedInt(((LspErrorCode) tlv).getErrorCode(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);
