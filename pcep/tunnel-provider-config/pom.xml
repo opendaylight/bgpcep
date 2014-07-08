@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>programming-spi-config</artifactId>
+            <artifactId>programming-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -107,12 +107,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>programming-impl-config</artifactId>
+            <artifactId>programming-impl</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>programming-impl-config</artifactId>
+            <artifactId>programming-impl</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
