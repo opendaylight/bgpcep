@@ -38,25 +38,13 @@
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <artifactId>config-api</artifactId>
         </dependency>
 
         <!-- Testing dependencies -->
@@ -77,6 +65,10 @@
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                    </instructions>
                </configuration>
+           </plugin>
+           <plugin>
+               <groupId>org.opendaylight.yangtools</groupId>
+               <artifactId>yang-maven-plugin</artifactId>
            </plugin>
         </plugins>
     </build>
