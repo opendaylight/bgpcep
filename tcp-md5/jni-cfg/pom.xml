@@ -28,7 +28,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-api-cfg</artifactId>
+            <artifactId>tcpmd5-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
