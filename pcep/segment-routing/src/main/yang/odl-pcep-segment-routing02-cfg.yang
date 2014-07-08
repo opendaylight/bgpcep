@@ -5,9 +5,8 @@ module odl-pcep-segment-routing02-cfg {
     prefix "pcep-sr02";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import pcep { prefix pcep; revision-date 2013-04-09; }
-    import odl-pcep-ietf-stateful07-cfg { prefix pcep-stateful07; revision-date 2014-02-21; }
-    import config-pcep-spi { prefix spi; revision-date 2013-11-15; }
+    import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-spi-cfg { prefix spi; revision-date 2013-11-15; }
 
     organization "Cisco Systems, Inc.";
 

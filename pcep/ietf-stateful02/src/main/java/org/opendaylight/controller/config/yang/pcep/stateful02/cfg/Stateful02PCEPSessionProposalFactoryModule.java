@@ -25,12 +25,14 @@ public final class Stateful02PCEPSessionProposalFactoryModule extends
         org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractStateful02PCEPSessionProposalFactoryModule {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful02PCEPSessionProposalFactoryModule.class);
 
-    public Stateful02PCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+    public Stateful02PCEPSessionProposalFactoryModule(
+            final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
-    public Stateful02PCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
+    public Stateful02PCEPSessionProposalFactoryModule(
+            final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
             final Stateful02PCEPSessionProposalFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
 
@@ -41,8 +43,10 @@ public final class Stateful02PCEPSessionProposalFactoryModule extends
     protected void customValidation() {
         JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", activeJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", initiatedJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.",
+                deadTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.",
+                keepAliveTimerValueJmxAttribute);
         JmxAttributeValidationException.checkNotNull(getTimeout(), "value is not set.", timeoutJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
@@ -59,7 +63,8 @@ public final class Stateful02PCEPSessionProposalFactoryModule extends
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final Stateful02SessionProposalFactory inner = new Stateful02SessionProposalFactory(getDeadTimerValue(), getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getTimeout());
+        final Stateful02SessionProposalFactory inner = new Stateful02SessionProposalFactory(getDeadTimerValue(),
+                getKeepAliveTimerValue(), getStateful(), getActive(), getInitiated(), getTimeout());
         return new PCEPSessionProposalFactoryCloseable(inner);
     }
 

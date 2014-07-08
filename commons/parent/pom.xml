@@ -156,7 +156,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-spi-config</artifactId>
+                <artifactId>pcep-spi</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
@@ -183,14 +183,14 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-impl-config</artifactId>
+                <artifactId>pcep-impl</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-topology-provider-config</artifactId>
+                <artifactId>pcep-topology-provider</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
@@ -203,9 +203,9 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>tcpmd5-jni</artifactId>
+                <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
