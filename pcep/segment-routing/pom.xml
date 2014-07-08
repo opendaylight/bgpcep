@@ -36,7 +36,7 @@
       </dependency>
          <dependency>
          <groupId>${project.groupId}</groupId>
-         <artifactId>pcep-spi-config</artifactId>
+         <artifactId>pcep-spi</artifactId>
       </dependency>
       <!--test dependencies -->
       <dependency>
@@ -62,7 +62,7 @@
       </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-spi-config</artifactId>
+            <artifactId>pcep-spi</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

@@ -47,14 +47,37 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- Testing dependencies -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+
+        <!--test dependencies -->
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-manager</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>mockito-configuration</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>mockito-configuration</artifactId>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>config-util</artifactId>
         </dependency>
     </dependencies>
 
@@ -70,6 +93,22 @@
                    </instructions>
                </configuration>
            </plugin>
+           <plugin>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>yang-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
