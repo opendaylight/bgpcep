@@ -37,7 +37,7 @@ public final class Stateful02LspSymbolicNameTlvParser implements TlvParser, TlvS
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof SymbolicPathName, "SymbolicPathNameTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof SymbolicPathName, "SymbolicPathNameTlv is mandatory.");
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.SymbolicPathName spn = ((SymbolicPathName) tlv).getPathName();
         Preconditions.checkArgument(spn != null, "SymbolicPathName is mandatory");
         TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(spn.getValue()), buffer);

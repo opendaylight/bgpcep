@@ -64,7 +64,7 @@ public final class Stateful07LSPIdentifierIpv6TlvParser implements TlvParser, Tl
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof LspIdentifiers, "LspIdentifiersTlv is mandatory.");
         final LspIdentifiers lsp = (LspIdentifiers) tlv;
         final ByteBuf body = Unpooled.buffer();
         final Ipv6 ipv6 = ((Ipv6Case) lsp.getAddressFamily()).getIpv6();

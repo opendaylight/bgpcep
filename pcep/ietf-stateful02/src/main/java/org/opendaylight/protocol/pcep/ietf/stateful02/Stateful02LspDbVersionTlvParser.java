@@ -40,7 +40,7 @@ public final class Stateful02LspDbVersionTlvParser implements TlvParser, TlvSeri
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof LspDbVersion, "LspDbVersionTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof LspDbVersion, "LspDbVersionTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         final LspDbVersion ldvTlv = (LspDbVersion) tlv;
         Preconditions.checkArgument(ldvTlv.getVersion() != null, "Version is mandatory.");

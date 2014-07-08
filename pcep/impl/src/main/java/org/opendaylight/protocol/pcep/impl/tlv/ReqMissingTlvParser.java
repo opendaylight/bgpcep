@@ -38,7 +38,7 @@ public class ReqMissingTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "ReqMissingTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof ReqMissing, "ReqMissingTlv is mandatory.");
         final ReqMissing req = (ReqMissing) tlv;
         final ByteBuf body = Unpooled.buffer();
         Preconditions.checkArgument(req.getRequestId() != null, "RequestId is mandatory.");

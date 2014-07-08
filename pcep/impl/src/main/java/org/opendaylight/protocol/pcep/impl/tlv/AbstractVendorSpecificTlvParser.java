@@ -30,7 +30,7 @@ public abstract class AbstractVendorSpecificTlvParser implements TlvParser, TlvS
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "Vendor Specific Tlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof VsTlv, "Vendor Specific Tlv is mandatory.");
         final VsTlv vsTlv = (VsTlv) tlv;
         final ByteBuf body = Unpooled.buffer();
         if (vsTlv.getEnterpriseNumber().getValue() == getEnterpriseNumber()) {

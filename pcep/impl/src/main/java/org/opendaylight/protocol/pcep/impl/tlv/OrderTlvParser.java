@@ -37,7 +37,7 @@ public class OrderTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "OrderTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof Order, "OrderTlv is mandatory.");
         final Order otlv = (Order) tlv;
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedInt(otlv.getDelete(), body);
