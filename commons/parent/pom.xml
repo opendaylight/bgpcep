@@ -170,13 +170,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>programming-impl-config</artifactId>
+                <artifactId>programming-impl</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>programming-impl-config</artifactId>
+                <artifactId>programming-impl</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>

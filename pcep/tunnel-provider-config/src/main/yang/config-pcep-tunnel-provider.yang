@@ -5,7 +5,7 @@ module config-pcep-tunnel-provider {
     prefix "tun";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import config-programming-spi { prefix pgmspi; revision-date 2013-11-15; }
+    import odl-programming-spi-cfg { prefix pgmspi; revision-date 2013-11-15; }
     import config-pcep-topology-provider { prefix pceptopo; revision-date 2013-11-15; }
     import config-topology-api { prefix topo; revision-date 2013-11-15; }
     import ietf-inet-types { prefix inet; revision-date 2010-09-24; }
