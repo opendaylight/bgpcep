@@ -5,7 +5,8 @@ module odl-pcep-ietf-stateful07-cfg {
     prefix "pcep-stateful07";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import pcep { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-spi-cfg { prefix spi; revision-date 2013-11-15; }
 
     organization "Cisco Systems, Inc.";
 
@@ -61,6 +62,30 @@ module odl-pcep-ietf-stateful07-cfg {
                 type boolean;
                 default true;
             }
+        }
+    }
+
+    identity pcep-parser-ietf-stateful07 {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix IetfStateful07PCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-ietf-stateful07 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-stateful07'";
+        }
+    }
+
+    identity pcep-parser-ietf-initiated00 {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix IetfInitiated00PCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-ietf-initiated00 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-initiated00'";
         }
     }
 }
