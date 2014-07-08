@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_717fe9ab",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-08T12:05:53Z",
+      "side": 1,
+      "message": "LOG.warn instead of precondition (doesn\u0027t print the stacktrace)",
+      "revId": "a08568f005540d901f5a2b7890e69d9af6f5c19d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
