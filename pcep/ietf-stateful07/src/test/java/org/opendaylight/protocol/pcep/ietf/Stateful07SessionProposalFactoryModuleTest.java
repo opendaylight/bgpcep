@@ -97,7 +97,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     public void testStatefulAfterCommitted() throws Exception {
         createInstance((short) 200, (short) 100, false, true, true);
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(
+        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(
                 FACTORY_NAME, INSTANCE_NAME), Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
         assertTrue(mxBean.getStateful());
     }
@@ -124,7 +124,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
         createInstance();
         final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+        transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
@@ -151,7 +151,7 @@ public class Stateful07SessionProposalFactoryModuleTest extends AbstractConfigTe
     private static ObjectName createInstance(final ConfigTransactionJMXClient transaction, final Short deadTimer, final Short keepAlive,
             final Boolean stateful, final Boolean active, final Boolean instant) throws InstanceAlreadyExistsException {
         final ObjectName nameCreated = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMBeanProxy(nameCreated,
+        final Stateful07PCEPSessionProposalFactoryModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated,
                 Stateful07PCEPSessionProposalFactoryModuleMXBean.class);
         mxBean.setActive(active);
         mxBean.setDeadTimerValue(deadTimer);

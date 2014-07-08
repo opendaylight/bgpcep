@@ -76,7 +76,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         createInstance();
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        final RIBImplModuleMXBean mxBean = transaction.newMBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
+        final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 RIBImplModuleMXBean.class);
         mxBean.setLocalAs(100L);
         final CommitStatus status = transaction.commit();
