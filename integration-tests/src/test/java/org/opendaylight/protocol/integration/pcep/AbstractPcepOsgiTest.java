@@ -14,9 +14,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import javax.inject.Inject;
-
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareProvider;
 import org.opendaylight.controller.test.sal.binding.it.TestHelper;
@@ -79,7 +77,6 @@ public class AbstractPcepOsgiTest {
                 mavenBundle("org.opendaylight.bgpcep", "pcep-topology-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-tunnel-api").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-api").versionAsInProject(), //
-                mavenBundle("org.opendaylight.bgpcep", "pcep-api-config").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-impl").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-spi").versionAsInProject(), //
                 mavenBundle("org.opendaylight.bgpcep", "pcep-ietf-stateful02").versionAsInProject(), //

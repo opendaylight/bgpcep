@@ -5,7 +5,8 @@ module odl-pcep-ietf-stateful02-cfg {
     prefix "pcep-stateful02";
 
     import config { prefix config; revision-date 2013-04-05; }
-    import pcep { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-api-cfg { prefix pcep; revision-date 2013-04-09; }
+    import odl-pcep-spi-cfg { prefix spi; revision-date 2013-11-15; }
 
     organization "Cisco Systems, Inc.";
 
@@ -66,6 +67,30 @@ module odl-pcep-ietf-stateful02-cfg {
                 type uint16;
                 default 180;
             }
+        }
+    }
+
+    identity pcep-parser-ietf-stateful02 {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix IetfStateful02PCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-ietf-stateful02 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-ietf-stateful02'";
+        }
+    }
+
+    identity pcep-parser-crabbe-initiated00 {
+        base config:module-type;
+        config:provided-service spi:extension;
+        config:java-name-prefix CrabbeInitiated00PCEPParser;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case pcep-parser-crabbe-initiated00 {
+            when "/config:modules/config:module/config:type = 'pcep-parser-crabbe-initiated00'";
         }
     }
 }
