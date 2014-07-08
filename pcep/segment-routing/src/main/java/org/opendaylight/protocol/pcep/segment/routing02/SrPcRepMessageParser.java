@@ -40,13 +40,11 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
         final Rp rp = reply.getRp();
         if (isSegmentRoutingPath(rp)) {
             serializeObject(rp, buffer);
-            if (reply.getResult() != null) {
-                if (reply.getResult() instanceof SuccessCase) {
-                    final SuccessCase s = (SuccessCase) reply.getResult();
-                    for (final Paths p : s.getSuccess().getPaths()) {
-                        final Ero ero = p.getEro();
-                        serializeObject(ero, buffer);
-                    }
+            if (reply.getResult() instanceof SuccessCase) {
+                final SuccessCase s = (SuccessCase) reply.getResult();
+                for (final Paths p : s.getSuccess().getPaths()) {
+                    final Ero ero = p.getEro();
+                    serializeObject(ero, buffer);
                 }
             }
         } else {
@@ -64,28 +62,26 @@ public class SrPcRepMessageParser extends PCEPReplyMessageParser {
         if (isSegmentRoutingPath(rp)) {
             objects.remove(0);
             Result res = null;
-            if (!objects.isEmpty()) {
-                if (objects.get(0) instanceof Ero) {
-                    final SuccessBuilder builder = new SuccessBuilder();
-                    final List<Paths> paths = Lists.newArrayList();
-                    final PathsBuilder pBuilder = new PathsBuilder();
-                    while (!objects.isEmpty()) {
-                        final Object object = objects.get(0);
-                        if (object instanceof Ero) {
-                            final Ero ero = (Ero) object;
-                            final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
-                            if (error != null) {
-                                errors.add(createErrorMsg(error));
-                                return null;
-                            } else {
-                                paths.add(pBuilder.setEro(ero).build());
-                            }
+            if (objects.get(0) instanceof Ero) {
+                final SuccessBuilder builder = new SuccessBuilder();
+                final List<Paths> paths = Lists.newArrayList();
+                final PathsBuilder pBuilder = new PathsBuilder();
+                while (!objects.isEmpty()) {
+                    final Object object = objects.get(0);
+                    if (object instanceof Ero) {
+                        final Ero ero = (Ero) object;
+                        final PCEPErrors error = SrEroUtil.validateSrEroSubobjects(ero);
+                        if (error != null) {
+                            errors.add(createErrorMsg(error));
+                            return null;
+                        } else {
+                            paths.add(pBuilder.setEro(ero).build());
                         }
-                        objects.remove(0);
                     }
-                    builder.setPaths(paths);
-                    res = new SuccessCaseBuilder().setSuccess(builder.build()).build();
+                    objects.remove(0);
                 }
+                builder.setPaths(paths);
+                res = new SuccessCaseBuilder().setSuccess(builder.build()).build();
             }
             return new RepliesBuilder().setRp(rp).setResult(res).build();
         }
