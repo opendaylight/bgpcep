@@ -25,7 +25,7 @@ public final class Stateful02NodeIdentifierTlvParser implements TlvParser, TlvSe
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier, "NodeIdentifierTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier, "NodeIdentifierTlv is mandatory.");
         TlvUtil.formatTlv(TYPE, Unpooled.copiedBuffer(((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.node.identifier.tlv.NodeIdentifier) tlv).getNodeId().getValue()), buffer);
     }
 

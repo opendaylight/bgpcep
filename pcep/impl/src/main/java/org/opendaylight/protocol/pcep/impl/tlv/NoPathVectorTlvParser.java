@@ -56,7 +56,7 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "NoPathVectorTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof NoPathVector, "NoPathVectorTlv is mandatory.");
         final NoPathVector noPath = (NoPathVector) tlv;
         final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);

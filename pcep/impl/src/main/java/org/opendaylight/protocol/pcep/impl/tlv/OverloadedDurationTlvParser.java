@@ -37,7 +37,7 @@ public class OverloadedDurationTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "OverloadedTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof OverloadDuration, "OverloadedTlv is mandatory.");
         final ByteBuf body = Unpooled.buffer();
         writeUnsignedInt(((OverloadDuration) tlv).getDuration(), body);
         TlvUtil.formatTlv(TYPE, body, buffer);

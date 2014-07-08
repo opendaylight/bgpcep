@@ -30,7 +30,7 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
+        Preconditions.checkArgument(tlv instanceof SrPceCapability, "SrPceCapability is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writerIndex(OFFSET);
         writeUnsignedByte(((SrPceCapability) tlv).getMsd(), body);

@@ -51,7 +51,7 @@ public class Stateful07StatefulCapabilityTlvParser implements TlvParser, TlvSeri
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null && tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
         final ByteBuf body = Unpooled.buffer();
         final BitSet flags = new BitSet(FLAGS_F_LENGTH * Byte.SIZE);

@@ -70,7 +70,7 @@ public final class Stateful02RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "RSVPErrorSpecTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof RsvpErrorSpec, "RSVPErrorSpecTlv is mandatory.");
         final RsvpErrorSpec rsvpTlv = (RsvpErrorSpec) tlv;
         final RsvpError rsvp = rsvpTlv.getRsvpError();
         final ByteBuf body = Unpooled.buffer();

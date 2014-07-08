@@ -49,7 +49,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv != null, "OFListTlv is mandatory.");
+        Preconditions.checkArgument(tlv instanceof OfList, "OFListTlv is mandatory.");
         final OfList oft = (OfList) tlv;
         final ByteBuf body = Unpooled.buffer();
         final List<OfId> ofCodes = oft.getCodes();
