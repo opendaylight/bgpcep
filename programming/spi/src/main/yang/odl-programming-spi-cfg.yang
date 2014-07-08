@@ -1,5 +1,5 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module config-programming-spi {
+module odl-programming-spi-cfg {
     yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:controller:programming:spi";
     prefix "spi";
