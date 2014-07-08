@@ -12,7 +12,7 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:impl?module=odl-pcep-impl-cfg&amp;revision=2013-06-27</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=config-pcep-spi&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:spi?module=odl-pcep-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:programming:spi?module=odl-programming-spi-cfg&amp;revision=2013-11-15</capability>
     <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg?module=odl-pcep-ietf-stateful02-cfg&amp;revision=2014-02-21</capability>
     <capability>urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg?module=odl-pcep-ietf-stateful07-cfg&amp;revision=2014-02-21</capability>

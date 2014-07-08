@@ -8,13 +8,12 @@
 package org.opendaylight.protocol.integration;
 
 import com.google.common.collect.Lists;
-
 import java.util.Collection;
 
 public final class PcepImplBundleTest extends AbstractBundleTest {
     @Override
     protected Collection<String> prerequisiteBundles() {
-        return Lists.newArrayList("concepts", "pcep-api", "pcep-spi", "pcep-api-config", "pcep-ietf-stateful02", "pcep-ietf-stateful07",
+        return Lists.newArrayList("concepts", "pcep-api", "pcep-spi", "pcep-ietf-stateful02", "pcep-ietf-stateful07",
                 "pcep-topology-api", "pcep-tunnel-api", "rsvp-api", "programming-api", "programming-topology-api", "topology-api",
                 "topology-tunnel-api", "programming-tunnel-api", "tcpmd5-api", "tcpmd5-netty", "util");
     }
