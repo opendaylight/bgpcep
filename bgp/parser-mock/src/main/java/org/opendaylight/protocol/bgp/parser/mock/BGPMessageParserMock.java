@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.mock;
 
 import io.netty.buffer.ByteBuf;
-
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
