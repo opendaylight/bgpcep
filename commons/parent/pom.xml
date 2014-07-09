@@ -135,21 +135,21 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-spi-config</artifactId>
+                <artifactId>bgp-rib-spi</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-parser-spi-config</artifactId>
+                <artifactId>bgp-parser-spi</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-rib-impl-config</artifactId>
+                <artifactId>bgp-rib-impl</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
