@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
     private static final int TLV_LENGTH_F_LENGTH = 2;
     private static final int TLV_HEADER_LENGTH = TLV_LENGTH_F_LENGTH + TLV_TYPE_F_LENGTH;
 
-    protected static final int PADDED_TO = 4;
+    public static final int PADDED_TO = 4;
 
     private final TlvRegistry tlvReg;
 
@@ -42,7 +40,7 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
             int length = bytes.readUnsignedShort();
             if (length > bytes.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= " + bytes.readableBytes()
-                        + ".");
+                    + ".");
             }
             final ByteBuf tlvBytes = bytes.slice(bytes.readerIndex(), length);
             LOG.trace("Attempt to parse tlv from bytes: {}", ByteBufUtil.hexDump(tlvBytes));

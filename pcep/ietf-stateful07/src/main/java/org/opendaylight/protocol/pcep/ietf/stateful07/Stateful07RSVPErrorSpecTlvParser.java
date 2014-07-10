@@ -15,10 +15,10 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
+import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -50,6 +50,7 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     public static final int TYPE = 21;
 
     private static final int FLAGS_F_LENGTH = 1;
+    private static final int HEADER_LENGTH = 4;
 
     private static final int RSVP_ERROR_CLASS_NUM = 6;
     private static final int RSVP_IPV4_ERROR_CLASS_TYPE = 1;
@@ -66,8 +67,10 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         if (buffer == null) {
             return null;
         }
-        final int classNum = UnsignedBytes.toInt(buffer.readByte());
-        final int classType = UnsignedBytes.toInt(buffer.readByte());
+        // throw away contents of length field
+        buffer.readUnsignedShort();
+        final int classNum = buffer.readUnsignedByte();
+        final int classType = buffer.readUnsignedByte();
         ErrorType errorType = null;
         if (classNum == RSVP_ERROR_CLASS_NUM) {
             errorType = parseRsvp(classType, buffer.slice());
@@ -96,8 +99,8 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
     private UserCase parseUserError(final ByteBuf buffer) {
         final UserErrorBuilder error = new UserErrorBuilder();
         error.setEnterprise(new EnterpriseNumber(buffer.readUnsignedInt()));
-        error.setSubOrg((short) UnsignedBytes.toInt(buffer.readByte()));
-        final int errDescrLength = UnsignedBytes.toInt(buffer.readByte());
+        error.setSubOrg(buffer.readUnsignedByte());
+        final int errDescrLength = buffer.readUnsignedByte();
         error.setValue(buffer.readUnsignedShort());
         error.setDescription(ByteArray.bytesToHRString(ByteArray.readBytes(buffer, errDescrLength)));
         // if we have any subobjects, place the implementation here
@@ -106,23 +109,24 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
 
     private void serializerUserError(final UserError ue, final ByteBuf body) {
         byte[] desc = (ue.getDescription() == null) ? new byte[0] : ue.getDescription().getBytes();
-        body.writeByte(USER_ERROR_CLASS_NUM);
-        body.writeByte(USER_ERROR_CLASS_TYPE);
+        final ByteBuf userErrorBuf = Unpooled.buffer();
         Preconditions.checkArgument(ue.getEnterprise() != null, "EnterpriseNumber is mandatory");
-        writeUnsignedInt(ue.getEnterprise().getValue(), body);
-        writeUnsignedByte(ue.getSubOrg(), body);
-        body.writeByte(desc.length);
+        writeUnsignedInt(ue.getEnterprise().getValue(), userErrorBuf);
+        writeUnsignedByte(ue.getSubOrg(), userErrorBuf);
+        userErrorBuf.writeByte(desc.length);
         Preconditions.checkArgument(ue.getValue() != null, "Value is mandatory.");
-        writeUnsignedShort(ue.getValue(), body);
-        body.writeBytes(desc);
+        writeUnsignedShort(ue.getValue(), userErrorBuf);
+        userErrorBuf.writeBytes(desc);
+        userErrorBuf.writeZero(AbstractObjectWithTlvsParser.getPadding(desc.length, AbstractObjectWithTlvsParser.PADDED_TO));
+        formatRSVPObject(USER_ERROR_CLASS_NUM, USER_ERROR_CLASS_TYPE, userErrorBuf, body);
     }
 
     private RsvpCase parseRsvp(final int classType, final ByteBuf buffer) {
         final RsvpErrorBuilder builder = new RsvpErrorBuilder();
         if (classType == RSVP_IPV4_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddress(Ipv4Util.addressForBytes(ByteArray.readBytes(buffer, Ipv4Util.IP4_LENGTH))));
+            builder.setNode(new IpAddress(Ipv4Util.addressForByteBuf(buffer)));
         } else if (classType == RSVP_IPV6_ERROR_CLASS_TYPE) {
-            builder.setNode(new IpAddress(Ipv6Util.addressForBytes(ByteArray.readBytes(buffer, Ipv6Util.IPV6_LENGTH))));
+            builder.setNode(new IpAddress(Ipv6Util.addressForByteBuf(buffer)));
         }
         final BitSet flags = ByteArray.bytesToBitSet(ByteArray.readBytes(buffer, FLAGS_F_LENGTH));
         builder.setFlags(new Flags(flags.get(IN_PLACE_FLAG_OFFSET), flags.get(NOT_GUILTY_FLAGS_OFFSET)));
@@ -139,19 +143,27 @@ public final class Stateful07RSVPErrorSpecTlvParser implements TlvParser, TlvSer
         flags.set(NOT_GUILTY_FLAGS_OFFSET, rsvp.getFlags().isNotGuilty());
         final IpAddress node = rsvp.getNode();
         Preconditions.checkArgument(node != null, "Node is mandatory.");
+        final ByteBuf rsvpObjBuf = Unpooled.buffer();
+        int type = 0;
         if (node.getIpv4Address() != null) {
-            body.writeByte(RSVP_ERROR_CLASS_NUM);
-            body.writeByte(RSVP_IPV4_ERROR_CLASS_TYPE);
-            writeIpv4Address(node.getIpv4Address(), body);
+            type = RSVP_IPV4_ERROR_CLASS_TYPE;
+            writeIpv4Address(node.getIpv4Address(), rsvpObjBuf);
         } else {
-            body.writeByte(RSVP_ERROR_CLASS_NUM);
-            body.writeByte(RSVP_IPV6_ERROR_CLASS_TYPE);
-            writeIpv6Address(node.getIpv6Address(), body);
+            type = RSVP_IPV6_ERROR_CLASS_TYPE;
+            writeIpv6Address(node.getIpv6Address(), rsvpObjBuf);
         }
-        writeBitSet(flags, FLAGS_F_LENGTH, body);
+        writeBitSet(flags, FLAGS_F_LENGTH, rsvpObjBuf);
         Preconditions.checkArgument(rsvp.getCode() != null, "Code is mandatory.");
-        writeUnsignedByte(rsvp.getCode(), body);
+        writeUnsignedByte(rsvp.getCode(), rsvpObjBuf);
         Preconditions.checkArgument(rsvp.getValue() != null, "Value is mandatory.");
-        writeUnsignedShort(rsvp.getValue(), body);
+        writeUnsignedShort(rsvp.getValue(), rsvpObjBuf);
+        formatRSVPObject(RSVP_ERROR_CLASS_NUM, type, rsvpObjBuf, body);
+    }
+
+    private static void formatRSVPObject(final int objClass, final int type, final ByteBuf body, final ByteBuf out) {
+        out.writeShort(body.writerIndex() + HEADER_LENGTH);
+        out.writeByte(objClass);
+        out.writeByte(type);
+        out.writeBytes(body);
     }
 }
