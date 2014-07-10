@@ -8,13 +8,10 @@
 package org.opendaylight.protocol.pcep.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -159,7 +156,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             }
         }
 
-        if (errorObjects.isEmpty() && errorObjects.isEmpty()) {
+        if (errorObjects.isEmpty()) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
 
