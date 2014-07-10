@@ -445,7 +445,10 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     private static void serializeLinkDescriptors(final LinkDescriptors descriptors, final ByteBuf buffer) {
         if (descriptors.getLinkLocalIdentifier() != null && descriptors.getLinkRemoteIdentifier() != null) {
-            LinkstateAttributeParser.writeTLV(TlvCode.LINK_LR_IDENTIFIERS, Unpooled.copyInt(descriptors.getLinkLocalIdentifier().intValue()), buffer);
+            final ByteBuf identifierBuf = Unpooled.buffer();
+            identifierBuf.writeInt(descriptors.getLinkLocalIdentifier().intValue());
+            identifierBuf.writeInt(descriptors.getLinkRemoteIdentifier().intValue());
+            LinkstateAttributeParser.writeTLV(TlvCode.LINK_LR_IDENTIFIERS, identifierBuf, buffer);
         }
         if (descriptors.getIpv4InterfaceAddress() != null) {
             LinkstateAttributeParser.writeTLV(TlvCode.IPV4_IFACE_ADDRESS, Unpooled.wrappedBuffer(Ipv4Util.bytesForAddress(descriptors.getIpv4InterfaceAddress())), buffer);
