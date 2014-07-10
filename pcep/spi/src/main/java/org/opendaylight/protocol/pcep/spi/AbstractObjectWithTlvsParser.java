@@ -18,6 +18,12 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
 
+    private static final int TLV_TYPE_F_LENGTH = 2;
+    private static final int TLV_LENGTH_F_LENGTH = 2;
+    private static final int TLV_HEADER_LENGTH = TLV_LENGTH_F_LENGTH + TLV_TYPE_F_LENGTH;
+
+    public static final int PADDED_TO = 4;
+
     private final TlvRegistry tlvReg;
 
     protected AbstractObjectWithTlvsParser(final TlvRegistry tlvReg) {

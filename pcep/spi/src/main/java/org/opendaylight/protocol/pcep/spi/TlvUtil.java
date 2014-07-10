@@ -13,7 +13,7 @@ public final class TlvUtil {
 
     protected static final int HEADER_SIZE = 4;
 
-    protected static final int PADDED_TO = 4;
+    public static final int PADDED_TO = 4;
 
     private TlvUtil() {
     }
