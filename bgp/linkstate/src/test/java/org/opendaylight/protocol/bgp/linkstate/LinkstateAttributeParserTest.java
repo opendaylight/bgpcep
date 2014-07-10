@@ -14,12 +14,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.Arrays;
-
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -39,8 +36,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 
 public class LinkstateAttributeParserTest {
 
@@ -67,13 +67,24 @@ public class LinkstateAttributeParserTest {
 
     private static PathAttributesBuilder createBuilder(final NlriType type) {
         return new PathAttributesBuilder().addAugmentation(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class,
-                new PathAttributes1Builder().setMpReachNlri(
-                        new MpReachNlriBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).setAdvertizedRoutes(
-                                new AdvertizedRoutesBuilder().setDestinationType(
-                                        new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-                                                new DestinationLinkstateBuilder().setCLinkstateDestination(
-                                                        Lists.newArrayList(new CLinkstateDestinationBuilder().setNlriType(type).build())).build()).build()).build()).build()).build());
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class,
+            new PathAttributes1Builder().setMpReachNlri(
+                new MpReachNlriBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).setAdvertizedRoutes(
+                    new AdvertizedRoutesBuilder().setDestinationType(
+                        new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                            new DestinationLinkstateBuilder().setCLinkstateDestination(
+                                Lists.newArrayList(new CLinkstateDestinationBuilder().setNlriType(type).build())).build()).build()).build()).build()).build());
+    }
+
+    private static PathAttributesBuilder createUnreachBuilder(final NlriType type) {
+        return new PathAttributesBuilder().addAugmentation(
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2.class,
+            new PathAttributes2Builder().setMpUnreachNlri(
+                new MpUnreachNlriBuilder().setAfi(LinkstateAddressFamily.class).setSafi(LinkstateSubsequentAddressFamily.class).setWithdrawnRoutes(
+                    new WithdrawnRoutesBuilder().setDestinationType(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder().setDestinationLinkstate(
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.update.path.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(
+                                Lists.newArrayList(new CLinkstateDestinationBuilder().setNlriType(type).build())).build()).build()).build()).build()).build());
     }
 
     @Test
@@ -102,7 +113,7 @@ public class LinkstateAttributeParserTest {
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         this.parser.serializeAttribute(builder.build(), buff);
-        buff.readerIndex(buff.readerIndex() + 3);
+        buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length -5), ByteArray.getAllBytes(buff));
     }
@@ -130,14 +141,14 @@ public class LinkstateAttributeParserTest {
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         this.parser.serializeAttribute(builder.build(), buff);
-        buff.readerIndex(buff.readerIndex() + 3);
+        buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertTrue(Arrays.equals(ByteArray.subByte(NODE_ATTR, 0, NODE_ATTR.length -5), ByteArray.getAllBytes(buff)) || Arrays.equals(NODE_ATTR_S, ByteArray.getAllBytes(buff)));
     }
 
     @Test
     public void testPositiveV4Prefixes() throws BGPParsingException {
-        final PathAttributesBuilder builder = createBuilder(NlriType.Ipv4Prefix);
+        final PathAttributesBuilder builder = createUnreachBuilder(NlriType.Ipv4Prefix);
         this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder);
 
         final PathAttributes1 attrs = builder.getAugmentation(PathAttributes1.class);
@@ -156,7 +167,7 @@ public class LinkstateAttributeParserTest {
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         this.parser.serializeAttribute(builder.build(), buff);
-        buff.readerIndex(buff.readerIndex() + 3);
+        buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(ByteArray.subByte(P4_ATTR, 0, P4_ATTR.length -5), ByteArray.getAllBytes(buff));
     }

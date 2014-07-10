@@ -376,17 +376,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
                 LOG.debug("Parsed Metric: {}", metric);
                 break;
             case TlvCode.FORWARDING_ADDRESS:
-                IpAddress fwdAddress = null;
-                switch (value.readableBytes()) {
-                case Ipv4Util.IP4_LENGTH:
-                    fwdAddress = new IpAddress(Ipv4Util.addressForByteBuf(value));
-                    break;
-                case Ipv6Util.IPV6_LENGTH:
-                    fwdAddress = new IpAddress(Ipv6Util.addressForByteBuf(value));
-                    break;
-                default:
-                    LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
-                }
+                IpAddress fwdAddress = parseForwardingAddress(value);
                 builder.setOspfForwardingAddress(fwdAddress);
                 LOG.debug("Parsed FWD Address: {}", fwdAddress);
                 break;
@@ -401,6 +391,21 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         builder.setRouteTags(routeTags);
         builder.setExtendedTags(exRouteTags);
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
+    }
+
+    private static IpAddress parseForwardingAddress(final ByteBuf value) {
+        IpAddress fwdAddress = null;
+        switch (value.readableBytes()) {
+        case Ipv4Util.IP4_LENGTH:
+            fwdAddress = new IpAddress(Ipv4Util.addressForByteBuf(value));
+            break;
+        case Ipv6Util.IPV6_LENGTH:
+            fwdAddress = new IpAddress(Ipv6Util.addressForByteBuf(value));
+            break;
+        default:
+            LOG.debug("Ignoring unsupported forwarding address length {}", value.readableBytes());
+        }
+        return fwdAddress;
     }
 
     /**
@@ -466,19 +471,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         if (linkAttributes.getLinkProtection() != null) {
             writeTLV(TlvCode.LINK_PROTECTION_TYPE, Unpooled.copyShort(linkAttributes.getLinkProtection().getIntValue()), byteAggregator);
         }
-        MplsProtocolMask mplsProtocolMask = linkAttributes.getMplsProtocol();
-        if (mplsProtocolMask != null) {
-            final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer();
-            final BitSet mask = new BitSet();
-            if (mplsProtocolMask.isLdp() != null) {
-                mask.set(LDP_BIT, mplsProtocolMask.isLdp());
-            }
-            if (mplsProtocolMask.isRsvpte() != null) {
-                mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
-            }
-            mplsProtocolMaskBuf.writeBytes(mask.toByteArray());
-            writeTLV(TlvCode.MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
-        }
+        serializeMplsProtocolMask(linkAttributes.getMplsProtocol(), byteAggregator);
         if (linkAttributes.getMetric() != null) {
             // size of metric can be 1,2 or 3 depending on the protocol
             writeTLV(TlvCode.METRIC, Unpooled.copyMedium(linkAttributes.getMetric().getValue().intValue()), byteAggregator);
@@ -496,6 +489,21 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         LOG.trace("Finished serializing Link Attributes");
     }
 
+    private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask, final ByteBuf byteAggregator ) {
+        if (mplsProtocolMask != null) {
+            final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer();
+            final BitSet mask = new BitSet();
+            if (mplsProtocolMask.isLdp() != null) {
+                mask.set(LDP_BIT, mplsProtocolMask.isLdp());
+            }
+            if (mplsProtocolMask.isRsvpte() != null) {
+                mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
+            }
+            mplsProtocolMaskBuf.writeBytes(mask.toByteArray());
+            writeTLV(TlvCode.MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
+        }
+    }
+
     private void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
         LOG.trace("Started serializing Node Attributes");
         final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
@@ -506,7 +514,25 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             }
             writeTLV(TlvCode.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
         }
-        final NodeFlagBits nodeFlagBits = nodeAttributes.getNodeFlags();
+        serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
+        if (nodeAttributes.getDynamicHostname() != null) {
+            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
+        }
+        if (nodeAttributes.getIsisAreaId() != null) {
+            for (final IsisAreaIdentifier isisAreaIdentifier : nodeAttributes.getIsisAreaId()) {
+                writeTLV(TlvCode.ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
+            }
+        }
+        if (nodeAttributes.getIpv4RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV4_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv4RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        if (nodeAttributes.getIpv6RouterId() != null) {
+            writeTLV(TlvCode.LOCAL_IPV6_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv6RouterId().getValue()).getAddress()), byteAggregator);
+        }
+        LOG.trace("Finished serializing Node Attributes");
+    }
+
+    private static void serializeNodeFlagBits(final NodeFlagBits nodeFlagBits, final ByteBuf byteAggregator) {
         if (nodeFlagBits != null) {
             final ByteBuf nodeFlagBuf = Unpooled.buffer();
             final BitSet flags = new BitSet();
@@ -525,28 +551,13 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             nodeFlagBuf.writeBytes(flags.toByteArray());
             writeTLV(TlvCode.NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
         }
-        if (nodeAttributes.getDynamicHostname() != null) {
-            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
-        }
-        if (nodeAttributes.getIsisAreaId() != null) {
-            for (final IsisAreaIdentifier isisAreaIdentifier : nodeAttributes.getIsisAreaId()) {
-                writeTLV(TlvCode.ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
-            }
-        }
-        if (nodeAttributes.getIpv4RouterId() != null) {
-            writeTLV(TlvCode.LOCAL_IPV4_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv4RouterId().getValue()).getAddress()), byteAggregator);
-        }
-        if (nodeAttributes.getIpv6RouterId() != null) {
-            writeTLV(TlvCode.LOCAL_IPV6_ROUTER_ID, Unpooled.wrappedBuffer(InetAddresses.forString(nodeAttributes.getIpv6RouterId().getValue()).getAddress()), byteAggregator);
-        }
-        LOG.trace("Finished serializing Node Attributes");
     }
 
     private void serializePrefixAttributes(final PrefixAttributesCase prefixAttributesCase, final ByteBuf byteAggregator) {
         final PrefixAttributes prefixAtrributes = prefixAttributesCase.getPrefixAttributes();
         if (prefixAtrributes.getIgpBits() != null) {
-            BitSet igpBit = new BitSet();
-            Boolean bit = prefixAtrributes.getIgpBits().getUpDown().isUpDown();
+            final BitSet igpBit = new BitSet();
+            final Boolean bit = prefixAtrributes.getIgpBits().getUpDown().isUpDown();
             if (bit != null) {
                 igpBit.set(UP_DOWN_BIT, bit);
             }
@@ -569,7 +580,10 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         if (prefixAtrributes.getPrefixMetric() != null) {
             writeTLV(TlvCode.PREFIX_METRIC, Unpooled.copyInt(prefixAtrributes.getPrefixMetric().getValue().intValue()), byteAggregator);
         }
-        IpAddress forwardingAddress = prefixAtrributes.getOspfForwardingAddress();
+        serializeForwardingAddress(prefixAtrributes.getOspfForwardingAddress(), byteAggregator);
+    }
+
+    private static void serializeForwardingAddress(final IpAddress forwardingAddress, final ByteBuf byteAggregator) {
         if (forwardingAddress != null) {
             final ByteBuf ospfBuf = Unpooled.buffer();
             if (forwardingAddress.getIpv4Address() != null) {
