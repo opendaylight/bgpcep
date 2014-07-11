@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 
 public final class MessageUtil {
@@ -16,7 +15,6 @@ public final class MessageUtil {
     private static final int VERSION_SF_LENGTH = 3;
 
     private MessageUtil() {
-        throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
     public static void formatMessage(final int messageType, final ByteBuf body, final ByteBuf out) {

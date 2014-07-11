@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +17,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractObjectWithTlvsParser.class);
-
-    private static final int TLV_TYPE_F_LENGTH = 2;
-    private static final int TLV_LENGTH_F_LENGTH = 2;
-    private static final int TLV_HEADER_LENGTH = TLV_LENGTH_F_LENGTH + TLV_TYPE_F_LENGTH;
-
-    protected static final int PADDED_TO = 4;
 
     private final TlvRegistry tlvReg;
 
@@ -42,14 +34,14 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
             int length = bytes.readUnsignedShort();
             if (length > bytes.readableBytes()) {
                 throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= " + bytes.readableBytes()
-                        + ".");
+                    + ".");
             }
             final ByteBuf tlvBytes = bytes.slice(bytes.readerIndex(), length);
-            LOG.trace("Attempt to parse tlv from bytes: {}", ByteBufUtil.hexDump(tlvBytes));
+            LOG.trace("Parsing PCEP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
             final Tlv tlv = this.tlvReg.parseTlv(type, tlvBytes);
-            LOG.trace("Tlv was parsed. {}", tlv);
+            LOG.trace("Parsed PCEP TLV {}.", tlv);
             addTlv(builder, tlv);
-            bytes.readerIndex(bytes.readerIndex() + length + getPadding(TLV_HEADER_LENGTH + length, PADDED_TO));
+            bytes.skipBytes(length + TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
         }
     }
 
@@ -57,14 +49,10 @@ public abstract class AbstractObjectWithTlvsParser<T> implements ObjectParser, O
         Preconditions.checkNotNull(tlv, "PCEP TLV is mandatory.");
         LOG.trace("Serializing PCEP TLV {}", tlv);
         this.tlvReg.serializeTlv(tlv, buffer);
-        LOG.trace("Serialized PCEP TLV {}.", ByteBufUtil.hexDump(buffer));
+        LOG.trace("Serialized PCEP TLV : {}.", ByteBufUtil.hexDump(buffer));
     }
 
     protected void addTlv(final T builder, final Tlv tlv) {
         // FIXME: No TLVs by default, fallback to augments
-    }
-
-    public static int getPadding(final int length, final int padding) {
-        return (padding - (length % padding)) % padding;
     }
 }

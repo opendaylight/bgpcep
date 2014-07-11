@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -28,17 +29,18 @@ public final class PCEPErrorMapping {
         private final short type;
         private final short value;
 
-        private PCEPErrorIdentifier(final short type, final short value) {
+        @VisibleForTesting
+        PCEPErrorIdentifier(final short type, final short value) {
             this.type = type;
             this.value = value;
         }
 
         public short getType() {
-            return type;
+            return this.type;
         }
 
         public short getValue() {
-            return value;
+            return this.value;
         }
 
         @Override

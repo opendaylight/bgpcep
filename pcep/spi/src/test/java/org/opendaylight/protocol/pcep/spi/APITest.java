@@ -8,9 +8,14 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.spi.PCEPErrorMapping.PCEPErrorIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 
 public class APITest {
 
@@ -22,5 +27,32 @@ public class APITest {
         final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.", new IllegalArgumentException());
         assertEquals("Some error message.", e1.getMessage());
         assertTrue(e1.getCause() instanceof IllegalArgumentException);
+    }
+
+    @Test
+    public void testObjectHeader() {
+        ObjectHeaderImpl header = new ObjectHeaderImpl(null, true);
+        assertEquals("ObjectHeader [objClass=, processed=null, ignored=true]", header.toString());
+        assertTrue(header.isIgnore());
+        assertNull(header.isProcessingRule());
+
+        assertEquals(new ObjectHeaderImpl(null, true).hashCode(),  header.hashCode());
+        assertTrue(new ObjectHeaderImpl(null, true).equals(header));
+    }
+
+    @Test
+    public void testUnknownObject() {
+        UnknownObject un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
+        assertFalse(un.isIgnore());
+        assertFalse(un.isProcessingRule());
+        assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
+        final PCEPErrorMapping mapping = PCEPErrorMapping.getInstance();
+        final PCEPErrorIdentifier id = mapping.getFromErrorsEnum(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
+        assertEquals(id.getType(), un.getErrors().get(0).getErrorObject().getType().shortValue());
+
+        final Object o = new CCloseBuilder().build();
+        UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
+        assertEquals(Object.class, unknown.getImplementedInterface());
+        assertEquals(o, unknown.getInvalidObject());
     }
 }

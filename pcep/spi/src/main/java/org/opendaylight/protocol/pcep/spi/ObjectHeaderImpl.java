@@ -15,10 +15,10 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
  */
 public class ObjectHeaderImpl implements ObjectHeader {
 
-    private final boolean processed;
-    private final boolean ignored;
+    private final Boolean processed;
+    private final Boolean ignored;
 
-    public ObjectHeaderImpl(final boolean processed, final boolean ignore) {
+    public ObjectHeaderImpl(final Boolean processed, final Boolean ignore) {
         this.processed = processed;
         this.ignored = ignore;
     }
@@ -54,27 +54,35 @@ public class ObjectHeaderImpl implements ObjectHeader {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (this.ignored ? 1231 : 1237);
-        result = prime * result + (this.processed ? 1231 : 1237);
+        result = prime * result + ((this.ignored == null) ? 0 : this.ignored.hashCode());
+        result = prime * result + ((this.processed == null) ? 0 : this.processed.hashCode());
         return result;
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj == null) {
             return false;
         }
-        if (this.getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        final ObjectHeaderImpl other = (ObjectHeaderImpl) obj;
-        if (this.ignored != other.ignored) {
+        ObjectHeaderImpl other = (ObjectHeaderImpl) obj;
+        if (this.ignored == null) {
+            if (other.ignored != null) {
+                return false;
+            }
+        } else if (!this.ignored.equals(other.ignored)) {
             return false;
         }
-        if (this.processed != other.processed) {
+        if (this.processed == null) {
+            if (other.processed != null) {
+                return false;
+            }
+        } else if (!this.processed.equals(other.processed)) {
             return false;
         }
         return true;

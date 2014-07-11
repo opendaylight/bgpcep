@@ -13,11 +13,17 @@ public final class XROSubobjectUtil {
 
     private static final int HEADER_SIZE = 2;
 
+    private static final int MANDATORY_BIT = 7;
+
     private XROSubobjectUtil() {
     }
 
-    public static void formatSubobject(final int type, final boolean mandatory, final ByteBuf body, final ByteBuf buffer) {
-        buffer.writeByte(type | (mandatory ? 1 << 7 : 0));
+    public static void formatSubobject(final int type, final Boolean mandatory, final ByteBuf body, final ByteBuf buffer) {
+        if (mandatory == null) {
+            buffer.writeByte(type);
+        } else {
+            buffer.writeByte(type | (mandatory ? 1 << MANDATORY_BIT : 0));
+        }
         buffer.writeByte(body.writerIndex() + HEADER_SIZE);
         buffer.writeBytes(body);
     }

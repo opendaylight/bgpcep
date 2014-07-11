@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-
 import java.util.BitSet;
-
 import org.opendaylight.protocol.util.ByteArray;
 
 public final class ObjectUtil {
@@ -28,14 +26,14 @@ public final class ObjectUtil {
     }
 
     public static void formatSubobject(final int objectType, final int objectClass, final Boolean processingRule, final Boolean ignore,
-            final ByteBuf body, final ByteBuf out) {
+        final ByteBuf body, final ByteBuf out) {
         out.writeByte(objectClass);
         BitSet flags = new BitSet(Byte.SIZE);
-        if (ignore != null && ignore) {
-            flags.set(I_FLAG_OFFSET);
+        if (ignore != null) {
+            flags.set(I_FLAG_OFFSET, ignore);
         }
-        if (processingRule != null && processingRule) {
-            flags.set(P_FLAG_OFFSET);
+        if (processingRule != null) {
+            flags.set(P_FLAG_OFFSET, processingRule);
         }
         byte[] flagB = ByteArray.bitSetToBytes(flags, 1);
         int typeByte = objectType << OT_SF_LENGTH | flagB[0];

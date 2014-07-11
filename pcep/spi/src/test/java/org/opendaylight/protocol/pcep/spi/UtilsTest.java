@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertArrayEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 
@@ -49,6 +49,62 @@ public class UtilsTest {
         ByteBuf out = Unpooled.buffer();
         ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
         ObjectUtil.formatSubobject(1, 8, false, false, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+    }
+
+    @Test
+    public void testXROSubobjectUtil() {
+        byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
+        ByteBuf out = Unpooled.buffer();
+        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
+        body.markReaderIndex();
+        XROSubobjectUtil.formatSubobject(2, true, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+
+        expected = new byte[]{ 2, 6, 0, 1, 2, 3 };
+        out.clear();
+        body.resetReaderIndex();
+        XROSubobjectUtil.formatSubobject(2, false, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+    }
+
+    @Test
+    public void testTlvUtil() {
+        byte[] expected = { 0, 4, 0, 4, 1, 2, 3, 4 };
+        ByteBuf out = Unpooled.buffer();
+        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
+        TlvUtil.formatTlv(4, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+
+        expected = new byte[]{ 0, 4, 0, 5, 1, 2, 3, 4, 5, 0, 0, 0 };
+        out.clear();
+        body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4, 5 });
+        TlvUtil.formatTlv(4, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+    }
+
+    @Test
+    public void testRROSubobjectUtil() {
+        byte[] expected = { 4, 6, 1, 2, 3, 4 };
+        ByteBuf out = Unpooled.buffer();
+        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
+        RROSubobjectUtil.formatSubobject(4, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+    }
+
+    @Test
+    public void testEROSubobjectUtil() {
+        byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
+        ByteBuf out = Unpooled.buffer();
+        ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
+        body.markReaderIndex();
+        EROSubobjectUtil.formatSubobject(2, true, body, out);
+        assertArrayEquals(expected, ByteArray.getAllBytes(out));
+
+        expected = new byte[]{ 2, 6, 0, 1, 2, 3 };
+        out.clear();
+        body.resetReaderIndex();
+        EROSubobjectUtil.formatSubobject(2, false, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
     }
 }

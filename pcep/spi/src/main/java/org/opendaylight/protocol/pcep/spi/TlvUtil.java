@@ -11,18 +11,21 @@ import io.netty.buffer.ByteBuf;
 
 public final class TlvUtil {
 
-    private static final int HEADER_SIZE = 4;
+    protected static final int HEADER_SIZE = 4;
 
     protected static final int PADDED_TO = 4;
 
     private TlvUtil() {
-        throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
     public static void formatTlv(final int type,final ByteBuf body, final ByteBuf out) {
         out.writeShort(type);
         out.writeShort(body.writerIndex());
         out.writeBytes(body);
-        out.writeZero(AbstractObjectWithTlvsParser.getPadding(HEADER_SIZE + body.writerIndex(), PADDED_TO));
+        out.writeZero(getPadding(HEADER_SIZE + body.writerIndex(), PADDED_TO));
+    }
+
+    public static int getPadding(final int length, final int padding) {
+        return (padding - (length % padding)) % padding;
     }
 }
