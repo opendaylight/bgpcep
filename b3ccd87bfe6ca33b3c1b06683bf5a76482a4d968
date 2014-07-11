@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_a2a8ba8d",
+        "filename": "bgp/parser-mock/src/main/java/org/opendaylight/protocol/bgp/parser/mock/BGPMessageParserMock.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-11T09:07:06Z",
+      "side": 1,
+      "message": "Remove this class from commit.",
+      "revId": "b3ccd87bfe6ca33b3c1b06683bf5a76482a4d968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
