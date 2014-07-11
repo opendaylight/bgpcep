@@ -85,11 +85,9 @@
             </activation>
             <modules>
                 <module>api</module>
-                <module>api-cfg</module>
                 <module>jni</module>
                 <module>jni-cfg</module>
                 <module>netty</module>
-                <module>netty-cfg</module>
                 <module>nio</module>
                 <module>controller-config</module>
             </modules>
@@ -101,10 +99,8 @@
             </activation>
             <modules>
                 <module>api</module>
-                <module>api-cfg</module>
                 <module>jni-cfg</module>
                 <module>netty</module>
-                <module>netty-cfg</module>
                 <module>nio</module>
                 <module>controller-config</module>
             </modules>
