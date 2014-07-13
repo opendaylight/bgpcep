@@ -1,5 +1,5 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module config-topology-api {
+module odl-topology-api-cfg {
     yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:controller:topology";
     prefix "topo";

@@ -59,10 +59,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>topology-api-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>tcpmd5-api-cfg</artifactId>
         </dependency>
         <dependency>
