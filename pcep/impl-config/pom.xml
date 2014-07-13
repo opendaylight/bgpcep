@@ -62,7 +62,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-netty-cfg</artifactId>
+            <artifactId>tcpmd5-netty</artifactId>
         </dependency>
 
         <!--test dependencies -->

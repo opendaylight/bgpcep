@@ -67,15 +67,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-api-cfg</artifactId>
+            <artifactId>tcpmd5-api</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>tcpmd5-netty</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-netty-cfg</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
