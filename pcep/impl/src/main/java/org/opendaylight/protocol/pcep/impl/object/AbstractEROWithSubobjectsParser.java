@@ -9,13 +9,10 @@ package org.opendaylight.protocol.pcep.impl.object;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
@@ -62,6 +59,7 @@ public abstract class AbstractEROWithSubobjectsParser implements ObjectParser, O
     }
 
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
+        Preconditions.checkArgument(subobjects != null && !subobjects.isEmpty(), "ERO must contain at least one subobject.");
         for (final Subobject subobject : subobjects) {
             this.subobjReg.serializeSubobject(subobject, buffer);
         }
