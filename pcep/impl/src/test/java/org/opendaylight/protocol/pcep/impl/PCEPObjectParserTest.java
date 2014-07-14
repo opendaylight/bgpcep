@@ -74,6 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.XroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.exclude.route.object.xro.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.GcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.include.route.object.IroBuilder;
@@ -716,5 +717,19 @@ public class PCEPObjectParserTest {
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testEmptyEroObject() throws PCEPDeserializerException {
+        final Object object = this.ctx.getObjectHandlerRegistry().parseObject(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE, new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
+        assertNotNull(object);
+        assertTrue(object instanceof Ero);
+        final Ero eroObject = (Ero) object;
+        assertTrue(eroObject.getSubobject().isEmpty());
+
+        final ByteBuf buffer = Unpooled.buffer();
+        this.ctx.getObjectHandlerRegistry().serializeObject(eroObject, buffer);
+        final byte[] expected = {0x07, 0x13, 0x00, 0x04};
+        assertArrayEquals(expected, ByteArray.getAllBytes(buffer));
     }
 }
