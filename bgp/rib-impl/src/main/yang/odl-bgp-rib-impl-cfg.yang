@@ -175,7 +175,7 @@ module odl-bgp-rib-impl-cfg {
         config:java-name-prefix BGPPeerAcceptor;
     }
 
-     augment "/config:modules/config:module/config:configuration" {
+    augment "/config:modules/config:module/config:configuration" {
         case bgp-peer-acceptor {
             when "/config:modules/config:module/config:type = 'bgp-peer-acceptor'";
 
@@ -207,6 +207,48 @@ module odl-bgp-rib-impl-cfg {
                         config:required-identity bgp-peer-registry;
                     }
                 }
+            }
+        }
+    }
+
+    identity bgp-application-peer {
+        description
+            "Application peer handler which handles translation from custom RIB into local RIB";
+
+        base config:module-type;
+        config:java-name-prefix BGPApplicationPeer;
+    }
+
+    augment "/config:modules/config:module/config:configuration" {
+        case bgp-application-peer {
+            when "/config:modules/config:module/config:type = 'bgp-application-peer'";
+
+            container data-broker {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity mdsb:binding-async-data-broker;
+                    }
+                }
+            }
+
+            container target-rib {
+                uses config:service-ref {
+                    refine type {
+                        mandatory true;
+                        config:required-identity rib-instance;
+                    }
+                }
+            }
+
+            leaf application-rib-id {
+                type rib:application-rib-id;
+                mandatory true;
+            }
+
+            leaf bgp-id {
+                type inet:ipv4-address;
+                mandatory true;
             }
         }
     }
