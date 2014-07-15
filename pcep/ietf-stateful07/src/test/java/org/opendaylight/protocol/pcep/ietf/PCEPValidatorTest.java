@@ -15,17 +15,18 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00PCInitiateMessageParser;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CrabbeInitiatedActivator;
+import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07ErrorMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCReportMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07PCUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.Activator;
-import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
@@ -50,6 +51,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.StatefulCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.Srps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.SrpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.ReportsBuilder;
@@ -78,14 +82,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.metric.object.MetricBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.message.OpenMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.RroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
@@ -98,7 +99,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 
 public class PCEPValidatorTest {
 
-    private Open open;
     private Lspa lspa;
     private Metrics metrics;
     private Iro iro;
@@ -118,16 +118,6 @@ public class PCEPValidatorTest {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new Activator();
         this.act.start(this.ctx);
-
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder openBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder();
-        openBuilder.setProcessingRule(false);
-        openBuilder.setIgnore(false);
-        openBuilder.setDeadTimer((short) 1);
-        openBuilder.setKeepalive((short) 1);
-        openBuilder.setSessionId((short) 0);
-        openBuilder.setVersion(new ProtocolVersion((short) 1));
-        openBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().build());
-        this.open = openBuilder.build();
 
         final LspaBuilder lspaBuilder = new LspaBuilder();
         lspaBuilder.setProcessingRule(false);
@@ -151,11 +141,11 @@ public class PCEPValidatorTest {
         this.metrics = new MetricsBuilder().setMetric(mBuilder.build()).build();
 
         this.eroASSubobject = new AsNumberCaseBuilder().setAsNumber(
-                new AsNumberBuilder().setAsNumber(
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber(0xFFFFL)).build()).build();
+            new AsNumberBuilder().setAsNumber(
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber(0xFFFFL)).build()).build();
 
         this.rroUnnumberedSub = new UnnumberedCaseBuilder().setUnnumbered(
-                new UnnumberedBuilder().setRouterId(0x00112233L).setInterfaceId(0x00ff00ffL).build()).build();
+            new UnnumberedBuilder().setRouterId(0x00112233L).setInterfaceId(0x00ff00ffL).build()).build();
 
         final IroBuilder iroBuilder = new IroBuilder();
         iroBuilder.setIgnore(false);
@@ -170,7 +160,7 @@ public class PCEPValidatorTest {
         eroBuilder.setProcessingRule(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.Subobject> eroSubs = Lists.newArrayList();
         eroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.explicit.route.object.ero.SubobjectBuilder().setSubobjectType(
-                this.eroASSubobject).setLoose(false).build());
+            this.eroASSubobject).setLoose(false).build());
         eroBuilder.setSubobject(eroSubs);
         this.ero = eroBuilder.build();
 
@@ -179,7 +169,7 @@ public class PCEPValidatorTest {
         rroBuilder.setProcessingRule(false);
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.Subobject> rroSubs = Lists.newArrayList();
         rroSubs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.rro.SubobjectBuilder().setSubobjectType(
-                this.rroUnnumberedSub).setProtectionAvailable(false).setProtectionInUse(false).build());
+            this.rroUnnumberedSub).setProtectionAvailable(false).setProtectionInUse(false).build());
         rroBuilder.setSubobject(rroSubs);
         this.rro = rroBuilder.build();
 
@@ -225,11 +215,11 @@ public class PCEPValidatorTest {
             b.setSessionId((short) 1);
             final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE).build();
             b.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder().addAugmentation(
-                    Tlvs1.class, new Tlvs1Builder().setStateful(tlv1).build()).build());
+                Tlvs1.class, new Tlvs1Builder().setStateful(tlv1).build()).build());
             builder.setOpen(b.build());
 
             assertEquals(new OpenBuilder().setOpenMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             final ByteBuf buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -254,7 +244,7 @@ public class PCEPValidatorTest {
             builder.setUpdates(updates);
 
             assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             ByteBuf buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -270,7 +260,7 @@ public class PCEPValidatorTest {
             builder.setUpdates(updates1);
 
             assertEquals(new PcupdBuilder().setPcupdMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcupdBuilder().setPcupdMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -292,7 +282,7 @@ public class PCEPValidatorTest {
             builder.setReports(reports);
 
             assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             ByteBuf buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -301,12 +291,12 @@ public class PCEPValidatorTest {
 
             final List<Reports> reports1 = Lists.newArrayList();
             reports1.add(new ReportsBuilder().setLsp(this.lsp).setPath(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder().setEro(
-                            this.ero).setLspa(this.lspa).build()).build());
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.reports.PathBuilder().setEro(
+                    this.ero).setLspa(this.lspa).build()).build());
             builder.setReports(reports1);
 
             assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -323,7 +313,7 @@ public class PCEPValidatorTest {
             builder.setReports(reports2);
 
             assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -341,7 +331,7 @@ public class PCEPValidatorTest {
             builder.setReports(reports3);
 
             assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -370,7 +360,7 @@ public class PCEPValidatorTest {
             builder.setRequests(reqs);
 
             assertEquals(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             final ByteBuf buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -381,22 +371,23 @@ public class PCEPValidatorTest {
     public void testErrorMsg() throws IOException, PCEPDeserializerException {
         try (StatefulActivator a = new StatefulActivator()) {
             a.start(this.ctx);
-            final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCErr.3.bin"));
+            final Stateful07ErrorMessageParser parser = new Stateful07ErrorMessageParser(this.ctx.getObjectHandlerRegistry());
 
-            final ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 3).setValue(
-                    (short) 1).build();
+            final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCErr.1.bin"));
+            final ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false).setType((short) 19).setValue(
+                (short) 1).build();
 
-            final PCEPErrorMessageParser parser = new PCEPErrorMessageParser(this.ctx.getObjectHandlerRegistry());
-
-            List<Errors> innerErr = Lists.newArrayList();
+            final List<Errors> innerErr = new ArrayList<>();
             innerErr.add(new ErrorsBuilder().setErrorObject(error1).build());
 
             final PcerrMessageBuilder builder = new PcerrMessageBuilder();
             builder.setErrors(innerErr);
-            builder.setErrorType(new SessionCaseBuilder().setSession(new SessionBuilder().setOpen(this.open).build()).build());
+            List<Srps> srps = new ArrayList<>();
+            srps.add(new SrpsBuilder().setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(3L)).setIgnore(false).setProcessingRule(false).build()).build());
+            builder.setErrorType(new StatefulCaseBuilder().setStateful(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.StatefulBuilder().setSrps(srps).build()).build());
 
             assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
-                    result.readableBytes() - 4), Collections.<Message> emptyList()));
+                result.readableBytes() - 4), Collections.<Message> emptyList()));
             final ByteBuf buf = Unpooled.buffer(result.readableBytes());
             parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
             assertArrayEquals(result.array(), buf.array());
@@ -422,7 +413,7 @@ public class PCEPValidatorTest {
 
         final PcerrMessageBuilder errMsgBuilder = new PcerrMessageBuilder();
         errMsgBuilder.setErrors(Lists.newArrayList(new ErrorsBuilder().setErrorObject(
-                new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
+            new ErrorObjectBuilder().setType((short) 6).setValue((short) 8).build()).build()));
         final PcerrBuilder builder = new PcerrBuilder();
         builder.setPcerrMessage(errMsgBuilder.build());
 
