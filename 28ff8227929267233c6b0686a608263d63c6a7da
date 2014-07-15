@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_f57afb22",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-15T13:19:09Z",
+      "side": 0,
+      "message": "Degrade to trace, please. These are useful if datastore starts misbehving again",
+      "revId": "28ff8227929267233c6b0686a608263d63c6a7da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
