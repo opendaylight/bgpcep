@@ -5,11 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl.client;
+
+package org.opendaylight.protocol.bgp.rib.impl;
 
 import io.netty.channel.Channel;
 import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
+
 import org.opendaylight.protocol.bgp.rib.impl.AbstractBGPSessionNegotiator;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -19,23 +21,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 
 /**
- * Client negotiator. Validates established connections using BGPClientSessionValidator
+ * Server negotiator. Validates established connections using BGPServerSessionValidator
  */
-public final class BGPClientSessionNegotiator extends AbstractBGPSessionNegotiator {
+public final class BGPServerSessionNegotiator extends AbstractBGPSessionNegotiator {
 
-    public BGPClientSessionNegotiator(final Timer timer,
+    public BGPServerSessionNegotiator(final Timer timer,
                                       final Promise<BGPSessionImpl> promise, final Channel channel,
                                       final BGPPeerRegistry registry,
                                       final BGPSessionValidator sessionValidator) {
         super(timer, promise, channel, registry, sessionValidator);
     }
 
-    protected Ipv4Address getDestinationId(final Open openMsg,
+    protected Ipv4Address getSourceId(final Open openMsg,
             final BGPSessionPreferences preferences) {
         return preferences.getBgpId();
     }
 
-    protected Ipv4Address getSourceId(final Open openMsg,
+    protected Ipv4Address getDestinationId(final Open openMsg,
             final BGPSessionPreferences preferences) {
         return openMsg.getBgpIdentifier();
     }

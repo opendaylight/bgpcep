@@ -23,8 +23,6 @@ import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelOption;
 import org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.client.BGPClientSessionNegotiatorFactory;
-import org.opendaylight.protocol.bgp.rib.impl.server.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPServerDispatcher;

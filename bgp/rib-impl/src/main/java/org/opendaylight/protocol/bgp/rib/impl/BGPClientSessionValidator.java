@@ -6,13 +6,12 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl.client;
+package org.opendaylight.protocol.bgp.rib.impl;
 
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -29,11 +28,9 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
     private static final Logger LOG = LoggerFactory.getLogger(BGPClientSessionValidator.class);
 
     private final AsNumber remoteAs;
-    private final BGPPeerRegistry peerRegistry;
 
-    public BGPClientSessionValidator(final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
+    public BGPClientSessionValidator(final AsNumber remoteAs) {
         this.remoteAs = remoteAs;
-        this.peerRegistry = peerRegistry;
     }
 
     /**

@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.protocol.bgp.rib.impl.server.BGPServerSessionValidator;
+import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionValidator;
 
 /**
 * BGP peer acceptor that handles incomming bgp connections.
@@ -39,8 +39,8 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
         // Validate future success
         future.addListener(new GenericFutureListener<Future<Void>>() {
             @Override
-            public void operationComplete(Future<Void> future) throws Exception {
-                if(future.isSuccess() == false) {
+            public void operationComplete(Future<Void> future) {
+                if(!future.isSuccess()) {
                     throw new IllegalStateException(String.format("Unable to start bgp server on %s", getAddress()), future.cause());
                 }
             }
@@ -48,7 +48,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
         return new AutoCloseable() {
             @Override
-            public void close() throws Exception {
+            public void close() {
                 // This closes the acceptor and no new bgp connections will be accepted
                 // Connections already established will be preserved
                 future.cancel(true);
