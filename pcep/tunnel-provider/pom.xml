@@ -42,10 +42,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-tunnel-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-ietf-stateful02</artifactId>
         </dependency>
         <dependency>

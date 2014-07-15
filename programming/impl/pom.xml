@@ -125,6 +125,10 @@
                <configuration>
                    <instructions>
                        <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
+                       <Export-Package>
+                            org.opendaylight.bgpcep.programming.impl,
+                            org.opendaylight.controller.config.yang.programming.impl
+                        </Export-Package>
                    </instructions>
                </configuration>
            </plugin>

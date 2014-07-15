@@ -205,6 +205,7 @@
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.opendaylight.protocol.bgp.rib.impl.*,
+                            org.opendaylight.controller.config.yang.bgp.rib.impl
                         </Export-Package>
                     </instructions>
                 </configuration>
