@@ -17,15 +17,12 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -82,6 +79,13 @@ public class ParserTest {
         (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
         (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
         (byte) 0x01, (byte) 0x00, (byte) 0x01 };
+
+    public static final byte[] updateMsg = {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, 0x00, 0x51, 0x02, 0x00, 0x00, 0x00, 0x36, 0x40, 0x01, 0x01, 0x00, 0x40, 0x02,
+        0x1a, 0x02, 0x06, 0x00, 0x00, (byte) 0xfe, 0x55, 0x00, 0x00, (byte) 0xfc, 0x12, 0x00, 0x00, 0x00, 0x6d, 0x00, 0x00, 0x02, (byte) 0xbd, 0x00, 0x00, 0x0d, 0x1c, 0x00, 0x00, 0x6a, 0x74, 0x40, 0x03,
+        0x04, 0x0a, 0x20, 0x00, (byte) 0xfe, (byte) 0x80, 0x04, 0x04, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x04, 0x00, 0x00, 0x00, 0x64, 0x18, (byte) 0xa8, (byte) 0xa1, (byte) 0xf7
+    };
 
     static MessageRegistry reg;
 
@@ -305,5 +309,18 @@ public class ParserTest {
 
         // the capabilities can be swapped.
         assertTrue(Arrays.equals(openWithCpblt1, ByteArray.getAllBytes(result)) || Arrays.equals(openWithCpblt2, ByteArray.getAllBytes(result)));
+    }
+
+    // https://bugs.opendaylight.org/show_bug.cgi?id=1370
+    // tests if all bytes are read after deserialization error occurs
+    @Test
+    public void testUpdateMsgParser() throws BGPParsingException {
+        final ByteBuf buffer = Unpooled.copiedBuffer(updateMsg);
+        try {
+            ParserTest.reg.parseMessage(buffer);
+            fail();
+        } catch(BGPDocumentedException e) {
+            assertEquals(0, buffer.readableBytes());
+        }
     }
 }
