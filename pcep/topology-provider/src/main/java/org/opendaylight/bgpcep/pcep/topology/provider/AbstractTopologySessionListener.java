@@ -13,18 +13,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -148,7 +144,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
 
         final Node topoNode = topologyNode(trans, peerAddress);
-        LOG.debug("Peer {} resolved to topology node {}", peerAddress, topoNode);
+        LOG.trace("Peer {} resolved to topology node {}", peerAddress, topoNode);
 
         // Our augmentation in the topology node
         this.synced = false;
@@ -162,7 +158,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final Node1 ta = this.topologyAugmentBuilder.build();
 
         trans.putOperationalData(this.topologyAugment, ta);
-        LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
+        LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
 
         // All set, commit the modifications
         final ListenableFuture<RpcResult<TransactionStatus>> f = JdkFutureAdapters.listenInPoolThread(trans.commit());
@@ -256,7 +252,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
             trans.removeOperationalData(this.topologyAugment);
             trans.putOperationalData(this.topologyAugment, ta);
-            LOG.debug("Peer data {} set to {}", this.topologyAugment, ta);
+            LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
             this.dirty = false;
         } else {
             LOG.debug("State has not changed, skipping sync");
@@ -303,7 +299,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-            final Metadata metadata) {
+        final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
 
@@ -320,7 +316,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized void updateLsp(final DataModificationTransaction trans, final L id, final String lspName,
-            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
