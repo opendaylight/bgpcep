@@ -7,12 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful07;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -20,6 +19,8 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.StatefulCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.StatefulCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.Srps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.stateful.SrpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
@@ -53,16 +54,13 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        if (!(message instanceof PcerrMessage)) {
-            throw new IllegalArgumentException("Wrong instance of Message. Passed instance " + message.getClass()
-                    + ". Nedded ErrorMessage.");
-        }
+        Preconditions.checkArgument(message instanceof PcerrMessage, "Wrong instance of Message. Passed instance of %s. Need ErrorMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
 
         if (err.getErrors() == null || err.getErrors().isEmpty()) {
             throw new IllegalArgumentException("Errors should not be empty.");
         }
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
 
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
@@ -90,7 +88,6 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
         if (objects == null) {
             throw new IllegalArgumentException("Passed list can't be null.");
         }
-
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
@@ -184,15 +181,18 @@ public final class Stateful07ErrorMessageParser extends PCEPErrorMessageParser {
             }
         }
 
-        if (errorObjects.isEmpty() && errorObjects.isEmpty()) {
+        if (errorObjects.isEmpty()) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
 
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
-        if (requestParameters != null && !requestParameters.isEmpty()) {
+        if (!requestParameters.isEmpty()) {
             b.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
+        }
+        if (!srps.isEmpty()) {
+            b.setErrorType(new StatefulCaseBuilder().setStateful(new StatefulBuilder().setSrps(srps).build()).build());
         }
 
         return new PcerrBuilder().setPcerrMessage(b.setErrors(errorObjects).build()).build();
