@@ -31,6 +31,10 @@ module bgp-rib {
         type inet:uri;
     }
 
+    typedef application-rib-id {
+        type inet:uri;
+    }
+
     grouping route {
         container attributes {
             uses bgp-msg:path-attributes;
@@ -80,6 +84,17 @@ module bgp-rib {
                 }
             }
         }
+    }
+
+    list application-rib {
+        config true;
+
+        leaf id {
+            type application-rib-id;
+        }
+        key id;
+
+        uses rib;
     }
 
     container bgp-rib {
