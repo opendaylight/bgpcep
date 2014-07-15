@@ -95,7 +95,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         Preconditions.checkState(this.state == State.Idle);
 
         // Check if peer is configured in registry before retrieving preferences
-        if (registry.isPeerConfigured(getRemoteIp()) == false) {
+        if (!registry.isPeerConfigured(getRemoteIp())) {
             final BGPDocumentedException cause = new BGPDocumentedException(
                     "BGP peer with ip: " + getRemoteIp()
                             + " not configured, check configured peers in : "

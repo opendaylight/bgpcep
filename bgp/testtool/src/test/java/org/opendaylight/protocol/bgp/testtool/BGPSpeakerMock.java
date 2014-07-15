@@ -8,22 +8,25 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.base.Preconditions;
+
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
+
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPHandlerFactory;
+import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionProposalImpl;
-import org.opendaylight.protocol.bgp.rib.impl.server.BGPServerSessionNegotiatorFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;

@@ -42,7 +42,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     // TODO remove backwards compatibility
-    public static StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
+    public static final StrictBGPPeerRegistry GLOBAL = new StrictBGPPeerRegistry();
 
     @GuardedBy("this")
     private final Map<IpAddress, ReusableBGPPeer> peers = Maps.newHashMap();
@@ -54,7 +54,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public synchronized void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
         Preconditions.checkNotNull(ip);
-        Preconditions.checkArgument(peers.containsKey(ip) == false, "Peer for %s already present", ip);
+        Preconditions.checkArgument(!peers.containsKey(ip), "Peer for %s already present", ip);
         peers.put(ip, Preconditions.checkNotNull(peer));
         peerPreferences.put(ip, Preconditions.checkNotNull(preferences));
     }
@@ -93,7 +93,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
             final BGPSessionId previousConnection = sessionIds.get(ip);
 
             // Session reestablished with different ids
-            if (previousConnection.equals(currentConnection) == false) {
+            if (!previousConnection.equals(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
                 throw new BGPDocumentedException(
                         String.format("BGP session with %s %s has to be dropped. Same session already present %s",
@@ -157,7 +157,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         peers.clear();
         sessionIds.clear();
     }
@@ -185,21 +185,30 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          */
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
-            final BGPSessionId BGPSessionId = (BGPSessionId) o;
+            final BGPSessionId bGPSessionId = (BGPSessionId) o;
 
-            if (!from.equals(BGPSessionId.from) && !from.equals(BGPSessionId.to)) return false;
-            if (!to.equals(BGPSessionId.to) && !to.equals(BGPSessionId.from)) return false;
+            if (!from.equals(bGPSessionId.from) && !from.equals(bGPSessionId.to)) {
+                return false;
+            }
+            if (!to.equals(bGPSessionId.to) && !to.equals(bGPSessionId.from)) {
+                return false;
+            }
 
             return true;
         }
 
         @Override
         public int hashCode() {
+            final int prime = 31;
             int result = from.hashCode() + to.hashCode();
-            result = 31 * result;
+            result = prime * result;
             return result;
         }
 
@@ -207,7 +216,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          * Check if this connection is equal to other and if it contains higher source bgp id
          */
         boolean isHigherDirection(final BGPSessionId other) {
-            Preconditions.checkState(this.isSameDirection(other) == false, "Equal sessions with same direction");
+            Preconditions.checkState(!this.isSameDirection(other), "Equal sessions with same direction");
             return toLong(from) > toLong(other.from);
         }
 
