@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.protocol.bgp.rib.impl.server;
+package org.opendaylight.protocol.bgp.rib.impl;
 
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;

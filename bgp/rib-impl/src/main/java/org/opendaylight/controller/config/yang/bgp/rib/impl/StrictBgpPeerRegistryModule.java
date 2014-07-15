@@ -69,7 +69,7 @@ public class StrictBgpPeerRegistryModule extends org.opendaylight.controller.con
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             // DO nothing, do not close the global instance
         }
 

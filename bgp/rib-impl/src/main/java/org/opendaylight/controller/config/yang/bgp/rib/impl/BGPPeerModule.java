@@ -111,9 +111,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         getPeerRegistryBackwards().addPeer(getHostWithoutValue(), bgpClientPeer, prefs);
 
-        final AutoCloseable peerCloseable = new AutoCloseable() {
+        final CloseableNoEx peerCloseable = new CloseableNoEx() {
             @Override
-            public void close() throws Exception {
+            public void close() {
                 bgpClientPeer.close();
                 getPeerRegistryBackwards().removePeer(getHostWithoutValue());
             }
@@ -122,9 +122,9 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         // Initiate connection
         if(getInitiateConnection()) {
             final Future<Void> cf = initiateConnection(createAddress(), password, remoteAs, getPeerRegistryBackwards());
-            return new AutoCloseable() {
+            return new CloseableNoEx() {
                 @Override
-                public void close() throws Exception {
+                public void close() {
                     cf.cancel(true);
                     peerCloseable.close();
                 }
@@ -132,6 +132,11 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         } else {
             return peerCloseable;
         }
+    }
+
+    private static interface CloseableNoEx extends AutoCloseable {
+        @Override
+        void close();
     }
 
     private String getPasswordOrNull() {
