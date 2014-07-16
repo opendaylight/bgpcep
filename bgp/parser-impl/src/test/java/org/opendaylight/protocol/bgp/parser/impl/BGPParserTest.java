@@ -14,10 +14,8 @@ import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +23,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -170,10 +167,10 @@ public class BGPParserTest {
      * Tests IPv4 NEXT_HOP, ATOMIC_AGGREGATE, COMMUNITY, NLRI
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 52 <- length (82) - including header
+     * 00 54 <- length (84) - including header
      * 02 <- message type
      * 00 00 <- withdrawn routes length
-     * 00 2f <- total path attribute length (47)
+     * 00 31 <- total path attribute length (49)
      * 40 <- attribute flags
      * 01 <- attribute type code (origin)
      * 01 <- attribute length
@@ -183,7 +180,7 @@ public class BGPParserTest {
      * 06 <- attribute length
      * 02 <- AS_SEQUENCE
      * 01 <- path segment count
-     * fd ea <- path segment value (65002)
+     * 00 00 fd ea <- path segment value (65002)
      * 40 <- attribute flags
      * 03 <- attribute type code (Next Hop)
      * 04 <- attribute length
@@ -195,7 +192,7 @@ public class BGPParserTest {
      * 60 <- attribute flags
      * 06 <- attribute type code (atomic aggregate)
      * 00 <- attribute length
-     * 64 <- attribute flags
+     * 40 <- attribute flags
      * 08 <- attribute type code (community)
      * 10 <- attribute length FF FF FF
      * 01 <- value (NO_EXPORT)
@@ -287,20 +284,20 @@ public class BGPParserTest {
      * Tests IPv6 NEXT_HOP, NLRI, ORIGIN.IGP, MULTI_EXIT_DISC, ORIGINATOR-ID, CLUSTER_LIST.
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 7e <- length (126) - including header
+     * 00 80 <- length (128) - including header
      * 02 <- message type
      * 00 00 <- withdrawn routes length
-     * 00 67 <- total path attribute length (103)
+     * 00 69 <- total path attribute length (105)
      * 40 <- attribute flags
      * 01 <- attribute type code (origin)
      * 01 <- attribute length
      * 00 <- Origin value (IGP)
      * 40 <- attribute flags
      * 02 <- attribute type code (as path)
-     * 04 <- attribute length
+     * 06 <- attribute length
      * 02 <- AS_SEQUENCE
      * 01 <- path segment count
-     * fd e9 <- path segment value (65001)
+     * 00 00 fd e9 <- path segment value (65001)
      * 40 <- attribute flags
      * 03 <- attribute type code (next hop)
      * 04 <- attribute length
@@ -413,10 +410,10 @@ public class BGPParserTest {
      * Tests more AS Numbers in AS_PATH, AGGREGATOR, ORIGIN.INCOMPLETE
      *
      * ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff <- marker
-     * 00 45 <- length (69) - including header
+     * 00 4b <- length (75) - including header
      * 02 <- message type
      * 00 00 <- withdrawn routes length
-     * 00 30 <- total path attribute length (42)
+     * 00 30 <- total path attribute length (48)
      * 40 <- attribute flags
      * 01 <- attribute type code (origin)
      * 01 <- attribute length
@@ -426,11 +423,11 @@ public class BGPParserTest {
      * 10 <- attribute length
      * 02 <- AS_SEQUENCE
      * 01 <- path segment count
-     * 00 1e <- path segment value (30)
+     * 00 00 00 1e <- path segment value (30)
      * 01 <- AS_SET
      * 02 <- path segment count
-     * 00 0a <- path segment value (10)
-     * 00 14 <- path segment value (20)
+     * 00 00 00 0a <- path segment value (10)
+     * 00 00 00 14 <- path segment value (20)
      * 40 <- attribute flags
      * 03 <- attribute type (Next hop)
      * 04 <- attribute length
