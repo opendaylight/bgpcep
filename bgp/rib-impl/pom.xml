@@ -183,7 +183,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-jni-cfg</artifactId>
+            <artifactId>tcpmd5-jni</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
