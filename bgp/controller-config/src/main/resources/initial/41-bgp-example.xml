@@ -11,7 +11,7 @@
     <required-capabilities>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:cfg?module=odl-bgp-rib-cfg&amp;revision=2013-07-01</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
-        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=bgp-rib-impl&amp;revision=2013-04-09</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider?module=odl-bgp-topology-provider-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
