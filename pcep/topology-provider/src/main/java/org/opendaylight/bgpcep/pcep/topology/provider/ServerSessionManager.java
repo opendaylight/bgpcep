@@ -7,10 +7,10 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
@@ -19,9 +19,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.AddLspArgs;
@@ -55,27 +58,34 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
     private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
-    private final DataProviderService dataProvider;
+    private final DataBroker dataProvider;
 
-    public ServerSessionManager(final DataProviderService dataProvider, final InstanceIdentifier<Topology> topology,
+    public ServerSessionManager(final DataBroker dataProvider, final InstanceIdentifier<Topology> topology,
             final TopologySessionListenerFactory listenerFactory) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.topology = Preconditions.checkNotNull(topology);
         this.listenerFactory = Preconditions.checkNotNull(listenerFactory);
 
+        // FIXME: should migrated to transaction chain
+        final ReadWriteTransaction t = dataProvider.newReadWriteTransaction();
+
         // Make sure the topology does not exist
-        final Object c = dataProvider.readOperationalData(topology);
-        Preconditions.checkArgument(c == null, "Topology %s already exists", topology);
+        final Optional<?> c;
+        try {
+            c = t.read(LogicalDatastoreType.OPERATIONAL, topology).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IllegalStateException("Failed to ensure topology presence", e);
+        }
+        Preconditions.checkArgument(!c.isPresent(), "Topology %s already exists", topology);
 
         // Now create the base topology
         final TopologyKey k = InstanceIdentifier.keyOf(topology);
-        final DataModificationTransaction t = dataProvider.beginTransaction();
-        t.putOperationalData(topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
+        t.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder().setKey(k).setTopologyId(k.getTopologyId()).setTopologyTypes(
                 new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
                         new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build()).build()).setNode(
-                new ArrayList<Node>()).build());
+                                new ArrayList<Node>()).build());
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(t.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(t.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Topology {} created successfully", topology);
@@ -83,7 +93,7 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to create topology {}", topology);
+                LOG.error("Failed to create topology {}", topology, t);
             }
         });
     }
@@ -165,19 +175,23 @@ final class ServerSessionManager implements SessionListenerFactory<PCEPSessionLi
         return topology;
     }
 
-    DataModificationTransaction beginTransaction() {
-        return dataProvider.beginTransaction();
+    WriteTransaction beginTransaction() {
+        return dataProvider.newWriteOnlyTransaction();
     }
 
-    @SuppressWarnings("unchecked")
-    <T extends DataObject> T readOperationalData(final InstanceIdentifier<T> id) {
-        return (T) dataProvider.readOperationalData(id);
+    ReadWriteTransaction rwTransaction() {
+        return dataProvider.newReadWriteTransaction();
+    }
+
+    <T extends DataObject> ListenableFuture<Optional<DataObject>> readOperationalData(final InstanceIdentifier<T> id) {
+        final ReadTransaction t = dataProvider.newReadOnlyTransaction();
+        return t.read(LogicalDatastoreType.OPERATIONAL, id);
     }
 
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        final DataModificationTransaction t = this.dataProvider.beginTransaction();
-        t.removeOperationalData(this.topology);
+        final WriteTransaction t = this.dataProvider.newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, this.topology);
         t.commit().get();
     }
 }

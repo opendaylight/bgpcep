@@ -40,9 +40,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs1;
@@ -88,10 +89,10 @@ public class ParserToSalTest {
     private ChannelPipeline pipeline;
 
     @Mock
-    DataProviderService providerService;
+    DataBroker providerService;
 
     @Mock
-    DataModificationTransaction mockedTransaction;
+    ReadWriteTransaction mockedTransaction;
 
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setTlvs(
             new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
@@ -123,7 +124,9 @@ public class ParserToSalTest {
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newReadOnlyTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newReadWriteTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newWriteOnlyTransaction();
         Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
             int i = 0;
 
@@ -168,17 +171,7 @@ public class ParserToSalTest {
                 return data.get(args[0]);
             }
 
-        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LOG.debug("Get key {}", args[0]);
-                return data.get(args[0]);
-            }
-
-        }).when(this.providerService).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).read(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<Object>() {
 
@@ -188,7 +181,7 @@ public class ParserToSalTest {
                 return null;
             }
 
-        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).delete(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<String>() {
             @Override
@@ -199,7 +192,7 @@ public class ParserToSalTest {
                 return null;
             }
 
-        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+        }).when(this.mockedTransaction).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
         this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
                 Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
@@ -222,7 +215,7 @@ public class ParserToSalTest {
     public void testUnknownLsp() {
         this.session.sessionUp();
         this.session.handleMessage(this.rptmsg);
-        Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.mockedTransaction, Mockito.times(4)).put(LogicalDatastoreType.OPERATIONAL, Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
         Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
     }
