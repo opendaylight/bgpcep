@@ -51,18 +51,17 @@ import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreM
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreModuleMXBean;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataBroker;
+import org.opendaylight.controller.md.sal.dom.api.DOMDataReadWriteTransaction;
 import org.opendaylight.controller.sal.core.api.RpcProvisionRegistry;
-import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.core.api.data.DataProviderService;
 import org.opendaylight.controller.sal.core.api.mount.MountProvisionService;
 import org.opendaylight.controller.sal.core.api.mount.MountProvisionService.MountProvisionListener;
 import org.opendaylight.controller.sal.core.api.notify.NotificationPublishService;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.data.api.CompositeNode;
 import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
@@ -89,10 +88,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     private static final String TIMER_INSTANCE_NAME = "timer-impl";
 
     @Mock
-    private DataModificationTransaction mockedTransaction;
+    private DOMDataReadWriteTransaction mockedTransaction;
 
     @Mock
-    private DataProviderService mockedDataProvider;
+    private DOMDataBroker mockedDataProvider;
 
     @Mock
     private RpcProvisionRegistry mockedRpcProvision;
@@ -152,7 +151,7 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn("Notification Publish Service Reference").when(notificationPublishServiceReference).toString();
         //
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
+        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DOMDataBroker.class);
         Mockito.doReturn(rpcProvisionServiceReference).when(mockedContext).getServiceReference(RpcProvisionRegistry.class);
         Mockito.doReturn(notificationPublishServiceReference).when(mockedContext).getServiceReference(NotificationPublishService.class);
         Mockito.doReturn(mountProvisionServiceReference).when(mockedContext).getServiceReference(MountProvisionService.class);
@@ -164,19 +163,14 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
-
         Mockito.doReturn(null).when(mockedMountProvision).registerProvisionListener(any(MountProvisionListener.class));
 
-        Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
-        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
+        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).newReadWriteTransaction();
 
-        Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
-        Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
+        Mockito.doNothing().when(mockedTransaction).put(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class), any(NormalizedNode.class));
+        Mockito.doNothing().when(mockedTransaction).delete(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class));
+        Mockito.doReturn(null).when(mockedTransaction).read(LogicalDatastoreType.OPERATIONAL, any(InstanceIdentifier.class));
+        Mockito.doReturn(null).when(mockedTransaction).read(LogicalDatastoreType.CONFIGURATION, any(InstanceIdentifier.class));
 
         Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
         Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
@@ -185,7 +179,6 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         Mockito.doReturn(true).when(mockedResult).isSuccessful();
         Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
 
-        Mockito.doReturn(null).when(mockedDataProvider).readConfigurationData(any(InstanceIdentifier.class));
 
         GlobalBundleScanningSchemaServiceImpl.createInstance(mockedContext);
     }
