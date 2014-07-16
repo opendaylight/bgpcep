@@ -59,19 +59,19 @@
                     <name>pcep-parser-base</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-stateful07</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-stateful07</type>
                     <name>pcep-parser-ietf-stateful07</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-initiated00</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful07:cfg">prefix:pcep-parser-ietf-initiated00</type>
                     <name>pcep-parser-ietf-initiated00</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-ietf-stateful02</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-parser-ietf-stateful02</type>
                     <name>pcep-parser-ietf-stateful02</name>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:impl">prefix:pcep-parser-crabbe-initiated00</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:pcep:stateful02:cfg">prefix:pcep-parser-crabbe-initiated00</type>
                     <name>pcep-parser-crabbe-initiated00</name>
                 </module>
                 <module>
