@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobjectsParser {
 
-    public static final int CLASS = 7;
+    public static final int CLASS = 17;
 
     public static final int TYPE = 1;
 
