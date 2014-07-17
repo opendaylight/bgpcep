@@ -10,14 +10,12 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SEQUENCE;
 import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType.AS_SET;
-import io.netty.buffer.ByteBuf;
 
+import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ShortAsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.ASetCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.AList;
@@ -32,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class AsPathSegmentParser {
 
-    public static final int AS_NUMBER_LENGTH = 2;
+    public static final int AS_NUMBER_LENGTH = 4;
 
     /**
      * Possible types of AS Path segments.
@@ -70,9 +68,8 @@ public final class AsPathSegmentParser {
     static List<AsSequence> parseAsSequence(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
         final List<AsSequence> coll = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            long asValue = buffer.readUnsignedShort();
             coll.add(
-                    refCache.getSharedReference(new AsSequenceBuilder().setAs(refCache.getSharedReference(new AsNumber(asValue))).build()));
+                    refCache.getSharedReference(new AsSequenceBuilder().setAs(refCache.getSharedReference(new AsNumber(buffer.readUnsignedInt()))).build()));
         }
         return coll;
     }
@@ -80,14 +77,13 @@ public final class AsPathSegmentParser {
     static List<AsNumber> parseAsSet(final ReferenceCache refCache, final int count, final ByteBuf buffer) {
         final List<AsNumber> coll = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            long asValue = buffer.readUnsignedShort();
             coll.add(refCache.getSharedReference(
-                    new AsNumber(asValue)));
+                    new AsNumber(buffer.readUnsignedInt())));
         }
         return coll;
     }
 
-    static void serializeAsSet(final ASetCase aSetCase, final ByteBuf byteAggregator) {
+    static void serializeAsSet(ASetCase aSetCase, ByteBuf byteAggregator) {
         ASet aset = aSetCase.getASet();
         if (aset == null || aset.getAsSet() == null) {
             return;
@@ -95,19 +91,19 @@ public final class AsPathSegmentParser {
         byteAggregator.writeByte(serializeType(AS_SET));
         byteAggregator.writeByte(aset.getAsSet().size());
         for (AsNumber asNumber : aset.getAsSet()) {
-            byteAggregator.writeShort(new ShortAsNumber(asNumber).getValue().shortValue());
+            byteAggregator.writeInt(asNumber.getValue().intValue());
         }
     }
 
-    static void serializeAsSequence(final AListCase aListCase, final ByteBuf byteAggregator) {
-        final AList alist = aListCase.getAList();
+    static void serializeAsSequence(AListCase aListCase, ByteBuf byteAggregator) {
+        AList alist = aListCase.getAList();
         if (alist == null || alist.getAsSequence() == null) {
             return;
         }
         byteAggregator.writeByte(serializeType(AS_SEQUENCE));
         byteAggregator.writeByte(alist.getAsSequence().size());
         for (AsSequence value : alist.getAsSequence()) {
-            byteAggregator.writeShort(new ShortAsNumber(value.getAs()).getValue().shortValue());
+            byteAggregator.writeInt(value.getAs().getValue().intValue());
         }
     }
 }

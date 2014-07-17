@@ -310,17 +310,4 @@ public class ParserTest {
         // the capabilities can be swapped.
         assertTrue(Arrays.equals(openWithCpblt1, ByteArray.getAllBytes(result)) || Arrays.equals(openWithCpblt2, ByteArray.getAllBytes(result)));
     }
-
-    // https://bugs.opendaylight.org/show_bug.cgi?id=1370
-    // tests if all bytes are read after deserialization error occurs
-    @Test
-    public void testUpdateMsgParser() throws BGPParsingException {
-        final ByteBuf buffer = Unpooled.copiedBuffer(updateMsg);
-        try {
-            ParserTest.reg.parseMessage(buffer);
-            fail();
-        } catch(BGPDocumentedException e) {
-            assertEquals(0, buffer.readableBytes());
-        }
-    }
 }
