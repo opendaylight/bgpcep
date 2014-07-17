@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
+public class BGPPeer extends AdjRIBOut<Object, DataObject> implements ReusableBGPPeer, Peer, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
 
     @GuardedBy("this")
@@ -139,5 +140,17 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     @Override
     public byte[] getRawIdentifier() {
         return rawIdentifier;
+    }
+
+    @Override
+    protected void wantWrite() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected boolean writePDU(final Object key, final DataObject value) {
+        // TODO Auto-generated method stub
+        return false;
     }
 }
