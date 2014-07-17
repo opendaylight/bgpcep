@@ -20,7 +20,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import javax.annotation.concurrent.GuardedBy;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
@@ -106,7 +106,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     }
 
     @Override
-    protected synchronized boolean onMessage(final WriteTransaction trans, final Message message) {
+    protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
         if (message instanceof PcerrMessage) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg = ((PcerrMessage) message).getPcerrMessage();
             if (errMsg.getErrorType() instanceof StatefulCase) {
@@ -138,7 +138,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             final PlspId plspid = lsp.getPlspId();
 
             if (!lsp.isSync() && (lsp.getPlspId() == null || plspid.getValue() == 0)) {
-                stateSynchronizationAchieved(trans);
+                stateSynchronizationAchieved(ctx);
                 continue;
             }
 
@@ -160,7 +160,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                         if (req != null) {
                             LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.getOperational());
                             rlb.setMetadata(req.getMetadata());
-                            req.setResult(OperationResults.SUCCESS);
+                            ctx.resolveRequest(req);
                         } else {
                             LOG.warn("Request ID {} not found in outstanding DB", id);
                         }
@@ -175,7 +175,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                     if (srp.getAugmentation(Srp1.class) != null) {
                         final Srp1 initiatedSrp = srp.getAugmentation(Srp1.class);
                         if (initiatedSrp.isRemove()) {
-                            super.removeLsp(trans, plspid);
+                            super.removeLsp(ctx, plspid);
                             return false;
                         }
                     }
@@ -201,7 +201,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             pb.addAugmentation(Path1.class, new Path1Builder().setLsp(report.getLsp()).build());
             pb.setLspId(lspid);
             rlb.setPath(Lists.newArrayList(pb.build()));
-            updateLsp(trans, plspid, name, rlb, solicited, lsp.isRemove());
+            updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
             LOG.debug("LSP {} updated", lsp);
         }
         return false;
