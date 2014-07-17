@@ -22,7 +22,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -78,7 +78,7 @@ public class LinkstateAdjRIBsInTest {
     private Peer peer;
 
     @Mock
-    private AdjRIBsInTransaction adjRibTx;
+    private AdjRIBsTransaction adjRibTx;
 
     private LinkstateAdjRIBsIn lrib;
 

@@ -11,6 +11,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public interface AdjRIBsInFactory {
-    AdjRIBsIn createAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath);
+public interface AdjRIBsFactory {
+    AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath);
 }
