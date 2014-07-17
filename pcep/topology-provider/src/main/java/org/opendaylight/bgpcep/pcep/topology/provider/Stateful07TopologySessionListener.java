@@ -11,8 +11,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -195,7 +193,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
             // this is to ensure a path will be created at any rate
             pb.addAugmentation(Path1.class, new Path1Builder().setLsp(report.getLsp()).build());
             pb.setLspId(lspid);
-            rlb.setPath(Lists.newArrayList(pb.build()));
+            rlb.setPath(Collections.singletonList(pb.build()));
             updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
             LOG.debug("LSP {} updated", lsp);
         }
@@ -244,7 +242,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                         new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                ib.setRequests(ImmutableList.of(rb.build()));
+                ib.setRequests(Collections.singletonList(rb.build()));
 
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
@@ -281,7 +279,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                ib.setRequests(ImmutableList.of(rb.build()));
+                ib.setRequests(Collections.singletonList(rb.build()));
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
             }
         });
@@ -322,7 +320,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 pb.fieldsFrom(input.getArguments());
                 rb.setPath(pb.build());
                 final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-                ub.setUpdates(ImmutableList.of(rb.build()));
+                ub.setUpdates(Collections.singletonList(rb.build()));
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
                         input.getArguments().getMetadata());
             }
