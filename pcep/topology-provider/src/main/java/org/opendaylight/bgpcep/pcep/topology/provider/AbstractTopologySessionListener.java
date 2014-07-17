@@ -18,6 +18,7 @@ import io.netty.util.concurrent.FutureListener;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,25 @@ import org.slf4j.LoggerFactory;
  * @param <L> identifier type for LSPs
  */
 public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessionListener, TopologySessionListener {
+    protected static final class MessageContext {
+        private final Collection<PCEPRequest> requests = new ArrayList<>();
+        private final WriteTransaction trans;
+
+        private MessageContext(final WriteTransaction trans) {
+            this.trans = Preconditions.checkNotNull(trans);
+        }
+
+        void resolveRequest(final PCEPRequest req) {
+            requests.add(req);
+        }
+
+        private void notifyRequests() {
+            for (PCEPRequest r : requests) {
+                r.setResult(OperationResults.SUCCESS);
+            }
+        }
+    }
+
     protected static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
         private final ProtocolVersion version = new ProtocolVersion((short) 1);
 
@@ -245,11 +265,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public final synchronized void onMessage(final PCEPSession session, final Message message) {
-        final WriteTransaction trans = this.serverSessionManager.beginTransaction();
+        final MessageContext ctx = new MessageContext(this.serverSessionManager.beginTransaction());
 
         this.dirty = false;
 
-        if (onMessage(trans, message)) {
+        if (onMessage(ctx, message)) {
             LOG.info("Unhandled message {} on session {}", message, session);
             return;
         }
@@ -260,17 +280,18 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.build());
             final Node1 ta = this.topologyAugmentBuilder.build();
 
-            trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
+            ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
             LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
             this.dirty = false;
         } else {
             LOG.debug("State has not changed, skipping sync");
         }
 
-        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(ctx.trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Internal state for session {} updated successfully", session);
+                ctx.notifyRequests();
             }
 
             @Override
@@ -327,7 +348,17 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return req.getFuture();
     }
 
-    protected final synchronized void updateLsp(final WriteTransaction trans, final L id, final String lspName,
+    /**
+     * Update an LSP in the data store
+     *
+     * @param ctx Message context
+     * @param id Revision-specific LSP identifier
+     * @param lspName LSP name
+     * @param rlb Reported LSP builder
+     * @param solicited True if the update was solicited
+     * @param remove True if this is an LSP path removal
+     */
+    protected final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
             final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
@@ -382,7 +413,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             // if all paths or the last path were deleted, delete whole tunnel
             if (updatedPaths.isEmpty()) {
                 LOG.debug("All paths were removed, removing LSP with {}.", id);
-                removeLsp(trans, id);
+                removeLsp(ctx, id);
                 return;
             }
             LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
@@ -404,7 +435,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.lspData.put(name, rlb.build());
     }
 
-    protected final synchronized void stateSynchronizationAchieved(final WriteTransaction trans) {
+    /**
+     * Indicate that the peer has completed state synchronization.
+     *
+     * @param ctx Message context
+     */
+    protected final synchronized void stateSynchronizationAchieved(final MessageContext ctx) {
         if (this.synced) {
             LOG.debug("State synchronization achieved while synchronized, not updating state");
             return;
@@ -424,7 +460,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return pccIdentifier().child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
-    protected final synchronized void removeLsp(final WriteTransaction trans, final L id) {
+    /**
+     *
+     * @param ctx Message Context
+     * @param id Revision-specific LSP identifier
+     */
+    protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
         final String name = this.lsps.remove(id);
         this.dirty = true;
         LOG.debug("LSP {} removed", name);
@@ -433,9 +474,16 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
 
-    protected abstract boolean onMessage(WriteTransaction trans, Message message);
+    /**
+     * Perform revision-specific message processing when a message arrives.
+     *
+     * @param ctx Message processing context
+     * @param message Protocol message
+     * @return True if the message type is not handle.
+     */
+    protected abstract boolean onMessage(MessageContext ctx, Message message);
 
-    protected String lookupLspName(final L id) {
+    protected final String lookupLspName(final L id) {
         Preconditions.checkNotNull(id, "ID parameter null.");
         return this.lsps.get(id);
     }
