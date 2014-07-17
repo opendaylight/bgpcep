@@ -231,9 +231,9 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
                 // Build the request
                 final RequestsBuilder rb = new RequestsBuilder();
                 Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
-                Preconditions.checkState(args != null, "Input is missing operational tag.");
+                Preconditions.checkArgument(args != null, "Input is missing operational tag.");
                 Lsp inputLsp = args.getLsp();
-                Preconditions.checkState(inputLsp != null, "Reported LSP does not contain LSP object.");
+                Preconditions.checkArgument(inputLsp != null, "Reported LSP does not contain LSP object.");
 
                 rb.fieldsFrom(input.getArguments());
 
