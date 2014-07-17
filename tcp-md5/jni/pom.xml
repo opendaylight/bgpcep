@@ -68,7 +68,9 @@
                     <instructions>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Include-Resource>
-                            libtcpmd5-jni.so=target/nar/tcpmd5-jni-${project.version}-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libtcpmd5-jni-${project.version}.so
+                            libtcpmd5-jni.so=target/nar/tcpmd5-jni-${project.version}-amd64-Linux-gpp-jni/lib/amd64-Linux-gpp/jni/libtcpmd5-jni-${project.version}.so,
+                            META-INF/yang=target/classes/META-INF/yang,
+                            META-INF/services=target/classes/META-INF/services
                         </Include-Resource>
                     </instructions>
                 </configuration>
