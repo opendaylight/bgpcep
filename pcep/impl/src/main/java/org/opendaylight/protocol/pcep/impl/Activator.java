@@ -128,125 +128,125 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
 
         final ObjectRegistry objReg = context.getObjectHandlerRegistry();
         final PCEPOpenMessageParser openParser = new PCEPOpenMessageParser(objReg);
-        context.registerMessageParser(PCEPOpenMessageParser.TYPE, openParser);
-        context.registerMessageSerializer(
+        regs.add(context.registerMessageParser(PCEPOpenMessageParser.TYPE, openParser));
+        regs.add(context.registerMessageSerializer(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Open.class,
-            openParser);
+            openParser));
 
         final PCEPKeepAliveMessageParser kaParser = new PCEPKeepAliveMessageParser(objReg);
-        context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, kaParser);
-        context.registerMessageSerializer(Keepalive.class, kaParser);
+        regs.add(context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, kaParser));
+        regs.add(context.registerMessageSerializer(Keepalive.class, kaParser));
 
         final PCEPRequestMessageParser reqParser = new PCEPRequestMessageParser(objReg);
-        context.registerMessageParser(PCEPRequestMessageParser.TYPE, reqParser);
-        context.registerMessageSerializer(Pcreq.class, reqParser);
+        regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE, reqParser));
+        regs.add(context.registerMessageSerializer(Pcreq.class, reqParser));
 
         final PCEPReplyMessageParser repParser = new PCEPReplyMessageParser(objReg);
-        context.registerMessageParser(PCEPReplyMessageParser.TYPE, repParser);
-        context.registerMessageSerializer(Pcrep.class, repParser);
+        regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, repParser));
+        regs.add(context.registerMessageSerializer(Pcrep.class, repParser));
 
         final PCEPNotificationMessageParser notParser = new PCEPNotificationMessageParser(objReg);
-        context.registerMessageParser(PCEPNotificationMessageParser.TYPE, notParser);
-        context.registerMessageSerializer(Pcntf.class, notParser);
+        regs.add(context.registerMessageParser(PCEPNotificationMessageParser.TYPE, notParser));
+        regs.add(context.registerMessageSerializer(Pcntf.class, notParser));
 
         final PCEPErrorMessageParser errParser = new PCEPErrorMessageParser(objReg);
-        context.registerMessageParser(PCEPErrorMessageParser.TYPE, errParser);
-        context.registerMessageSerializer(Pcerr.class, errParser);
+        regs.add(context.registerMessageParser(PCEPErrorMessageParser.TYPE, errParser));
+        regs.add(context.registerMessageSerializer(Pcerr.class, errParser));
 
         final PCEPCloseMessageParser closeParser = new PCEPCloseMessageParser(objReg);
-        context.registerMessageParser(PCEPCloseMessageParser.TYPE, closeParser);
-        context.registerMessageSerializer(Close.class, closeParser);
+        regs.add(context.registerMessageParser(PCEPCloseMessageParser.TYPE, closeParser));
+        regs.add(context.registerMessageSerializer(Close.class, closeParser));
         return regs;
     }
 
     private void registerObjectParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context) {
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final PCEPOpenObjectParser openParser = new PCEPOpenObjectParser(tlvReg);
-        context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, openParser);
-        context.registerObjectSerializer(Open.class, openParser);
+        regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE, openParser));
+        regs.add(context.registerObjectSerializer(Open.class, openParser));
 
         final PCEPRequestParameterObjectParser rpParser = new PCEPRequestParameterObjectParser(tlvReg);
-        context.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE, rpParser);
-        context.registerObjectSerializer(Rp.class, rpParser);
+        regs.add(context.registerObjectParser(PCEPRequestParameterObjectParser.CLASS, PCEPRequestParameterObjectParser.TYPE, rpParser));
+        regs.add(context.registerObjectSerializer(Rp.class, rpParser));
 
         final PCEPNoPathObjectParser noPathParser = new PCEPNoPathObjectParser(tlvReg);
-        context.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, noPathParser);
-        context.registerObjectSerializer(NoPath.class, noPathParser);
+        regs.add(context.registerObjectParser(PCEPNoPathObjectParser.CLASS, PCEPNoPathObjectParser.TYPE, noPathParser));
+        regs.add(context.registerObjectSerializer(NoPath.class, noPathParser));
 
         final PCEPEndPointsIpv4ObjectParser endpoints4Parser = new PCEPEndPointsIpv4ObjectParser(tlvReg);
-        context.registerObjectParser(PCEPEndPointsIpv4ObjectParser.CLASS, PCEPEndPointsIpv4ObjectParser.TYPE, endpoints4Parser);
-        context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
-            new PCEPEndPointsIpv4ObjectParser(tlvReg));
-        context.registerObjectSerializer(EndpointsObj.class, endpoints4Parser);
+        regs.add(context.registerObjectParser(PCEPEndPointsIpv4ObjectParser.CLASS, PCEPEndPointsIpv4ObjectParser.TYPE, endpoints4Parser));
+        regs.add(context.registerObjectParser(PCEPEndPointsIpv6ObjectParser.CLASS, PCEPEndPointsIpv6ObjectParser.TYPE,
+            new PCEPEndPointsIpv4ObjectParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(EndpointsObj.class, endpoints4Parser));
 
         final PCEPBandwidthObjectParser bwParser = new PCEPBandwidthObjectParser(tlvReg);
-        context.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, bwParser);
-        context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE,
-            new PCEPExistingBandwidthObjectParser(tlvReg));
-        context.registerObjectSerializer(Bandwidth.class, bwParser);
+        regs.add(context.registerObjectParser(PCEPBandwidthObjectParser.CLASS, PCEPBandwidthObjectParser.TYPE, bwParser));
+        regs.add(context.registerObjectParser(PCEPExistingBandwidthObjectParser.CLASS, PCEPExistingBandwidthObjectParser.TYPE,
+            new PCEPExistingBandwidthObjectParser(tlvReg)));
+        regs.add(context.registerObjectSerializer(Bandwidth.class, bwParser));
 
         final PCEPMetricObjectParser metricParser = new PCEPMetricObjectParser(tlvReg);
-        context.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, metricParser);
-        context.registerObjectSerializer(Metric.class, metricParser);
+        regs.add(context.registerObjectParser(PCEPMetricObjectParser.CLASS, PCEPMetricObjectParser.TYPE, metricParser));
+        regs.add(context.registerObjectSerializer(Metric.class, metricParser));
 
         final EROSubobjectRegistry eroSubReg = context.getEROSubobjectHandlerRegistry();
         final PCEPExplicitRouteObjectParser eroParser = new PCEPExplicitRouteObjectParser(eroSubReg);
-        context.registerObjectParser(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE, eroParser);
-        context.registerObjectSerializer(Ero.class, eroParser);
+        regs.add(context.registerObjectParser(PCEPExplicitRouteObjectParser.CLASS, PCEPExplicitRouteObjectParser.TYPE, eroParser));
+        regs.add(context.registerObjectSerializer(Ero.class, eroParser));
 
         final PCEPReportedRouteObjectParser rroParser = new PCEPReportedRouteObjectParser(context.getRROSubobjectHandlerRegistry());
-        context.registerObjectParser(PCEPReportedRouteObjectParser.CLASS, PCEPReportedRouteObjectParser.TYPE, rroParser);
-        context.registerObjectSerializer(Rro.class, rroParser);
+        regs.add(context.registerObjectParser(PCEPReportedRouteObjectParser.CLASS, PCEPReportedRouteObjectParser.TYPE, rroParser));
+        regs.add(context.registerObjectSerializer(Rro.class, rroParser));
 
         final PCEPLspaObjectParser lspaParser = new PCEPLspaObjectParser(tlvReg);
-        context.registerObjectParser(PCEPLspaObjectParser.CLASS, PCEPLspaObjectParser.TYPE, lspaParser);
-        context.registerObjectSerializer(Lspa.class, lspaParser);
+        regs.add(context.registerObjectParser(PCEPLspaObjectParser.CLASS, PCEPLspaObjectParser.TYPE, lspaParser));
+        regs.add(context.registerObjectSerializer(Lspa.class, lspaParser));
 
         final PCEPIncludeRouteObjectParser iroParser = new PCEPIncludeRouteObjectParser(eroSubReg);
-        context.registerObjectParser(PCEPIncludeRouteObjectParser.CLASS, PCEPIncludeRouteObjectParser.TYPE, iroParser);
-        context.registerObjectSerializer(Iro.class, iroParser);
+        regs.add(context.registerObjectParser(PCEPIncludeRouteObjectParser.CLASS, PCEPIncludeRouteObjectParser.TYPE, iroParser));
+        regs.add(context.registerObjectSerializer(Iro.class, iroParser));
 
         final PCEPSvecObjectParser svecParser = new PCEPSvecObjectParser(tlvReg);
-        context.registerObjectParser(PCEPSvecObjectParser.CLASS, PCEPSvecObjectParser.TYPE, svecParser);
-        context.registerObjectSerializer(Svec.class, svecParser);
+        regs.add(context.registerObjectParser(PCEPSvecObjectParser.CLASS, PCEPSvecObjectParser.TYPE, svecParser));
+        regs.add(context.registerObjectSerializer(Svec.class, svecParser));
 
         final PCEPNotificationObjectParser notParser = new PCEPNotificationObjectParser(tlvReg);
-        context.registerObjectParser(PCEPNotificationObjectParser.CLASS, PCEPNotificationObjectParser.TYPE, notParser);
-        context.registerObjectSerializer(CNotification.class, notParser);
+        regs.add(context.registerObjectParser(PCEPNotificationObjectParser.CLASS, PCEPNotificationObjectParser.TYPE, notParser));
+        regs.add(context.registerObjectSerializer(CNotification.class, notParser));
 
         final PCEPErrorObjectParser errParser = new PCEPErrorObjectParser(tlvReg);
-        context.registerObjectParser(PCEPErrorObjectParser.CLASS, PCEPErrorObjectParser.TYPE, errParser);
-        context.registerObjectSerializer(ErrorObject.class, errParser);
+        regs.add(context.registerObjectParser(PCEPErrorObjectParser.CLASS, PCEPErrorObjectParser.TYPE, errParser));
+        regs.add(context.registerObjectSerializer(ErrorObject.class, errParser));
 
         final PCEPLoadBalancingObjectParser lbParser = new PCEPLoadBalancingObjectParser(tlvReg);
-        context.registerObjectParser(PCEPLoadBalancingObjectParser.CLASS, PCEPLoadBalancingObjectParser.TYPE, lbParser);
-        context.registerObjectSerializer(LoadBalancing.class, lbParser);
+        regs.add(context.registerObjectParser(PCEPLoadBalancingObjectParser.CLASS, PCEPLoadBalancingObjectParser.TYPE, lbParser));
+        regs.add(context.registerObjectSerializer(LoadBalancing.class, lbParser));
 
         final PCEPCloseObjectParser closeParser = new PCEPCloseObjectParser(tlvReg);
-        context.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, closeParser);
-        context.registerObjectSerializer(CClose.class, closeParser);
+        regs.add(context.registerObjectParser(PCEPCloseObjectParser.CLASS, PCEPCloseObjectParser.TYPE, closeParser));
+        regs.add(context.registerObjectSerializer(CClose.class, closeParser));
 
         final PCEPPathKeyObjectParser pathKeyParser = new PCEPPathKeyObjectParser(eroSubReg);
-        context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, pathKeyParser);
-        context.registerObjectSerializer(
+        regs.add(context.registerObjectParser(PCEPPathKeyObjectParser.CLASS, PCEPPathKeyObjectParser.TYPE, pathKeyParser));
+        regs.add(context.registerObjectSerializer(
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.path.key.object.PathKey.class,
-            pathKeyParser);
+            pathKeyParser));
 
         final PCEPExcludeRouteObjectParser xroParser = new PCEPExcludeRouteObjectParser(context.getXROSubobjectHandlerRegistry());
-        context.registerObjectParser(PCEPExcludeRouteObjectParser.CLASS, PCEPExcludeRouteObjectParser.TYPE, xroParser);
-        context.registerObjectSerializer(Xro.class, xroParser);
+        regs.add(context.registerObjectParser(PCEPExcludeRouteObjectParser.CLASS, PCEPExcludeRouteObjectParser.TYPE, xroParser));
+        regs.add(context.registerObjectSerializer(Xro.class, xroParser));
 
         final PCEPObjectiveFunctionObjectParser objectiveParser = new PCEPObjectiveFunctionObjectParser(tlvReg);
-        context.registerObjectParser(PCEPObjectiveFunctionObjectParser.CLASS, PCEPObjectiveFunctionObjectParser.TYPE, objectiveParser);
-        context.registerObjectSerializer(Of.class, objectiveParser);
+        regs.add(context.registerObjectParser(PCEPObjectiveFunctionObjectParser.CLASS, PCEPObjectiveFunctionObjectParser.TYPE, objectiveParser));
+        regs.add(context.registerObjectSerializer(Of.class, objectiveParser));
 
         final PCEPClassTypeObjectParser ctParser = new PCEPClassTypeObjectParser(tlvReg);
-        context.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, ctParser);
-        context.registerObjectSerializer(ClassType.class, ctParser);
+        regs.add(context.registerObjectParser(PCEPClassTypeObjectParser.CLASS, PCEPClassTypeObjectParser.TYPE, ctParser));
+        regs.add(context.registerObjectSerializer(ClassType.class, ctParser));
 
         final PCEPGlobalConstraintsObjectParser gcParser = new PCEPGlobalConstraintsObjectParser(tlvReg);
-        context.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE, gcParser);
-        context.registerObjectSerializer(Gc.class, gcParser);
+        regs.add(context.registerObjectParser(PCEPGlobalConstraintsObjectParser.CLASS, PCEPGlobalConstraintsObjectParser.TYPE, gcParser));
+        regs.add(context.registerObjectSerializer(Gc.class, gcParser));
     }
 
     private void registerEROParsers(final List<AutoCloseable> regs, final PCEPExtensionProviderContext context, final LabelRegistry labelReg) {

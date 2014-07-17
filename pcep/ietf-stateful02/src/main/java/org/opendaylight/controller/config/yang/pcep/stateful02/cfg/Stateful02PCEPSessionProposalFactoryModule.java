@@ -8,9 +8,7 @@
 package org.opendaylight.controller.config.yang.pcep.stateful02.cfg;
 
 import com.google.common.base.Preconditions;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02SessionProposalFactory;
@@ -21,33 +19,35 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class Stateful02PCEPSessionProposalFactoryModule extends
-        org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractStateful02PCEPSessionProposalFactoryModule {
+public final class Stateful02PCEPSessionProposalFactoryModule extends org.opendaylight.controller.config.yang.pcep.stateful02.cfg.AbstractStateful02PCEPSessionProposalFactoryModule {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful02PCEPSessionProposalFactoryModule.class);
 
+    private static final String NOT_SET = "value is not set.";
+    private static final int RATIO = 4;
+
     public Stateful02PCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public Stateful02PCEPSessionProposalFactoryModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            final Stateful02PCEPSessionProposalFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+        final Stateful02PCEPSessionProposalFactoryModule oldModule, final java.lang.AutoCloseable oldInstance) {
 
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
     @Override
     protected void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getActive(), "value is not set.", activeJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getInitiated(), "value is not set.", initiatedJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), "value is not set.", deadTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), "value is not set.", keepAliveTimerValueJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getTimeout(), "value is not set.", timeoutJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getActive(), NOT_SET, activeJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getInitiated(), NOT_SET, initiatedJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getDeadTimerValue(), NOT_SET, deadTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getKeepAliveTimerValue(), NOT_SET, keepAliveTimerValueJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTimeout(), NOT_SET, timeoutJmxAttribute);
         if (getKeepAliveTimerValue() != 0) {
             JmxAttributeValidationException.checkCondition(getKeepAliveTimerValue() >= 1, "minimum value is 1.",
-                    keepAliveTimerValueJmxAttribute);
-            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != 4)) {
+                keepAliveTimerValueJmxAttribute);
+            if (getDeadTimerValue() != 0 && (getDeadTimerValue() / getKeepAliveTimerValue() != RATIO)) {
                 LOG.warn("DeadTimerValue should be 4 times greater than KeepAliveTimerValue");
             }
         }

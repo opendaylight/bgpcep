@@ -20,10 +20,8 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.concurrent.Future;
-
 import java.net.InetSocketAddress;
 import java.util.List;
-
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -50,13 +48,13 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerModule.class);
 
     public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public BGPPeerModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPPeerModule oldModule,
-            final java.lang.AutoCloseable oldInstance) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, final BGPPeerModule oldModule,
+        final java.lang.AutoCloseable oldInstance) {
 
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
@@ -76,13 +74,13 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
              *         should something like isMd5ServerSupported()
              */
 
-            RIBImplModuleMXBean ribProxy = dependencyResolver.newMXBeanProxy(getRib(), RIBImplModuleMXBean.class);
-            BGPDispatcherImplModuleMXBean bgpDispatcherProxy = dependencyResolver.newMXBeanProxy(
-                    ribProxy.getBgpDispatcher(), BGPDispatcherImplModuleMXBean.class);
-            boolean isMd5Supported = bgpDispatcherProxy.getMd5ChannelFactory() != null;
+            final RIBImplModuleMXBean ribProxy = this.dependencyResolver.newMXBeanProxy(getRib(), RIBImplModuleMXBean.class);
+            final BGPDispatcherImplModuleMXBean bgpDispatcherProxy = this.dependencyResolver.newMXBeanProxy(
+                ribProxy.getBgpDispatcher(), BGPDispatcherImplModuleMXBean.class);
+            final boolean isMd5Supported = bgpDispatcherProxy.getMd5ChannelFactory() != null;
 
             JmxAttributeValidationException.checkCondition(isMd5Supported,
-                    "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
+                "Underlying dispatcher does not support MD5 clients", passwordJmxAttribute);
 
         }
     }
@@ -134,7 +132,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         }
     }
 
-    private static interface CloseableNoEx extends AutoCloseable {
+    private interface CloseableNoEx extends AutoCloseable {
         @Override
         void close();
     }
@@ -149,7 +147,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return password;
     }
 
-    private AsNumber getAsOrDefault(RIB r) {
+    private AsNumber getAsOrDefault(final RIB r) {
         // Remote AS number defaults to our local AS
         final AsNumber remoteAs;
         if (getRemoteAs() != null) {
@@ -160,10 +158,10 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
         return remoteAs;
     }
 
-    private List<BgpParameters> getTlvs(RIB r) {
+    private List<BgpParameters> getTlvs(final RIB r) {
         final List<BgpParameters> tlvs = Lists.newArrayList();
         tlvs.add(new BgpParametersBuilder().setCParameters(
-                new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
+            new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(r.getLocalAs()).build()).build()).build());
 
         for (final BgpTableType t : getAdvertizedTableDependency()) {
             if (!r.getLocalTables().contains(t)) {
@@ -171,7 +169,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
             }
 
             tlvs.add(new BgpParametersBuilder().setCParameters(
-                    new MultiprotocolCaseBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build());
+                new MultiprotocolCaseBuilder().setMultiprotocolCapability(new MultiprotocolCapabilityBuilder(t).build()).build()).build());
         }
         return tlvs;
     }
@@ -200,7 +198,7 @@ public final class BGPPeerModule extends org.opendaylight.controller.config.yang
 
         final RIB rib = getRibDependency();
         return rib.getDispatcher().createReconnectingClient(address, remoteAs, registry, rib.getTcpStrategyFactory(),
-                rib.getSessionStrategyFactory(), keys);
+            rib.getSessionStrategyFactory(), keys);
     }
 
     private BGPPeerRegistry getPeerRegistryBackwards() {
