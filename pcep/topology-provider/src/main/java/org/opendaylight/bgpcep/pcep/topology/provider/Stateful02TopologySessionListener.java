@@ -18,7 +18,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessageBuilder;
@@ -92,7 +91,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
     }
 
     @Override
-    protected synchronized boolean onMessage(final WriteTransaction trans, final Message message) {
+    protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
@@ -107,7 +106,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
             final PlspId id = lsp.getPlspId();
             if (!lsp.isSync() && (id == null || id.getValue() == 0)) {
-                stateSynchronizationAchieved(trans);
+                stateSynchronizationAchieved(ctx);
                 continue;
             }
 
@@ -137,17 +136,17 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 if (req != null) {
                     LOG.debug("Request {} resulted in LSP operational state {}", id, lsp.isOperational());
                     rlb.setMetadata(req.getMetadata());
-                    req.setResult(OperationResults.SUCCESS);
+                    ctx.resolveRequest(req);
                 } else {
                     LOG.warn("Request ID {} not found in outstanding DB", id);
                 }
             }
 
             if (!lsp.isRemove()) {
-                updateLsp(trans, id, name, rlb, solicited, false);
+                updateLsp(ctx, id, name, rlb, solicited, false);
                 LOG.debug("LSP {} updated", lsp);
             } else {
-                removeLsp(trans, id);
+                removeLsp(ctx, id);
                 LOG.debug("LSP {} removed", lsp);
             }
         }
