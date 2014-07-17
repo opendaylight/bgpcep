@@ -12,8 +12,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsFactory;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
@@ -27,9 +27,9 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
+        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsFactory() {
             @Override
-            public AdjRIBsIn createAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+            public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new LinkstateAdjRIBsIn(basePath);
             }
         }));
