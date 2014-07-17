@@ -25,5 +25,5 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      * @return Registration handle. Call its close() method to remove it.
      */
     AutoCloseable registerAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
-            AdjRIBsInFactory factory);
+            AdjRIBsFactory factory);
 }

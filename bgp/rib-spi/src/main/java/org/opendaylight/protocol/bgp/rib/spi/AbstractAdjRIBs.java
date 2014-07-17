@@ -18,12 +18,16 @@ import java.util.Map;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
@@ -37,7 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K extends Identifier<D>> implements AdjRIBsIn {
+public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K extends Identifier<D>> implements AdjRIBsIn<I, D>, RouteEncoder {
     protected abstract static class RIBEntryData<I, D extends Identifiable<K> & Route, K extends Identifier<D>> {
         private final PathAttributes attributes;
         private final Peer peer;
@@ -116,17 +120,17 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
             return newState;
         }
 
-        private void electCandidate(final AdjRIBsInTransaction transaction, final RIBEntryData<I, D, K> candidate) {
+        private void electCandidate(final AdjRIBsTransaction transaction, final RIBEntryData<I, D, K> candidate) {
             LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
             if (this.currentState == null || !this.currentState.equals(candidate)) {
                 LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.advertise(getName(), candidate.getDataObject(this.key, getName().getKey()));
+                transaction.advertise(AbstractAdjRIBs.this, this.key, getName(), candidate.getPeer(), candidate.getDataObject(this.key, getName().getKey()));
                 this.currentState = candidate;
             }
         }
 
-        synchronized boolean removeState(final AdjRIBsInTransaction transaction, final Peer peer) {
+        synchronized boolean removeState(final AdjRIBsTransaction transaction, final Peer peer) {
             final RIBEntryData<I, D, K> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
 
@@ -135,20 +139,21 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
                 electCandidate(transaction, candidate);
             } else {
                 LOG.trace("Final candidate disappeared, removing entry {}", getName());
-                transaction.withdraw(getName());
+                transaction.withdraw(AbstractAdjRIBs.this, this.key, getName());
             }
 
             return this.candidates.isEmpty();
         }
 
-        synchronized void setState(final AdjRIBsInTransaction transaction, final Peer peer, final RIBEntryData<I, D, K> state) {
+        synchronized void setState(final AdjRIBsTransaction transaction, final Peer peer, final RIBEntryData<I, D, K> state) {
             this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
             electCandidate(transaction, findCandidate(transaction.comparator(), state));
         }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBs.class);
-    private final InstanceIdentifier<Tables> basePath;
+    private final KeyedInstanceIdentifier<Tables, TablesKey> basePath;
+    private final BgpTableType tableType;
     private final Update eor;
 
     @GuardedBy("this")
@@ -159,13 +164,15 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
 
     protected AbstractAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
         this.basePath = Preconditions.checkNotNull(basePath);
+        this.tableType = new BgpTableTypeImpl(basePath.getKey().getAfi(), basePath.getKey().getSafi());
         this.eor = new UpdateBuilder().setPathAttributes(new PathAttributesBuilder().addAugmentation(
-                        PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder()
-                            .setAfi(basePath.getKey().getAfi()).setSafi(basePath.getKey().getSafi()).build()).build()).build()).build();
+                PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder(this.tableType)
+                .build()).build()).build()).build();
+
     }
 
     @Override
-    public final synchronized void clear(final AdjRIBsInTransaction trans, final Peer peer) {
+    public final synchronized void clear(final AdjRIBsTransaction trans, final Peer peer) {
         final Iterator<Map.Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
         while (i.hasNext()) {
             final Map.Entry<I, RIBEntry> e = i.next();
@@ -211,7 +218,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param id Data store instance identifier
      * @param data Data object to be written
      */
-    protected final synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D, K> data) {
+    protected final synchronized void add(final AdjRIBsTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D, K> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
         RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
@@ -234,7 +241,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
      * @param peer Originating peer
      * @param id Data store instance identifier
      */
-    protected final synchronized void remove(final AdjRIBsInTransaction trans, final Peer peer, final I id) {
+    protected final synchronized void remove(final AdjRIBsTransaction trans, final Peer peer, final I id) {
         final RIBEntry e = this.entries.get(id);
         if (e != null && e.removeState(trans, peer)) {
             LOG.debug("Removed last state, removing entry for {}", id);
@@ -243,7 +250,7 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     }
 
     @Override
-    public final void markUptodate(final AdjRIBsInTransaction trans, final Peer peer) {
+    public final void markUptodate(final AdjRIBsTransaction trans, final Peer peer) {
         this.peers.put(peer, Boolean.TRUE);
         trans.setUptodate(this.basePath, !this.peers.values().contains(Boolean.FALSE));
     }
@@ -252,4 +259,26 @@ public abstract class AbstractAdjRIBs<I, D extends Identifiable<K> & Route, K ex
     public final Update endOfRib() {
         return this.eor;
     }
+
+    @Override
+    public Update updateMessageFor(final Object key, final Route route) {
+        final UpdateBuilder ub = new UpdateBuilder();
+        final PathAttributesBuilder pab = new PathAttributesBuilder();
+
+        if (route != null) {
+            final MpReachNlriBuilder reach = new MpReachNlriBuilder(this.tableType);
+
+            addAdvertisement(reach, (D)route);
+            pab.fieldsFrom(route.getAttributes());
+            pab.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(reach.build()).build()).build();
+        } else {
+            final MpUnreachNlriBuilder unreach = new MpUnreachNlriBuilder(tableType);
+            addWithdrawal(unreach, (I)key);
+            pab.addAugmentation(PathAttributes2.class, new PathAttributes2Builder().setMpUnreachNlri(unreach.build()).build()).build();
+        }
+
+        ub.setPathAttributes(pab.build());
+        return ub.build();
+    }
+
 }
