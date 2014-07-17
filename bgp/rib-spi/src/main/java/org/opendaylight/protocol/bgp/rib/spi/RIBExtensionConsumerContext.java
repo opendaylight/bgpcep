@@ -16,5 +16,5 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * exposes an interface for registration of factories for creating AdjRIBsIn instances, which handle the specifics.
  */
 public interface RIBExtensionConsumerContext {
-    AdjRIBsInFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi);
+    AdjRIBsFactory getAdjRIBsInFactory(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi);
 }

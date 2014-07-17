@@ -11,15 +11,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 
-public interface AdjRIBsIn {
-    void addRoutes(AdjRIBsInTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
+public interface AdjRIBsIn<K, V extends Route> {
+    void addRoutes(AdjRIBsTransaction trans, Peer peer, MpReachNlri nlri, PathAttributes attributes);
 
-    void removeRoutes(AdjRIBsInTransaction trans, Peer peer, MpUnreachNlri nlri);
+    void removeRoutes(AdjRIBsTransaction trans, Peer peer, MpUnreachNlri nlri);
 
-    void clear(AdjRIBsInTransaction trans, Peer peer);
+    void clear(AdjRIBsTransaction trans, Peer peer);
 
-    void markUptodate(AdjRIBsInTransaction trans, Peer peer);
+    void markUptodate(AdjRIBsTransaction trans, Peer peer);
 
     Update endOfRib();
 }

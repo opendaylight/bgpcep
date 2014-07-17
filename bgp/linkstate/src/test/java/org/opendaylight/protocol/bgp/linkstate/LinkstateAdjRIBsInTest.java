@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -22,9 +23,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.protocol.bgp.rib.RibReference;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.protocol.bgp.rib.spi.RouteEncoder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -54,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
@@ -78,7 +81,10 @@ public class LinkstateAdjRIBsInTest {
     private Peer peer;
 
     @Mock
-    private AdjRIBsInTransaction adjRibTx;
+    private AdjRIBsTransaction adjRibTx;
+
+    @Mock
+    private RouteEncoder encoder;
 
     private LinkstateAdjRIBsIn lrib;
 
@@ -106,7 +112,7 @@ public class LinkstateAdjRIBsInTest {
                 return null;
             }
 
-        }).when(this.adjRibTx).advertise(Mockito.<InstanceIdentifier<DataObject>>any(), Mockito.any(DataObject.class));
+        }).when(this.adjRibTx).advertise(Mockito.<RouteEncoder>any(), Mockito.any(), Mockito.<InstanceIdentifier<Route>>any(), Mockito.<Peer>any(), Mockito.any(Route.class));
 
         Mockito.doAnswer(new Answer<Void>() {
             @Override
@@ -116,7 +122,7 @@ public class LinkstateAdjRIBsInTest {
                 return null;
             }
 
-        }).when(this.adjRibTx).withdraw(Matchers.any(InstanceIdentifier.class));
+        }).when(this.adjRibTx).withdraw(Mockito.<RouteEncoder>any(), Mockito.any(), Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<Void>() {
             @SuppressWarnings("unchecked")
@@ -161,7 +167,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Matchers.<InstanceIdentifier<DataObject>>any(), Matchers.any(DataObject.class));
+        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Mockito.<RouteEncoder>any(), Mockito.any(), Mockito.<InstanceIdentifier<Route>>any(), Mockito.<Peer>any(), Mockito.any(Route.class));
         Mockito.verify(this.adjRibTx, Mockito.times(1)).setUptodate(Matchers.<InstanceIdentifier<Tables>>any(), Matchers.anyBoolean());
 
         assertEquals(1, this.data.size());
@@ -184,7 +190,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Matchers.<InstanceIdentifier<DataObject>>any(), Matchers.any(DataObject.class));
+        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Mockito.<RouteEncoder>any(), Mockito.any(), Mockito.<InstanceIdentifier<Route>>any(), Mockito.<Peer>any(), Mockito.any(Route.class));
         Mockito.verify(this.adjRibTx, Mockito.times(1)).setUptodate(Matchers.<InstanceIdentifier<Tables>>any(), Matchers.anyBoolean());
         assertEquals(1, this.data.size());
     }
@@ -208,7 +214,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.adjRibTx, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Matchers.<InstanceIdentifier<DataObject>>any(), Matchers.any(DataObject.class));
+        Mockito.verify(this.adjRibTx, Mockito.times(1)).advertise(Mockito.<RouteEncoder>any(), Mockito.any(), Mockito.<InstanceIdentifier<Route>>any(), Mockito.<Peer>any(), Mockito.any(Route.class));
         Mockito.verify(this.adjRibTx, Mockito.times(1)).setUptodate(Matchers.<InstanceIdentifier<Tables>>any(), Matchers.anyBoolean());
 
         assertEquals(1, this.data.size());
@@ -222,7 +228,7 @@ public class LinkstateAdjRIBsInTest {
                                 this.destinations).build()).build()).build());
         this.lrib.removeRoutes(this.adjRibTx, this.peer, builder.build());
 
-        Mockito.verify(this.adjRibTx, Mockito.times(1)).withdraw(Matchers.any(InstanceIdentifier.class));
+        Mockito.verify(this.adjRibTx, Mockito.times(1)).withdraw(Mockito.<RouteEncoder>any(), Mockito.any(), Matchers.any(InstanceIdentifier.class));
         assertEquals(0, this.data.size());
     }
 }
