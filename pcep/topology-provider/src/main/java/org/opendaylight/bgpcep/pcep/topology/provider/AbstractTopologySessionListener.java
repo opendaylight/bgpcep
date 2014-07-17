@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -55,7 +54,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,11 +108,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<Node> topologyNode;
     private InstanceIdentifier<Node1> topologyAugment;
-    private PathComputationClientBuilder pccBuilder;
-    private Node1Builder topologyAugmentBuilder;
+    private InstanceIdentifier<PathComputationClient> pccIdentifier;
     private TopologyNodeState nodeState;
     private boolean ownsTopology = false;
-    private boolean synced = false, dirty;
+    private boolean synced = false;
     private PCEPSession session;
 
     protected AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
@@ -178,14 +175,17 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // Our augmentation in the topology node
         this.synced = false;
-        this.pccBuilder = new PathComputationClientBuilder();
-        this.pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
 
-        onSessionUp(session, this.pccBuilder);
+        final PathComputationClientBuilder pccBuilder;
+        pccBuilder = new PathComputationClientBuilder();
+        pccBuilder.setIpAddress(IpAddressBuilder.getDefaultInstance(peerAddress.getHostAddress()));
 
-        this.topologyAugmentBuilder = new Node1Builder().setPathComputationClient(this.pccBuilder.build());
+        onSessionUp(session, pccBuilder);
+
+        final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
+
         this.topologyAugment = this.topologyNode.augmentation(Node1.class);
-        final Node1 ta = this.topologyAugmentBuilder.build();
+        this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
         trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
         LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
@@ -265,24 +265,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     public final synchronized void onMessage(final PCEPSession session, final Message message) {
         final MessageContext ctx = new MessageContext(this.serverSessionManager.beginTransaction());
 
-        this.dirty = false;
-
         if (onMessage(ctx, message)) {
             LOG.info("Unhandled message {} on session {}", message, session);
             return;
-        }
-
-        if (this.dirty) {
-            LOG.debug("Internal state changed, forcing sync");
-            this.pccBuilder.setReportedLsp(Lists.newArrayList(this.lspData.values()));
-            this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.build());
-            final Node1 ta = this.topologyAugmentBuilder.build();
-
-            ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
-            LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
-            this.dirty = false;
-        } else {
-            LOG.debug("State has not changed, skipping sync");
         }
 
         Futures.addCallback(ctx.trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
@@ -305,10 +290,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         if (this.session != null) {
             this.session.close(TerminationReason.Unknown);
         }
-    }
-
-    protected InstanceIdentifierBuilder<PathComputationClient> pccIdentifier() {
-        return this.topologyAugment.builder().child(PathComputationClient.class);
     }
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
@@ -425,9 +406,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             rlb.setMetadata(this.nodeState.getLspMetadata(name));
         }
 
-        LOG.debug("LSP {} forcing update to MD-SAL", name);
-        this.dirty = true;
-        this.lspData.put(name, rlb.build());
+        final ReportedLsp rl = rlb.build();
+        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.getKey()), rl);
+        LOG.debug("LSP {} updated to MD-SAL", name);
+
+        this.lspData.put(name, rl);
     }
 
     /**
@@ -443,16 +426,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // Update synchronization flag
         this.synced = true;
-        this.pccBuilder.setStateSync(PccSyncState.Synchronized).build();
-        this.dirty = true;
+        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
 
         // The node has completed synchronization, cleanup metadata no longer reported back
         this.nodeState.cleanupExcept(this.lsps.values());
         LOG.debug("Session {} achieved synchronized state", this.session);
     }
 
-    protected final InstanceIdentifierBuilder<ReportedLsp> lspIdentifier(final String name) {
-        return pccIdentifier().child(ReportedLsp.class, new ReportedLspKey(name));
+    protected final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
+        return pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
     /**
@@ -462,8 +444,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      */
     protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
         final String name = this.lsps.remove(id);
-        this.dirty = true;
         LOG.debug("LSP {} removed", name);
+        ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
         this.lspData.remove(name);
     }
 
