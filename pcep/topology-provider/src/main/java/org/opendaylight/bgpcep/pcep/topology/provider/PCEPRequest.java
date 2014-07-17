@@ -12,25 +12,51 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.lsp.metadata.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class PCEPRequest {
+    static enum State {
+        UNSENT,
+        UNACKED,
+        DONE,
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(PCEPRequest.class);
     private final SettableFuture<OperationResult> future;
     private final Metadata metadata;
+    private volatile State state;
 
     PCEPRequest(final Metadata metadata) {
         this.future = SettableFuture.create();
         this.metadata = metadata;
+        this.state = State.UNSENT;
     }
 
     protected ListenableFuture<OperationResult> getFuture() {
         return future;
     }
 
-    public void setResult(final OperationResult result) {
-        future.set(result);
-    }
-
     public Metadata getMetadata() {
         return metadata;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public synchronized void done(final OperationResult result) {
+        if (state != State.DONE) {
+            LOG.debug("Request went from {} to {}", state, State.DONE);
+            state = State.DONE;
+            future.set(result);
+        }
+    }
+
+    public synchronized void sent() {
+        if (state == State.UNSENT) {
+            LOG.debug("Request went from {} to {}", state, State.UNACKED);
+            state = State.UNACKED;
+        }
     }
 }
