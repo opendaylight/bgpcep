@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.bgp.parameters.c.parameters.As4BytesCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,11 +56,23 @@ public class BGPClientSessionValidator implements BGPSessionValidator {
 
         final List<BgpParameters> prefs = openObj.getBgpParameters();
         if (prefs != null && !prefs.isEmpty()) {
+            if(!hasAs4BytesCapability(prefs) || !hasAs4BytesCapability(localPref.getParams())) {
+                throw new BGPDocumentedException("Both speaker and peer must advertise AS4Bytes capability.", BGPError.UNSPECIFIC_OPEN_ERROR);
+            }
             if (!prefs.containsAll(localPref.getParams())) {
                 LOG.info("BGP Open message session parameters differ, session still accepted.");
             }
         } else {
             throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.", BGPError.UNSPECIFIC_OPEN_ERROR);
         }
+    }
+
+    private boolean hasAs4BytesCapability(final List<BgpParameters> prefs) {
+        for(final BgpParameters param : prefs) {
+            if(param.getCParameters() instanceof As4BytesCase) {
+                return true;
+            }
+        }
+        return false;
     }
 }
