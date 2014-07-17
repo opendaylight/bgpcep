@@ -11,7 +11,6 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -181,7 +180,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                             name.build()).build()).build()).build());
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                ib.setRequests(ImmutableList.of(rb.build()));
+                ib.setRequests(Collections.singletonList(rb.build()));
 
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), input.getName(),
@@ -215,7 +214,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 rb.setLsp(new LspBuilder().setRemove(Boolean.TRUE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
 
                 final PcupdMessageBuilder ib = new PcupdMessageBuilder(MESSAGE_HEADER);
-                ib.setUpdates(ImmutableList.of(rb.build()));
+                ib.setUpdates(Collections.singletonList(rb.build()));
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ib.build()).build(), rep.get().getName(), null);
             }
         });
@@ -251,7 +250,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 pb.fieldsFrom(input.getArguments());
                 rb.setPath(pb.build());
                 final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-                ub.setUpdates(ImmutableList.of(rb.build()));
+                ub.setUpdates(Collections.singletonList(rb.build()));
                 return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rep.get().getName(), input.getArguments().getMetadata());
             }
         });
