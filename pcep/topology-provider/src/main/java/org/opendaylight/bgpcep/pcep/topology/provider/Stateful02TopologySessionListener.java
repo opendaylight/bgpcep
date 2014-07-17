@@ -170,7 +170,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
         // Make sure there is no such LSP
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
+        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
@@ -206,7 +206,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null, "Mandatory XML tags are missing.");
         // Make sure the LSP exists, we need it for PLSP-ID
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
+        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
@@ -237,7 +237,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
         // Make sure the LSP exists
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
+        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
         return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
@@ -282,7 +282,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         }
 
         // Make sure the LSP exists
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
+        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
