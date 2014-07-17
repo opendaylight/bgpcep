@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -154,10 +154,8 @@ public class BestPathSelectionTest {
 
     @Test
     public void testByteCompare() {
-        assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 150, 20, 38 }, new byte[] { (byte) 192,
-                (byte) 168, 25, 1 }) < 0);
-        assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 168, 25, 1 }, new byte[] { (byte) 192, (byte) 150,
-                20, 38 }) > 0);
+        assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 150, 20, 38 }, new byte[] { (byte) 192, (byte) 168, 25, 1 }) < 0);
+        assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 168, 25, 1 }, new byte[] { (byte) 192, (byte) 150, 20, 38 }) > 0);
     }
 
     private static final class TestIpv4AdjRIBsIn extends AbstractAdjRIBs<Ipv4Prefix, Ipv4Route, Ipv4RouteKey> {
@@ -187,13 +185,13 @@ public class BestPathSelectionTest {
         }
 
         @Override
-        public void addRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpReachNlri nlri,
+        public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
                 final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
             return;
         }
 
         @Override
-        public void removeRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+        public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
             return;
         }
 

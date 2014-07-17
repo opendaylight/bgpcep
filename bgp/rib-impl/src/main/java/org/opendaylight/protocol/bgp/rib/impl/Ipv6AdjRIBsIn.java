@@ -11,7 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv6Case;
@@ -47,7 +47,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
     }
 
     @Override
-    public void addRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpReachNlri nlri,
+    public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
         final RIBEntryData<Ipv6Prefix, Ipv6Route, Ipv6RouteKey> data = new RIBEntryData<Ipv6Prefix, Ipv6Route, Ipv6RouteKey>(peer, attributes) {
             @Override
@@ -62,7 +62,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBs<Ipv6Prefix, Ipv6Route, Ipv6Rou
     }
 
     @Override
-    public void removeRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+    public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
         for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getWithdrawnRoutes().getDestinationType()).getIpv6Prefixes()) {
             super.remove(trans, peer, id);
         }

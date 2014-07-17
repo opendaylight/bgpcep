@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,6 +28,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
+import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOut;
+import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
@@ -71,6 +75,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final Update EOR = new UpdateBuilder().build();
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final Collection<AdjRIBsOut> ribOuts = new ArrayList<>();
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
     private final BGPObjectComparator comparator;
@@ -136,12 +141,12 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(this.comparator, this.dps.newWriteOnlyTransaction());
+        final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, this.comparator, this.dps.newWriteOnlyTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
             if (wr != null) {
-                final AdjRIBsIn ari = this.tables.get(IPV4_UNICAST_TABLE);
+                final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
                 if (ari != null) {
                     ari.removeRoutes(
                             trans,
@@ -161,7 +166,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 if (mpu != null) {
                     final MpUnreachNlri nlri = mpu.getMpUnreachNlri();
 
-                    final AdjRIBsIn ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+                    final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
                     if (ari != null) {
                         ari.removeRoutes(trans, peer, nlri);
                     } else {
@@ -172,7 +177,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
             final Nlri ar = message.getNlri();
             if (ar != null) {
-                final AdjRIBsIn ari = this.tables.get(IPV4_UNICAST_TABLE);
+                final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
                 if (ari != null) {
                     final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
                             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
@@ -194,7 +199,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 if (mpr != null) {
                     final MpReachNlri nlri = mpr.getMpReachNlri();
 
-                    final AdjRIBsIn ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
+                    final AdjRIBsIn<?, ?> ari = this.tables.get(new TablesKey(nlri.getAfi(), nlri.getSafi()));
                     if (ari != null) {
                         if (message.equals(ari.endOfRib())) {
                             ari.markUptodate(trans, peer);
@@ -207,7 +212,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 }
             }
         } else {
-            final AdjRIBsIn ari = this.tables.get(IPV4_UNICAST_TABLE);
+            final AdjRIBsIn<?, ?> ari = this.tables.get(IPV4_UNICAST_TABLE);
             if (ari != null) {
                 ari.markUptodate(trans, peer);
             } else {
@@ -230,9 +235,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
-        final AdjRIBsIn ari = this.tables.get(key);
+        final AdjRIBsIn<?, ?> ari = this.tables.get(key);
         if (ari != null) {
-            final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(comparator, this.dps.newWriteOnlyTransaction());
+            final AdjRIBsTransactionImpl trans = new AdjRIBsTransactionImpl(ribOuts, comparator, this.dps.newWriteOnlyTransaction());
             ari.clear(trans, peer);
 
             Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
@@ -298,5 +303,19 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     @Override
     public void initTable(final Peer bgpPeer, final TablesKey key) {
         // FIXME: BUG-196: support graceful restart
+    }
+
+    @Override
+    public AdjRIBsOutRegistration registerRIBsOut(final AdjRIBsOut aro) {
+        final AdjRIBsOutRegistration reg = new AdjRIBsOutRegistration(aro) {
+            @Override
+            protected void removeRegistration() {
+                ribOuts.remove(aro);
+            }
+        };
+
+        ribOuts.add(aro);
+        // FIXME: schedule a walk over all the tables
+        return reg;
     }
 }

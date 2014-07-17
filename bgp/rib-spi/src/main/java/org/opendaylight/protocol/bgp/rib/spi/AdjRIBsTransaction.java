@@ -7,18 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 /**
  * An execution context for a single LocRib transaction.
  */
-public interface AdjRIBsInTransaction {
+public interface AdjRIBsTransaction {
 
     BGPObjectComparator comparator();
     void setUptodate(InstanceIdentifier<Tables> basePath, boolean uptodate);
-    <T extends DataObject> void advertise(final InstanceIdentifier<T> id, final T obj);
-    void withdraw(final InstanceIdentifier<?> id);
-
+    <K, T extends Route> void advertise(RouteEncoder ribOut, K key, InstanceIdentifier<T> id, T obj);
+    <K, T extends Route> void withdraw(RouteEncoder ribOut, K key, InstanceIdentifier<T> id);
 }
