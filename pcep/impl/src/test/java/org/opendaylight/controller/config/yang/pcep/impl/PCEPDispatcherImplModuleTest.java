@@ -111,7 +111,6 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         mxBean.setBossGroup(createThreadGroupInstance(transaction, 10, BOSS_TG_INSTANCE_NAME));
         mxBean.setWorkerGroup(createThreadGroupInstance(transaction, 10, WORKER_TG_INSTANCE_NAME));
         mxBean.setPcepExtensions(createExtensionsInstance(transaction));
-        mxBean.setTimer(createTimerInstance(transaction));
         return nameCreated;
     }
 
@@ -127,12 +126,6 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         final ObjectName nameCreated = transaction.createModule(THREADGROUP_FACTORY_NAME, instanceName);
         final NettyThreadgroupModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
         mxBean.setThreadCount(threadCount);
-        return nameCreated;
-    }
-
-    private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        final ObjectName nameCreated = transaction.createModule(TIMER_FACTORY_NAME, TIMER_INSTANCE_NAME);
-        transaction.newMXBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
         return nameCreated;
     }
 
