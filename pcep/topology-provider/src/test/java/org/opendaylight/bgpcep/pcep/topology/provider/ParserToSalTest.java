@@ -18,7 +18,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Promise;
 
 import java.io.IOException;
@@ -203,8 +202,8 @@ public class ParserToSalTest {
 
         this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
                 Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
-        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
-        this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
+        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        this.session = neg.createSession(this.clientListener, this.localPrefs, this.localPrefs);
 
         final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setPath(new PathBuilder().setEro(new EroBuilder().build()).build()).setLsp(
                 new LspBuilder().setPlspId(new PlspId(5L)).setSync(false).setRemove(false).setTlvs(
