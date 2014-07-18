@@ -209,11 +209,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         // Clear all requests which have not been sent to the peer: they result in cancellation
         for (final Entry<S, PCEPRequest> e : this.sendingRequests.entrySet()) {
             LOG.debug("Request {} was not sent when session went down, cancelling the instruction", e.getKey());
+            // Remove request from waiting list, to avoid setting NOACK result later.
+            waitingRequests.remove(e.getKey());
             e.getValue().setResult(OperationResults.UNSENT);
         }
         this.sendingRequests.clear();
 
-        // CLear all requests which have not been acked by the peer: they result in failure
+        // Clear all requests which have not been acked by the peer: they result in failure
         for (final Entry<S, PCEPRequest> e : this.waitingRequests.entrySet()) {
             LOG.info("Request {} was incomplete when session went down, failing the instruction", e.getKey());
             e.getValue().setResult(OperationResults.NOACK);
@@ -284,26 +286,36 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
-        return this.waitingRequests.remove(id);
+        final PCEPRequest ret = this.waitingRequests.remove(id);
+        LOG.trace("Removed request {} (object {}) from waiting set", id, ret);
+        return ret;
     }
 
     private synchronized void messageSendingComplete(final S requestId, final io.netty.util.concurrent.Future<Void> future) {
-        final PCEPRequest req = this.sendingRequests.remove(requestId);
+        final PCEPRequest sendReq = this.sendingRequests.remove(requestId);
 
         if (future.isSuccess()) {
-            this.waitingRequests.put(requestId, req);
+            LOG.trace("Request {} (object {}) successfully sent to peer", requestId, sendReq);
         } else {
-            LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-            req.setResult(OperationResults.UNSENT);
+            LOG.info("Failed to send request {} (object {}), removed from sending set", requestId, sendReq, future.cause());
+            final PCEPRequest waitReq = this.waitingRequests.remove(requestId);
+            if (waitReq != null) {
+                LOG.info("Request {} (object {}) removed also from waiting set and declared unsent"
+                waitReq.setResult(OperationResults.UNSENT);
+            } else {
+                LOG.warn("Request {} (object {}) was already handled in spite of apparent sending failure", requestId, sendReq);
+            }
         }
     }
 
-    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-        final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
-        final PCEPRequest req = new PCEPRequest(metadata);
+    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId, final Metadata metadata) {
 
+        final PCEPRequest req = new PCEPRequest(metadata);
         this.sendingRequests.put(requestId, req);
+        this.waitingRequests.put(requestId, req);
+        LOG.trace("Added request {} (object {}) to both sending and waiting set", requestId, req);
+
+        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 
         f.addListener(new FutureListener<Void>() {
             @Override
@@ -316,7 +328,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized void updateLsp(final DataModificationTransaction trans, final L id, final String lspName,
-        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
