@@ -39,7 +39,6 @@ import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.bgp.parser.spi.SimpleBGPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
-import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
@@ -54,7 +53,7 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
     @Before
     public void setUp() throws Exception {
         final List<ModuleFactory> moduleFactories = getModuleFactories();
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(this.mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
     }
 
     private List<ModuleFactory> getModuleFactories() {
@@ -63,7 +62,6 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
         moduleFactories.add(new BGPPeerAcceptorModuleFactory());
         moduleFactories.add(new NettyThreadgroupModuleFactory());
         moduleFactories.add(new SimpleBGPExtensionProviderContextModuleFactory());
-        moduleFactories.add(new HashedWheelTimerModuleFactory());
         moduleFactories.add(createClassBasedCBF(MockedDispatcherModule.class, "dispatch"));
         return moduleFactories;
     }
@@ -145,12 +143,6 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
 
         @Override
         public void setWorkerGroup(final ObjectName workerGroup) {}
-
-        @Override
-        public ObjectName getTimer() {return null;}
-
-        @Override
-        public void setTimer(final ObjectName timer) {}
 
         @Override
         public ObjectName getBgpExtensions() {return null;}

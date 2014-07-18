@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Preconditions;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -22,19 +21,17 @@ import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public final class BGPServerSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
-    private final Timer timer;
     private final BGPSessionValidator validator;
     private final BGPPeerRegistry registry;
 
-    public BGPServerSessionNegotiatorFactory(final Timer timer, final BGPSessionValidator sessionValidator, final BGPPeerRegistry registry) {
+    public BGPServerSessionNegotiatorFactory(final BGPSessionValidator sessionValidator, final BGPPeerRegistry registry) {
         this.registry = registry;
-        this.timer = Preconditions.checkNotNull(timer);
         this.validator = Preconditions.checkNotNull(sessionValidator);
     }
 
     @Override
     public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
             final Channel channel, final Promise<BGPSessionImpl> promise) {
-        return new BGPServerSessionNegotiator(this.timer, promise, channel, registry, validator);
+        return new BGPServerSessionNegotiator(promise, channel, registry, validator);
     }
 }

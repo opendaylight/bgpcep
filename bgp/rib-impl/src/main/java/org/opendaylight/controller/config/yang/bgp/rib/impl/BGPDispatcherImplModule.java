@@ -38,6 +38,6 @@ public final class BGPDispatcherImplModule extends org.opendaylight.controller.c
     @Override
     public java.lang.AutoCloseable createInstance() {
         final BGPExtensionConsumerContext bgpExtensions = getBgpExtensionsDependency();
-        return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getTimerDependency(), getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
+        return new BGPDispatcherImpl(bgpExtensions.getMessageRegistry(), getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
     }
 }

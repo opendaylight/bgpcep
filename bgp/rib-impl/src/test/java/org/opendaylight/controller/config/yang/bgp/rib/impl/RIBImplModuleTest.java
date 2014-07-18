@@ -29,7 +29,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         try {
             createRIBImplModuleInstance(null, 500L, new Ipv4Address(BGP_ID));
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("RibId is not set."));
         }
     }
@@ -39,7 +39,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         try {
             createRIBImplModuleInstance(new RibId(RIB_ID), null, new Ipv4Address(BGP_ID));
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("LocalAs is not set."));
         }
     }
@@ -49,38 +49,38 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         try {
             createRIBImplModuleInstance(new RibId(RIB_ID), 500L, null);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("BgpId is not set."));
         }
     }
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createInstance();
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 13, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 13);
     }
 
     @Test
     public void testReconfigure() throws Exception {
         createInstance();
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final RIBImplModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME),
                 RIBImplModuleMXBean.class);
         mxBean.setLocalAs(100L);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 12);
     }
 }
