@@ -10,13 +10,14 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+
 import io.netty.channel.Channel;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
+
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.concurrent.GuardedBy;
+
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
@@ -72,7 +73,6 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBGPSessionNegotiator.class);
-    private final Timer timer;
     private final BGPPeerRegistry registry;
     private final BGPSessionValidator sessionValidator;
 
@@ -82,12 +82,11 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     @GuardedBy("this")
     private BGPSessionImpl session;
 
-    public AbstractBGPSessionNegotiator(final Timer timer, final Promise<BGPSessionImpl> promise, final Channel channel,
-                                        final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
+    public AbstractBGPSessionNegotiator(final Promise<BGPSessionImpl> promise, final Channel channel,
+            final BGPPeerRegistry registry, final BGPSessionValidator sessionValidator) {
         super(promise, channel);
         this.registry = registry;
         this.sessionValidator = sessionValidator;
-        this.timer = Preconditions.checkNotNull(timer);
     }
 
     @Override
@@ -98,8 +97,8 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         if (!registry.isPeerConfigured(getRemoteIp())) {
             final BGPDocumentedException cause = new BGPDocumentedException(
                     "BGP peer with ip: " + getRemoteIp()
-                            + " not configured, check configured peers in : "
-                            + registry, BGPError.CEASE);
+                    + " not configured, check configured peers in : "
+                    + registry, BGPError.CEASE);
             negotiationFailed(cause);
             return;
         }
@@ -115,16 +114,13 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
                 preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
         this.state = State.OpenSent;
 
-        final Object lock = this;
-        this.timer.newTimeout(new TimerTask() {
+        this.channel.eventLoop().schedule(new Runnable() {
             @Override
-            public void run(final Timeout timeout) {
-                synchronized (lock) {
-                    if (AbstractBGPSessionNegotiator.this.state != State.Finished) {
-                        AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
-                        negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                        AbstractBGPSessionNegotiator.this.state = State.Finished;
-                    }
+            public void run() {
+                if (AbstractBGPSessionNegotiator.this.state != State.Finished) {
+                    AbstractBGPSessionNegotiator.this.sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                    negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
+                    AbstractBGPSessionNegotiator.this.state = State.Finished;
                 }
             }
         }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
@@ -188,7 +184,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
         try {
             final BGPSessionListener peer = registry.getPeer(getRemoteIp(), getSourceId(openObj, getPreferences()), getDestinationId(openObj, getPreferences()));
             this.sendMessage(new KeepaliveBuilder().build());
-            this.session = new BGPSessionImpl(this.timer, peer, this.channel, openObj, getPreferences().getHoldTime());
+            this.session = new BGPSessionImpl(peer, this.channel, openObj, getPreferences().getHoldTime());
             this.state = State.OpenConfirm;
             LOG.debug("Channel {} moved to OpenConfirm state with remote proposal {}", this.channel, openObj);
         } catch (final BGPDocumentedException e) {
