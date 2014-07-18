@@ -291,8 +291,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final PCEPRequest req = this.sendingRequests.remove(requestId);
 
         if (future.isSuccess()) {
-            this.waitingRequests.put(requestId, req);
+            LOG.trace("Request {} sent message succesfully", requestId);
         } else {
+            this.waitingRequests.remove(requestId);
             LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
             req.setResult(OperationResults.UNSENT);
         }
@@ -300,10 +301,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
         final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
-
         this.sendingRequests.put(requestId, req);
+        this.waitingRequests.put(requestId, req);
+
+        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
 
         f.addListener(new FutureListener<Void>() {
             @Override
