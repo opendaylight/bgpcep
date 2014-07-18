@@ -52,7 +52,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         try {
             createInstance(null, LISTEN_PORT, TOPOLOGY_ID, false);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("ListenAddress is not set"));
         }
     }
@@ -62,7 +62,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         try {
             createInstance(LISTEN_ADDRESS, null, TOPOLOGY_ID, false);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("ListenPort is not set"));
         }
     }
@@ -72,26 +72,26 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         try {
             createInstance(LISTEN_ADDRESS, LISTEN_PORT, null, false);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("TopologyId is not set"));
         }
     }
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createInstance(false);
+        final CommitStatus status = createInstance(false);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 16, 0, 0);
+        assertStatus(status, 15, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance(false);
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 16);
+        assertStatus(status, 0, 0, 15);
     }
 
     @Test
@@ -104,15 +104,15 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setTopologyId(new TopologyId("new-pcep-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 15);
+        assertStatus(status, 0, 1, 14);
     }
 
     @Test
     public void testCreateBeanWithMD5() throws Exception {
         NativeTestSupport.assumeSupportedPlatform();
-        CommitStatus status = createInstance(true);
+        final CommitStatus status = createInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 18, 0, 0);
+        assertStatus(status, 17, 0, 0);
     }
 
     @Test
@@ -124,13 +124,13 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertBeanCount(1, FACTORY_NAME);
         final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(
                 transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), PCEPTopologyProviderModuleMXBean.class);
-        ObjectName dispatcherON = mxBean.getDispatcher();
-        PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
+        final ObjectName dispatcherON = mxBean.getDispatcher();
+        final PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
         dispatcher.setMd5ServerChannelFactory(null);
         try {
             transaction.validateConfig();
             fail();
-        }catch(ValidationException e){
+        }catch(final ValidationException e){
             assertTrue(e.getMessage(), e.getMessage().contains("Client password is not compatible with selected dispatcher"));
         }
     }
@@ -143,7 +143,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         return transaction.commit();
     }
 
-    private CommitStatus createInstance(boolean addMD5) throws Exception {
+    private CommitStatus createInstance(final boolean addMD5) throws Exception {
         return createInstance(LISTEN_ADDRESS, getRandomPortNumber(), TOPOLOGY_ID, addMD5);
     }
 
@@ -164,20 +164,20 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         return objectName;
     }
 
-    private static void addMd5(ConfigTransactionJMXClient transaction, PCEPTopologyProviderModuleMXBean mxBean) throws InstanceAlreadyExistsException {
-        ObjectName jniON = transaction.createModule(NativeKeyAccessFactoryModuleFactory.NAME, NativeKeyAccessFactoryModuleFactory.NAME);
-        ObjectName md5ServerChannelFactoryON = transaction.createModule(MD5ServerChannelFactoryModuleFactory.NAME, MD5ServerChannelFactoryModuleFactory.NAME);
-        MD5ServerChannelFactoryModuleMXBean md5Factory = transaction.newMXBeanProxy(md5ServerChannelFactoryON, MD5ServerChannelFactoryModuleMXBean.class);
+    private static void addMd5(final ConfigTransactionJMXClient transaction, final PCEPTopologyProviderModuleMXBean mxBean) throws InstanceAlreadyExistsException {
+        final ObjectName jniON = transaction.createModule(NativeKeyAccessFactoryModuleFactory.NAME, NativeKeyAccessFactoryModuleFactory.NAME);
+        final ObjectName md5ServerChannelFactoryON = transaction.createModule(MD5ServerChannelFactoryModuleFactory.NAME, MD5ServerChannelFactoryModuleFactory.NAME);
+        final MD5ServerChannelFactoryModuleMXBean md5Factory = transaction.newMXBeanProxy(md5ServerChannelFactoryON, MD5ServerChannelFactoryModuleMXBean.class);
         md5Factory.setServerKeyAccessFactory(jniON);
 
 
-        ObjectName dispatcherON = mxBean.getDispatcher();
-        PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
+        final ObjectName dispatcherON = mxBean.getDispatcher();
+        final PCEPDispatcherImplModuleMXBean dispatcher = transaction.newMXBeanProxy(dispatcherON, PCEPDispatcherImplModuleMXBean.class);
         dispatcher.setMd5ServerChannelFactory(md5ServerChannelFactoryON);
     }
 
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final String listenAddress,
-                                                                final PortNumber listenPort, final TopologyId topologyId, boolean addMD5) throws Exception {
+            final PortNumber listenPort, final TopologyId topologyId, final boolean addMD5) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
@@ -190,7 +190,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         if (addMD5) {
             addMd5(transaction, mxBean);
             // create 1 client
-            Client client = new Client();
+            final Client client = new Client();
             client.setPassword(Rfc2385Key.getDefaultInstance("foo"));
             client.setAddress(new IpAddress("127.0.0.1".toCharArray()));
             mxBean.setClient(Arrays.asList(client));
