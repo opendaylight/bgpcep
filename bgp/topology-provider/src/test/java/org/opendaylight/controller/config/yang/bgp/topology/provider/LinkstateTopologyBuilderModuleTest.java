@@ -11,9 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -47,39 +45,39 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         try {
             createLinkstateTopologyBuilderModuleInstance(null);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("TopologyId is not set."));
         }
     }
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
+        final CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 15, 0, 0);
+        assertStatus(status, 14, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
         createLinkstateTopologyBuilderModuleInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 15);
+        assertStatus(status, 0, 0, 14);
     }
 
     @Test
     public void testReconfigure() throws Exception {
         createLinkstateTopologyBuilderModuleInstance();
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
         final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME,
                 INSTANCE_NAME), LinkstateTopologyBuilderModuleMXBean.class);
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 14);
+        assertStatus(status, 0, 1, 13);
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance() throws Exception {
@@ -87,7 +85,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance(final TopologyId topologyId) throws Exception {
-        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         final ObjectName linkstateTopoBuilderON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateTopoBuilderON,
                 LinkstateTopologyBuilderModuleMXBean.class);

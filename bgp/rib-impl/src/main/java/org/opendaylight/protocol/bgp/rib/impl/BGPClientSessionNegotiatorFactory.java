@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
+
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
@@ -21,18 +20,16 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public final class BGPClientSessionNegotiatorFactory implements SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> {
     private final BGPClientSessionValidator validator;
-    private final Timer timer;
     private final BGPPeerRegistry peerRegistry;
 
-    public BGPClientSessionNegotiatorFactory(final Timer timer, final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
+    public BGPClientSessionNegotiatorFactory(final AsNumber remoteAs, final BGPPeerRegistry peerRegistry) {
         this.peerRegistry = peerRegistry;
-        this.timer = Preconditions.checkNotNull(timer);
         this.validator = new BGPClientSessionValidator(remoteAs);
     }
 
     @Override
     public SessionNegotiator<BGPSessionImpl> getSessionNegotiator(final SessionListenerFactory<BGPSessionListener> factory,
             final Channel channel, final Promise<BGPSessionImpl> promise) {
-        return new BGPClientSessionNegotiator(this.timer, promise, channel, peerRegistry, validator);
+        return new BGPClientSessionNegotiator(promise, channel, peerRegistry, validator);
     }
 }
