@@ -11,7 +11,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -22,9 +21,9 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     private final PCEPSessionListener listener;
     private final int maxUnknownMessages;
 
-    public DefaultPCEPSessionNegotiator(final Timer timer, final Promise<PCEPSessionImpl> promise, final Channel channel,
+    public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
             final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages, final Open localPrefs) {
-        super(timer, promise, channel);
+        super(promise, channel);
         this.maxUnknownMessages = maxUnknownMessages;
         this.myLocalPrefs = new OpenBuilder().setKeepalive(localPrefs.getKeepalive()).setDeadTimer(localPrefs.getDeadTimer()).setSessionId(
                 sessionId).setTlvs(localPrefs.getTlvs()).build();
@@ -40,8 +39,8 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
 
     @Override
     @VisibleForTesting
-    public PCEPSessionImpl createSession(final Timer timer, final Channel channel, final Open localPrefs, final Open remotePrefs) {
-        return new PCEPSessionImpl(timer, this.listener, this.maxUnknownMessages, channel, localPrefs, remotePrefs);
+    public PCEPSessionImpl createSession(final Channel channel, final Open localPrefs, final Open remotePrefs) {
+        return new PCEPSessionImpl(this.listener, this.maxUnknownMessages, channel, localPrefs, remotePrefs);
     }
 
     @Override

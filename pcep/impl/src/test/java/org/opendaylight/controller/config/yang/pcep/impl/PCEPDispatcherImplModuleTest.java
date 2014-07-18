@@ -21,8 +21,6 @@ import org.opendaylight.controller.config.manager.impl.factoriesresolver.Hardcod
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleFactory;
 import org.opendaylight.controller.config.yang.netty.threadgroup.NettyThreadgroupModuleMXBean;
-import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
-import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleMXBean;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleFactory;
 import org.opendaylight.controller.config.yang.pcep.spi.SimplePCEPExtensionProviderContextModuleMXBean;
 
@@ -30,9 +28,6 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
     private static final String INSTANCE_NAME = "pcep-dispatcher-impl";
     private static final String FACTORY_NAME = PCEPDispatcherImplModuleFactory.NAME;
-
-    private static final String TIMER_INSTANCE_NAME = "hashed-wheel-timer";
-    private static final String TIMER_FACTORY_NAME = HashedWheelTimerModuleFactory.NAME;
 
     private static final String THREADGROUP_FACTORY_NAME = NettyThreadgroupModuleFactory.NAME;
     private static final String BOSS_TG_INSTANCE_NAME = "boss-group";
@@ -43,7 +38,7 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
 
     @Before
     public void setUp() throws Exception {
-        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new PCEPDispatcherImplModuleFactory(), new PCEPSessionProposalFactoryImplModuleFactory(), new NettyThreadgroupModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory(), new HashedWheelTimerModuleFactory()));
+        super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, new PCEPDispatcherImplModuleFactory(), new PCEPSessionProposalFactoryImplModuleFactory(), new NettyThreadgroupModuleFactory(), new SimplePCEPExtensionProviderContextModuleFactory()));
     }
 
     @Test
@@ -111,7 +106,6 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         mxBean.setBossGroup(createThreadGroupInstance(transaction, 10, BOSS_TG_INSTANCE_NAME));
         mxBean.setWorkerGroup(createThreadGroupInstance(transaction, 10, WORKER_TG_INSTANCE_NAME));
         mxBean.setPcepExtensions(createExtensionsInstance(transaction));
-        mxBean.setTimer(createTimerInstance(transaction));
         return nameCreated;
     }
 
@@ -127,12 +121,6 @@ public class PCEPDispatcherImplModuleTest extends AbstractConfigTest {
         final ObjectName nameCreated = transaction.createModule(THREADGROUP_FACTORY_NAME, instanceName);
         final NettyThreadgroupModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, NettyThreadgroupModuleMXBean.class);
         mxBean.setThreadCount(threadCount);
-        return nameCreated;
-    }
-
-    private static ObjectName createTimerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        final ObjectName nameCreated = transaction.createModule(TIMER_FACTORY_NAME, TIMER_INSTANCE_NAME);
-        transaction.newMXBeanProxy(nameCreated, HashedWheelTimerModuleMXBean.class);
         return nameCreated;
     }
 

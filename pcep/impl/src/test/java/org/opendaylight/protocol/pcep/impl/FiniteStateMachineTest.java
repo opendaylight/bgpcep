@@ -21,7 +21,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultChannelPromise;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
@@ -73,7 +72,7 @@ public class FiniteStateMachineTest {
         MockitoAnnotations.initMocks(this);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open localPrefs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder().setKeepalive(
                 (short) 1).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.clientListener, new SimpleSessionListener(), (short) 1, 20, localPrefs);
+        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<PCEPSessionImpl>(GlobalEventExecutor.INSTANCE), this.clientListener, new SimpleSessionListener(), (short) 1, 20, localPrefs);
         final ChannelFuture future = new DefaultChannelPromise(this.clientListener);
         doAnswer(new Answer<Object>() {
             @Override
@@ -206,7 +205,7 @@ public class FiniteStateMachineTest {
     @Ignore
     public void testUnknownMessage() throws InterruptedException {
         final SimpleSessionListener client = new SimpleSessionListener();
-        final PCEPSessionImpl s = new PCEPSessionImpl(new HashedWheelTimer(), client, 5, this.clientListener, this.openmsg.getOpenMessage().getOpen(), this.openmsg.getOpenMessage().getOpen());
+        final PCEPSessionImpl s = new PCEPSessionImpl(client, 5, this.clientListener, this.openmsg.getOpenMessage().getOpen(), this.openmsg.getOpenMessage().getOpen());
         s.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         assertEquals(1, s.unknownMessagesTimes.size());
         Thread.sleep(10000);

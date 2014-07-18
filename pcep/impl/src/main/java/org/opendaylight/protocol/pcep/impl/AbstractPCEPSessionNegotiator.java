@@ -11,15 +11,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.protocol.framework.AbstractSessionNegotiator;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -77,25 +73,14 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPCEPSessionNegotiator.class);
     private static final Keepalive KEEPALIVE = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
-    private final Timer timer;
-
-    @GuardedBy("this")
-    private State state = State.Idle;
-
-    @GuardedBy("this")
-    private Timeout failTimer;
-
-    @GuardedBy("this")
+    private volatile boolean localOK, openRetry, remoteOK;
+    private volatile State state = State.Idle;
+    private Future<?> failTimer;
     private Open localPrefs;
-
-    @GuardedBy("this")
     private Open remotePrefs;
 
-    private volatile boolean localOK, openRetry, remoteOK;
-
-    protected AbstractPCEPSessionNegotiator(final Timer timer, final Promise<PCEPSessionImpl> promise, final Channel channel) {
+    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
         super(promise, channel);
-        this.timer = Preconditions.checkNotNull(timer);
     }
 
     /**
@@ -133,14 +118,13 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     /**
      * Create the protocol session.
      *
-     * @param timer Timer which the session can use for its various functions.
      * @param channel Underlying channel.
      * @param sessionId Assigned session ID.
      * @param localPrefs Session preferences proposed by us and accepted by the peer.
      * @param remotePrefs Session preferences proposed by the peer and accepted by us.
      * @return New protocol session.
      */
-    protected abstract PCEPSessionImpl createSession(Timer timer, Channel channel, Open localPrefs, Open remotePrefs);
+    protected abstract PCEPSessionImpl createSession(Channel channel, Open localPrefs, Open remotePrefs);
 
     /**
      * Sends PCEP Error Message with one PCEPError.
@@ -153,38 +137,30 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private void scheduleFailTimer() {
-        final Object lock = this;
-
-        this.failTimer = this.timer.newTimeout(new TimerTask() {
+        this.failTimer = this.channel.eventLoop().schedule(new Runnable() {
             @Override
-            public void run(final Timeout timeout) {
-                synchronized (lock) {
-                    // This closes the race between timer expiring and new timer
-                    // being armed while it waits for the lock.
-                    if (AbstractPCEPSessionNegotiator.this.failTimer == timeout) {
-                        switch (AbstractPCEPSessionNegotiator.this.state) {
-                        case Finished:
-                        case Idle:
-                            break;
-                        case KeepWait:
-                            sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
-                            negotiationFailed(new TimeoutException("KeepWait timer expired"));
-                            AbstractPCEPSessionNegotiator.this.state = State.Finished;
-                            break;
-                        case OpenWait:
-                            sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
-                            negotiationFailed(new TimeoutException("OpenWait timer expired"));
-                            AbstractPCEPSessionNegotiator.this.state = State.Finished;
-                            break;
-                        }
-                    }
+            public void run() {
+                switch (AbstractPCEPSessionNegotiator.this.state) {
+                case Finished:
+                case Idle:
+                    break;
+                case KeepWait:
+                    sendErrorMessage(PCEPErrors.NO_MSG_BEFORE_EXP_KEEPWAIT);
+                    negotiationFailed(new TimeoutException("KeepWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.Finished;
+                    break;
+                case OpenWait:
+                    sendErrorMessage(PCEPErrors.NO_OPEN_BEFORE_EXP_OPENWAIT);
+                    negotiationFailed(new TimeoutException("OpenWait timer expired"));
+                    AbstractPCEPSessionNegotiator.this.state = State.Finished;
+                    break;
                 }
             }
         }, FAIL_TIMER_VALUE, TimeUnit.SECONDS);
     }
 
     @Override
-    protected final synchronized void startNegotiation() {
+    protected final void startNegotiation() {
         Preconditions.checkState(this.state == State.Idle);
         this.localPrefs = getInitialProposal();
         final OpenMessage m = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.OpenBuilder().setOpenMessage(
@@ -197,8 +173,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     @Override
-    protected final synchronized void handleMessage(final Message msg) {
-        this.failTimer.cancel();
+    protected final void handleMessage(final Message msg) {
+        this.failTimer.cancel(false);
 
         LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
 
@@ -211,7 +187,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                 this.localOK = true;
                 if (this.remoteOK) {
                     LOG.info("PCEP peer {} completed negotiation", this.channel);
-                    negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
+                    negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
                     this.state = State.Finished;
                 } else {
                     scheduleFailTimer();
@@ -254,7 +230,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                     this.remotePrefs = open;
                     this.remoteOK = true;
                     if (this.localOK) {
-                        negotiationSuccessful(createSession(this.timer, this.channel, this.localPrefs, this.remotePrefs));
+                        negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
                         LOG.info("PCEP peer {} completed negotiation", this.channel);
                         this.state = State.Finished;
                     } else {
@@ -297,7 +273,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
         this.state = State.Finished;
     }
 
-    public synchronized State getState() {
+    @VisibleForTesting
+    State getState() {
         return this.state;
     }
 }

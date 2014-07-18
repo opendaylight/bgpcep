@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.mockito.Mockito.mock;
 import io.netty.channel.Channel;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
@@ -24,7 +23,7 @@ public class ServerSessionMock extends PCEPSessionImpl {
     private final MockPCE client;
 
     public ServerSessionMock(final PCEPSessionListener listener, final PCEPSessionListener client) {
-        super(new HashedWheelTimer(), listener, 5, mock(Channel.class), new OpenBuilder().setKeepalive((short) 4).setDeadTimer((short) 9).setSessionId(
+        super(listener, 5, mock(Channel.class), new OpenBuilder().setKeepalive((short) 4).setDeadTimer((short) 9).setSessionId(
                 (short) 2).build(), new OpenBuilder().setKeepalive((short) 4).setDeadTimer((short) 9).setSessionId((short) 2).build());
         this.client = (MockPCE) client;
     }
