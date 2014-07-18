@@ -13,14 +13,18 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import io.netty.util.concurrent.FutureListener;
+
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.annotation.concurrent.GuardedBy;
+
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -284,7 +288,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized PCEPRequest removeRequest(final S id) {
-        return this.waitingRequests.remove(id);
+        final PCEPRequest ret = this.waitingRequests.remove(id);
+        LOG.trace("Removed request {} object {}", id, ret);
+        return ret;
     }
 
     private synchronized void messageSendingComplete(final S requestId, final io.netty.util.concurrent.Future<Void> future) {
@@ -292,14 +298,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         if (future.isSuccess()) {
             this.waitingRequests.put(requestId, req);
+            LOG.trace("Request {} sent to peer (object {})", requestId, req);
         } else {
             LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
             req.setResult(OperationResults.UNSENT);
         }
     }
 
-    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-        final Metadata metadata) {
+    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId, final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
 
@@ -316,7 +322,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized void updateLsp(final DataModificationTransaction trans, final L id, final String lspName,
-        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
