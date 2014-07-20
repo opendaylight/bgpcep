@@ -15,15 +15,11 @@ import static org.mockito.Mockito.mock;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-
 import java.math.BigInteger;
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +60,7 @@ public class ProgrammingServiceImplTest {
 
         testedProgrammingService = new ProgrammingServiceImpl(mockedDataProviderWrapper.getMockedDataProvider(), mockedNotificationServiceWrapper.getMockedNotificationService(), mockedExecutorWrapper.getMockedExecutor(), timer);
 
-        mockedDataProviderWrapper.verifyBeginTransaction(1).verifyPutDataOnTransaction(1).verifyCommitTransaction(1);
+        mockedDataProviderWrapper.verifyBeginRWTransaction(1).verifyPutDataOnTransaction(1).verifyCommitTransaction(1);
         mockedDataProviderWrapper.assertPutDataTargetType(0, InstructionQueue.class);
     }
 
@@ -84,7 +80,7 @@ public class ProgrammingServiceImplTest {
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(0, mockedSubmit.getId(), InstructionStatus.Scheduled);
 
-        mockedDataProviderWrapper.verifyBeginTransaction(2).verifyPutDataOnTransaction(2).verifyCommitTransaction(2).verifyRemoveDataOnTransaction(
+        mockedDataProviderWrapper.verifyBeginWriteTransaction(1).verifyPutDataOnTransaction(2).verifyCommitTransaction(2).verifyRemoveDataOnTransaction(
                 0);
         mockedDataProviderWrapper.assertPutDataForInstructions(1, mockedSubmit.getId(), mockedSubmit.getDeadline());
     }
@@ -126,7 +122,7 @@ public class ProgrammingServiceImplTest {
         mockedNotificationServiceWrapper.assertNotificationsCount(2);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit.getId(), InstructionStatus.Cancelled);
 
-        mockedDataProviderWrapper.verifyBeginTransaction(2/*init + schedule first*/+ 1 /*cancel*/).verifyPutDataOnTransaction(3).verifyRemoveDataOnTransaction(
+        mockedDataProviderWrapper.verifyBeginWriteTransaction(1/*schedule first*/+ 1 /*cancel*/).verifyPutDataOnTransaction(3).verifyRemoveDataOnTransaction(
                 0).verifyCommitTransaction(3);
 
         mockedDataProviderWrapper.assertPutDataForInstructions(1, mockedSubmit.getId(), mockedSubmit.getDeadline());
@@ -167,15 +163,15 @@ public class ProgrammingServiceImplTest {
 
         assertCleanInstructionOutput(cleanedInstructionOutput, 2);
 
-        int expectedBeginTxCount = 1/*Service init*/+ 1;
-        mockedDataProviderWrapper.verifyBeginTransaction(expectedBeginTxCount/*Schedule first*/).verifyCommitTransaction(
+        int expectedBeginTxCount = 2;
+        mockedDataProviderWrapper.verifyBeginWriteTransaction(expectedBeginTxCount - 1/*Schedule first*/).verifyCommitTransaction(
                 expectedBeginTxCount).verifyPutDataOnTransaction(expectedBeginTxCount).verifyRemoveDataOnTransaction(0);
 
         testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
 
         cleanedInstructionOutput = testedProgrammingService.cleanInstructions(cleanInstructionsInput);
         assertCleanInstructionOutput(cleanedInstructionOutput, 0);
-        mockedDataProviderWrapper.verifyBeginTransaction(expectedBeginTxCount + 2/*Update status to cancelled*/+ 2 /*Cleanup*/).verifyRemoveDataOnTransaction(
+        mockedDataProviderWrapper.verifyBeginWriteTransaction(expectedBeginTxCount + 3).verifyRemoveDataOnTransaction(
                 2).verifyPutDataOnTransaction(2/*From before*/+ 2/*Cancel*/).verifyCommitTransaction(
                 expectedBeginTxCount + 2/*Update status to cancelled*/+ 2 /*Cleanup*/);
 

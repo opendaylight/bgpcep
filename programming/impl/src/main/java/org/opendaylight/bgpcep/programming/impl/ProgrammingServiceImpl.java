@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
@@ -34,9 +35,11 @@ import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionOutputBuilder;
@@ -72,7 +75,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
     private final InstanceIdentifier<InstructionQueue> qid;
     private final NotificationProviderService notifs;
     private final ListeningExecutorService executor;
-    private final DataProviderService dataProvider;
+    private final DataBroker dataProvider;
     private final Timer timer;
 
     private final class InstructionPusher implements QueueInstruction {
@@ -90,8 +93,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             if (!status.equals(builder.getStatus())) {
                 builder.setStatus(status);
 
-                final DataModificationTransaction t = dataProvider.beginTransaction();
-                t.putOperationalData(
+                final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
+                t.put(LogicalDatastoreType.OPERATIONAL,
                         qid.child(
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
                                 new InstructionKey(builder.getId())), builder.build());
@@ -103,15 +106,15 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
 
         @Override
         public void instructionRemoved() {
-            final DataModificationTransaction t = dataProvider.beginTransaction();
-            t.removeOperationalData(qid.child(
+            final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, qid.child(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
                     new InstructionKey(builder.getId())));
             t.commit();
         }
     }
 
-    public ProgrammingServiceImpl(final DataProviderService dataProvider, final NotificationProviderService notifs,
+    public ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationProviderService notifs,
             final ListeningExecutorService executor, final Timer timer) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.notifs = Preconditions.checkNotNull(notifs);
@@ -119,11 +122,14 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         this.timer = Preconditions.checkNotNull(timer);
         qid = InstanceIdentifier.builder(InstructionQueue.class).toInstance();
 
-        final DataModificationTransaction t = dataProvider.beginTransaction();
-        Preconditions.checkState(t.readOperationalData(qid) == null, "Conflicting instruction queue found");
+        final ReadWriteTransaction t = dataProvider.newReadWriteTransaction();
+        try {
+            Preconditions.checkState(!t.read(LogicalDatastoreType.OPERATIONAL, qid).get().isPresent(), "Conflicting instruction queue found");
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IllegalStateException("Failed to acquire instruction queue", e);
+        }
 
-        t.putOperationalData(
-                qid,
+        t.put(LogicalDatastoreType.OPERATIONAL, qid,
                 new InstructionQueueBuilder().setInstruction(
                         Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction> emptyList()).build());
         t.commit();
@@ -342,8 +348,8 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
                 i.tryCancel(null);
             }
         } finally {
-            final DataModificationTransaction t = dataProvider.beginTransaction();
-            t.removeOperationalData(qid);
+            final WriteTransaction t = dataProvider.newWriteOnlyTransaction();
+            t.delete(LogicalDatastoreType.OPERATIONAL, qid);
             t.commit();
         }
     }
