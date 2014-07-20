@@ -18,16 +18,16 @@ import io.netty.util.concurrent.Promise;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
 import org.opendaylight.protocol.framework.SessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
+import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
+import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
