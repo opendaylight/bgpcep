@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,7 +7,10 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -17,10 +20,10 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
-import junit.framework.Assert;
+import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,41 +31,41 @@ import org.junit.matchers.JUnitMatchers;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CancelInstructionInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.CleanInstructionsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionQueue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionsQueue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.SubmitInstructionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.status.changed.DetailsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelInput;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 
-public class ProgrammingServiceImplTest {
+public class ProgrammingServiceImplTest extends AbstractDataBrokerTest {
 
     public static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
 
-    private ProgrammingServiceImpl testedProgrammingService;
     private MockedExecutorWrapper mockedExecutorWrapper;
-    private MockedDataProviderWrapper mockedDataProviderWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
-    private Timer timer = new HashedWheelTimer();
+    private ProgrammingServiceImpl testedProgrammingService;
+    private final Timer timer = new HashedWheelTimer();
 
     @Before
-    public void setUp() throws Exception {
-        mockedDataProviderWrapper = new MockedDataProviderWrapper();
+    public void setUp() throws IOException, YangSyntaxErrorException {
         mockedExecutorWrapper = new MockedExecutorWrapper();
         mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
 
-        testedProgrammingService = new ProgrammingServiceImpl(mockedDataProviderWrapper.getMockedDataProvider(), mockedNotificationServiceWrapper.getMockedNotificationService(), mockedExecutorWrapper.getMockedExecutor(), timer);
-
-        mockedDataProviderWrapper.verifyBeginTransaction(1).verifyPutDataOnTransaction(1).verifyCommitTransaction(1);
-        mockedDataProviderWrapper.assertPutDataTargetType(0, InstructionQueue.class);
+        testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(), mockedNotificationServiceWrapper.getMockedNotificationService(), mockedExecutorWrapper.getMockedExecutor(), timer);
     }
 
     @After
@@ -71,8 +74,10 @@ public class ProgrammingServiceImplTest {
 
     @Test
     public void testScheduleInstruction() throws Exception {
-        SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
+        final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         testedProgrammingService.scheduleInstruction(mockedSubmit);
+
+        assertTrue(assertInstructionExists(mockedSubmit.getId()));
 
         // assert Schedule to executor
         mockedExecutorWrapper.assertSubmittedTasksSize(1);
@@ -80,16 +85,12 @@ public class ProgrammingServiceImplTest {
         // assert Notification
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(0, mockedSubmit.getId(), InstructionStatus.Scheduled);
-
-        mockedDataProviderWrapper.verifyBeginTransaction(2).verifyPutDataOnTransaction(2).verifyCommitTransaction(2).verifyRemoveDataOnTransaction(
-                0);
-        mockedDataProviderWrapper.assertPutDataForInstructions(1, mockedSubmit.getId(), mockedSubmit.getDeadline());
     }
 
     @Test
     public void testScheduleDependingInstruction() throws Exception {
         testedProgrammingService.scheduleInstruction(getMockedSubmitInstructionInput("mockedSubmit1"));
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
         mockedExecutorWrapper.assertSubmittedTasksSize(2);
@@ -102,7 +103,7 @@ public class ProgrammingServiceImplTest {
     public void testScheduleDependingInstructionToFail() throws Exception {
         try {
             testedProgrammingService.scheduleInstruction(getMockedSubmitInstructionInput("mockedSubmit", "dep1"));
-        } catch (SchedulerException e) {
+        } catch (final SchedulerException e) {
             assertThat(e.getMessage(), JUnitMatchers.containsString("Unknown dependency ID"));
             mockedNotificationServiceWrapper.assertNotificationsCount(0);
             return;
@@ -112,32 +113,29 @@ public class ProgrammingServiceImplTest {
 
     @Test
     public void testCancelInstruction() throws Exception {
-        SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
+        final SubmitInstructionInput mockedSubmit = getMockedSubmitInstructionInput("mockedSubmit");
         testedProgrammingService.scheduleInstruction(mockedSubmit);
 
-        CancelInstructionInput mockedCancel = getCancelInstruction("mockedSubmit");
+        assertTrue(assertInstructionExists(mockedSubmit.getId()));
+
+        final CancelInstructionInput mockedCancel = getCancelInstruction("mockedSubmit");
         testedProgrammingService.cancelInstruction(mockedCancel);
+
+        assertTrue(assertInstructionExists(mockedSubmit.getId()));
 
         mockedExecutorWrapper.assertSubmittedTasksSize(2);
 
         mockedNotificationServiceWrapper.assertNotificationsCount(2);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit.getId(), InstructionStatus.Cancelled);
-
-        mockedDataProviderWrapper.verifyBeginTransaction(2/*init + schedule first*/+ 1 /*cancel*/).verifyPutDataOnTransaction(3).verifyRemoveDataOnTransaction(
-                0).verifyCommitTransaction(3);
-
-        mockedDataProviderWrapper.assertPutDataForInstructions(1, mockedSubmit.getId(), mockedSubmit.getDeadline());
-
-        mockedDataProviderWrapper.assertPutDataForInstructions(2, mockedCancel.getId(), null);
     }
 
     @Test
     public void testCancelDependantInstruction() throws Exception {
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit1);
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit2);
-        SubmitInstructionInput mockedSubmit3 = getMockedSubmitInstructionInput("mockedSubmit3", "mockedSubmit1", "mockedSubmit2");
+        final SubmitInstructionInput mockedSubmit3 = getMockedSubmitInstructionInput("mockedSubmit3", "mockedSubmit1", "mockedSubmit2");
         testedProgrammingService.scheduleInstruction(mockedSubmit3);
 
         testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
@@ -147,71 +145,68 @@ public class ProgrammingServiceImplTest {
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(1, mockedSubmit1.getId(), InstructionStatus.Cancelled);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(2, mockedSubmit2.getId(), InstructionStatus.Cancelled);
         mockedNotificationServiceWrapper.assertInstructionStatusChangedNotification(3, mockedSubmit3.getId(), InstructionStatus.Cancelled);
+
+        assertTrue(assertInstructionExists(mockedSubmit1.getId()));
+        assertTrue(assertInstructionExists(mockedSubmit2.getId()));
+        assertTrue(assertInstructionExists(mockedSubmit3.getId()));
     }
 
     @Test
     public void testCleanInstructions() throws Exception {
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit1);
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
-        CleanInstructionsInputBuilder cleanInstructionsInputBuilder = new CleanInstructionsInputBuilder();
-        CleanInstructionsInput cleanInstructionsInput = cleanInstructionsInputBuilder.setId(
+        final CleanInstructionsInputBuilder cleanInstructionsInputBuilder = new CleanInstructionsInputBuilder();
+        final CleanInstructionsInput cleanInstructionsInput = cleanInstructionsInputBuilder.setId(
                 Lists.newArrayList(mockedSubmit1.getId(), mockedSubmit2.getId())).build();
 
         ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput = testedProgrammingService.cleanInstructions(cleanInstructionsInput);
 
         assertCleanInstructionOutput(cleanedInstructionOutput, 2);
 
-        int expectedBeginTxCount = 1/*Service init*/+ 1;
-        mockedDataProviderWrapper.verifyBeginTransaction(expectedBeginTxCount/*Schedule first*/).verifyCommitTransaction(
-                expectedBeginTxCount).verifyPutDataOnTransaction(expectedBeginTxCount).verifyRemoveDataOnTransaction(0);
-
         testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
 
         cleanedInstructionOutput = testedProgrammingService.cleanInstructions(cleanInstructionsInput);
         assertCleanInstructionOutput(cleanedInstructionOutput, 0);
-        mockedDataProviderWrapper.verifyBeginTransaction(expectedBeginTxCount + 2/*Update status to cancelled*/+ 2 /*Cleanup*/).verifyRemoveDataOnTransaction(
-                2).verifyPutDataOnTransaction(2/*From before*/+ 2/*Cancel*/).verifyCommitTransaction(
-                expectedBeginTxCount + 2/*Update status to cancelled*/+ 2 /*Cleanup*/);
 
-        mockedDataProviderWrapper.assertRemoveDataForInstruction(0, mockedSubmit1.getId());
-        mockedDataProviderWrapper.assertRemoveDataForInstruction(1, mockedSubmit2.getId());
+        assertFalse(assertInstructionExists(mockedSubmit1.getId()));
+        assertFalse(assertInstructionExists(mockedSubmit2.getId()));
     }
 
-    private void assertCleanInstructionOutput(ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
-            int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
+    private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
+            final int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
         if (unflushedCount == 0) {
-            Assert.assertEquals(Collections.EMPTY_LIST, cleanedInstructionOutput.get().getResult().getUnflushed());
+            final List<InstructionId> unflushed = cleanedInstructionOutput.get().getResult().getUnflushed();
+            assertTrue(unflushed == null || unflushed.isEmpty());
         } else {
-            Assert.assertEquals(unflushedCount, cleanedInstructionOutput.get().getResult().getUnflushed().size());
+            assertEquals(unflushedCount, cleanedInstructionOutput.get().getResult().getUnflushed().size());
         }
-        Assert.assertEquals(0, cleanedInstructionOutput.get().getErrors().size());
+        assertEquals(0, cleanedInstructionOutput.get().getErrors().size());
     }
 
     @Test
     public void testCloseProgrammingService() throws Exception {
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit1);
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
         testedProgrammingService.close();
 
         mockedNotificationServiceWrapper.assertNotificationsCount(1/* First scheduled */+ 2/* Both cancelled at close */);
-        mockedDataProviderWrapper.verifyRemoveDataOnTransaction(1);
     }
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileScheduledTransaction() throws Exception {
-        BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
-        Nanotime current = NanotimeUtil.currentTime();
-        Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final Nanotime current = NanotimeUtil.currentTime();
+        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 
-        Optional<Nanotime> deadline = Optional.of(deadlineNano);
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
-        ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
+        final Optional<Nanotime> deadline = Optional.of(deadlineNano);
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
+        final ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
 
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
 
@@ -225,17 +220,17 @@ public class ProgrammingServiceImplTest {
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileSuccessfulTransaction() throws Exception {
-        BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
-        Nanotime current = NanotimeUtil.currentTime();
-        Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final Nanotime current = NanotimeUtil.currentTime();
+        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 
-        Optional<Nanotime> deadline = Optional.of(deadlineNano);
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
-        ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
+        final Optional<Nanotime> deadline = Optional.of(deadlineNano);
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
+        final ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
 
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
 
-        Instruction i = future.get();
+        final Instruction i = future.get();
         i.checkedExecutionStart();
         i.executionCompleted(InstructionStatus.Successful, getDetails());
 
@@ -249,20 +244,20 @@ public class ProgrammingServiceImplTest {
 
     @Test(timeout = 30 * 1000)
     public void testTimeoutWhileExecutingWithDependenciesTransaction() throws Exception {
-        BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
-        Nanotime current = NanotimeUtil.currentTime();
-        Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
+        final BigInteger deadlineOffset = BigInteger.valueOf(1000l * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
+        final Nanotime current = NanotimeUtil.currentTime();
+        final Nanotime deadlineNano = new Nanotime(current.getValue().add(deadlineOffset));
 
-        Optional<Nanotime> deadline = Optional.of(deadlineNano);
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
-        ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
+        final Optional<Nanotime> deadline = Optional.of(deadlineNano);
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
+        final ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
 
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
         testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
 
-        Instruction i = future.get();
+        final Instruction i = future.get();
         i.checkedExecutionStart();
 
         Thread.sleep(2 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS * 1000);
@@ -277,11 +272,11 @@ public class ProgrammingServiceImplTest {
 
     @Test
     public void testSuccessExecutingWithDependenciesTransaction() throws Exception {
-        SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
-        ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
+        final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1");
+        final ListenableFuture<Instruction> future = testedProgrammingService.scheduleInstruction(mockedSubmit1);
 
-        SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
-        ListenableFuture<Instruction> future2 = testedProgrammingService.scheduleInstruction(mockedSubmit2);
+        final SubmitInstructionInput mockedSubmit2 = getMockedSubmitInstructionInput("mockedSubmit2", "mockedSubmit1");
+        final ListenableFuture<Instruction> future2 = testedProgrammingService.scheduleInstruction(mockedSubmit2);
 
         mockedNotificationServiceWrapper.assertNotificationsCount(1);
 
@@ -307,15 +302,15 @@ public class ProgrammingServiceImplTest {
         return new DetailsBuilder().build();
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(String id, String... dependencyIds) {
+    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
         return getMockedSubmitInstructionInput(id, Optional.<Nanotime> absent(), dependencyIds);
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(String id, Optional<Nanotime> deadline, String... dependencyIds) {
-        SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
+    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline, final String... dependencyIds) {
+        final SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
         doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).getImplementedInterface();
-        List<InstructionId> dependencies = Lists.newArrayList();
+        final List<InstructionId> dependencies = Lists.newArrayList();
         for (String dependencyId : dependencyIds) {
             dependencies.add(getInstructionId(dependencyId));
         }
@@ -327,7 +322,7 @@ public class ProgrammingServiceImplTest {
     }
 
     private CancelInstructionInput getCancelInstruction(String instructionId) {
-        CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
+        final CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
         builder.setId(getInstructionId(instructionId));
         return builder.build();
     }
@@ -336,4 +331,12 @@ public class ProgrammingServiceImplTest {
         return new InstructionId(id);
     }
 
+    private boolean assertInstructionExists(final InstructionId id) {
+        try {
+            return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(InstructionsQueue.class).toInstance().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction.class,
+                    new InstructionKey(id))).get().isPresent();
+        } catch (InterruptedException | ExecutionException e) {
+            return false;
+        }
+    }
 }
