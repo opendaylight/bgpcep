@@ -11,8 +11,8 @@ import io.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.protocol.framework.SessionListenerFactory;
+import org.opendaylight.tcpmd5.api.KeyMapping;
 
 /**
  * Dispatcher class for creating servers and clients.

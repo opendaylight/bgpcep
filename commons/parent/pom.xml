@@ -67,6 +67,9 @@
         <controller.config.version>0.2.5-SNAPSHOT</controller.config.version>
         <controller.framework.version>0.5.0-SNAPSHOT</controller.framework.version>
         <controller.mdsal.version>1.1-SNAPSHOT</controller.mdsal.version>
+
+        <!-- TCP-MD5 artifacts -->
+        <tcpmd5.version>1.0.0-SNAPSHOT</tcpmd5.version>
     </properties>
 
     <dependencyManagement>
@@ -194,17 +197,27 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
-           </dependency>
+            </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.opendaylight.tcpmd5</groupId>
+                <artifactId>tcpmd5-api</artifactId>
+                <version>${tcpmd5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.tcpmd5</groupId>
+                <artifactId>tcpmd5-netty</artifactId>
+                <version>${tcpmd5.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.tcpmd5</groupId>
                 <artifactId>tcpmd5-jni</artifactId>
-                <version>${project.version}</version>
+                <version>${tcpmd5.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>${project.groupId}</groupId>
+                <groupId>org.opendaylight.tcpmd5</groupId>
                 <artifactId>tcpmd5-jni</artifactId>
-                <version>${project.version}</version>
+                <version>${tcpmd5.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>

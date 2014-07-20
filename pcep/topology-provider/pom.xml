@@ -91,7 +91,7 @@
             <artifactId>topology-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-api</artifactId>
         </dependency>
         <dependency>
@@ -174,16 +174,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-jni</artifactId>
             <scope>test</scope>
         </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>tcpmd5-jni</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
+        <dependency>
+            <groupId>org.opendaylight.tcpmd5</groupId>
+            <artifactId>tcpmd5-jni</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
