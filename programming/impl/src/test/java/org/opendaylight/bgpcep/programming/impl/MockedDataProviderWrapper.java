@@ -17,18 +17,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
-import java.util.concurrent.Future;
-
+import java.util.concurrent.ExecutionException;
 import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.Nanotime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev130930.instruction.queue.Instruction;
@@ -39,8 +43,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class MockedDataProviderWrapper {
 
-    private DataModificationTransaction lastMockedTransaction;
-    private DataProviderService lastMockedDataProvider;
+    private ReadWriteTransaction lastMockedTransaction;
+    private DataBroker lastMockedDataProvider;
 
     private final List<PutOperationalDataInvocationArgs> putOperationalDataInvocations;
     private final List<InstanceIdentifier<?>> removeOperationalDataInvocations;
@@ -51,65 +55,77 @@ final class MockedDataProviderWrapper {
         removeOperationalDataInvocations = Lists.newArrayList();
     }
 
-    public DataProviderService getMockedDataProvider() {
+    public DataBroker getMockedDataProvider() {
         lastMockedTransaction = setupMockedTransaction();
         lastMockedDataProvider = setupMockedDataProvider(lastMockedTransaction);
         return lastMockedDataProvider;
     }
 
-    private DataProviderService setupMockedDataProvider(final DataModificationTransaction mockedTransaction) {
-        DataProviderService mockedDataProvider = mock(DataProviderService.class);
-        doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
+    private DataBroker setupMockedDataProvider(final ReadWriteTransaction mockedTransaction) {
+        DataBroker mockedDataProvider = mock(DataBroker.class);
+        doReturn(mockedTransaction).when(mockedDataProvider).newReadWriteTransaction();
+        doReturn(mockedTransaction).when(mockedDataProvider).newWriteOnlyTransaction();
 
-        Future<?> mockedCommitFuture = mock(Future.class);
+        ListenableFuture<?> mockedCommitFuture = mock(ListenableFuture.class);
         doReturn(mockedCommitFuture).when(mockedTransaction).commit();
         return mockedDataProvider;
     }
 
-    private DataModificationTransaction setupMockedTransaction() {
-        DataModificationTransaction mockedTransaction = mock(DataModificationTransaction.class);
+    private ReadWriteTransaction setupMockedTransaction() {
+        ReadWriteTransaction mockedRWTransaction = mock(ReadWriteTransaction.class);
 
-        doReturn(null).when(mockedTransaction).readOperationalData(Matchers.<InstanceIdentifier<? extends DataObject>> any());
+        ListenableFuture<?> mockedListenableFuture = Mockito.mock(ListenableFuture.class);
+        try {
+            doReturn(Optional.absent()).when(mockedListenableFuture).get();
+        } catch (InterruptedException | ExecutionException e) {
+            // should not happen
+        }
+        doReturn(mockedListenableFuture).when(mockedRWTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.<InstanceIdentifier<? extends DataObject>> any());
 
-        setPutAnswer(mockedTransaction);
-        setRemoveAnwer(mockedTransaction);
-        return mockedTransaction;
+        setPutAnswer(mockedRWTransaction);
+        setRemoveAnwer(mockedRWTransaction);
+        return mockedRWTransaction;
     }
 
-    private void setRemoveAnwer(final DataModificationTransaction mockedTransaction) {
+    private void setRemoveAnwer(final WriteTransaction mockedTransaction) {
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
-                removeOperationalDataInvocations.add((InstanceIdentifier<?>) invocation.getArguments()[0]);
+                removeOperationalDataInvocations.add((InstanceIdentifier<?>) invocation.getArguments()[1]);
                 return null;
             }
-        }).when(mockedTransaction).removeOperationalData(Matchers.<InstanceIdentifier<? extends DataObject>> any());
+        }).when(mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.<InstanceIdentifier<? extends DataObject>> any());
     }
 
-    private void setPutAnswer(final DataModificationTransaction mockedTransaction) {
+    private void setPutAnswer(final WriteTransaction mockedTransaction) {
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
-                putOperationalDataInvocations.add(PutOperationalDataInvocationArgs.fromObjects(invocation.getArguments()[0],
-                        invocation.getArguments()[1]));
+                putOperationalDataInvocations.add(PutOperationalDataInvocationArgs.fromObjects(invocation.getArguments()[1],
+                        invocation.getArguments()[2]));
                 return null;
             }
-        }).when(mockedTransaction).putOperationalData(Matchers.<InstanceIdentifier<? extends DataObject>> any(), any(DataObject.class));
+        }).when(mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.<InstanceIdentifier<? extends DataObject>> any(), any(DataObject.class));
     }
 
-    MockedDataProviderWrapper verifyBeginTransaction(final int beginTransactionCount) {
-        verify(lastMockedDataProvider, times(beginTransactionCount)).beginTransaction();
+    MockedDataProviderWrapper verifyBeginWriteTransaction(final int beginTransactionCount) {
+        verify(lastMockedDataProvider, times(beginTransactionCount)).newWriteOnlyTransaction();
+        return this;
+    }
+
+    MockedDataProviderWrapper verifyBeginRWTransaction(final int beginTransactionCount) {
+        verify(lastMockedDataProvider, times(beginTransactionCount)).newReadWriteTransaction();
         return this;
     }
 
     MockedDataProviderWrapper verifyPutDataOnTransaction(final int putCount) {
-        verify(lastMockedTransaction, times(putCount)).putOperationalData(Matchers.<InstanceIdentifier<? extends DataObject>> any(),
+        verify(lastMockedTransaction, times(putCount)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.<InstanceIdentifier<? extends DataObject>> any(),
                 any(DataObject.class));
         return this;
     }
 
     MockedDataProviderWrapper verifyRemoveDataOnTransaction(final int removeCount) {
-        verify(lastMockedTransaction, times(removeCount)).removeOperationalData(Matchers.<InstanceIdentifier<? extends DataObject>> any());
+        verify(lastMockedTransaction, times(removeCount)).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.<InstanceIdentifier<? extends DataObject>> any());
         return this;
     }
 
@@ -137,7 +153,7 @@ final class MockedDataProviderWrapper {
         InstanceIdentifier<? extends DataObject> instanceId = removeOperationalDataInvocations.get(idx).firstIdentifierOf(Instruction.class);
         assertNotNull(instanceId);
 
-        InstanceIdentifier.PathArgument instructionPathArg = instanceId.getPath().get(1);
+        InstanceIdentifier.PathArgument instructionPathArg = Iterables.get(instanceId.getPathArguments(), 1);
         assertTrue(instructionPathArg instanceof InstanceIdentifier.IdentifiableItem);
         InstructionKey expectedKey = new InstructionKey(expectedId);
         assertEquals(expectedKey, ((InstanceIdentifier.IdentifiableItem<?, ?>) instructionPathArg).getKey());

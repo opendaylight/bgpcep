@@ -8,7 +8,6 @@
 package org.opendaylight.controller.config.yang.programming.impl;
 
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
@@ -20,7 +19,7 @@ public class InstructionSchedulerImplModuleTest extends AbstractInstructionSched
     public void testCreateBean() throws Exception {
         CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 8, 0, 0);
+        assertStatus(status, 10, 0, 0);
     }
 
     @Test
@@ -30,15 +29,16 @@ public class InstructionSchedulerImplModuleTest extends AbstractInstructionSched
         assertBeanCount(1, FACTORY_NAME);
         CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 8);
+        assertStatus(status, 0, 0, 10);
     }
 
     private CommitStatus createInstance() throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
+        final ObjectName domBrokerON = createDomBrokerInstance(transaction);
+        final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction, domBrokerON);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
-        createInstructionSchedulerModuleInstance(transaction, dataBrokerON, createBindingBrokerImpl(transaction, dataBrokerON,
-                notificationBrokerON), notificationBrokerON);
+        createInstructionSchedulerModuleInstance(transaction, createAsyncDataBrokerInstance(transaction, domBrokerON), createBindingBrokerImpl(transaction,
+                dataBrokerON, notificationBrokerON), notificationBrokerON);
         return transaction.commit();
     }
 }

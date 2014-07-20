@@ -11,9 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -91,7 +89,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final TopologyId topologyId)
             throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
+        final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction, createDomBrokerInstance(transaction));
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
         final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
         final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, dataBrokerON, bindingBrokerON,

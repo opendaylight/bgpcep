@@ -179,7 +179,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final String listenAddress,
                                                                 final PortNumber listenPort, final TopologyId topologyId, boolean addMD5) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
+        final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction, createDomBrokerInstance(transaction));
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
         final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
 
