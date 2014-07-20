@@ -213,6 +213,13 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.controller</groupId>
+                <artifactId>sal-binding-broker-impl</artifactId>
+                <version>${controller.mdsal.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
+            </dependency>
 
             <!-- Supporting Libraries -->
 
@@ -308,7 +315,7 @@
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-broker-impl</artifactId>
                 <version>${controller.mdsal.version}</version>
-                </dependency>
+            </dependency>
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
                 <artifactId>sal-binding-util</artifactId>
