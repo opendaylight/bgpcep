@@ -53,11 +53,11 @@
             <artifactId>bgp-rib-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-netty</artifactId>
         </dependency>
         <dependency>
@@ -104,14 +104,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-parser-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>tcpmd5-netty</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
@@ -182,12 +174,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-jni</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.tcpmd5</groupId>
             <artifactId>tcpmd5-jni</artifactId>
             <type>test-jar</type>
             <scope>test</scope>

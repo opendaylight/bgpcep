@@ -17,10 +17,6 @@ import io.netty.util.concurrent.Promise;
 
 import java.net.InetSocketAddress;
 
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelFactory;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ChannelOption;
-import org.opendaylight.bgpcep.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -30,6 +26,10 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.tcpmd5.api.KeyMapping;
+import org.opendaylight.tcpmd5.netty.MD5ChannelFactory;
+import org.opendaylight.tcpmd5.netty.MD5ChannelOption;
+import org.opendaylight.tcpmd5.netty.MD5ServerChannelFactory;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**

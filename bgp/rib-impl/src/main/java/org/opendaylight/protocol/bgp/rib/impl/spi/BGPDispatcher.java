@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
-import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
+import org.opendaylight.tcpmd5.api.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 
 /**
