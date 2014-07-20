@@ -14,11 +14,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
@@ -37,9 +34,9 @@ final class MockedNotificationServiceWrapper {
     NotificationProviderService getMockedNotificationService() {
         final NotificationProviderService mockedNotificationService = mock(NotificationProviderService.class);
 
-        doAnswer(new Answer() {
+        doAnswer(new Answer<Void>() {
             @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Object notif = invocation.getArguments()[0];
                 assertTrue(Notification.class.isAssignableFrom(notif.getClass()));
                 MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification) notif);
