@@ -81,7 +81,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     public void testCreateBean() throws Exception {
         CommitStatus status = createInstance(false);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 16, 0, 0);
+        assertStatus(status, 19, 0, 0);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertBeanCount(1, FACTORY_NAME);
         CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 16);
+        assertStatus(status, 0, 0, 19);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setTopologyId(new TopologyId("new-pcep-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 15);
+        assertStatus(status, 0, 1, 18);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         NativeTestSupport.assumeSupportedPlatform();
         CommitStatus status = createInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 18, 0, 0);
+        assertStatus(status, 20, 0, 0);
     }
 
     @Test
@@ -179,12 +179,11 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final String listenAddress,
                                                                 final PortNumber listenPort, final TopologyId topologyId, boolean addMD5) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
-        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
+        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, createCompatibleDataBrokerInstance(transaction), notificationBrokerON);
 
         final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, PCEPTopologyProviderModuleMXBean.class);
-        mxBean.setDataProvider(dataBrokerON);
+        mxBean.setDataProvider(createDataBrokerInstance(transaction));
         mxBean.setDispatcher(createDispatcherInstance(transaction, 5));
 
         if (addMD5) {
@@ -199,7 +198,8 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setListenAddress(listenAddress == null ? null : new IpAddress(listenAddress.toCharArray()));
         mxBean.setListenPort(listenPort);
         mxBean.setRpcRegistry(bindingBrokerON);
-        mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, dataBrokerON, bindingBrokerON, notificationBrokerON));
+        mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, createAsyncDataBrokerInstance(transaction), bindingBrokerON,
+                notificationBrokerON));
         mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
                 STATEFUL02_TOPOLOGY_INSTANCE_NAME));
         mxBean.setTopologyId(topologyId);
