@@ -180,7 +180,7 @@ module programming {
             exposed by an implementation of the instruction
             scheduler defined in this model";
 
-        list instructions {
+        list instruction {
             description
                 "List of all instructions known to the
                 scheduler.";
@@ -339,23 +339,8 @@ module programming {
         }
     }
 
-    container instruction-queue {
-        list instruction {
-            leaf id {
-                type instruction-id;
-                mandatory true;
-            }
-            key id;
-
-            leaf status {
-                type instruction-status;
-                mandatory true;
-            }
-
-            container attributes {
-
-            }
-        }
+    container instructions-queue {
+        uses instruction-queue;
     }
 
     notification instruction-status-changed {

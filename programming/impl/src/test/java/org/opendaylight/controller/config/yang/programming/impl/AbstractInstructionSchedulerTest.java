@@ -10,23 +10,21 @@ package org.opendaylight.controller.config.yang.programming.impl;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
-
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.concurrent.Future;
-
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,36 +36,32 @@ import org.opendaylight.controller.config.manager.impl.AbstractConfigTest;
 import org.opendaylight.controller.config.manager.impl.factoriesresolver.HardcodedModuleFactoriesResolver;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingAsyncDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.BindingBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.DataBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.DataBrokerImplModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.binding.impl.ForwardedCompatibleDataBrokerImplModuleMXBean;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.NotificationBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RpcBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.binding.impl.RuntimeMappingModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleFactory;
 import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomBrokerImplModuleMXBean;
-import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreModuleFactory;
-import org.opendaylight.controller.config.yang.md.sal.dom.impl.HashMapDataStoreModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleFactory;
+import org.opendaylight.controller.config.yang.md.sal.dom.impl.DomInmemoryDataBrokerModuleMXBean;
+import org.opendaylight.controller.config.yang.md.sal.dom.impl.SchemaServiceImplSingletonModuleFactory;
 import org.opendaylight.controller.config.yang.netty.timer.HashedWheelTimerModuleFactory;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.md.sal.common.api.data.DataCommitHandler;
-import org.opendaylight.controller.sal.core.api.RpcProvisionRegistry;
-import org.opendaylight.controller.sal.core.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.core.api.data.DataProviderService;
-import org.opendaylight.controller.sal.core.api.mount.MountProvisionService;
-import org.opendaylight.controller.sal.core.api.mount.MountProvisionService.MountProvisionListener;
-import org.opendaylight.controller.sal.core.api.notify.NotificationPublishService;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.data.api.CompositeNode;
-import org.opendaylight.yangtools.yang.data.api.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
 import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
 import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
 import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
+import org.opendaylight.yangtools.yang.parser.impl.util.URLSchemaContextResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Filter;
@@ -79,119 +73,60 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
     private static final String FACTORY_NAME = InstructionSchedulerImplModuleFactory.NAME;
     private static final String INSTANCE_NAME = "instruction-scheduler-impl";
 
-    private static final String TRANSACTION_NAME = "testTransaction";
-
     private static final String BINDING_BROKER_INSTANCE_NAME = "binding-broker-impl";
     private static final String NOTIFICATION_BROKER_INSTANCE_NAME = "notification-broker-impl";
-    private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-impl";
+    private static final String COMPATIBLE_DATA_BROKER_INSTANCE_NAME = "binding-data-compatible-broker-instance";
     private static final String DOM_BROKER_INSTANCE_NAME = "dom-broker-impl";
-    private static final String DATA_STORE_INSTANCE_NAME = "data-store-impl";
     private static final String TIMER_INSTANCE_NAME = "timer-impl";
-
-    @Mock
-    private DataModificationTransaction mockedTransaction;
-
-    @Mock
-    private DataProviderService mockedDataProvider;
-
-    @Mock
-    private RpcProvisionRegistry mockedRpcProvision;
-
-    @Mock
-    private NotificationPublishService mockedNotificationPublish;
-
-    @Mock
-    private MountProvisionService mockedMountProvision;
-
-    @Mock
-    private Future<RpcResult<TransactionStatus>> mockedFuture;
+    private static final String BINDING_ASYNC_BROKER_INSTANCE_NAME = "binding-async-broker-instance";
+    private static final String DOM_ASYNC_DATA_BROKER_INSTANCE = "dom-inmemory-data-broker";
+    private static final String DATA_BROKER_INSTANCE_NAME = "data-broker-instance";
 
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        List<ModuleFactory> moduleFactories = getModuleFactories();
+        final List<ModuleFactory> moduleFactories = getModuleFactories();
         super.initConfigTransactionManagerImpl(new HardcodedModuleFactoriesResolver(mockedContext, moduleFactories.toArray(new ModuleFactory[moduleFactories.size()])));
 
-        Filter mockedFilter = mock(Filter.class);
-        Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
-
-        Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
-
-        Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
-
-        Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
+        final Filter mockedFilter = mock(Filter.class);
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
-        ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
-
-        ServiceReference<?> dataProviderServiceReference = mock(ServiceReference.class, "Data Provider");
-        ServiceReference<?> rpcProvisionServiceReference = mock(ServiceReference.class, "Rpc Provision");
-        ServiceReference<?> mountProvisionServiceReference = mock(ServiceReference.class, "Mount Provision");
-        ServiceReference<?> notificationPublishServiceReference = mock(ServiceReference.class, "Notification Publish");
+        final ServiceReference<?> emptyServiceReference = mock(ServiceReference.class, "Empty");
 
         Mockito.doReturn(mockedFilter).when(mockedContext).createFilter(Mockito.anyString());
 
         Mockito.doNothing().when(mockedContext).addServiceListener(any(ServiceListener.class), Mockito.anyString());
+        Mockito.doNothing().when(mockedContext).removeServiceListener(any(ServiceListener.class));
 
         Mockito.doNothing().when(mockedContext).addBundleListener(any(BundleListener.class));
+        Mockito.doNothing().when(mockedContext).removeBundleListener(any(BundleListener.class));
 
         Mockito.doReturn(new Bundle[] {}).when(mockedContext).getBundles();
 
         Mockito.doReturn(new ServiceReference[] {}).when(mockedContext).getServiceReferences(Matchers.anyString(), Matchers.anyString());
 
         Mockito.doReturn("Empty reference").when(emptyServiceReference).toString();
-        Mockito.doReturn("Data Provider Service Reference").when(dataProviderServiceReference).toString();
-        Mockito.doReturn("Rpc Provision Service Reference").when(rpcProvisionServiceReference).toString();
-        Mockito.doReturn("Mount Provision Service Reference").when(mountProvisionServiceReference).toString();
-        Mockito.doReturn("Notification Publish Service Reference").when(notificationPublishServiceReference).toString();
-        //
         Mockito.doReturn(emptyServiceReference).when(mockedContext).getServiceReference(any(Class.class));
-        Mockito.doReturn(dataProviderServiceReference).when(mockedContext).getServiceReference(DataProviderService.class);
-        Mockito.doReturn(rpcProvisionServiceReference).when(mockedContext).getServiceReference(RpcProvisionRegistry.class);
-        Mockito.doReturn(notificationPublishServiceReference).when(mockedContext).getServiceReference(NotificationPublishService.class);
-        Mockito.doReturn(mountProvisionServiceReference).when(mockedContext).getServiceReference(MountProvisionService.class);
-
-        Mockito.doReturn(mockedDataProvider).when(mockedContext).getService(dataProviderServiceReference);
-        Mockito.doReturn(mockedRpcProvision).when(mockedContext).getService(rpcProvisionServiceReference);
-        Mockito.doReturn(mockedMountProvision).when(mockedContext).getService(mountProvisionServiceReference);
-        Mockito.doReturn(mockedNotificationPublish).when(mockedContext).getService(notificationPublishServiceReference);
-
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
-        Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
-                any(DataCommitHandler.class));
+        final GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
+        final YangContextParser parser = new YangParserImpl();
+        final SchemaContext context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
+        final URLSchemaContextResolver mockedContextResolver = Mockito.mock(URLSchemaContextResolver.class);
+        Mockito.doReturn(Optional.of(context)).when(mockedContextResolver).getSchemaContext();
 
-        Mockito.doReturn(null).when(mockedMountProvision).registerProvisionListener(any(MountProvisionListener.class));
-
-        Mockito.doReturn(null).when(mockedDataProvider).readOperationalData(any(InstanceIdentifier.class));
-        Mockito.doReturn(mockedTransaction).when(mockedDataProvider).beginTransaction();
-
-        Mockito.doNothing().when(mockedTransaction).putOperationalData(any(InstanceIdentifier.class), any(CompositeNode.class));
-        Mockito.doNothing().when(mockedTransaction).removeOperationalData(any(InstanceIdentifier.class));
-
-        Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
-        Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
-
-        Mockito.doReturn(mockedResult).when(mockedFuture).get();
-        Mockito.doReturn(true).when(mockedResult).isSuccessful();
-        Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
-
-        Mockito.doReturn(null).when(mockedDataProvider).readConfigurationData(any(InstanceIdentifier.class));
-
-        GlobalBundleScanningSchemaServiceImpl.createInstance(mockedContext);
+        final Field contextResolverField = schemaService.getClass().getDeclaredField("contextResolver");
+        contextResolverField.setAccessible(true);
+        contextResolverField.set(schemaService, mockedContextResolver);
     }
 
     @After
-    public void tearDownGlobalBundleScanningSchemaServiceImpl(){
+    public void tearDownGlobalBundleScanningSchemaServiceImpl() throws Exception{
         GlobalBundleScanningSchemaServiceImpl.destroyInstance();
     }
 
@@ -227,36 +162,73 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
         return objectName;
     }
 
-    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException,
-    InstanceNotFoundException {
+    public ObjectName createDataBrokerInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException, InstanceNotFoundException {
         ObjectName nameCreated = transaction.createModule(DataBrokerImplModuleFactory.NAME, DATA_BROKER_INSTANCE_NAME);
         DataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DataBrokerImplModuleMXBean.class);
-        mxBean.setDomBroker(createDomBrokerInstance(transaction));
+        mxBean.setDomBroker(lookupDomBrokerInstance(transaction));
         mxBean.setMappingService(lookupMappingServiceInstance(transaction));
         return nameCreated;
     }
 
-    private ObjectName createDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
-        DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
-        mxBean.setDataStore(createDataStoreInstance(transaction));
+    public ObjectName createCompatibleDataBrokerInstance(final ConfigTransactionJMXClient transaction)
+            throws InstanceAlreadyExistsException, InstanceNotFoundException {
+        final ObjectName nameCreated = transaction.createModule(ForwardedCompatibleDataBrokerImplModuleFactory.NAME, COMPATIBLE_DATA_BROKER_INSTANCE_NAME);
+        final ForwardedCompatibleDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, ForwardedCompatibleDataBrokerImplModuleMXBean.class);
+        mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
+        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
         return nameCreated;
     }
 
-    private ObjectName createDataStoreInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
-        ObjectName nameCreated = transaction.createModule(HashMapDataStoreModuleFactory.NAME, DATA_STORE_INSTANCE_NAME);
-        transaction.newMXBeanProxy(nameCreated, HashMapDataStoreModuleMXBean.class);
+    public ObjectName createAsyncDataBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException, InstanceNotFoundException {
+        final ObjectName nameCreated = transaction.createModule(BindingAsyncDataBrokerImplModuleFactory.NAME, BINDING_ASYNC_BROKER_INSTANCE_NAME);
+        final BindingAsyncDataBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, BindingAsyncDataBrokerImplModuleMXBean.class);
+        mxBean.setBindingMappingService(lookupMappingServiceInstance(transaction));
+        mxBean.setDomAsyncBroker(lookupDomBrokerInstance(transaction));
+        return nameCreated;
+    }
+
+    private static ObjectName createDomAsyncDataBroker(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        final ObjectName nameCreated = transaction.createModule(DomInmemoryDataBrokerModuleFactory.NAME, DOM_ASYNC_DATA_BROKER_INSTANCE);
+        final DomInmemoryDataBrokerModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomInmemoryDataBrokerModuleMXBean.class);
+        mxBean.setSchemaService(lookupSchemaServiceInstance(transaction));
         return nameCreated;
     }
 
     private static ObjectName lookupMappingServiceInstance(final ConfigTransactionJMXClient transaction) {
-
         try {
             return transaction.lookupConfigBean(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-        } catch (InstanceNotFoundException e) {
+        } catch (final InstanceNotFoundException e) {
             try {
                 return transaction.createModule(RuntimeMappingModuleFactory.NAME, RuntimeMappingModuleFactory.SINGLETON_NAME);
-            } catch (InstanceAlreadyExistsException e1) {
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
+    }
+
+    private static ObjectName lookupSchemaServiceInstance(final ConfigTransactionJMXClient transaction) {
+        try {
+            return transaction.lookupConfigBean(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
+        } catch (InstanceNotFoundException e) {
+            try {
+                return transaction.createModule(SchemaServiceImplSingletonModuleFactory.NAME, SchemaServiceImplSingletonModuleFactory.SINGLETON_NAME);
+            } catch (final InstanceAlreadyExistsException e1) {
+                throw new IllegalStateException(e1);
+            }
+        }
+    }
+
+    public static ObjectName lookupDomBrokerInstance(final ConfigTransactionJMXClient transaction) throws InstanceAlreadyExistsException {
+        try {
+            return transaction.lookupConfigBean(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+        } catch (final InstanceNotFoundException e) {
+            try {
+                final ObjectName nameCreated = transaction.createModule(DomBrokerImplModuleFactory.NAME, DOM_BROKER_INSTANCE_NAME);
+                final DomBrokerImplModuleMXBean mxBean = transaction.newMXBeanProxy(nameCreated, DomBrokerImplModuleMXBean.class);
+                mxBean.setAsyncDataBroker(createDomAsyncDataBroker(transaction));
+                return nameCreated;
+            } catch (final InstanceAlreadyExistsException e1) {
                 throw new IllegalStateException(e1);
             }
         }
@@ -268,19 +240,18 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
             return new BundleContextServiceRegistrationHandler() {
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
-                    YangContextParser parser = new YangParserImpl();
+                    final SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
+                    final YangContextParser parser = new YangParserImpl();
                     SchemaContext context;
                     try {
                         context = parser.parseSources(getFilesAsByteSources(getYangModelsPaths()));
-                    } catch (IOException | YangSyntaxErrorException e) {
+                    } catch (final IOException | YangSyntaxErrorException e) {
                         throw new IllegalStateException("Failed to parse models", e);
                     }
                     listener.onGlobalContextUpdated(context);
                 }
             };
         }
-
         return super.getBundleContextServiceRegistrationHandler(serviceType);
     }
 
@@ -291,9 +262,10 @@ public abstract class AbstractInstructionSchedulerTest extends AbstractConfigTes
 
     public List<ModuleFactory> getModuleFactories() {
         return Lists.newArrayList(new InstructionSchedulerImplModuleFactory(), new HashedWheelTimerModuleFactory(),
-                new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(), new DataBrokerImplModuleFactory(),
-                new DomBrokerImplModuleFactory(), new HashMapDataStoreModuleFactory(), new RuntimeMappingModuleFactory(),
-                new BindingBrokerImplModuleFactory());
+                new NotificationBrokerImplModuleFactory(), new RpcBrokerImplModuleFactory(), new DomBrokerImplModuleFactory(),
+                new RuntimeMappingModuleFactory(), new BindingBrokerImplModuleFactory(), new BindingAsyncDataBrokerImplModuleFactory(),
+                new DomInmemoryDataBrokerModuleFactory(), new SchemaServiceImplSingletonModuleFactory(),
+                new ForwardedCompatibleDataBrokerImplModuleFactory(), new DataBrokerImplModuleFactory());
     }
 
     // TODO move back to AbstractConfigTest
