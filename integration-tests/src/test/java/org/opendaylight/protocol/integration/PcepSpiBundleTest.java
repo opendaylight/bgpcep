@@ -14,7 +14,7 @@ import java.util.Collection;
 public final class PcepSpiBundleTest extends AbstractBundleTest {
     @Override
     protected Collection<String> prerequisiteBundles() {
-        return Lists.newArrayList("concepts", "pcep-api", "rsvp-api", "tcpmd5-api", "util");
+        return Lists.newArrayList("concepts", "pcep-api", "rsvp-api", "util");
     }
 
     @Override
