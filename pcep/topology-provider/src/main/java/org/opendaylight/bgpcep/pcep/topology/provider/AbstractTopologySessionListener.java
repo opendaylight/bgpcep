@@ -7,11 +7,11 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
@@ -20,9 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.concurrent.GuardedBy;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -102,17 +105,24 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return "pcc://" + addr.getHostAddress();
     }
 
-    private Node topologyNode(final DataModificationTransaction trans, final InetAddress address) {
+    private Node topologyNode(final ReadWriteTransaction trans, final InetAddress address) {
         final String pccId = createNodeId(address);
-        final Topology topo = (Topology) trans.readOperationalData(this.serverSessionManager.getTopology());
 
-        for (final Node n : topo.getNode()) {
-            LOG.debug("Matching topology node {} to id {}", n, pccId);
-            if (n.getNodeId().getValue().equals(pccId)) {
-                this.topologyNode = this.serverSessionManager.getTopology().child(Node.class, n.getKey());
-                LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
-                return n;
+        // FIXME: Futures.transform...
+        try {
+            Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
+            Preconditions.checkState(topoMaybe.isPresent(), "Failed to find topology.");
+            final Topology topo = topoMaybe.get();
+            for (final Node n : topo.getNode()) {
+                LOG.debug("Matching topology node {} to id {}", n, pccId);
+                if (n.getNodeId().getValue().equals(pccId)) {
+                    this.topologyNode = this.serverSessionManager.getTopology().child(Node.class, n.getKey());
+                    LOG.debug("Reusing topology node {} for id {} at {}", n, pccId, this.topologyNode);
+                    return n;
+                }
             }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new IllegalStateException("Failed to ensure topology presence.", e);
         }
 
         /*
@@ -125,7 +135,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         final Node ret = new NodeBuilder().setKey(nk).setNodeId(id).build();
 
-        trans.putOperationalData(nti, ret);
+        trans.put(LogicalDatastoreType.OPERATIONAL, nti, ret);
         LOG.debug("Created topology node {} for id {} at {}", ret, pccId, nti);
         this.ownsTopology = true;
         this.topologyNode = nti;
@@ -141,7 +151,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
          * the topology model, with empty LSP list.
          */
         final InetAddress peerAddress = session.getRemoteAddress();
-        final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
+        final ReadWriteTransaction trans = this.serverSessionManager.rwTransaction();
 
         final Node topoNode = topologyNode(trans, peerAddress);
         LOG.trace("Peer {} resolved to topology node {}", peerAddress, topoNode);
@@ -157,12 +167,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.topologyAugment = this.topologyNode.augmentation(Node1.class);
         final Node1 ta = this.topologyAugmentBuilder.build();
 
-        trans.putOperationalData(this.topologyAugment, ta);
+        trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
         LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
 
         // All set, commit the modifications
-        final ListenableFuture<RpcResult<TransactionStatus>> f = JdkFutureAdapters.listenInPoolThread(trans.commit());
-        Futures.addCallback(f, new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Internal state for session {} updated successfully", session);
@@ -186,15 +195,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.nodeState = null;
         this.session = null;
 
-        final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
-
         // The session went down. Undo all the Topology changes we have done.
-        trans.removeOperationalData(this.topologyAugment);
+        final WriteTransaction trans = this.serverSessionManager.beginTransaction();
+        trans.delete(LogicalDatastoreType.OPERATIONAL, this.topologyAugment);
         if (this.ownsTopology) {
-            trans.removeOperationalData(this.topologyNode);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, this.topologyNode);
         }
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Internal state for session {} cleaned up successfully", session);
@@ -235,7 +243,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     @Override
     public final synchronized void onMessage(final PCEPSession session, final Message message) {
-        final DataModificationTransaction trans = this.serverSessionManager.beginTransaction();
+        final WriteTransaction trans = this.serverSessionManager.beginTransaction();
 
         this.dirty = false;
 
@@ -250,15 +258,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             this.topologyAugmentBuilder.setPathComputationClient(this.pccBuilder.build());
             final Node1 ta = this.topologyAugmentBuilder.build();
 
-            trans.removeOperationalData(this.topologyAugment);
-            trans.putOperationalData(this.topologyAugment, ta);
+            trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
             LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
             this.dirty = false;
         } else {
             LOG.debug("State has not changed, skipping sync");
         }
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
             @Override
             public void onSuccess(final RpcResult<TransactionStatus> result) {
                 LOG.trace("Internal state for session {} updated successfully", session);
@@ -299,7 +306,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-        final Metadata metadata) {
+            final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
 
@@ -315,8 +322,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return req.getFuture();
     }
 
-    protected final synchronized void updateLsp(final DataModificationTransaction trans, final L id, final String lspName,
-        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+    protected final synchronized void updateLsp(final WriteTransaction trans, final L id, final String lspName,
+            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
@@ -392,7 +399,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         this.lspData.put(name, rlb.build());
     }
 
-    protected final synchronized void stateSynchronizationAchieved(final DataModificationTransaction trans) {
+    protected final synchronized void stateSynchronizationAchieved(final WriteTransaction trans) {
         if (this.synced) {
             LOG.debug("State synchronization achieved while synchronized, not updating state");
             return;
@@ -412,7 +419,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         return pccIdentifier().child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
-    protected final synchronized void removeLsp(final DataModificationTransaction trans, final L id) {
+    protected final synchronized void removeLsp(final WriteTransaction trans, final L id) {
         final String name = this.lsps.remove(id);
         this.dirty = true;
         LOG.debug("LSP {} removed", name);
@@ -421,14 +428,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
 
-    protected abstract boolean onMessage(DataModificationTransaction trans, Message message);
+    protected abstract boolean onMessage(WriteTransaction trans, Message message);
 
     protected String lookupLspName(final L id) {
         Preconditions.checkNotNull(id, "ID parameter null.");
         return this.lsps.get(id);
     }
 
-    protected final <T extends DataObject> T readOperationalData(final InstanceIdentifier<T> id) {
+    protected final <T extends DataObject> ListenableFuture<Optional<T>> readOperationalData(final InstanceIdentifier<T> id) {
         return this.serverSessionManager.readOperationalData(id);
     }
 }

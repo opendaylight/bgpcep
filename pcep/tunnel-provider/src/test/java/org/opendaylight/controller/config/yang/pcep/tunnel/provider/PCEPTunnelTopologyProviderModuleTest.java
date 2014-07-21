@@ -89,17 +89,17 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     private ObjectName createPCEPTopologyProviderModuleInstance(final ConfigTransactionJMXClient transaction, final TopologyId topologyId)
             throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
-        final ObjectName dataBrokerON = createCompatibleDataBrokerInstance(transaction);
+        final ObjectName asyncDataBrokerON = createAsyncDataBrokerInstance(transaction);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
-        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, dataBrokerON, notificationBrokerON);
-        final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, createAsyncDataBrokerInstance(transaction), bindingBrokerON,
+        final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, createCompatibleDataBrokerInstance(transaction), notificationBrokerON);
+        final ObjectName schedulerON = createInstructionSchedulerModuleInstance(transaction, asyncDataBrokerON, bindingBrokerON,
                 notificationBrokerON);
         final ObjectName sourceTopology = PCEPTopologyProviderModuleTest.createPCEPTopologyProviderModuleInstance(transaction,
-                createDataBrokerInstance(transaction), bindingBrokerON, schedulerON);
+                asyncDataBrokerON, bindingBrokerON, schedulerON);
 
         final PCEPTunnelTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName,
                 PCEPTunnelTopologyProviderModuleMXBean.class);
-        mxBean.setDataProvider(dataBrokerON);
+        mxBean.setDataProvider(createDataBrokerInstance(transaction));
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);
         mxBean.setTopologyId(topologyId);
@@ -125,6 +125,14 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
     public List<String> getYangModelsPaths() {
         final List<String> paths = super.getYangModelsPaths();
         paths.add("/META-INF/yang/network-topology@2013-10-21.yang");
+        paths.add("/META-INF/yang/network-topology-pcep.yang");
+        paths.add("/META-INF/yang/odl-network-topology.yang");
+        paths.add("/META-INF/yang/yang-ext.yang");
+        paths.add("/META-INF/yang/pcep-types.yang");
+        paths.add("/META-INF/yang/rsvp.yang");
+        paths.add("/META-INF/yang/iana.yang");
+        paths.add("/META-INF/yang/network-concepts.yang");
+        paths.add("/META-INF/yang/ieee754.yang");
         return paths;
     }
 }

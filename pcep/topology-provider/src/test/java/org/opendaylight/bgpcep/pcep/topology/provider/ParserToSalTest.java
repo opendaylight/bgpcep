@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,11 +7,13 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static junit.framework.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -19,27 +21,21 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Tlvs1;
@@ -49,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PcrptBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.identifiers.tlv.LspIdentifiersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.PcrptMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcrpt.message.pcrpt.message.Reports;
@@ -59,20 +56,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.LspId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ParserToSalTest {
+public class ParserToSalTest extends AbstractDataBrokerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ParserToSalTest.class);
+    private static final String TEST_TOPOLOGY_NAME = "testtopo";
 
     private List<Notification> receivedMsgs;
 
@@ -87,12 +81,6 @@ public class ParserToSalTest {
     @Mock
     private ChannelPipeline pipeline;
 
-    @Mock
-    DataProviderService providerService;
-
-    @Mock
-    DataModificationTransaction mockedTransaction;
-
     private final Open localPrefs = new OpenBuilder().setDeadTimer((short) 30).setKeepalive((short) 10).setTlvs(
             new TlvsBuilder().addAugmentation(Tlvs1.class, new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
 
@@ -101,7 +89,7 @@ public class ParserToSalTest {
     private ServerSessionManager manager;
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
         doAnswer(new Answer<Object>() {
@@ -125,94 +113,18 @@ public class ParserToSalTest {
 
         doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
 
-        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
-        Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
-            int i = 0;
-
-            @Override
-            public boolean cancel(final boolean mayInterruptIfRunning) {
-                LOG.debug("Cancel.");
-                return false;
-            }
-
-            @Override
-            public boolean isCancelled() {
-                LOG.debug("Is cancelled.");
-                return false;
-            }
-
-            @Override
-            public boolean isDone() {
-                this.i++;
-                LOG.debug("Done. {}", this.i);
-                return true;
-            }
-
-            @Override
-            public RpcResult<TransactionStatus> get() throws InterruptedException, ExecutionException {
-                return null;
-            }
-
-            @Override
-            public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-            ExecutionException, TimeoutException {
-                return null;
-            }
-        }).when(this.mockedTransaction).commit();
-
-        final HashMap<Object, Object> data = new HashMap<>();
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LOG.debug("Get key {}", args[0]);
-                return data.get(args[0]);
-            }
-
-        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LOG.debug("Get key {}", args[0]);
-                return data.get(args[0]);
-            }
-
-        }).when(this.providerService).readOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                data.remove(invocation.getArguments()[0]);
-                return null;
-            }
-
-        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<String>() {
-            @Override
-            public String answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LOG.debug("Put key {} value {}", args[0], args[1]);
-                data.put(args[0], args[1]);
-                return null;
-            }
-
-        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
-
-        this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
-                Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
+        this.manager = new ServerSessionManager(getDataBroker(), InstanceIdentifier.builder(NetworkTopology.class).child(
+                Topology.class, new TopologyKey(new TopologyId(TEST_TOPOLOGY_NAME))).toInstance(), new Stateful07TopologySessionListenerFactory());
         final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
         this.session = neg.createSession(this.clientListener, this.localPrefs, this.localPrefs);
 
         final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setPath(new PathBuilder().setEro(new EroBuilder().build()).build()).setLsp(
                 new LspBuilder().setPlspId(new PlspId(5L)).setSync(false).setRemove(false).setTlvs(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setSymbolicPathName(
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder().setLspId(new LspId(1L)).build()).setSymbolicPathName(
                                 new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(new byte[] { 22, 34 })).build()).build()).build()).build());
         this.rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
+
+        Assert.assertTrue(getTopology(TEST_TOPOLOGY_NAME).isPresent());
     }
 
     @After
@@ -221,11 +133,15 @@ public class ParserToSalTest {
     }
 
     @Test
-    public void testUnknownLsp() {
+    public void testUnknownLsp() throws Exception {
         this.session.sessionUp();
         this.session.handleMessage(this.rptmsg);
-        Mockito.verify(this.mockedTransaction, Mockito.times(4)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-                Matchers.any(DataObject.class));
-        Mockito.verify(this.mockedTransaction, Mockito.times(3)).commit();
+        final Topology topology = getTopology(TEST_TOPOLOGY_NAME).get();
+        assertFalse(topology.getNode().isEmpty());
+    }
+
+    private Optional<Topology> getTopology(final String topologyId) throws InterruptedException, ExecutionException {
+        return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class,
+                new TopologyKey(new TopologyId(topologyId))).toInstance()).get();
     }
 }
