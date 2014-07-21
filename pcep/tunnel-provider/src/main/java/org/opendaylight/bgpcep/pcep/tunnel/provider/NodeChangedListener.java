@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
@@ -15,11 +16,12 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
-import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import java.util.concurrent.ExecutionException;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Path1;
@@ -62,16 +64,15 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class NodeChangedListener implements DataChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
     private final InstanceIdentifier<Topology> target;
-    private final DataProviderService dataProvider;
+    private final DataBroker dataProvider;
 
-    NodeChangedListener(final DataProviderService dataProvider, final InstanceIdentifier<Topology> target) {
+    NodeChangedListener(final DataBroker dataProvider, final InstanceIdentifier<Topology> target) {
         this.dataProvider = Preconditions.checkNotNull(dataProvider);
         this.target = Preconditions.checkNotNull(target);
     }
@@ -126,9 +127,9 @@ public final class NodeChangedListener implements DataChangeListener {
         return snb.build();
     }
 
-    private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final DataModificationTransaction trans, final IpAddress addr,
-            final InstanceIdentifier<Node> sni, final Boolean inControl) {
-        for (final Node n : ((Topology) trans.readOperationalData(this.target)).getNode()) {
+    private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans, final IpAddress addr,
+            final InstanceIdentifier<Node> sni, final Boolean inControl) throws InterruptedException, ExecutionException {
+        for (final Node n : ((Topology) trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get().get()).getNode()) {
             for (final TerminationPoint tp : n.getTerminationPoint()) {
                 final TerminationPoint1 tpa = tp.getAugmentation(TerminationPoint1.class);
 
@@ -137,7 +138,7 @@ public final class NodeChangedListener implements DataChangeListener {
 
                     if (tpt instanceof Ip) {
                         for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
-                            if (addr.equals(a)) {
+                            if (addr.equals(a.getIpv6Address())) {
                                 if (sni != null) {
                                     final NodeKey k = InstanceIdentifier.keyOf(sni);
                                     boolean have = false;
@@ -157,8 +158,8 @@ public final class NodeChangedListener implements DataChangeListener {
                                     if (!have) {
                                         final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
 
-                                        trans.putOperationalData(this.target.builder().child(Node.class, n.getKey()).child(
-                                                SupportingNode.class, sn.getKey()).toInstance(), sn);
+                                        trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, n.getKey()).child(
+                                                SupportingNode.class, sn.getKey()), sn);
                                     }
                                 }
                                 return this.target.builder().child(Node.class, n.getKey()).child(TerminationPoint.class, tp.getKey()).toInstance();
@@ -190,11 +191,11 @@ public final class NodeChangedListener implements DataChangeListener {
         }
 
         final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.getKey());
-        trans.putOperationalData(nid, nb.build());
+        trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
         return nid.child(TerminationPoint.class, tpb.getKey());
     }
 
-    private void create(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
+    private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws InterruptedException, ExecutionException {
         final InstanceIdentifier<Node> ni = i.firstIdentifierOf(Node.class);
 
         final Path1 rl = value.getPath().get(0).getAugmentation(Path1.class);
@@ -241,7 +242,7 @@ public final class NodeChangedListener implements DataChangeListener {
         lb.addAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Link1.class,
                 slab.build());
 
-        trans.putOperationalData(linkForLsp(id), lb.build());
+        trans.put(LogicalDatastoreType.OPERATIONAL, linkForLsp(id), lb.build());
     }
 
     private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
@@ -252,123 +253,128 @@ public final class NodeChangedListener implements DataChangeListener {
         return this.target.child(Node.class, new NodeKey(node));
     }
 
-    private void remove(final DataModificationTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) {
+    private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> i, final ReportedLsp value) throws InterruptedException, ExecutionException {
         final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(i, value));
 
-        final Link l = (Link) trans.readOperationalData(li);
-        if (l != null) {
-            LOG.debug("Removing link {} (was {})", li, l);
-            trans.removeOperationalData(li);
+        final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).get();
+        if (!ol.isPresent()) {
+            return;
+        }
 
-            LOG.debug("Searching for orphan links/nodes");
-            final Topology t = (Topology) trans.readOperationalData(this.target);
+        final Link l = (Link) ol.get();
+        LOG.debug("Removing link {} (was {})", li, l);
+        trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
-            final NodeId srcNode = l.getSource().getSourceNode();
-            final NodeId dstNode = l.getDestination().getDestNode();
-            final TpId srcTp = l.getSource().getSourceTp();
-            final TpId dstTp = l.getDestination().getDestTp();
+        LOG.debug("Searching for orphan links/nodes");
+        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get();
+        Preconditions.checkState(ot.isPresent());
 
-            boolean orphSrcNode = true, orphDstNode = true, orphDstTp = true, orphSrcTp = true;
-            for (final Link lw : t.getLink()) {
-                LOG.trace("Checking link {}", lw);
+        final Topology t = (Topology) ot.get();
+        NodeId srcNode = l.getSource().getSourceNode();
+        NodeId dstNode = l.getDestination().getDestNode();
+        TpId srcTp = l.getSource().getSourceTp();
+        TpId dstTp = l.getDestination().getDestTp();
 
-                final NodeId sn = lw.getSource().getSourceNode();
-                final NodeId dn = lw.getDestination().getDestNode();
-                final TpId st = lw.getSource().getSourceTp();
-                final TpId dt = lw.getDestination().getDestTp();
+        boolean orphSrcNode = true, orphDstNode = true, orphDstTp = true, orphSrcTp = true;
+        for (final Link lw : t.getLink()) {
+            LOG.trace("Checking link {}", lw);
 
-                // Source node checks
-                if (srcNode.equals(sn)) {
-                    if (orphSrcNode) {
-                        LOG.debug("Node {} held by source of link {}", srcNode, lw);
-                        orphSrcNode = false;
-                    }
-                    if (orphSrcTp && srcTp.equals(st)) {
-                        LOG.debug("TP {} held by source of link {}", srcTp, lw);
-                        orphSrcTp = false;
-                    }
+            final NodeId sn = lw.getSource().getSourceNode();
+            final NodeId dn = lw.getDestination().getDestNode();
+            final TpId st = lw.getSource().getSourceTp();
+            final TpId dt = lw.getDestination().getDestTp();
+
+            // Source node checks
+            if (srcNode.equals(sn)) {
+                if (orphSrcNode) {
+                    LOG.debug("Node {} held by source of link {}", srcNode, lw);
+                    orphSrcNode = false;
                 }
-                if (srcNode.equals(dn)) {
-                    if (orphSrcNode) {
-                        LOG.debug("Node {} held by destination of link {}", srcNode, lw);
-                        orphSrcNode = false;
-                    }
-                    if (orphSrcTp && srcTp.equals(dt)) {
-                        LOG.debug("TP {} held by destination of link {}", srcTp, lw);
-                        orphSrcTp = false;
-                    }
+                if (orphSrcTp && srcTp.equals(st)) {
+                    LOG.debug("TP {} held by source of link {}", srcTp, lw);
+                    orphSrcTp = false;
                 }
-
-                // Destination node checks
-                if (dstNode.equals(sn)) {
-                    if (orphDstNode) {
-                        LOG.debug("Node {} held by source of link {}", dstNode, lw);
-                        orphDstNode = false;
-                    }
-                    if (orphDstTp && dstTp.equals(st)) {
-                        LOG.debug("TP {} held by source of link {}", dstTp, lw);
-                        orphDstTp = false;
-                    }
+            }
+            if (srcNode.equals(dn)) {
+                if (orphSrcNode) {
+                    LOG.debug("Node {} held by destination of link {}", srcNode, lw);
+                    orphSrcNode = false;
                 }
-                if (dstNode.equals(dn)) {
-                    if (orphDstNode) {
-                        LOG.debug("Node {} held by destination of link {}", dstNode, lw);
-                        orphDstNode = false;
-                    }
-                    if (orphDstTp && dstTp.equals(dt)) {
-                        LOG.debug("TP {} held by destination of link {}", dstTp, lw);
-                        orphDstTp = false;
-                    }
+                if (orphSrcTp && srcTp.equals(dt)) {
+                    LOG.debug("TP {} held by destination of link {}", srcTp, lw);
+                    orphSrcTp = false;
                 }
             }
 
-            if (orphSrcNode && !orphSrcTp) {
-                LOG.warn("Orphan source node {} but not TP {}, retaining the node", srcNode, srcTp);
-                orphSrcNode = false;
+            // Destination node checks
+            if (dstNode.equals(sn)) {
+                if (orphDstNode) {
+                    LOG.debug("Node {} held by source of link {}", dstNode, lw);
+                    orphDstNode = false;
+                }
+                if (orphDstTp && dstTp.equals(st)) {
+                    LOG.debug("TP {} held by source of link {}", dstTp, lw);
+                    orphDstTp = false;
+                }
             }
-            if (orphDstNode && !orphDstTp) {
-                LOG.warn("Orphan destination node {} but not TP {}, retaining the node", dstNode, dstTp);
-                orphDstNode = false;
+            if (dstNode.equals(dn)) {
+                if (orphDstNode) {
+                    LOG.debug("Node {} held by destination of link {}", dstNode, lw);
+                    orphDstNode = false;
+                }
+                if (orphDstTp && dstTp.equals(dt)) {
+                    LOG.debug("TP {} held by destination of link {}", dstTp, lw);
+                    orphDstTp = false;
+                }
             }
+        }
 
-            if (orphSrcNode) {
-                LOG.debug("Removing orphan node {}", srcNode);
-                trans.removeOperationalData(nodeIdentifier(srcNode));
-            } else if (orphSrcTp) {
-                LOG.debug("Removing orphan TP {} on node {}", srcTp, srcNode);
-                trans.removeOperationalData(tpIdentifier(srcNode, srcTp));
-            }
-            if (orphDstNode) {
-                LOG.debug("Removing orphan node {}", dstNode);
-                trans.removeOperationalData(nodeIdentifier(dstNode));
-            } else if (orphDstTp) {
-                LOG.debug("Removing orphan TP {} on node {}", dstTp, dstNode);
-                trans.removeOperationalData(tpIdentifier(dstNode, dstTp));
-            }
+        if (orphSrcNode && !orphSrcTp) {
+            LOG.warn("Orphan source node {} but not TP {}, retaining the node", srcNode, srcTp);
+            orphSrcNode = false;
+        }
+        if (orphDstNode && !orphDstTp) {
+            LOG.warn("Orphan destination node {} but not TP {}, retaining the node", dstNode, dstTp);
+            orphDstNode = false;
+        }
+
+        if (orphSrcNode) {
+            LOG.debug("Removing orphan node {}", srcNode);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, nodeIdentifier(srcNode));
+        } else if (orphSrcTp) {
+            LOG.debug("Removing orphan TP {} on node {}", srcTp, srcNode);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, tpIdentifier(srcNode, srcTp));
+        }
+        if (orphDstNode) {
+            LOG.debug("Removing orphan node {}", dstNode);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, nodeIdentifier(dstNode));
+        } else if (orphDstTp) {
+            LOG.debug("Removing orphan TP {} on node {}", dstTp, dstNode);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, tpIdentifier(dstNode, dstTp));
         }
     }
 
     @Override
-    public void onDataChanged(final DataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
-        final DataModificationTransaction trans = this.dataProvider.beginTransaction();
+    public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> change) {
+        final ReadWriteTransaction trans = this.dataProvider.newReadWriteTransaction();
 
         final Set<InstanceIdentifier<ReportedLsp>> lsps = new HashSet<>();
         final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
 
         // Categorize reported identifiers
-        for (final InstanceIdentifier<?> i : change.getRemovedOperationalData()) {
+        for (final InstanceIdentifier<?> i : change.getRemovedPaths()) {
             categorizeIdentifier(i, lsps, nodes);
         }
-        for (final InstanceIdentifier<?> i : change.getUpdatedOperationalData().keySet()) {
+        for (final InstanceIdentifier<?> i : change.getUpdatedData().keySet()) {
             categorizeIdentifier(i, lsps, nodes);
         }
-        for (final InstanceIdentifier<?> i : change.getCreatedOperationalData().keySet()) {
+        for (final InstanceIdentifier<?> i : change.getCreatedData().keySet()) {
             categorizeIdentifier(i, lsps, nodes);
         }
 
         // Get the subtrees
-        final Map<InstanceIdentifier<?>, DataObject> o = change.getOriginalOperationalData();
-        final Map<InstanceIdentifier<?>, DataObject> n = change.getUpdatedOperationalData();
+        final Map<InstanceIdentifier<?>, ? extends DataObject> o = change.getOriginalData();
+        final Map<InstanceIdentifier<?>, DataObject> n = change.getUpdatedData();
 
         // Now walk all nodes, check for removals/additions and cascade them to LSPs
         for (final InstanceIdentifier<Node> i : nodes) {
@@ -383,16 +389,24 @@ public final class NodeChangedListener implements DataChangeListener {
 
             LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
             if (oldValue != null) {
-                remove(trans, i, oldValue);
+                try {
+                    remove(trans, i, oldValue);
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.warn("Failed to remove LSP {}", i, e);
+                }
             }
             if (newValue != null) {
-                create(trans, i, newValue);
+                try {
+                    create(trans, i, newValue);
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.warn("Failed to add LSP {}", i, e);
+                }
             }
         }
 
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.submit()), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.trace("Topology change committed successfully");
             }
 
