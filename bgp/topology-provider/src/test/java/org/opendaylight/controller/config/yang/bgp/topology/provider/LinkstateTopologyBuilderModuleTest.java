@@ -54,7 +54,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
     public void testCreateBean() throws Exception {
         final CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 16, 0, 0);
+        assertStatus(status, 15, 0, 0);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 16);
+        assertStatus(status, 0, 0, 15);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 15);
+        assertStatus(status, 0, 1, 14);
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance() throws Exception {
@@ -90,7 +90,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateTopoBuilderON,
                 LinkstateTopologyBuilderModuleMXBean.class);
         final ObjectName dataBrokerON = createAsyncDataBrokerInstance(transaction);
-        mxBean.setDataProvider(createDataBrokerInstance(transaction));
+        mxBean.setDataProvider(dataBrokerON);
         mxBean.setLocalRib(createRIBImplModuleInstance(transaction, dataBrokerON));
         mxBean.setTopologyId(topologyId);
         return transaction.commit();

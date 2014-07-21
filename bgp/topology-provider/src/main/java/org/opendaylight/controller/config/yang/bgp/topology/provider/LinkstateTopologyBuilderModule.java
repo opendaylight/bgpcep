@@ -17,11 +17,13 @@
 package org.opendaylight.controller.config.yang.bgp.topology.provider;
 
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.bgpcep.bgp.topology.provider.LinkstateTopologyBuilder;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
-import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
@@ -34,18 +36,17 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class LinkstateTopologyBuilderModule extends
-        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule {
+public final class LinkstateTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractLinkstateTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilderModule.class);
 
     public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
     }
 
     public LinkstateTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-            final LinkstateTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+        final LinkstateTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -59,7 +60,7 @@ public final class LinkstateTopologyBuilderModule extends
     public java.lang.AutoCloseable createInstance() {
         final LinkstateTopologyBuilder b = new LinkstateTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
         final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
-        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(i, b);
+        final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, i, b, DataChangeScope.SUBTREE);
         LOG.debug("Registered listener {} on {} (topology {})", b, i, b.getInstanceIdentifier());
 
         final class TopologyReferenceAutocloseable extends DefaultTopologyReference implements AutoCloseable {
@@ -68,7 +69,7 @@ public final class LinkstateTopologyBuilderModule extends
             }
 
             @Override
-            public void close() throws InterruptedException, ExecutionException {
+            public void close() throws InterruptedException, ExecutionException, TransactionCommitFailedException {
                 try {
                     r.close();
                 } finally {
