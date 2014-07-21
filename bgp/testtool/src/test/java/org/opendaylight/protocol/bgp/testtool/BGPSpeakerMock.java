@@ -8,18 +8,14 @@
 package org.opendaylight.protocol.bgp.testtool;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -53,7 +49,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
     private final BGPHandlerFactory factory;
 
     public BGPSpeakerMock(final SessionNegotiatorFactory<M, S, L> negotiatorFactory, final BGPHandlerFactory factory,
-            final DefaultPromise<BGPSessionImpl> defaultPromise) {
+        final DefaultPromise<BGPSessionImpl> defaultPromise) {
         super(GlobalEventExecutor.INSTANCE, new NioEventLoopGroup(), new NioEventLoopGroup());
         this.negotiatorFactory = Preconditions.checkNotNull(negotiatorFactory);
         this.factory = Preconditions.checkNotNull(factory);
@@ -66,7 +62,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
             public void initializeChannel(final SocketChannel ch, final Promise<S> promise) {
                 ch.pipeline().addLast(BGPSpeakerMock.this.factory.getDecoders());
                 ch.pipeline().addLast("negotiator",
-                        BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(null, ch, promise));
+                    BGPSpeakerMock.this.negotiatorFactory.getSessionNegotiator(null, ch, promise));
                 ch.pipeline().addLast(BGPSpeakerMock.this.factory.getEncoders());
             }
         });
@@ -105,7 +101,7 @@ public class BGPSpeakerMock<M, S extends ProtocolSession<M>, L extends SessionLi
             }
         };
 
-        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPServerSessionNegotiatorFactory(new HashedWheelTimer(), new BGPSessionValidator() {
+        final SessionNegotiatorFactory<Notification, BGPSessionImpl, BGPSessionListener> snf = new BGPServerSessionNegotiatorFactory(new BGPSessionValidator() {
             @Override
             public void validate(final Open openObj, final BGPSessionPreferences prefs) throws BGPDocumentedException {
                 // NOOP

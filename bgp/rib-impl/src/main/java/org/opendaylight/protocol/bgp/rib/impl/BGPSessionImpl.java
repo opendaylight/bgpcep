@@ -14,9 +14,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import io.netty.channel.Channel;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 
 import java.io.IOException;
 import java.util.Date;
@@ -89,11 +86,6 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     private final BGPSessionListener listener;
 
-    /**
-     * Timer object grouping FSM Timers
-     */
-    private final Timer stateTimer;
-
     private final BGPSynchronization sync;
 
     private int kaCounter = 0;
@@ -109,10 +101,8 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
     private final AsNumber asNumber;
     private final Ipv4Address bgpId;
 
-    public BGPSessionImpl(final Timer timer, final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-                          final int localHoldTimer) {
+    public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen, final int localHoldTimer) {
         this.listener = Preconditions.checkNotNull(listener);
-        this.stateTimer = Preconditions.checkNotNull(timer);
         this.channel = Preconditions.checkNotNull(channel);
         this.holdTimerValue = (remoteOpen.getHoldTimer() < localHoldTimer) ? remoteOpen.getHoldTimer() : localHoldTimer;
         LOG.info("BGP HoldTimer new value: {}", this.holdTimerValue);
@@ -137,17 +127,16 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         this.tableTypes = tats;
 
         if (this.holdTimerValue != 0) {
-            this.stateTimer.newTimeout(new TimerTask() {
-
+            channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleHoldTimer();
                 }
             }, this.holdTimerValue, TimeUnit.SECONDS);
 
-            this.stateTimer.newTimeout(new TimerTask() {
+            channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleKeepaliveTimer();
                 }
             }, this.keepAlive, TimeUnit.SECONDS);
@@ -253,9 +242,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             LOG.debug("HoldTimer expired. {}", new Date());
             this.terminate(BGPError.HOLD_TIMER_EXPIRED);
         } else {
-            this.stateTimer.newTimeout(new TimerTask() {
+            this.channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleHoldTimer();
                 }
             }, nextHold - ct, TimeUnit.NANOSECONDS);
@@ -280,9 +269,9 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
             this.sendMessage(KEEP_ALIVE);
             nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(this.keepAlive);
         }
-        this.stateTimer.newTimeout(new TimerTask() {
+        this.channel.eventLoop().schedule(new Runnable() {
             @Override
-            public void run(final Timeout timeout) {
+            public void run() {
                 handleKeepaliveTimer();
             }
         }, nextKeepalive - ct, TimeUnit.NANOSECONDS);
