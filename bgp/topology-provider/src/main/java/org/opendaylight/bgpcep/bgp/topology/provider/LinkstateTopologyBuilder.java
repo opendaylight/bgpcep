@@ -11,7 +11,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -20,9 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.opendaylight.controller.md.sal.common.api.data.DataModification;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.DomainName;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -103,7 +103,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.InternalBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +163,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
          * @param trans data modification transaction which to use
          * @return True if the node has been purged, false otherwise.
          */
-        private boolean syncState(final DataModification<InstanceIdentifier<?>, DataObject> trans) {
+        private boolean syncState(final WriteTransaction trans) {
             final InstanceIdentifier<Node> nid = getInstanceIdentifier().child(
                     org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class,
                     this.nb.getKey());
@@ -173,7 +172,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
              * Transaction's putOperationalData() does a merge. Force it onto a replace
              * by removing the data. If we decide to remove the node -- we just skip the put.
              */
-            trans.removeOperationalData(nid);
+            trans.delete(LogicalDatastoreType.OPERATIONAL, nid);
 
             if (!this.advertized) {
                 if (this.tps.isEmpty() && this.prefixes.isEmpty()) {
@@ -197,7 +196,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
 
             // Write the node out
             final Node n = this.nb.addAugmentation(Node1.class, new Node1Builder().setIgpNodeAttributes(this.inab.build()).build()).build();
-            trans.putOperationalData(nid, n);
+            trans.put(LogicalDatastoreType.OPERATIONAL, nid, n);
             LOG.debug("Created node {} at {}", n, nid);
             return false;
         }
@@ -254,7 +253,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateTopologyBuilder.class);
     private final Map<NodeId, NodeHolder> nodes = new HashMap<>();
 
-    public LinkstateTopologyBuilder(final DataProviderService dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
+    public LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference, final TopologyId topologyId) {
         super(dataProvider, locRibReference, topologyId, new TopologyTypesBuilder().addAugmentation(TopologyTypes1.class,
                 new TopologyTypes1Builder().build()).build(), LinkstateRoute.class);
     }
@@ -347,7 +346,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         return buildTp(id, t);
     }
 
-    private InstanceIdentifier<?> buildLinkIdentifier(final UriBuilder base, final LinkId id) {
+    private InstanceIdentifier<Link> buildLinkIdentifier(final UriBuilder base, final LinkId id) {
         return getInstanceIdentifier().child(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link.class,
                 new LinkKey(id));
@@ -448,13 +447,13 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         return ret;
     }
 
-    private void putNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeHolder holder) {
+    private void putNode(final WriteTransaction trans, final NodeHolder holder) {
         if (holder.syncState(trans)) {
             this.nodes.remove(holder.getNodeId());
         }
     }
 
-    private void createLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
+    private void createLink(final WriteTransaction trans, final UriBuilder base,
             final LinkstateRoute value, final LinkCase l, final Attributes attributes) {
         final LinkAttributes la = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.LinkCase) attributes.getAugmentation(
                 Attributes1.class).getAttributeType()).getLinkAttributes();
@@ -513,19 +512,14 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         LOG.debug("Created TP {} as link destination", dstTp);
         putNode(trans, dnh);
 
-        final InstanceIdentifier<?> lid = buildLinkIdentifier(base, lb.getLinkId());
+        final InstanceIdentifier<Link> lid = buildLinkIdentifier(base, lb.getLinkId());
         final Link link = lb.build();
 
-        /*
-         * Transaction's putOperationalData() does a merge. Force it onto a replace
-         * by removing the data.
-         */
-        trans.removeOperationalData(lid);
-        trans.putOperationalData(lid, link);
+        trans.put(LogicalDatastoreType.OPERATIONAL, lid, link);
         LOG.debug("Created link {} at {} for {}", link, lid, l);
     }
 
-    private void removeTp(final DataModification<InstanceIdentifier<?>, DataObject> trans, final NodeId node, final TpId tp,
+    private void removeTp(final WriteTransaction trans, final NodeId node, final TpId tp,
             final LinkId link, final boolean isRemote) {
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
@@ -536,10 +530,10 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         }
     }
 
-    private void removeLink(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final LinkCase l) {
+    private void removeLink(final WriteTransaction trans, final UriBuilder base, final LinkCase l) {
         final LinkId id = buildLinkId(base, l);
         final InstanceIdentifier<?> lid = buildLinkIdentifier(base, id);
-        trans.removeOperationalData(lid);
+        trans.delete(LogicalDatastoreType.OPERATIONAL, lid);
         LOG.debug("Removed link {}", lid);
 
         removeTp(trans, buildNodeId(base, l.getLocalNodeDescriptors()), buildLocalTpId(base, l.getLinkDescriptors()), id, false);
@@ -631,7 +625,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
                 ab.build()).build();
     }
 
-    private void createNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
+    private void createNode(final WriteTransaction trans, final UriBuilder base,
             final LinkstateRoute value, final NodeCase n, final Attributes attributes) {
         final NodeAttributes na = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.NodeCase) attributes.getAugmentation(
                 Attributes1.class).getAttributeType()).getNodeAttributes();
@@ -687,7 +681,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         putNode(trans, nh);
     }
 
-    private void removeNode(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final NodeCase n) {
+    private void removeNode(final WriteTransaction trans, final UriBuilder base, final NodeCase n) {
         final NodeId id = buildNodeId(base, n.getNodeDescriptors());
         final NodeHolder nh = this.nodes.get(id);
         if (nh != null) {
@@ -698,7 +692,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         }
     }
 
-    private void createPrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base,
+    private void createPrefix(final WriteTransaction trans, final UriBuilder base,
             final LinkstateRoute value, final PrefixCase p, final Attributes attributes) {
         final IpPrefix ippfx = p.getIpReachabilityInformation();
         if (ippfx == null) {
@@ -761,7 +755,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         putNode(trans, nh);
     }
 
-    private void removePrefix(final DataModification<InstanceIdentifier<?>, DataObject> trans, final UriBuilder base, final PrefixCase p) {
+    private void removePrefix(final WriteTransaction trans, final UriBuilder base, final PrefixCase p) {
         final NodeId node = buildNodeId(base, p.getAdvertisingNodeDescriptors());
         final NodeHolder nh = this.nodes.get(node);
         if (nh != null) {
@@ -774,7 +768,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
     }
 
     @Override
-    protected void createObject(final DataModification<InstanceIdentifier<?>, DataObject> trans,
+    protected void createObject(final ReadWriteTransaction trans,
             final InstanceIdentifier<LinkstateRoute> id, final LinkstateRoute value) {
         final UriBuilder base = new UriBuilder(value);
 
@@ -793,7 +787,7 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
     }
 
     @Override
-    protected void removeObject(final DataModification<InstanceIdentifier<?>, DataObject> trans,
+    protected void removeObject(final ReadWriteTransaction trans,
             final InstanceIdentifier<LinkstateRoute> id, final LinkstateRoute value) {
         final UriBuilder base = new UriBuilder(value);
 

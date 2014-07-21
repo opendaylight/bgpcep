@@ -9,8 +9,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import java.util.EventListener;
 
-import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
-import org.opendaylight.controller.md.sal.common.api.data.DataModification;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -22,5 +22,5 @@ public interface LocRIBListener extends EventListener {
      * @param event Data change event
      * @param depth Subscription path depth.
      */
-    void onLocRIBChange(DataModification<InstanceIdentifier<?>, DataObject> trans, DataChangeEvent<InstanceIdentifier<?>, DataObject> event);
+    void onLocRIBChange(ReadWriteTransaction trans, AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> event);
 }
