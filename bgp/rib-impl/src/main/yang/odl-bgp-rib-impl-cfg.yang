@@ -188,7 +188,7 @@ module odl-bgp-rib-impl-cfg {
             leaf binding-port {
                 description "Port to bind to";
                 type inet:port-number;
-                default "179";
+                default "1790";
             }
 
             container accepting-bgp-dispatcher {
