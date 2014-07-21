@@ -4,14 +4,16 @@ import com.google.common.collect.Lists;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.internal.PlatformDependent;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.security.AccessControlException;
 import org.opendaylight.controller.config.api.JmxAttributeValidationException;
 import org.opendaylight.protocol.bgp.rib.impl.BGPServerSessionValidator;
 
 /**
-* BGP peer acceptor that handles incomming bgp connections.
+* BGP peer acceptor that handles incoming bgp connections.
 */
 public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractBGPPeerAcceptorModule {
     public BGPPeerAcceptorModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -24,6 +26,10 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     @Override
     public void customValidation() {
+        // check unix root user
+        if (!PlatformDependent.isWindows() && !PlatformDependent.isRoot()) {
+            throw new AccessControlException("Unable to create server - must be Root user.");
+        }
         // Try to parse address
         try {
             getAddress();
