@@ -7,7 +7,11 @@
  */
 package org.opendaylight.protocol.integration.bgp;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -15,25 +19,17 @@ import com.google.common.eventbus.EventBus;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -56,36 +52,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class ParserToSalTest {
+public class ParserToSalTest extends AbstractDataBrokerTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ParserToSalTest.class);
-    private static final InstanceIdentifier<Attributes> attrId = InstanceIdentifier.builder(BgpRib.class).child(Rib.class).child(
-            LocRib.class).child(Tables.class).child(Attributes.class).build();
+    private static final String TEST_RIB_ID = "testRib";
 
     private final String hex_messages = "/bgp_hex.txt";
 
     private BGPMock mock;
     private AbstractRIBExtensionProviderActivator baseact, lsact;
     private RIBExtensionProviderContext ext;
-
-    @Mock
-    DataModificationTransaction mockedTransaction;
-
-    @Mock
-    DataProviderService providerService;
 
     @Mock
     BGPDispatcher dispatcher;
@@ -101,86 +84,6 @@ public class ParserToSalTest {
         MockitoAnnotations.initMocks(this);
         final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(this.hex_messages));
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
-
-        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
-
-        Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
-            int i = 0;
-
-            @Override
-            public boolean cancel(final boolean mayInterruptIfRunning) {
-                LOG.debug("Cancel.");
-                return false;
-            }
-
-            @Override
-            public boolean isCancelled() {
-                return false;
-            }
-
-            @Override
-            public boolean isDone() {
-                this.i++;
-                LOG.debug("Done. {}", this.i);
-                return true;
-            }
-
-            @Override
-            public RpcResult<TransactionStatus> get() throws InterruptedException, ExecutionException {
-                return null;
-            }
-
-            @Override
-            public RpcResult<TransactionStatus> get(final long timeout, final TimeUnit unit) throws InterruptedException,
-            ExecutionException, TimeoutException {
-                return null;
-            }
-        }).when(this.mockedTransaction).commit();
-
-        final HashMap<Object, Object> data = new HashMap<>();
-
-        Mockito.doAnswer(new Answer<String>() {
-            @Override
-            public String answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                LOG.debug("Put value {}", args[1]);
-                data.put(args[0], args[1]);
-                return null;
-            }
-
-        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
-
-                LOG.debug("Remove key {}", id);
-                data.remove(id);
-                return null;
-            }
-        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) {
-                final Object[] args = invocation.getArguments();
-                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
-
-                LOG.debug("Get key {}", id);
-                Object ret = data.get(id);
-                if (ret != null) {
-                    return ret;
-                }
-
-                if (attrId.containsWildcarded(id)) {
-                    return new AttributesBuilder().setUptodate(true).build();
-                }
-                return null;
-            }
-
-        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
                 Mockito.any(InetSocketAddress.class), Mockito.any(AsNumber.class),
@@ -202,31 +105,27 @@ public class ParserToSalTest {
     }
 
     private void runTestWithTables(final List<BgpTableType> tables) {
-        final RIBImpl rib = new RIBImpl(new RibId("testRib"), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, this.providerService, tables);
+        final RIBImpl rib = new RIBImpl(new RibId(TEST_RIB_ID), new AsNumber(72L), new Ipv4Address("127.0.0.1"), this.ext, this.dispatcher, this.tcpStrategyFactory, this.sessionStrategy, getDataBroker(), tables);
         final BGPPeer peer = new BGPPeer("peer-" + this.mock.toString(), rib);
 
         ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
         reg.close();
-
-        Mockito.verify(this.mockedTransaction, Mockito.times(31)).commit();
     }
 
     @Test
-    public void testWithLinkstate() {
-        runTestWithTables(ImmutableList.of(
+    public void testWithLinkstate() throws InterruptedException, ExecutionException {
+        final List<BgpTableType> tables = ImmutableList.of(
                 (BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
-                new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
-
-        Mockito.verify(this.mockedTransaction, Mockito.times(83)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-                Matchers.any(DataObject.class));
+                new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        runTestWithTables(tables);
+        assertTablesExists(tables);
     }
 
     @Test
-    public void testWithoutLinkstate() {
-        runTestWithTables(ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
-
-        Mockito.verify(this.mockedTransaction, Mockito.times(28)).putOperationalData(Matchers.any(InstanceIdentifier.class),
-                Matchers.any(DataObject.class));
+    public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
+        final List<BgpTableType> tables = ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        runTestWithTables(tables);
+        assertTablesExists(tables);
     }
 
     private Collection<byte[]> fixMessages(final Collection<byte[]> bgpMessages) {
@@ -244,5 +143,25 @@ public class ParserToSalTest {
                 return ret;
             }
         });
+    }
+
+    private void assertTablesExists(final List<BgpTableType> expectedTables) throws InterruptedException, ExecutionException {
+        final Optional<LocRib> lockRib = getLocRibTable();
+        assertTrue(lockRib.isPresent());
+        final List<Tables> tables = lockRib.get().getTables();
+        assertFalse(tables.isEmpty());
+        for (final BgpTableType tableType : expectedTables) {
+            boolean found = false;
+            for (final Tables table : tables) {
+                if(table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
+                    found = true;
+                }
+            }
+            assertTrue(found);
+        }
+    }
+
+    private Optional<LocRib> getLocRibTable() throws InterruptedException, ExecutionException {
+        return getDataBroker().newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId(TEST_RIB_ID))).child(LocRib.class).build()).get();
     }
 }

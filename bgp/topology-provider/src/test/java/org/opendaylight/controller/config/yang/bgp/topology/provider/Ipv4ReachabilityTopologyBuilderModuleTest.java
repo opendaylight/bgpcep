@@ -54,7 +54,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
     public void testCreateBean() throws Exception {
         final CommitStatus status = createIpv4ReachabilityTopoBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 16, 0, 0);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         assertBeanCount(1, FACTORY_NAME);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 16);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 15);
     }
 
     private CommitStatus createIpv4ReachabilityTopoBuilderModuleInstance() throws Exception {
@@ -89,8 +89,8 @@ public class Ipv4ReachabilityTopologyBuilderModuleTest extends AbstractRIBImplMo
         final ObjectName ipv4ReachabilityBuilderON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final Ipv4ReachabilityTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(ipv4ReachabilityBuilderON,
                 Ipv4ReachabilityTopologyBuilderModuleMXBean.class);
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
-        mxBean.setDataProvider(dataBrokerON);
+        final ObjectName dataBrokerON = createAsyncDataBrokerInstance(transaction);
+        mxBean.setDataProvider(createDataBrokerInstance(transaction));
         mxBean.setLocalRib(createRIBImplModuleInstance(transaction, dataBrokerON));
         mxBean.setTopologyId(topologyId);
         return transaction.commit();

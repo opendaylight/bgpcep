@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -23,7 +22,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -58,11 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.RibKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -71,7 +68,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class LinkstateAdjRIBsInTest {
 
     @Mock
-    private DataModificationTransaction trans;
+    private ReadWriteTransaction trans;
 
     @Mock
     private RibReference rib;
@@ -87,55 +84,39 @@ public class LinkstateAdjRIBsInTest {
 
     private final List<CLinkstateDestination> destinations = new ArrayList<>();
 
-    private final HashMap<Object, Object> data = new HashMap<>();
+    private final HashMap<InstanceIdentifier<?>, DataObject> data = new HashMap<>();
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         TablesKey key = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
         final InstanceIdentifier<Rib> iid = InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(new RibId("test-rib"))).toInstance();
-        Mockito.doAnswer(new Answer<String>() {
+        Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public String answer(final InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                LinkstateAdjRIBsInTest.this.data.put(args[0], args[1]);
+                LinkstateAdjRIBsInTest.this.data.put((InstanceIdentifier<?>)args[1], (DataObject)args[2]);
                 return null;
             }
 
-        }).when(this.trans).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
+        }).when(this.trans).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class));
 
-        Mockito.doAnswer(new Answer<Object>() {
+        Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
-                Object result = LinkstateAdjRIBsInTest.this.data.get(args[0]);
-                if (result == null) {
-                    InstanceIdentifier<Attributes> attrId = iid.child(LocRib.class).child(Tables.class).child(Attributes.class);
-                    if (attrId.containsWildcarded((InstanceIdentifier<?>) args[0])) {
-                        result = new AttributesBuilder().setUptodate(Boolean.TRUE).build();
-                    }
-                }
-
-                return result;
-            }
-
-        }).when(this.trans).readOperationalData(Matchers.any(InstanceIdentifier.class));
-
-        Mockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Object[] args = invocation.getArguments();
-                LinkstateAdjRIBsInTest.this.data.remove(args[0]);
+                LinkstateAdjRIBsInTest.this.data.remove(args[1]);
                 return null;
             }
 
-        }).when(this.trans).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.trans).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(iid).when(this.rib).getInstanceIdentifier();
         Mockito.doReturn(new Comparator<PathAttributes>() {
 
             @Override
-            public int compare(PathAttributes o1, PathAttributes o2) {
+            public int compare(final PathAttributes o1, final PathAttributes o2) {
                 return 0;
             }
         }).when(this.peer).getComparator();
@@ -164,7 +145,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
 
         assertEquals(3, this.data.size());
@@ -187,7 +168,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
         assertEquals(3, this.data.size());
     }
@@ -211,7 +192,7 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
         assertEquals(3, this.data.size());
 
@@ -224,7 +205,7 @@ public class LinkstateAdjRIBsInTest {
                                 this.destinations).build()).build()).build());
         this.lrib.removeRoutes(this.trans, this.peer, builder.build());
 
-        Mockito.verify(this.trans, Mockito.times(2)).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        Mockito.verify(this.trans, Mockito.times(1)).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class));
         assertEquals(2, this.data.size());
     }
 }
