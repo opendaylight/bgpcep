@@ -58,7 +58,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
     public void testCreateBean() throws Exception {
         CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 14, 0, 0);
+        assertStatus(status, 15, 0, 0);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         assertBeanCount(1, FACTORY_NAME);
         CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 14);
+        assertStatus(status, 0, 0, 15);
     }
 
     @Test
@@ -81,6 +81,6 @@ public class RIBImplModuleTest extends AbstractRIBImplModuleTest {
         mxBean.setLocalAs(100L);
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 13);
+        assertStatus(status, 0, 1, 14);
     }
 }
