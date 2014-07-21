@@ -13,14 +13,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.Lists;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.util.HashedWheelTimer;
+import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -30,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,6 +79,9 @@ public class ParserToSalTest {
     private PCEPSessionImpl session;
 
     @Mock
+    private EventLoop eventLoop;
+
+    @Mock
     private Channel clientListener;
 
     @Mock
@@ -115,6 +115,8 @@ public class ParserToSalTest {
         doReturn("TestingChannel").when(this.clientListener).toString();
         doReturn(this.pipeline).when(this.clientListener).pipeline();
         doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class), any(ChannelHandler.class));
+        doReturn(this.eventLoop).when(this.clientListener).eventLoop();
+        doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(this.clientListener).isActive();
         final SocketAddress ra = new InetSocketAddress("127.0.0.1", 4189);
         doReturn(ra).when(this.clientListener).remoteAddress();
@@ -203,8 +205,8 @@ public class ParserToSalTest {
 
         this.manager = new ServerSessionManager(this.providerService, InstanceIdentifier.builder(NetworkTopology.class).child(
                 Topology.class, new TopologyKey(new TopologyId("testtopo"))).toInstance(), new Stateful07TopologySessionListenerFactory());
-        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(new HashedWheelTimer(), mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
-        this.session = neg.createSession(new HashedWheelTimer(), this.clientListener, this.localPrefs, this.localPrefs);
+        final DefaultPCEPSessionNegotiator neg = new DefaultPCEPSessionNegotiator(mock(Promise.class), this.clientListener, this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
+        this.session = neg.createSession(this.clientListener, this.localPrefs, this.localPrefs);
 
         final List<Reports> reports = Lists.newArrayList(new ReportsBuilder().setPath(new PathBuilder().setEro(new EroBuilder().build()).build()).setLsp(
                 new LspBuilder().setPlspId(new PlspId(5L)).setSync(false).setRemove(false).setTlvs(

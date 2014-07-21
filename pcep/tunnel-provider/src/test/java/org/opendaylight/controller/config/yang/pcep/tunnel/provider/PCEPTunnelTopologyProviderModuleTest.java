@@ -11,9 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -43,26 +41,26 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         try {
             createInstance(null);
             fail();
-        } catch (ValidationException e) {
+        } catch (final ValidationException e) {
             assertTrue(e.getMessage().contains("TopologyId is not set"));
         }
     }
 
     @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createInstance();
+        final CommitStatus status = createInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 17, 0, 0);
+        assertStatus(status, 16, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
         createInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 17);
+        assertStatus(status, 0, 0, 16);
     }
 
     @Test
@@ -75,11 +73,11 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
         mxBean.setTopologyId(new TopologyId("new-pcep-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 16);
+        assertStatus(status, 0, 1, 15);
     }
 
     private CommitStatus createInstance(final TopologyId topologyId) throws Exception {
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final ConfigTransactionJMXClient transaction = this.configRegistryClient.createTransaction();
         createPCEPTopologyProviderModuleInstance(transaction, topologyId);
         return transaction.commit();
     }

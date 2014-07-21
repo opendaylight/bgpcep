@@ -15,9 +15,6 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Future;
 
 import java.io.IOException;
@@ -82,11 +79,6 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionImpl.class);
 
-    /**
-     * Timer object grouping FSM Timers
-     */
-    private final Timer stateTimer;
-
     private int sentMsgCount = 0;
 
     private int receivedMsgCount = 0;
@@ -100,10 +92,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
 
     private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
-    PCEPSessionImpl(final Timer timer, final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
+    PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
             final Open localOpen, final Open remoteOpen) {
         this.listener = Preconditions.checkNotNull(listener);
-        this.stateTimer = Preconditions.checkNotNull(timer);
         this.channel = Preconditions.checkNotNull(channel);
         this.localOpen = Preconditions.checkNotNull(localOpen);
         this.remoteOpen = Preconditions.checkNotNull(remoteOpen);
@@ -113,19 +104,20 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
             this.maxUnknownMessages = maxUnknownMessages;
         }
 
+
         if (getDeadTimerValue() != 0) {
-            this.stateTimer.newTimeout(new TimerTask() {
+            channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleDeadTimer();
                 }
             }, getDeadTimerValue(), TimeUnit.SECONDS);
         }
 
         if (getKeepAliveTimerValue() != 0) {
-            this.stateTimer.newTimeout(new TimerTask() {
+            channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleKeepaliveTimer();
                 }
             }, getKeepAliveTimerValue(), TimeUnit.SECONDS);
@@ -151,9 +143,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
                 LOG.debug("DeadTimer expired. {}", new Date());
                 this.terminate(TerminationReason.ExpDeadtimer);
             } else {
-                this.stateTimer.newTimeout(new TimerTask() {
+                this.channel.eventLoop().schedule(new Runnable() {
                     @Override
-                    public void run(final Timeout timeout) {
+                    public void run() {
                         handleDeadTimer();
                     }
                 }, nextDead - ct, TimeUnit.NANOSECONDS);
@@ -167,7 +159,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      * KeepAlive timer to the time at which the message was sent. If the session was closed by the time this method
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
-    private synchronized void handleKeepaliveTimer() {
+    private  void handleKeepaliveTimer() {
         final long ct = System.nanoTime();
 
         long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
@@ -178,9 +170,9 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
                 nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
             }
 
-            this.stateTimer.newTimeout(new TimerTask() {
+            this.channel.eventLoop().schedule(new Runnable() {
                 @Override
-                public void run(final Timeout timeout) {
+                public void run() {
                     handleKeepaliveTimer();
                 }
             }, nextKeepalive - ct, TimeUnit.NANOSECONDS);
