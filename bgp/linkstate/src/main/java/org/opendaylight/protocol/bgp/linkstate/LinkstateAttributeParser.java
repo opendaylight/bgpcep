@@ -301,7 +301,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
                 final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
                 builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT)));
                 LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
-                    flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
+                        flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
                 break;
             case TlvCode.NODE_OPAQUE:
                 LOG.debug("Ignoring opaque value: {}.", ByteBufUtil.hexDump(value));
@@ -376,7 +376,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
                 LOG.debug("Parsed Metric: {}", metric);
                 break;
             case TlvCode.FORWARDING_ADDRESS:
-                IpAddress fwdAddress = parseForwardingAddress(value);
+                final IpAddress fwdAddress = parseForwardingAddress(value);
                 builder.setOspfForwardingAddress(fwdAddress);
                 LOG.debug("Parsed FWD Address: {}", fwdAddress);
                 break;
@@ -458,7 +458,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             writeTLV(TlvCode.MAX_RESERVABLE_BANDWIDTH, Unpooled.wrappedBuffer(linkAttributes.getMaxReservableBandwidth().getValue()), byteAggregator);
         }
         // this sub-TLV contains eight 32-bit IEEE floating point numbers
-        if (linkAttributes.getUnreservedBandwidth() != null) {
+        if (linkAttributes.getUnreservedBandwidth() != null && !linkAttributes.getUnreservedBandwidth().isEmpty()) {
             final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
             for (final UnreservedBandwidth unreservedBandwidth : linkAttributes.getUnreservedBandwidth()) {
                 unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
@@ -476,7 +476,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             // size of metric can be 1,2 or 3 depending on the protocol
             writeTLV(TlvCode.METRIC, Unpooled.copyMedium(linkAttributes.getMetric().getValue().intValue()), byteAggregator);
         }
-        if (linkAttributes.getSharedRiskLinkGroups() != null) {
+        if (linkAttributes.getSharedRiskLinkGroups() != null && !linkAttributes.getSharedRiskLinkGroups().isEmpty()) {
             final ByteBuf sharedRLGBuf = Unpooled.buffer();
             for (final SrlgId srlgId : linkAttributes.getSharedRiskLinkGroups()) {
                 sharedRLGBuf.writeInt(srlgId.getValue().intValue());
@@ -507,7 +507,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     private void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
         LOG.trace("Started serializing Node Attributes");
         final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
-        if (nodeAttributes.getTopologyIdentifier() != null) {
+        if (nodeAttributes.getTopologyIdentifier() != null && !nodeAttributes.getTopologyIdentifier().isEmpty()) {
             final ByteBuf mpIdBuf = Unpooled.buffer();
             for (final TopologyIdentifier topologyIdentifier : nodeAttributes.getTopologyIdentifier()) {
                 mpIdBuf.writeShort(topologyIdentifier.getValue());
@@ -518,7 +518,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         if (nodeAttributes.getDynamicHostname() != null) {
             writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
         }
-        if (nodeAttributes.getIsisAreaId() != null) {
+        if (nodeAttributes.getIsisAreaId() != null && !nodeAttributes.getIsisAreaId().isEmpty()) {
             for (final IsisAreaIdentifier isisAreaIdentifier : nodeAttributes.getIsisAreaId()) {
                 writeTLV(TlvCode.ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()), byteAggregator);
             }
@@ -570,7 +570,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             }
             writeTLV(TlvCode.ROUTE_TAG, routeTagsBuf, byteAggregator);
         }
-        if (prefixAtrributes.getExtendedTags() != null) {
+        if (prefixAtrributes.getExtendedTags() != null && !prefixAtrributes.getExtendedTags().isEmpty()) {
             final ByteBuf extendedBuf = Unpooled.buffer();
             for (final ExtendedRouteTag extendedRouteTag : prefixAtrributes.getExtendedTags()) {
                 extendedBuf.writeBytes(extendedRouteTag.getValue());

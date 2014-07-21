@@ -15,15 +15,12 @@ import static org.mockito.Mockito.mock;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
-
 import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -186,7 +183,7 @@ public class ProgrammingServiceImplTest {
     private void assertCleanInstructionOutput(ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
             int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
         if (unflushedCount == 0) {
-            Assert.assertNull(cleanedInstructionOutput.get().getResult().getUnflushed());
+            Assert.assertEquals(Collections.EMPTY_LIST, cleanedInstructionOutput.get().getResult().getUnflushed());
         } else {
             Assert.assertEquals(unflushedCount, cleanedInstructionOutput.get().getResult().getUnflushed().size());
         }

@@ -9,12 +9,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
@@ -52,7 +49,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final List<Communities> communities = pathAttributes.getCommunities();
-        if (communities == null) {
+        if (communities == null || communities.isEmpty()) {
             return;
         }
         final ByteBuf communitiesBuffer = Unpooled.buffer();
