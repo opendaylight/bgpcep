@@ -8,17 +8,19 @@
 package org.opendaylight.protocol.integration.bgp;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
@@ -32,9 +34,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
@@ -82,10 +85,10 @@ public class ParserToSalTest {
     private RIBExtensionProviderContext ext;
 
     @Mock
-    DataModificationTransaction mockedTransaction;
+    ReadWriteTransaction mockedTransaction;
 
     @Mock
-    DataProviderService providerService;
+    DataBroker providerService;
 
     @Mock
     BGPDispatcher dispatcher;
@@ -96,15 +99,17 @@ public class ParserToSalTest {
     @Mock
     ReconnectStrategyFactory sessionStrategy;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         final List<byte[]> bgpMessages = HexDumpBGPFileParser.parseMessages(ParserToSalTest.class.getResourceAsStream(this.hex_messages));
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
-        Mockito.doReturn(this.mockedTransaction).when(this.providerService).beginTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newWriteOnlyTransaction();
+        Mockito.doReturn(this.mockedTransaction).when(this.providerService).newReadWriteTransaction();
 
-        Mockito.doReturn(new Future<RpcResult<TransactionStatus>>() {
+        Mockito.doReturn(new ListenableFuture<RpcResult<TransactionStatus>>() {
             int i = 0;
 
             @Override
@@ -135,52 +140,57 @@ public class ParserToSalTest {
             ExecutionException, TimeoutException {
                 return null;
             }
+
+            @Override
+            public void addListener(Runnable listener, Executor executor) {
+                return;
+            }
         }).when(this.mockedTransaction).commit();
 
-        final HashMap<Object, Object> data = new HashMap<>();
+        final HashMap<InstanceIdentifier<?>, DataObject> data = new HashMap<>();
 
         Mockito.doAnswer(new Answer<String>() {
             @Override
             public String answer(final InvocationOnMock invocation) {
                 final Object[] args = invocation.getArguments();
-                LOG.debug("Put value {}", args[1]);
-                data.put(args[0], args[1]);
+                LOG.debug("Put value {}", args[2]);
+                data.put((InstanceIdentifier<?>)args[1], (DataObject)args[2]);
                 return null;
             }
 
-        }).when(this.mockedTransaction).putOperationalData(Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
+        }).when(this.mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class), Matchers.any(DataObject.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) {
                 final Object[] args = invocation.getArguments();
-                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
+                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[1];
 
                 LOG.debug("Remove key {}", id);
                 data.remove(id);
                 return null;
             }
-        }).when(this.mockedTransaction).removeOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class));
 
         Mockito.doAnswer(new Answer<Object>() {
             @Override
             public Object answer(final InvocationOnMock invocation) {
                 final Object[] args = invocation.getArguments();
-                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[0];
+                final InstanceIdentifier<?> id = (InstanceIdentifier<?>) args[1];
 
                 LOG.debug("Get key {}", id);
-                Object ret = data.get(id);
+                DataObject ret = data.get(id);
                 if (ret != null) {
-                    return ret;
+                    return getMockedFuture(ret);
                 }
 
                 if (attrId.containsWildcarded(id)) {
-                    return new AttributesBuilder().setUptodate(true).build();
+                    return getMockedFuture(new AttributesBuilder().setUptodate(true).build());
                 }
-                return null;
+                return getMockedFuture(null);
             }
 
-        }).when(this.mockedTransaction).readOperationalData(Matchers.any(InstanceIdentifier.class));
+        }).when(this.mockedTransaction).read(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class));
 
         Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher).createReconnectingClient(
                 Mockito.any(InetSocketAddress.class), Mockito.any(AsNumber.class),
@@ -193,6 +203,16 @@ public class ParserToSalTest {
 
         this.baseact.startRIBExtensionProvider(this.ext);
         this.lsact.startRIBExtensionProvider(this.ext);
+    }
+
+    private ListenableFuture<Optional<DataObject>> getMockedFuture(final DataObject dataObject) {
+        ListenableFuture<Optional<DataObject>> mockedFuture = Mockito.mock(ListenableFuture.class);
+        try {
+            Mockito.doReturn(Optional.fromNullable(dataObject)).when(mockedFuture).get();
+        } catch (InterruptedException | ExecutionException e) {
+            // should not happen
+        }
+        return mockedFuture;
     }
 
     @After
@@ -217,7 +237,7 @@ public class ParserToSalTest {
                 (BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class)));
 
-        Mockito.verify(this.mockedTransaction, Mockito.times(83)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.mockedTransaction, Mockito.times(83)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
     }
 
@@ -225,7 +245,7 @@ public class ParserToSalTest {
     public void testWithoutLinkstate() {
         runTestWithTables(ImmutableList.of((BgpTableType) new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
 
-        Mockito.verify(this.mockedTransaction, Mockito.times(28)).putOperationalData(Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.mockedTransaction, Mockito.times(28)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
     }
 

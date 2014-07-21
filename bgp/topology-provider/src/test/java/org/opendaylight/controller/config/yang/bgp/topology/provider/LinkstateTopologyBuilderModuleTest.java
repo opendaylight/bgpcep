@@ -11,9 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-
 import javax.management.ObjectName;
-
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -56,7 +54,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
     public void testCreateBean() throws Exception {
         CommitStatus status = createLinkstateTopologyBuilderModuleInstance();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 15, 0, 0);
+        assertStatus(status, 17, 0, 0);
     }
 
     @Test
@@ -66,7 +64,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         assertBeanCount(1, FACTORY_NAME);
         CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 15);
+        assertStatus(status, 0, 0, 17);
     }
 
     @Test
@@ -79,7 +77,7 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         mxBean.setTopologyId(new TopologyId("new-bgp-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 14);
+        assertStatus(status, 0, 1, 16);
     }
 
     private CommitStatus createLinkstateTopologyBuilderModuleInstance() throws Exception {
@@ -91,8 +89,8 @@ public class LinkstateTopologyBuilderModuleTest extends AbstractRIBImplModuleTes
         final ObjectName linkstateTopoBuilderON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final LinkstateTopologyBuilderModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateTopoBuilderON,
                 LinkstateTopologyBuilderModuleMXBean.class);
-        final ObjectName dataBrokerON = createDataBrokerInstance(transaction);
-        mxBean.setDataProvider(dataBrokerON);
+        final ObjectName dataBrokerON = createAsyncDataBrokerInstance(transaction);
+        mxBean.setDataProvider(createDataBrokerInstance(transaction));
         mxBean.setLocalRib(createRIBImplModuleInstance(transaction, dataBrokerON));
         mxBean.setTopologyId(topologyId);
         return transaction.commit();
