@@ -7,6 +7,7 @@
  */
 package org.opendaylight.controller.config.yang.bgp.rib.impl;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doNothing;
@@ -19,10 +20,12 @@ import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.internal.PlatformDependent;
 import java.net.InetSocketAddress;
 import java.util.List;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.ObjectName;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -67,11 +70,20 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
     }
 
     @Test
-    public void testCreateBeanDefaultAddress() throws Exception {
-        final CommitStatus status = createRegistryInstance(Optional.<String>absent(), Optional.<Integer>absent(), true, true);
-        assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 3, 0, 0);
-        verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class), any(BGPSessionValidator.class));
+    public void testCreateBeanDefaultAddress() throws InstanceAlreadyExistsException, ConflictingVersionException {
+        CommitStatus status;
+        try {
+            status = createRegistryInstance(Optional.<String>absent(), Optional.<Integer>absent(), true, true);
+            assertBeanCount(1, FACTORY_NAME);
+            assertStatus(status, 3, 0, 0);
+            verify(dispatcher).createServer(any(BGPPeerRegistry.class), any(InetSocketAddress.class), any(BGPSessionValidator.class));
+        } catch (ValidationException e) {
+            if(!PlatformDependent.isWindows() && !PlatformDependent.isRoot()) {
+                Assert.assertTrue(e.getMessage().contains("Unable to bind port"));
+            } else {
+                fail();
+            }
+        }
     }
 
     @Test
