@@ -8,9 +8,13 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.net.InetAddress;
@@ -19,7 +23,7 @@ import java.util.Collections;
 
 import javax.annotation.concurrent.GuardedBy;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
@@ -105,7 +109,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     }
 
     @Override
-    protected synchronized boolean onMessage(final DataModificationTransaction trans, final Message message) {
+    protected synchronized boolean onMessage(final WriteTransaction trans, final Message message) {
         if (message instanceof PcerrMessage) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg = ((PcerrMessage) message).getPcerrMessage();
             if (errMsg.getErrorType() instanceof StatefulCase) {
@@ -210,36 +214,44 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-        if (readOperationalData(lsp) != null) {
-            LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
-            return OperationResults.UNSENT.future();
-        }
-        // Build the request
-        final RequestsBuilder rb = new RequestsBuilder();
-        Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
-        Preconditions.checkState(args != null, "Input is missing operational tag.");
-        Lsp inputLsp = args.getLsp();
-        Preconditions.checkState(inputLsp != null, "Reported LSP does not contain LSP object.");
+        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
-        rb.fieldsFrom(input.getArguments());
+        return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
+            @Override
+            public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+                if (rep.isPresent()) {
+                    LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
+                    return OperationResults.UNSENT.future();
+                }
 
-        TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        tlvsBuilder.setSymbolicPathName(
-                new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
-        if (inputLsp.getTlvs() != null) {
-            tlvsBuilder.setVsTlv(inputLsp.getTlvs().getVsTlv());
-        }
+                // Build the request
+                final RequestsBuilder rb = new RequestsBuilder();
+                Arguments2 args = input.getArguments().getAugmentation(Arguments2.class);
+                Preconditions.checkState(args != null, "Input is missing operational tag.");
+                Lsp inputLsp = args.getLsp();
+                Preconditions.checkState(inputLsp != null, "Reported LSP does not contain LSP object.");
 
-        rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-        rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
-                new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
+                rb.fieldsFrom(input.getArguments());
 
-        final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-        ib.setRequests(ImmutableList.of(rb.build()));
+                TlvsBuilder tlvsBuilder = new TlvsBuilder();
+                tlvsBuilder.setSymbolicPathName(
+                        new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName().getBytes(Charsets.UTF_8))).build());
+                if (inputLsp.getTlvs() != null) {
+                    tlvsBuilder.setVsTlv(inputLsp.getTlvs().getVsTlv());
+                }
 
-        // Send the message
-        return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
-                input.getArguments().getMetadata());
+                rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
+                rb.setLsp(new LspBuilder().setAdministrative(inputLsp.isAdministrative()).setDelegate(inputLsp.isDelegate()).setPlspId(
+                        new PlspId(0L)).setTlvs(tlvsBuilder.build()).build());
+
+                final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+                ib.setRequests(ImmutableList.of(rb.build()));
+
+                // Send the message
+                return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(),
+                        input.getArguments().getMetadata());
+            }
+        });
     }
 
     @Override
@@ -248,25 +260,32 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-        final ReportedLsp rep = readOperationalData(lsp);
-        if (rep == null) {
-            LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-            return OperationResults.UNSENT.future();
-        }
-        // it doesn't matter how many lsps there are in the path list, we only need delegate & plspid that is the same in eeach path
-        final Path1 ra = rep.getPath().get(0).getAugmentation(Path1.class);
-        Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
-        Lsp reportedLsp = ra.getLsp();
-        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
-        // Build the request and send it
-        final RequestsBuilder rb = new RequestsBuilder();
-        rb.setSrp(new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-        rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
+        return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
+            @Override
+            public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+                if (!rep.isPresent()) {
+                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                    return OperationResults.UNSENT.future();
+                }
 
-        final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-        ib.setRequests(ImmutableList.of(rb.build()));
-        return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
+                // it doesn't matter how many lsps there are in the path list, we only need delegate & plspid that is the same in eeach path
+                final Path1 ra = rep.get().getPath().get(0).getAugmentation(Path1.class);
+                Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
+                Lsp reportedLsp = ra.getLsp();
+                Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+
+                // Build the request and send it
+                final RequestsBuilder rb = new RequestsBuilder();
+                rb.setSrp(new SrpBuilder().addAugmentation(Srp1.class, new Srp1Builder().setRemove(Boolean.TRUE).build()).setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
+                rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId()).setDelegate(reportedLsp.isDelegate()).build());
+
+                final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+                ib.setRequests(ImmutableList.of(rb.build()));
+                return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), rb.getSrp().getOperationId(), null);
+            }
+        });
     }
 
     @Override
@@ -275,69 +294,82 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
-        final ReportedLsp rep = readOperationalData(lsp);
-        if (rep == null) {
-            LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-            return OperationResults.UNSENT.future();
-        }
-        // it doesn't matter how many lsps there are in the path list, we only need plspid that is the same in each path
-        final Path1 ra = rep.getPath().get(0).getAugmentation(Path1.class);
-        Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
-        Lsp reportedLsp = ra.getLsp();
-        Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
 
-        // Build the PCUpd request and send it
-        final UpdatesBuilder rb = new UpdatesBuilder();
-        rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
-        Lsp inputLsp = input.getArguments().getAugmentation(Arguments3.class).getLsp();
-        if (inputLsp != null) {
-            rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build());
-        } else {
-            rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).build());
-        }
-        final PathBuilder pb = new PathBuilder();
-        pb.fieldsFrom(input.getArguments());
-        rb.setPath(pb.build());
-        final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-        ub.setUpdates(ImmutableList.of(rb.build()));
-        return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
-                input.getArguments().getMetadata());
+        return Futures.transform(f, new AsyncFunction<Optional<ReportedLsp>, OperationResult>() {
+            @Override
+            public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
+                if (!rep.isPresent()) {
+                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                    return OperationResults.UNSENT.future();
+                }
+
+                // it doesn't matter how many lsps there are in the path list, we only need plspid that is the same in each path
+                final Path1 ra = rep.get().getPath().get(0).getAugmentation(Path1.class);
+                Preconditions.checkState(ra != null, "Reported LSP reported null from data-store.");
+                Lsp reportedLsp = ra.getLsp();
+                Preconditions.checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+
+                // Build the PCUpd request and send it
+                final UpdatesBuilder rb = new UpdatesBuilder();
+                rb.setSrp(new SrpBuilder().setOperationId(nextRequest()).setProcessingRule(Boolean.TRUE).build());
+                Lsp inputLsp = input.getArguments().getAugmentation(Arguments3.class).getLsp();
+                if (inputLsp != null) {
+                    rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).setDelegate((inputLsp.isDelegate() != null) ? inputLsp.isDelegate() : false).setTlvs(inputLsp.getTlvs()).setAdministrative((inputLsp.isAdministrative() != null) ? inputLsp.isAdministrative() : false).build());
+                } else {
+                    rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId()).build());
+                }
+                final PathBuilder pb = new PathBuilder();
+                pb.fieldsFrom(input.getArguments());
+                rb.setPath(pb.build());
+                final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
+                ub.setUpdates(ImmutableList.of(rb.build()));
+                return sendMessage(new PcupdBuilder().setPcupdMessage(ub.build()).build(), rb.getSrp().getOperationId(),
+                        input.getArguments().getMetadata());
+            }
+        });
     }
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
         Preconditions.checkArgument(input != null && input.getName() != null & input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
-        OperationalStatus op = null;
+        final OperationalStatus op;
         final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
         if (aa != null) {
             op = aa.getOperational();
+        } else {
+            op = null;
         }
 
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName()).build();
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
-        final ReportedLsp rep = readOperationalData(lsp);
-        if (rep == null) {
-            LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-            return OperationResults.UNSENT.future();
-        }
-        boolean operational = false;
-        // check if at least one of the paths has the same status as requested
-        for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path p : rep.getPath()) {
-            Path1 p1 = p.getAugmentation(Path1.class);
-            if (p1 == null) {
-                LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
-                return OperationResults.UNSENT.future();
+        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+
+        return Futures.transform(f, new Function<Optional<ReportedLsp>, OperationResult>() {
+            @Override
+            public OperationResult apply(final Optional<ReportedLsp> rep) {
+                if (!rep.isPresent()) {
+                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
+                    return OperationResults.UNSENT;
+                }
+
+                // check if at least one of the paths has the same status as requested
+                boolean operational = false;
+                for (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev131024.pcep.client.attributes.path.computation.client.reported.lsp.Path p : rep.get().getPath()) {
+                    Path1 p1 = p.getAugmentation(Path1.class);
+                    if (p1 == null) {
+                        LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
+                        return OperationResults.UNSENT;
+                    }
+                    Lsp l = p1.getLsp();
+                    if (l.getOperational().equals(op)) {
+                        operational = true;
+                    }
+                }
+
+                return operational ? OperationResults.SUCCESS : OperationResults.UNSENT;
             }
-            Lsp l = p1.getLsp();
-            if (l.getOperational().equals(op)) {
-                operational = true;
-            }
-        }
-        if (operational) {
-            return OperationResults.SUCCESS.future();
-        } else {
-            return OperationResults.UNSENT.future();
-        }
+        });
     }
 }

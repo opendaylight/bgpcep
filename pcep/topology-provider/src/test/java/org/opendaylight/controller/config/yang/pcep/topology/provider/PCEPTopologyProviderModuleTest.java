@@ -81,7 +81,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     public void testCreateBean() throws Exception {
         CommitStatus status = createInstance(false);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 19, 0, 0);
+        assertStatus(status, 18, 0, 0);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         assertBeanCount(1, FACTORY_NAME);
         CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 0, 19);
+        assertStatus(status, 0, 0, 18);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setTopologyId(new TopologyId("new-pcep-topology"));
         final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 0, 1, 18);
+        assertStatus(status, 0, 1, 17);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         NativeTestSupport.assumeSupportedPlatform();
         CommitStatus status = createInstance(true);
         assertBeanCount(1, FACTORY_NAME);
-        assertStatus(status, 21, 0, 0);
+        assertStatus(status, 20, 0, 0);
     }
 
     @Test
@@ -180,10 +180,11 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
                                                                 final PortNumber listenPort, final TopologyId topologyId, boolean addMD5) throws Exception {
         final ObjectName objectName = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
         final ObjectName notificationBrokerON = createNotificationBrokerInstance(transaction);
+        final ObjectName asyncDataBrokerON = createAsyncDataBrokerInstance(transaction);
         final ObjectName bindingBrokerON = createBindingBrokerImpl(transaction, createCompatibleDataBrokerInstance(transaction), notificationBrokerON);
 
         final PCEPTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName, PCEPTopologyProviderModuleMXBean.class);
-        mxBean.setDataProvider(createDataBrokerInstance(transaction));
+        mxBean.setDataProvider(asyncDataBrokerON);
         mxBean.setDispatcher(createDispatcherInstance(transaction, 5));
 
         if (addMD5) {
@@ -198,7 +199,7 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
         mxBean.setListenAddress(listenAddress == null ? null : new IpAddress(listenAddress.toCharArray()));
         mxBean.setListenPort(listenPort);
         mxBean.setRpcRegistry(bindingBrokerON);
-        mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, createAsyncDataBrokerInstance(transaction), bindingBrokerON,
+        mxBean.setScheduler(createInstructionSchedulerModuleInstance(transaction, asyncDataBrokerON, bindingBrokerON,
                 notificationBrokerON));
         mxBean.setStatefulPlugin(transaction.createModule(Stateful02TopologySessionListenerModuleFactory.NAME,
                 STATEFUL02_TOPOLOGY_INSTANCE_NAME));
@@ -230,6 +231,14 @@ public class PCEPTopologyProviderModuleTest extends AbstractInstructionScheduler
     public List<String> getYangModelsPaths() {
         final List<String> paths = super.getYangModelsPaths();
         paths.add("/META-INF/yang/network-topology@2013-10-21.yang");
+        paths.add("/META-INF/yang/network-topology-pcep.yang");
+        paths.add("/META-INF/yang/odl-network-topology.yang");
+        paths.add("/META-INF/yang/yang-ext.yang");
+        paths.add("/META-INF/yang/pcep-types.yang");
+        paths.add("/META-INF/yang/rsvp.yang");
+        paths.add("/META-INF/yang/iana.yang");
+        paths.add("/META-INF/yang/network-concepts.yang");
+        paths.add("/META-INF/yang/ieee754.yang");
         return paths;
     }
 }

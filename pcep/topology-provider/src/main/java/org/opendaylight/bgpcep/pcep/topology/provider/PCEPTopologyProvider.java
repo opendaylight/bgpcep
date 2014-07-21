@@ -19,9 +19,9 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.tcpmd5.KeyMapping;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.controller.sal.binding.api.data.DataProviderService;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev131106.NetworkTopologyPcepProgrammingService;
@@ -50,11 +50,11 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference impleme
     }
 
     public static PCEPTopologyProvider create(final PCEPDispatcher dispatcher, final InetSocketAddress address, final KeyMapping keys,
-            final InstructionScheduler scheduler, final DataProviderService dataService, final RpcProviderRegistry rpcRegistry,
+            final InstructionScheduler scheduler, final DataBroker dataBroker, final RpcProviderRegistry rpcRegistry,
             final InstanceIdentifier<Topology> topology, final TopologySessionListenerFactory listenerFactory) throws InterruptedException,
             ExecutionException {
 
-        final ServerSessionManager manager = new ServerSessionManager(dataService, topology, listenerFactory);
+        final ServerSessionManager manager = new ServerSessionManager(dataBroker, topology, listenerFactory);
         final ChannelFuture f = dispatcher.createServer(address, keys, manager);
         f.get();
 
