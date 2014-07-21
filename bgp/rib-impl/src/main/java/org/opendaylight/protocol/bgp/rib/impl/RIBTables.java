@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
@@ -39,7 +39,7 @@ final class RIBTables {
         return ret;
     }
 
-    public synchronized AdjRIBsIn create(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+    public synchronized AdjRIBsIn create(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
         if (this.tables.containsKey(key)) {
             LOG.warn("Duplicate create request for key {}", key);
             return this.tables.get(key);
