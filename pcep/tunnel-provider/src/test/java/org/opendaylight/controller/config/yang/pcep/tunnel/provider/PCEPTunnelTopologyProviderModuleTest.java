@@ -100,7 +100,7 @@ public class PCEPTunnelTopologyProviderModuleTest extends AbstractInstructionSch
 
         final PCEPTunnelTopologyProviderModuleMXBean mxBean = transaction.newMXBeanProxy(objectName,
                 PCEPTunnelTopologyProviderModuleMXBean.class);
-        mxBean.setDataProvider(dataBrokerON);
+        mxBean.setDataProvider(asyncDataBrokerON);
         mxBean.setRpcRegistry(bindingBrokerON);
         mxBean.setScheduler(schedulerON);
         mxBean.setTopologyId(topologyId);
