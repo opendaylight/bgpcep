@@ -125,7 +125,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final DataModificationTransaction trans = this.dps.beginTransaction();
+        final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(this.dps.beginTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
@@ -221,7 +221,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn ari = this.tables.get(key);
         if (ari != null) {
-            final DataModificationTransaction trans = this.dps.beginTransaction();
+            final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(this.dps.beginTransaction());
             ari.clear(trans, peer);
 
             Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
