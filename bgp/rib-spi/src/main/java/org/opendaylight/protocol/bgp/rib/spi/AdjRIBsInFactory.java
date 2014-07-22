@@ -9,8 +9,9 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 
 public interface AdjRIBsInFactory {
-    AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, TablesKey key);
+    AdjRIBsIn createAdjRIBsIn(DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, TablesKey key);
 }

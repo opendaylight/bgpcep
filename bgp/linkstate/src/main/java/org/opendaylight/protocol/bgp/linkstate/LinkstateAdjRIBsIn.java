@@ -18,6 +18,7 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.LinkstateRoutes;
@@ -97,8 +98,8 @@ final class LinkstateAdjRIBsIn extends AbstractAdjRIBsIn<CLinkstateDestination, 
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateAdjRIBsIn.class);
 
-    LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-        super(trans, rib, key);
+    LinkstateAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+        super(trans, rib, localAs, key);
     }
 
     @Override
