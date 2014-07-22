@@ -43,9 +43,11 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjRIBsIn {
     protected abstract static class RIBEntryData<I, D extends DataObject> {
         private final PathAttributes attributes;
+        private final Peer peer;
 
-        protected RIBEntryData(final PathAttributes attributes) {
+        protected RIBEntryData(final Peer peer, final PathAttributes attributes) {
             this.attributes = Preconditions.checkNotNull(attributes);
+            this.peer = Preconditions.checkNotNull(peer);
         }
 
         public PathAttributes getPathAttributes() {
