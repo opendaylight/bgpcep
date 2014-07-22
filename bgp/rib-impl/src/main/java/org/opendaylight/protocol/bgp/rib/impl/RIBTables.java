@@ -17,8 +17,12 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +44,7 @@ final class RIBTables {
         return ret;
     }
 
-    public synchronized AdjRIBsIn create(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+    public synchronized AdjRIBsIn create(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
         if (this.tables.containsKey(key)) {
             LOG.warn("Duplicate create request for key {}", key);
             return this.tables.get(key);
@@ -52,9 +56,15 @@ final class RIBTables {
             return null;
         }
 
-        final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, rib, localAs, key));
+        @SuppressWarnings("unchecked")
+        final KeyedInstanceIdentifier<Tables, TablesKey> basePath = (KeyedInstanceIdentifier<Tables, TablesKey>) rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
+        final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(basePath));
         LOG.debug("Table {} created for key {}", table, key);
         this.tables.put(key, table);
+
+        trans.putOperationalData(basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setAttributes(
+                new AttributesBuilder().setUptodate(Boolean.TRUE).build()).build());
+
         return table;
     }
 }

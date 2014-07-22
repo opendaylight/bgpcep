@@ -28,6 +28,7 @@ import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
+import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -71,6 +72,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
+    private final BGPObjectComparator comparator;
     private final BGPDispatcher dispatcher;
     private final DataProviderService dps;
     private final AsNumber localAs;
@@ -84,6 +86,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
         this.dps = Preconditions.checkNotNull(dps);
         this.localAs = Preconditions.checkNotNull(localAs);
+        this.comparator = new BGPObjectComparator(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
@@ -102,7 +105,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         for (BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            if (this.tables.create(trans, this, localAs, key) == null) {
+            if (this.tables.create(trans, this, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
             }
         }
@@ -125,7 +128,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final DataModificationTransaction trans = this.dps.beginTransaction();
+        final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(this.comparator, this.dps.beginTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
@@ -221,7 +224,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn ari = this.tables.get(key);
         if (ari != null) {
-            final DataModificationTransaction trans = this.dps.beginTransaction();
+            final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(comparator, this.dps.beginTransaction());
             ari.clear(trans, peer);
 
             Futures.addCallback(JdkFutureAdapters.listenInPoolThread(trans.commit()), new FutureCallback<RpcResult<TransactionStatus>>() {
