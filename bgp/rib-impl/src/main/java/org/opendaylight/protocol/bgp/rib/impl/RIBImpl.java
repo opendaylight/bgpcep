@@ -102,7 +102,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
         for (BgpTableType t : localTables) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            if (this.tables.create(trans, this, key) == null) {
+            if (this.tables.create(trans, this, localAs, key) == null) {
                 LOG.debug("Did not create local table for unhandled table type {}", t);
             }
         }
@@ -165,9 +165,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
                 if (ari != null) {
                     final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
                             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                            new AdvertizedRoutesBuilder().setDestinationType(
-                                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                            new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
+                                    new AdvertizedRoutesBuilder().setDestinationType(
+                                            new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                                                    new DestinationIpv4Builder().setIpv4Prefixes(ar.getNlri()).build()).build()).build());
                     if (attrs != null) {
                         b.setCNextHop(attrs.getCNextHop());
                     }
