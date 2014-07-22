@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv6AddressFamily;
@@ -28,15 +29,15 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
         AdjRIBsInFactory adj1 = new AdjRIBsInFactory() {
             @Override
-            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-                return new Ipv4AdjRIBsIn(trans, rib, key);
+            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+                return new Ipv4AdjRIBsIn(trans, rib, localAs, key);
             }
         };
 
         AdjRIBsInFactory adj2 = new AdjRIBsInFactory() {
             @Override
-            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-                return new Ipv6AdjRIBsIn(trans, rib, key);
+            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+                return new Ipv6AdjRIBsIn(trans, rib, localAs, key);
             }
         };
         return Lists.newArrayList(

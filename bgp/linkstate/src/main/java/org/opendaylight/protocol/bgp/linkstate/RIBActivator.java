@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivat
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -27,12 +28,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-                new AdjRIBsInFactory() {
-                    @Override
-                    public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-                        return new LinkstateAdjRIBsIn(trans, rib, key);
-                    }
-                }));
+        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
+            @Override
+            public AdjRIBsIn createAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+                return new LinkstateAdjRIBsIn(trans, rib, localAs, key);
+            }
+        }));
     }
 }

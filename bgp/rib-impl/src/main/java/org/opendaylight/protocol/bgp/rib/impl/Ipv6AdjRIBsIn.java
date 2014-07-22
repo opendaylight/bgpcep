@@ -11,6 +11,7 @@ import org.opendaylight.controller.sal.binding.api.data.DataModificationTransact
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv6._case.DestinationIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
@@ -25,8 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
-    Ipv6AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
-        super(trans, rib, key);
+    Ipv6AdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
+        super(trans, rib, localAs, key);
     }
 
     @Override

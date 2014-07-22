@@ -11,7 +11,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +20,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.opendaylight.controller.sal.binding.api.data.DataModificationTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -52,6 +52,10 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
         public PathAttributes getPathAttributes() {
             return this.attributes;
+        }
+
+        public Peer getPeer() {
+            return this.peer;
         }
 
         protected abstract D getDataObject(I key, InstanceIdentifier<D> id);
@@ -97,10 +101,10 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return this.name;
         }
 
-        private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial, final Comparator<PathAttributes> comparator) {
+        private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial) {
             RIBEntryData<I, D> newState = initial;
             for (final RIBEntryData<I, D> s : this.candidates.values()) {
-                if (newState == null || comparator.compare(newState.attributes, s.attributes) > 0) {
+                if (newState == null || comparator.compare(newState, s) > 0) {
                     newState = s;
                 }
             }
@@ -122,7 +126,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             final RIBEntryData<I, D> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
 
-            final RIBEntryData<I, D> candidate = findCandidate(null, peer.getComparator());
+            final RIBEntryData<I, D> candidate = findCandidate(null);
             if (candidate != null) {
                 electCandidate(transaction, candidate);
             } else {
@@ -135,11 +139,12 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
         synchronized void setState(final DataModificationTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
             this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
-            electCandidate(transaction, findCandidate(state, peer.getComparator()));
+            electCandidate(transaction, findCandidate(state));
         }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAdjRIBsIn.class);
+    private final BGPObjectComparator comparator;
     private final InstanceIdentifier<Tables> basePath;
     private final Update eor;
 
@@ -149,7 +154,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
     @GuardedBy("this")
     private final Map<Peer, Boolean> peers = new HashMap<>();
 
-    protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final TablesKey key) {
+    protected AbstractAdjRIBsIn(final DataModificationTransaction trans, final RibReference rib, final AsNumber localAs, final TablesKey key) {
         this.basePath = rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
 
         this.eor = new UpdateBuilder().setPathAttributes(
@@ -160,6 +165,8 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
         trans.putOperationalData(this.basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setAttributes(
                 new AttributesBuilder().setUptodate(Boolean.TRUE).build()).build());
+
+        this.comparator = new BGPObjectComparator(localAs);
     }
 
     private void setUptodate(final DataModificationTransaction trans, final Boolean uptodate) {
