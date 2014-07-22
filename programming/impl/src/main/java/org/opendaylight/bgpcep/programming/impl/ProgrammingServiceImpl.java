@@ -197,9 +197,7 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
         }
 
         final CleanInstructionsOutputBuilder ob = new CleanInstructionsOutputBuilder();
-        if (!failed.isEmpty()) {
-            ob.setUnflushed(failed);
-        }
+        ob.setUnflushed(failed);
 
         return SuccessfulRpcResult.create(ob.build());
     }
