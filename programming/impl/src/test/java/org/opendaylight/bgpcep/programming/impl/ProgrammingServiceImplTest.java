@@ -11,16 +11,14 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
+
 import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +41,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev131030.PcepUpdateTunnelInput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ListenableFuture;
+
 public class ProgrammingServiceImplTest {
 
     public static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
@@ -51,7 +53,7 @@ public class ProgrammingServiceImplTest {
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedDataProviderWrapper mockedDataProviderWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
-    private Timer timer = new HashedWheelTimer();
+    private final Timer timer = new HashedWheelTimer();
 
     @Before
     public void setUp() throws Exception {
@@ -180,10 +182,11 @@ public class ProgrammingServiceImplTest {
         mockedDataProviderWrapper.assertRemoveDataForInstruction(1, mockedSubmit2.getId());
     }
 
-    private void assertCleanInstructionOutput(ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
-            int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
+    private void assertCleanInstructionOutput(final ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput,
+            final int unflushedCount) throws InterruptedException, java.util.concurrent.ExecutionException {
         if (unflushedCount == 0) {
-            Assert.assertEquals(Collections.EMPTY_LIST, cleanedInstructionOutput.get().getResult().getUnflushed());
+            List<InstructionId> unflushed = cleanedInstructionOutput.get().getResult().getUnflushed();
+            Assert.assertTrue(unflushed == null || unflushed.isEmpty());
         } else {
             Assert.assertEquals(unflushedCount, cleanedInstructionOutput.get().getResult().getUnflushed().size());
         }
@@ -307,11 +310,11 @@ public class ProgrammingServiceImplTest {
         return new DetailsBuilder().build();
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(String id, String... dependencyIds) {
+    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final String... dependencyIds) {
         return getMockedSubmitInstructionInput(id, Optional.<Nanotime> absent(), dependencyIds);
     }
 
-    private SubmitInstructionInput getMockedSubmitInstructionInput(String id, Optional<Nanotime> deadline, String... dependencyIds) {
+    private SubmitInstructionInput getMockedSubmitInstructionInput(final String id, final Optional<Nanotime> deadline, final String... dependencyIds) {
         SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
         doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).getImplementedInterface();
@@ -326,13 +329,13 @@ public class ProgrammingServiceImplTest {
         return mockedSubmitInstruction;
     }
 
-    private CancelInstructionInput getCancelInstruction(String instructionId) {
+    private CancelInstructionInput getCancelInstruction(final String instructionId) {
         CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
         builder.setId(getInstructionId(instructionId));
         return builder.build();
     }
 
-    private InstructionId getInstructionId(String id) {
+    private InstructionId getInstructionId(final String id) {
         return new InstructionId(id);
     }
 
