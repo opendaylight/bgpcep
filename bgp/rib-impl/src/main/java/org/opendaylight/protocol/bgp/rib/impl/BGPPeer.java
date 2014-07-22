@@ -11,16 +11,18 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
-import java.util.Comparator;
+import com.google.common.net.InetAddresses;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.annotation.concurrent.GuardedBy;
+
 import org.opendaylight.protocol.bgp.parser.BGPSession;
 import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -41,8 +43,8 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     private final RIB rib;
     private final String name;
 
-    private Comparator<PathAttributes> comparator;
     private BGPSession session;
+    private byte[] rawIdentifier;
 
     public BGPPeer(final String name, final RIB rib) {
         this.rib = Preconditions.checkNotNull(rib);
@@ -69,7 +71,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
         this.session = session;
-        this.comparator = new BGPObjectComparator(this.rib.getLocalAs(), rib.getBgpIdentifier(), session.getBgpId());
+        this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
@@ -87,7 +89,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
 
         this.tables.clear();
         this.session = null;
-        this.comparator = null;
     }
 
     @Override
@@ -118,11 +119,6 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
         return this.name;
     }
 
-    @Override
-    public Comparator<PathAttributes> getComparator() {
-        return this.comparator;
-    }
-
     protected RIB getRib() {
         return rib;
     }
@@ -138,5 +134,10 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
             this.session.close();
             this.session = null;
         }
+    }
+
+    @Override
+    public byte[] getRawIdentifier() {
+        return rawIdentifier;
     }
 }
