@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_820a4877",
+        "filename": "pcep/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2014-07-23T10:09:17Z",
+      "side": 1,
+      "message": "It would be good to add trace also here, to see beforehand Id and object we are correlating to lines 292 and 301.",
+      "revId": "0daa37d479b7e7516732073a4535051fd4914b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
