@@ -63,7 +63,7 @@ public class LinkstateAttributeParserTest {
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x83, 0, 0x04,
         0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b, 0x04, (byte) 0x88, 0, 0x01, 0x0a };
 
-    private final LinkstateAttributeParser parser = new LinkstateAttributeParser();
+    private final LinkstateAttributeParser parser = new LinkstateAttributeParser(false);
 
     private static PathAttributesBuilder createBuilder(final NlriType type) {
         return new PathAttributesBuilder().addAugmentation(

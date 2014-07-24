@@ -47,7 +47,7 @@ public final class LinkstateModule extends org.opendaylight.controller.config.ya
     @Override
     public java.lang.AutoCloseable createInstance() {
         final class LinkstateExtension implements AutoCloseable, BGPExtensionProviderActivator, RIBExtensionProviderActivator {
-            final BGPExtensionProviderActivator bgpact = new BGPActivator();
+            final BGPExtensionProviderActivator bgpact = new BGPActivator(getIanaLinkstateAttributeType());
             final RIBExtensionProviderActivator ribact = new RIBActivator();
 
             @Override
