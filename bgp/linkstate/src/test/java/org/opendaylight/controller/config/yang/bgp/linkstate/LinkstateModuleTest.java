@@ -8,10 +8,11 @@
 
 package org.opendaylight.controller.config.yang.bgp.linkstate;
 
+import static org.junit.Assert.assertTrue;
+
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-
 import javax.management.ObjectName;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
@@ -34,25 +35,51 @@ public class LinkstateModuleTest extends AbstractConfigTest {
     }
 
     @Test
+    public void testLSTypeDefaultValue() throws Exception {
+        final CommitStatus status = createLinkstateModuleInstance(Optional.<Boolean>absent());
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 3, 0, 0);
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        final LinkstateModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), LinkstateModuleMXBean.class);
+        assertTrue(mxBean.getIanaLinkstateAttributeType());
+    }
+
+    @Test
     public void testCreateBean() throws Exception {
-        CommitStatus status = createLinkstateModuleInstance();
+        final CommitStatus status = createLinkstateModuleInstance(Optional.of(false));
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 3, 0, 0);
     }
 
     @Test
     public void testReusingOldInstance() throws Exception {
-        createLinkstateModuleInstance();
-        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        createLinkstateModuleInstance(Optional.of(false));
+        final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         assertBeanCount(1, FACTORY_NAME);
-        CommitStatus status = transaction.commit();
+        final CommitStatus status = transaction.commit();
         assertBeanCount(1, FACTORY_NAME);
         assertStatus(status, 0, 0, 3);
     }
 
-    private CommitStatus createLinkstateModuleInstance() throws Exception {
+    @Test
+    public void testReconfigureInstance() throws Exception {
+        createLinkstateModuleInstance(Optional.of(false));
+        ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
+        assertBeanCount(1, FACTORY_NAME);
+        final LinkstateModuleMXBean mxBean = transaction.newMXBeanProxy(transaction.lookupConfigBean(FACTORY_NAME, INSTANCE_NAME), LinkstateModuleMXBean.class);
+        mxBean.setIanaLinkstateAttributeType(true);
+        CommitStatus status = transaction.commit();
+        assertBeanCount(1, FACTORY_NAME);
+        assertStatus(status, 0, 3, 0);
+    }
+
+    private CommitStatus createLinkstateModuleInstance(final Optional<Boolean> ianaLSAttributeType) throws Exception {
         final ConfigTransactionJMXClient transaction = configRegistryClient.createTransaction();
         final ObjectName linkstateON = transaction.createModule(FACTORY_NAME, INSTANCE_NAME);
+        if(ianaLSAttributeType.isPresent()) {
+            final LinkstateModuleMXBean mxBean = transaction.newMXBeanProxy(linkstateON, LinkstateModuleMXBean.class);
+            mxBean.setIanaLinkstateAttributeType(ianaLSAttributeType.get());
+        }
 
         SimpleBGPExtensionProviderContextModuleTest.createBGPExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));
         RIBExtensionsImplModuleTest.createRIBExtensionsModuleInstance(transaction, Lists.newArrayList(linkstateON));

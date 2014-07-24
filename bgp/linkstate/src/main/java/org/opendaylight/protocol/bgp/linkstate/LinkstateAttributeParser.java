@@ -81,8 +81,10 @@ import org.slf4j.LoggerFactory;
  * @see <a href="http://tools.ietf.org/html/draft-gredler-idr-ls-distribution-04">BGP-LS draft</a>
  */
 public class LinkstateAttributeParser implements AttributeParser, AttributeSerializer {
-    // TODO: replace with actual values by IANA
-    public static final int TYPE = 99;
+
+    private static final int TYPE = 29;
+
+    private static final int LEGACY_TYPE = 99;
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateAttributeParser.class);
 
@@ -105,6 +107,20 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
     private static final int RSVP_BIT = 6;
 
     private static final int UP_DOWN_BIT = 7;
+
+    private final int type;
+
+    public LinkstateAttributeParser(final boolean isIanaAssignedType) {
+        if(isIanaAssignedType) {
+            this.type = TYPE;
+        } else {
+            this.type = LEGACY_TYPE;
+        }
+    }
+
+    public int getType() {
+        return type;
+    }
 
     private NlriType getNlriType(final PathAttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1 mpr = pab.getAugmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1.class);
@@ -430,7 +446,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         } else if (linkState instanceof PrefixAttributesCase) {
             serializePrefixAttributes((PrefixAttributesCase) linkState, lsBuffer);
         }
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, TYPE, lsBuffer, byteAggregator);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), lsBuffer, byteAggregator);
     }
 
     private void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf byteAggregator) {
