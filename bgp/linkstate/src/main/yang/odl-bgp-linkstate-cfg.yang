@@ -38,6 +38,13 @@ module odl-bgp-linkstate-cfg {
     augment "/config:modules/config:module/config:configuration" {
         case bgp-linkstate {
             when "/config:modules/config:module/config:type = 'bgp-linkstate'";
+
+            leaf iana-linkstate-attribute-type {
+                description "If true (default) linkstate attribute type (=29) allocated by IANA is used,
+                    else type (=99) is used for parsing/serialization";
+                type boolean;
+                default true;
+            }
         }
     }
 }
