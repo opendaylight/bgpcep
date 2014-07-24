@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
@@ -27,6 +26,18 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     private static final int LINKSTATE_SAFI = 71;
 
+    private final boolean ianaLinkstateAttributeType;
+
+    public BGPActivator() {
+        super();
+        this.ianaLinkstateAttributeType = true;
+    }
+
+    public BGPActivator(boolean ianaLinkstateAttributeType) {
+        super();
+        this.ianaLinkstateAttributeType = ianaLinkstateAttributeType;
+    }
+
     @Override
     protected List<AutoCloseable> startImpl(final BGPExtensionProviderContext context) {
         final List<AutoCloseable> regs = new ArrayList<>();
@@ -40,8 +51,9 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
                 new LinkstateNlriParser(true)));
         regs.add(context.registerNlriSerializer(PathAttributes.class, new LinkstateNlriParser(false)));
 
-        regs.add(context.registerAttributeSerializer(PathAttributes1.class, new LinkstateAttributeParser()));
-        regs.add(context.registerAttributeParser(LinkstateAttributeParser.TYPE, new LinkstateAttributeParser()));
+        regs.add(context.registerAttributeSerializer(PathAttributes1.class, new LinkstateAttributeParser(ianaLinkstateAttributeType)));
+        final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(ianaLinkstateAttributeType);
+        regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
         return regs;
     }
