@@ -28,7 +28,6 @@ import javax.annotation.concurrent.GuardedBy;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -58,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,9 +192,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
 
         // All set, commit the modifications
-        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.trace("Internal state for session {} updated successfully", session);
             }
 
@@ -225,9 +223,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             trans.delete(LogicalDatastoreType.OPERATIONAL, this.topologyNode);
         }
 
-        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.trace("Internal state for session {} cleaned up successfully", session);
             }
 
@@ -280,9 +278,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             return;
         }
 
-        Futures.addCallback(ctx.trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(ctx.trans.submit(), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.trace("Internal state for session {} updated successfully", session);
                 ctx.notifyRequests();
             }
