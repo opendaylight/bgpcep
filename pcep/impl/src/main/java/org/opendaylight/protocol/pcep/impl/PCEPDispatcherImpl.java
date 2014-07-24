@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Promise;
@@ -99,7 +100,11 @@ public class PCEPDispatcherImpl extends AbstractDispatcher<PCEPSessionImpl, PCEP
             LOG.debug("Adding MD5 keys {} to boostrap {}", keys, b);
             b.channelFactory(scf);
             b.option(MD5ChannelOption.TCP_MD5SIG, keys);
+
         }
+
+        // Make sure we are doing round-robin processing
+        b.childOption(ChannelOption.MAX_MESSAGES_PER_READ, 1);
     }
 
     @Override
