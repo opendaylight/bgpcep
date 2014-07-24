@@ -300,30 +300,40 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     private synchronized void messageSendingComplete(final S requestId, final io.netty.util.concurrent.Future<Void> future) {
         final PCEPRequest req = this.sendingRequests.remove(requestId);
+        LOG.trace("Dequeued pending request {} object {}", requestId, req);
 
-        if (future.isSuccess()) {
-            this.waitingRequests.put(requestId, req);
-            LOG.trace("Request {} sent to peer (object {})", requestId, req);
-        } else {
-            LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-            req.setResult(OperationResults.UNSENT);
+        if (req != null) {
+            if (future.isSuccess()) {
+                this.waitingRequests.put(requestId, req);
+                LOG.trace("Request {} sent to peer (object {})", requestId, req);
+            } else {
+                LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
+                req.setResult(OperationResults.UNSENT);
+            }
         }
+
+        LOG.trace("Finished on-complete processing of request {}", requestId);
     }
 
-    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-            final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+    protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId, final Metadata metadata) {
         final PCEPRequest req = new PCEPRequest(metadata);
 
+        LOG.trace("Recording request {} object {}", requestId, req);
         this.sendingRequests.put(requestId, req);
+
+        LOG.trace("Enqueueing request {} to peer {}", requestId, session);
+        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+        LOG.trace("Request {} enqueued to peer", requestId);
 
         f.addListener(new FutureListener<Void>() {
             @Override
             public void operationComplete(final io.netty.util.concurrent.Future<Void> future) {
+                LOG.trace("Request {} on peer {} sent out", requestId, session);
                 messageSendingComplete(requestId, future);
             }
         });
 
+        LOG.trace("Request {} enqueue completed", requestId);
         return req.getFuture();
     }
 
