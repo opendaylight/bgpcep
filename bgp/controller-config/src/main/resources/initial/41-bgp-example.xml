@@ -13,6 +13,8 @@
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:spi?module=odl-bgp-rib-spi-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl?module=odl-bgp-rib-impl-cfg&amp;revision=2013-04-09</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider?module=odl-bgp-topology-provider-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv6?module=odl-bgp-treachability-ipv6-cfg&amp;revision=2013-11-15</capability>
+        <capability>urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv4?module=odl-bgp-treachability-ipv4-cfg&amp;revision=2013-11-15</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding?module=opendaylight-md-sal-binding&amp;revision=2013-10-28</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:netty?module=netty&amp;revision=2013-11-19</capability>
         <capability>urn:opendaylight:params:xml:ns:yang:controller:protocol:framework?module=protocol-framework&amp;revision=2014-03-13</capability>
@@ -29,10 +31,10 @@
                     <max-sleep>180000</max-sleep>
                     <sleep-factor>2.00</sleep-factor>
                     <connect-time>5000</connect-time>
-                    <executor>
+                    <timed-reconnect-executor>
                         <type xmlns:netty="urn:opendaylight:params:xml:ns:yang:controller:netty">netty:netty-event-executor</type>
                         <name>global-event-executor</name>
-                    </executor>
+                    </timed-reconnect-executor>
                 </module>
 
                 <module>
@@ -43,14 +45,14 @@
                     <!--<binding-address>0.0.0.0</binding-address>-->
                     <!--<binding-port>179</binding-port>-->
 
-                    <bgp-dispatcher>
+                    <accepting-bgp-dispatcher>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-dispatcher</type>
                         <name>global-bgp-dispatcher</name>
-                    </bgp-dispatcher>
-                    <peer-registry>
+                    </accepting-bgp-dispatcher>
+                    <accepting-peer-registry>
                         <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:rib:impl">prefix:bgp-peer-registry</type>
                         <name>global-bgp-peer-registry</name>
-                    </peer-registry>
+                    </accepting-peer-registry>
 
                 </module>
 
@@ -130,7 +132,7 @@
                     </tcp-reconnect-strategy>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv4</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv4">prefix:bgp-reachability-ipv4</type>
                     <name>example-ipv4-topology</name>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
@@ -143,7 +145,7 @@
                     <topology-id>example-ipv4-topology</topology-id>
                 </module>
                 <module>
-                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:topology:provider">prefix:bgp-reachability-ipv6</type>
+                    <type xmlns:prefix="urn:opendaylight:params:xml:ns:yang:controller:bgp:reachability:ipv6">prefix:bgp-reachability-ipv6</type>
                     <name>example-ipv6-topology</name>
                     <data-provider>
                         <type xmlns:binding="urn:opendaylight:params:xml:ns:yang:controller:md:sal:binding">binding:binding-data-broker</type>
