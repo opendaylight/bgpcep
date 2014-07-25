@@ -14,12 +14,12 @@
  *
  * Do not modify this file unless it is present under src/main directory
  */
-package org.opendaylight.controller.config.yang.bgp.topology.provider;
+package org.opendaylight.controller.config.yang.bgp.reachability.ipv4;
 
 /**
  *
  */
 public class Ipv4ReachabilityTopologyBuilderModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
+        org.opendaylight.controller.config.yang.bgp.reachability.ipv4.AbstractIpv4ReachabilityTopologyBuilderModuleFactory {
 
 }

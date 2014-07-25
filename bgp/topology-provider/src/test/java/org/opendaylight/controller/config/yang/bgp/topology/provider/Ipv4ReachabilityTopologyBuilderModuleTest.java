@@ -11,12 +11,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+
 import javax.management.ObjectName;
+
 import org.junit.Test;
 import org.opendaylight.controller.config.api.ValidationException;
 import org.opendaylight.controller.config.api.jmx.CommitStatus;
 import org.opendaylight.controller.config.spi.ModuleFactory;
 import org.opendaylight.controller.config.util.ConfigTransactionJMXClient;
+import org.opendaylight.controller.config.yang.bgp.reachability.ipv4.Ipv4ReachabilityTopologyBuilderModuleFactory;
+import org.opendaylight.controller.config.yang.bgp.reachability.ipv4.Ipv4ReachabilityTopologyBuilderModuleMXBean;
 import org.opendaylight.controller.config.yang.bgp.rib.impl.AbstractRIBImplModuleTest;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 
