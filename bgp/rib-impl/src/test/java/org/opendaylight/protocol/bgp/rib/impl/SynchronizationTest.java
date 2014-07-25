@@ -11,9 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
@@ -51,6 +49,8 @@ public class SynchronizationTest {
 
     private Update lsm;
 
+    private Update eorm;
+
     @Before
     public void setUp() {
         this.listener = new SimpleSessionListener();
@@ -73,6 +73,8 @@ public class SynchronizationTest {
                 mpUBuilder.build()).build());
 
         this.lsm = new UpdateBuilder().setPathAttributes(paBuilder.build()).build();
+
+        this.eorm = new UpdateBuilder().build();
 
         final Set<TablesKey> types = Sets.newHashSet();
         types.add(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
@@ -118,5 +120,21 @@ public class SynchronizationTest {
                 PathAttributes1.class).getMpReachNlri().getAfi());
         this.bs.kaReceived(); // ipv4 sync
         assertEquals(2, this.listener.getListMsg().size());
+    }
+
+    @Test
+    public void testSynchronizeWithEOR() {
+        this.bs.updReceived(this.ipv4m);
+        this.bs.updReceived(this.lsm);
+        // Ipv4 Unicast synchronized by EOR message
+        this.bs.updReceived(this.eorm);
+        // Linkstate not synchronized yet
+        this.bs.kaReceived();
+        // no message sent by BGPSychchronization
+        assertEquals(0, this.listener.getListMsg().size());
+        this.bs.kaReceived();
+        assertEquals(1, this.listener.getListMsg().size());
+        assertEquals(LinkstateAddressFamily.class, ((Update) this.listener.getListMsg().get(0)).getPathAttributes().getAugmentation(
+                PathAttributes1.class).getMpReachNlri().getAfi());
     }
 }
