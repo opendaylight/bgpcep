@@ -32,8 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  *
  */
-public final class PCEPTunnelTopologyProviderModule extends
-        org.opendaylight.controller.config.yang.pcep.tunnel.provider.AbstractPCEPTunnelTopologyProviderModule {
+public final class PCEPTunnelTopologyProviderModule extends AbstractPCEPTunnelTopologyProviderModule {
 
     public PCEPTunnelTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
@@ -71,16 +70,10 @@ public final class PCEPTunnelTopologyProviderModule extends
             }
 
             @Override
-            public void close() throws Exception {
-                try {
-                    reg.close();
-                } finally {
-                    try {
-                        tp.close();
-                    } finally {
-                        ttp.close();
-                    }
-                }
+            public void close() {
+                reg.close();
+                tp.close();
+                ttp.close();
             }
         }
 
