@@ -14,7 +14,7 @@
  *
  * Do not modify this file unless it is present under src/main directory
  */
-package org.opendaylight.controller.config.yang.bgp.topology.provider;
+package org.opendaylight.controller.config.yang.bgp.reachability.ipv4;
 
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopologyBuilder;
@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class Ipv4ReachabilityTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv4ReachabilityTopologyBuilderModule {
+public final class Ipv4ReachabilityTopologyBuilderModule extends
+        org.opendaylight.controller.config.yang.bgp.reachability.ipv4.AbstractIpv4ReachabilityTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv4ReachabilityTopologyBuilderModule.class);
 
     public Ipv4ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,

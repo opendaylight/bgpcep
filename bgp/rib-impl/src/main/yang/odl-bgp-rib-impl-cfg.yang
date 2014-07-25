@@ -191,7 +191,7 @@ module odl-bgp-rib-impl-cfg {
                 default "179";
             }
 
-            container bgp-dispatcher {
+            container accepting-bgp-dispatcher {
                 uses config:service-ref {
                     refine type {
                         mandatory true;
@@ -200,7 +200,7 @@ module odl-bgp-rib-impl-cfg {
                 }
             }
 
-            container peer-registry {
+            container accepting-peer-registry {
                 uses config:service-ref {
                     refine type {
                         mandatory true;

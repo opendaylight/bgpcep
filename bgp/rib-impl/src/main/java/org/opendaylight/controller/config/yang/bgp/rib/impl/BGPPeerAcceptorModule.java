@@ -34,7 +34,7 @@ public class BGPPeerAcceptorModule extends org.opendaylight.controller.config.ya
 
     @Override
     public java.lang.AutoCloseable createInstance() {
-        final ChannelFuture future = getBgpDispatcherDependency().createServer(getPeerRegistryDependency(), getAddress(), new BGPServerSessionValidator());
+        final ChannelFuture future = getAcceptingBgpDispatcherDependency().createServer(getAcceptingPeerRegistryDependency(), getAddress(), new BGPServerSessionValidator());
 
         // Validate future success
         future.addListener(new GenericFutureListener<Future<Void>>() {
