@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,7 +14,7 @@
  *
  * Do not modify this file unless it is present under src/main directory
  */
-package org.opendaylight.controller.config.yang.bgp.topology.provider;
+package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv6ReachabilityTopologyBuilderModule {
+public final class Ipv6ReachabilityTopologyBuilderModule extends
+        org.opendaylight.controller.config.yang.bgp.reachability.ipv6.AbstractIpv6ReachabilityTopologyBuilderModule {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ReachabilityTopologyBuilderModule.class);
 
     public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
@@ -45,8 +46,8 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendayligh
     }
 
     public Ipv6ReachabilityTopologyBuilderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
-        final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
-        final Ipv6ReachabilityTopologyBuilderModule oldModule, final java.lang.AutoCloseable oldInstance) {
+            final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver,
+            final Ipv6ReachabilityTopologyBuilderModule oldModule, final AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
     }
 
@@ -57,7 +58,7 @@ public final class Ipv6ReachabilityTopologyBuilderModule extends org.opendayligh
     }
 
     @Override
-    public java.lang.AutoCloseable createInstance() {
+    public AutoCloseable createInstance() {
         final Ipv6ReachabilityTopologyBuilder b = new Ipv6ReachabilityTopologyBuilder(getDataProviderDependency(), getLocalRibDependency(), getTopologyId());
         final InstanceIdentifier<Tables> i = b.tableInstanceIdentifier(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
         final ListenerRegistration<DataChangeListener> r = getDataProviderDependency().registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, i, b, DataChangeScope.SUBTREE);

@@ -95,10 +95,10 @@ public class BGPPeerAcceptorModuleTest extends AbstractConfigTest {
             proxy.setBindingPort(new PortNumber(port.get()));
         }
         if(addRegistry) {
-            proxy.setPeerRegistry(createPeerRegistry(transaction));
+            proxy.setAcceptingPeerRegistry(createPeerRegistry(transaction));
         }
         if(addDispatcher) {
-            proxy.setBgpDispatcher(createDispatcher(transaction));
+            proxy.setAcceptingBgpDispatcher(createDispatcher(transaction));
         }
         return transaction.commit();
     }

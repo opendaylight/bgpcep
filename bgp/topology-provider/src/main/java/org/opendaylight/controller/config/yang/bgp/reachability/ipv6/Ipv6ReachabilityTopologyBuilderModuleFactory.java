@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,12 +14,12 @@
  *
  * Do not modify this file unless it is present under src/main directory
  */
-package org.opendaylight.controller.config.yang.bgp.topology.provider;
+package org.opendaylight.controller.config.yang.bgp.reachability.ipv6;
 
 /**
  *
  */
 public class Ipv6ReachabilityTopologyBuilderModuleFactory extends
-        org.opendaylight.controller.config.yang.bgp.topology.provider.AbstractIpv6ReachabilityTopologyBuilderModuleFactory {
+        org.opendaylight.controller.config.yang.bgp.reachability.ipv6.AbstractIpv6ReachabilityTopologyBuilderModuleFactory {
 
 }
