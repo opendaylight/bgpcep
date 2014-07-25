@@ -59,9 +59,9 @@ public final class PCEPByteToMessageDecoder extends ByteToMessageDecoder {
         if (!errors.isEmpty()) {
             // We have a bunch of messages, send them out
             for (final Object e : errors) {
-                ctx.channel().write(e);
+                ctx.write(e);
             }
-            ctx.channel().flush();
+            ctx.flush();
         }
     }
 
