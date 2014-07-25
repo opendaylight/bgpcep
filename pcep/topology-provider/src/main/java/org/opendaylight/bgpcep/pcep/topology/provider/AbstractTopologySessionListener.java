@@ -13,8 +13,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -311,25 +309,19 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
             final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+
+        // The last instant we are sure PCC did not receive the message, so UNSENT is correct possible RPC result.
+        this.session.sendMessage(message);
+        // Network may be just dropping the final ACK from PCC repeatedly, for minutes;
+        // so listening for isSuccess would not help with anything useful (apart PCC debugging).
+        // TODO: Maybe netty can confirm a case when PCC provably did not see a single byte of the message?
+
+        // Method is synchronized, so zero chance of onMessage or tearDown being run concurrently here, right? Right?
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
-
-        f.addListener(new FutureListener<Void>() {
-            @Override
-            public void operationComplete(final io.netty.util.concurrent.Future<Void> future) {
-                if (!future.isSuccess()) {
-                    synchronized (AbstractTopologySessionListener.this) {
-                        requests.remove(requestId);
-                    }
-                    req.done(OperationResults.UNSENT);
-                    LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-                } else {
-                    req.sent();
-                    LOG.trace("Request {} sent to peer (object {})", requestId, req);
-                }
-            }
-        });
+        req.sent();
+        // Causes NOACK to be the default RPC result on any subsequent failure.
+        // TODO: Maybe UNSENT enum case of PCEPRequest is not needed anymore and can be removed?
 
         return req.getFuture();
     }
