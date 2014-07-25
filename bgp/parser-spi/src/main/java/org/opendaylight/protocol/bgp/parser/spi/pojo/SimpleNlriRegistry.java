@@ -57,7 +57,7 @@ final class SimpleNlriRegistry implements NlriRegistry {
     }
 
     synchronized AutoCloseable registerNlriSerializer(final Class<? extends DataObject> nlriClass, final NlriSerializer serializer){
-        final NlriParser prev = this.handlers.get(nlriClass);
+        final NlriSerializer prev = this.serializers.get(nlriClass);
         Preconditions.checkState(prev == null, "Serializer already bound to class " + prev);
 
         this.serializers.put(nlriClass, serializer);
