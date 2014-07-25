@@ -9,9 +9,7 @@ package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
-
 import io.netty.buffer.ByteBuf;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,7 +18,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.BitSet;
-
 import org.apache.commons.codec.binary.Hex;
 
 /**
@@ -38,10 +35,10 @@ public final class ByteArray {
      * @param length length of the returned byte array
      * @return byte array
      */
-    public static byte[] readBytes(final ByteBuf buffer, int length) {
-        Preconditions.checkState(buffer != null && buffer.readableBytes() >= length,
-                "Buffer cannot be read for %s bytes. Contains only %s bytes.", length, buffer.readableBytes());
-        byte[] result = new byte[length];
+    public static byte[] readBytes(final ByteBuf buffer, final int length) {
+        Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
+                "Buffer cannot be read for %s bytes.", length);
+        final byte[] result = new byte[length];
         buffer.readBytes(result);
         return result;
     }
@@ -65,10 +62,10 @@ public final class ByteArray {
      * @param length length of the returned byte array
      * @return byte array
      */
-    public static byte[] getBytes(final ByteBuf buffer, int length) {
-        Preconditions.checkState(buffer != null && buffer.readableBytes() >= length,
-                "Buffer cannot be read for %s bytes. Contains only %s bytes.", length, buffer.readableBytes());
-        byte[] result = new byte[length];
+    public static byte[] getBytes(final ByteBuf buffer, final int length) {
+        Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
+                "Buffer cannot be read for %s bytes.", length);
+        final byte[] result = new byte[length];
         buffer.getBytes(buffer.readerIndex(), result);
         return result;
     }

@@ -90,7 +90,7 @@ public abstract class AbstractBGPSessionNegotiator extends AbstractSessionNegoti
     }
 
     @Override
-    protected void startNegotiation() {
+    protected synchronized void startNegotiation() {
         Preconditions.checkState(this.state == State.Idle);
 
         // Check if peer is configured in registry before retrieving preferences

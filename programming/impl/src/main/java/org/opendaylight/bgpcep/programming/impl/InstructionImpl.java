@@ -56,8 +56,8 @@ final class InstructionImpl implements Instruction {
         return id;
     }
 
-    InstructionStatus getStatus() {
-        return status;
+    synchronized InstructionStatus getStatus() {
+        return this.status;
     }
 
     synchronized void setStatus(final InstructionStatus status, final Details details) {
