@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_4b71bb74",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-25T10:34:19Z",
+      "side": 1,
+      "message": "29 should be \"TYPE\" and 99 should be something like \"LEGACY_TYPE\"",
+      "revId": "d3de5aaf8cd02ed902ff7f28bc4583917a68ed74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
