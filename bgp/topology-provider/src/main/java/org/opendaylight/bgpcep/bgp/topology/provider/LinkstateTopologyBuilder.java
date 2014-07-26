@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.ObjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.AttributeType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.link._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.node._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.prefix._case.PrefixAttributes;
@@ -184,13 +185,12 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
             }
 
             // Re-generate termination points
-            this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(),
-                    new Function<TpHolder, TerminationPoint>() {
-                        @Override
-                        public TerminationPoint apply(final TpHolder input) {
-                            return input.getTp();
-                        }
-                    })));
+            this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(), new Function<TpHolder, TerminationPoint>() {
+                @Override
+                public TerminationPoint apply(final TpHolder input) {
+                    return input.getTp();
+                }
+            })));
 
             // Re-generate prefixes
             this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));
@@ -710,8 +710,24 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         pb.setKey(new PrefixKey(ippfx));
         pb.setPrefix(ippfx);
 
-        final PrefixAttributes pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase) attributes.getAugmentation(
-                Attributes1.class).getAttributeType()).getPrefixAttributes();
+        final PrefixAttributes pa;
+
+        // Very defensive lookup
+        final Attributes1 attr = attributes.getAugmentation(Attributes1.class);
+        if (attr != null) {
+            final AttributeType attrType = attr.getAttributeType();
+            if (attrType != null) {
+                pa = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.bgp.rib.rib.loc.rib.tables.routes.linkstate.routes._case.linkstate.routes.linkstate.route.attributes.attribute.type.PrefixCase)
+                        attrType).getPrefixAttributes();
+            } else {
+                LOG.debug("Missing attribute type in IP {} prefix {} route {}, skipping it", ippfx, p, value);
+                pa = null;
+            }
+        } else {
+            LOG.debug("Missing attributes in IP {} prefix {} route {}, skipping it", ippfx, p, value);
+            pa = null;
+        }
+
         if (pa != null) {
             pb.setMetric(pa.getPrefixMetric().getValue());
         }
@@ -763,6 +779,8 @@ public final class LinkstateTopologyBuilder extends AbstractTopologyBuilder<Link
         final UriBuilder base = new UriBuilder(value);
 
         final ObjectType t = value.getObjectType();
+        Preconditions.checkArgument(t != null, "Route %s value %s has null object type", id, value);
+
         if (t instanceof LinkCase) {
             createLink(trans, base, value, (LinkCase) t, value.getAttributes());
         } else if (t instanceof NodeCase) {
