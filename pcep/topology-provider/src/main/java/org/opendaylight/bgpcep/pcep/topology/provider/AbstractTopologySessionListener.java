@@ -99,9 +99,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     };
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
+    @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
+
+    @GuardedBy("this")
     private final Map<String, ReportedLsp> lspData = new HashMap<>();
+
+    @GuardedBy("this")
     private final Map<L, String> lsps = new HashMap<>();
+
     private final ServerSessionManager serverSessionManager;
     private InstanceIdentifier<Node> topologyNode;
     private InstanceIdentifier<Node1> topologyAugment;

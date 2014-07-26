@@ -18,8 +18,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-
-import javax.annotation.concurrent.GuardedBy;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
@@ -74,6 +73,7 @@ import org.slf4j.LoggerFactory;
 
 final class Stateful07TopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+    private final AtomicLong requestId = new AtomicLong(1L);
 
     /**
      * @param serverSessionManager
@@ -81,9 +81,6 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     Stateful07TopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
     }
-
-    @GuardedBy("this")
-    private long requestId = 1;
 
     @Override
     protected void onSessionUp(final PCEPSession session, final PathComputationClientBuilder pccBuilder) {
@@ -106,7 +103,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
     }
 
     @Override
-    protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
+    protected boolean onMessage(final MessageContext ctx, final Message message) {
         if (message instanceof PcerrMessage) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.PcerrMessage errMsg = ((PcerrMessage) message).getPcerrMessage();
             if (errMsg.getErrorType() instanceof StatefulCase) {
@@ -207,9 +204,8 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
         return false;
     }
 
-    @GuardedBy("this")
     private SrpIdNumber nextRequest() {
-        return new SrpIdNumber(this.requestId++);
+        return new SrpIdNumber(this.requestId.getAndIncrement());
     }
 
     @Override
