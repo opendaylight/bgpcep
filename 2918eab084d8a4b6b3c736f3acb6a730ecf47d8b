@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_11e0c494",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSynchronization.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 637
+      },
+      "writtenOn": "2014-07-26T12:03:01Z",
+      "side": 1,
+      "message": "Don\u0027t ignore it. Check BGPParserTest. Empty update message means EOR for Ipv4 unicast.",
+      "revId": "2918eab084d8a4b6b3c736f3acb6a730ecf47d8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
