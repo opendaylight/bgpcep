@@ -12,11 +12,9 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.DataChangeEvent;
 import org.opendaylight.controller.sal.binding.api.data.DataChangeListener;
@@ -139,7 +137,7 @@ public final class NodeChangedListener implements DataChangeListener {
 
                     if (tpt instanceof Ip) {
                         for (final IpAddress a : ((Ip) tpt).getIpAddress()) {
-                            if (addr.equals(a.getIpv6Address())) {
+                            if (addr.equals(a)) {
                                 if (sni != null) {
                                     final NodeKey k = InstanceIdentifier.keyOf(sni);
                                     boolean have = false;
@@ -265,10 +263,10 @@ public final class NodeChangedListener implements DataChangeListener {
             LOG.debug("Searching for orphan links/nodes");
             final Topology t = (Topology) trans.readOperationalData(this.target);
 
-            NodeId srcNode = l.getSource().getSourceNode();
-            NodeId dstNode = l.getDestination().getDestNode();
-            TpId srcTp = l.getSource().getSourceTp();
-            TpId dstTp = l.getDestination().getDestTp();
+            final NodeId srcNode = l.getSource().getSourceNode();
+            final NodeId dstNode = l.getDestination().getDestNode();
+            final TpId srcTp = l.getSource().getSourceTp();
+            final TpId dstTp = l.getDestination().getDestTp();
 
             boolean orphSrcNode = true, orphDstNode = true, orphDstTp = true, orphSrcTp = true;
             for (final Link lw : t.getLink()) {

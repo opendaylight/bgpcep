@@ -12,16 +12,12 @@ import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
 import io.netty.channel.Channel;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPSession;
@@ -284,7 +280,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
 
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         toStringHelper.add("channel", this.channel);
-        toStringHelper.add("state", this.state);
+        toStringHelper.add("state", this.getState());
         return toStringHelper;
     }
 

@@ -10,14 +10,12 @@ package org.opendaylight.protocol.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -62,21 +60,20 @@ public final class PCEPHexDumpParser {
             // next chars are final length, ending with '.'
             final int lengthIdx = idx + LENGTH.length();
             final int messageIdx = content.indexOf('.', lengthIdx);
-
             final int length = Integer.valueOf(content.substring(lengthIdx, messageIdx));
-            final int messageEndIdx = idx + length * 2;
+            final int messageEndIdx = messageIdx + (length * 2) + 1;    // dot
 
             // Assert that message is longer than minimum 4(header.length == 4)
             // If length in PCEP message would be 0, loop would never end
             Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
                     + MINIMAL_LENGTH);
 
-            final String hexMessage = content.substring(idx, messageEndIdx);
+            final String hexMessage = content.substring(messageIdx + 1, messageEndIdx); // dot
             byte[] message = null;
             try {
                 message = Hex.decodeHex(hexMessage.toCharArray());
             } catch (final DecoderException e) {
-                new IllegalArgumentException("Failed to decode message", e);
+                throw new IllegalArgumentException("Failed to decode message", e);
             }
             messages.add(message);
             idx = messageEndIdx;

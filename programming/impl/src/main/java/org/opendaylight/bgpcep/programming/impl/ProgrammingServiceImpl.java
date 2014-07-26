@@ -191,10 +191,10 @@ public final class ProgrammingServiceImpl implements AutoCloseable, InstructionS
             }
 
             // The instruction is in a terminal state, we need to just unlink
-            // it from its dependencies and dependants
+            // it from its dependencies and dependents
             i.clean();
 
-            insns.remove(i);
+            this.insns.remove(id);
             LOG.debug("Instruction {} cleaned successfully", id);
         }
 

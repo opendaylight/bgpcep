@@ -12,16 +12,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.CharStreams;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-
 import javax.annotation.concurrent.Immutable;
-
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.opendaylight.protocol.util.ByteArray;
@@ -87,7 +84,7 @@ public final class HexDumpBGPFileParser {
             try {
                 message = Hex.decodeHex(hexMessage.toCharArray());
             } catch (final DecoderException e) {
-                new IllegalArgumentException("Failed to decode message body", e);
+                throw new IllegalArgumentException("Failed to decode message body", e);
             }
             messages.add(message);
             idx = messageEndIdx;
