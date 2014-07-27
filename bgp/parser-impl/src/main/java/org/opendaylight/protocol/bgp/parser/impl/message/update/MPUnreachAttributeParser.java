@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -26,10 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class MPUnreachAttributeParser implements AttributeParser, AttributeSerializer {
     public static final int TYPE = 15;
-    public static final int MAX_ATTR_LENGTH_FOR_SINGLE_BYTE = 127;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MPUnreachAttributeParser.class);
 
     private final NlriRegistry reg;
 
@@ -49,6 +50,10 @@ public final class MPUnreachAttributeParser implements AttributeParser, Attribut
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final PathAttributes2 pathAttributes2 = pathAttributes.getAugmentation(PathAttributes2.class);
         if (pathAttributes2 == null) {

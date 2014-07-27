@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -18,8 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.destination.destination.type.destination.ipv4._case.DestinationIpv4Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Ipv4NlriParser extends IpNlriParser implements NlriSerializer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv4NlriParser.class);
 
     @Override
     protected DestinationIpv4Case parseNlri(final ByteBuf nlri) {
@@ -29,6 +32,10 @@ public final class Ipv4NlriParser extends IpNlriParser implements NlriSerializer
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof Nlri)) {
+            LOG.warn("Attribute parameter is not a NLRI object.");
+            return;
+        }
         final Nlri nlri = (Nlri) attribute;
         for (final Ipv4Prefix ipv4Prefix : nlri.getNlri()) {
             byteAggregator.writeBytes(Ipv4Util.bytesForPrefix(ipv4Prefix));

@@ -22,11 +22,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Community;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class CommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 8;
-    public static final int ATTR_LENGTH = 4;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommunitiesAttributeParser.class);
 
     private final ReferenceCache refCache;
 
@@ -47,6 +50,10 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final List<Communities> communities = pathAttributes.getCommunities();
         if (communities == null || communities.isEmpty()) {

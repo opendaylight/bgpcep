@@ -417,6 +417,10 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
         final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
@@ -486,7 +490,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             writeTLV(TlvCode.SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
         }
         if (linkAttributes.getLinkName() != null) {
-            writeTLV(TlvCode.LINK_NAME, Unpooled.wrappedBuffer(linkAttributes.getLinkName().getBytes()), byteAggregator);
+            writeTLV(TlvCode.LINK_NAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(linkAttributes.getLinkName())), byteAggregator);
         }
         LOG.trace("Finished serializing Link Attributes");
     }
@@ -519,7 +523,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         }
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
-            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
+            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
         }
         final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null && !isisList.isEmpty()) {

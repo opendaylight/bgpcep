@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -21,11 +20,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdvertizedRoutesSerializer implements NlriSerializer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AdvertizedRoutesSerializer.class);
+
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
         final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
@@ -34,7 +41,7 @@ public class AdvertizedRoutesSerializer implements NlriSerializer {
         if (mpReachNlri == null) {
             return;
         }
-        AdvertizedRoutes routes = mpReachNlri.getAdvertizedRoutes();
+        final AdvertizedRoutes routes = mpReachNlri.getAdvertizedRoutes();
         if (routes.getDestinationType() instanceof DestinationIpv4Case) {
             final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) routes.getDestinationType();
             for (final Ipv4Prefix ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {
