@@ -9,13 +9,10 @@ package org.opendaylight.protocol.bgp.parser.impl.message;
 
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -97,14 +94,14 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
         if (nlri != null && !nlri.isEmpty()) {
             eventBuilder.setNlri(new NlriBuilder().setNlri(nlri).build());
         }
-        Update msg = eventBuilder.build();
+        final Update msg = eventBuilder.build();
         LOG.debug("BGP Update message was parsed {}.", msg);
         return msg;
     }
 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
-        Preconditions.checkArgument(message != null, "BGPUpdate message cannot be null");
+        Preconditions.checkArgument(message != null && message instanceof Update, "BGPUpdate message cannot be null");
         LOG.trace("Started serializing update message: {}", message);
         final Update update = (Update) message;
 

@@ -8,13 +8,10 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import java.util.Arrays;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.MessageParser;
@@ -46,11 +43,11 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg != null, "BGP Notification message cannot be null");
+        Preconditions.checkArgument(msg != null && msg instanceof Notify, "BGP Notification message cannot be null");
         final Notify ntf = (Notify) msg;
         LOG.trace("Started serializing Notification message: {}", ntf);
 
-        byte[] data = ntf.getData();
+        final byte[] data = ntf.getData();
         final ByteBuf msgBody = Unpooled.buffer();
         msgBody.writeByte(ntf.getErrorCode());
         msgBody.writeByte(ntf.getErrorSubcode());

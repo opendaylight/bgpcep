@@ -69,7 +69,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
         LOG.info("Session with peer {} went up with tables: {}", this.name, session.getAdvertisedTableTypes());
 
         this.session = session;
-        this.comparator = new BGPObjectComparator(this.rib.getLocalAs(), rib.getBgpIdentifier(), session.getBgpId());
+        this.comparator = new BGPObjectComparator(this.rib.getLocalAs(), this.rib.getBgpIdentifier(), session.getBgpId());
 
         for (final BgpTableType t : session.getAdvertisedTableTypes()) {
             final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
@@ -119,12 +119,12 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     }
 
     @Override
-    public Comparator<PathAttributes> getComparator() {
+    public synchronized Comparator<PathAttributes> getComparator() {
         return this.comparator;
     }
 
     protected RIB getRib() {
-        return rib;
+        return this.rib;
     }
 
     @Override

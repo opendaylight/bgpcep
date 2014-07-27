@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.linkstate;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -301,7 +302,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
                 final BitSet flags = BitSet.valueOf(ByteArray.readAllBytes(value));
                 builder.setNodeFlags(new NodeFlagBits(flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT)));
                 LOG.debug("Parsed Overload bit: {}, attached bit: {}, external bit: {}, area border router: {}.",
-                        flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
+                    flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
                 break;
             case TlvCode.NODE_OPAQUE:
                 LOG.debug("Ignoring opaque value: {}.", ByteBufUtil.hexDump(value));
@@ -417,6 +418,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
@@ -486,7 +488,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
             writeTLV(TlvCode.SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
         }
         if (linkAttributes.getLinkName() != null) {
-            writeTLV(TlvCode.LINK_NAME, Unpooled.wrappedBuffer(linkAttributes.getLinkName().getBytes()), byteAggregator);
+            writeTLV(TlvCode.LINK_NAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(linkAttributes.getLinkName())), byteAggregator);
         }
         LOG.trace("Finished serializing Link Attributes");
     }
@@ -519,7 +521,7 @@ public class LinkstateAttributeParser implements AttributeParser, AttributeSeria
         }
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
-            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(nodeAttributes.getDynamicHostname().getBytes()), byteAggregator);
+            writeTLV(TlvCode.DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(Charsets.UTF_8.encode(nodeAttributes.getDynamicHostname())), byteAggregator);
         }
         final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null && !isisList.isEmpty()) {
