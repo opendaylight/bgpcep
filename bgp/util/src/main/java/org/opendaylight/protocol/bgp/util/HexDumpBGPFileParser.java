@@ -77,7 +77,7 @@ public final class HexDumpBGPFileParser {
             // Assert that message is longer than minimum 19(header.length == 19)
             // If length in BGP message would be 0, loop would never end
             Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index " + idx + ", length atribute is lower than "
-                    + MINIMAL_LENGTH);
+                + MINIMAL_LENGTH);
 
             final String hexMessage = content.substring(idx, messageEndIdx);
             byte[] message = null;

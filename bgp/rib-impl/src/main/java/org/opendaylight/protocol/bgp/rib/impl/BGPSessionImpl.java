@@ -156,7 +156,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
      * @param msg incoming message
      */
     @Override
-    public void handleMessage(final Notification msg) {
+    public synchronized void handleMessage(final Notification msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
 
@@ -166,10 +166,10 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         } else if (msg instanceof Notify) {
             // Notifications are handled internally
             LOG.info("Session closed because Notification message received: {} / {}", ((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode());
+                ((Notify) msg).getErrorSubcode());
             this.closeWithoutMessage();
             this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(((Notify) msg).getErrorCode(),
-                    ((Notify) msg).getErrorSubcode())));
+                ((Notify) msg).getErrorSubcode())));
         } else if (msg instanceof Keepalive) {
             // Keepalives are handled internally
             LOG.trace("Received KeepAlive messsage.");
@@ -191,7 +191,7 @@ public class BGPSessionImpl extends AbstractProtocolSession<Notification> implem
         }
     }
 
-    void sendMessage(final Notification msg) {
+    synchronized void sendMessage(final Notification msg) {
         try {
             this.channel.writeAndFlush(msg);
             this.lastMessageSentAt = System.nanoTime();

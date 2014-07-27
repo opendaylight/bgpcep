@@ -54,30 +54,30 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     @Override
     public synchronized void addPeer(final IpAddress ip, final ReusableBGPPeer peer, final BGPSessionPreferences preferences) {
         Preconditions.checkNotNull(ip);
-        Preconditions.checkArgument(!peers.containsKey(ip), "Peer for %s already present", ip);
-        peers.put(ip, Preconditions.checkNotNull(peer));
-        peerPreferences.put(ip, Preconditions.checkNotNull(preferences));
+        Preconditions.checkArgument(!this.peers.containsKey(ip), "Peer for %s already present", ip);
+        this.peers.put(ip, Preconditions.checkNotNull(peer));
+        this.peerPreferences.put(ip, Preconditions.checkNotNull(preferences));
     }
 
     @Override
     public synchronized void removePeer(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
-        peers.remove(ip);
+        this.peers.remove(ip);
     }
 
     @Override
     public boolean isPeerConfigured(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
-        return peers.containsKey(ip);
+        return this.peers.containsKey(ip);
     }
 
     private void checkPeerConfigured(final IpAddress ip) {
-        Preconditions.checkState(isPeerConfigured(ip), "BGP peer with ip: %s not configured, configured peers are: %s", ip, peers.keySet());
+        Preconditions.checkState(isPeerConfigured(ip), "BGP peer with ip: %s not configured, configured peers are: %s", ip, this.peers.keySet());
     }
 
     @Override
     public synchronized BGPSessionListener getPeer(final IpAddress ip,
-            final Ipv4Address sourceId, final Ipv4Address remoteId)
+        final Ipv4Address sourceId, final Ipv4Address remoteId)
             throws BGPDocumentedException {
         Preconditions.checkNotNull(ip);
         Preconditions.checkNotNull(sourceId);
@@ -87,53 +87,53 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
         final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId);
 
-        if (sessionIds.containsKey(ip)) {
+        if (this.sessionIds.containsKey(ip)) {
             LOG.warn("Duplicate BGP session established with {}", ip);
 
-            final BGPSessionId previousConnection = sessionIds.get(ip);
+            final BGPSessionId previousConnection = this.sessionIds.get(ip);
 
             // Session reestablished with different ids
             if (!previousConnection.equals(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip, currentConnection, previousConnection);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
-                                ip, currentConnection, previousConnection),
+                    String.format("BGP session with %s %s has to be dropped. Same session already present %s",
+                        ip, currentConnection, previousConnection),
                         BGPError.CEASE);
 
-            // Session reestablished with lower source bgp id, dropping current
+                // Session reestablished with lower source bgp id, dropping current
             } else if (previousConnection.isHigherDirection(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present", ip, currentConnection);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
-                                ip, currentConnection),
+                    String.format("BGP session with %s initiated %s has to be dropped. Opposite session already present",
+                        ip, currentConnection),
                         BGPError.CEASE);
 
-            // Session reestablished with higher source bgp id, dropping previous
+                // Session reestablished with higher source bgp id, dropping previous
             } else if (currentConnection.isHigherDirection(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
-                peers.get(ip).releaseConnection();
-                return peers.get(ip);
+                this.peers.get(ip).releaseConnection();
+                return this.peers.get(ip);
 
-            // Session reestablished with same source bgp id, dropping current as duplicate
+                // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
                 LOG.warn("BGP session with %s initiated from %s to %s has to be dropped. Same session already present", ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
-                                ip, currentConnection),
+                    String.format("BGP session with %s initiated %s has to be dropped. Same session already present",
+                        ip, currentConnection),
                         BGPError.CEASE);
             }
         }
 
         // Map session id to peer IP address
-        sessionIds.put(ip, currentConnection);
-        return peers.get(ip);
+        this.sessionIds.put(ip, currentConnection);
+        return this.peers.get(ip);
     }
 
     @Override
     public BGPSessionPreferences getPeerPreferences(final IpAddress ip) {
         Preconditions.checkNotNull(ip);
         checkPeerConfigured(ip);
-        return peerPreferences.get(ip);
+        return this.peerPreferences.get(ip);
     }
 
     /**
@@ -158,15 +158,15 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
     @Override
     public synchronized void close() {
-        peers.clear();
-        sessionIds.clear();
+        this.peers.clear();
+        this.sessionIds.clear();
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("peers", peers.keySet())
-                .toString();
+            .add("peers", this.peers.keySet())
+            .toString();
     }
 
     /**
@@ -194,10 +194,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
 
             final BGPSessionId bGPSessionId = (BGPSessionId) o;
 
-            if (!from.equals(bGPSessionId.from) && !from.equals(bGPSessionId.to)) {
+            if (!this.from.equals(bGPSessionId.from) && !this.from.equals(bGPSessionId.to)) {
                 return false;
             }
-            if (!to.equals(bGPSessionId.to) && !to.equals(bGPSessionId.from)) {
+            if (!this.to.equals(bGPSessionId.to) && !this.to.equals(bGPSessionId.from)) {
                 return false;
             }
 
@@ -207,7 +207,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = from.hashCode() + to.hashCode();
+            int result = this.from.hashCode() + this.to.hashCode();
             result = prime * result;
             return result;
         }
@@ -217,11 +217,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          */
         boolean isHigherDirection(final BGPSessionId other) {
             Preconditions.checkState(!this.isSameDirection(other), "Equal sessions with same direction");
-            return toLong(from) > toLong(other.from);
+            return toLong(this.from) > toLong(other.from);
         }
 
         private long toLong(final Ipv4Address from) {
-            return Long.valueOf(from.getValue().replaceAll("[^0-9]", ""));
+            return Long.parseLong(from.getValue().replaceAll("[^0-9]", ""));
         }
 
         /**
@@ -229,15 +229,15 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
          */
         boolean isSameDirection(final BGPSessionId other) {
             Preconditions.checkState(this.equals(other), "Only equal sessions can be compared");
-            return from.equals(other.from);
+            return this.from.equals(other.from);
         }
 
         @Override
         public String toString() {
             return Objects.toStringHelper(this)
-                    .add("from", from)
-                    .add("to", to)
-                    .toString();
+                .add("from", this.from)
+                .add("to", this.to)
+                .toString();
         }
     }
 }

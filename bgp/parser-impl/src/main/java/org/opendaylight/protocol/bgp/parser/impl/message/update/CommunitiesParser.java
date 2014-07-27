@@ -36,31 +36,29 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public final class CommunitiesParser {
 
-    protected static final int EXTENDED_COMMUNITY_LENGTH = 8;
-
-    protected static final int COMMUNITY_LENGTH = 4;
+    public static final int COMMUNITY_LENGTH = 4;
 
     private static final int AS_LOCAL_ADMIN_LENGTH = 4;
 
     private static final int INET_LOCAL_ADMIN_LENGTH = 2;
 
-    protected static final short AS_TYPE_TRANS = 0;
+    private static final short AS_TYPE_TRANS = 0;
 
-    protected static final short AS_TYPE_NON_TRANS = 40;
+    private static final short AS_TYPE_NON_TRANS = 40;
 
-    protected static final short INET_TYPE_TRANS = 1;
+    private static final short INET_TYPE_TRANS = 1;
 
-    protected static final short INET_TYPE_NON_TRANS = 41;
+    private static final short INET_TYPE_NON_TRANS = 41;
 
-    protected static final short OPAQUE_TYPE_TRANS = 3;
+    private static final short OPAQUE_TYPE_TRANS = 3;
 
-    protected static final short OPAQUE_TYPE_NON_TRANS = 43;
+    private static final short OPAQUE_TYPE_NON_TRANS = 43;
 
-    protected static final short ROUTE_TYPE_ONLY = 2;
+    private static final short ROUTE_TYPE_ONLY = 2;
 
-    protected static final short ROUTE_TARGET_SUBTYPE = 2;
+    private static final short ROUTE_TARGET_SUBTYPE = 2;
 
-    protected static final short ROUTE_ORIGIN_SUBTYPE = 3;
+    private static final short ROUTE_ORIGIN_SUBTYPE = 3;
 
     private static final byte[] NO_EXPORT = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01 };
 
@@ -85,7 +83,7 @@ public final class CommunitiesParser {
         if (buffer.readableBytes() != COMMUNITY_LENGTH) {
             throw new BGPDocumentedException("Community with wrong length: " + buffer.readableBytes(), BGPError.OPT_ATTR_ERROR);
         }
-        byte[] body = ByteArray.getBytes(buffer, COMMUNITY_LENGTH);
+        final byte[] body = ByteArray.getBytes(buffer, COMMUNITY_LENGTH);
         if (Arrays.equals(body, NO_EXPORT)) {
             return CommunityUtil.NO_EXPORT;
         } else if (Arrays.equals(body, NO_ADVERTISE)) {

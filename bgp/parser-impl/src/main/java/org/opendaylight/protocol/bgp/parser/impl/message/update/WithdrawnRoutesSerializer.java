@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -21,20 +20,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WithdrawnRoutesSerializer implements NlriSerializer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(WithdrawnRoutesSerializer.class);
+
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes2 pathAttributes2 = ((PathAttributes) attribute).getAugmentation(PathAttributes2.class);
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
+        final PathAttributes2 pathAttributes2 = ((PathAttributes) attribute).getAugmentation(PathAttributes2.class);
         if (pathAttributes2 == null) {
             return;
         }
-        MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
+        final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
         if (mpUnreachNlri == null) {
             return;
         }
-        WithdrawnRoutes routes = mpUnreachNlri.getWithdrawnRoutes();
+        final WithdrawnRoutes routes = mpUnreachNlri.getWithdrawnRoutes();
         if (routes != null) {
             if (routes.getDestinationType() instanceof DestinationIpv4Case) {
                 final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case)routes.getDestinationType();

@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -23,15 +21,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class OriginAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 1;
-    public static final int ATTR_LENGTH = 1;
+
+    private static final Logger LOG = LoggerFactory.getLogger(OriginAttributeParser.class);
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
-        byte rawOrigin = buffer.readByte();
+        final byte rawOrigin = buffer.readByte();
         final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
         if (borigin == null) {
             throw new BGPDocumentedException("Unknown Origin type.", BGPError.ORIGIN_ATTR_NOT_VALID, new byte[] { (byte) 0x01, (byte) 0x01, rawOrigin} );
@@ -41,6 +42,10 @@ public final class OriginAttributeParser implements AttributeParser, AttributeSe
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        if (!(attribute instanceof PathAttributes)) {
+            LOG.warn("Attribute parameter is not a PathAttribute object.");
+            return;
+        }
         final Origin origin = ((PathAttributes) attribute).getOrigin();
         if (origin == null) {
             return;

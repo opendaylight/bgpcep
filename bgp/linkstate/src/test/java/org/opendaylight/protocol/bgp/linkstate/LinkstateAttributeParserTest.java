@@ -97,7 +97,7 @@ public class LinkstateAttributeParserTest {
 
         assertEquals("42.42.42.42", ls.getLocalIpv4RouterId().getValue());
         assertEquals("43.43.43.43", ls.getRemoteIpv4RouterId().getValue());
-        assertEquals(new Long(0), ls.getAdminGroup().getValue());
+        assertEquals(Long.valueOf(0), ls.getAdminGroup().getValue());
         assertArrayEquals(new byte[] { (byte) 0x49, (byte) 0x98, (byte) 0x96, (byte) 0x80 }, ls.getMaxLinkBandwidth().getValue());
         assertArrayEquals(new byte[] { (byte) 0x46, (byte) 0x43, (byte) 0x50, (byte) 0x00 }, ls.getMaxReservableBandwidth().getValue());
         assertNotNull(ls.getUnreservedBandwidth());
