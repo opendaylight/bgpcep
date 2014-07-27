@@ -12,16 +12,13 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
@@ -90,7 +87,7 @@ public final class Ipv4Util {
      * @return
      */
     public static int getPrefixLengthBytes(final String prefix) {
-        int bits = Ipv4Util.getPrefixLength(prefix);
+        final int bits = Ipv4Util.getPrefixLength(prefix);
         if (bits % 8 != 0) {
             return (bits / 8) + 1;
         }
@@ -103,9 +100,9 @@ public final class Ipv4Util {
      * @param ipv4Prefix Ipv4Prefix to be converted
      * @return byte array
      */
-    public static byte[] bytesForPrefixByPrefixLength(Ipv4Prefix ipv4Prefix) {
+    public static byte[] bytesForPrefixByPrefixLength(final Ipv4Prefix ipv4Prefix) {
         return ByteArray.subByte(bytesForPrefix(ipv4Prefix), 0,
-                getPrefixLengthBytes(ipv4Prefix.getValue()));
+            getPrefixLengthBytes(ipv4Prefix.getValue()));
     }
 
     /**
@@ -200,6 +197,6 @@ public final class Ipv4Util {
      */
     public static int getPrefixLength(final String prefixValue) {
         final int sep = prefixValue.indexOf('/');
-        return Integer.valueOf(prefixValue.substring(sep + 1, prefixValue.length()));
+        return Integer.parseInt(prefixValue.substring(sep + 1, prefixValue.length()));
     }
 }
