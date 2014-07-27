@@ -15,21 +15,20 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-
 import org.junit.Test;
 
 public class PCEPHexDumpParserTest {
 
     public static final String hexDumpFileName = "pcep-hex.txt";
-    private final int expectedSize = 6;
+    private static final int expectedSize = 6;
 
     @Test
     public void testParsing() throws Exception {
         final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
-                PCEPHexDumpParserTest.hexDumpFileName));
+            PCEPHexDumpParserTest.hexDumpFileName));
         assertEquals(this.expectedSize, result.size());
         final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(
-                PCEPHexDumpParserTest.hexDumpFileName).toURI()));
+            PCEPHexDumpParserTest.hexDumpFileName).toURI()));
         assertEquals(this.expectedSize, result1.size());
     }
 
