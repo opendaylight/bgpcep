@@ -37,7 +37,7 @@ public final class ByteArray {
      */
     public static byte[] readBytes(final ByteBuf buffer, final int length) {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
-                "Buffer cannot be read for %s bytes.", length);
+            "Buffer cannot be read for %s bytes.", length);
         final byte[] result = new byte[length];
         buffer.readBytes(result);
         return result;
@@ -64,7 +64,7 @@ public final class ByteArray {
      */
     public static byte[] getBytes(final ByteBuf buffer, final int length) {
         Preconditions.checkArgument(buffer != null && buffer.readableBytes() >= length,
-                "Buffer cannot be read for %s bytes.", length);
+            "Buffer cannot be read for %s bytes.", length);
         final byte[] result = new byte[length];
         buffer.getBytes(buffer.readerIndex(), result);
         return result;
@@ -92,7 +92,7 @@ public final class ByteArray {
      */
     public static byte[] subByte(final byte[] bytes, final int startIndex, final int length) {
         if (bytes.length == 0 || length < 0 || length > bytes.length || startIndex < 0 || startIndex > bytes.length
-                || startIndex + length > bytes.length) {
+            || startIndex + length > bytes.length) {
             throw new IllegalArgumentException("Cannot create subByte, invalid arguments: Length: " + length + " startIndex: " + startIndex);
         }
         final byte[] res = new byte[length];
@@ -247,15 +247,13 @@ public final class ByteArray {
 
         final FileInputStream fin = new FileInputStream(file);
         final byte[] byteArray = new byte[(int) file.length()];
-
-        while (offset < byteArray.length && (numRead = fin.read(byteArray, offset, byteArray.length - offset)) >= 0) {
-            offset += numRead;
-        }
-
-        if (fin != null) {
+        try {
+            while (offset < byteArray.length && (numRead = fin.read(byteArray, offset, byteArray.length - offset)) >= 0) {
+                offset += numRead;
+            }
+        } finally {
             fin.close();
         }
-
         return byteArray;
     }
 
@@ -316,7 +314,7 @@ public final class ByteArray {
      * @return copied value aligned to right
      */
     public static byte copyBitsRange(final byte src, final int fromBit, final int length) {
-        if (fromBit < 0 | fromBit > Byte.SIZE - 1 | length < 1 | length > Byte.SIZE) {
+        if (fromBit < 0 || fromBit > Byte.SIZE - 1 || length < 1 || length > Byte.SIZE) {
             throw new IllegalArgumentException("fromBit or toBit is out of range.");
         }
         if (fromBit + length > Byte.SIZE) {
@@ -434,7 +432,7 @@ public final class ByteArray {
      * @return Hexadecimal string representation of given byte array
      */
     public static String bytesToHexString(final byte[] array, final int bytesOnLine, final String byteSeparator, final int wordCount,
-            final String wordSeparator) {
+        final String wordSeparator) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             sb.append(Hex.encodeHexString(new byte[] { array[i] }));

@@ -23,21 +23,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
  */
 public final class ByteBufWriteUtil {
 
-    protected static final int SHORT_BYTES_LENGTH = Short.SIZE / Byte.SIZE;
+    public static final int SHORT_BYTES_LENGTH = Short.SIZE / Byte.SIZE;
 
-    protected static final int MEDIUM_BYTES_LENGTH = 3;
+    public static final int MEDIUM_BYTES_LENGTH = 3;
 
-    protected static final int INT_BYTES_LENGTH = Integer.SIZE / Byte.SIZE;
+    public static final int INT_BYTES_LENGTH = Integer.SIZE / Byte.SIZE;
 
-    protected static final int LONG_BYTES_LENGTH = Long.SIZE / Byte.SIZE;
+    public static final int LONG_BYTES_LENGTH = Long.SIZE / Byte.SIZE;
 
-    protected static final int FLOAT32_BYTES_LENGTH = INT_BYTES_LENGTH;
+    public static final int FLOAT32_BYTES_LENGTH = INT_BYTES_LENGTH;
 
-    protected static final int ONE_BYTE_LENGTH = 1;
+    public static final int ONE_BYTE_LENGTH = 1;
 
-    protected static final int IPV4_PREFIX_BYTE_LENGTH = Ipv4Util.IP4_LENGTH + 1;
+    public static final int IPV4_PREFIX_BYTE_LENGTH = Ipv4Util.IP4_LENGTH + 1;
 
-    protected static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
+    public static final int IPV6_PREFIX_BYTE_LENGTH = Ipv6Util.IPV6_LENGTH + 1;
 
     private ByteBufWriteUtil() {
     }
