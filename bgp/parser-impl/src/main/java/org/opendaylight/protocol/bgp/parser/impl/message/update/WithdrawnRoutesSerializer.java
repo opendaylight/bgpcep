@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -25,16 +25,17 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public class WithdrawnRoutesSerializer implements NlriSerializer {
 
     @Override
-    public void serializeAttribute(DataObject attribute, ByteBuf byteAggregator) {
-        PathAttributes2 pathAttributes2 = ((PathAttributes) attribute).getAugmentation(PathAttributes2.class);
+    public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
+        final PathAttributes2 pathAttributes2 = ((PathAttributes) attribute).getAugmentation(PathAttributes2.class);
         if (pathAttributes2 == null) {
             return;
         }
-        MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
+        final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
         if (mpUnreachNlri == null) {
             return;
         }
-        WithdrawnRoutes routes = mpUnreachNlri.getWithdrawnRoutes();
+        final WithdrawnRoutes routes = mpUnreachNlri.getWithdrawnRoutes();
         if (routes != null) {
             if (routes.getDestinationType() instanceof DestinationIpv4Case) {
                 final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case)routes.getDestinationType();

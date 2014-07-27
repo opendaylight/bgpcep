@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
 import com.google.common.primitives.UnsignedInteger;
@@ -96,7 +97,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private static final int TYPE_LENGTH = 2;
     private static final int LENGTH_SIZE = 2;
 
-    protected static final int TOPOLOGY_ID_OFFSET = 0x3fff;
+    static final int TOPOLOGY_ID_OFFSET = 0x3fff;
 
     private final boolean isVpn;
 
@@ -319,7 +320,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             final int restLength = length - (this.isVpn ? ROUTE_DISTINGUISHER_LENGTH : 0) - PROTOCOL_ID_LENGTH - IDENTIFIER_LENGTH
                 - TYPE_LENGTH - LENGTH_SIZE - locallength;
             LOG.trace("Restlength {}", restLength);
-            ByteBuf rest = nlri.slice(nlri.readerIndex(), restLength);
+            final ByteBuf rest = nlri.slice(nlri.readerIndex(), restLength);
             switch (type) {
             case Link:
                 parseLink(builder, rest);
@@ -487,6 +488,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
         final PathAttributes2 pathAttributes2 = pathAttributes.getAugmentation(PathAttributes2.class);
@@ -504,10 +506,10 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                 }
             }
         } else if (pathAttributes2 != null) {
-            MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
+            final MpUnreachNlri mpUnreachNlri = pathAttributes2.getMpUnreachNlri();
             if (mpUnreachNlri.getWithdrawnRoutes() != null && mpUnreachNlri.getWithdrawnRoutes().getDestinationType() instanceof DestinationLinkstateCase) {
-                DestinationLinkstateCase linkstateCase = (DestinationLinkstateCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
-                for (CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+                final DestinationLinkstateCase linkstateCase = (DestinationLinkstateCase) mpUnreachNlri.getWithdrawnRoutes().getDestinationType();
+                for (final CLinkstateDestination cLinkstateDestination : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
                     serializeNlri(cLinkstateDestination, byteAggregator);
                 }
             }

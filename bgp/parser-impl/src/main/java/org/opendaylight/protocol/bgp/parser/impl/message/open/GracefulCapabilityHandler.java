@@ -64,7 +64,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
     }
 
     @Override
-    public void serializeCapability(final CParameters capability, ByteBuf byteAggregator) {
+    public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(capability instanceof GracefulRestartCase);
         final GracefulRestartCapability grace = ((GracefulRestartCase) capability).getGracefulRestartCapability();
         final List<Tables> tables = grace.getTables();
 

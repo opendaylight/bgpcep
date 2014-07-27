@@ -8,15 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.impl.message;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -69,7 +66,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      */
     @Override
     public void serializeMessage(final Notification msg, final ByteBuf bytes) {
-        Preconditions.checkArgument(msg != null, "BGP Open message cannot be null");
+        Preconditions.checkArgument(msg != null && msg instanceof Open, "BGP Open message cannot be null");
         LOG.trace("Started serializing open message: {}", msg);
         final Open open = (Open) msg;
         final ByteBuf msgBody = Unpooled.buffer();
@@ -113,7 +110,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         if (body.readableBytes() < MIN_MSG_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Open message too small.", messageLength);
         }
-        int version = body.readUnsignedByte();
+        final int version = body.readUnsignedByte();
         if (version != BGP_VERSION) {
             throw new BGPDocumentedException("BGP Protocol version " + version + " not supported.", BGPError.VERSION_NOT_SUPPORTED);
         }

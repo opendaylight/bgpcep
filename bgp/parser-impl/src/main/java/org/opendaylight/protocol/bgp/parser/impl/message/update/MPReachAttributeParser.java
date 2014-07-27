@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -31,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class MPReachAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 14;
-    public static final int ATTR_LENGTH = 2;
+
     private final NlriRegistry reg;
 
     public MPReachAttributeParser(final NlriRegistry reg) {
@@ -50,6 +48,7 @@ public final class MPReachAttributeParser implements AttributeParser, AttributeS
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final PathAttributes1 pathAttributes1 = pathAttributes.getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {

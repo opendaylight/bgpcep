@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
@@ -34,6 +32,7 @@ public final class OriginatorIdAttributeParser implements AttributeParser,Attrib
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final OriginatorId originator = ((PathAttributes) attribute).getOriginatorId();
         if (originator == null) {
             return;

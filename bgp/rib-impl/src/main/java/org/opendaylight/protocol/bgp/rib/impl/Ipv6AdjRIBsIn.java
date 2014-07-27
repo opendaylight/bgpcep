@@ -44,7 +44,7 @@ final class Ipv6AdjRIBsIn extends AbstractAdjRIBsIn<Ipv6Prefix, Ipv6Route> {
                 return new Ipv6RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
             }
         };
-
+        Preconditions.checkArgument(nlri.getAdvertizedRoutes().getDestinationType() instanceof DestinationIpv6);
         for (final Ipv6Prefix id : ((DestinationIpv6) nlri.getAdvertizedRoutes().getDestinationType()).getIpv6Prefixes()) {
             super.add(trans, peer, id, data);
         }

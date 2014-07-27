@@ -15,14 +15,13 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
-
 import org.junit.Test;
 
 public class BGPHexFileParserTest {
 
     public static final String hexDumpFileName = "bgp_hex.txt";
-    private final String fileNameInvalid = "BgpMessage_Hex_InvalidLength.bin";
-    private final int expectedSize = 25;
+    private static final String fileNameInvalid = "BgpMessage_Hex_InvalidLength.bin";
+    private static final int expectedSize = 25;
 
     @Test
     public void testCleanWhiteSpace() {
@@ -33,14 +32,14 @@ public class BGPHexFileParserTest {
     @Test
     public void testParsing() throws Exception {
         final List<byte[]> result = HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
-                BGPHexFileParserTest.hexDumpFileName));
-        assertEquals(this.expectedSize, result.size());
+            BGPHexFileParserTest.hexDumpFileName));
+        assertEquals(expectedSize, result.size());
     }
 
     @Test
     public void testParsingInvalidMessage() throws Exception {
         try {
-            HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(this.fileNameInvalid));
+            HexDumpBGPFileParser.parseMessages(getClass().getClassLoader().getResourceAsStream(fileNameInvalid));
             fail("Exception should have occured.");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString("Invalid message at index 0, length atribute is lower than 19"));
