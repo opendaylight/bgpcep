@@ -18,7 +18,6 @@ import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.PcinitiateMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -48,9 +47,9 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof PcinitiateMessage, "Wrong instance of Message. Passed instance of %s. Need PcinitiateMessage.", message.getClass());
+        Preconditions.checkArgument(message instanceof Pcinitiate, "Wrong instance of Message. Passed instance of %s. Need PcinitiateMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
             serializeRequest(req, buffer);
         }
@@ -89,13 +88,8 @@ public class CInitiated00PCInitiateMessageParser extends AbstractMessageParser {
         }
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = Lists.newArrayList();
-        Requests req = null;
         while (!objects.isEmpty()) {
-            req = this.getValidRequest(objects);
-            if (req == null) {
-                break;
-            }
-            reqs.add(req);
+            reqs.add(this.getValidRequest(objects));
         }
         builder.setRequests(reqs);
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();

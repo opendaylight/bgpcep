@@ -9,12 +9,9 @@ package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -48,7 +45,7 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
     public void serializeMessage(final Message message, final ByteBuf out) {
         Preconditions.checkArgument(message instanceof Pcinitiate, "Wrong instance of Message. Passed instance of %s. Need Pcinitiate.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.pcinitiate.message.PcinitiateMessage init = ((Pcinitiate) message).getPcinitiateMessage();
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : init.getRequests()) {
             serializeObject(req.getEndpointsObj(), buffer);
             serializeObject(req.getLspa(), buffer);
@@ -74,13 +71,8 @@ public class PcinitiateMessageParser extends AbstractMessageParser {
         }
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = Lists.newArrayList();
-        Requests req = null;
         while (!objects.isEmpty()) {
-            req = this.getValidRequest(objects);
-            if (req == null) {
-                break;
-            }
-            reqs.add(req);
+            reqs.add(this.getValidRequest(objects));
         }
         builder.setRequests(reqs);
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();

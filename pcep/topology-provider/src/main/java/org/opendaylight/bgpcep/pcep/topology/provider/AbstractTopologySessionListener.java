@@ -12,9 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.concurrent.GuardedBy;
-
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -78,11 +74,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
 
         void resolveRequest(final PCEPRequest req) {
-            requests.add(req);
+            this.requests.add(req);
         }
 
         private void notifyRequests() {
-            for (PCEPRequest r : requests) {
+            for (final PCEPRequest r : this.requests) {
                 r.done(OperationResults.SUCCESS);
             }
         }
@@ -128,7 +124,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // FIXME: Futures.transform...
         try {
-            Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
+            final Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
             Preconditions.checkState(topoMaybe.isPresent(), "Failed to find topology.");
             final Topology topo = topoMaybe.get();
             for (final Node n : topo.getNode()) {
@@ -186,7 +182,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         final Node1 ta = new Node1Builder().setPathComputationClient(pccBuilder.build()).build();
 
         this.topologyAugment = this.topologyNode.augmentation(Node1.class);
-        this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
+        this.pccIdentifier = this.topologyAugment.child(PathComputationClient.class);
 
         trans.put(LogicalDatastoreType.OPERATIONAL, this.topologyAugment, ta);
         LOG.trace("Peer data {} set to {}", this.topologyAugment, ta);
@@ -308,7 +304,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-            final Metadata metadata) {
+        final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
@@ -318,7 +314,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
             public void operationComplete(final io.netty.util.concurrent.Future<Void> future) {
                 if (!future.isSuccess()) {
                     synchronized (AbstractTopologySessionListener.this) {
-                        requests.remove(requestId);
+                        AbstractTopologySessionListener.this.requests.remove(requestId);
                     }
                     req.done(OperationResults.UNSENT);
                     LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
@@ -343,7 +339,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
      * @param remove True if this is an LSP path removal
      */
     protected final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
-            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
@@ -361,14 +357,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
-        LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        final LspId reportedLspId = rlb.getPath().get(0).getLspId();
         // check previous report for existing paths
-        ReportedLsp previous = this.lspData.get(name);
+        final ReportedLsp previous = this.lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
-            List<Path> updatedPaths = new ArrayList<>(previous.getPath());
+            final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
-            for (Path path : previous.getPath()) {
+            for (final Path path : previous.getPath()) {
                 //we found reported path in previous reports
                 if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
                     LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
@@ -442,7 +438,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
-        return pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
+        return this.pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
     /**

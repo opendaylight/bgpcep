@@ -56,7 +56,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (err.getErrors() == null || err.getErrors().isEmpty()) {
             throw new IllegalArgumentException("Errors should not be empty.");
         }
-        ByteBuf buffer = Unpooled.buffer();
+        final ByteBuf buffer = Unpooled.buffer();
         if (err.getErrorType() instanceof RequestCase) {
             final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
             for (final Rps r : rps) {
@@ -163,7 +163,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
-        if (requestParameters != null && !requestParameters.isEmpty()) {
+        if (!requestParameters.isEmpty()) {
             b.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
         }
 
