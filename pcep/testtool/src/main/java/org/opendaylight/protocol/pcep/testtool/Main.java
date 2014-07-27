@@ -25,9 +25,9 @@ public final class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     public static final String USAGE = "DESCRIPTION:\n"
-            + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
-            + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
-            + "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
+        + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
+        + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
+        + "\t\tFormat: x.x.x.x:y where y is port number.\n\n" +
 
             "\t-d, --deadtimer\n" + "\t\tin seconds, value of the desired deadtimer\n"
             + "\t\tAccording to RFC5440, recommended value for deadtimer is 4 times the value\n"
@@ -82,7 +82,7 @@ public final class Main {
         while (i < args.length) {
             if (args[i].equalsIgnoreCase("-a") || args[i].equalsIgnoreCase("--address")) {
                 final String[] ip = args[i + 1].split(":");
-                address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.valueOf(ip[1]));
+                address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.parseInt(ip[1]));
                 i++;
             } else if (args[i].equalsIgnoreCase("-d") || args[i].equalsIgnoreCase("--deadtimer")) {
                 deadTimerValue = Integer.valueOf(args[i + 1]);

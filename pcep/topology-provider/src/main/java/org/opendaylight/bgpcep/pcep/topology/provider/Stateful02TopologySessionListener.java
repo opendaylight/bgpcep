@@ -18,7 +18,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.PcinitiateBuilder;
@@ -71,9 +70,6 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
     Stateful02TopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
     }
-
-    @GuardedBy("this")
-    private long requestId = 1;
 
     @Override
     protected void onSessionUp(final PCEPSession session, final PathComputationClientBuilder pccBuilder) {
@@ -159,11 +155,6 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
         return false;
     }
 
-    @GuardedBy("this")
-    private PlspId nextRequest() {
-        return new PlspId(this.requestId++);
-    }
-
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
@@ -185,17 +176,17 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
                 final RequestsBuilder rb = new RequestsBuilder();
                 rb.fieldsFrom(input.getArguments());
                 rb.setLspa(new LspaBuilder().setTlvs(
-                        new TlvsBuilder().addAugmentation(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class,
-                                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder().setSymbolicPathName(
-                                        name.build()).build()).build()).build());
+                    new TlvsBuilder().addAugmentation(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Tlvs2Builder().setSymbolicPathName(
+                            name.build()).build()).build()).build());
 
                 final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                 ib.setRequests(ImmutableList.of(rb.build()));
 
                 // Send the message
                 return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(), input.getName(),
-                        input.getArguments().getMetadata());
+                    input.getArguments().getMetadata());
             }
         });
     }
