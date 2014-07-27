@@ -10,12 +10,9 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -74,13 +71,13 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
 
             if (segmentType == SegmentType.AS_SEQUENCE) {
                 final List<AsSequence> numbers = AsPathSegmentParser.parseAsSequence(refCache, count, buffer.slice(buffer.readerIndex(),
-                        count * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                    count * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(
-                        new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
+                    new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(numbers).build()).build()).build());
                 isSequence = true;
             } else {
                 final List<AsNumber> list = AsPathSegmentParser.parseAsSet(refCache, count, buffer.slice(buffer.readerIndex(), count
-                        * AsPathSegmentParser.AS_NUMBER_LENGTH));
+                    * AsPathSegmentParser.AS_NUMBER_LENGTH));
                 ases.add(new SegmentsBuilder().setCSegment(new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(list).build()).build()).build());
 
             }
@@ -100,19 +97,20 @@ public final class AsPathAttributeParser implements AttributeParser, AttributeSe
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final AsPath asPath = pathAttributes.getAsPath();
         if (asPath == null) {
             return;
         }
         final ByteBuf segmentsBuffer = Unpooled.buffer();
-        if (asPath.getSegments().size()>0) {
-            for (Segments segments : asPath.getSegments()) {
+        if (asPath.getSegments() != null) {
+            for (final Segments segments : asPath.getSegments()) {
                 if (segments.getCSegment() instanceof AListCase) {
-                    AListCase listCase = (AListCase) segments.getCSegment();
+                    final AListCase listCase = (AListCase) segments.getCSegment();
                     AsPathSegmentParser.serializeAsSequence(listCase, segmentsBuffer);
                 } else if (segments.getCSegment() instanceof ASetCase) {
-                    ASetCase set = (ASetCase) segments.getCSegment();
+                    final ASetCase set = (ASetCase) segments.getCSegment();
                     AsPathSegmentParser.serializeAsSet(set, segmentsBuffer);
                 } else {
                     LOG.warn("Segment class is neither AListCase nor ASetCase.");

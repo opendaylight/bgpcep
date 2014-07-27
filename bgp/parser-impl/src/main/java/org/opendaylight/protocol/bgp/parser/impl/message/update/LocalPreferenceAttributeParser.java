@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
@@ -22,7 +22,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class LocalPreferenceAttributeParser implements AttributeParser,AttributeSerializer {
 
     public static final int TYPE = 5;
-    public static final int LOCAL_PREFS_LENGTH = 4;
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) {
@@ -31,6 +30,7 @@ public final class LocalPreferenceAttributeParser implements AttributeParser,Att
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final LocalPref lp = ((PathAttributes) attribute).getLocalPref();
         if (lp == null) {
             return;
