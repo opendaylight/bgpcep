@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 
 public final class TlvUtil {
 
-    protected static final int HEADER_SIZE = 4;
+    public static final int HEADER_SIZE = 4;
 
     public static final int PADDED_TO = 4;
 
