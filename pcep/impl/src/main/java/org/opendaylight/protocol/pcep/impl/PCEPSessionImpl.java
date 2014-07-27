@@ -11,12 +11,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.Future;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -24,7 +22,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-
 import org.opendaylight.protocol.framework.AbstractProtocolSession;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -93,7 +90,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
     private final Keepalive kaMessage = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
-            final Open localOpen, final Open remoteOpen) {
+        final Open localOpen, final Open remoteOpen) {
         this.listener = Preconditions.checkNotNull(listener);
         this.channel = Preconditions.checkNotNull(channel);
         this.localOpen = Preconditions.checkNotNull(localOpen);
@@ -124,7 +121,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         }
 
         LOG.info("Session {}[{}] <-> {}[{}] started", channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(),
-                remoteOpen.getSessionId());
+            remoteOpen.getSessionId());
     }
 
     /**
@@ -226,7 +223,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         LOG.info("Closing PCEP session: {}", this);
         this.closed = true;
         this.sendMessage(new CloseBuilder().setCCloseMessage(
-                new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
+            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
         this.channel.close();
     }
 
@@ -245,7 +242,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
         this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
         this.closed = true;
         this.sendMessage(new CloseBuilder().setCCloseMessage(
-                new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
+            new CCloseMessageBuilder().setCClose(new CCloseBuilder().setReason(reason.getShortValue()).build()).build()).build());
         this.close();
     }
 
@@ -301,7 +298,7 @@ public class PCEPSessionImpl extends AbstractProtocolSession<Message> implements
      * @param msg incoming message
      */
     @Override
-    public void handleMessage(final Message msg) {
+    public synchronized void handleMessage(final Message msg) {
         // Update last reception time
         this.lastMessageReceivedAt = System.nanoTime();
         this.receivedMsgCount++;
