@@ -26,7 +26,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 public final class CommunitiesAttributeParser implements AttributeParser, AttributeSerializer {
 
     public static final int TYPE = 8;
-    public static final int ATTR_LENGTH = 4;
 
     private final ReferenceCache refCache;
 
@@ -39,7 +38,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
         final List<Communities> set = Lists.newArrayList();
         while (buffer.isReadable()) {
             set.add((Communities) CommunitiesParser.parseCommunity(this.refCache, buffer.slice(buffer.readerIndex(),
-                    CommunitiesParser.COMMUNITY_LENGTH)));
+                CommunitiesParser.COMMUNITY_LENGTH)));
             buffer.skipBytes(CommunitiesParser.COMMUNITY_LENGTH);
         }
         builder.setCommunities(set);
@@ -47,6 +46,7 @@ public final class CommunitiesAttributeParser implements AttributeParser, Attrib
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final List<Communities> communities = pathAttributes.getCommunities();
         if (communities == null || communities.isEmpty()) {

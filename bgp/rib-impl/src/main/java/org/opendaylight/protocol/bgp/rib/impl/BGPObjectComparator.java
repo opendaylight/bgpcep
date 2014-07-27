@@ -10,11 +10,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
@@ -56,7 +54,7 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 
         // 2. prefer path with higher LOCAL_PREF
         if ((o1.getLocalPref() != null || o2.getLocalPref() != null)
-                && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
+            && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
             return o1.getLocalPref().getPref().compareTo(o2.getLocalPref().getPref());
         }
 
@@ -88,7 +86,7 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
 
         // 6. prefer the path with the lowest multi-exit discriminator (MED)
         if ((o1.getMultiExitDisc() != null || o2.getMultiExitDisc() != null)
-                && (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
+            && (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
             return o2.getMultiExitDisc().getMed().compareTo(o1.getMultiExitDisc().getMed());
         }
 
@@ -97,7 +95,7 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
         final AsNumber first = getPeerAs(o1.getAsPath().getSegments());
         final AsNumber second = getPeerAs(o2.getAsPath().getSegments());
         if ((first != null || second != null) && (first != null && !first.equals(second))) {
-            if (first == null || first.equals(this.ourAS)) {
+            if (first.equals(this.ourAS)) {
                 return -1;
             }
             if (second == null || second.equals(this.ourAS)) {

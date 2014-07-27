@@ -138,25 +138,26 @@ public class BGPParserTest {
     @BeforeClass
     public static void setUp() throws Exception {
         updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry());
-
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
-            final InputStream is = BGPParserTest.class.getResourceAsStream(name);
-            if (is == null) {
-                throw new IOException("Failed to get resource " + name);
-            }
+            try (final InputStream is = BGPParserTest.class.getResourceAsStream(name)){
+                if (is == null) {
+                    throw new IOException("Failed to get resource " + name);
+                }
+                final ByteArrayOutputStream bis = new ByteArrayOutputStream();
+                final byte[] data = new byte[MAX_SIZE];
+                int nRead = 0;
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    bis.write(data, 0, nRead);
+                }
+                bis.flush();
 
-            final ByteArrayOutputStream bis = new ByteArrayOutputStream();
-            final byte[] data = new byte[MAX_SIZE];
-            int nRead = 0;
-            while ((nRead = is.read(data, 0, data.length)) != -1) {
-                bis.write(data, 0, nRead);
+                inputBytes.add(bis.toByteArray());
+                is.close();
             }
-            bis.flush();
-
-            inputBytes.add(bis.toByteArray());
         }
     }
+
 
     @Test
     public void testResource() {
@@ -221,10 +222,10 @@ public class BGPParserTest {
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65002L)).build());
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setCSegment(
-                new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.2")).build()).build();
 
         final List<Communities> comms = Lists.newArrayList();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
@@ -356,13 +357,13 @@ public class BGPParserTest {
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(65001L)).build());
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setCSegment(
-                new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
 
         final Ipv6NextHopCase nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
         final List<ClusterIdentifier> clusters = Lists.newArrayList(new ClusterIdentifier(new Ipv4Address("1.2.3.4")),
-                new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
+            new ClusterIdentifier(new Ipv4Address("5.6.7.8")));
 
         // check path attributes
 
@@ -390,11 +391,11 @@ public class BGPParserTest {
         mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
         mpBuilder.setCNextHop(nextHop);
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
+            new DestinationIpv6CaseBuilder().setDestinationIpv6(new DestinationIpv6Builder().setIpv6Prefixes(prefs).build()).build()).build());
 
         paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpBuilder.build()).build());
         assertEquals(paBuilder.getAugmentation(PathAttributes1.class).getMpReachNlri(),
-                attrs.getAugmentation(PathAttributes1.class).getMpReachNlri());
+            attrs.getAugmentation(PathAttributes1.class).getMpReachNlri());
 
         // check API message
 
@@ -467,14 +468,14 @@ public class BGPParserTest {
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(30L)).build());
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setCSegment(
-                new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
         asPath.add(new SegmentsBuilder().setCSegment(
-                new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build()).build());
+            new ASetCaseBuilder().setASet(new ASetBuilder().setAsSet(Lists.newArrayList(new AsNumber(10L), new AsNumber(20L))).build()).build()).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber((long) 30)).setNetworkAddress(
-                new Ipv4Address("10.0.0.9")).build();
+            new Ipv4Address("10.0.0.9")).build();
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("10.0.0.9")).build()).build();
 
         // check path attributes
         final PathAttributes attrs = message.getPathAttributes();
@@ -566,13 +567,13 @@ public class BGPParserTest {
 
         // attributes
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("3.3.3.3")).build()).build();
 
         final List<ExtendedCommunities> comms = Lists.newArrayList();
         comms.add(new ExtendedCommunitiesBuilder().setCommType((short) 1).setExtendedCommunity(
-                new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                        new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
-                                new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
+            new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
+                new Inet4SpecificExtendedCommunityBuilder().setTransitive(false).setGlobalAdministrator(
+                    new Ipv4Address("192.168.1.0")).setLocalAdministrator(new byte[] { 0x12, 0x34 }).build()).build()).build());
 
         final List<Segments> asPath = Lists.newArrayList();
 
@@ -629,7 +630,7 @@ public class BGPParserTest {
 
         // check API message
         final Update expectedMessage = new UpdateBuilder().setWithdrawnRoutes(
-                new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build()).build();
+            new WithdrawnRoutesBuilder().setWithdrawnRoutes(prefs).build()).build();
 
         assertEquals(expectedMessage.getWithdrawnRoutes(), message.getWithdrawnRoutes());
 
@@ -884,15 +885,15 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
         final List<Segments> asPath = Lists.newArrayList();
 
         final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-                new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
+            new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
         final RemoteNodeDescriptorsBuilder rndBuilder = new RemoteNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-                new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
+            new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
         clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
@@ -907,30 +908,30 @@ public class BGPParserTest {
 
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                        new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-                new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
         clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
-                new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
+            new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.3"))).build());
         linkstates.add(clBuilder.build());
 
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                        new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-                new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
         clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
-                new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
+            new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
         linkstates.add(clBuilder.build());
 
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
         clBuilder.setRemoteNodeDescriptors(rndBuilder.setCRouterIdentifier(
-                new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                        new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         clBuilder.setLinkDescriptors(new LinkDescriptorsBuilder().setIpv4InterfaceAddress(
-                new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
+            new Ipv4InterfaceIdentifier(new Ipv4Address("11.11.11.1"))).build());
         linkstates.add(clBuilder.build());
 
         lsBuilder.setMpReachNlri(mpBuilder.build());
@@ -958,7 +959,7 @@ public class BGPParserTest {
         dBuilder.setCLinkstateDestination(linkstates);
 
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
+            new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
         paBuilder.addAugmentation(PathAttributes1.class, lsBuilder.build());
@@ -966,15 +967,15 @@ public class BGPParserTest {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder lsAttrBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1Builder();
 
         lsAttrBuilder.setLinkstatePathAttribute(new LinkstatePathAttributeBuilder().setLinkStateAttribute(
-                new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build()).build());
+            new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder().setMetric(new Metric(1L)).build()).build()).build());
         paBuilder.addAugmentation(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class,
-                lsAttrBuilder.build());
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class,
+            lsAttrBuilder.build());
 
         assertEquals(
-                lsAttrBuilder.build().getLinkstatePathAttribute(),
-                attrs.getAugmentation(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class).getLinkstatePathAttribute());
+            lsAttrBuilder.build().getLinkstatePathAttribute(),
+            attrs.getAugmentation(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.PathAttributes1.class).getLinkstatePathAttribute());
 
         final List<CLinkstateDestination> dests = ((DestinationLinkstateCase) mp.getAdvertizedRoutes().getDestinationType()).getDestinationLinkstate().getCLinkstateDestination();
 
@@ -1088,10 +1089,10 @@ public class BGPParserTest {
         // attributes
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
-                new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
+            new Ipv4NextHopBuilder().setGlobal(new Ipv4Address("25.25.25.1")).build()).build();
 
         final LocalNodeDescriptorsBuilder lndBuilder = new LocalNodeDescriptorsBuilder().setAsNumber(new AsNumber((long) 100)).setDomainId(
-                new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
+            new DomainIdentifier(0x19191901L)).setAreaId(new AreaIdentifier(0L));
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
         clBuilder.setIdentifier(new Identifier(BigInteger.ONE));
@@ -1100,16 +1101,16 @@ public class BGPParserTest {
 
         final List<CLinkstateDestination> linkstates = Lists.newArrayList();
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                        new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
+            new OspfPseudonodeCaseBuilder().setOspfPseudonode(
+                new OspfPseudonodeBuilder().setOspfRouterId(0x03030304L).setLanInterface(new OspfInterfaceIdentifier(0x0b0b0b03L)).build()).build()).build());
         linkstates.add(clBuilder.build());
 
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x03030304L).build()).build()).build());
         linkstates.add(clBuilder.build());
 
         clBuilder.setLocalNodeDescriptors(lndBuilder.setCRouterIdentifier(
-                new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
+            new OspfNodeCaseBuilder().setOspfNode(new OspfNodeBuilder().setOspfRouterId(0x01010102L).build()).build()).build());
         linkstates.add(clBuilder.build());
 
         final PathAttributes1Builder lsBuilder = new PathAttributes1Builder();
@@ -1122,7 +1123,7 @@ public class BGPParserTest {
         dBuilder.setCLinkstateDestination(linkstates);
 
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
+            new DestinationLinkstateCaseBuilder().setDestinationLinkstate(dBuilder.build()).build()).build());
         lsBuilder.setMpReachNlri(mpBuilder.build());
 
         final List<Segments> asPath = Lists.newArrayList();

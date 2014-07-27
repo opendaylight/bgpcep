@@ -40,10 +40,10 @@ public final class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private static final String USAGE = "DESCRIPTION:\n"
-            + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
-            + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
-            + "\t\tFormat: x.x.x.x:y where y is port number.\n\n"
-            + "\t\tThis IP address will appear in BGP Open message as BGP Identifier of the server.\n" +
+        + "\tCreates a server with given parameters. As long as it runs, it accepts connections " + "from PCCs.\n" + "USAGE:\n"
+        + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
+        + "\t\tFormat: x.x.x.x:y where y is port number.\n\n"
+        + "\t\tThis IP address will appear in BGP Open message as BGP Identifier of the server.\n" +
 
             "\t-as\n" + "\t\t value of AS in the initial open message\n\n" +
 
@@ -62,7 +62,7 @@ public final class Main {
     private static final int RECONNECT_MILLIS = 5000;
 
     private Main() throws Exception {
-        BGPActivator bgpActivator = new BGPActivator();
+        final BGPActivator bgpActivator = new BGPActivator();
         bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
     }
@@ -81,7 +81,7 @@ public final class Main {
         while (i < args.length) {
             if (args[i].equalsIgnoreCase("-a") || args[i].equalsIgnoreCase("--address")) {
                 final String[] ip = args[i + 1].split(":");
-                address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.valueOf(ip[1]));
+                address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.parseInt(ip[1]));
                 i++;
             } else if (args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("--holdtimer")) {
                 holdTimerValue = Short.valueOf(args[i + 1]);
@@ -114,6 +114,6 @@ public final class Main {
         strictBGPPeerRegistry.addPeer(StrictBGPPeerRegistry.getIpAddress(address), sessionListener, proposal);
 
         m.dispatcher.createClient(addr, as, strictBGPPeerRegistry,
-                new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
+            new NeverReconnectStrategy(GlobalEventExecutor.INSTANCE, RECONNECT_MILLIS));
     }
 }

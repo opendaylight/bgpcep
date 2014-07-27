@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityParser;
@@ -31,7 +31,8 @@ public final class As4CapabilityHandler implements CapabilityParser, CapabilityS
     }
 
     @Override
-    public void serializeCapability(final CParameters capability, ByteBuf bytes) {
+    public void serializeCapability(final CParameters capability, final ByteBuf bytes) {
+        Preconditions.checkArgument(capability instanceof As4BytesCase);
         CapabilityUtil.formatCapability(CODE, putAS4BytesParameterValue((As4BytesCase) capability),bytes);
     }
 

@@ -8,11 +8,9 @@
 package org.opendaylight.protocol.bgp.parser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -31,7 +29,7 @@ public class APITest {
         final BGPDocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
         assertEquals("Some message", de.getMessage());
         assertEquals(BGPError.BAD_BGP_ID, de.getError());
-        assertNull(de.getData());
+        assertEquals(0, de.getData().length);
 
         final BGPDocumentedException doc = BGPDocumentedException.badMessageLength("Wrong length", 5000);
         assertEquals(5000, ByteArray.bytesToInt(doc.getData()));
