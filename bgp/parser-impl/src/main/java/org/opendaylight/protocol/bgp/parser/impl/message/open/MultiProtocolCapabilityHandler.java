@@ -8,10 +8,8 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.open;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
@@ -58,7 +56,8 @@ public final class MultiProtocolCapabilityHandler implements CapabilityParser, C
     }
 
     @Override
-    public void serializeCapability(final CParameters capability, ByteBuf byteAggregator) {
+    public void serializeCapability(final CParameters capability, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(capability instanceof MultiprotocolCase);
         final MultiprotocolCase mp = (MultiprotocolCase) capability;
         final ByteBuf capBuffer = Unpooled.buffer();
         final Class<? extends AddressFamily> afi = mp.getMultiprotocolCapability().getAfi();

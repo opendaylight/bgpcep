@@ -14,14 +14,11 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
-
 import java.net.InetSocketAddress;
-
 import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPServerDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionValidator;
 import org.opendaylight.protocol.framework.AbstractDispatcher;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
@@ -35,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 /**
  * Implementation of BGPDispatcher.
  */
-public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, BGPServerDispatcher, AutoCloseable {
+public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, BGPSessionListener> implements BGPDispatcher, AutoCloseable {
     private final MD5ServerChannelFactory<?> scf;
     private final MD5ChannelFactory<?> cf;
     private final BGPHandlerFactory hf;
@@ -54,7 +51,7 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public synchronized Future<BGPSessionImpl> createClient(final InetSocketAddress address,
-            final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
+        final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategy strategy) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, listener);
         return super.createClient(address, strategy, new PipelineInitializer<BGPSessionImpl>() {
             @Override
@@ -68,10 +65,10 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public Future<Void> createReconnectingClient(final InetSocketAddress address,
-            final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategyFactory connectStrategyFactory,
-            final ReconnectStrategyFactory reestablishStrategyFactory) {
+        final AsNumber remoteAs, final BGPPeerRegistry listener, final ReconnectStrategyFactory connectStrategyFactory,
+        final ReconnectStrategyFactory reestablishStrategyFactory) {
         return this.createReconnectingClient(address, remoteAs, listener, connectStrategyFactory, reestablishStrategyFactory,
-                null);
+            null);
     }
 
     @Override
@@ -80,8 +77,8 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     public synchronized Future<Void> createReconnectingClient(final InetSocketAddress address,
-            final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
-            final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
+        final AsNumber remoteAs, final BGPPeerRegistry peerRegistry, final ReconnectStrategyFactory connectStrategyFactory,
+        final ReconnectStrategyFactory reestablishStrategyFactory, final KeyMapping keys) {
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(remoteAs, peerRegistry);
 
         this.keys = keys;
@@ -123,23 +120,23 @@ public final class BGPDispatcherImpl extends AbstractDispatcher<BGPSessionImpl, 
 
     @Override
     protected void customizeBootstrap(final Bootstrap b) {
-        if (keys != null && !keys.isEmpty()) {
-            if (cf == null) {
+        if (this.keys != null && !this.keys.isEmpty()) {
+            if (this.cf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
-            b.channelFactory(cf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, keys);
+            b.channelFactory(this.cf);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
         }
     }
 
     @Override
     protected void customizeBootstrap(final ServerBootstrap b) {
-        if (keys != null && !keys.isEmpty()) {
-            if (scf == null) {
+        if (this.keys != null && !this.keys.isEmpty()) {
+            if (this.scf == null) {
                 throw new UnsupportedOperationException("No key access instance available, cannot use key mapping");
             }
-            b.channelFactory(scf);
-            b.option(MD5ChannelOption.TCP_MD5SIG, keys);
+            b.channelFactory(this.scf);
+            b.option(MD5ChannelOption.TCP_MD5SIG, this.keys);
         }
     }
 

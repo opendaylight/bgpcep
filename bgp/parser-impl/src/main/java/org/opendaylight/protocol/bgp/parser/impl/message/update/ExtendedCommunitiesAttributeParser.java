@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
@@ -32,6 +32,8 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 
     public static final int TYPE = 16;
 
+    private static final int EXTENDED_COMMUNITY_LENGTH = 8;
+
     private final ReferenceCache refCache;
 
     public ExtendedCommunitiesAttributeParser(final ReferenceCache refCache) {
@@ -40,10 +42,10 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 
     @Override
     public void parseAttribute(final ByteBuf buffer, final PathAttributesBuilder builder) throws BGPDocumentedException {
-        final List<ExtendedCommunities> set = Lists.newArrayList();
+        final List<ExtendedCommunities> set = new ArrayList<>();
         while (buffer.isReadable()) {
-            final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(), CommunitiesParser.EXTENDED_COMMUNITY_LENGTH));
-            buffer.skipBytes(CommunitiesParser.EXTENDED_COMMUNITY_LENGTH);
+            final ExtendedCommunities comm = CommunitiesParser.parseExtendedCommunity(this.refCache, buffer.slice(buffer.readerIndex(), EXTENDED_COMMUNITY_LENGTH));
+            buffer.skipBytes(EXTENDED_COMMUNITY_LENGTH);
             set.add(comm);
         }
         builder.setExtendedCommunities(set);
@@ -51,6 +53,7 @@ public final class ExtendedCommunitiesAttributeParser implements AttributeParser
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes pathAttributes = (PathAttributes) attribute;
         final List<ExtendedCommunities> communitiesList = pathAttributes.getExtendedCommunities();
         if (communitiesList == null || communitiesList.isEmpty()) {

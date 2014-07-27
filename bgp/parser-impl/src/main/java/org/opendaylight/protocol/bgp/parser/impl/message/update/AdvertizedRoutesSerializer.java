@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
+import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -26,6 +26,7 @@ public class AdvertizedRoutesSerializer implements NlriSerializer {
 
     @Override
     public void serializeAttribute(final DataObject attribute, final ByteBuf byteAggregator) {
+        Preconditions.checkArgument(attribute instanceof PathAttributes, "Attribute parameter is not a PathAttribute object.");
         final PathAttributes1 pathAttributes1 = ((PathAttributes) attribute).getAugmentation(PathAttributes1.class);
         if (pathAttributes1 == null) {
             return;
@@ -34,7 +35,7 @@ public class AdvertizedRoutesSerializer implements NlriSerializer {
         if (mpReachNlri == null) {
             return;
         }
-        AdvertizedRoutes routes = mpReachNlri.getAdvertizedRoutes();
+        final AdvertizedRoutes routes = mpReachNlri.getAdvertizedRoutes();
         if (routes.getDestinationType() instanceof DestinationIpv4Case) {
             final DestinationIpv4Case destinationIpv4Case = (DestinationIpv4Case) routes.getDestinationType();
             for (final Ipv4Prefix ipv4Prefix : destinationIpv4Case.getDestinationIpv4().getIpv4Prefixes()) {

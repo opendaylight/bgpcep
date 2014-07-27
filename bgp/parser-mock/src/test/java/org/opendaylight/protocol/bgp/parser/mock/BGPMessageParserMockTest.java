@@ -13,10 +13,8 @@ import static org.junit.Assert.assertNotSame;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +22,6 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -128,15 +125,16 @@ public class BGPMessageParserMockTest {
      * @param fileNumber parameter to distinguish between files from which bytes are read
      */
     private byte[] fillInputBytes(final int fileNumber) throws Exception {
-
-        final InputStream is = this.getClass().getResourceAsStream("/up" + fileNumber + ".bin");
         final ByteArrayOutputStream bis = new ByteArrayOutputStream();
         final byte[] data = new byte[60];
         int nRead = 0;
-        while ((nRead = is.read(data, 0, data.length)) != -1) {
-            bis.write(data, 0, nRead);
+        try (final InputStream is = this.getClass().getResourceAsStream("/up" + fileNumber + ".bin")) {
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                bis.write(data, 0, nRead);
+            }
+            bis.flush();
+            is.close();
         }
-        bis.flush();
         return bis.toByteArray();
     }
 
@@ -152,9 +150,9 @@ public class BGPMessageParserMockTest {
         final List<AsSequence> asnums = Lists.newArrayList(new AsSequenceBuilder().setAs(new AsNumber(asn)).build());
         final List<Segments> asPath = Lists.newArrayList();
         asPath.add(new SegmentsBuilder().setCSegment(
-                new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
+            new AListCaseBuilder().setAList(new AListBuilder().setAsSequence(asnums).build()).build()).build());
         final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
+            new Ipv6NextHopBuilder().setGlobal(new Ipv6Address("2001:db8::1")).setLinkLocal(new Ipv6Address("fe80::c001:bff:fe7e:0")).build()).build();
 
         final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
         final Ipv6Prefix pref2 = new Ipv6Prefix("2001:db8:1:1::/64");
@@ -169,8 +167,8 @@ public class BGPMessageParserMockTest {
         mpReachBuilder.setSafi(UnicastSubsequentAddressFamily.class);
         mpReachBuilder.setCNextHop(nextHop);
         mpReachBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(
-                        new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(pref1, pref2, pref3)).build()).build()).build());
+            new DestinationIpv6CaseBuilder().setDestinationIpv6(
+                new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(pref1, pref2, pref3)).build()).build()).build());
 
         paBuilder.addAugmentation(PathAttributes1.class, new PathAttributes1Builder().setMpReachNlri(mpReachBuilder.build()).build());
 
@@ -189,13 +187,13 @@ public class BGPMessageParserMockTest {
         final List<BgpParameters> params = Lists.newArrayList();
 
         final CParameters par = new MultiprotocolCaseBuilder().setMultiprotocolCapability(
-                new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build();
+            new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build();
         params.add(new BgpParametersBuilder().setCParameters(par).build());
 
         final byte[] input = new byte[] { 5, 8, 13, 21 };
 
         openMap.put(Unpooled.copiedBuffer(input), new OpenBuilder().setMyAsNumber(30).setHoldTimer(30).setBgpParameters(params).setVersion(
-                new ProtocolVersion((short) 4)).build());
+            new ProtocolVersion((short) 4)).build());
 
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(openMap);
 
