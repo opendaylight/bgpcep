@@ -13,9 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import io.netty.util.concurrent.FutureListener;
-
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,7 +110,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // FIXME: Futures.transform...
         try {
-            Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
+            final Optional<Topology> topoMaybe = trans.read(LogicalDatastoreType.OPERATIONAL, this.serverSessionManager.getTopology()).get();
             Preconditions.checkState(topoMaybe.isPresent(), "Failed to find topology.");
             final Topology topo = topoMaybe.get();
             for (final Node n : topo.getNode()) {
@@ -288,7 +286,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
         }
     }
 
-    protected InstanceIdentifierBuilder<PathComputationClient> pccIdentifier() {
+    protected synchronized InstanceIdentifierBuilder<PathComputationClient> pccIdentifier() {
         return this.topologyAugment.builder().child(PathComputationClient.class);
     }
 
@@ -311,7 +309,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
-            final Metadata metadata) {
+        final Metadata metadata) {
         final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
         final PCEPRequest req = new PCEPRequest(metadata);
 
@@ -328,7 +326,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     }
 
     protected final synchronized void updateLsp(final WriteTransaction trans, final L id, final String lspName,
-            final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
+        final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
         if (lspName == null) {
@@ -346,14 +344,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
 
         // just one path should be reported
         Preconditions.checkState(rlb.getPath().size() == 1);
-        LspId reportedLspId = rlb.getPath().get(0).getLspId();
+        final LspId reportedLspId = rlb.getPath().get(0).getLspId();
         // check previous report for existing paths
-        ReportedLsp previous = this.lspData.get(name);
+        final ReportedLsp previous = this.lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
-            List<Path> updatedPaths = new ArrayList<>(previous.getPath());
+            final List<Path> updatedPaths = new ArrayList<>(previous.getPath());
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
-            for (Path path : previous.getPath()) {
+            for (final Path path : previous.getPath()) {
                 //we found reported path in previous reports
                 if (path.getLspId().getValue() == 0 || path.getLspId().equals(reportedLspId)) {
                     LOG.debug("Match on lsp-id {}", path.getLspId().getValue() );
