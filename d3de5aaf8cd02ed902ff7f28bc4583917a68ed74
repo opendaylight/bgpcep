@@ -16,6 +16,24 @@
       "revId": "d3de5aaf8cd02ed902ff7f28bc4583917a68ed74",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_d969228d",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 866
+      },
+      "writtenOn": "2014-07-28T10:23:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa82b9bf_4b71bb74",
+      "revId": "d3de5aaf8cd02ed902ff7f28bc4583917a68ed74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
