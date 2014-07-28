@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa82b9bf_4671ad74",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Preconditions.checkArgument()",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_e669e18c",
+        "filename": "bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/LinkstateNlriParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Preconditions.checkArgument()",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_066725b8",
+        "filename": "bgp/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/LinkstateAttributeParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "\"0L\" ?",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a60759c9",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AdvertizedRoutesSerializer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Preconditions.checkArgument()",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c60cddef",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AggregatorAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Preconditions.checkArgument()",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_06fe45ae",
+        "filename": "bgp/parser-impl/src/main/java/org/opendaylight/protocol/bgp/parser/impl/message/update/AsPathAttributeParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "!.isEmpty() ?",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a62e7941",
+        "filename": "bgp/parser-mock/src/test/java/org/opendaylight/protocol/bgp/parser/mock/BGPMessageParserMockTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Use java 7 try-with :)\n\ntry (final InputStream is \u003d this.getClass()...) {\n\n}",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_c6337da9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPObjectComparator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "This is not right and will be adressed in https://git.opendaylight.org/gerrit/#/c/9244/",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_6624f15f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:30:27Z",
+      "side": 1,
+      "message": "Since we\u0027re here, precompile that .replaceAll() string into a Pattern, which is a public static final constant",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
