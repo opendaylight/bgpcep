@@ -150,7 +150,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         // Mockito.doReturn(null).when(mockedContext).getService(dataProviderServiceReference);
         Mockito.doReturn(null).when(mockedContext).getService(emptyServiceReference);
 
-        Registration<DataCommitHandler<InstanceIdentifier, CompositeNode>> registration = mock(Registration.class);
+        Registration registration = mock(Registration.class);
         Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
                 any(DataCommitHandler.class));
         Mockito.doReturn(registration).when(mockedDataProvider).registerCommitHandler(any(InstanceIdentifier.class),
