@@ -152,6 +152,24 @@
       "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa82b9bf_a6d5191d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/StrictBGPPeerRegistry.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2014-07-28T06:37:33Z",
+      "side": 1,
+      "message": "Actually let\u0027s not use Pattern at all. A CharMatcher is better here:\n\npsf CharMatcher NONDIGIT \u003d CharMatcher.inRange(\u00270\u0027, \u00279\u0027).negate();\n\nLong.parseLong(NONDIGIT.removeFrom(from.getValue()));",
+      "parentUuid": "fa82b9bf_6624f15f",
+      "revId": "26b416d5a0559c9540d468a646c5575ab416dd84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
