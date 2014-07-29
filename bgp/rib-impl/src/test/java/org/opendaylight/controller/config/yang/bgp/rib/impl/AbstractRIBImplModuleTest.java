@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -23,9 +24,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,7 +105,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private DataBroker mockedDataProvider;
 
     @Mock
-    private ListenableFuture<RpcResult<TransactionStatus>> mockedFuture;
+    private ListenableFuture<Void> mockedFuture;
 
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
@@ -150,7 +153,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doNothing().when(mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class), any(DataObject.class));
         Mockito.doNothing().when(mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
 
-        Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
+        Mockito.doReturn(mockedFuture).when(mockedTransaction).submit();
         Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
 
         Mockito.doReturn(mockedResult).when(mockedFuture).get();
