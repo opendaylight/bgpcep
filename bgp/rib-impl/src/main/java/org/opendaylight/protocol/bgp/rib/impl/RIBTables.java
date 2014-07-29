@@ -13,11 +13,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +57,16 @@ final class RIBTables {
             return null;
         }
 
-        final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(trans, rib, key));
+        @SuppressWarnings("unchecked")
+        final KeyedInstanceIdentifier<Tables, TablesKey> basePath = (KeyedInstanceIdentifier<Tables, TablesKey>) rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
+        final AdjRIBsIn table = Preconditions.checkNotNull(f.createAdjRIBsIn(basePath));
         LOG.debug("Table {} created for key {}", table, key);
         this.tables.put(key, table);
+
+        trans.put(LogicalDatastoreType.OPERATIONAL, basePath,
+                new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi())
+                .setAttributes(new AttributesBuilder().setUptodate(Boolean.TRUE).build()).build());
+
         return table;
     }
 }
