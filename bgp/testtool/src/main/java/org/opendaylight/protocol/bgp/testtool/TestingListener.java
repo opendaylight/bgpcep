@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.testtool;
 
-import org.opendaylight.protocol.bgp.parser.BGPSession;
-import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
