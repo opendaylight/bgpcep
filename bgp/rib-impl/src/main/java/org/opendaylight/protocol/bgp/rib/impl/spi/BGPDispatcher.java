@@ -8,8 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import io.netty.util.concurrent.Future;
+
 import java.net.InetSocketAddress;
-import org.opendaylight.protocol.bgp.parser.BGPSession;
+
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.framework.ReconnectStrategy;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
 import org.opendaylight.tcpmd5.api.KeyMapping;

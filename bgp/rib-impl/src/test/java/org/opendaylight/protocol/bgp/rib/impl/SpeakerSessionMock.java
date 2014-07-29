@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.mockito.Mockito.mock;
 import io.netty.channel.Channel;
 
-import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
