@@ -9,11 +9,13 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.opendaylight.protocol.bgp.parser.BGPSession;
-import org.opendaylight.protocol.bgp.parser.BGPSessionListener;
+
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
