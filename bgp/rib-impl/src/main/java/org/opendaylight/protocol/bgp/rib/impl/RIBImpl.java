@@ -262,7 +262,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public void close() throws InterruptedException, ExecutionException {
         final WriteTransaction t = this.dps.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier());
-        t.commit().get();
+        t.submit().get();
     }
 
     @Override
