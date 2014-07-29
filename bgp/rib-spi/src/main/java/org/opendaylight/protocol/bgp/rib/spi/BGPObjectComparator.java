@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.rib.impl;
+package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -13,8 +13,9 @@ import com.google.common.net.InetAddresses;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn.RIBEntryData;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
@@ -28,27 +29,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  *
  * @param <T> Actual object state reference
  */
-final class BGPObjectComparator implements Comparator<PathAttributes> {
-    private final byte[] localId, remoteId;
+public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?>> {
     private final AsNumber ourAS;
 
-    public BGPObjectComparator(final AsNumber ourAs, final Ipv4Address localId, final Ipv4Address remoteId) {
+    public BGPObjectComparator(final AsNumber ourAs) {
         this.ourAS = Preconditions.checkNotNull(ourAs);
-        this.localId = InetAddresses.forString(localId.getValue()).getAddress();
-        this.remoteId = InetAddresses.forString(remoteId.getValue()).getAddress();
     }
 
     @Override
-    public int compare(final PathAttributes o1, final PathAttributes o2) {
-        if (o1 == null) {
-            return 1;
-        }
-        if (o2 == null) {
-            return -1;
-        }
-        if (o1.equals(o2) && Arrays.equals(this.localId, this.remoteId)) {
+    public int compare(final RIBEntryData<?, ?> e1, final RIBEntryData<?, ?> e2) {
+        if (e1 == e2) {
             return 0;
         }
+        if (e1 == null) {
+            return 1;
+        }
+        if (e2 == null) {
+            return -1;
+        }
+
+        final PathAttributes o1 = e1.getPathAttributes();
+        final PathAttributes o2 = e2.getPathAttributes();
+        if (o1.equals(o2) && Arrays.equals(e1.getPeer().getRawIdentifier(), e2.getPeer().getRawIdentifier())) {
+            return 0;
+        }
+
         // 1. prefer path with accessible nexthop
         // - we assume that all nexthops are accessible
 
@@ -115,8 +120,8 @@ final class BGPObjectComparator implements Comparator<PathAttributes> {
         // The router ID is the highest IP address on the router, with preference given to loopback addresses.
         // If a path contains route reflector (RR) attributes, the originator ID is substituted for the router ID in the
         // path selection process.
-        byte[] oid1 = this.localId;
-        byte[] oid2 = this.remoteId;
+        byte[] oid1 = e1.getPeer().getRawIdentifier();
+        byte[] oid2 = e2.getPeer().getRawIdentifier();
         if (o1.getOriginatorId() != null) {
             oid1 = InetAddresses.forString(o1.getOriginatorId().getOriginator().getValue()).getAddress();
         }

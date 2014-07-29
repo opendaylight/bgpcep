@@ -10,14 +10,20 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.ClusterIdBuilder;
@@ -27,6 +33,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.AListCaseBuilder;
@@ -35,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequence;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.list._case.a.list.AsSequenceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.as.path.segment.c.segment.a.set._case.ASetBuilder;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * @see <a href="http://www.cisco.com/c/en/us/support/docs/ip/border-gateway-protocol-bgp/13753-25.html">BGP Best Path
@@ -42,7 +57,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  */
 public class BestPathSelectionTest {
 
-    private final BGPObjectComparator comparator = new BGPObjectComparator(new AsNumber(40L), new Ipv4Address("192.150.20.38"), new Ipv4Address("192.150.20.38"));
+    @Mock
+    private Peer peer;
+
+    // new Ipv4Address("192.150.20.38"), new Ipv4Address("192.150.20.38")
+    private final BGPObjectComparator comparator = new BGPObjectComparator(new AsNumber(40L));
 
     private PathAttributes attr1;
     private PathAttributes attr2;
@@ -54,6 +73,10 @@ public class BestPathSelectionTest {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
+        Mockito.doReturn("test").when(this.peer).toString();
+        Mockito.doReturn(new byte[]{1}).when(this.peer).getRawIdentifier();
+
         final AsPathBuilder asBuilder1 = new AsPathBuilder();
         final AsPathBuilder asBuilder2 = new AsPathBuilder();
         List<Segments> segs = new ArrayList<>();
@@ -93,23 +116,35 @@ public class BestPathSelectionTest {
 
     @Test
     public void testCompare() {
-        assertTrue(this.comparator.compare(this.attr1, this.attr2) < 0);
-        assertTrue(this.comparator.compare(this.attr2, this.attr1) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr1)) > 0);
 
-        assertTrue(this.comparator.compare(this.attr2, this.attr3) < 0);
-        assertTrue(this.comparator.compare(this.attr3, this.attr2) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr2)) > 0);
 
-        assertTrue(this.comparator.compare(this.attr3, this.attr4) < 0);
-        assertTrue(this.comparator.compare(this.attr4, this.attr3) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr3)) > 0);
 
-        assertTrue(this.comparator.compare(this.attr4, this.attr5) < 0);
-        assertTrue(this.comparator.compare(this.attr5, this.attr4) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr4)) > 0);
 
-        assertTrue(this.comparator.compare(this.attr5, this.attr6) < 0);
-        assertTrue(this.comparator.compare(this.attr6, this.attr5) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr5)) > 0);
 
-        assertTrue(this.comparator.compare(this.attr6, this.attr7) < 0);
-        assertTrue(this.comparator.compare(this.attr7, this.attr6) > 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7)) < 0);
+        assertTrue(this.comparator.compare(new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr7),
+                new TestIpv4AdjRIBsIn.TestIpv4RIBEntryData(this.peer, this.attr6)) > 0);
     }
 
     @Test
@@ -118,5 +153,43 @@ public class BestPathSelectionTest {
             (byte) 168, 25, 1 }) < 0);
         assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 168, 25, 1 }, new byte[] { (byte) 192, (byte) 150,
             20, 38 }) > 0);
+    }
+
+    private static final class TestIpv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
+        TestIpv4AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+            super(basePath);
+        }
+
+        private static final class TestIpv4RIBEntryData extends RIBEntryData<Ipv4Prefix, Ipv4Route> {
+
+            private final PathAttributes attributes;
+
+            protected TestIpv4RIBEntryData(Peer peer, PathAttributes attributes) {
+                super(peer, attributes);
+                this.attributes = attributes;
+            }
+
+            @Override
+            protected Ipv4Route getDataObject(Ipv4Prefix key, InstanceIdentifier<Ipv4Route> id) {
+                return new Ipv4RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
+            }
+
+        }
+
+        @Override
+        public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
+            return null;
+        }
+
+        @Override
+        public void addRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpReachNlri nlri,
+                final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
+            return;
+        }
+
+        @Override
+        public void removeRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+            return;
+        }
     }
 }

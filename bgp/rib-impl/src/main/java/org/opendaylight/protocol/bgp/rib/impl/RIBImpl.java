@@ -14,19 +14,22 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import javax.annotation.concurrent.ThreadSafe;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
+import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.framework.ReconnectStrategyFactory;
@@ -60,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     private static final TablesKey IPV4_UNICAST_TABLE = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final ReconnectStrategyFactory tcpStrategyFactory;
     private final ReconnectStrategyFactory sessionStrategyFactory;
+    private final BGPObjectComparator comparator;
     private final BGPDispatcher dispatcher;
     private final DataBroker dps;
     private final AsNumber localAs;
@@ -84,6 +87,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
         super(InstanceIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(Preconditions.checkNotNull(ribId))).toInstance());
         this.dps = Preconditions.checkNotNull(dps);
         this.localAs = Preconditions.checkNotNull(localAs);
+        this.comparator = new BGPObjectComparator(localAs);
         this.bgpIdentifier = Preconditions.checkNotNull(localBgpId);
         this.dispatcher = Preconditions.checkNotNull(dispatcher);
         this.sessionStrategyFactory = Preconditions.checkNotNull(sessionStrategyFactory);
@@ -114,15 +118,15 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
         }
 
-        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.submit(), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.trace("Change committed successfully");
             }
 
             @Override
             public void onFailure(final Throwable t) {
-                LOG.error("Failed to initiate RIB {}", getInstanceIdentifier());
+                LOG.error("Failed to initiate RIB {}", getInstanceIdentifier(), t);
             }
         });
     }
@@ -132,7 +136,7 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
 
     @Override
     public synchronized void updateTables(final Peer peer, final Update message) {
-        final WriteTransaction trans = this.dps.newWriteOnlyTransaction();
+        final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(this.comparator, this.dps.newWriteOnlyTransaction());
 
         if (!EOR.equals(message)) {
             final WithdrawnRoutes wr = message.getWithdrawnRoutes();
@@ -211,9 +215,9 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
             }
         }
 
-        Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+        Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
             @Override
-            public void onSuccess(final RpcResult<TransactionStatus> result) {
+            public void onSuccess(final Void result) {
                 LOG.debug("RIB modification successfully committed.");
             }
 
@@ -228,18 +232,18 @@ public final class RIBImpl extends DefaultRibReference implements AutoCloseable,
     public synchronized void clearTable(final Peer peer, final TablesKey key) {
         final AdjRIBsIn ari = this.tables.get(key);
         if (ari != null) {
-            final WriteTransaction trans = this.dps.newWriteOnlyTransaction();
+            final AdjRIBsInTransactionImpl trans = new AdjRIBsInTransactionImpl(comparator, this.dps.newWriteOnlyTransaction());
             ari.clear(trans, peer);
 
-            Futures.addCallback(trans.commit(), new FutureCallback<RpcResult<TransactionStatus>>() {
+            Futures.addCallback(trans.commit(), new FutureCallback<Void>() {
                 @Override
-                public void onSuccess(final RpcResult<TransactionStatus> result) {
-                    // Nothing to do
+                public void onSuccess(final Void result) {
+                    LOG.trace("Table {} cleared successfully", key);
                 }
 
                 @Override
                 public void onFailure(final Throwable t) {
-                    LOG.error("Failed to commit RIB modification", t);
+                    LOG.error("Failed to clear table {}", key, t);
                 }
             });
         }
