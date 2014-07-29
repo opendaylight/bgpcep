@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -50,17 +51,10 @@ public class APITest {
     }
 
     @Test
-    public void testTerminationReason() {
-        assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS).getErrorMessage());
-    }
-
-    @Test
     public void testAsNumberUtil() {
         final List<BgpParameters> params = new ArrayList<>();
-        params.add(new BgpParametersBuilder().setCParameters(
-            new MultiprotocolCaseBuilder().setMultiprotocolCapability(null).build()).build());
-        params.add(new BgpParametersBuilder().setCParameters(
-            new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(35L)).build()).build()).build());
+        params.add(new BgpParametersBuilder().setCParameters(new MultiprotocolCaseBuilder().setMultiprotocolCapability(null).build()).build());
+        params.add(new BgpParametersBuilder().setCParameters(new As4BytesCaseBuilder().setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(35L)).build()).build()).build());
         final Open open1 = new OpenBuilder().setBgpParameters(params).build();
         assertEquals(35L, AsNumberUtil.advertizedAsNumber(open1).getValue().longValue());
 
