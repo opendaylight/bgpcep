@@ -5,8 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.parser;
+package org.opendaylight.protocol.bgp.rib.spi;
 
+import org.opendaylight.protocol.bgp.parser.BGPTerminationReason;
 import org.opendaylight.protocol.framework.SessionListener;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
