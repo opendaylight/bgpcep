@@ -10,18 +10,11 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
-
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -29,14 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.AttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +43,10 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
         public PathAttributes getPathAttributes() {
             return this.attributes;
+        }
+
+        public Peer getPeer() {
+            return this.peer;
         }
 
         protected abstract D getDataObject(I key, InstanceIdentifier<D> id);
@@ -98,10 +92,10 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return this.name;
         }
 
-        private RIBEntryData<I, D> findCandidate(final RIBEntryData<I, D> initial, final Comparator<PathAttributes> comparator) {
+        private RIBEntryData<I, D> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D> initial) {
             RIBEntryData<I, D> newState = initial;
             for (final RIBEntryData<I, D> s : this.candidates.values()) {
-                if (newState == null || comparator.compare(newState.attributes, s.attributes) > 0) {
+                if (newState == null || comparator.compare(newState, s) > 0) {
                     newState = s;
                 }
             }
@@ -109,34 +103,34 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return newState;
         }
 
-        private void electCandidate(final WriteTransaction transaction, final RIBEntryData<I, D> candidate) {
+        private void electCandidate(final AdjRIBsInTransaction transaction, final RIBEntryData<I, D> candidate) {
             LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
             if (this.currentState == null || !this.currentState.equals(candidate)) {
                 LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.put(LogicalDatastoreType.OPERATIONAL, getName(), candidate.getDataObject(this.key, getName()));
+                transaction.advertise(getName(), candidate.getDataObject(this.key, getName()));
                 this.currentState = candidate;
             }
         }
 
-        synchronized boolean removeState(final WriteTransaction transaction, final Peer peer) {
+        synchronized boolean removeState(final AdjRIBsInTransaction transaction, final Peer peer) {
             final RIBEntryData<I, D> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
 
-            final RIBEntryData<I, D> candidate = findCandidate(null, peer.getComparator());
+            final RIBEntryData<I, D> candidate = findCandidate(transaction.comparator(), null);
             if (candidate != null) {
                 electCandidate(transaction, candidate);
             } else {
                 LOG.trace("Final candidate disappeared, removing entry {}", getName());
-                transaction.delete(LogicalDatastoreType.OPERATIONAL, getName());
+                transaction.withdraw(getName());
             }
 
             return this.candidates.isEmpty();
         }
 
-        synchronized void setState(final WriteTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
+        synchronized void setState(final AdjRIBsInTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
             this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
-            electCandidate(transaction, findCandidate(state, peer.getComparator()));
+            electCandidate(transaction, findCandidate(transaction.comparator(), state));
         }
     }
 
@@ -150,26 +144,18 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
     @GuardedBy("this")
     private final Map<Peer, Boolean> peers = new HashMap<>();
 
-    protected AbstractAdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
-        this.basePath = rib.getInstanceIdentifier().child(LocRib.class).child(Tables.class, key);
-
+    protected AbstractAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+        this.basePath = Preconditions.checkNotNull(basePath);
         this.eor = new UpdateBuilder().setPathAttributes(
                 new PathAttributesBuilder().addAugmentation(
-                        PathAttributes1.class,
-                        new PathAttributes1Builder().setMpReachNlri(
-                                new MpReachNlriBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).build()).build()).build()).build();
-
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.basePath, new TablesBuilder().setAfi(key.getAfi()).setSafi(key.getSafi()).setAttributes(
-                new AttributesBuilder().setUptodate(Boolean.TRUE).build()).build());
-    }
-
-    private void setUptodate(final WriteTransaction trans, final Boolean uptodate) {
-        final InstanceIdentifier<Attributes> aid = this.basePath.child(Attributes.class);
-        trans.put(LogicalDatastoreType.OPERATIONAL, aid, new AttributesBuilder().setUptodate(uptodate).build());
+                    PathAttributes1.class,
+                    new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder()
+                        .setAfi(basePath.getKey().getAfi())
+                        .setSafi(basePath.getKey().getSafi()).build()).build()).build()).build();
     }
 
     @Override
-    public synchronized void clear(final WriteTransaction trans, final Peer peer) {
+    public synchronized void clear(final AdjRIBsInTransaction trans, final Peer peer) {
         final Iterator<Map.Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
         while (i.hasNext()) {
             final Map.Entry<I, RIBEntry> e = i.next();
@@ -180,7 +166,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
         }
 
         this.peers.remove(peer);
-        setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
+        trans.setUptodate(basePath, !this.peers.values().contains(Boolean.FALSE));
     }
 
     /**
@@ -192,7 +178,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      */
     protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
-    protected synchronized void add(final WriteTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
+    protected synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
         RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
@@ -204,11 +190,11 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
         e.setState(trans, peer, data);
         if (!this.peers.containsKey(peer)) {
             this.peers.put(peer, Boolean.FALSE);
-            setUptodate(trans, Boolean.FALSE);
+            trans.setUptodate(this.basePath, Boolean.FALSE);
         }
     }
 
-    protected synchronized void remove(final WriteTransaction trans, final Peer peer, final I id) {
+    protected synchronized void remove(final AdjRIBsInTransaction trans, final Peer peer, final I id) {
         final RIBEntry e = this.entries.get(id);
         if (e != null && e.removeState(trans, peer)) {
             LOG.debug("Removed last state, removing entry for {}", id);
@@ -217,9 +203,9 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
     }
 
     @Override
-    public final void markUptodate(final WriteTransaction trans, final Peer peer) {
+    public final void markUptodate(final AdjRIBsInTransaction trans, final Peer peer) {
         this.peers.put(peer, Boolean.TRUE);
-        setUptodate(trans, !this.peers.values().contains(Boolean.FALSE));
+        trans.setUptodate(this.basePath, !this.peers.values().contains(Boolean.FALSE));
     }
 
     @Override
