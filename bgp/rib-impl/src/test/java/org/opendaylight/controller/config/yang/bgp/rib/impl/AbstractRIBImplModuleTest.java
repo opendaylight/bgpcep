@@ -14,7 +14,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
-import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.CheckedFuture;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -23,9 +24,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectName;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,6 +63,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.dom.broker.GlobalBundleScanningSchemaServiceImpl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.RibId;
@@ -102,7 +106,7 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
     private DataBroker mockedDataProvider;
 
     @Mock
-    private ListenableFuture<RpcResult<TransactionStatus>> mockedFuture;
+    private CheckedFuture<Void, TransactionCommitFailedException> mockedFuture;
 
     @Mock
     private RpcResult<TransactionStatus> mockedResult;
@@ -150,12 +154,10 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
         Mockito.doNothing().when(mockedTransaction).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class), any(DataObject.class));
         Mockito.doNothing().when(mockedTransaction).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
 
-        Mockito.doReturn(mockedFuture).when(mockedTransaction).commit();
+        Mockito.doReturn(mockedFuture).when(mockedTransaction).submit();
         Mockito.doReturn(TRANSACTION_NAME).when(mockedTransaction).getIdentifier();
 
-        Mockito.doReturn(mockedResult).when(mockedFuture).get();
-        Mockito.doReturn(true).when(mockedResult).isSuccessful();
-        Mockito.doReturn(Collections.emptySet()).when(mockedResult).getErrors();
+        Mockito.doReturn(null).when(mockedFuture).get();
 
         GlobalBundleScanningSchemaServiceImpl schemaService = GlobalBundleScanningSchemaServiceImpl.createInstance(this.mockedContext);
         YangContextParser parser = new YangParserImpl();
