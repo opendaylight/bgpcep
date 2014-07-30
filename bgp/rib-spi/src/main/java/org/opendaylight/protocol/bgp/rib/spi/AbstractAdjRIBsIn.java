@@ -10,11 +10,14 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.UpdateBuilder;
@@ -49,6 +52,13 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return this.peer;
         }
 
+        /**
+         * Create a data object given the key and target instance identifier.
+         *
+         * @param key Route key
+         * @param id Data store target identifier
+         * @return Data object to be written to the data store.
+         */
         protected abstract D getDataObject(I key, InstanceIdentifier<D> id);
 
         @Override
@@ -148,14 +158,14 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
         this.basePath = Preconditions.checkNotNull(basePath);
         this.eor = new UpdateBuilder().setPathAttributes(
                 new PathAttributesBuilder().addAugmentation(
-                    PathAttributes1.class,
-                    new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder()
+                        PathAttributes1.class,
+                        new PathAttributes1Builder().setMpReachNlri(new MpReachNlriBuilder()
                         .setAfi(basePath.getKey().getAfi())
                         .setSafi(basePath.getKey().getSafi()).build()).build()).build()).build();
     }
 
     @Override
-    public synchronized void clear(final AdjRIBsInTransaction trans, final Peer peer) {
+    public final synchronized void clear(final AdjRIBsInTransaction trans, final Peer peer) {
         final Iterator<Map.Entry<I, RIBEntry>> i = this.entries.entrySet().iterator();
         while (i.hasNext()) {
             final Map.Entry<I, RIBEntry> e = i.next();
@@ -178,7 +188,15 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      */
     protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
 
-    protected synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
+    /**
+     * Common backend for {@link AdjRIBsIn#addRoutes()} implementations.
+     *
+     * @param trans Transaction context
+     * @param peer Originating peer
+     * @param id Data store instance identifier
+     * @param data Data object to be written
+     */
+    protected final synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
         RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
@@ -194,7 +212,14 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
         }
     }
 
-    protected synchronized void remove(final AdjRIBsInTransaction trans, final Peer peer, final I id) {
+    /**
+     * Common backend for {@link AdjRIBsIn#removeRoutes()} implementations.
+     *
+     * @param trans Transaction context
+     * @param peer Originating peer
+     * @param id Data store instance identifier
+     */
+    protected final synchronized void remove(final AdjRIBsInTransaction trans, final Peer peer, final I id) {
         final RIBEntry e = this.entries.get(id);
         if (e != null && e.removeState(trans, peer)) {
             LOG.debug("Removed last state, removing entry for {}", id);
