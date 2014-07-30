@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
-
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -46,7 +45,7 @@ class AdjRIBsInTransactionImpl implements AdjRIBsInTransaction {
 
     @Override
     public <T extends DataObject> void advertise(final InstanceIdentifier<T> id, final T obj) {
-        trans.put(LogicalDatastoreType.OPERATIONAL, id, obj);
+        trans.put(LogicalDatastoreType.OPERATIONAL, id, obj, true);
     }
 
     @Override
