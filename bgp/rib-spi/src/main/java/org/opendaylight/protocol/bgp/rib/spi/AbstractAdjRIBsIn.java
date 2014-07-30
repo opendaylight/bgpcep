@@ -25,17 +25,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.PathAttributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjRIBsIn {
-    protected abstract static class RIBEntryData<I, D extends DataObject> {
+public abstract class AbstractAdjRIBsIn<I, D extends Identifiable<K> & Route, K extends Identifier<D>> implements AdjRIBsIn {
+    protected abstract static class RIBEntryData<I, D extends Identifiable<K> & Route, K extends Identifier<D>> {
         private final PathAttributes attributes;
         private final Peer peer;
 
@@ -59,7 +62,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
          * @param id Data store target identifier
          * @return Data object to be written to the data store.
          */
-        protected abstract D getDataObject(I key, InstanceIdentifier<D> id);
+        protected abstract D getDataObject(I key, K id);
 
         @Override
         public final String toString() {
@@ -82,19 +85,19 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
          *       to retain the candidate states ordered -- thus selection would occur
          *       automatically through insertion, without the need of a second walk.
          */
-        private final Map<Peer, RIBEntryData<I, D>> candidates = new HashMap<>();
+        private final Map<Peer, RIBEntryData<I, D, K>> candidates = new HashMap<>();
         private final I key;
 
         @GuardedBy("this")
-        private InstanceIdentifier<D> name;
+        private KeyedInstanceIdentifier<D, K> name;
         @GuardedBy("this")
-        private RIBEntryData<I, D> currentState;
+        private RIBEntryData<I, D, K> currentState;
 
         RIBEntry(final I key) {
             this.key = Preconditions.checkNotNull(key);
         }
 
-        private InstanceIdentifier<D> getName() {
+        private KeyedInstanceIdentifier<D, K> getName() {
             if (this.name == null) {
                 this.name = identifierForKey(AbstractAdjRIBsIn.this.basePath, this.key);
                 LOG.trace("Entry {} grew key {}", this, this.name);
@@ -102,9 +105,9 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return this.name;
         }
 
-        private RIBEntryData<I, D> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D> initial) {
-            RIBEntryData<I, D> newState = initial;
-            for (final RIBEntryData<I, D> s : this.candidates.values()) {
+        private RIBEntryData<I, D, K> findCandidate(final BGPObjectComparator comparator, final RIBEntryData<I, D, K> initial) {
+            RIBEntryData<I, D, K> newState = initial;
+            for (final RIBEntryData<I, D, K> s : this.candidates.values()) {
                 if (newState == null || comparator.compare(newState, s) > 0) {
                     newState = s;
                 }
@@ -113,21 +116,21 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return newState;
         }
 
-        private void electCandidate(final AdjRIBsInTransaction transaction, final RIBEntryData<I, D> candidate) {
+        private void electCandidate(final AdjRIBsInTransaction transaction, final RIBEntryData<I, D, K> candidate) {
             LOG.trace("Electing state {} to supersede {}", candidate, this.currentState);
 
             if (this.currentState == null || !this.currentState.equals(candidate)) {
                 LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.advertise(getName(), candidate.getDataObject(this.key, getName()));
+                transaction.advertise(getName(), candidate.getDataObject(this.key, getName().getKey()));
                 this.currentState = candidate;
             }
         }
 
         synchronized boolean removeState(final AdjRIBsInTransaction transaction, final Peer peer) {
-            final RIBEntryData<I, D> data = this.candidates.remove(peer);
+            final RIBEntryData<I, D, K> data = this.candidates.remove(peer);
             LOG.trace("Removed data {}", data);
 
-            final RIBEntryData<I, D> candidate = findCandidate(transaction.comparator(), null);
+            final RIBEntryData<I, D, K> candidate = findCandidate(transaction.comparator(), null);
             if (candidate != null) {
                 electCandidate(transaction, candidate);
             } else {
@@ -138,7 +141,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
             return this.candidates.isEmpty();
         }
 
-        synchronized void setState(final AdjRIBsInTransaction transaction, final Peer peer, final RIBEntryData<I, D> state) {
+        synchronized void setState(final AdjRIBsInTransaction transaction, final Peer peer, final RIBEntryData<I, D, K> state) {
             this.candidates.put(Preconditions.checkNotNull(peer), Preconditions.checkNotNull(state));
             electCandidate(transaction, findCandidate(transaction.comparator(), state));
         }
@@ -183,27 +186,22 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      * @param id object identifier
      * @return Data store identifier, may not be null
      */
-    protected abstract InstanceIdentifier<D> identifierForKey(InstanceIdentifier<Tables> basePath, I id);
+    protected abstract KeyedInstanceIdentifier<D, K> identifierForKey(InstanceIdentifier<Tables> basePath, I id);
 
     /**
-     * Transform an advertised data object into the corresponding Update message.
+     * Transform an advertised data object into the corresponding NLRI in MP_REACH attribute.
      *
      * @param data Data object
+     * @param builder MP_REACH attribute builder
      */
-    protected abstract Update updateForAdvertisement(final D data);
+    protected abstract void addAdvertisement(MpReachNlriBuilder builder, D data);
 
     /**
-     * Transform a withdrawn identifier into a the corresponding Update message.
+     * Transform a withdrawn identifier into a the corresponding NLRI in MP_UNREACH attribute.
      *
-     * FIXME: rework the generic magic so we can pass just the key here? (which really says that we are dealing with KeyedInstanceIdentifiers)
-     *
-     * @param id Route identifier
+     * @param id Route key
      */
-    protected abstract Update updateForWithdrawal(final InstanceIdentifier<D> id);
-
-    /**
-     *
-     */
+    protected abstract void addWithdrawal(MpUnreachNlriBuilder builder, I id);
 
     /**
      * Common backend for {@link AdjRIBsIn#addRoutes()} implementations.
@@ -213,7 +211,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      * @param id Data store instance identifier
      * @param data Data object to be written
      */
-    protected final synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D> data) {
+    protected final synchronized void add(final AdjRIBsInTransaction trans, final Peer peer, final I id, final RIBEntryData<I, D, K> data) {
         LOG.debug("Adding state {} for {} peer {}", data, id, peer);
 
         RIBEntry e = this.entries.get(Preconditions.checkNotNull(id));
