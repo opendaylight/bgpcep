@@ -106,6 +106,16 @@ public class LinkstateAdjRIBsInTest {
             @Override
             public Void answer(final InvocationOnMock invocation) throws Throwable {
                 final Object[] args = invocation.getArguments();
+                LinkstateAdjRIBsInTest.this.data.put((InstanceIdentifier<?>)args[1], (DataObject)args[2]);
+                return null;
+            }
+
+        }).when(this.trans).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class), Matchers.any(Tables.class), Mockito.anyBoolean());
+
+        Mockito.doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(final InvocationOnMock invocation) throws Throwable {
+                final Object[] args = invocation.getArguments();
                 LinkstateAdjRIBsInTest.this.data.remove(args[1]);
                 return null;
             }
@@ -145,8 +155,10 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(2)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
+        Mockito.verify(this.trans, Mockito.times(1)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class), Mockito.anyBoolean());
 
         assertEquals(3, this.data.size());
     }
@@ -168,8 +180,10 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(2)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
+        Mockito.verify(this.trans, Mockito.times(1)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class), Mockito.anyBoolean());
         assertEquals(3, this.data.size());
     }
 
@@ -192,8 +206,10 @@ public class LinkstateAdjRIBsInTest {
 
         this.lrib.addRoutes(this.trans, this.peer, this.builder.build(), pa.build());
 
-        Mockito.verify(this.trans, Mockito.times(3)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+        Mockito.verify(this.trans, Mockito.times(2)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
                 Matchers.any(DataObject.class));
+        Mockito.verify(this.trans, Mockito.times(1)).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), Matchers.any(InstanceIdentifier.class),
+                Matchers.any(DataObject.class), Mockito.anyBoolean());
         assertEquals(3, this.data.size());
 
         MpUnreachNlriBuilder builder = new MpUnreachNlriBuilder();
