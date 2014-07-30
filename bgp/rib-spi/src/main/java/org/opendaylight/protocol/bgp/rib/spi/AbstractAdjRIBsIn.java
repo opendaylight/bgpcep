@@ -10,15 +10,12 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.base.Objects;
 import com.google.common.base.Objects.ToStringHelper;
 import com.google.common.base.Preconditions;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -114,7 +111,7 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
 
             if (this.currentState == null || !this.currentState.equals(candidate)) {
                 LOG.trace("Elected new state for {}: {}", getName(), candidate);
-                transaction.put(LogicalDatastoreType.OPERATIONAL, getName(), candidate.getDataObject(this.key, getName()));
+                transaction.put(LogicalDatastoreType.OPERATIONAL, getName(), candidate.getDataObject(this.key, getName()), true);
                 this.currentState = candidate;
             }
         }
