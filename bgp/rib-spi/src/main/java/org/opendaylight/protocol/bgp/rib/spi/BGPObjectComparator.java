@@ -10,11 +10,12 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBsIn.RIBEntryData;
+import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs.RIBEntryData;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.Segments;
@@ -29,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  *
  * @param <T> Actual object state reference
  */
-public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?>> {
+public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, ?>> {
     private final AsNumber ourAS;
 
     public BGPObjectComparator(final AsNumber ourAs) {
@@ -37,7 +38,7 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?>>
     }
 
     @Override
-    public int compare(final RIBEntryData<?, ?> e1, final RIBEntryData<?, ?> e2) {
+    public int compare(final RIBEntryData<?, ?, ?> e1, final RIBEntryData<?, ?, ?> e2) {
         if (e1 == e2) {
             return 0;
         }
@@ -59,7 +60,7 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?>>
 
         // 2. prefer path with higher LOCAL_PREF
         if ((o1.getLocalPref() != null || o2.getLocalPref() != null)
-            && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
+                && (o1.getLocalPref() != null && !o1.getLocalPref().equals(o2.getLocalPref()))) {
             return o1.getLocalPref().getPref().compareTo(o2.getLocalPref().getPref());
         }
 
@@ -91,7 +92,7 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?>>
 
         // 6. prefer the path with the lowest multi-exit discriminator (MED)
         if ((o1.getMultiExitDisc() != null || o2.getMultiExitDisc() != null)
-            && (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
+                && (o1.getMultiExitDisc() != null && !o1.getMultiExitDisc().equals(o2.getMultiExitDisc()))) {
             return o2.getMultiExitDisc().getMed().compareTo(o1.getMultiExitDisc().getMed());
         }
 
