@@ -11,15 +11,15 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev131125.LinkstateSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 /**
  * Activator for registering Linkstate AFI/SAFI to RIB.
@@ -27,12 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
-                new AdjRIBsInFactory() {
-                    @Override
-                    public AdjRIBsIn createAdjRIBsIn(final WriteTransaction trans, final RibReference rib, final TablesKey key) {
-                        return new LinkstateAdjRIBsIn(trans, rib, key);
-                    }
-                }));
+        return Lists.newArrayList(context.registerAdjRIBsInFactory(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class, new AdjRIBsInFactory() {
+            @Override
+            public AdjRIBsIn createAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+                return new LinkstateAdjRIBsIn(basePath);
+            }
+        }));
     }
 }
