@@ -183,7 +183,27 @@ public abstract class AbstractAdjRIBsIn<I, D extends DataObject> implements AdjR
      * @param id object identifier
      * @return Data store identifier, may not be null
      */
-    protected abstract InstanceIdentifier<D> identifierForKey(final InstanceIdentifier<Tables> basePath, final I id);
+    protected abstract InstanceIdentifier<D> identifierForKey(InstanceIdentifier<Tables> basePath, I id);
+
+    /**
+     * Transform an advertised data object into the corresponding Update message.
+     *
+     * @param data Data object
+     */
+    protected abstract Update updateForAdvertisement(final D data);
+
+    /**
+     * Transform a withdrawn identifier into a the corresponding Update message.
+     *
+     * FIXME: rework the generic magic so we can pass just the key here? (which really says that we are dealing with KeyedInstanceIdentifiers)
+     *
+     * @param id Route identifier
+     */
+    protected abstract Update updateForWithdrawal(final InstanceIdentifier<D> id);
+
+    /**
+     *
+     */
 
     /**
      * Common backend for {@link AdjRIBsIn#addRoutes()} implementations.
