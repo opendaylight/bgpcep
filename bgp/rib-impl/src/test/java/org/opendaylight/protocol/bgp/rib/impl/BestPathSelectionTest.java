@@ -10,8 +10,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,11 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.path.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.update.path.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.tables.routes.ipv4.routes._case.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.route.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.ClusterIdentifier;
@@ -150,34 +155,34 @@ public class BestPathSelectionTest {
     @Test
     public void testByteCompare() {
         assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 150, 20, 38 }, new byte[] { (byte) 192,
-            (byte) 168, 25, 1 }) < 0);
+                (byte) 168, 25, 1 }) < 0);
         assertTrue(BGPObjectComparator.compareByteArrays(new byte[] { (byte) 192, (byte) 168, 25, 1 }, new byte[] { (byte) 192, (byte) 150,
-            20, 38 }) > 0);
+                20, 38 }) > 0);
     }
 
-    private static final class TestIpv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route> {
+    private static final class TestIpv4AdjRIBsIn extends AbstractAdjRIBsIn<Ipv4Prefix, Ipv4Route, Ipv4RouteKey> {
         TestIpv4AdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
             super(basePath);
         }
 
-        private static final class TestIpv4RIBEntryData extends RIBEntryData<Ipv4Prefix, Ipv4Route> {
+        private static final class TestIpv4RIBEntryData extends RIBEntryData<Ipv4Prefix, Ipv4Route, Ipv4RouteKey> {
 
             private final PathAttributes attributes;
 
-            protected TestIpv4RIBEntryData(Peer peer, PathAttributes attributes) {
+            protected TestIpv4RIBEntryData(final Peer peer, final PathAttributes attributes) {
                 super(peer, attributes);
                 this.attributes = attributes;
             }
 
             @Override
-            protected Ipv4Route getDataObject(Ipv4Prefix key, InstanceIdentifier<Ipv4Route> id) {
-                return new Ipv4RouteBuilder().setKey(InstanceIdentifier.keyOf(id)).setAttributes(new AttributesBuilder(attributes).build()).build();
+            protected Ipv4Route getDataObject(final Ipv4Prefix key, final Ipv4RouteKey id) {
+                return new Ipv4RouteBuilder().setKey(id).setAttributes(new AttributesBuilder(attributes).build()).build();
             }
 
         }
 
         @Override
-        public InstanceIdentifier<Ipv4Route> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
+        public KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> identifierForKey(final InstanceIdentifier<Tables> basePath, final Ipv4Prefix key) {
             return null;
         }
 
@@ -190,6 +195,16 @@ public class BestPathSelectionTest {
         @Override
         public void removeRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
             return;
+        }
+
+        @Override
+        protected void addAdvertisement(final MpReachNlriBuilder builder, final Ipv4Route data) {
+            // TODO Auto-generated method stub
+        }
+
+        @Override
+        protected void addWithdrawal(final MpUnreachNlriBuilder builder, final Ipv4Prefix id) {
+            // TODO Auto-generated method stub
         }
     }
 }
