@@ -866,7 +866,7 @@ public class BGPParserTest {
         04 <- length
         00 00 00 64 <- value
         c0 <- attribute flags
-        63 <- attribute type (Link STATE - 99)
+        1D <- attribute type (Link STATE - 29)
         07 <- length
         04 47 <- link attribute (1095 - Metric)
         00 03 <- length

@@ -23,7 +23,7 @@ public class ActivatorTest {
 
     @Test
     public void testActivator() throws Exception {
-        final BGPActivator act = new BGPActivator();
+        final BGPActivator act = new BGPActivator(true);
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
 
         assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
