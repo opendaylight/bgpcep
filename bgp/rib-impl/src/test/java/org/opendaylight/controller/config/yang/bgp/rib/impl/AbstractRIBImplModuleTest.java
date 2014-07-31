@@ -71,7 +71,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.model.api.SchemaContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaServiceListener;
+import org.opendaylight.yangtools.yang.model.api.SchemaContextListener;
 import org.opendaylight.yangtools.yang.model.parser.api.YangContextParser;
 import org.opendaylight.yangtools.yang.model.parser.api.YangSyntaxErrorException;
 import org.opendaylight.yangtools.yang.parser.impl.YangParserImpl;
@@ -182,11 +182,11 @@ public abstract class AbstractRIBImplModuleTest extends AbstractConfigTest {
 
     @Override
     protected BundleContextServiceRegistrationHandler getBundleContextServiceRegistrationHandler(final Class<?> serviceType) {
-        if (serviceType.equals(SchemaServiceListener.class)) {
+        if (serviceType.equals(SchemaContextListener.class)) {
             return new BundleContextServiceRegistrationHandler() {
                 @Override
                 public void handleServiceRegistration(final Class<?> clazz, final Object serviceInstance, final Dictionary<String, ?> props) {
-                    SchemaServiceListener listener = (SchemaServiceListener) serviceInstance;
+                    SchemaContextListener listener = (SchemaContextListener) serviceInstance;
                     YangContextParser parser = new YangParserImpl();
                     final SchemaContext context;
                     try {
