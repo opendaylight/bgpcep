@@ -8,15 +8,12 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import com.google.common.base.Preconditions;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -96,11 +93,11 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                 }
             } else {
                 attributes.put(type, new RawAttribute(parser, buffer.slice(buffer.readerIndex(), len)));
-                buffer.skipBytes(len);
             }
         } else {
             LOG.debug("Ignoring duplicate attribute type {}", type);
         }
+        buffer.skipBytes(len);
     }
 
     @Override

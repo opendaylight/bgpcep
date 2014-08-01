@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.open.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev130919.BgpTableType;
@@ -79,6 +81,18 @@ public class ParserTest {
         (byte) 0xac, (byte) 0x14, (byte) 0xa0, (byte) 0xaa, (byte) 0x10, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04,
         (byte) 0x40, (byte) 0x04, (byte) 0x00, (byte) 0x47, (byte) 0x02, (byte) 0x06, (byte) 0x01, (byte) 0x04, (byte) 0x00,
         (byte) 0x01, (byte) 0x00, (byte) 0x01 };
+
+    private static final byte[] updMsgWithUnrecognizedAttribute = new byte[] {
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+        (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 0x79, (byte) 0x02,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x62, (byte) 0x90, (byte) 0x0e, (byte) 0x00, (byte) 0x34, (byte) 0x40, (byte) 0x04, (byte) 0x47, (byte) 0x04, (byte) 0x0a, (byte) 0x19,
+        (byte) 0x02, (byte) 0x1b, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x27, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte)0x00,
+        (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00, (byte) 0x1a, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x48, (byte) 0x02, (byte)0x01,
+        (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x28, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte)0x00,
+        (byte) 0x43, (byte) 0x40, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x40, (byte) 0x02, (byte) 0x00, (byte) 0x40, (byte) 0x05, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte)0x64,
+        (byte) 0x80, (byte) 0x63, (byte) 0x19, (byte) 0x04, (byte) 0x02, (byte) 0x00, (byte) 0x08, (byte) 0x4f, (byte) 0x66, (byte) 0x2d, (byte) 0x39, (byte) 0x6b, (byte) 0x2d, (byte) 0x30, (byte)0x33,
+        (byte) 0x04, (byte) 0x03, (byte) 0x00, (byte) 0x01, (byte) 0x72, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b, (byte) 0x2b
+    };
 
     static MessageRegistry reg;
 
@@ -302,5 +316,11 @@ public class ParserTest {
 
         // the capabilities can be swapped.
         assertTrue(Arrays.equals(openWithCpblt1, ByteArray.getAllBytes(result)) || Arrays.equals(openWithCpblt2, ByteArray.getAllBytes(result)));
+    }
+
+    @Test
+    public void testParseUpdMsgWithUnrecognizedAttribute() throws BGPDocumentedException, BGPParsingException {
+        Update updMsg = (Update) reg.parseMessage(Unpooled.copiedBuffer(updMsgWithUnrecognizedAttribute));
+        assertNotNull(updMsg.getPathAttributes());
     }
 }
