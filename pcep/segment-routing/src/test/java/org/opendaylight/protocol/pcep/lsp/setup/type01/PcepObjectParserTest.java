@@ -19,6 +19,7 @@ import org.opendaylight.protocol.pcep.segment.routing02.SegmentRoutingActivator;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Srp1;
@@ -47,6 +48,7 @@ public class PcepObjectParserTest {
         0x0, 0x1b, 0x0, 0x4, 0x0, 0x0, 0x0, 0x1 };
 
     private TlvRegistry tlvRegistry;
+    private VendorInformationTlvRegistry viTlvRegistry;
 
     private SimplePCEPExtensionProviderContext ctx;
     private SegmentRoutingActivator act;
@@ -57,11 +59,12 @@ public class PcepObjectParserTest {
         this.act = new SegmentRoutingActivator();
         this.act.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
+        this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testRpObjectWithPstTlvParser() throws PCEPDeserializerException {
-        final PcepRpObjectWithPstTlvParser parser = new PcepRpObjectWithPstTlvParser(this.tlvRegistry);
+        final PcepRpObjectWithPstTlvParser parser = new PcepRpObjectWithPstTlvParser(this.tlvRegistry, this.viTlvRegistry);
         final RpBuilder builder = new RpBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
@@ -90,7 +93,7 @@ public class PcepObjectParserTest {
 
     @Test
     public void testSrpObjectWithPstTlvParser() throws PCEPDeserializerException {
-        final CInitiated00SrpObjectWithPstTlvParser parser = new CInitiated00SrpObjectWithPstTlvParser(this.tlvRegistry);
+        final CInitiated00SrpObjectWithPstTlvParser parser = new CInitiated00SrpObjectWithPstTlvParser(this.tlvRegistry, this.viTlvRegistry);
         final SrpBuilder builder = new SrpBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);

@@ -9,11 +9,10 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.crabbe.initiated00.PCEPOpenObjectParser;
@@ -22,6 +21,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful02.Stateful02LspaObjectParser
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Stateful1;
@@ -47,14 +47,17 @@ public class PCEPObjectParserTest {
 
     private TlvRegistry tlvRegistry;
 
+    private VendorInformationTlvRegistry viTlvRegistry;
+
     @Before
     public void setUp() throws Exception {
         this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
+        this.viTlvRegistry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
-        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
+        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
         final OpenBuilder builder = new OpenBuilder();
@@ -85,7 +88,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObjectWithTlv() throws IOException, PCEPDeserializerException {
-        final Stateful02LspaObjectParser parser = new Stateful02LspaObjectParser(this.tlvRegistry);
+        final Stateful02LspaObjectParser parser = new Stateful02LspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
         final LspaBuilder builder = new LspaBuilder();
@@ -123,7 +126,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
-        final Stateful02LspObjectParser parser = new Stateful02LspObjectParser(this.tlvRegistry);
+        final Stateful02LspObjectParser parser = new Stateful02LspObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin"));
 
         final LspBuilder builder = new LspBuilder();

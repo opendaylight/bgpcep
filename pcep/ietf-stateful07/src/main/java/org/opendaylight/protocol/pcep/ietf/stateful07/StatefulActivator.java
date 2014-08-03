@@ -12,6 +12,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.Pcupd;
@@ -40,15 +41,16 @@ public final class StatefulActivator extends AbstractPCEPExtensionProviderActiva
         regs.add(context.registerMessageSerializer(Pcerr.class, new Stateful07ErrorMessageParser(objReg)));
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
+        final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
         regs.add(context.registerObjectParser(Stateful07LspObjectParser.CLASS, Stateful07LspObjectParser.TYPE,
-            new Stateful07LspObjectParser(tlvReg)));
-        regs.add(context.registerObjectSerializer(Lsp.class, new Stateful07LspObjectParser(tlvReg)));
+            new Stateful07LspObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectSerializer(Lsp.class, new Stateful07LspObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectParser(Stateful07SrpObjectParser.CLASS, Stateful07SrpObjectParser.TYPE,
-            new Stateful07SrpObjectParser(tlvReg)));
-        regs.add(context.registerObjectSerializer(Srp.class, new Stateful07SrpObjectParser(tlvReg)));
+            new Stateful07SrpObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectSerializer(Srp.class, new Stateful07SrpObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectParser(Stateful07OpenObjectParser.CLASS, Stateful07OpenObjectParser.TYPE,
-            new Stateful07OpenObjectParser(tlvReg)));
-        regs.add(context.registerObjectSerializer(Open.class, new Stateful07OpenObjectParser(tlvReg)));
+            new Stateful07OpenObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectSerializer(Open.class, new Stateful07OpenObjectParser(tlvReg, viTlvReg)));
 
         regs.add(context.registerTlvParser(Stateful07LSPIdentifierIpv4TlvParser.TYPE, new Stateful07LSPIdentifierIpv4TlvParser()));
         regs.add(context.registerTlvParser(Stateful07LSPIdentifierIpv6TlvParser.TYPE, new Stateful07LSPIdentifierIpv6TlvParser()));

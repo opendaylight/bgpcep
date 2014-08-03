@@ -65,6 +65,18 @@ module pcep-types {
         }
     }
 
+    grouping vendor-information {
+        description "VENDOR-INFORMATION format";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-4";
+
+        leaf enterprise-number {
+            type iana:enterprise-number;
+        }
+
+        choice enterprise-specific-information {
+        }
+    }
+
     // TLVs
     grouping tlv {
         description "Marker grouping for TLV groupings.";
@@ -193,6 +205,15 @@ module pcep-types {
         uses object-header;
     }
 
+    grouping vendor-information-tlvs {
+        list vendor-information-tlv {
+            description "VENDOR-INFORMATION-TLV";
+            reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-3";
+            uses tlv;
+            uses vendor-information;
+        }
+    }
+
     grouping open-object {
         description "OPEN Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.3";
@@ -201,6 +222,7 @@ module pcep-types {
             uses object;
             container "tlvs" {
                 uses of-list-tlv;
+                uses vendor-information-tlvs;
             }
 
             leaf version {
@@ -235,6 +257,7 @@ module pcep-types {
             uses object;
             container "tlvs" {
                 uses order-tlv;
+                uses vendor-information-tlvs;
             }
 
             leaf priority {
@@ -511,6 +534,7 @@ module pcep-types {
             uses object;
             uses rsvp:tunnel-attributes;
             container "tlvs" {
+                uses vendor-information-tlvs;
             }
         }
     }
@@ -553,6 +577,7 @@ module pcep-types {
                 when "../type = 2 and ../value = 1";
 
                 uses overload-duration-tlv;
+                uses vendor-information-tlvs;
             }
 
             leaf type {
@@ -575,6 +600,7 @@ module pcep-types {
             container "tlvs" {
                 when "../type = 7";
                 uses req-missing-tlv;
+                uses vendor-information-tlvs;
             }
 
             leaf type {
@@ -621,7 +647,7 @@ module pcep-types {
             }
 
             container tlvs {
-
+                uses vendor-information-tlvs;
             }
         }
     }
@@ -670,6 +696,10 @@ module pcep-types {
             leaf code {
                 type of-id;
                 mandatory true;
+            }
+
+            container tlvs {
+                uses vendor-information-tlvs;
             }
         }
     }
@@ -727,6 +757,10 @@ module pcep-types {
                 }
                 units percent;
                 mandatory true;
+            }
+
+            container tlvs {
+                uses vendor-information-tlvs;
             }
         }
     }
@@ -873,6 +907,7 @@ module pcep-types {
                         container no-path {
                             uses no-path-object;
                             container "tlvs" {
+                                uses vendor-information-tlvs;
                                 container no-path-vector {
                                     uses no-path-vector-tlv;
                                 }
