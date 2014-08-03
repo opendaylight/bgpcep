@@ -9,11 +9,10 @@ package org.opendaylight.protocol.pcep.ietf;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-
 import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00LspObjectParser;
@@ -23,6 +22,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.Stateful07OpenObjectParser
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Lsp1;
@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.symbolic.path.name.tlv.SymbolicPathName;
@@ -54,14 +55,17 @@ public class PCEPObjectParserTest {
 
     private TlvRegistry tlvRegistry;
 
+    private VendorInformationTlvRegistry viTlvRegistry;
+
     @Before
     public void setUp() throws Exception {
         this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
+        this.viTlvRegistry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
-        final Stateful07OpenObjectParser parser = new Stateful07OpenObjectParser(this.tlvRegistry);
+        final Stateful07OpenObjectParser parser = new Stateful07OpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
         final OpenBuilder builder = new OpenBuilder();
@@ -88,7 +92,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspObjectWithTLV() throws IOException, PCEPDeserializerException {
-        final CInitiated00LspObjectParser parser = new CInitiated00LspObjectParser(this.tlvRegistry);
+        final CInitiated00LspObjectParser parser = new CInitiated00LspObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspObject1WithTLV.bin"));
 
         final LspBuilder builder = new LspBuilder();
@@ -115,7 +119,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObject() throws IOException, PCEPDeserializerException {
-        final Stateful07LspaObjectParser parser = new Stateful07LspaObjectParser(this.tlvRegistry);
+        final Stateful07LspaObjectParser parser = new Stateful07LspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final LspaBuilder builder = new LspaBuilder();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject3RandVals.bin"));
 
@@ -148,7 +152,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testSrpObject() throws IOException, PCEPDeserializerException {
-        final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry);
+        final CInitiated00SrpObjectParser parser = new CInitiated00SrpObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0,
             (byte) 0x01, 0, 0, 0, (byte) 0x01 });
 
@@ -157,6 +161,7 @@ public class PCEPObjectParserTest {
         builder.setIgnore(false);
         builder.setOperationId(new SrpIdNumber(1L));
         builder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(true).build());
+        builder.setTlvs(new TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();

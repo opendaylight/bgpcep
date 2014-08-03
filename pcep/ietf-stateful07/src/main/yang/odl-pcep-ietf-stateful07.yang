@@ -194,6 +194,8 @@ module odl-pcep-ietf-stateful07 {
                 uses symbolic-path-name-tlv;
 
                 uses pcep:vs-tlv;
+
+                uses pcep:vendor-information-tlvs;
             }
 
             leaf plsp-id {
@@ -235,6 +237,8 @@ module odl-pcep-ietf-stateful07 {
 
             container "tlvs" {
                 uses symbolic-path-name-tlv;
+
+                uses pcep:vendor-information-tlvs;
             }
 
             leaf operation-id {

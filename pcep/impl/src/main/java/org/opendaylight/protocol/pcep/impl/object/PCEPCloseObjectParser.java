@@ -13,20 +13,24 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CClose;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link org.opendaylight.protocol.pcep.object.PCEPCloseObject PCEPCloseObject}
  */
-public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBuilder> {
+public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
     public static final int CLASS = 15;
 
@@ -38,9 +42,10 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
     private static final int RESERVED = 2;
     private static final int FLAGS_F_LENGTH = 1;
 
-    public PCEPCloseObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PCEPCloseObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
+
 
     @Override
     public CClose parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
@@ -50,7 +55,9 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
         builder.setProcessingRule(header.isProcessingRule());
         bytes.readerIndex(bytes.readerIndex() + FLAGS_F_LENGTH + RESERVED);
         builder.setReason((short) UnsignedBytes.toInt(bytes.readByte()));
-        parseTlvs(builder, bytes.slice());
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 
@@ -67,6 +74,17 @@ public class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<CCloseBu
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        return;
+        if (tlvs == null) {
+            return;
+        }
+        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+    }
+
+
+    @Override
+    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if (!tlvs.isEmpty()) {
+            builder.setVendorInformationTlv(tlvs);
+        }
     }
 }

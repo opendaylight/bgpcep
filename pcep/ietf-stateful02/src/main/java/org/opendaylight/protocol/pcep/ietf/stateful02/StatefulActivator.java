@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.ietf.stateful02;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.Pcrpt;
@@ -48,16 +47,20 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(Pcreq.class, new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
 
         regs.add(context.registerObjectParser(Stateful02LspObjectParser.CLASS, Stateful02LspObjectParser.TYPE,
-                new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
-        regs.add(context.registerObjectSerializer(Lsp.class, new Stateful02LspObjectParser(context.getTlvHandlerRegistry())));
+                new Stateful02LspObjectParser(context.getTlvHandlerRegistry(), context.getVendorInformationTlvRegistry())));
+        regs.add(context.registerObjectSerializer(Lsp.class, new Stateful02LspObjectParser(context.getTlvHandlerRegistry(),
+                context.getVendorInformationTlvRegistry())));
 
         regs.add(context.registerObjectParser(Stateful02OpenObjectParser.CLASS, Stateful02OpenObjectParser.TYPE,
-                new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
-        regs.add(context.registerObjectSerializer(Open.class, new Stateful02OpenObjectParser(context.getTlvHandlerRegistry())));
+                new Stateful02OpenObjectParser(context.getTlvHandlerRegistry(), context.getVendorInformationTlvRegistry())));
+        regs.add(context.registerObjectSerializer(Open.class, new Stateful02OpenObjectParser(context.getTlvHandlerRegistry(),
+                context.getVendorInformationTlvRegistry())));
 
         regs.add(context.registerObjectParser(Stateful02LspaObjectParser.CLASS, Stateful02LspaObjectParser.TYPE,
-                new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
-        regs.add(context.registerObjectSerializer(Lspa.class, new Stateful02LspaObjectParser(context.getTlvHandlerRegistry())));
+                new Stateful02LspaObjectParser(context.getTlvHandlerRegistry(),
+                        context.getVendorInformationTlvRegistry())));
+        regs.add(context.registerObjectSerializer(Lspa.class, new Stateful02LspaObjectParser(context.getTlvHandlerRegistry(),
+                context.getVendorInformationTlvRegistry())));
 
         regs.add(context.registerTlvParser(Stateful02StatefulCapabilityTlvParser.TYPE, new Stateful02StatefulCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(Stateful.class, new Stateful02StatefulCapabilityTlvParser()));
