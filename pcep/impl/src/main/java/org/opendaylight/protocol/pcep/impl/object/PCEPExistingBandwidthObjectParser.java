@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.impl.object;
 
 import io.netty.buffer.ByteBuf;
-
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 
 /**
  * Parser for Bandwidth
@@ -20,10 +18,6 @@ public class PCEPExistingBandwidthObjectParser extends AbstractBandwidthParser {
     public static final int CLASS = 5;
 
     public static final int TYPE = 2;
-
-    public PCEPExistingBandwidthObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
-    }
 
     @Override
     protected void formatBandwidth(final Boolean processed, final Boolean ignored, final ByteBuf body, final ByteBuf buffer) {

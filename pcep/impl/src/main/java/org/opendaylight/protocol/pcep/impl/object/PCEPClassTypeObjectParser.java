@@ -12,11 +12,11 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedByte;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for {@link ClassType}
  */
-public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<ClassTypeBuilder> {
+public class PCEPClassTypeObjectParser implements ObjectParser, ObjectSerializer {
+
     private static final Logger LOG = LoggerFactory.getLogger(PCEPClassTypeObjectParser.class);
 
     public static final int CLASS = 22;
@@ -49,10 +50,6 @@ public class PCEPClassTypeObjectParser extends AbstractObjectWithTlvsParser<Clas
      * Size of the object in bytes.
      */
     private static final int SIZE = (RESERVED + CT_F_LENGTH) / Byte.SIZE;
-
-    public PCEPClassTypeObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
-    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

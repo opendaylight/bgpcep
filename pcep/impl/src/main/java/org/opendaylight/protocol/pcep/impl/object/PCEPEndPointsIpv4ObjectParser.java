@@ -12,11 +12,11 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeIpv4Address;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -35,17 +35,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Parser for IPv4 {@link EndpointsObj}
  */
-public class PCEPEndPointsIpv4ObjectParser extends AbstractObjectWithTlvsParser<EndpointsObjBuilder> {
+public class PCEPEndPointsIpv4ObjectParser implements ObjectParser, ObjectSerializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPEndPointsIpv4ObjectParser.class);
 
     public static final int CLASS = 4;
 
     public static final int TYPE = 1;
-
-    public PCEPEndPointsIpv4ObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
-    }
 
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
