@@ -12,10 +12,12 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedInt;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
@@ -25,11 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link Srp}
  */
-public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpBuilder> {
+public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
     public static final int CLASS = 33;
 
@@ -43,8 +46,8 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
 
     protected static final int MIN_SIZE = FLAGS_SIZE + SRP_ID_SIZE;
 
-    public Stateful07SrpObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    protected Stateful07SrpObjectParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
@@ -62,13 +65,16 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
         builder.setProcessingRule(header.isProcessingRule());
         bytes.readerIndex(bytes.readerIndex() + FLAGS_SIZE);
         builder.setOperationId(new SrpIdNumber(bytes.readUnsignedInt()));
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 
     @Override
-    public void addTlv(final SrpBuilder builder, final Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         if (tlv instanceof SymbolicPathName) {
-            builder.setTlvs(new TlvsBuilder().setSymbolicPathName((SymbolicPathName) tlv).build());
+            builder.setSymbolicPathName((SymbolicPathName) tlv);
         }
     }
 
@@ -90,6 +96,13 @@ public class Stateful07SrpObjectParser extends AbstractObjectWithTlvsParser<SrpB
             return;
         } else if (tlvs.getSymbolicPathName() != null) {
             serializeTlv(tlvs.getSymbolicPathName(), body);
+        }
+    }
+
+    @Override
+    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if (!tlvs.isEmpty()) {
+            builder.setVendorInformationTlv(tlvs);
         }
     }
 }

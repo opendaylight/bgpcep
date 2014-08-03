@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
@@ -39,6 +40,10 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
     AutoCloseable registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);
 
     AutoCloseable registerTlvParser(int tlvType, TlvParser parser);
+
+    AutoCloseable registerVendorInformationTlvSerializer(Class<? extends EnterpriseSpecificInformation> esInformationClass, TlvSerializer serializer);
+
+    AutoCloseable registerVendorInformationTlvParser(long enterpriseNumber, TlvParser parser);
 
     AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
 

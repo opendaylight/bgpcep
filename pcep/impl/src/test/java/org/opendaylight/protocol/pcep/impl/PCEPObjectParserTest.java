@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.impl.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.impl.object.PCEPCloseObjectParser;
@@ -48,6 +49,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -55,6 +57,7 @@ import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ClassType;
@@ -97,6 +100,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.ExcludeRouteSubobjects.Attribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
@@ -110,20 +115,26 @@ public class PCEPObjectParserTest {
 
     private TlvRegistry tlvRegistry;
 
+    private VendorInformationTlvRegistry viTlvRegistry;
+
     private SimplePCEPExtensionProviderContext ctx;
     private Activator act;
+    private TestVendorInformationActivator viAct;
 
     @Before
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new Activator();
+        this.viAct = new TestVendorInformationActivator();
         this.act.start(this.ctx);
+        this.viAct.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
+        this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWOTLV() throws PCEPDeserializerException, IOException {
-        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry);
+        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
         final OpenBuilder builder = new OpenBuilder();
@@ -144,13 +155,14 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testCloseObject() throws IOException, PCEPDeserializerException {
-        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry);
+        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPCloseObject1.bin"));
 
         final CCloseBuilder builder = new CCloseBuilder();
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         builder.setReason((short) 5);
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -160,7 +172,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLoadBalancingObject() throws IOException, PCEPDeserializerException {
-        final PCEPLoadBalancingObjectParser parser = new PCEPLoadBalancingObjectParser(this.tlvRegistry);
+        final PCEPLoadBalancingObjectParser parser = new PCEPLoadBalancingObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLoadBalancingObject1.bin"));
 
         final LoadBalancingBuilder builder = new LoadBalancingBuilder();
@@ -269,7 +281,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testBandwidthObject() throws IOException, PCEPDeserializerException {
-        final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser(this.tlvRegistry);
+        final PCEPBandwidthObjectParser parser = new PCEPBandwidthObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject1LowerBounds.bin"));
 
         final BandwidthBuilder builder = new BandwidthBuilder();
@@ -285,7 +297,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testExistingBandwidthObject() throws IOException, PCEPDeserializerException {
-        final PCEPExistingBandwidthObjectParser parser = new PCEPExistingBandwidthObjectParser(this.tlvRegistry);
+        final PCEPExistingBandwidthObjectParser parser = new PCEPExistingBandwidthObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPBandwidthObject2UpperBounds.bin"));
 
         final BandwidthBuilder builder = new BandwidthBuilder();
@@ -304,7 +316,7 @@ public class PCEPObjectParserTest {
         final byte[] srcIPBytes = { (byte) 0xA2, (byte) 0xF5, (byte) 0x11, (byte) 0x0E };
         final byte[] destIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
-        final PCEPEndPointsIpv4ObjectParser parser = new PCEPEndPointsIpv4ObjectParser(this.tlvRegistry);
+        final PCEPEndPointsIpv4ObjectParser parser = new PCEPEndPointsIpv4ObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject1IPv4.bin"));
 
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
@@ -327,7 +339,7 @@ public class PCEPObjectParserTest {
         final byte[] srcIPBytes = { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
             (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 
-        final PCEPEndPointsIpv6ObjectParser parser = new PCEPEndPointsIpv6ObjectParser(this.tlvRegistry);
+        final PCEPEndPointsIpv6ObjectParser parser = new PCEPEndPointsIpv6ObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPEndPointsObject2IPv6.bin"));
 
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
@@ -345,7 +357,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testErrorObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(this.tlvRegistry);
+        final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPErrorObject1.bin"));
 
         final ErrorObjectBuilder builder = new ErrorObjectBuilder();
@@ -373,7 +385,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObject() throws IOException, PCEPDeserializerException {
-        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
         final LspaBuilder builder = new LspaBuilder();
@@ -409,7 +421,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testMetricObject() throws IOException, PCEPDeserializerException {
-        final PCEPMetricObjectParser parser = new PCEPMetricObjectParser(this.tlvRegistry);
+        final PCEPMetricObjectParser parser = new PCEPMetricObjectParser();
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPMetricObject1LowerBounds.bin"));
 
         final MetricBuilder builder = new MetricBuilder();
@@ -440,7 +452,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testNoPathObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPNoPathObjectParser parser = new PCEPNoPathObjectParser(this.tlvRegistry);
+        final PCEPNoPathObjectParser parser = new PCEPNoPathObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject1WithoutTLV.bin"));
 
         final NoPathBuilder builder = new NoPathBuilder();
@@ -448,6 +460,7 @@ public class PCEPObjectParserTest {
         builder.setIgnore(true);
         builder.setNatureOfIssue((short) 1);
         builder.setUnsatisfiedConstraints(true);
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -472,7 +485,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testNotifyObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPNotificationObjectParser parser = new PCEPNotificationObjectParser(this.tlvRegistry);
+        final PCEPNotificationObjectParser parser = new PCEPNotificationObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNotificationObject2WithoutTlv.bin"));
 
         final CNotificationBuilder builder = new CNotificationBuilder();
@@ -501,7 +514,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testRPObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry);
+        final PCEPRequestParameterObjectParser parser = new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPRPObject1.bin"));
 
         final RpBuilder builder = new RpBuilder();
@@ -519,6 +532,7 @@ public class PCEPObjectParserTest {
         builder.setEroCompression(false);
         builder.setPriority((short) 5);
         builder.setRequestId(new RequestId(0xdeadbeefL));
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -546,7 +560,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testSvecObject() throws IOException, PCEPDeserializerException {
-        final PCEPSvecObjectParser parser = new PCEPSvecObjectParser(this.tlvRegistry);
+        final PCEPSvecObjectParser parser = new PCEPSvecObjectParser();
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPSvecObject2.bin"));
 
         final SvecBuilder builder = new SvecBuilder();
@@ -590,7 +604,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testClassTypeObject() throws PCEPDeserializerException {
-        final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser(this.tlvRegistry);
+        final PCEPClassTypeObjectParser parser = new PCEPClassTypeObjectParser();
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { (byte) 0x16, (byte) 0x12, (byte) 0x00, (byte) 0x08, 0, 0, 0, (byte) 0x04 });
 
         final ClassTypeBuilder builder = new ClassTypeBuilder();
@@ -649,13 +663,14 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testObjectiveFunctionObject() throws IOException, PCEPDeserializerException {
-        final PCEPObjectiveFunctionObjectParser parser = new PCEPObjectiveFunctionObjectParser(this.tlvRegistry);
+        final PCEPObjectiveFunctionObjectParser parser = new PCEPObjectiveFunctionObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPObjectiveFunctionObject.1.bin"));
 
         final OfBuilder builder = new OfBuilder();
         builder.setProcessingRule(true);
         builder.setIgnore(false);
         builder.setCode(new OfId(4));
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.of.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -665,7 +680,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testGlobalConstraintsObject() throws IOException, PCEPDeserializerException {
-        final PCEPGlobalConstraintsObjectParser parser = new PCEPGlobalConstraintsObjectParser(this.tlvRegistry);
+        final PCEPGlobalConstraintsObjectParser parser = new PCEPGlobalConstraintsObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPGlobalConstraintsObject.1.bin"));
 
         final GcBuilder builder = new GcBuilder();
@@ -675,6 +690,7 @@ public class PCEPObjectParserTest {
         builder.setMaxUtilization((short) 0);
         builder.setMinUtilization((short) 100);
         builder.setOverBookingFactor((short) 99);
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.gc.object.gc.TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false), result.slice(4, result.readableBytes() - 4)));
         ByteBuf buf = Unpooled.buffer();
@@ -706,7 +722,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObjectSerializerDefence() throws IOException, PCEPDeserializerException {
-        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry);
+        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
         final LspaBuilder builder = new LspaBuilder();
@@ -731,5 +747,37 @@ public class PCEPObjectParserTest {
         this.ctx.getObjectHandlerRegistry().serializeObject(eroObject, buffer);
         final byte[] expected = {0x07, 0x13, 0x00, 0x04};
         assertArrayEquals(expected, ByteArray.getAllBytes(buffer));
+    }
+
+    @Test
+    public void testCloseObjectWithVendorInformationTlv() throws IOException, PCEPDeserializerException {
+        final byte[] closeBytes = {
+            0x0f, 0x10, 0x00, 0x14,
+            0x00, 0x00, 0x00, 0x05,
+            /* vendor-information TLV */
+            0x00, 0x07, 0x00, 0x08,
+            /* enterprise number */
+            0x00, 0x00, 0x00, 0x00,
+            /* enterprise specific information */
+            0x00, 0x00, 0x00, 0x05
+        };
+        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final ByteBuf result = Unpooled.wrappedBuffer(closeBytes);
+
+        final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
+        final VendorInformationTlv viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
+                .setEnterpriseSpecificInformation(esInfo).build();
+        final CCloseBuilder builder = new CCloseBuilder();
+        builder.setProcessingRule(false);
+        builder.setIgnore(false);
+        builder.setReason((short) 5);
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder()
+            .setVendorInformationTlv(Lists.newArrayList(viTlv)).build());
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
+
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 }

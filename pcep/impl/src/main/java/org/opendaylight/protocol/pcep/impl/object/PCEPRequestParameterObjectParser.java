@@ -16,10 +16,12 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -30,11 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link Rp}
  */
-public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<RpBuilder> {
+public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
     public static final int CLASS = 2;
 
@@ -88,8 +91,8 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
 
     private static final int E_FLAG_OFFSET = 20;
 
-    public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PCEPRequestParameterObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
@@ -118,14 +121,16 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         builder.setReoptimization(flags.get(R_FLAG_OFFSET));
 
         builder.setRequestId(new RequestId(bytes.readUnsignedInt()));
-        parseTlvs(builder, bytes.slice());
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 
     @Override
-    public void addTlv(final RpBuilder builder, final Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         if (tlv instanceof Order) {
-            builder.setTlvs(new TlvsBuilder().setOrder((Order) tlv).build());
+            builder.setOrder((Order) tlv);
         }
     }
 
@@ -181,6 +186,14 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
             return;
         } else if (tlvs.getOrder() != null) {
             serializeTlv(tlvs.getOrder(), body);
+        }
+        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+    }
+
+    @Override
+    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if (!tlvs.isEmpty()) {
+            builder.setVendorInformationTlv(tlvs);
         }
     }
 }

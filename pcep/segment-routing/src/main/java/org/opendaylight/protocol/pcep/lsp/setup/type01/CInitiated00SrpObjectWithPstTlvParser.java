@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.lsp.setup.type01;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.ietf.initiated00.CInitiated00SrpObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.SrpBuilder;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.PathSetupTypeTlv;
@@ -24,16 +24,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObjectParser {
 
-    public CInitiated00SrpObjectWithPstTlvParser(TlvRegistry tlvReg) {
-        super(tlvReg);
+    public CInitiated00SrpObjectWithPstTlvParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
-    public void addTlv(SrpBuilder builder, Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         super.addTlv(builder, tlv);
         final Tlvs7Builder tlvBuilder = new Tlvs7Builder();
-        if (builder.getTlvs() != null) {
-            final Tlvs7 tlvs = builder.getTlvs().getAugmentation(Tlvs7.class);
+        if (builder != null) {
+            final Tlvs7 tlvs = builder.getAugmentation(Tlvs7.class);
             if (tlvs != null && tlvs.getPathSetupType() != null) {
                 tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
             }
@@ -41,7 +41,7 @@ public class CInitiated00SrpObjectWithPstTlvParser extends CInitiated00SrpObject
         if (tlv instanceof PathSetupType) {
             tlvBuilder.setPathSetupType((PathSetupType) tlv);
         }
-        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs7.class, tlvBuilder.build()).build());
+        builder.addAugmentation(Tlvs7.class, tlvBuilder.build());
     }
 
     @Override

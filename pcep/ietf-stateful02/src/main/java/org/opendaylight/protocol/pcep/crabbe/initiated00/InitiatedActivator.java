@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.crabbe.initiated00;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated._00.rev140113.Pcinitiate;
@@ -27,8 +26,9 @@ public class InitiatedActivator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(Pcinitiate.class, new PcinitiateMessageParser(context.getObjectHandlerRegistry())));
 
         regs.add(context.registerObjectParser(PCEPOpenObjectParser.CLASS, PCEPOpenObjectParser.TYPE,
-                new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
-        regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry())));
+                new PCEPOpenObjectParser(context.getTlvHandlerRegistry(), context.getVendorInformationTlvRegistry())));
+        regs.add(context.registerObjectSerializer(Open.class, new PCEPOpenObjectParser(context.getTlvHandlerRegistry(),
+                context.getVendorInformationTlvRegistry())));
 
         regs.add(context.registerTlvParser(LSPCleanupTlvParser.TYPE, new LSPCleanupTlvParser()));
         regs.add(context.registerTlvSerializer(LspCleanup.class, new LSPCleanupTlvParser()));

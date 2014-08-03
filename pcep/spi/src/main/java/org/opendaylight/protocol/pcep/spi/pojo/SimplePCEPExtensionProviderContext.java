@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.pcep.spi.pojo;
 
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
@@ -28,12 +27,14 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.EnterpriseSpecificInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.label.subobject.LabelType;
 
@@ -49,6 +50,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     private final SimpleRROSubobjectRegistry rroSubReg = new SimpleRROSubobjectRegistry();
     private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
     private final SimpleTlvRegistry tlvReg = new SimpleTlvRegistry();
+    private final SimpleVendorInformationTlvRegistry viTlvReg = new SimpleVendorInformationTlvRegistry();
 
     @Override
     public final LabelRegistry getLabelHandlerRegistry() {
@@ -83,6 +85,11 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     @Override
     public final TlvRegistry getTlvHandlerRegistry() {
         return this.tlvReg;
+    }
+
+    @Override
+    public VendorInformationTlvRegistry getVendorInformationTlvRegistry() {
+        return this.viTlvReg;
     }
 
     @Override
@@ -157,5 +164,16 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     public final AutoCloseable registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
             final XROSubobjectSerializer serializer) {
         return this.xroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerVendorInformationTlvSerializer(final
+            Class<? extends EnterpriseSpecificInformation> esInformationClass, final TlvSerializer serializer) {
+        return this.viTlvReg.registerVendorInformationTlvSerializer(esInformationClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerVendorInformationTlvParser(final long enterpriseNumber, final TlvParser parser) {
+        return this.viTlvReg.registerVendorInformationTlvParser(enterpriseNumber, parser);
     }
 }
