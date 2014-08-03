@@ -178,6 +178,7 @@ public class PCEPValidatorTest {
         srpBuilder.setProcessingRule(false);
         srpBuilder.setOperationId(new SrpIdNumber(1L));
         srpBuilder.addAugmentation(Srp1.class, new Srp1Builder().setRemove(false).build());
+        srpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().build());
         this.srp = srpBuilder.build();
 
         final LspBuilder lspBuilder = new LspBuilder();
@@ -383,7 +384,7 @@ public class PCEPValidatorTest {
             final PcerrMessageBuilder builder = new PcerrMessageBuilder();
             builder.setErrors(innerErr);
             List<Srps> srps = new ArrayList<>();
-            srps.add(new SrpsBuilder().setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(3L)).setIgnore(false).setProcessingRule(false).build()).build());
+            srps.add(new SrpsBuilder().setSrp(new SrpBuilder().setOperationId(new SrpIdNumber(3L)).setIgnore(false).setProcessingRule(false).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.srp.object.srp.TlvsBuilder().build()).build()).build());
             builder.setErrorType(new StatefulCaseBuilder().setStateful(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.pcerr.pcerr.message.error.type.stateful._case.StatefulBuilder().setSrps(srps).build()).build());
 
             assertEquals(new PcerrBuilder().setPcerrMessage(builder.build()).build(), parser.parseMessage(result.slice(4,

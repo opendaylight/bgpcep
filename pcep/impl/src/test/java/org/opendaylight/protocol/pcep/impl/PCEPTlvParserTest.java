@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.impl.tlv.AbstractVendorSpecificTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.impl.tlv.OFListTlvParser;
@@ -36,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.VsTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vs.tlv.vs.tlv.VendorPayload;
@@ -51,6 +54,13 @@ public class PCEPTlvParserTest {
     private static final byte[] ofListBytes = { 0x00, 0x04, 0x00, 0x04, 0x12, 0x34, 0x56, 0x78 };
     private static final byte[] vsTlvBytes = { 0x00, 0x1b, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x09, 0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00,
         0x05 };
+    private static final byte[] VENDOR_INFO_BYTES = {
+        0x00, 0x07, 0x00, 0x08,
+        /* Enterprise number */
+        0x00, 0x00, 0x00, 0x00,
+        /* Enterprise specific information */
+        0x00, 0x00, 0x00, 0x05
+    };
 
     private final AbstractVendorSpecificTlvParser vsParser = new AbstractVendorSpecificTlvParser() {
 
@@ -134,10 +144,25 @@ public class PCEPTlvParserTest {
 
     @Test
     public void testVendorSpecificTlv() throws PCEPDeserializerException {
-        VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
+        final VsTlv tlv = new VsTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(9L)).setVendorPayload(this.vp).build();
         assertEquals(tlv, this.vsParser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(vsTlvBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         this.vsParser.serializeTlv(tlv, buff);
         assertArrayEquals(vsTlvBytes, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testVendorInformationTlv() throws PCEPDeserializerException {
+        final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
+        final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
+        final VendorInformationTlv viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
+                .setEnterpriseSpecificInformation(esInfo).build();
+
+        final VendorInformationTlv parsedTlv = parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(VENDOR_INFO_BYTES, 8)));
+        assertEquals(viTlv, parsedTlv);
+
+        final ByteBuf buff = Unpooled.buffer(VENDOR_INFO_BYTES.length);
+        parser.serializeTlv(viTlv, buff);
+        assertArrayEquals(VENDOR_INFO_BYTES, ByteArray.getAllBytes(buff));
     }
 }

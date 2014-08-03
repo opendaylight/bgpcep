@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.list.tlv.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 public class AbstractObjectWithTlvsTest {
 
@@ -32,10 +34,13 @@ public class AbstractObjectWithTlvsTest {
     @Mock
     private TlvRegistry tlvRegistry;
 
+    @Mock
+    private VendorInformationTlvRegistry viTlvRegistry;
+
     private class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
-        protected Abs(TlvRegistry tlvReg) {
-            super(tlvReg);
+        protected Abs(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+            super(tlvReg, viTlvReg);
         }
 
         @Override
@@ -51,6 +56,11 @@ public class AbstractObjectWithTlvsTest {
         public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
             builder.setOfList((OfList) tlv);
         }
+
+        @Override
+        protected void addVendorInformationTlvs(TlvsBuilder builder, List<VendorInformationTlv> tlvs) {
+            builder.setVendorInformationTlv(tlvs);
+        }
     };
 
     @Before
@@ -63,7 +73,7 @@ public class AbstractObjectWithTlvsTest {
 
     @Test
     public void testParseTlvs() throws PCEPDeserializerException {
-        Abs a = new Abs(this.tlvRegistry);
+        Abs a = new Abs(this.tlvRegistry, this.viTlvRegistry);
         ByteBuf buffer = Unpooled.buffer();
         a.serializeTlv(this.tlv, buffer);
 

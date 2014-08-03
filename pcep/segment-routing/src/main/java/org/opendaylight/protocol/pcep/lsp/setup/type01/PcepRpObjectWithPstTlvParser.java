@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.lsp.setup.type01;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.impl.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.PathSetupTypeTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1Builder;
@@ -18,22 +19,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder;
 
 public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectParser {
 
-    public PcepRpObjectWithPstTlvParser(TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PcepRpObjectWithPstTlvParser(TlvRegistry tlvReg, VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
-    public void addTlv(RpBuilder builder, Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, Tlv tlv) {
         super.addTlv(builder, tlv);
         final Tlvs1Builder tlvBuilder = new Tlvs1Builder();
-        if (builder.getTlvs() != null) {
-            final Tlvs1 tlvs = builder.getTlvs().getAugmentation(Tlvs1.class);
+        if (builder != null) {
+            final Tlvs1 tlvs = builder.getAugmentation(Tlvs1.class);
             if (tlvs != null && tlvs.getPathSetupType() != null) {
                 tlvBuilder.setPathSetupType(tlvs.getPathSetupType());
             }
@@ -41,7 +41,7 @@ public class PcepRpObjectWithPstTlvParser extends PCEPRequestParameterObjectPars
         if (tlv instanceof PathSetupType) {
             tlvBuilder.setPathSetupType((PathSetupType) tlv);
         }
-        builder.setTlvs(new TlvsBuilder().addAugmentation(Tlvs1.class, tlvBuilder.build()).build());
+        builder.addAugmentation(Tlvs1.class, tlvBuilder.build()).build();
     }
 
     @Override
