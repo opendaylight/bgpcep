@@ -9,9 +9,9 @@ package org.opendaylight.protocol.pcep.ietf.initiated00;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev131222.lsp.object.Lsp;
@@ -29,12 +29,13 @@ public final class CrabbeInitiatedActivator extends AbstractPCEPExtensionProvide
                 new CInitiated00PCInitiateMessageParser(context.getObjectHandlerRegistry())));
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
+        final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
         regs.add(context.registerObjectParser(CInitiated00LspObjectParser.CLASS, CInitiated00LspObjectParser.TYPE,
-                new CInitiated00LspObjectParser(tlvReg)));
-        regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg)));
+                new CInitiated00LspObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectSerializer(Lsp.class, new CInitiated00LspObjectParser(tlvReg, viTlvReg)));
         regs.add(context.registerObjectParser(CInitiated00SrpObjectParser.CLASS, CInitiated00SrpObjectParser.TYPE,
-                new CInitiated00SrpObjectParser(tlvReg)));
-        regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg)));
+                new CInitiated00SrpObjectParser(tlvReg, viTlvReg)));
+        regs.add(context.registerObjectSerializer(Srp.class, new CInitiated00SrpObjectParser(tlvReg, viTlvReg)));
 
         regs.add(context.registerTlvParser(CInitiated00StatefulCapabilityTlvParser.TYPE, new CInitiated00StatefulCapabilityTlvParser()));
         regs.add(context.registerTlvSerializer(Stateful.class, new CInitiated00StatefulCapabilityTlvParser()));

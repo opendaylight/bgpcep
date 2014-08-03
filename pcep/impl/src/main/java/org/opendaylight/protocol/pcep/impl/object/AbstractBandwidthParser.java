@@ -12,22 +12,18 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.bandwidth.object.BandwidthBuilder;
 
-abstract class AbstractBandwidthParser extends AbstractObjectWithTlvsParser<BandwidthBuilder> {
+abstract class AbstractBandwidthParser implements ObjectParser, ObjectSerializer {
 
     private static final int BANDWIDTH_F_LENGTH = 4;
-
-    AbstractBandwidthParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
-    }
 
     @Override
     public Bandwidth parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {

@@ -13,10 +13,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Tlv;
@@ -25,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcep.error.object.error.object.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link ErrorObject}
@@ -39,8 +42,8 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
 
     private static final int RESERVED  = 1;
 
-    public PCEPErrorObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PCEPErrorObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
@@ -80,8 +83,17 @@ public class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<ErrorObj
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
-        } else if (tlvs.getReqMissing() != null) {
+        }
+        if (tlvs.getReqMissing() != null) {
             serializeTlv(tlvs.getReqMissing(), body);
+        }
+        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+    }
+
+    @Override
+    protected final void addVendorInformationTlvs(final ErrorObjectBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if (!tlvs.isEmpty()) {
+            builder.setTlvs(new TlvsBuilder(builder.getTlvs()).setVendorInformationTlv(tlvs).build());
         }
     }
 }

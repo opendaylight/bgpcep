@@ -21,6 +21,7 @@ import org.opendaylight.protocol.pcep.impl.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
@@ -57,6 +58,7 @@ public class SrObjectParserTest {
     };
 
     private TlvRegistry tlvRegistry;
+    private VendorInformationTlvRegistry viTlvRegistry;
 
     private SimplePCEPExtensionProviderContext ctx;
     private SegmentRoutingActivator act;
@@ -67,11 +69,12 @@ public class SrObjectParserTest {
         this.act = new SegmentRoutingActivator();
         this.act.start(this.ctx);
         this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
+        this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWithSpcTlv() throws PCEPDeserializerException {
-        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(tlvRegistry);
+        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(this.tlvRegistry, this.viTlvRegistry);
 
         final OpenBuilder builder = new OpenBuilder();
         builder.setProcessingRule(false);

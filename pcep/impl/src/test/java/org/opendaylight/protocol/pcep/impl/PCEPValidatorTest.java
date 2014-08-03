@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.message.CCloseMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.close.object.c.close.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.Ipv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.endpoints.object.EndpointsObj;
@@ -145,6 +146,7 @@ public class PCEPValidatorTest {
         rpBuilder.setEroCompression(false);
         rpBuilder.setPriority((short) 1);
         rpBuilder.setRequestId(new RequestId(10L));
+        rpBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.rp.TlvsBuilder().build());
         this.rpTrue = rpBuilder.build();
         rpBuilder.setProcessingRule(false);
         this.rpFalse = rpBuilder.build();
@@ -164,6 +166,7 @@ public class PCEPValidatorTest {
         npbuilder.setIgnore(false);
         npbuilder.setNatureOfIssue((short) 0);
         npbuilder.setUnsatisfiedConstraints(false);
+        npbuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder().build());
         this.noPath = npbuilder.build();
 
         final LspaBuilder lspaBuilder = new LspaBuilder();
@@ -212,6 +215,7 @@ public class PCEPValidatorTest {
         ofBuilder.setIgnore(false);
         ofBuilder.setProcessingRule(false);
         ofBuilder.setCode(new OfId(0));
+        ofBuilder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.of.TlvsBuilder().build());
         this.of = ofBuilder.build();
 
         final Ipv4Builder afi = new Ipv4Builder();
@@ -275,7 +279,7 @@ public class PCEPValidatorTest {
 
         final PCEPCloseMessageParser parser = new PCEPCloseMessageParser(this.objectRegistry);
         final CloseBuilder builder = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder().setCClose(
-            new CCloseBuilder().setIgnore(false).setProcessingRule(false).setReason((short) 5).build()).build());
+            new CCloseBuilder().setIgnore(false).setProcessingRule(false).setReason((short) 5).setTlvs(new TlvsBuilder().build()).build()).build());
 
         assertEquals(builder.build(), parser.parseMessage(result.slice(4, result.readableBytes() - 4), Collections.<Message> emptyList()));
         final ByteBuf buf = Unpooled.buffer(result.readableBytes());

@@ -15,10 +15,12 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -28,11 +30,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.failure._case.no.path.tlvs.NoPathVector;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link NoPath}
  */
-public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathBuilder> {
+public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
     public static final int CLASS = 3;
 
@@ -49,8 +52,8 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
      */
     private static final int C_FLAG_OFFSET = 0;
 
-    public PCEPNoPathObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PCEPNoPathObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
@@ -65,14 +68,16 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
         final BitSet flags = ByteArray.bytesToBitSet(flagsByte);
         builder.setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET));
         bytes.readerIndex(bytes.readerIndex() + RESERVED_F_LENGTH);
-        parseTlvs(builder, bytes.slice());
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 
     @Override
-    public void addTlv(final NoPathBuilder builder, final Tlv tlv) {
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
         if (tlv instanceof NoPathVector) {
-            builder.setTlvs(new TlvsBuilder().setNoPathVector((NoPathVector) tlv).build());
+            builder.setNoPathVector((NoPathVector) tlv);
         }
     }
 
@@ -99,6 +104,14 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<NoPathB
         }
         if (tlvs.getNoPathVector() != null) {
             serializeTlv(tlvs.getNoPathVector(), body);
+        }
+        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+    }
+
+    @Override
+    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if(!tlvs.isEmpty()) {
+            builder.setVendorInformationTlv(tlvs);
         }
     }
 }

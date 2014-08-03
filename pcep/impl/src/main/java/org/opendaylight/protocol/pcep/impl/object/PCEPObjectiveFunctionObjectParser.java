@@ -12,20 +12,25 @@ import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeUnsignedShort
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.Of;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.OfBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.of.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.of.object.of.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 
 /**
  * Parser for {@link Of}
  */
-public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsParser<OfBuilder> {
+public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
     public static final int CLASS = 21;
 
@@ -33,8 +38,8 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
 
     private static final int RESERVED = 2;
 
-    public PCEPObjectiveFunctionObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
+    public PCEPObjectiveFunctionObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+        super(tlvReg, viTlvReg);
     }
 
     @Override
@@ -44,6 +49,10 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
         builder.setIgnore(header.isIgnore());
         builder.setProcessingRule(header.isProcessingRule());
         builder.setCode(new OfId(bytes.readUnsignedShort()));
+        bytes.readBytes(RESERVED);
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        parseTlvs(tlvsBuilder, bytes.slice());
+        builder.setTlvs(tlvsBuilder.build());
         return builder.build();
     }
 
@@ -55,6 +64,21 @@ public class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithTlvsPar
         Preconditions.checkArgument(specObj.getCode() != null, "Code is mandatory");
         writeUnsignedShort(specObj.getCode().getValue(), body);
         body.writeZero(RESERVED);
+        serializeTlvs(specObj.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+    }
+
+    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+        if (tlvs == null) {
+            return;
+        }
+        serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
+    }
+
+    @Override
+    protected final void addVendorInformationTlvs(final TlvsBuilder builder, final List<VendorInformationTlv> tlvs) {
+        if (!tlvs.isEmpty()) {
+            builder.setVendorInformationTlv(tlvs);
+        }
     }
 }

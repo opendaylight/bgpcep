@@ -16,10 +16,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.BitSet;
 import java.util.List;
-import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
+import org.opendaylight.protocol.pcep.spi.ObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.ObjectHeader;
@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 /**
  * Parser for {@link Svec}
  */
-public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuilder> {
+public class PCEPSvecObjectParser implements ObjectParser, ObjectSerializer {
 
     public static final int CLASS = 11;
 
@@ -57,10 +57,6 @@ public class PCEPSvecObjectParser extends AbstractObjectWithTlvsParser<SvecBuild
      * min size in bytes
      */
     private static final int MIN_SIZE = FLAGS_F_LENGTH + FLAGS_F_OFFSET;
-
-    public PCEPSvecObjectParser(final TlvRegistry tlvReg) {
-        super(tlvReg);
-    }
 
     @Override
     public Svec parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
