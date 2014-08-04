@@ -28,6 +28,7 @@ import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.XROSubobjectRegistry;
@@ -53,6 +54,7 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     private final SimpleXROSubobjectRegistry xroSubReg = new SimpleXROSubobjectRegistry();
     private final SimpleTlvRegistry tlvReg = new SimpleTlvRegistry();
     private final SimpleVendorInformationTlvRegistry viTlvReg = new SimpleVendorInformationTlvRegistry();
+    private final SimpleVendorInformationObjectRegistry viObjReg = new SimpleVendorInformationObjectRegistry();
 
     @Override
     public final LabelRegistry getLabelHandlerRegistry() {
@@ -177,5 +179,21 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     @Override
     public AutoCloseable registerVendorInformationTlvParser(final EnterpriseNumber enterpriseNumber, final TlvParser parser) {
         return this.viTlvReg.registerVendorInformationTlvParser(enterpriseNumber, parser);
+    }
+
+    @Override
+    public AutoCloseable registerVendorInformationObjectSerializer(
+            final Class<? extends EnterpriseSpecificInformation> esInformationClass, final ObjectSerializer serializer) {
+        return this.viObjReg.registerVendorInformationObjectSerializer(esInformationClass, serializer);
+    }
+
+    @Override
+    public AutoCloseable registerVendorInformationObjectParser(final long enterpriseNumber, final ObjectParser parser) {
+        return this.viObjReg.registerVendorInformationObjectParser(enterpriseNumber, parser);
+    }
+
+    @Override
+    public VendorInformationObjectRegistry getVendorInformationObjectRegistry() {
+        return this.viObjReg;
     }
 }

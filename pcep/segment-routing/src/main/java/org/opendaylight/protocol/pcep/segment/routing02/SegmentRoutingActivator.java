@@ -16,6 +16,7 @@ import org.opendaylight.protocol.pcep.lsp.setup.type01.PcepRpObjectWithPstTlvPar
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.initiated.rev131126.Pcinitiate;
@@ -62,13 +63,14 @@ public class SegmentRoutingActivator extends AbstractPCEPExtensionProviderActiva
 
         /* Messages */
         final ObjectRegistry objRegistry = context.getObjectHandlerRegistry();
-        regs.add(context.registerMessageParser(SrPcRepMessageParser.TYPE, new SrPcRepMessageParser(objRegistry)));
+        final VendorInformationObjectRegistry objReg = context.getVendorInformationObjectRegistry();
+        regs.add(context.registerMessageParser(SrPcRepMessageParser.TYPE, new SrPcRepMessageParser(objRegistry, objReg)));
         regs.add(context.registerMessageParser(SrPcInitiateMessageParser.TYPE, new SrPcInitiateMessageParser(
                 objRegistry)));
         regs.add(context.registerMessageParser(SrPcRptMessageParser.TYPE, new SrPcRptMessageParser(objRegistry)));
         regs.add(context.registerMessageParser(SrPcUpdMessageParser.TYPE, new SrPcUpdMessageParser(objRegistry)));
 
-        regs.add(context.registerMessageSerializer(Pcrep.class, new SrPcRepMessageParser(objRegistry)));
+        regs.add(context.registerMessageSerializer(Pcrep.class, new SrPcRepMessageParser(objRegistry, objReg)));
         regs.add(context.registerMessageSerializer(Pcinitiate.class, new SrPcInitiateMessageParser(objRegistry)));
         regs.add(context.registerMessageSerializer(Pcrpt.class, new SrPcRptMessageParser(objRegistry)));
         regs.add(context.registerMessageSerializer(Pcupd.class, new SrPcUpdMessageParser(objRegistry)));

@@ -49,4 +49,8 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
     AutoCloseable registerXROSubobjectSerializer(Class<? extends SubobjectType> subobjectClass, XROSubobjectSerializer serializer);
 
     AutoCloseable registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
+
+    AutoCloseable registerVendorInformationObjectSerializer(Class<? extends EnterpriseSpecificInformation> esInformationClass, ObjectSerializer serializer);
+
+    AutoCloseable registerVendorInformationObjectParser(long enterpriseNumber, ObjectParser parser);
 }
