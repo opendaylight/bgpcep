@@ -22,6 +22,11 @@ public class TestVendorInformationActivator extends AbstractPCEPExtensionProvide
         final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
         regs.add(context.registerVendorInformationTlvParser(parser.getEnterpriseNumber(), parser));
         regs.add(context.registerVendorInformationTlvSerializer(TestEnterpriseSpecificInformation.class, parser));
+
+        // Vendor-information object registration
+        final TestVendorInformationObjectParser objParser = new TestVendorInformationObjectParser();
+        regs.add(context.registerVendorInformationObjectParser(parser.getEnterpriseNumber(), objParser));
+        regs.add(context.registerVendorInformationObjectSerializer(TestEnterpriseSpecificInformation.class, objParser));
         return regs;
     }
 
