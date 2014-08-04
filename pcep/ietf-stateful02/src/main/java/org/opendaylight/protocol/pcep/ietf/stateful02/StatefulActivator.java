@@ -39,12 +39,15 @@ public class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerMessageSerializer(Pcrpt.class, new Stateful02PCReportMessageParser(context.getObjectHandlerRegistry())));
 
         regs.add(context.registerMessageParser(Stateful02PCReplyMessageParser.TYPE,
-                new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
-        regs.add(context.registerMessageSerializer(Pcrep.class, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry())));
+                new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry(), context.getVendorInformationObjectRegistry())));
+        regs.add(context.registerMessageSerializer(Pcrep.class, new Stateful02PCReplyMessageParser(context.getObjectHandlerRegistry(),
+                context.getVendorInformationObjectRegistry())));
 
         regs.add(context.registerMessageParser(Stateful02PCRequestMessageParser.TYPE,
-                new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
-        regs.add(context.registerMessageSerializer(Pcreq.class, new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry())));
+                new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry(),
+                        context.getVendorInformationObjectRegistry())));
+        regs.add(context.registerMessageSerializer(Pcreq.class, new Stateful02PCRequestMessageParser(context.getObjectHandlerRegistry(),
+                context.getVendorInformationObjectRegistry())));
 
         regs.add(context.registerObjectParser(Stateful02LspObjectParser.CLASS, Stateful02LspObjectParser.TYPE,
                 new Stateful02LspObjectParser(context.getTlvHandlerRegistry(), context.getVendorInformationTlvRegistry())));

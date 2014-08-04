@@ -71,6 +71,7 @@ import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Close;
@@ -128,6 +129,7 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         registerObjectParsers(regs, context);
 
         final ObjectRegistry objReg = context.getObjectHandlerRegistry();
+        final VendorInformationObjectRegistry viObjReg = context.getVendorInformationObjectRegistry();
         final PCEPOpenMessageParser openParser = new PCEPOpenMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPOpenMessageParser.TYPE, openParser));
         regs.add(context.registerMessageSerializer(
@@ -138,11 +140,11 @@ public final class Activator extends AbstractPCEPExtensionProviderActivator {
         regs.add(context.registerMessageParser(PCEPKeepAliveMessageParser.TYPE, kaParser));
         regs.add(context.registerMessageSerializer(Keepalive.class, kaParser));
 
-        final PCEPRequestMessageParser reqParser = new PCEPRequestMessageParser(objReg);
+        final PCEPRequestMessageParser reqParser = new PCEPRequestMessageParser(objReg, viObjReg);
         regs.add(context.registerMessageParser(PCEPRequestMessageParser.TYPE, reqParser));
         regs.add(context.registerMessageSerializer(Pcreq.class, reqParser));
 
-        final PCEPReplyMessageParser repParser = new PCEPReplyMessageParser(objReg);
+        final PCEPReplyMessageParser repParser = new PCEPReplyMessageParser(objReg, viObjReg);
         regs.add(context.registerMessageParser(PCEPReplyMessageParser.TYPE, repParser));
         regs.add(context.registerMessageSerializer(Pcrep.class, repParser));
 

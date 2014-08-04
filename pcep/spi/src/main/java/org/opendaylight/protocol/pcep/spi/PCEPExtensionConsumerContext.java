@@ -24,4 +24,6 @@ public interface PCEPExtensionConsumerContext {
     TlvRegistry getTlvHandlerRegistry();
 
     VendorInformationTlvRegistry getVendorInformationTlvRegistry();
+
+    VendorInformationObjectRegistry getVendorInformationObjectRegistry();
 }
