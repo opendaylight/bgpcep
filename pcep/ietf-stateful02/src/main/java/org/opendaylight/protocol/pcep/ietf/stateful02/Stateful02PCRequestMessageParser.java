@@ -13,6 +13,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.P2p1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.P2p1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.crabbe.stateful._02.rev140110.lsp.object.Lsp;
@@ -42,8 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  */
 public final class Stateful02PCRequestMessageParser extends PCEPRequestMessageParser {
 
-    public Stateful02PCRequestMessageParser(final ObjectRegistry registry) {
-        super(registry);
+    public Stateful02PCRequestMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viReg) {
+        super(registry, viReg);
     }
 
     @Override

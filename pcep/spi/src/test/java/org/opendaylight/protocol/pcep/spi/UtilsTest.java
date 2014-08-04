@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -106,5 +108,16 @@ public class UtilsTest {
         body.resetReaderIndex();
         EROSubobjectUtil.formatSubobject(2, false, body, out);
         assertArrayEquals(expected, ByteArray.getAllBytes(out));
+    }
+
+    @Test
+    public void testVendorInformationUtil() {
+        assertTrue(VendorInformationUtil.isVendorInformationTlv(VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationTlv(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS));
+
+        assertTrue(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS, VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE));
+        assertFalse(VendorInformationUtil.isVendorInformationObject(VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE, VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS));
     }
 }
