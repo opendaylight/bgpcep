@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.impl.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPKeepAliveMessageParser;
@@ -28,9 +29,11 @@ import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.impl.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.CloseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.KeepaliveBuilder;
@@ -99,6 +102,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
@@ -107,6 +112,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public class PCEPValidatorTest {
 
     private ObjectRegistry objectRegistry;
+    private VendorInformationObjectRegistry viObjRegistry;
 
     private Open open;
     private Rp rpTrue;
@@ -119,18 +125,23 @@ public class PCEPValidatorTest {
     private Of of;
     private EndpointsObj endpoints;
     private Svec svec;
+    private List<VendorInformationObject> viObjects;
 
     private AsNumberCase eroASSubobject;
 
     private SimplePCEPExtensionProviderContext ctx;
     private Activator act;
+    private TestVendorInformationActivator viObjAct;
 
     @Before
     public void setUp() throws Exception {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new Activator();
+        this.viObjAct = new TestVendorInformationActivator();
         this.act.start(this.ctx);
+        this.viObjAct.start(this.ctx);
         this.objectRegistry = this.ctx.getObjectHandlerRegistry();
+        this.viObjRegistry = this.ctx.getVendorInformationObjectRegistry();
         final RpBuilder rpBuilder = new RpBuilder();
         rpBuilder.setProcessingRule(true);
         rpBuilder.setIgnore(false);
@@ -236,6 +247,12 @@ public class PCEPValidatorTest {
         sBuilder.setSrlgDiverse(false);
         sBuilder.setRequestsIds(Lists.newArrayList(new RequestId(1L)));
         this.svec = sBuilder.build();
+
+        this.viObjects = Lists.newArrayList();
+        final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
+        final VendorInformationObject viObj = new VendorInformationObjectBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
+                .setEnterpriseSpecificInformation(esInfo).build();
+        this.viObjects.add(viObj);
     }
 
     @Test
@@ -291,7 +308,7 @@ public class PCEPValidatorTest {
     public void testRequestMsg() throws IOException, PCEPDeserializerException {
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPRequestMessage1.bin"));
 
-        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry);
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
@@ -335,7 +352,7 @@ public class PCEPValidatorTest {
         // only RP
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRep.1.bin"));
 
-        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry);
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
         RepliesBuilder rBuilder = new RepliesBuilder();
@@ -493,6 +510,58 @@ public class PCEPValidatorTest {
             result.readableBytes() - 4), Collections.<Message> emptyList()));
         buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testReqMsgWithVendorInfoObjects() throws IOException, PCEPDeserializerException {
+        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCReq.7.bin"));
+        final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(this.objectRegistry, this.viObjRegistry);
+
+        final PcreqMessageBuilder builder = new PcreqMessageBuilder();
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.Requests> reqs1 = Lists.newArrayList();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder rBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.RequestsBuilder();
+        rBuilder.setRp(this.rpTrue);
+        rBuilder.setVendorInformationObject(this.viObjects);
+        final SegmentComputationBuilder sBuilder = new SegmentComputationBuilder();
+        sBuilder.setP2p(new P2pBuilder().setEndpointsObj(this.endpoints).setVendorInformationObject(this.viObjects).build());
+        rBuilder.setSegmentComputation(sBuilder.build());
+        reqs1.add(rBuilder.build());
+        builder.setSvec(Lists.newArrayList(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.SvecBuilder().setSvec(
+                this.svec).setVendorInformationObject(this.viObjects).build()));
+        builder.setRequests(reqs1);
+
+        assertEquals(new PcreqBuilder().setPcreqMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+            result.readableBytes() - 4), Collections.<Message> emptyList()));
+        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
+
+        assertArrayEquals(result.array(), buf.array());
+    }
+
+    @Test
+    public void testRepMsgWithVendorInforObjects() throws IOException, PCEPDeserializerException {
+        final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(this.objectRegistry, this.viObjRegistry);
+
+        final PcrepMessageBuilder builder = new PcrepMessageBuilder();
+        RepliesBuilder rBuilder = new RepliesBuilder();
+        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRep.6.bin"));
+        final List<Replies> replies = Lists.newArrayList();
+        rBuilder = new RepliesBuilder();
+        rBuilder.setRp(this.rpTrue);
+        rBuilder.setVendorInformationObject(this.viObjects);
+        final List<Paths> paths = Lists.newArrayList();
+        final PathsBuilder paBuilder = new PathsBuilder();
+        paBuilder.setEro(this.ero);
+        paths.add(paBuilder.build());
+        rBuilder.setResult(new SuccessCaseBuilder().setSuccess(new SuccessBuilder().setPaths(paths).setVendorInformationObject(this.viObjects).build()).build()).build();
+        replies.add(rBuilder.build());
+        builder.setReplies(replies);
+
+        assertEquals(new PcrepBuilder().setPcrepMessage(builder.build()).build(), parser.parseMessage(result.slice(4,
+            result.readableBytes() - 4), Collections.<Message> emptyList()));
+        final ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
     }
 }

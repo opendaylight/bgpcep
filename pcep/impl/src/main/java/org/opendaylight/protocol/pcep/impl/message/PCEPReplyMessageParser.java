@@ -17,6 +17,7 @@ import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcrepBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -42,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.Paths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcrep.message.pcrep.message.replies.result.success._case.success.PathsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 
 /**
  * Parser for {@link Pcrep}
@@ -50,8 +52,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 4;
 
-    public PCEPReplyMessageParser(final ObjectRegistry registry) {
-        super(registry);
+    public PCEPReplyMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
+        super(registry, viRegistry);
     }
 
     @Override
@@ -73,6 +75,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     protected void serializeReply(final Replies reply, final ByteBuf buffer) {
         serializeObject(reply.getRp(), buffer);
+        serializeVendorInformationObjects(reply.getVendorInformationObject(), buffer);
         if (reply.getResult() != null) {
             if (reply.getResult() instanceof FailureCase) {
                 final FailureCase f = ((FailureCase) reply.getResult());
@@ -113,6 +116,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                         serializeObject(p.getIro(), buffer);
                     }
                 }
+                serializeVendorInformationObjects(s.getSuccess().getVendorInformationObject(), buffer);
             }
         }
     }
@@ -145,6 +149,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
         final Rp rp = (Rp) objects.get(0);
         objects.remove(0);
+        final List<VendorInformationObject> vendorInfo = addVendorInformationObjects(objects);
         Result res = null;
         if (!objects.isEmpty()) {
             if (objects.get(0) instanceof NoPath) {
@@ -164,6 +169,10 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 final PathsBuilder pBuilder = new PathsBuilder();
                 pBuilder.setEro(ero);
                 while (!objects.isEmpty()) {
+                    final List<VendorInformationObject> vendorInfoObjects = addVendorInformationObjects(objects);
+                    if (!vendorInfoObjects.isEmpty()) {
+                        builder.setVendorInformationObject(vendorInfoObjects);
+                    }
                     this.parsePath(pBuilder, objects);
                     paths.add(pBuilder.build());
                 }
@@ -171,7 +180,11 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 res = new SuccessCaseBuilder().setSuccess(builder.build()).build();
             }
         }
-        return new RepliesBuilder().setRp(rp).setResult(res).build();
+        final RepliesBuilder builder = new RepliesBuilder();
+        if (!vendorInfo.isEmpty()) {
+            builder.setVendorInformationObject(vendorInfo);
+        }
+        return builder.setRp(rp).setResult(res).build();
     }
 
     protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
@@ -218,7 +231,9 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 objects.remove(0);
             }
         }
-        builder.setMetrics(pathMetrics);
+        if (!pathMetrics.isEmpty()) {
+            builder.setMetrics(pathMetrics);
+        }
     }
 
     protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
@@ -271,7 +286,9 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
                 objects.remove(0);
             }
         }
-        builder.setMetrics(pathMetrics);
+        if (!pathMetrics.isEmpty()) {
+            builder.setMetrics(pathMetrics);
+        }
     }
 
     private enum State {
