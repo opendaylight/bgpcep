@@ -14,6 +14,7 @@ import java.util.List;
 import org.opendaylight.protocol.pcep.impl.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.lsp.setup.type._01.rev140507.Tlvs2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -31,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class SrPcRepMessageParser extends PCEPReplyMessageParser {
 
-    public SrPcRepMessageParser(ObjectRegistry registry) {
-        super(registry);
+    public SrPcRepMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
+        super(registry, viRegistry);
     }
 
     @Override

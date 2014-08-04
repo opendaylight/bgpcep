@@ -7,17 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedBytes;
-
 import io.netty.buffer.ByteBuf;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -30,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 
 public abstract class AbstractMessageParser implements MessageParser, MessageSerializer {
 
@@ -49,9 +48,16 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     private static final int I_FLAG_OFFSET = 7;
 
     private final ObjectRegistry registry;
+    private final VendorInformationObjectRegistry viRegistry;
 
     protected AbstractMessageParser(final ObjectRegistry registry) {
         this.registry = Preconditions.checkNotNull(registry);
+        this.viRegistry = null;
+    }
+
+    protected AbstractMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
+        this.registry = Preconditions.checkNotNull(registry);
+        this.viRegistry = Preconditions.checkNotNull(viRegistry);
     }
 
     protected void serializeObject(final Object object, final ByteBuf buffer) {
@@ -86,11 +92,21 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
             final ObjectHeader header = new ObjectHeaderImpl(flags.get(P_FLAG_OFFSET), flags.get(I_FLAG_OFFSET));
 
-            // parseObject is required to return null for P=0 errored objects
-            final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
-            if (o != null) {
-                objs.add(o);
+            if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
+                Preconditions.checkState(this.viRegistry != null);
+                final long enterpriseNumber = bytes.getUnsignedInt(bytes.readerIndex());
+                final Optional<? extends Object> obj = this.viRegistry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass);
+                if (obj.isPresent()) {
+                    objs.add(obj.get());
+                }
+            } else {
+                // parseObject is required to return null for P=0 errored objects
+                final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
+                if (o != null) {
+                    objs.add(o);
+                }
             }
+
             bytes.readerIndex(bytes.readerIndex() + objLength - COMMON_OBJECT_HEADER_LENGTH);
         }
 
@@ -128,5 +144,23 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
         // Run validation
         return validate(objs, errors);
+    }
+
+    protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects, final ByteBuf buffer) {
+        if (viObjects != null && !viObjects.isEmpty()) {
+            for (final VendorInformationObject viObject : viObjects) {
+                this.viRegistry.serializeVendorInformationObject(viObject, buffer);
+            }
+        }
+    }
+
+    protected final List<VendorInformationObject> addVendorInformationObjects(final List<Object> objects) {
+        final List<VendorInformationObject> vendorInfo = Lists.newArrayList();
+        while (!objects.isEmpty() && objects.get(0) instanceof VendorInformationObject) {
+            final VendorInformationObject viObject = (VendorInformationObject) objects.get(0);
+            vendorInfo.add(viObject);
+            objects.remove(0);
+        }
+        return vendorInfo;
     }
 }

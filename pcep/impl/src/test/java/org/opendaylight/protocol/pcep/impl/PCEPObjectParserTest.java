@@ -100,6 +100,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.svec.object.SvecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.tlvs.VendorInformationTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev130820.AttributeFilter;
@@ -778,6 +780,29 @@ public class PCEPObjectParserTest {
 
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
+    }
+
+    @Test
+    public void testVendorInformationObject() throws PCEPDeserializerException {
+        final byte[] viObjBytes = {
+            /* vendor-information object */
+            0x22, 0x10, 0x00, 0x0C,
+            /* enterprise number */
+            0x00, 0x00, 0x00, 0x00,
+            /* enterprise specific information */
+            0x00, 0x00, 0x00, 0x05
+        };
+        final TestVendorInformationObjectParser parser = new TestVendorInformationObjectParser();
+        final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
+        final VendorInformationObject viObj = new VendorInformationObjectBuilder().setEnterpriseNumber(new EnterpriseNumber(0L))
+                .setEnterpriseSpecificInformation(esInfo).build();
+        final ByteBuf result = Unpooled.wrappedBuffer(viObjBytes);
+
+        assertEquals(viObj, parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(8, result.readableBytes() - 8)));
+
+        final ByteBuf buf = Unpooled.buffer(viObjBytes.length);
+        parser.serializeObject(viObj, buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
     }
 }

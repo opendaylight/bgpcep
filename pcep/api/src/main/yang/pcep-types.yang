@@ -214,6 +214,15 @@ module pcep-types {
         }
     }
 
+    grouping vendor-information-objects {
+        list vendor-information-object {
+            description "VENDOR-INFORMATION-OBJECT";
+            reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-2";
+            uses object;
+            uses vendor-information;
+        }
+    }
+
     grouping open-object {
         description "OPEN Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.3";
@@ -854,11 +863,15 @@ module pcep-types {
                             uses bandwidth-object;
                         }
 
+                        uses vendor-information-objects;
+
                         uses load-balancing-object;
 
                         uses lsp-attributes;
                     }
                 }
+
+                uses vendor-information-objects;
             }
 
             list svec {
@@ -873,6 +886,8 @@ module pcep-types {
                 list metric {
                     uses metric-object;
                 }
+
+                uses vendor-information-objects;
             }
         }
     }
@@ -894,6 +909,7 @@ module pcep-types {
 
             list replies {
                 uses rp-object;
+                uses vendor-information-objects;
 
                 choice result {
                     case success-case {
@@ -901,6 +917,7 @@ module pcep-types {
                             list paths {
                                 uses path-definition;
                             }
+                            uses vendor-information-objects;
                         }
                     }
                     case failure-case {

@@ -24,6 +24,7 @@ import org.opendaylight.protocol.pcep.ietf.stateful07.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.Activator;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.Ipv4Address;
@@ -85,6 +86,7 @@ public class SrMessageParserTest {
     private Activator activator;
     private StatefulActivator statefulActivator;
     private ObjectRegistry objectRegistry;
+    private VendorInformationObjectRegistry viObjReg;
 
     @Before
     public void setup() {
@@ -96,6 +98,7 @@ public class SrMessageParserTest {
         this.srActivator = new SegmentRoutingActivator();
         this.srActivator.start(this.ctx);
         this.objectRegistry = this.ctx.getObjectHandlerRegistry();
+        this.viObjReg = this.ctx.getVendorInformationObjectRegistry();
     }
 
     @Test
@@ -116,7 +119,7 @@ public class SrMessageParserTest {
             0x00,0x01,(byte) 0xe2,0x40,
             0x4A,0x7D,0x2b,0x63};
 
-        final SrPcRepMessageParser parser = new SrPcRepMessageParser(this.objectRegistry);
+        final SrPcRepMessageParser parser = new SrPcRepMessageParser(this.objectRegistry, this.viObjReg);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
         final RepliesBuilder rBuilder = new RepliesBuilder();
