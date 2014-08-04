@@ -17,6 +17,7 @@ import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.protocol.pcep.spi.VendorInformationObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev131007.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.Message;
@@ -49,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.pcreq.message.pcreq.message.requests.segment.computation.p2p.ReportedRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev131005.vendor.information.objects.VendorInformationObject;
 
 /**
  * Parser for {@link Pcreq}
@@ -57,8 +59,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     public static final int TYPE = 3;
 
-    public PCEPRequestMessageParser(final ObjectRegistry registry) {
-        super(registry);
+    public PCEPRequestMessageParser(final ObjectRegistry registry, final VendorInformationObjectRegistry viRegistry) {
+        super(registry, viRegistry);
     }
 
     @Override
@@ -71,6 +73,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         final ByteBuf buffer = Unpooled.buffer();
         for (final Requests req : msg.getRequests()) {
             serializeObject(req.getRp(), buffer);
+            serializeVendorInformationObjects(req.getVendorInformationObject(), buffer);
             if (req.getPathKeyExpansion() != null) {
                 serializeObject(req.getPathKeyExpansion().getPathKey(), buffer);
             }
@@ -98,6 +101,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                         serializeObject(m.getMetric(), buffer);
                     }
                 }
+                serializeVendorInformationObjects(s.getVendorInformationObject(), buffer);
             }
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
@@ -107,6 +111,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (p2p.getEndpointsObj() != null) {
             serializeObject(p2p.getEndpointsObj(), buffer);
         }
+        serializeVendorInformationObjects(p2p.getVendorInformationObject(), buffer);
         if (p2p.getReportedRoute() != null) {
             final ReportedRoute rr = p2p.getReportedRoute();
             if (rr.getRro() != null) {
@@ -173,7 +178,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 errors.add(createErrorMsg(PCEPErrors.RP_MISSING));
                 return null;
             }
-
+            final List<VendorInformationObject> vendorInfo = addVendorInformationObjects(objects);
+            if (!vendorInfo.isEmpty()) {
+                rBuilder.setVendorInformationObject(vendorInfo);
+            }
             // expansion
             if (rpObj.isPathKey()) {
                 if (objects.get(0) instanceof PathKey) {
@@ -225,6 +233,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     protected SegmentComputation getSegmentComputation(final P2pBuilder builder, final List<Object> objects, final List<Message> errors,
             final Rp rp) {
         final List<Metrics> metrics = Lists.newArrayList();
+        final List<VendorInformationObject> viObjects = Lists.newArrayList();
 
         State state = State.Init;
         while (!objects.isEmpty() && state != State.End) {
@@ -244,6 +253,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     break;
                 }
             case ReportedIn:
+                state = State.VendorInfoList;
+                if (obj instanceof VendorInformationObject) {
+                    viObjects.add((VendorInformationObject) obj);
+                    state = State.ReportedIn;
+                    break;
+                }
+            case VendorInfoList:
                 state = State.LoadBIn;
                 if (obj instanceof LoadBalancing) {
                     builder.setLoadBalancing((LoadBalancing) obj);
@@ -316,6 +332,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         if (!metrics.isEmpty()) {
             builder.setMetrics(metrics);
         }
+        if (!viObjects.isEmpty()) {
+            builder.setVendorInformationObject(viObjects);
+        }
 
         if (rp.isReoptimization()
                 && builder.getBandwidth() != null
@@ -329,7 +348,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        Init, ReportedIn, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, End
+        Init, ReportedIn, VendorInfoList, LoadBIn, LspaIn, BandwidthIn, MetricIn, IroIn, RroIn, XroIn, OfIn, CtIn, End
     }
 
     private Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
@@ -345,6 +364,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
 
         final List<Metrics> metrics = Lists.newArrayList();
+        final List<VendorInformationObject> viObjects = Lists.newArrayList();
 
         Object obj = null;
         SvecState state = SvecState.Init;
@@ -378,6 +398,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                     break;
                 }
             case MetricIn:
+                state = SvecState.VendorInfo;
+                if (obj instanceof VendorInformationObject) {
+                    viObjects.add((VendorInformationObject) obj);
+                    state = SvecState.MetricIn;
+                    break;
+                }
+            case VendorInfo:
                 state = SvecState.End;
                 break;
             case End:
@@ -387,10 +414,13 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 objects.remove(0);
             }
         }
+        if (!viObjects.isEmpty()) {
+            builder.setVendorInformationObject(viObjects);
+        }
         return builder.build();
     }
 
     private enum SvecState {
-        Init, OfIn, GcIn, XroIn, MetricIn, End
+        Init, OfIn, GcIn, XroIn, MetricIn, VendorInfo, End
     }
 }
