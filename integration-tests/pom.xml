@@ -155,12 +155,10 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <version>${moxy.controller.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.core</artifactId>
-            <version>${moxy.controller.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -314,31 +312,26 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
-            <version>${exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-junit4</artifactId>
-            <version>${exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-aether</artifactId>
-            <version>${url.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>equinoxSDK381</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-            <version>3.8.1.v20120830-144521</version>
             <scope>test</scope>
         </dependency>
         <!--
