@@ -292,6 +292,16 @@
                 <artifactId>yang-common</artifactId>
                 <version>${yangtools.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>object-cache-api</artifactId>
+                <version>${yangtools.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.yangtools</groupId>
+                <artifactId>object-cache-guava</artifactId>
+                <version>${yangtools.version}</version>
+            </dependency>
 
             <!-- Controller infrastructure -->
             <dependency>
@@ -528,32 +538,32 @@
                 </executions>
             </plugin>
             <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <version>2.12</version>
-              <configuration>
-                <failOnViolation>true</failOnViolation>
-                <configLocation>checkstyle-logging.xml</configLocation>
-                <consoleOutput>true</consoleOutput>
-                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                <sourceDirectory>${project.basedir}</sourceDirectory>
-                <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
-                <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/</excludes>
-              </configuration>
-              <dependencies>
-                <dependency>
-                  <groupId>org.opendaylight.yangtools</groupId>
-                  <artifactId>checkstyle-logging</artifactId>
-                  <version>${yangtools.version}</version>
-                </dependency>
-              </dependencies>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-                </execution>
-              </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.12</version>
+                <configuration>
+                    <failOnViolation>true</failOnViolation>
+                    <configLocation>checkstyle-logging.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <sourceDirectory>${project.basedir}</sourceDirectory>
+                    <includes>**\/*.java,**\/*.xml,**\/*.ini,**\/*.sh,**\/*.bat,**\/*.yang</includes>
+                    <excludes>**\/target\/,**\/bin\/,**\/target-ide\/,**\/src/main/yang-gen-config\/,**\/src/main/yang-gen-sal\/</excludes>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.opendaylight.yangtools</groupId>
+                        <artifactId>checkstyle-logging</artifactId>
+                        <version>${yangtools.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
