@@ -368,6 +368,13 @@
             <type>test-jar</type>
         </dependency>
 
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>object-cache-guava</artifactId>
+            <version>${yangtools.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 

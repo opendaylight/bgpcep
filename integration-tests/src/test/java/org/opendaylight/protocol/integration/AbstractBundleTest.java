@@ -18,9 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opendaylight.controller.test.sal.binding.it.TestHelper;
@@ -62,6 +60,8 @@ public abstract class AbstractBundleTest {
         ret.add(mavenBundle("org.opendaylight.yangtools", "util").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common").versionAsInProject());
+        ret.add(mavenBundle("org.opendaylight.yangtools", "object-cache-api").versionAsInProject());
+        ret.add(mavenBundle("org.opendaylight.yangtools", "object-cache-guava").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-api").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-data-impl").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-model-api").versionAsInProject());
