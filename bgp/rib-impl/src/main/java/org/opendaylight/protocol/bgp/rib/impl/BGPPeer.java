@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
 
+import org.opendaylight.protocol.bgp.rib.impl.spi.AdjRIBsOutRegistration;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.ReusableBGPPeer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -43,8 +44,12 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     private final RIB rib;
     private final String name;
 
+    @GuardedBy("this")
     private BGPSession session;
+    @GuardedBy("this")
     private byte[] rawIdentifier;
+    @GuardedBy("this")
+    private AdjRIBsOutRegistration reg;
 
     public BGPPeer(final String name, final RIB rib) {
         this.rib = Preconditions.checkNotNull(rib);
@@ -79,12 +84,22 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
             this.tables.add(key);
             this.rib.initTable(this, key);
         }
+
+        // Not particularly nice, but what can
+        if (session instanceof BGPSessionImpl) {
+            reg = rib.registerRIBsOut(this, new SessionRIBsOut((BGPSessionImpl) session));
+        }
     }
 
     private synchronized void cleanup() {
         // FIXME: BUG-196: support graceful restart
         for (final TablesKey key : this.tables) {
             this.rib.clearTable(this, key);
+        }
+
+        if (reg != null) {
+            reg.close();
+            reg = null;
         }
 
         this.tables.clear();
@@ -129,6 +144,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
         cleanup();
     }
 
+    @GuardedBy("this")
     private void dropConnection() {
         if (this.session != null) {
             this.session.close();
@@ -137,7 +153,7 @@ public class BGPPeer implements ReusableBGPPeer, Peer, AutoCloseable {
     }
 
     @Override
-    public byte[] getRawIdentifier() {
+    public synchronized byte[] getRawIdentifier() {
         return rawIdentifier;
     }
 }

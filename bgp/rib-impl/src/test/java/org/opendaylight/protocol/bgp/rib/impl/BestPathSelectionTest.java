@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInTransaction;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.BGPObjectComparator;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
@@ -185,13 +185,13 @@ public class BestPathSelectionTest {
         }
 
         @Override
-        public void addRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpReachNlri nlri,
+        public void addRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpReachNlri nlri,
                 final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.update.PathAttributes attributes) {
             return;
         }
 
         @Override
-        public void removeRoutes(final AdjRIBsInTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
+        public void removeRoutes(final AdjRIBsTransaction trans, final Peer peer, final MpUnreachNlri nlri) {
             return;
         }
 

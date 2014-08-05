@@ -16,11 +16,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev130919.SubsequentAddressFamily;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-    private final Map<TablesKey, AdjRIBsInFactory> factories = new ConcurrentHashMap<>();
+    private final Map<TablesKey, AdjRIBsFactory> factories = new ConcurrentHashMap<>();
 
     @Override
     public final synchronized AbstractRegistration registerAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsInFactory factory) {
+            final Class<? extends SubsequentAddressFamily> safi, final AdjRIBsFactory factory) {
         final TablesKey key = new TablesKey(afi, safi);
 
         if (this.factories.containsKey(key)) {
@@ -41,7 +41,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     }
 
     @Override
-    public final synchronized AdjRIBsInFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
+    public final synchronized AdjRIBsFactory getAdjRIBsInFactory(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi) {
         return this.factories.get(new TablesKey(afi, safi));
     }

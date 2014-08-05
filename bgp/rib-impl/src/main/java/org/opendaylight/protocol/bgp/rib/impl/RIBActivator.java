@@ -12,8 +12,8 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsFactory;
 import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsIn;
-import org.opendaylight.protocol.bgp.rib.spi.AdjRIBsInFactory;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.rib.TablesKey;
@@ -26,16 +26,16 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
 
     @Override
     protected List<AutoCloseable> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context) {
-        AdjRIBsInFactory adj1 = new AdjRIBsInFactory() {
+        AdjRIBsFactory adj1 = new AdjRIBsFactory() {
             @Override
-            public AdjRIBsIn createAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+            public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new Ipv4AdjRIBsIn(basePath);
             }
         };
 
-        AdjRIBsInFactory adj2 = new AdjRIBsInFactory() {
+        AdjRIBsFactory adj2 = new AdjRIBsFactory() {
             @Override
-            public AdjRIBsIn createAdjRIBsIn(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
+            public AdjRIBsIn<?, ?> createAdjRIBs(final KeyedInstanceIdentifier<Tables, TablesKey> basePath) {
                 return new Ipv6AdjRIBsIn(basePath);
             }
         };

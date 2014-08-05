@@ -38,4 +38,6 @@ public interface RIB {
     ReconnectStrategyFactory getTcpStrategyFactory();
 
     ReconnectStrategyFactory getSessionStrategyFactory();
+
+    AdjRIBsOutRegistration registerRIBsOut(Peer bgpPeer, AdjRIBsOut aro);
 }
