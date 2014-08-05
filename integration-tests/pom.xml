@@ -367,6 +367,10 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+          <groupId>org.opendaylight.yangtools</groupId>
+          <artifactId>object-cache-api</artifactId>
+        </dependency>
 
 
     </dependencies>

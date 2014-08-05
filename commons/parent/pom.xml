@@ -292,7 +292,16 @@
                 <artifactId>yang-common</artifactId>
                 <version>${yangtools.version}</version>
             </dependency>
-
+            <dependency>
+              <groupId>org.opendaylight.yangtools</groupId>
+              <artifactId>object-cache-api</artifactId>
+              <version>${yangtools.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.opendaylight.yangtools</groupId>
+              <artifactId>object-cache-guava</artifactId>
+              <version>${yangtools.version}</version>
+            </dependency>
             <!-- Controller infrastructure -->
             <dependency>
                 <groupId>org.opendaylight.controller</groupId>
