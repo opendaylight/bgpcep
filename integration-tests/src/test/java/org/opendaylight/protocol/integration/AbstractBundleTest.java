@@ -59,6 +59,7 @@ public abstract class AbstractBundleTest {
         TestHelper.configMinumumBundles();
 
         ret.add(mavenBundle("org.opendaylight.yangtools", "concepts").versionAsInProject());
+        ret.add(mavenBundle("org.opendaylight.yangtools", "object-cache-api").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "util").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-binding").versionAsInProject());
         ret.add(mavenBundle("org.opendaylight.yangtools", "yang-common").versionAsInProject());
