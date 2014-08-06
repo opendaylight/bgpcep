@@ -70,6 +70,12 @@
 
         <!-- TCP-MD5 artifacts -->
         <tcpmd5.version>1.0.0-SNAPSHOT</tcpmd5.version>
+
+        <!-- Sonar config -->
+        <sonar-jacoco-listeners.version>2.4</sonar-jacoco-listeners.version>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+        <sonar.jacoco.reportPath>target/code-coverage/jacoco.exec</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>target/code-coverage/jacoco-it.exec</sonar.jacoco.itReportPath>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +90,14 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>util</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <!-- Sonar -->
+            <dependency>
+                <groupId>org.codehaus.sonar-plugins.java</groupId>
+                <artifactId>sonar-jacoco-listeners</artifactId>
+                <version>${sonar-jacoco-listeners.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- Testing Dependencies -->
@@ -474,6 +488,13 @@
                     <perCoreThreadCount>true</perCoreThreadCount-->
                     <runOrder>alphabetical</runOrder>
                     <threadCount>1</threadCount>
+                    <!-- Specific to generate mapping between tests and covered code -->
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.sonar.java.jacoco.JUnitListener</value>
+                        </property>
+                    </properties>
                 </configuration>
             </plugin>
 
@@ -533,7 +554,34 @@
                 </execution>
               </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>prepare-ut-agent</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${sonar.jacoco.reportPath}</destFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-it-agent</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${sonar.jacoco.itReportPath}</destFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -590,6 +638,19 @@
                                     </pluginExecutionFilter>
                                     <action>
                                         <ignore />
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                   <pluginExecutionFilter>
+                                       <groupId>org.jacoco</groupId>
+                                       <artifactId>jacoco-maven-plugin</artifactId>
+                                       <versionRange>[0.6,)</versionRange>
+                                       <goals>
+                                           <goal>prepare-agent</goal>
+                                       </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
