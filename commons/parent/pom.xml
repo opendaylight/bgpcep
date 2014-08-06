@@ -76,6 +76,7 @@
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <sonar.jacoco.reportPath>target/code-coverage/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.jacoco.itReportPath>target/code-coverage/jacoco-it.exec</sonar.jacoco.itReportPath>
+        <sonar.profile>Sonar way with Findbugs</sonar.profile>
     </properties>
 
     <dependencyManagement>
