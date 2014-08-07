@@ -73,10 +73,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
         int flagBits = 0;
         final RestartFlags flags = grace.getRestartFlags();
-        if (flags != null) {
-            if (flags.isRestartState()) {
-                flagBits |= RESTART_FLAG_STATE;
-            }
+        if (flags != null && flags.isRestartState()) {
+            flagBits |= RESTART_FLAG_STATE;
         }
         int timeval = 0;
         final Integer time = grace.getRestartTime();

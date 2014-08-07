@@ -11,5 +11,5 @@ import org.opendaylight.protocol.bgp.rib.spi.RouteEncoder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev130925.Route;
 
 public interface AdjRIBsOut {
-    public void put(final RouteEncoder ribOut, final Object key, final Route newValue);
+    void put(final RouteEncoder ribOut, final Object key, final Route newValue);
 }
