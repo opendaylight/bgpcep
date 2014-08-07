@@ -99,6 +99,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements PCEPSessi
     };
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
+    protected static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
+
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
 

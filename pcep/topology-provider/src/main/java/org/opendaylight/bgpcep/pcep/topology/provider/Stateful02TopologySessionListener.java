@@ -155,7 +155,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
@@ -191,7 +191,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
@@ -222,7 +222,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
         final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
@@ -258,7 +258,7 @@ public class Stateful02TopologySessionListener extends AbstractTopologySessionLi
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         final Boolean op;
         final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
         if (aa == null) {

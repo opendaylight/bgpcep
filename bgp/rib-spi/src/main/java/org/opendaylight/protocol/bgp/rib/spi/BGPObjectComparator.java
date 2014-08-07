@@ -10,11 +10,9 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
 import org.opendaylight.protocol.bgp.rib.spi.AbstractAdjRIBs.RIBEntryData;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev100924.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev130919.PathAttributes;
@@ -115,7 +113,6 @@ public final class BGPObjectComparator implements Comparator<RIBEntryData<?, ?, 
         // 9. When both paths are external, prefer the path that was received first (the oldest one).
         // if (first.equals(this.ourAS) && second.equals(this.ourAS)) {
         // FIXME: do we have a way how to determine which one was received first?
-        // }
 
         // 10. Prefer the route that comes from the BGP router with the lowest router ID.
         // The router ID is the highest IP address on the router, with preference given to loopback addresses.

@@ -40,6 +40,8 @@ public final class PCEPTopologyProviderModule extends
         org.opendaylight.controller.config.yang.pcep.topology.provider.AbstractPCEPTopologyProviderModule {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderModule.class);
 
+    private static final String IS_NOT_SET = "is not set.";
+
     public PCEPTopologyProviderModule(final org.opendaylight.controller.config.api.ModuleIdentifier identifier,
             final org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         super(identifier, dependencyResolver);
@@ -83,10 +85,10 @@ public final class PCEPTopologyProviderModule extends
 
     @Override
     public void customValidation() {
-        JmxAttributeValidationException.checkNotNull(getTopologyId(), "is not set.", topologyIdJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getListenAddress(), "is not set.", listenAddressJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getListenPort(), "is not set.", listenPortJmxAttribute);
-        JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), "is not set.", statefulPluginJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getTopologyId(), IS_NOT_SET, topologyIdJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getListenAddress(), IS_NOT_SET, listenAddressJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getListenPort(), IS_NOT_SET, listenPortJmxAttribute);
+        JmxAttributeValidationException.checkNotNull(getStatefulPlugin(), IS_NOT_SET, statefulPluginJmxAttribute);
 
         final KeyMapping keys = contructKeys();
         if (!keys.isEmpty()) {

@@ -11,6 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
@@ -61,13 +62,14 @@ public final class Main {
 
     private static final int RECONNECT_MILLIS = 5000;
 
-    private Main() throws Exception {
-        final BGPActivator bgpActivator = new BGPActivator();
-        bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
-        this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+    private Main() {
+        try (final BGPActivator bgpActivator = new BGPActivator()) {
+            bgpActivator.start(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+            this.dispatcher = new BGPDispatcherImpl(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup());
+        }
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws NumberFormatException, UnknownHostException {
         if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
             LOG.info(Main.USAGE);
             return;

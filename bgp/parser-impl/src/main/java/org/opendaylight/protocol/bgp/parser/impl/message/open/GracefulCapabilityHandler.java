@@ -55,6 +55,8 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
 
     private static final int AFI_FLAG_FORWARDING_STATE = 0x80;
 
+    private static final int MAX_RESTART_TIME = 4095;
+
     private final AddressFamilyRegistry afiReg;
     private final SubsequentAddressFamilyRegistry safiReg;
 
@@ -79,7 +81,7 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         int timeval = 0;
         final Integer time = grace.getRestartTime();
         if (time != null) {
-            Preconditions.checkArgument(time >= 0 && time <= 4095);
+            Preconditions.checkArgument(time >= 0 && time <= MAX_RESTART_TIME);
             timeval = time;
         }
         bytes.writeByte(flagBits + timeval / 256);

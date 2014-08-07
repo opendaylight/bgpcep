@@ -74,6 +74,7 @@ import org.slf4j.LoggerFactory;
 
 final class Stateful07TopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(Stateful07TopologySessionListener.class);
+
     private final AtomicLong requestId = new AtomicLong(1L);
 
     /**
@@ -211,7 +212,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -257,7 +258,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -291,7 +292,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
         final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
@@ -353,7 +354,7 @@ final class Stateful07TopologySessionListener extends AbstractTopologySessionLis
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, "Mandatory XML tags are missing.");
+        Preconditions.checkArgument(input != null && input.getName() != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         final OperationalStatus op;
         final Arguments1 aa = input.getArguments().getAugmentation(Arguments1.class);
         if (aa != null) {
