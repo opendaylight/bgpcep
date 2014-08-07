@@ -50,7 +50,6 @@ public final class PCEPDispatcherImplModule extends org.opendaylight.controller.
         Open localPrefs = getPcepSessionProposalFactoryDependency().getSessionProposal(null, 0);
         DefaultPCEPSessionNegotiatorFactory negFactory = new DefaultPCEPSessionNegotiatorFactory(localPrefs, getMaxUnknownMessages());
 
-        final PCEPDispatcherImpl instance = new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
-        return instance;
+        return new PCEPDispatcherImpl(getPcepExtensionsDependency().getMessageHandlerRegistry(), negFactory, getBossGroupDependency(), getWorkerGroupDependency(), getMd5ChannelFactoryDependency(), getMd5ServerChannelFactoryDependency());
     }
 }

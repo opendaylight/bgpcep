@@ -8,9 +8,7 @@
 package org.opendaylight.protocol.pcep.testtool;
 
 import com.google.common.collect.Lists;
-
 import java.util.List;
-
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -22,7 +20,7 @@ public class TestingSessionListener implements PCEPSessionListener {
 
     private final List<Message> messages = Lists.newArrayList();
 
-    public boolean up = false;
+    private boolean up = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
 
@@ -54,5 +52,9 @@ public class TestingSessionListener implements PCEPSessionListener {
 
     public List<Message> messages() {
         return this.messages;
+    }
+
+    public boolean isUp () {
+        return this.up;
     }
 }

@@ -19,9 +19,7 @@ package org.opendaylight.controller.config.yang.programming.impl;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.util.concurrent.Executors;
-
 import org.opendaylight.bgpcep.programming.impl.ProgrammingServiceImpl;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -62,7 +60,7 @@ public final class InstructionSchedulerImplModule extends
 
         final class ProgrammingServiceImplCloseable implements InstructionScheduler, AutoCloseable {
             @Override
-            public void close() throws Exception {
+            public void close() {
                 try {
                     reg.close();
                 } finally {

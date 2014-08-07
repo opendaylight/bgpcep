@@ -1,5 +1,5 @@
 /*
- *  * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -101,7 +101,7 @@ public class BGPUpdateMessageParser implements MessageParser, MessageSerializer 
 
     @Override
     public void serializeMessage(final Notification message, final ByteBuf bytes) {
-        Preconditions.checkArgument(message != null && message instanceof Update, "BGPUpdate message cannot be null");
+        Preconditions.checkArgument(message instanceof Update, "BGPUpdate message cannot be null");
         LOG.trace("Started serializing update message: {}", message);
         final Update update = (Update) message;
 
